@@ -1,0 +1,19 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# General typescript rules
+
+- apply to all typescript files **/*.ts
+- Use type over interface
+- Use functions over class
+- Break down code into small building blocks and compose using functional programming 
+- Use named exports over default export
+- Document all functions
+- Create vitest unit tests when working with typescript
+- Make sure unit tests pass
+- All functions should be covered by unit tests
+- Use Effect library to compose functions using pipe
+  
