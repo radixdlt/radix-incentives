@@ -7,4 +7,7 @@ alwaysApply: true
 # Generic project rules
 
 - Always use pnpm to install dependencies
+- This project is a Turbo Monorepo
+- Do not install dependencies on root level
+- When adding a dependency add it in catalog
 

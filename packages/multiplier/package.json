@@ -1,5 +1,5 @@
 {
-  "name": "radix-incentives",
+  "name": "multiplier",
   "type": "module",
   "scripts": {
     "test": "vitest",
