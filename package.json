@@ -3,9 +3,13 @@
   "private": true,
   "scripts": {
     "build": "turbo run build",
-    "test": "turbo run test"
+    "test": "turbo run test",
+    "format": "biome format --write ./packages/**/**/*.ts",
+    "lint": "biome lint --write ./packages/**/**/*.ts",
+    "check-types": "biome check --write ./packages/**/**/*.ts"
   },
   "devDependencies": {
+    "@biomejs/biome": "1.9.4",
     "prettier": "^3.5.3",
     "turbo": "^2.5.0",
     "typescript": "5.8.2"

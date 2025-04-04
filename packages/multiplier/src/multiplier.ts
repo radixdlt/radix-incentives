@@ -1,4 +1,4 @@
-import { Effect, pipe } from "effect";
+import { Effect, pipe } from 'effect';
 
 type BalanceEvent = {
   readonly timestamp: Date;
@@ -20,7 +20,7 @@ type WeightedCalculation = {
  * Sorts balance events chronologically
  */
 export const sortEventsByTimestamp = (
-  events: ReadonlyArray<BalanceEvent>
+  events: ReadonlyArray<BalanceEvent>,
 ): ReadonlyArray<BalanceEvent> =>
   [...events].sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
 
@@ -37,7 +37,7 @@ export const sortEventsByTimestamp = (
  */
 export const addPeriodEndEvent = (
   events: ReadonlyArray<BalanceEvent>,
-  periodEnd: Date
+  periodEnd: Date,
 ): ReadonlyArray<BalanceEvent> => {
   if (events.length === 0) {
     return events;
@@ -70,7 +70,7 @@ export const addPeriodEndEvent = (
  * - Second interval: Jan 2-Jan 5 with balance 10000
  */
 export const createTimeIntervals = (
-  events: ReadonlyArray<BalanceEvent>
+  events: ReadonlyArray<BalanceEvent>,
 ): ReadonlyArray<TimeInterval> =>
   events.slice(1).map((event, index) => ({
     startTime: events[index].timestamp,
@@ -88,7 +88,7 @@ export const calculateIntervalSeconds = (interval: TimeInterval): number =>
  * Calculates weighted sum and total time from intervals
  */
 export const calculateWeightedSumAndTime = (
-  intervals: ReadonlyArray<TimeInterval>
+  intervals: ReadonlyArray<TimeInterval>,
 ): WeightedCalculation =>
   intervals.reduce(
     (acc, interval) => {
@@ -99,7 +99,7 @@ export const calculateWeightedSumAndTime = (
         totalSeconds: acc.totalSeconds + durationSeconds,
       };
     },
-    { weightedSum: 0, totalSeconds: 0 }
+    { weightedSum: 0, totalSeconds: 0 },
   );
 
 /**
@@ -115,7 +115,7 @@ export const calculateFinalAverage = ({
  */
 export const calculateTimeWeightedAverage = (
   events: ReadonlyArray<BalanceEvent>,
-  periodEnd: Date
+  periodEnd: Date,
 ) => {
   if (events.length === 0) {
     return Effect.succeed(0);
@@ -127,6 +127,6 @@ export const calculateTimeWeightedAverage = (
     Effect.map((sortedEvents) => addPeriodEndEvent(sortedEvents, periodEnd)),
     Effect.map(createTimeIntervals),
     Effect.map(calculateWeightedSumAndTime),
-    Effect.map(calculateFinalAverage)
+    Effect.map(calculateFinalAverage),
   );
 };
