@@ -1,0 +1,18 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Radix Connect
+
+What is Radix Connect?
+Radix Connect is a technology that allows the Radix Wallet to be a truly mobile-first experience, while still letting users seamlessly use DeFi and Web3.0 dApp websites on desktop.
+
+For users, there is an easy one-time setup flow to link the Radix Wallet on their mobile phone to their desktop browser. A simple Radix Connector browser extension for desktop provides a QR code that the mobile Radix Wallet scans. After that, whenever a dApp website wishes to connect to the Radix Wallet, a connection is automatically established.
+
+This connection is fully end-to-end encrypted, so that it is impossible for anyone to read the messages. It’s also peer-to-peer, meaning that there is no need for a centralized server to relay messages back and forth. Even if the desktop computer and phone are on different networks, they are able to find each other and establish the encrypted P2P connection. Radix Connect uses a reliable, industry-standard connection protocol called WebRTC, combined with a communication protocol specifically for passing transaction and wallet data efficiently.
+
+The Radix Wallet is also able to connect to websites on the mobile phone. Here, instead of using Radix Connect, it uses a technique called “deep linking” to directly pass messages between the Radix Wallet app and the mobile browser app, and the dApp running in it.
+
+To learn how to use Radix Connect, visit wallet.radixdlt.com; or visit the Radix User Guide.

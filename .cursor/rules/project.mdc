@@ -1,0 +1,10 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Generic project rules
+
+- Always use pnpm to install dependencies
+
