@@ -7,11 +7,12 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": []
+    "ignore": ["node_modules", "dist", "build", "coverage", "*.spec.ts"]
   },
   "formatter": {
     "enabled": true,
-    "indentStyle": "tab"
+    "indentStyle": "space",
+    "indentWidth": 2
   },
   "organizeImports": {
     "enabled": true
