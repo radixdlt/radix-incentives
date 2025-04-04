@@ -1,0 +1,15 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Dashboard
+
+- ./apps/dashboard/**/*.*
+- a nextjs application
+- use drizzle orm for database
+- use postgres as DB
+- use tRPC for API handling
+- use tailwind css
+- use shadcn as component library
