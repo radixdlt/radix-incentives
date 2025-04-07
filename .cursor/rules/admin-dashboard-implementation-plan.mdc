@@ -1,0 +1,173 @@
+---
+description: 
+globs: 
+alwaysApply: false
+---
+ # Administrator Dashboard Implementation Plan
+
+## Overview
+
+This implementation plan outlines the development roadmap for the Administrator Dashboard component of the Radix Incentives Campaign Platform. The Admin Dashboard will enable campaign managers to configure campaign parameters, monitor performance, manage users, and generate reports.
+
+## Implementation Phases
+
+### Phase 1: Core Structure & Authentication (2 weeks)
+
+#### Database Schema Extension
+
+- Implement the following schema in Drizzle ORM:
+  - `campaignConfig` - Campaign rules, parameters, and versioning
+  - `adminUsers` - Admin user accounts and permissions
+  - `adminLogs` - Audit trail for admin actions
+  - `reportTemplates` - Templates for generating reports
+
+#### Authentication System
+
+- Implement admin-specific authentication
+- Create role-based access control (RBAC)
+- Set up admin session management
+- Develop audit logging for administrative actions
+
+#### Basic Page Structure
+
+- Set up Next.js app router structure:
+  - `/admin` - Main admin dashboard
+  - `/admin/campaign` - Campaign configuration
+  - `/admin/analytics` - Analytics dashboard
+  - `/admin/users` - User management
+  - `/admin/reports` - Reporting
+
+### Phase 2: Campaign Configuration Module (2 weeks)
+
+#### Rule Engine
+
+- Develop flexible activity point allocation system
+- Create multiplier threshold configuration interface
+- Implement versioning for configuration changes
+- Build validation system for rule changes
+
+#### Configuration UI
+
+- Create point allocation matrix interface
+- Develop multiplier curve visualization tool
+- Build configuration version history viewer
+- Implement change preview and impact assessment tools
+
+#### Admin API Extension
+
+- Extend tRPC API routes for:
+  - Campaign rule management
+  - Configuration version control
+  - Rule deployment and activation
+  - Rule validation
+
+### Phase 3: Analytics Dashboard (2 weeks)
+
+#### Data Aggregation
+
+- Implement data collection pipeline
+- Create aggregation jobs for key metrics
+- Design data warehouse for efficient querying
+- Build caching layer for frequently accessed metrics
+
+#### Analytics Components
+
+- Develop key metrics dashboard
+- Create activity distribution visualizations
+- Build user engagement trend charts
+- Implement custom date range selector
+
+#### Performance Optimization
+
+- Optimize queries for large datasets
+- Implement data pre-aggregation
+- Create materialized views for common queries
+- Set up background processing for intensive calculations
+
+### Phase 4: User Management System (2 weeks)
+
+#### User Search & Filtering
+
+- Implement advanced user search functionality
+- Create activity filtering by type, date, and value
+- Develop user profile detail view
+- Build account linking visualization
+
+#### Fraud Detection
+
+- Implement suspicious pattern detection algorithms
+- Create alert system for potential exploitation
+- Develop threshold-based flagging system
+- Build manual review queues
+
+#### Account Management
+
+- Create account exclusion functionality
+- Implement manual points adjustment tools
+- Develop account history viewer
+- Build multi-account relationship visualization
+
+### Phase 5: Reporting System & Final Polish (2 weeks)
+
+#### Report Generation
+
+- Create report template system
+- Implement scheduled report generation
+- Develop export functionality (CSV, PDF, Excel)
+- Build custom report builder
+
+#### Final Polish
+
+- Performance optimization for all admin interfaces
+- Implement comprehensive error handling
+- Add detailed activity logging
+- Create admin documentation
+
+#### Deployment Preparation
+
+- Set up staging environment
+- Implement feature flags for phased rollout
+- Create migration plan for production deployment
+- Develop rollback procedures
+
+## Technical Considerations
+
+### Performance
+
+- Use server-side rendering for data-heavy admin pages
+- Implement efficient querying patterns for large datasets
+- Use React Query for data fetching and caching
+- Set up background workers for intensive operations
+
+### Security
+
+- Implement strict RBAC for all admin functions
+- Audit log all administrative actions
+- Validate all configuration changes
+- Set up IP restrictions for admin access
+
+### Scalability
+
+- Design for horizontal scaling
+- Implement efficient database indexing
+- Use caching for frequently accessed data
+- Separate read and write operations where possible
+
+## Dependencies
+
+- Next.js for frontend framework
+- tRPC for type-safe API
+- Drizzle ORM for database management
+- Bull MQ for background jobs
+- Recharts for data visualization
+- React Table for data grid components
+- Tailwind CSS, Shadcn, and Radix UI for components
+
+## Success Criteria
+
+- Admins can configure campaign rules with version control
+- Analytics dashboard provides comprehensive campaign insights
+- User management tools enable effective oversight
+- Reports can be generated, scheduled, and exported
+- All admin actions are securely logged and auditable
+- System performs efficiently with large datasets
