@@ -53,92 +53,146 @@ export default function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
-        <div className="md:col-span-4 lg:col-span-4">
-          <div className="h-[350px] rounded-xl border bg-card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-medium">User Engagement</h2>
-                <p className="text-sm text-muted-foreground">
-                  Network participation over time
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                <div className="flex items-center gap-1">
-                  <div className="h-3 w-3 rounded-full bg-primary" />
-                  <span className="text-sm text-muted-foreground">
-                    Current season
-                  </span>
-                </div>
-                <div className="flex items-center gap-1">
-                  <div className="h-3 w-3 rounded-full bg-muted" />
-                  <span className="text-sm text-muted-foreground">
-                    Previous season
-                  </span>
-                </div>
-              </div>
+      <div className="rounded-xl border bg-card p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <h2 className="text-lg font-medium">Activity Distribution</h2>
+            <p className="text-sm text-muted-foreground">
+              Breakdown of on-chain activities by type
+            </p>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-primary" />
+              <span className="text-sm text-muted-foreground">
+                Current week
+              </span>
             </div>
-            <div className="mt-4 flex h-[260px] items-end justify-between gap-2 rounded border-b pb-6">
-              {/* Placeholder for chart */}
-              {Array.from({ length: 12 }).map((_, index) => {
-                const height = 100 + Math.random() * 150;
-                const barId = `chart-bar-${index}-${Math.floor(height)}`;
-                return (
-                  <div key={barId} className="relative w-full">
-                    <div
-                      className="w-full rounded-t bg-primary"
-                      style={{
-                        height: `${height}px`,
-                      }}
-                    />
-                  </div>
-                );
-              })}
+            <div className="flex items-center gap-1">
+              <div className="h-3 w-3 rounded-full bg-muted" />
+              <span className="text-sm text-muted-foreground">
+                Previous week
+              </span>
             </div>
           </div>
         </div>
-        <div className="md:col-span-3 lg:col-span-3">
-          <div className="h-[350px] rounded-xl border bg-card p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <h2 className="text-lg font-medium">Top Performers</h2>
-                <p className="text-sm text-muted-foreground">
-                  Accounts with highest season points
-                </p>
-              </div>
-            </div>
-            <div className="mt-4 space-y-2 overflow-auto h-[calc(100%-4rem)]">
-              {[
-                { name: "Olivia Martin", points: 22450, id: "user-1" },
-                { name: "Jackson Lee", points: 19200, id: "user-2" },
-                { name: "Isabella Nguyen", points: 16750, id: "user-3" },
-                { name: "William Kim", points: 15300, id: "user-4" },
-                { name: "Sofia Davis", points: 13100, id: "user-5" },
-                { name: "Ethan Johnson", points: 11800, id: "user-6" },
-                { name: "Ava Robinson", points: 10500, id: "user-7" },
-                { name: "Noah Garcia", points: 9200, id: "user-8" },
-              ].map((user, i) => (
-                <div
-                  key={user.id}
-                  className="flex items-center justify-between rounded-lg border p-3"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-9 w-9 items-center justify-center rounded-full bg-muted">
-                      <CircleUser className="h-5 w-5 text-foreground" />
+
+        <div className="grid grid-cols-2 gap-6">
+          <div className="space-y-6">
+            {[
+              {
+                activity: "DEX Trading",
+                count: 5843,
+                change: "+12%",
+                color: "bg-primary",
+                id: "dex-trading",
+              },
+              {
+                activity: "Liquidity Provider",
+                count: 4237,
+                change: "+8%",
+                color: "bg-blue-500",
+                id: "liquidity-provider",
+              },
+              {
+                activity: "NFT Collection",
+                count: 1259,
+                change: "+24%",
+                color: "bg-purple-500",
+                id: "nft-collection",
+              },
+              {
+                activity: "dApp Usage",
+                count: 3125,
+                change: "+18%",
+                color: "bg-orange-500",
+                id: "dapp-usage",
+              },
+              {
+                activity: "Bridging",
+                count: 2478,
+                change: "+9%",
+                color: "bg-teal-500",
+                id: "bridging",
+              },
+            ].map((item) => (
+              <div key={item.id} className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2">
+                      <div className={`h-3 w-3 rounded-full ${item.color}`} />
+                      <span className="font-medium">{item.activity}</span>
                     </div>
-                    <div>
-                      <p className="font-medium">{user.name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        #{i + 1} Ranked
-                      </p>
+                    <div className="flex items-center gap-2">
+                      <span className="text-2xl font-bold">
+                        {item.count.toLocaleString()}
+                      </span>
+                      <span className="text-xs text-emerald-500">
+                        {item.change}
+                      </span>
                     </div>
-                  </div>
-                  <div className="font-medium">
-                    {user.points.toLocaleString()} pts
                   </div>
                 </div>
-              ))}
-            </div>
+                <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                  <div
+                    className={`h-full rounded-full ${item.color}`}
+                    style={{
+                      width: `${(item.count / 10000) * 100}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <div className="h-[350px] flex items-end justify-between gap-2">
+            {[
+              {
+                activity: "DEX Trading",
+                count: 5843,
+                color: "bg-primary",
+                id: "dex-bar",
+              },
+              {
+                activity: "Liquidity Provider",
+                count: 4237,
+                color: "bg-blue-500",
+                id: "lp-bar",
+              },
+              {
+                activity: "NFT Collection",
+                count: 1259,
+                color: "bg-purple-500",
+                id: "nft-bar",
+              },
+              {
+                activity: "dApp Usage",
+                count: 3125,
+                color: "bg-orange-500",
+                id: "dapp-bar",
+              },
+              {
+                activity: "Bridging",
+                count: 2478,
+                color: "bg-teal-500",
+                id: "bridging-bar",
+              },
+            ].map((item) => (
+              <div
+                key={item.id}
+                className="relative flex flex-col items-center w-full"
+              >
+                <div
+                  className={`w-full rounded-t ${item.color}`}
+                  style={{
+                    height: `${(item.count / 10000) * 300}px`,
+                  }}
+                />
+                <div className="mt-2 text-xs text-muted-foreground text-center w-full">
+                  {item.activity.split(" ")[0]}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </div>
