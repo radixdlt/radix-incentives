@@ -1,0 +1,27 @@
+{
+  "name": "db",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "module": "./src/index.ts",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "drizzle-kit studio",
+    "db:migrate": "drizzle-kit migrate",
+    "db:push": "drizzle-kit push",
+    "db:generate": "drizzle-kit generate",
+    "db:start": "docker compose up -d",
+    "db:studio": "drizzle-kit studio"
+  },
+  "dependencies": {
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.10",
+    "drizzle-kit": "^0.22.0",
+    "postgres": "^3.4.4"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}

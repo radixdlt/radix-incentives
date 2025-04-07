@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # User Dashboard Implementation Plan
 
 ## Overview
@@ -162,3 +167,4 @@ This document outlines the implementation plan for the user-facing dashboard of 
 - Activity history is complete and filterable
 - Leaderboards update in near real-time
 - UI is responsive and accessible on all devices
+

@@ -32,7 +32,9 @@
     "server-only": "^0.0.1",
     "superjson": "^2.2.1",
     "tailwind-merge": "^3.2.0",
-    "zod": "^3.24.2"
+    "zod": "^3.24.2",
+    "db": "workspace:*",
+    "api": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -1,0 +1,38 @@
+{
+  "name": "api",
+  "type": "module",
+  "main": "./src/index.ts",
+  "types": "./src/index.ts",
+  "module": "./src/index.ts",
+  "private": true,
+  "scripts": {
+    "test": "vitest",
+    "build": "tsup"
+  },
+  "dependencies": {
+    "@aws-sdk/client-sqs": "catalog:",
+    "@oslojs/crypto": "^1.0.1",
+    "@oslojs/encoding": "^1.1.0",
+    "@radixdlt/babylon-core-api-sdk": "catalog:",
+    "@radixdlt/babylon-gateway-api-sdk": "catalog:",
+    "@radixdlt/rola": "catalog:",
+    "@trpc/server": "catalog:",
+    "db": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "ioredis": "catalog:",
+    "jose": "catalog:",
+    "pino": "catalog:",
+    "radix-connect": "catalog:",
+    "superjson": "catalog:",
+    "zod": "catalog:"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "catalog:",
+    "vitest": "catalog:",
+    "tsup": "catalog:"
+  },
+  "publishConfig": {
+    "access": "restricted"
+  }
+}
