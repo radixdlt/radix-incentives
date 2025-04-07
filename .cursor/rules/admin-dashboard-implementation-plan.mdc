@@ -9,6 +9,13 @@ alwaysApply: false
 
 This implementation plan outlines the development roadmap for the Administrator Dashboard component of the Radix Incentives Campaign Platform. The Admin Dashboard will enable campaign managers to configure campaign parameters, monitor performance, manage users, and generate reports.
 
+## UI
+- Always use shadcn for UI components
+- Use 21 dev mcp for creating UI elements
+
+## Project directory
+- ./apps/admin/**
+
 ## Implementation Phases
 
 ### Phase 1: Core Structure & Authentication (2 weeks)
