@@ -1,0 +1,164 @@
+# User Dashboard Implementation Plan
+
+## Overview
+
+This document outlines the implementation plan for the user-facing dashboard of the Radix Incentives Campaign Platform based on the Product Requirements Document (PRD). The user dashboard will enable Radix users to track their points, monitor their multiplier status, view their activities, and check their position on leaderboards.
+
+## Implementation Phases
+
+### Phase 1: Core Structure & Authentication (2 weeks)
+
+#### Database Schema Extension
+
+- Implement the following schema in Drizzle ORM:
+  - `users` - User profiles and preferences
+  - `userAccounts` - Connected Radix accounts
+  - `activities` - On-chain activities that earn points
+  - `weeklyPoints` - Weekly point calculations
+  - `seasonPoints` - Season totals and rankings
+
+#### Authentication System
+
+- Integrate with Radix-dApp-toolkit for wallet connection
+- Implement ROLA (Radix Off-Ledger Authentication)
+- Create account verification flow
+- Build account linking system for multiple wallets
+- Develop session management
+
+#### Basic Page Structure
+
+- Set up Next.js app router structure:
+  - `/dashboard` - Main home dashboard
+  - `/dashboard/activity` - Activity history
+  - `/dashboard/multiplier` - Multiplier status
+  - `/dashboard/leaderboard` - Leaderboards
+  - `/dashboard/accounts` - Account management
+
+### Phase 2: Data Integration & API (2 weeks)
+
+#### Blockchain Integration
+
+- Set up Radix Gateway SDK connection
+- Implement on-chain activity tracking
+- Create balance monitoring system
+- Develop transaction parsing logic
+
+#### API Development
+
+- Extend tRPC API routes for:
+  - User profile and account management
+  - Points calculation and retrieval
+  - Activity history and filtering
+  - Leaderboard rankings
+  - Multiplier calculations
+
+#### Background Jobs
+
+- Configure Bull MQ for:
+  - Weekly points calculation
+  - Activity processing
+  - Balance snapshot collection
+  - Leaderboard updates
+
+### Phase 3: Core UI Components (2 weeks)
+
+#### Global Components
+
+- Implement responsive dashboard layout
+- Create navigation system
+- Build user account selector
+- Design dark mode theme
+
+#### Dashboard Home Components
+
+- Points summary card
+- Activity highlights panel
+- Leaderboard position indicator
+- Multiplier status preview
+- Quick navigation widgets
+
+#### Points & Multiplier Components
+
+- Weekly points breakdown visualization
+- Season points accumulation chart
+- Activity-based point allocation view
+- S-curve multiplier visualization
+- "What-if" multiplier calculator
+
+### Phase 4: Activity & Leaderboard Features (2 weeks)
+
+#### Activity History Implementation
+
+- Chronological activity timeline
+- Activity type filtering system
+- Pagination controls
+- Transaction details expansion
+- CSV export functionality
+
+#### Leaderboard System
+
+- Global rankings table
+- User position highlighting
+- Weekly/seasonal toggle views
+- Percentile visualization
+- Category-specific leaderboards
+
+### Phase 5: Account Management & Polish (2 weeks)
+
+#### Account Management Features
+
+- Connected accounts list view
+- Account verification status indicators
+- Add/remove account functionality
+- Account linking process
+- Account-specific metrics
+
+#### Final Polish
+
+- Performance optimization
+- Accessibility improvements
+- Mobile responsiveness refinement
+- Loading states and error handling
+- User onboarding flow
+
+## Technical Considerations
+
+### Performance
+
+- Implement efficient data fetching with React Query
+- Use edge caching for leaderboard data
+- Optimize database queries for large datasets
+- Implement virtual scrolling for activity history
+
+### Security
+
+- Ensure secure wallet connections
+- Validate all ROLA authentications
+- Protect API routes with proper authentication
+- Implement rate limiting for API calls
+
+### Testing
+
+- Create unit tests for utility functions
+- Implement integration tests for API routes
+- Develop end-to-end tests for critical user flows
+- Test across multiple device sizes
+
+## Dependencies
+
+- Next.js for frontend framework
+- tRPC for type-safe API
+- Drizzle ORM for database management
+- Radix-dApp-toolkit for wallet connections
+- Radix Gateway SDK for blockchain data
+- Bull MQ for background jobs
+- Tailwind CSS, Shadcn, and Radix UI for components
+
+## Success Criteria
+
+- Users can connect and verify multiple Radix accounts
+- Points calculations accurately reflect on-chain activities
+- Multiplier visualizations clearly show user status
+- Activity history is complete and filterable
+- Leaderboards update in near real-time
+- UI is responsive and accessible on all devices
