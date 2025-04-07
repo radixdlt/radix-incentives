@@ -7,7 +7,12 @@
     "test": "turbo run test",
     "format": "biome format --write ./packages/**/**/*.ts",
     "lint": "biome lint --write ./packages/**/**/*.ts",
-    "check-types": "biome check --write ./packages/**/**/*.ts"
+    "check-types": "biome check --write ./packages/**/**/*.ts",
+    "db:generate": "turbo run db:generate",
+    "db:migrate": "turbo run db:migrate",
+    "db:studio": "turbo run db:studio",
+    "db:push": "turbo run db:push",
+    "db:pull": "turbo run db:pull"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

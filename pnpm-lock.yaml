@@ -18,12 +18,27 @@ catalogs:
     '@radixdlt/rola':
       specifier: ^2.1.0
       version: 2.1.0
+    '@t3-oss/env-nextjs':
+      specifier: ^0.12.0
+      version: 0.12.0
+    '@tanstack/react-query':
+      specifier: ^5.69.0
+      version: 5.71.10
+    '@trpc/client':
+      specifier: ^11.0.0
+      version: 11.0.2
+    '@trpc/react-query':
+      specifier: ^11.0.0
+      version: 11.0.2
     '@trpc/server':
-      specifier: ^11.0.0-rc.446
+      specifier: ^11.0.0
       version: 11.0.2
     '@types/aws-lambda':
       specifier: 8.10.147
       version: 8.10.147
+    clsx:
+      specifier: ^2.1.1
+      version: 2.1.1
     drizzle-orm:
       specifier: ^0.33.0
       version: 0.33.0
@@ -36,15 +51,33 @@ catalogs:
     jose:
       specifier: ^6.0.10
       version: 6.0.10
+    next:
+      specifier: ^15.2.3
+      version: 15.2.4
     pino:
       specifier: ^9.6.0
       version: 9.6.0
+    postgres:
+      specifier: ^3.4.4
+      version: 3.4.5
     radix-connect:
       specifier: ^0.2.0
       version: 0.2.0
+    react:
+      specifier: ^19.0.0
+      version: 19.1.0
+    react-dom:
+      specifier: ^19.0.0
+      version: 19.1.0
+    server-only:
+      specifier: ^0.0.1
+      version: 0.0.1
     superjson:
       specifier: ^2.2.1
       version: 2.2.2
+    tailwind-merge:
+      specifier: ^3.2.0
+      version: 3.2.0
     tsup:
       specifier: ^8.4.0
       version: 8.4.0
@@ -75,19 +108,19 @@ importers:
   apps/admin:
     dependencies:
       '@t3-oss/env-nextjs':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0(typescript@5.8.2)(zod@3.24.2)
       '@tanstack/react-query':
-        specifier: ^5.69.0
+        specifier: 'catalog:'
         version: 5.71.10(react@19.1.0)
       '@trpc/client':
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.2(@trpc/server@11.0.2(typescript@5.8.2))(typescript@5.8.2)
       '@trpc/react-query':
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.2(@tanstack/react-query@5.71.10(react@19.1.0))(@trpc/client@11.0.2(@trpc/server@11.0.2(typescript@5.8.2))(typescript@5.8.2))(@trpc/server@11.0.2(typescript@5.8.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)
       '@trpc/server':
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.2(typescript@5.8.2)
       api:
         specifier: workspace:*
@@ -96,28 +129,28 @@ importers:
         specifier: workspace:*
         version: link:../../packages/db
       drizzle-orm:
-        specifier: ^0.41.0
-        version: 0.41.0(gel@2.0.1)(postgres@3.4.5)
+        specifier: 'catalog:'
+        version: 0.33.0(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0)
       next:
-        specifier: ^15.2.3
+        specifier: 'catalog:'
         version: 15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       postgres:
-        specifier: ^3.4.4
+        specifier: 'catalog:'
         version: 3.4.5
       react:
-        specifier: ^19.0.0
+        specifier: 'catalog:'
         version: 19.1.0
       react-dom:
-        specifier: ^19.0.0
+        specifier: 'catalog:'
         version: 19.1.0(react@19.1.0)
       server-only:
-        specifier: ^0.0.1
+        specifier: 'catalog:'
         version: 0.0.1
       superjson:
-        specifier: ^2.2.1
+        specifier: 'catalog:'
         version: 2.2.2
       zod:
-        specifier: ^3.24.2
+        specifier: 'catalog:'
         version: 3.24.2
     devDependencies:
       '@biomejs/biome':
@@ -151,55 +184,55 @@ importers:
   apps/dashboard:
     dependencies:
       '@t3-oss/env-nextjs':
-        specifier: ^0.12.0
+        specifier: 'catalog:'
         version: 0.12.0(typescript@5.8.2)(zod@3.24.2)
       '@tanstack/react-query':
-        specifier: ^5.69.0
+        specifier: 'catalog:'
         version: 5.71.10(react@19.1.0)
       '@trpc/client':
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.2(@trpc/server@11.0.2(typescript@5.8.2))(typescript@5.8.2)
       '@trpc/react-query':
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.2(@tanstack/react-query@5.71.10(react@19.1.0))(@trpc/client@11.0.2(@trpc/server@11.0.2(typescript@5.8.2))(typescript@5.8.2))(@trpc/server@11.0.2(typescript@5.8.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)
       '@trpc/server':
-        specifier: ^11.0.0
+        specifier: 'catalog:'
         version: 11.0.2(typescript@5.8.2)
       api:
         specifier: workspace:*
         version: link:../../packages/api
       clsx:
-        specifier: ^2.1.1
+        specifier: 'catalog:'
         version: 2.1.1
       db:
         specifier: workspace:*
         version: link:../../packages/db
       drizzle-orm:
-        specifier: ^0.41.0
-        version: 0.41.0(gel@2.0.1)(postgres@3.4.5)
+        specifier: 'catalog:'
+        version: 0.33.0(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0)
       next:
-        specifier: ^15.2.3
+        specifier: 'catalog:'
         version: 15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       postgres:
-        specifier: ^3.4.4
+        specifier: 'catalog:'
         version: 3.4.5
       react:
-        specifier: ^19.0.0
+        specifier: 'catalog:'
         version: 19.1.0
       react-dom:
-        specifier: ^19.0.0
+        specifier: 'catalog:'
         version: 19.1.0(react@19.1.0)
       server-only:
-        specifier: ^0.0.1
+        specifier: 'catalog:'
         version: 0.0.1
       superjson:
-        specifier: ^2.2.1
+        specifier: 'catalog:'
         version: 2.2.2
       tailwind-merge:
-        specifier: ^3.2.0
+        specifier: 'catalog:'
         version: 3.2.0
       zod:
-        specifier: ^3.24.2
+        specifier: 'catalog:'
         version: 3.24.2
     devDependencies:
       '@biomejs/biome':
@@ -1857,95 +1890,6 @@ packages:
       prisma:
         optional: true
       react:
-        optional: true
-      sql.js:
-        optional: true
-      sqlite3:
-        optional: true
-
-  drizzle-orm@0.41.0:
-    resolution: {integrity: sha512-7A4ZxhHk9gdlXmTdPj/lREtP+3u8KvZ4yEN6MYVxBzZGex5Wtdc+CWSbu7btgF6TB0N+MNPrvW7RKBbxJchs/Q==}
-    peerDependencies:
-      '@aws-sdk/client-rds-data': '>=3'
-      '@cloudflare/workers-types': '>=4'
-      '@electric-sql/pglite': '>=0.2.0'
-      '@libsql/client': '>=0.10.0'
-      '@libsql/client-wasm': '>=0.10.0'
-      '@neondatabase/serverless': '>=0.10.0'
-      '@op-engineering/op-sqlite': '>=2'
-      '@opentelemetry/api': ^1.4.1
-      '@planetscale/database': '>=1'
-      '@prisma/client': '*'
-      '@tidbcloud/serverless': '*'
-      '@types/better-sqlite3': '*'
-      '@types/pg': '*'
-      '@types/sql.js': '*'
-      '@vercel/postgres': '>=0.8.0'
-      '@xata.io/client': '*'
-      better-sqlite3: '>=7'
-      bun-types: '*'
-      expo-sqlite: '>=14.0.0'
-      gel: '>=2'
-      knex: '*'
-      kysely: '*'
-      mysql2: '>=2'
-      pg: '>=8'
-      postgres: '>=3'
-      prisma: '*'
-      sql.js: '>=1'
-      sqlite3: '>=5'
-    peerDependenciesMeta:
-      '@aws-sdk/client-rds-data':
-        optional: true
-      '@cloudflare/workers-types':
-        optional: true
-      '@electric-sql/pglite':
-        optional: true
-      '@libsql/client':
-        optional: true
-      '@libsql/client-wasm':
-        optional: true
-      '@neondatabase/serverless':
-        optional: true
-      '@op-engineering/op-sqlite':
-        optional: true
-      '@opentelemetry/api':
-        optional: true
-      '@planetscale/database':
-        optional: true
-      '@prisma/client':
-        optional: true
-      '@tidbcloud/serverless':
-        optional: true
-      '@types/better-sqlite3':
-        optional: true
-      '@types/pg':
-        optional: true
-      '@types/sql.js':
-        optional: true
-      '@vercel/postgres':
-        optional: true
-      '@xata.io/client':
-        optional: true
-      better-sqlite3:
-        optional: true
-      bun-types:
-        optional: true
-      expo-sqlite:
-        optional: true
-      gel:
-        optional: true
-      knex:
-        optional: true
-      kysely:
-        optional: true
-      mysql2:
-        optional: true
-      pg:
-        optional: true
-      postgres:
-        optional: true
-      prisma:
         optional: true
       sql.js:
         optional: true
@@ -4233,11 +4177,6 @@ snapshots:
       '@types/react': 19.1.0
       postgres: 3.4.5
       react: 19.1.0
-
-  drizzle-orm@0.41.0(gel@2.0.1)(postgres@3.4.5):
-    optionalDependencies:
-      gel: 2.0.1
-      postgres: 3.4.5
 
   eastasianwidth@0.2.0: {}
 

@@ -1,0 +1,37 @@
+version: "3"
+
+volumes:
+  database:
+    driver: local
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/apps/postgres-17:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=password
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=radix-incentives
+
+  redis:
+    image: redis:7.0-alpine
+    restart: always
+    ports:
+      - "6379:6379"
+    expose:
+      - "6379"
+    command: redis-server --save 20 1 --loglevel warning --requirepass password --maxmemory-policy noeviction
+
+  redis-commander:
+    hostname: redis-commander
+    image: rediscommander/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=password
+    ports:
+      - "8081:8081"
