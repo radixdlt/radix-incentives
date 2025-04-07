@@ -72,6 +72,82 @@ importers:
         specifier: 5.8.2
         version: 5.8.2
 
+  apps/admin:
+    dependencies:
+      '@t3-oss/env-nextjs':
+        specifier: ^0.12.0
+        version: 0.12.0(typescript@5.8.2)(zod@3.24.2)
+      '@tanstack/react-query':
+        specifier: ^5.69.0
+        version: 5.71.10(react@19.1.0)
+      '@trpc/client':
+        specifier: ^11.0.0
+        version: 11.0.2(@trpc/server@11.0.2(typescript@5.8.2))(typescript@5.8.2)
+      '@trpc/react-query':
+        specifier: ^11.0.0
+        version: 11.0.2(@tanstack/react-query@5.71.10(react@19.1.0))(@trpc/client@11.0.2(@trpc/server@11.0.2(typescript@5.8.2))(typescript@5.8.2))(@trpc/server@11.0.2(typescript@5.8.2))(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(typescript@5.8.2)
+      '@trpc/server':
+        specifier: ^11.0.0
+        version: 11.0.2(typescript@5.8.2)
+      api:
+        specifier: workspace:*
+        version: link:../../packages/api
+      db:
+        specifier: workspace:*
+        version: link:../../packages/db
+      drizzle-orm:
+        specifier: ^0.41.0
+        version: 0.41.0(gel@2.0.1)(postgres@3.4.5)
+      next:
+        specifier: ^15.2.3
+        version: 15.2.4(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      postgres:
+        specifier: ^3.4.4
+        version: 3.4.5
+      react:
+        specifier: ^19.0.0
+        version: 19.1.0
+      react-dom:
+        specifier: ^19.0.0
+        version: 19.1.0(react@19.1.0)
+      server-only:
+        specifier: ^0.0.1
+        version: 0.0.1
+      superjson:
+        specifier: ^2.2.1
+        version: 2.2.2
+      zod:
+        specifier: ^3.24.2
+        version: 3.24.2
+    devDependencies:
+      '@biomejs/biome':
+        specifier: 1.9.4
+        version: 1.9.4
+      '@tailwindcss/postcss':
+        specifier: ^4.0.15
+        version: 4.1.2
+      '@types/node':
+        specifier: ^20.14.10
+        version: 20.17.30
+      '@types/react':
+        specifier: ^19.0.0
+        version: 19.1.0
+      '@types/react-dom':
+        specifier: ^19.0.0
+        version: 19.1.1(@types/react@19.1.0)
+      drizzle-kit:
+        specifier: ^0.30.5
+        version: 0.30.6
+      postcss:
+        specifier: ^8.5.3
+        version: 8.5.3
+      tailwindcss:
+        specifier: ^4.0.15
+        version: 4.1.2
+      typescript:
+        specifier: ^5.8.2
+        version: 5.8.2
+
   apps/dashboard:
     dependencies:
       '@t3-oss/env-nextjs':
