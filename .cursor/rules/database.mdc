@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Database
+
+- All changes related to database should be made in ./packages/db

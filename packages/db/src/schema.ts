@@ -72,3 +72,6 @@ export const verificationTokens = createTable(
 
 export type User = InferSelectModel<typeof users>;
 export type Session = InferSelectModel<typeof sessions>;
+
+// Export all admin-related schema components
+export * from "./admin";
