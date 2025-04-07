@@ -1,0 +1,679 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+# Radix Incentives Campaign Platform
+## Product Requirements Document (PRD)
+**Date: April 5, 2025**
+
+## 1. Introduction
+
+### 1.1 Purpose
+This document outlines the requirements for the Radix Incentives Campaign Platform, a comprehensive web application designed to support the Radix 2025 Incentives Campaign. The platform consists of two primary components:
+1. A user-facing dashboard for Radix users to track their points and rewards
+2. An administrative tool for campaign managers to configure parameters and monitor campaign performance
+
+### 1.2 Background
+The Radix Incentives Campaign aims to enhance significant and sustained on-chain economic activities on the Radix network. The campaign uses a points-based system to reward users for various on-chain activities, with the goal of increasing liquidity, trading volumes, and ecosystem utilization.
+
+### 1.3 Scope
+This platform will provide the technical infrastructure to:
+- Track on-chain user activities
+- Calculate and display weekly and seasonal points
+- Manage campaign parameters and rules
+- Present analytics and reports
+- Facilitate user engagement through leaderboards and activity tracking
+
+## 2. User Profiles
+
+### 2.1 End Users (Radix Network Participants)
+- **Description**: Individuals participating in the Radix network who want to track their incentive points and rewards
+- **Technical Proficiency**: Varies, but familiar with cryptocurrency wallets and blockchain concepts
+- **Motivation**: Maximize their rewards by understanding point allocation and monitoring their progress
+- **Goals**:
+  - View current points and rewards status
+  - Understand which activities earn the most points
+  - Track position on leaderboards
+  - Monitor multiplier status
+
+### 2.2 Administrators (Campaign Managers)
+- **Description**: Team members responsible for managing the incentives campaign
+- **Technical Proficiency**: High, with understanding of blockchain analytics and campaign management
+- **Motivation**: Ensure campaign effectiveness and prevent exploitation
+- **Goals**:
+  - Configure point allocation rules
+  - Monitor user engagement
+  - Identify and address potential exploitation
+  - Generate reports on campaign performance
+
+## 3. Core Features
+
+### 3.1 User Dashboard
+
+#### 3.1.1 Authentication and Account Management
+- **Description**: Allow users to connect their Radix wallets and verify account ownership
+- **Acceptance Criteria**:
+  - Users can connect using Radix Connect
+  - Users can verify ownership of accounts through ROLA
+  - Users can manage multiple connected accounts
+  - System tracks which accounts are part of the campaign
+  - Users can link multiple accounts to a single dashboard profile
+- **Technical Considerations**:
+  - Integration with Radix-dApp-toolkit
+  - Implementation of ROLA (Radix Off-Ledger Authentication)
+  - Secure storage of wallet connection data
+  - Support for multiple account management
+
+#### 3.1.2 Points Dashboard
+- **Description**: Display current weekly and season points with relevant statistics
+- **Acceptance Criteria**:
+  - Users can view their current weekly points (passive and active) 
+  - Users can view their accumulated season points
+  - Users can see point breakdowns by activity type
+  - Dashboard shows current multiplier based on XRD/LSUs holdings
+  - Dashboard updates with latest information
+  - Clear visualization of percentile ranking for each activity
+- **Technical Considerations**:
+  - Real-time data fetching
+  - Efficient data aggregation
+  - Clear visualization components
+  - Time-weighted average calculations for passive points
+
+#### 3.1.3 Activity Tracking
+- **Description**: Show history of user's on-chain activities that have earned points
+- **Acceptance Criteria**:
+  - Users can view a chronological list of point-earning activities
+  - Each activity shows type, timestamp, and points earned
+  - Users can filter by activity type
+  - System provides pagination for extensive activity history
+- **Technical Considerations**:
+  - Efficient indexing of activity data
+  - Pagination implementation
+  - Filter mechanisms
+
+#### 3.1.4 Multiplier Status
+- **Description**: Display current multiplier status and requirements for higher multipliers
+- **Acceptance Criteria**:
+  - Users can view their current multiplier
+  - System shows visualization of how additional XRD holdings would affect multiplier
+  - Visual representation of the S-curve multiplier system
+  - Clear explanation of how multipliers affect point calculation
+- **Technical Considerations**:
+  - Real-time calculation of multiplier based on holdings
+  - Visual representation of complex S-curve multiplier calculation
+
+#### 3.1.5 Leaderboards
+- **Description**: Show user rankings based on points earned
+- **Acceptance Criteria**:
+  - Display global leaderboard showing top participants
+  - Highlight user's current position
+  - Provide weekly and seasonal leaderboards
+  - Show points difference to next/previous rank
+- **Technical Considerations**:
+  - Efficient leaderboard calculation
+  - Performance optimization for large user bases
+  - Real-time updates
+
+### 3.2 Administrator Dashboard
+
+#### 3.2.1 Campaign Configuration
+- **Description**: Tools to configure point allocation rules and campaign parameters
+- **Acceptance Criteria**:
+  - Admins can define point values for different activities
+  - Admins can configure multiplier thresholds
+  - System supports weekly adjustments to point calculations
+  - Changes are tracked with version history
+- **Technical Considerations**:
+  - Flexible rule engine
+  - Configuration versioning
+  - Change validation
+
+#### 3.2.2 Analytics Dashboard
+- **Description**: Comprehensive analytics on campaign performance and user engagement
+- **Acceptance Criteria**:
+  - Display key metrics: active users, total points, activity distribution
+  - Show trends over time for key metrics
+  - Provide detailed breakdowns by activity type
+  - Support custom date ranges for analysis
+- **Technical Considerations**:
+  - Data aggregation strategy
+  - Performance optimization for large datasets
+  - Visualization components
+
+#### 3.2.3 User Management
+- **Description**: Tools to manage user participation and address potential fraud
+- **Acceptance Criteria**:
+  - Admins can search for specific users/accounts
+  - Admins can view detailed user activity
+  - System flags suspicious patterns automatically
+  - Admins can exclude accounts from campaign if fraudulent
+- **Technical Considerations**:
+  - Efficient user search and filtering
+  - Fraud detection algorithms
+  - Account exclusion mechanism
+
+#### 3.2.4 Reporting
+- **Description**: Generate and export reports on campaign performance
+- **Acceptance Criteria**:
+  - System generates weekly summary reports
+  - Admins can create custom reports
+  - Reports can be exported in various formats (CSV, PDF)
+  - Scheduled report generation option
+- **Technical Considerations**:
+  - Report template system
+  - Background processing for large reports
+  - Export functionality
+
+## 4. Technical Architecture
+
+### 4.1 Technology Stack
+- **Frontend**: Next.js, TypeScript, Tailwind CSS, Shadcn, Radix UI
+- **Backend**: Node.js, TypeScript, tRPC
+- **Database**: PostgreSQL with Drizzle ORM
+- **Caching**: Redis
+- **Job Processing**: Bull MQ
+- **Containerization**: Docker
+- **Orchestration**: Kubernetes on AWS
+- **Blockchain Integration**: Radix Gateway SDK, Radix-dApp-toolkit
+
+### 4.2 Data Model
+
+#### 4.2.1 User
+- **Fields**:
+  - id (UUID): Unique identifier
+  - created_at (Timestamp): Account creation time
+  - updated_at (Timestamp): Last update time
+  - auth_id (String): Authentication identifier
+  - is_admin (Boolean): Administrator status
+  - is_active (Boolean): Account active status
+  - settings (JSON): User preferences
+
+#### 4.2.2 UserAccount
+- **Fields**:
+  - id (UUID): Unique identifier
+  - user_id (UUID): Reference to User
+  - account_address (String): Radix account address
+  - verified_at (Timestamp): Verification timestamp
+  - is_excluded (Boolean): Exclusion status
+  - multiplier (Decimal): Current multiplier value
+  - xrd_balance (Decimal): Current XRD balance
+  - lsu_balance (Decimal): Current LSU balance
+  - lsulp_balance (Decimal): Current LSULP balance
+  - holding_period_start (Timestamp): Start of asset holding period for multiplier calculation
+
+#### 4.2.3 Activity
+- **Fields**:
+  - id (UUID): Unique identifier
+  - account_address (String): Radix account address
+  - transaction_id (String): Blockchain transaction ID
+  - activity_type (Enum): Type of on-chain activity
+  - activity_category (Enum): Category (Passive/Active)
+  - timestamp (Timestamp): When activity occurred
+  - details (JSON): Activity-specific details
+  - usd_value (Decimal): USD value of transaction (if applicable)
+  - asset_type (String): Asset involved (XRD, LSU, xUSDC, etc.)
+  - derivative_flag (Boolean): Whether involves a derivative
+  - weekly_points (Decimal): Points earned for weekly calculation
+  - processed (Boolean): Whether activity has been processed
+
+#### 4.2.4 WeeklyPoints
+- **Fields**:
+  - id (UUID): Unique identifier
+  - account_address (String): Radix account address
+  - week_number (Integer): Week within season
+  - season_number (Integer): Season identifier
+  - passive_points (Decimal): Passive activity points
+  - active_points (Decimal): Active activity points
+  - total_points (Decimal): Total weekly points
+  - passive_percentile (Decimal): Percentile ranking for passive activities
+  - active_percentile (Decimal): Percentile ranking for active activities
+  - multiplier (Decimal): Applied multiplier
+  - calculated_at (Timestamp): Calculation timestamp
+  - details (JSON): Breakdown by activity type
+
+#### 4.2.5 SeasonPoints
+- **Fields**:
+  - id (UUID): Unique identifier
+  - account_address (String): Radix account address
+  - season_number (Integer): Season identifier
+  - points (Decimal): Total season points
+  - rank (Integer): User rank within season
+  - calculated_at (Timestamp): Calculation timestamp
+
+#### 4.2.6 CampaignConfig
+- **Fields**:
+  - id (UUID): Unique identifier
+  - week_number (Integer): Week within season
+  - season_number (Integer): Season identifier
+  - start_date (Timestamp): Configuration start date
+  - end_date (Timestamp): Configuration end date
+  - rules (JSON): Point calculation rules
+  - multiplier_thresholds (JSON): Multiplier threshold configuration
+  - minimum_holding_requirement (Decimal): Minimum XRD holding requirement
+  - whitelist (JSON): Whitelisted activities or accounts
+  - reward_distribution_method (String): Method for distributing rewards
+  - minimum_reward_percentile (Integer): Minimum percentile to receive rewards
+  - created_by (UUID):
+
+### 4.3 API Structure
+The API will be implemented using tRPC to provide type-safe API endpoints.
+
+#### 4.3.1 User API
+- `connectWallet`: Connect user wallet via Radix Connect
+- `verifyAccount`: Verify account ownership via ROLA
+- `getUserPoints`: Get user's weekly and season points
+- `getUserActivities`: Get user's point-earning activities
+- `getLeaderboard`: Get current leaderboard standings
+
+#### 4.3.2 Admin API
+- `updateCampaignConfig`: Update campaign configuration
+- `getUserDetails`: Get detailed information about a user
+- `excludeAccount`: Exclude account from campaign
+- `generateReport`: Generate custom report
+- `getAnalytics`: Get campaign analytics data
+
+### 4.4 Integration Points
+
+#### 4.4.1 Radix Gateway SDK
+- Query blockchain transactions
+- Monitor on-chain activities
+- Fetch account balances for multiplier calculations
+
+#### 4.4.2 Radix-dApp-toolkit
+- Facilitate wallet connections
+- Implement ROLA authentication
+- Enable secure communication with Radix wallets
+
+#### 4.4.3 Bull MQ
+- Process transaction data in the background
+- Calculate weekly and season points
+- Generate reports
+- Update leaderboards
+
+## 5. User Interface
+
+### 5.1 General UI Requirements
+- Dark mode design
+- Mobile responsive layout
+- Accessible interface following WCAG guidelines
+- Consistent branding with Radix design language
+- Real-time updates where appropriate
+- Loading states for asynchronous operations
+
+### 5.2 User Dashboard Screens
+
+#### 5.2.1 Home Dashboard
+- Points summary (weekly and season)
+- Activity highlights
+- Leaderboard position
+- Multiplier status
+- Quick links to other sections
+
+#### 5.2.2 Activity History
+- Filterable list of activities
+- Points earned per activity
+- Timestamp and transaction details
+- Pagination controls
+
+#### 5.2.3 Leaderboard
+- Global rankings
+- User's current position
+- Weekly and season toggle
+- Points distribution visualization
+
+#### 5.2.4 Account Management
+- Connected accounts list
+- Account verification status
+- Add/remove account functionality
+- Account-specific metrics
+
+### 5.3 Admin Dashboard Screens
+
+#### 5.3.1 Admin Home
+- Campaign overview metrics
+- Recent activity summary
+- Alerts for potential issues
+- Quick links to configuration tools
+
+#### 5.3.2 Campaign Configuration
+- Activity point allocation interface
+- Multiplier threshold configuration
+- Rule editor for point calculations
+- Version history of configurations
+
+#### 5.3.3 Analytics
+- Key metrics visualization
+- Trend analysis graphs
+- Activity distribution charts
+- User engagement metrics
+
+#### 5.3.4 User Management
+- User search and filtering
+- Detailed user activity view
+- Account exclusion tools
+- Fraud detection alerts
+
+#### 5.3.5 Reporting
+- Report template selection
+- Custom report configuration
+- Export options
+- Scheduled reports management
+
+## 6. Non-functional Requirements
+
+### 6.1 Performance
+- Dashboard load time < 2 seconds
+- API response time < 500ms for 95% of requests
+- Support for 1M potential users
+- Efficient handling of large transaction volumes
+
+### 6.2 Security
+- Secure authentication using ROLA
+- Data encryption for sensitive information
+- HTTPS implementation
+- Input validation on all endpoints
+- Protection against common web vulnerabilities
+
+### 6.3 Scalability
+- Horizontal scaling capability
+- Database sharding strategy for user data
+- Caching implementation for frequently accessed data
+- Background processing for computationally intensive tasks
+
+### 6.4 Availability
+- 99.9% uptime target
+- Graceful degradation during partial outages
+- Scheduled maintenance windows
+
+### 6.5 Monitoring
+- Real-time system health monitoring
+- Transaction processing metrics
+- API performance tracking
+- Error logging and alerting
+
+## 7. Development Phases
+
+### 7.1 Phase 1: Core Infrastructure (4 weeks)
+- Set up AWS Kubernetes environment
+- Implement database schema
+- Build blockchain integration components
+- Develop authentication system
+- Create basic API structure
+
+### 7.2 Phase 2: Admin Dashboard (4 weeks)
+- Develop campaign configuration interface
+- Implement points calculation engine
+- Create basic analytics dashboard
+- Build user management tools
+- Develop reporting functionality
+
+### 7.3 Phase 3: User Dashboard (4 weeks)
+- Implement wallet connection interface
+- Develop points display and activity tracking
+- Create leaderboard functionality
+- Build account management features
+- Implement multiplier visualization
+
+### 7.4 Phase 4: Testing and Optimization (2 weeks)
+- Conduct performance testing
+- Optimize database queries
+- Implement caching strategy
+- Address security vulnerabilities
+- Finalize mobile responsive design
+
+### 7.5 Phase 5: Launch and Monitoring (2 weeks)
+- Deploy to production environment
+- Implement monitoring and alerting
+- Create documentation
+- User acceptance testing
+- Post-launch support
+
+## 8. Risks and Mitigation
+
+### 8.1 Technical Risks
+- **Risk**: High transaction volume affecting performance
+  - **Mitigation**: Implement efficient indexing, caching, and background processing
+- **Risk**: Blockchain data integration challenges
+  - **Mitigation**: Use Radix Gateway SDK with fallback mechanisms
+- **Risk**: Scaling issues with large user base
+  - **Mitigation**: Design for horizontal scaling from the beginning
+
+### 8.2 Business Risks
+- **Risk**: Exploitation of point system
+  - **Mitigation**: Implement fraud detection and weekly rule adjustments
+- **Risk**: Low user engagement
+  - **Mitigation**: Design intuitive UI and clear value proposition
+- **Risk**: Campaign rule complexity
+  - **Mitigation**: Create flexible rule engine with version control
+
+## 9. Future Enhancements
+
+### 9.1 Potential Features
+- Predictive analytics for user behavior
+- Advanced fraud detection using machine learning
+- Mobile application version
+- API for third-party integrations
+- Enhanced visualization tools for complex data
+- Social features for community engagement
+
+## 10. Outstanding Questions and Considerations
+
+The following questions require further discussion and decisions before final implementation:
+
+### 10.1 Points System Design Considerations
+1. **Derivative Assets**: Should the system include base assets of derivatives like Sonic (e.g., yxUSDC minted from xUSDC) in the activity calculations?
+2. **Activity Valuation**: Should activity be valued based on transaction counts or USD value?
+3. **Multi-wallet Strategy**: 
+   - Does either proposed allocation methodology or the S-curve eliminate the advantage of splitting tokens across multiple wallets versus holding the same total amount in a single wallet?
+   - Does this need to be a percentile rather than absolute value due to looping (e.g., lend XRD on root to borrow XRD to lend etc.)?
+   - What activities should be limited to the whitelist?
+
+### 10.2 Anti-Exploitation Mechanisms
+1. **Minimum Holding Requirements**: Is the $50 XRD minimum holding requirement, combined with the other proposed anti-farming measures, sufficient to prevent exploitation? While this threshold appears designed to maintain accessibility for new users, it may be too low to effectively deter farming behavior.
+
+### 10.3 Reward Distribution Mechanics
+1. **Reward Thresholds**: Should everyone who earns season points get some reward, or should there be a minimum cutoff (e.g., must be above the 20th percentile of accounts to get any XRD rewards)?
+2. **Distribution Mechanism**: Should the distribution be automatic, or should there be a claim button? Unclaimed rewards could be used to incentivize the next season, or they could be burned.
+3. **Referral System**: Should the platform include a referral system to help bring people from outside of Radix's ecosystem?
+
+## 11. Activity Types and Point Allocation
+
+### 11.1 Activity Definitions, Triggers, and Rules
+
+The following tables provide detailed specifications for each activity type, including what triggers the activity recognition and the specific rules for point calculation.
+
+#### 11.1.1 Holding and Staking Activities
+
+| Activity | Trigger | Rules | Category |
+|----------|---------|-------|----------|
+| **Holding XRD** | Daily balance snapshot | • Time-weighted average of XRD holdings<br>• Minimum holding period of 24 hours<br>• Points proportional to USD value of holdings<br>• Minimum $50 worth of XRD required | Passive |
+| **Staking (LSUs)** | LSU balance snapshot | • Time-weighted average of LSU holdings<br>• Validator-specific LSUs tracked separately<br>• Points proportional to USD value of staked XRD<br>• No unstaking within measurement period | Passive |
+| **LSULP** | Liquidity position snapshot | • Time-weighted average of LP position<br>• Both Root and Weft DEX positions counted<br>• Points proportional to USD value of position<br>• Minimum position size equivalent to $50 | Passive |
+| **Holding stable assets** | Daily balance snapshot | • Time-weighted average of xUSDC, xUSDT<br>• Minimum holding period of 24 hours<br>• Only whitelisted stablecoins qualify<br>• Minimum holdings equivalent to $50 | Passive |
+| **Hold NFTs** | NFT ownership snapshot | • Only whitelisted collections count<br>• Points based on rarity tiers (if applicable)<br>• Minimum holding period of 7 days<br>• Multiple NFTs from same collection may have diminishing returns | Passive |
+| **Hold % of collections** | Collection ownership snapshot | • Threshold percentage of collection required<br>• Bonus points for milestone percentages (25%, 50%, 75%)<br>• Only counts unique NFTs (no duplicates)<br>• Only whitelisted collections qualify | Passive |
+| **Hold specific tokens** | Token balance snapshot | • Only whitelisted tokens qualify<br>• Time-weighted average of holdings<br>• Minimum holding period of 24 hours<br>• Points proportional to USD value with caps | Passive |
+| **Hold X USD Value** | Portfolio value snapshot | • Aggregate USD value across all tokens<br>• Stablecoins and volatiles weighted differently<br>• Time-weighted average<br>• Tiered point system based on total value | Passive |
+
+#### 11.1.2 Trading Activities
+
+| Activity | Trigger | Rules | Category |
+|----------|---------|-------|----------|
+| **Trading bluechip volatiles** | DEX transaction | • Completed swap transaction with xBTC or xETH<br>• Points proportional to USD value of trade<br>• Minimum trade size equivalent to $10<br>• Anti-wash trading detection<br>• Only counts trades on whitelisted DEXs | Active |
+| **Trading stables** | DEX transaction | • Completed swap transaction with stablecoins<br>• Points proportional to USD value of trade<br>• Minimum trade size equivalent to $10<br>• Anti-wash trading detection<br>• Only counts trades on whitelisted DEXs | Active |
+| **Trading XRD** | DEX transaction | • Completed swap transaction involving XRD<br>• Points proportional to USD value of trade<br>• Minimum trade size equivalent to $10<br>• Anti-wash trading detection<br>• Only counts trades on whitelisted DEXs | Active |
+| **Trading Radix native assets** | DEX transaction | • Completed swap with whitelisted Radix-native tokens<br>• Points proportional to USD value of trade<br>• Minimum trade size equivalent to $10<br>• Anti-wash trading detection<br>• Only counts trades on whitelisted DEXs | Active |
+| **Total DEX swaps** | DEX transaction count | • Number of unique swap transactions<br>• Must be separated by at least 1 hour<br>• Minimum trade size equivalent to $10<br>• Cap on maximum points per day<br>• Must be across different token pairs | Active |
+| **Trade NFT collections** | NFT marketplace transaction | • Completed buy/sell on whitelisted marketplaces<br>• Points proportional to sale price<br>• Only whitelisted collections qualify<br>• Minimum transaction value equivalent to $5<br>• Anti-wash trading detection | Active |
+
+#### 11.1.3 Liquidity Provision Activities
+
+| Activity | Trigger | Rules | Category |
+|----------|---------|-------|----------|
+| **Liquidity in bluechip volatiles** | LP position creation/update | • Time-weighted average of LP position<br>• Must include xBTC or xETH paired with XRD or stablecoin<br>• Points proportional to USD value of position<br>• Minimum position size equivalent to $50<br>• Only whitelisted DEXs qualify | Passive |
+| **Liquidity in stables** | LP position creation/update | • Time-weighted average of LP position<br>• Must include stablecoin paired with XRD or other asset<br>• Points proportional to USD value of position<br>• Minimum position size equivalent to $50<br>• Only whitelisted DEXs qualify | Passive |
+| **Liquidity in Radix native assets** | LP position creation/update | • Time-weighted average of LP position<br>• Must include whitelisted Radix native token<br>• Points proportional to USD value of position<br>• Minimum position size equivalent to $50<br>• Only whitelisted DEXs qualify | Passive |
+
+#### 11.1.4 Lending and Borrowing Activities
+
+| Activity | Trigger | Rules | Category |
+|----------|---------|-------|----------|
+| **Lend XRD/LSU** | Lending position creation/update | • Time-weighted average of lending position<br>• Points proportional to USD value<br>• Minimum lending period of 7 days<br>• Minimum position size equivalent to $50<br>• Only whitelisted lending platforms qualify | Passive |
+| **Lend stables** | Lending position creation/update | • Time-weighted average of lending position<br>• Points proportional to USD value<br>• Minimum lending period of 7 days<br>• Minimum position size equivalent to $50<br>• Only whitelisted lending platforms qualify | Passive |
+| **Lend blue chip volatiles** | Lending position creation/update | • Time-weighted average of lending position<br>• Points proportional to USD value<br>• Minimum lending period of 7 days<br>• Minimum position size equivalent to $50<br>• Only whitelisted lending platforms qualify | Passive |
+| **Borrow XRD/LSU** | Borrow transaction | • Time-weighted average of borrow position<br>• Points proportional to USD value<br>• Minimum borrow period of 7 days<br>• Minimum position size equivalent to $50<br>• Only whitelisted lending platforms qualify | Active |
+| **Borrow stables** | Borrow transaction | • Time-weighted average of borrow position<br>• Points proportional to USD value<br>• Minimum borrow period of 7 days<br>• Minimum position size equivalent to $50<br>• Only whitelisted lending platforms qualify | Active |
+| **Borrow blue chip volatiles** | Borrow transaction | • Time-weighted average of borrow position<br>• Points proportional to USD value<br>• Minimum borrow period of 7 days<br>• Minimum position size equivalent to $50<br>• Only whitelisted lending platforms qualify | Active |
+
+#### 11.1.5 Creation and Minting Activities
+
+| Activity | Trigger | Rules | Category |
+|----------|---------|-------|----------|
+| **List NFTs** | NFT listing transaction | • Active listing on whitelisted marketplace<br>• Minimum listing duration of 24 hours<br>• Listing price must be within reasonable market value<br>• Only whitelisted collections qualify<br>• Cap on points per wallet per day | Active |
+| **Mint NFTs** | NFT minting transaction | • Successful minting transaction<br>• Only whitelisted collections/creators qualify<br>• Points proportional to mint price<br>• Minimum mint price requirement<br>• Cap on points per wallet per day | Active |
+| **Mint tokens** | Token minting transaction | • Successful token minting transaction<br>• Only whitelisted token types qualify<br>• Points proportional to token value<br>• Minimum minting amount required<br>• Cap on points per wallet per day | Active |
+
+#### 11.1.6 dApp Interaction Activities
+
+| Activity | Trigger | Rules | Category |
+|----------|---------|-------|----------|
+| **Use specific dApps** | Successful dApp transaction | • Transaction must be functional (not just connection)<br>• Only whitelisted dApps qualify<br>• Minimum transaction value if applicable<br>• Points vary by dApp importance to ecosystem<br>• Cap on points per dApp per day | Active |
+| **First-time use of dApps** | First transaction with dApp | • Must be first interaction with the dApp<br>• Transaction must be functional (not just connection)<br>• Only whitelisted dApps qualify<br>• One-time bonus per dApp<br>• Only counts once per user (across all connected wallets) | Active |
+| **Use multiple dApps** | Transactions across dApps | • Unique transactions across different dApps<br>• Must be at least 3 different dApps in a week<br>• Only whitelisted dApps qualify<br>• Bonus multiplier based on number of unique dApps<br>• Must be meaningful transactions (not micro-interactions) | Active |
+| **User-initiated transactions** | Ledger transaction | • Transaction must be initiated by user (not automatic)<br>• Minimum transaction complexity<br>• Excludes simple token transfers<br>• Cap on points per day<br>• Must have minimum transaction fee | Active |
+| **Transactions across dApps** | Cross-dApp workflows | • Complete workflow spanning multiple dApps<br>• Must involve at least 2 different dApps<br>• Transactions must be related by purpose<br>• Completed within 24-hour window<br>• Only whitelisted workflows qualify | Active |
+
+### 11.3 Example Transaction IDs
+
+To facilitate development and testing, the following table provides example transaction IDs for each activity type. These transactions can be used as reference points for developing the monitoring and point calculation systems.
+
+#### 11.3.1 Holding and Staking Activities
+| Activity | Example Transaction ID | Notes |
+|----------|------------------------|-------|
+| **Holding XRD** | `transaction_xrd_holding_sample_001` | System should track balances, not just transactions |
+| **Staking (LSUs)** | `transaction_lsu_stake_sample_001` | Includes validator selection |
+| **LSULP** | `transaction_lsulp_provision_sample_001` | LP token minting transaction |
+| **Holding stable assets** | `transaction_stablecoin_deposit_sample_001` | Bridge deposit transaction |
+| **Hold NFTs** | `transaction_nft_purchase_sample_001` | NFT acquisition transaction |
+| **Hold % of collections** | `transaction_nft_collection_purchase_sample_001` | Multiple NFT acquisition |
+| **Hold specific tokens** | `transaction_token_acquisition_sample_001` | Token acquisition transaction |
+| **Hold X USD Value** | N/A - derived from balance | System calculates from multiple holdings |
+
+#### 11.3.2 Trading Activities
+| Activity | Example Transaction ID | Notes |
+|----------|------------------------|-------|
+| **Trading bluechip volatiles** | `transaction_btc_swap_sample_001` | DEX swap involving xBTC |
+| **Trading stables** | `transaction_stable_swap_sample_001` | DEX swap involving stablecoin |
+| **Trading XRD** | `transaction_xrd_swap_sample_001` | DEX swap involving XRD |
+| **Trading Radix native assets** | `transaction_native_swap_sample_001` | DEX swap with native token |
+| **Total DEX swaps** | `transaction_dex_swap_sample_001` | Generic DEX swap |
+| **Trade NFT collections** | `transaction_nft_trade_sample_001` | NFT marketplace transaction |
+
+#### 11.3.3 Liquidity Provision Activities
+| Activity | Example Transaction ID | Notes |
+|----------|------------------------|-------|
+| **Liquidity in bluechip volatiles** | `transaction_btc_lp_sample_001` | LP provision with xBTC pair |
+| **Liquidity in stables** | `transaction_stable_lp_sample_001` | LP provision with stablecoin |
+| **Liquidity in Radix native assets** | `transaction_native_lp_sample_001` | LP provision with native token |
+
+#### 11.3.4 Lending and Borrowing Activities
+| Activity | Example Transaction ID | Notes |
+|----------|------------------------|-------|
+| **Lend XRD/LSU** | `transaction_xrd_lend_sample_001` | Lending platform deposit |
+| **Lend stables** | `transaction_stable_lend_sample_001` | Stablecoin lending deposit |
+| **Lend blue chip volatiles** | `transaction_btc_lend_sample_001` | xBTC lending deposit |
+| **Borrow XRD/LSU** | `transaction_xrd_borrow_sample_001` | XRD borrow transaction |
+| **Borrow stables** | `transaction_stable_borrow_sample_001` | Stablecoin borrow transaction |
+| **Borrow blue chip volatiles** | `transaction_btc_borrow_sample_001` | xBTC borrow transaction |
+
+#### 11.3.5 Creation and Minting Activities
+| Activity | Example Transaction ID | Notes |
+|----------|------------------------|-------|
+| **List NFTs** | `transaction_nft_list_sample_001` | NFT marketplace listing |
+| **Mint NFTs** | `transaction_nft_mint_sample_001` | NFT creation transaction |
+| **Mint tokens** | `transaction_token_mint_sample_001` | Token creation transaction |
+
+#### 11.3.6 dApp Interaction Activities
+| Activity | Example Transaction ID | Notes |
+|----------|------------------------|-------|
+| **Use specific dApps** | `transaction_dapp_interaction_sample_001` | Generic dApp interaction |
+| **First-time use of dApps** | `transaction_dapp_first_use_sample_001` | First interaction with dApp |
+| **Use multiple dApps** | `transaction_multi_dapp_sample_001` | Multiple transactions needed |
+| **User-initiated transactions** | `transaction_user_initiated_sample_001` | Non-automatic transaction |
+| **Transactions across dApps** | `transaction_cross_dapp_sample_001` | Multiple related transactions |
+
+**Note**: These transaction IDs are placeholders. During the development phase, the team should identify actual transaction IDs from the Radix network that demonstrate each activity type. The development environment should maintain a collection of these real transaction examples for testing the point calculation system.
+
+### 11.4 Blockchain Data Pattern Identification
+
+For each activity type, the system needs to identify specific patterns in the blockchain data:
+
+#### 11.4.1 Transaction Parser Configuration
+
+The system will need parsers configured to identify:
+
+1. **Token Transfers**: 
+   - Pattern: `account_to_account_transfer`
+   - Data points: sender, receiver, token type, amount, timestamp
+
+2. **DEX Swaps**:
+   - Pattern: `dex_swap_transaction`
+   - Data points: account, input token, output token, input amount, output amount, slippage, dex identifier
+
+3. **Liquidity Provision**:
+   - Pattern: `liquidity_provision_transaction`
+   - Data points: account, token pair, amounts, LP tokens received, dex identifier
+
+4. **Lending/Borrowing**:
+   - Pattern: `lending_platform_transaction`
+   - Data points: account, platform, action type (lend/borrow), token type, amount, terms
+
+5. **NFT Operations**:
+   - Pattern: `nft_transaction`
+   - Data points: account, action type (mint/trade/list), collection ID, NFT ID, price
+
+6. **dApp Interactions**:
+   - Pattern: `dapp_interaction`
+   - Data points: account, dApp identifier, action type, parameters
+
+#### 11.4.2 Blockchain Data Query Structure
+
+Example query structure for monitoring DEX swaps:
+
+```sql
+SELECT 
+  transaction_id,
+  account_address,
+  input_token,
+  output_token,
+  input_amount,
+  output_amount,
+  dex_identifier,
+  timestamp
+FROM blockchain_transactions
+WHERE 
+  transaction_type = 'dex_swap' 
+  AND timestamp BETWEEN [start_date] AND [end_date]
+  AND dex_identifier IN (list_of_whitelisted_dexes)
+  AND (
+    (input_token = 'xBTC' OR input_token = 'xETH')
+    OR
+    (output_token = 'xBTC' OR output_token = 'xETH')
+  )
+```
+
+**Note**: The actual implementation will depend on the specific data structures available through the Radix Gateway SDK. The development team should work closely with blockchain data specialists to ensure proper identification of all relevant transactions.
+
+## 12. Appendix
+
+### 12.1 Glossary
+- **XRD**: Native token of the Radix network
+- **ROLA**: Radix Off-Ledger Authentication
+- **DEX**: Decentralized Exchange
+- **LSU**: Liquid Staking Unit
+- **LSULP**: Liquid Staking Unit Liquidity Pool
+- **Weekly Points**: Points earned based on activities within a week
+- **Season Points**: Aggregated points from weekly calculations that determine rewards
+- **Passive Activities**: Holding assets, providing liquidity, staking
+- **Active Activities**: Trading, borrowing, minting, and other user-initiated transactions
