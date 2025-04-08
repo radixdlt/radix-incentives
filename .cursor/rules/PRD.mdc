@@ -3,708 +3,808 @@ description:
 globs: 
 alwaysApply: true
 ---
-# Radix Incentives Campaign Platform
-## Product Requirements Document (PRD)
+# **Radix Incentives Campaign Platform**
+
+## **Product Requirements Document (PRD)**
+
 **Date: April 5, 2025**
 
-## 1. Introduction
+## **1\. Introduction**
 
-### 1.1 Purpose
+### **1.1 Purpose**
+
 This document outlines the requirements for the Radix Incentives Campaign Platform, a comprehensive web application designed to support the Radix 2025 Incentives Campaign. The platform consists of two primary components:
-1. A user-facing dashboard for Radix users to track their points and rewards
+
+1. A user-facing dashboard for Radix users to track their points and rewards  
 2. An administrative tool for campaign managers to configure parameters and monitor campaign performance
 
-### 1.2 Background
+   ### **1.2 Background**
+
 The Radix Incentives Campaign aims to enhance significant and sustained on-chain economic activities on the Radix network. The campaign uses a points-based system to reward users for various on-chain activities, with the goal of increasing liquidity, trading volumes, and ecosystem utilization.
 
-### 1.3 Scope
+### **1.3 Scope**
+
 This platform will provide the technical infrastructure to:
-- Track on-chain user activities
-- Calculate and display weekly and seasonal points
-- Manage campaign parameters and rules
-- Present analytics and reports
-- Facilitate user engagement through leaderboards and activity tracking
 
-## 2. User Profiles
+* Track on-chain user activities  
+* Calculate and display weekly and seasonal points  
+* Manage campaign parameters and rules  
+* Present analytics and reports  
+* Facilitate user engagement through leaderboards and activity tracking
 
-### 2.1 End Users (Radix Network Participants)
-- **Description**: Individuals participating in the Radix network who want to track their incentive points and rewards
-- **Technical Proficiency**: Varies, but familiar with cryptocurrency wallets and blockchain concepts
-- **Motivation**: Maximize their rewards by understanding point allocation and monitoring their progress
-- **Goals**:
-  - View current points and rewards status
-  - Understand which activities earn the most points
-  - Track position on leaderboards
-  - Monitor multiplier status
+  ## **2\. User Profiles**
 
-### 2.2 Administrators (Campaign Managers)
-- **Description**: Team members responsible for managing the incentives campaign
-- **Technical Proficiency**: High, with understanding of blockchain analytics and campaign management
-- **Motivation**: Ensure campaign effectiveness and prevent exploitation
-- **Goals**:
-  - Configure point allocation rules
-  - Monitor user engagement
-  - Identify and address potential exploitation
-  - Generate reports on campaign performance
+  ### **2.1 End Users (Radix Network Participants)**
 
-## 3. Core Features
+* **Description**: Individuals participating in the Radix network who want to track their incentive points and rewards  
+* **Technical Proficiency**: Varies, but familiar with cryptocurrency wallets and blockchain concepts  
+* **Motivation**: Maximize their rewards by understanding point allocation and monitoring their progress  
+* **Goals**:  
+  * View current points and rewards status  
+  * Understand which activities earn the most points  
+  * Track position on leaderboards  
+  * Monitor multiplier status
 
-### 3.1 User Dashboard
+  ### **2.2 Administrators (Campaign Managers)**
 
-#### 3.1.1 Authentication and Account Management
-- **Description**: Allow users to connect their Radix wallets and verify account ownership
-- **Acceptance Criteria**:
-  - Users can connect using Radix Connect
-  - Users can verify ownership of accounts through ROLA
-  - Users can manage multiple connected accounts
-  - System tracks which accounts are part of the campaign
-  - Users can link multiple accounts to a single dashboard profile
-- **Technical Considerations**:
-  - Integration with Radix-dApp-toolkit
-  - Implementation of ROLA (Radix Off-Ledger Authentication)
-  - Secure storage of wallet connection data
-  - Support for multiple account management
+* **Description**: Team members responsible for managing the incentives campaign  
+* **Technical Proficiency**: High, with understanding of blockchain analytics and campaign management  
+* **Motivation**: Ensure campaign effectiveness and prevent exploitation  
+* **Goals**:  
+  * Configure point allocation rules  
+  * Monitor user engagement  
+  * Identify and address potential exploitation  
+  * Generate reports on campaign performance
 
-#### 3.1.2 Points Dashboard
-- **Description**: Display current weekly and season points with relevant statistics
-- **Acceptance Criteria**:
-  - Users can view their current weekly points (passive and active) 
-  - Users can view their accumulated season points
-  - Users can see point breakdowns by activity type
-  - Dashboard shows current multiplier based on XRD/LSUs holdings
-  - Dashboard updates with latest information
-  - Clear visualization of percentile ranking for each activity
-- **Technical Considerations**:
-  - Real-time data fetching
-  - Efficient data aggregation
-  - Clear visualization components
-  - Time-weighted average calculations for passive points
+  ## **3\. Core Features**
 
-#### 3.1.3 Activity Tracking
-- **Description**: Show history of user's on-chain activities that have earned points
-- **Acceptance Criteria**:
-  - Users can view a chronological list of point-earning activities
-  - Each activity shows type, timestamp, and points earned
-  - Users can filter by activity type
-  - System provides pagination for extensive activity history
-- **Technical Considerations**:
-  - Efficient indexing of activity data
-  - Pagination implementation
-  - Filter mechanisms
+  ### **3.1 User Dashboard**
 
-#### 3.1.4 Multiplier Status
-- **Description**: Display current multiplier status and requirements for higher multipliers
-- **Acceptance Criteria**:
-  - Users can view their current multiplier
-  - System shows visualization of how additional XRD holdings would affect multiplier
-  - Visual representation of the S-curve multiplier system
-  - Clear explanation of how multipliers affect point calculation
-- **Technical Considerations**:
-  - Real-time calculation of multiplier based on holdings
-  - Visual representation of complex S-curve multiplier calculation
+  #### **3.1.1 Authentication and Account Management**
 
-#### 3.1.5 Leaderboards
-- **Description**: Show user rankings based on points earned
-- **Acceptance Criteria**:
-  - Display global leaderboard showing top participants
-  - Highlight user's current position
-  - Provide weekly and seasonal leaderboards
-  - Show points difference to next/previous rank
-- **Technical Considerations**:
-  - Efficient leaderboard calculation
-  - Performance optimization for large user bases
-  - Real-time updates
+* **Description**: Allow users to connect their Radix wallets and verify account ownership  
+* **Acceptance Criteria**:  
+  * Users can connect using Radix Connect  
+  * Users can verify ownership of accounts through ROLA  
+  * Users can manage multiple connected accounts  
+  * System tracks which accounts are part of the campaign  
+  * Users can link multiple accounts to a single dashboard profile  
+* **Technical Considerations**:  
+  * Integration with Radix-dApp-toolkit  
+  * Implementation of ROLA (Radix Off-Ledger Authentication)  
+  * Secure storage of wallet connection data  
+  * Support for multiple account management
 
-### 3.2 Administrator Dashboard
+  #### **3.1.2 Points Dashboard**
 
-#### 3.2.1 Campaign Configuration
-- **Description**: Tools to configure point allocation rules and campaign parameters
-- **Acceptance Criteria**:
-  - Admins can define point values for different activities
-  - Admins can configure multiplier thresholds
-  - System supports weekly adjustments to point calculations
-  - Changes are tracked with version history
-- **Technical Considerations**:
-  - Flexible rule engine
-  - Configuration versioning
-  - Change validation
+* **Description**: Display current weekly and season points with relevant statistics  
+* **Acceptance Criteria**:  
+  * Users can view their current weekly points (passive and active)  
+  * Users can view their accumulated season points  
+  * Users can see point breakdowns by activity type  
+  * Dashboard shows current multiplier based on XRD/LSUs holdings  
+  * Dashboard updates with latest information  
+  * Clear visualization of percentile ranking for each activity  
+* **Technical Considerations**:  
+  * Real-time data fetching  
+  * Efficient data aggregation  
+  * Clear visualization components  
+  * Time-weighted average calculations for passive points
 
-#### 3.2.2 Analytics Dashboard
-- **Description**: Comprehensive analytics on campaign performance and user engagement
-- **Acceptance Criteria**:
-  - Display key metrics: active users, total points, activity distribution
-  - Show trends over time for key metrics
-  - Provide detailed breakdowns by activity type
-  - Support custom date ranges for analysis
-- **Technical Considerations**:
-  - Data aggregation strategy
-  - Performance optimization for large datasets
-  - Visualization components
+  #### **3.1.3 Activity Tracking**
 
-#### 3.2.3 User Management
-- **Description**: Tools to manage user participation and address potential fraud
-- **Acceptance Criteria**:
-  - Admins can search for specific users/accounts
-  - Admins can view detailed user activity
-  - System flags suspicious patterns automatically
-  - Admins can exclude accounts from campaign if fraudulent
-- **Technical Considerations**:
-  - Efficient user search and filtering
-  - Fraud detection algorithms
-  - Account exclusion mechanism
+* **Description**: Show history of user's on-chain activities that have earned points  
+* **Acceptance Criteria**:  
+  * Users can view a chronological list of point-earning activities  
+  * Each activity shows type, timestamp, and points earned  
+  * Users can filter by activity type  
+  * System provides pagination for extensive activity history  
+* **Technical Considerations**:  
+  * Efficient indexing of activity data  
+  * Pagination implementation  
+  * Filter mechanisms
 
-#### 3.2.4 Reporting
-- **Description**: Generate and export reports on campaign performance
-- **Acceptance Criteria**:
-  - System generates weekly summary reports
-  - Admins can create custom reports
-  - Reports can be exported in various formats (CSV, PDF)
-  - Scheduled report generation option
-- **Technical Considerations**:
-  - Report template system
-  - Background processing for large reports
-  - Export functionality
+  #### **3.1.4 Multiplier Status**
 
-#### 3.2.5 Activities Management
-- **Description**: Comprehensive system for defining, configuring, and managing reward-earning activities
-- **Acceptance Criteria**:
-  - Admins can create and configure both passive and active activities
-  - System supports both direct points and multiplier reward mechanisms
-  - Admins can assign activities to specific weeks with associated point pools
-  - Activities can be activated/deactivated per week
-  - Configuration includes specialized parameters for each activity type
-- **Technical Considerations**:
-  - JSON schema for defining complex activity rules
-  - Type-specific rule editors for passive vs. active activities
-  - Multiplier calculation configuration tools
-  - Rule validation and simulation
+* **Description**: Display current multiplier status and requirements for higher multipliers  
+* **Acceptance Criteria**:  
+  * Users can view their current multiplier  
+  * System shows visualization of how additional XRD holdings would affect multiplier  
+  * Visual representation of the S-curve multiplier system  
+  * Clear explanation of how multipliers affect point calculation  
+* **Technical Considerations**:  
+  * Real-time calculation of multiplier based on holdings  
+  * Visual representation of complex S-curve multiplier calculation
 
-#### 3.2.6 Transaction Processing
-- **Description**: System for monitoring, validating, and processing on-chain transactions into activities
-- **Acceptance Criteria**:
-  - System monitors blockchain for relevant user transactions
-  - Transactions are analyzed to extract qualifying activities
-  - Each activity is linked to the originating transaction ID
-  - Monetary value (USD equivalent) is calculated for value-based distributions
-  - System applies relevant rules to determine points or multiplier effects
-- **Technical Considerations**:
-  - Blockchain integration via Radix Gateway SDK
-  - Transaction parsing engines
-  - Activity extraction logic
-  - Value calculation methods
+  #### **3.1.5 Leaderboards**
 
-#### 3.2.7 Week Completion Process
-- **Description**: Workflow for finalizing weekly points and converting them to season points
-- **Acceptance Criteria**:
-  - Admins can initiate and confirm week completion
-  - System applies multipliers to base points according to configuration
-  - Preview shows calculation breakdowns before finalization
-  - Process creates audit trail of all conversions
-  - System automatically resets for the next week
-- **Technical Considerations**:
-  - Multi-step verification process
-  - Points conversion pipeline
-  - Data archiving for completed weeks
-  - Audit logging
+* **Description**: Show user rankings based on points earned  
+* **Acceptance Criteria**:  
+  * Display global leaderboard showing top participants  
+  * Highlight user's current position  
+  * Provide weekly and seasonal leaderboards  
+  * Show points difference to next/previous rank  
+* **Technical Considerations**:  
+  * Efficient leaderboard calculation  
+  * Performance optimization for large user bases  
+  * Real-time updates
 
-## 4. Technical Architecture
+  ### **3.2 Administrator Dashboard**
 
-### 4.1 Technology Stack
-- **Frontend**: Next.js, TypeScript, Tailwind CSS, Shadcn, Radix UI
-- **Backend**: Node.js, TypeScript, tRPC
-- **Database**: PostgreSQL with Drizzle ORM
-- **Caching**: Redis
-- **Job Processing**: Bull MQ
-- **Containerization**: Docker
-- **Orchestration**: Kubernetes on AWS
-- **Blockchain Integration**: Radix Gateway SDK, Radix-dApp-toolkit
+  #### **3.2.1 Campaign Configuration**
 
-### 4.2 Data Model
+* **Description**: Tools to configure point allocation rules and campaign parameters  
+* **Acceptance Criteria**:  
+  * Admins can define point values for different activities  
+  * Admins can configure multiplier thresholds  
+  * System supports weekly adjustments to point calculations  
+  * Changes are tracked with version history  
+* **Technical Considerations**:  
+  * Flexible rule engine  
+  * Configuration versioning  
+  * Change validation
 
-#### 4.2.1 User
-- **Fields**:
-  - id (UUID): Unique identifier
-  - created_at (Timestamp): Account creation time
-  - updated_at (Timestamp): Last update time
-  - auth_id (String): Authentication identifier
-  - is_admin (Boolean): Administrator status
-  - is_active (Boolean): Account active status
-  - settings (JSON): User preferences
+  #### **3.2.2 Analytics Dashboard**
 
-#### 4.2.2 UserAccount
-- **Fields**:
-  - id (UUID): Unique identifier
-  - user_id (UUID): Reference to User
-  - account_address (String): Radix account address
-  - verified_at (Timestamp): Verification timestamp
-  - is_excluded (Boolean): Exclusion status
-  - multiplier (Decimal): Current multiplier value
-  - xrd_balance (Decimal): Current XRD balance
-  - lsu_balance (Decimal): Current LSU balance
-  - lsulp_balance (Decimal): Current LSULP balance
-  - holding_period_start (Timestamp): Start of asset holding period for multiplier calculation
+* **Description**: Comprehensive analytics on campaign performance and user engagement  
+* **Acceptance Criteria**:  
+  * Display key metrics: active users, total points, activity distribution  
+  * Show trends over time for key metrics  
+  * Provide detailed breakdowns by activity type  
+  * Support custom date ranges for analysis  
+* **Technical Considerations**:  
+  * Data aggregation strategy  
+  * Performance optimization for large datasets  
+  * Visualization components
 
-#### 4.2.3 Activity
-- **Fields**:
-  - id (UUID): Unique identifier
-  - name (String): Activity name
-  - description (String): Activity description
-  - type (Enum): Type of activity (passive/active)
-  - reward_type (Enum): Type of reward (points/multiplier)
-  - category (Enum): Category of activity (holding, trading, liquidity, etc.)
-  - rules (JSON): Detailed configuration for activity rules
+  #### **3.2.3 User Management**
 
-#### 4.2.4 Season
-- **Fields**:
-  - id (UUID): Unique identifier
-  - name (String): Season name
-  - start_date (Timestamp): Season start date
-  - end_date (Timestamp): Season end date
-  - status (Enum): Current status (upcoming, active, completed)
+* **Description**: Tools to manage user participation and address potential fraud  
+* **Acceptance Criteria**:  
+  * Admins can search for specific users/accounts  
+  * Admins can view detailed user activity  
+  * System flags suspicious patterns automatically (nice to have)   
+  * Admins can exclude X number of user activity from being rewarded weekly points if fraudulent  
+* **Technical Considerations**:  
+  * Efficient user search and filtering  
+  * Fraud detection algorithms (nice to have)   
+  * Account exclusion mechanism
 
-#### 4.2.5 Week
-- **Fields**:
-  - id (UUID): Unique identifier
-  - season_id (UUID): Reference to Season
-  - start_date (Timestamp): Week start date
-  - end_date (Timestamp): Week end date
-  - status (Enum): Current status (upcoming, active, completed)
-  - is_processed (Boolean): Whether week has been completed and points converted
+  #### **3.2.4 Reporting**
 
-#### 4.2.6 ActivityWeek
-- **Fields**:
-  - id (UUID): Unique identifier
-  - activity_id (UUID): Reference to Activity
-  - week_id (UUID): Reference to Week
-  - points_pool (Decimal): Total points allocated for points-based activity
-  - status (Enum): Status for this activity in this week (active, inactive)
+* **Description**: Generate and export reports on campaign performance  
+* **Acceptance Criteria**:  
+  * System generates weekly summary reports  
+  * Admins can create custom reports  
+  * Reports can be exported in various formats (CSV, PDF)  
+  * Scheduled report generation option  
+* **Technical Considerations**:  
+  * Report template system  
+  * Background processing for large reports  
+  * Export functionality
 
-#### 4.2.7 Transaction
-- **Fields**:
-  - id (UUID): Unique identifier
-  - transaction_id (String): Blockchain transaction ID
-  - user_id (UUID): Reference to User
-  - timestamp (Timestamp): When transaction occurred
-  - state_version (String): Blockchain state version
-  - raw_data (JSON): Complete transaction data
-  - processed_at (Timestamp): When transaction was processed
+  #### **3.2.5 Activities Management**
 
-#### 4.2.8 UserActivity
-- **Fields**:
-  - id (UUID): Unique identifier
-  - user_id (UUID): Reference to User
-  - activity_id (UUID): Reference to Activity
-  - week_id (UUID): Reference to Week
-  - transaction_id (UUID): Reference to Transaction (may be null for passive activities)
-  - timestamp (Timestamp): When activity occurred
-  - value (Decimal): Monetary equivalent/USD value of activity
-  - metadata (JSON): Additional context and information
+* **Description**: Comprehensive system for defining, configuring, and managing reward-earning activities  
+* **Acceptance Criteria**:  
+  * Admins can create and configure both passive and active activities  
+  * System supports both direct points and multiplier reward mechanisms  
+  * Admins can assign activities to specific weeks with associated point pools  
+  * Activities can be activated/deactivated per week  
+  * Configuration includes specialized parameters for each activity type  
+* **Technical Considerations**:  
+  * JSON schema for defining complex activity rules  
+  * Type-specific rule editors for passive vs. active activities  
+  * Multiplier calculation configuration tools  
+  * Rule validation and simulation
 
-#### 4.2.9 UserWeeklyPoints
-- **Fields**:
-  - id (UUID): Unique identifier
-  - user_id (UUID): Reference to User
-  - week_id (UUID): Reference to Week
-  - activity_points (JSON): Mapping of activity IDs to points
-  - base_points (Decimal): Sum of direct points before multipliers
-  - applied_multiplier (Decimal): Calculated multiplier to apply
-  - total_points (Decimal): base_points * applied_multiplier
-  - is_converted (Boolean): Whether points have been converted to season points
+  #### **3.2.6 Transaction Processing**
 
-#### 4.2.10 UserWeeklyMultipliers
-- **Fields**:
-  - id (UUID): Unique identifier
-  - user_id (UUID): Reference to User
-  - week_id (UUID): Reference to Week
-  - activity_multipliers (JSON): Mapping of activity IDs to multipliers
-  - total_multiplier (Decimal): Combined multiplier from all sources
+* **Description**: System for monitoring, validating, and processing on-chain transactions into activities  
+* **Acceptance Criteria**:  
+  * System monitors blockchain for relevant user transactions  
+  * Transactions are analyzed to extract qualifying activities  
+  * Each activity is linked to the originating transaction ID  
+  * Monetary value (USD equivalent) is calculated for value-based distributions  
+  * System applies relevant rules to determine points or multiplier effects  
+* **Technical Considerations**:  
+  * Blockchain integration via Radix Gateway SDK  
+  * Transaction parsing engines  
+  * Activity extraction logic  
+  * Value calculation methods
 
-#### 4.2.11 UserSeasonPoints
-- **Fields**:
-  - id (UUID): Unique identifier
-  - user_id (UUID): Reference to User
-  - season_id (UUID): Reference to Season
-  - total_points (Decimal): Total accumulated season points
-  - rank (Integer): User's rank within the season
+  #### **3.2.7 Week Completion Process**
 
-### 4.3 API Structure
+* **Description**: Workflow for finalizing weekly points and converting them to season points  
+* **Acceptance Criteria**:  
+  * Admins can initiate and confirm week completion  
+  * System applies multipliers to base points according to configuration  
+  * Preview shows calculation breakdowns before finalization  
+  * Process creates audit trail of all conversions  
+  * System automatically resets for the next week  
+* **Technical Considerations**:  
+  * Multi-step verification process  
+  * Points conversion pipeline  
+  * Data archiving for completed weeks  
+  * Audit logging
+
+  ## **4\. Technical Architecture**
+
+  ### **4.1 Technology Stack**
+
+* **Frontend**: Next.js, TypeScript, Tailwind CSS, Shadcn, Radix UI  
+* **Backend**: Node.js, TypeScript, tRPC  
+* **Database**: PostgreSQL with Drizzle ORM  
+* **Caching**: Redis  
+* **Job Processing**: Bull MQ  
+* **Containerization**: Docker  
+* **Orchestration**: Kubernetes on AWS  
+* **Blockchain Integration**: Radix Gateway SDK, Radix-dApp-toolkit
+
+  ### **4.2 Data Model**
+
+  #### **4.2.1 User**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * created\_at (Timestamp): Account creation time  
+  * updated\_at (Timestamp): Last update time  
+  * auth\_id (String): Authentication identifier  
+  * is\_admin (Boolean): Administrator status  
+  * is\_active (Boolean): Account active status  
+  * settings (JSON): User preferences
+
+  #### **4.2.2 UserAccount**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * user\_id (UUID): Reference to User  
+  * account\_address (String): Radix account address  
+  * verified\_at (Timestamp): Verification timestamp  
+  * is\_excluded (Boolean): Exclusion status  
+  * multiplier (Decimal): Current multiplier value  
+  * xrd\_balance (Decimal): Current XRD balance  
+  * lsu\_balance (Decimal): Current LSU balance  
+  * lsulp\_balance (Decimal): Current LSULP balance  
+  * holding\_period\_start (Timestamp): Start of asset holding period for multiplier calculation
+
+  #### **4.2.3 Activity**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * name (String): Activity name  
+  * description (String): Activity description  
+  * type (Enum): Type of activity (passive/active)  
+  * reward\_type (Enum): Type of reward (points/multiplier)  
+  * category (Enum): Category of activity (holding, trading, liquidity, etc.)  
+  * rules (JSON): Detailed configuration for activity rules
+
+  #### **4.2.4 Season**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * name (String): Season name  
+  * start\_date (Timestamp): Season start date  
+  * end\_date (Timestamp): Season end date  
+  * status (Enum): Current status (upcoming, active, completed)
+
+  #### **4.2.5 Week**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * season\_id (UUID): Reference to Season  
+  * start\_date (Timestamp): Week start date  
+  * end\_date (Timestamp): Week end date  
+  * status (Enum): Current status (upcoming, active, completed)  
+  * is\_processed (Boolean): Whether week has been completed and points converted
+
+  #### **4.2.6 ActivityWeek**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * activity\_id (UUID): Reference to Activity  
+  * week\_id (UUID): Reference to Week  
+  * points\_pool (Decimal): Total points allocated for points-based activity  
+  * status (Enum): Status for this activity in this week (active, inactive)
+
+  #### **4.2.7 Transaction**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * transaction\_id (String): Blockchain transaction ID  
+  * user\_id (UUID): Reference to User  
+  * timestamp (Timestamp): When transaction occurred  
+  * state\_version (String): Blockchain state version  
+  * raw\_data (JSON): Complete transaction data  
+  * processed\_at (Timestamp): When transaction was processed
+
+  #### **4.2.8 UserActivity**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * user\_id (UUID): Reference to User  
+  * activity\_id (UUID): Reference to Activity  
+  * week\_id (UUID): Reference to Week  
+  * transaction\_id (UUID): Reference to Transaction (may be null for passive activities)  
+  * timestamp (Timestamp): When activity occurred  
+  * value (Decimal): Monetary equivalent/USD value of activity  
+  * metadata (JSON): Additional context and information
+
+  #### **4.2.9 UserWeeklyPoints**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * user\_id (UUID): Reference to User  
+  * week\_id (UUID): Reference to Week  
+  * activity\_points (JSON): Mapping of activity IDs to points  
+  * base\_points (Decimal): Sum of direct points before multipliers  
+  * applied\_multiplier (Decimal): Calculated multiplier to apply  
+  * total\_points (Decimal): base\_points \* applied\_multiplier  
+  * is\_converted (Boolean): Whether points have been converted to season points
+
+  #### **4.2.10 UserWeeklyMultipliers**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * user\_id (UUID): Reference to User  
+  * week\_id (UUID): Reference to Week  
+  * activity\_multipliers (JSON): Mapping of activity IDs to multipliers  
+  * total\_multiplier (Decimal): Combined multiplier from all sources  
+    * Comment: for clarity here, I believe there will be two types of multiplier:  
+      * 1 \- the XRD held multiplier, this will be used to multiple the amount of season points the user earned a week and will be applied to all SP.  
+      * 2 \- each activity may have a multiplier, but this just means the "pool" of SP that activity gives out is changed so not on a per account basis
+
+      
+
+  #### **4.2.11 UserSeasonPoints**
+
+* **Fields**:  
+  * id (UUID): Unique identifier  
+  * user\_id (UUID): Reference to User  
+  * season\_id (UUID): Reference to Season  
+  * total\_points (Decimal): Total accumulated season points  
+  * rank (Integer): User's rank within the season
+
+  ### **4.3 API Structure**
+
 The API will be implemented using tRPC to provide type-safe API endpoints.
 
-#### 4.3.1 User API
-- `connectWallet`: Connect user wallet via Radix Connect
-- `verifyAccount`: Verify account ownership via ROLA
-- `getUserPoints`: Get user's weekly and season points
-- `getUserActivities`: Get user's point-earning activities
-- `getLeaderboard`: Get current leaderboard standings
+#### **4.3.1 User API**
 
-#### 4.3.2 Admin API
-- `updateCampaignConfig`: Update campaign configuration
-- `getUserDetails`: Get detailed information about a user
-- `excludeAccount`: Exclude account from campaign
-- `generateReport`: Generate custom report
-- `getAnalytics`: Get campaign analytics data
-- `createActivity`: Create new activity with type-specific configuration
-- `assignActivityToWeek`: Assign activity to specific week with points allocation
-- `updateActivityRules`: Update JSON rules for activity
-- `completeWeek`: Process week completion and points conversion
-- `processTransaction`: Manually process or verify a transaction
-- `configureMultiplier`: Configure multiplier calculation parameters
+* connectWallet: Connect user wallet via Radix Connect  
+* verifyAccount: Verify account ownership via ROLA  
+* getUserPoints: Get user's weekly and season points  
+* getUserActivities: Get user's point-earning activities  
+* getLeaderboard: Get current leaderboard standings
 
-### 4.4 Integration Points
+  #### **4.3.2 Admin API**
 
-#### 4.4.1 Radix Gateway SDK
-- Query blockchain transactions
-- Monitor on-chain activities
-- Fetch account balances for multiplier calculations
+* updateCampaignConfig: Update campaign configuration  
+* getUserDetails: Get detailed information about a user  
+* excludeAccount: Exclude account from campaign  
+* generateReport: Generate custom report  
+* getAnalytics: Get campaign analytics data  
+* createActivity: Create new activity with type-specific configuration  
+* assignActivityToWeek: Assign activity to specific week with points allocation  
+* updateActivityRules: Update JSON rules for activity  
+* completeWeek: Process week completion and points conversion  
+* processTransaction: Manually process or verify a transaction  
+* configureMultiplier: Configure multiplier calculation parameters
 
-#### 4.4.2 Radix-dApp-toolkit
-- Facilitate wallet connections
-- Implement ROLA authentication
-- Enable secure communication with Radix wallets
+  ### **4.4 Integration Points**
 
-#### 4.4.3 Bull MQ
-- Process transaction data in the background
-- Calculate weekly and season points
-- Generate reports
-- Update leaderboards
+  #### **4.4.1 Radix Gateway SDK**
 
-## 5. User Interface
+* Query blockchain transactions  
+* Monitor on-chain activities  
+* Fetch account balances for multiplier calculations
 
-### 5.1 General UI Requirements
-- Dark mode design
-- Mobile responsive layout
-- Accessible interface following WCAG guidelines
-- Consistent branding with Radix design language
-- Real-time updates where appropriate
-- Loading states for asynchronous operations
+  #### **4.4.2 Radix-dApp-toolkit**
 
-### 5.2 User Dashboard Screens
+* Facilitate wallet connections  
+* Implement ROLA authentication  
+* Enable secure communication with Radix wallets
 
-#### 5.2.1 Home Dashboard
-- Points summary (weekly and season)
-- Activity highlights
-- Leaderboard position
-- Multiplier status
-- Quick links to other sections
+  #### **4.4.3 Bull MQ**
 
-#### 5.2.2 Activity History
-- Filterable list of activities
-- Points earned per activity
-- Timestamp and transaction details
-- Pagination controls
+* Process transaction data in the background  
+* Calculate weekly and season points  
+* Generate reports  
+* Update leaderboards
 
-#### 5.2.3 Leaderboard
-- Global rankings
-- User's current position
-- Weekly and season toggle
-- Points distribution visualization
+  #### **4.4.4 dApp integrations**
 
-#### 5.2.4 Account Management
-- Connected accounts list
-- Account verification status
-- Add/remove account functionality
-- Account-specific metrics
+* API integrations for fetching overlaying assets in derivatives, e.g. C9 LP position NFT  
+* TBD
 
-### 5.3 Admin Dashboard Screens
+	
 
-#### 5.3.1 Admin Home
-- Campaign overview metrics
-- Recent activity summary
-- Alerts for potential issues
-- Quick links to configuration tools
+## **5\. User Interface**
 
-#### 5.3.2 Campaign Configuration
-- Activity point allocation interface
-- Multiplier threshold configuration
-- Rule editor for point calculations
-- Version history of configurations
+### **5.1 General UI Requirements**
 
-#### 5.3.3 Analytics
-- Key metrics visualization
-- Trend analysis graphs
-- Activity distribution charts
-- User engagement metrics
+* Dark mode design  
+* Mobile responsive layout  
+* Accessible interface following WCAG guidelines  
+* Consistent branding with Radix design language  
+* Real-time updates where appropriate  
+* Loading states for asynchronous operations
 
-#### 5.3.4 User Management
-- User search and filtering
-- Detailed user activity view
-- Account exclusion tools
-- Fraud detection alerts
+  ### **5.2 User Dashboard Screens**
 
-#### 5.3.5 Reporting
-- Report template selection
-- Custom report configuration
-- Export options
-- Scheduled reports management
+  #### **5.2.1 Home Dashboard**
 
-#### 5.3.6 Activities Management
-- Activity list with status, type, and reward mechanism
-- Type-specific activity detail pages:
-  - Passive activities with points/multiplier toggle
-  - Active activities with transaction parameters
-- JSON rule editor with form-based controls
-- Activity-Week assignment interface
-- Points pool allocation tools
+* Points summary (weekly and season)  
+* Activity highlights  
+* Leaderboard position  
+* Multiplier status  
+* Quick links to other sections
 
-#### 5.3.7 Transaction Explorer
-- Transaction list with filtering options
-- Activity extraction verification
-- Links to Radix Dashboard for transaction details
-- Transaction ID integration with official explorer
+  #### **5.2.2 Activity History**
 
-#### 5.3.8 Multiplier Configuration
-- Multiplier formula editor (S-curve, tiered, linear)
-- Visual curve editor with interactive parameters
-- Stacking rules configuration
-- Multiplier caps and floors
-- Simulation tools with real-world examples
+* Filterable list of activities  
+* Points earned per activity  
+* Timestamp and transaction details  
+* Pagination controls
 
-#### 5.3.9 Week Completion Console
-- Week status dashboard
-- Week completion workflow with verification steps
-- Points conversion preview showing multiplier effects
-- Audit history view
+  #### **5.2.3 Leaderboard**
 
-## 6. Non-functional Requirements
+* Global rankings  
+* User's current position  
+* Weekly and season toggle  
+* Points distribution visualization
 
-### 6.1 Performance
-- Dashboard load time < 2 seconds
-- API response time < 500ms for 95% of requests
-- Support for 1M potential users
-- Efficient handling of large transaction volumes
+  #### **5.2.4 Account Management**
 
-### 6.2 Security
-- Secure authentication using ROLA
-- Data encryption for sensitive information
-- HTTPS implementation
-- Input validation on all endpoints
-- Protection against common web vulnerabilities
+* Connected accounts list  
+* Account verification status  
+* Add/remove account functionality  
+* Account-specific metrics
 
-### 6.3 Scalability
-- Horizontal scaling capability
-- Database sharding strategy for user data
-- Caching implementation for frequently accessed data
-- Background processing for computationally intensive tasks
+  ### **5.3 Admin Dashboard Screens**
 
-### 6.4 Availability
-- 99.9% uptime target
-- Graceful degradation during partial outages
-- Scheduled maintenance windows
+  #### **5.3.1 Admin Home**
 
-### 6.5 Monitoring
-- Real-time system health monitoring
-- Transaction processing metrics
-- API performance tracking
-- Error logging and alerting
+* Campaign overview metrics  
+* Recent activity summary  
+* Alerts for potential issues  
+* Quick links to configuration tools
 
-## 7. Development Phases
+  #### **5.3.2 Campaign Configuration**
 
-### 7.1 Phase 1: Core Infrastructure (4 weeks)
-- Set up AWS Kubernetes environment
-- Implement database schema
-- Build blockchain integration components
-- Develop authentication system
-- Create basic API structure
+* Activity point allocation interface  
+* Multiplier threshold configuration  
+* Rule editor for point calculations  
+* Version history of configurations
 
-### 7.2 Phase 2: Admin Dashboard (4 weeks)
-- Develop campaign configuration interface
-- Implement points calculation engine
-- Create basic analytics dashboard
-- Build user management tools
-- Develop reporting functionality
-- Implement activities management system
-- Create transaction processing pipeline
-- Build week completion workflow
+  #### **5.3.3 Analytics**
 
-### 7.3 Phase 3: User Dashboard (4 weeks)
-- Implement wallet connection interface
-- Develop points display and activity tracking
-- Create leaderboard functionality
-- Build account management features
-- Implement multiplier visualization
+* Key metrics visualization  
+* Trend analysis graphs  
+* Activity distribution charts  
+* User engagement metrics
 
-### 7.4 Phase 4: Testing and Optimization (2 weeks)
-- Conduct performance testing
-- Optimize database queries
-- Implement caching strategy
-- Address security vulnerabilities
-- Finalize mobile responsive design
+  #### **5.3.4 User Management**
 
-### 7.5 Phase 5: Launch and Monitoring (2 weeks)
-- Deploy to production environment
-- Implement monitoring and alerting
-- Create documentation
-- User acceptance testing
-- Post-launch support
+* User search and filtering  
+* Detailed user activity view  
+* Account exclusion tools  
+* Fraud detection alerts
 
-## 8. Risks and Mitigation
+  #### **5.3.5 Reporting**
 
-### 8.1 Technical Risks
-- **Risk**: High transaction volume affecting performance
-  - **Mitigation**: Implement efficient indexing, caching, and background processing
-- **Risk**: Blockchain data integration challenges
-  - **Mitigation**: Use Radix Gateway SDK with fallback mechanisms
-- **Risk**: Scaling issues with large user base
-  - **Mitigation**: Design for horizontal scaling from the beginning
-- **Risk**: Complexity in handling both direct points and multiplier calculations
-  - **Mitigation**: Clear separation of concerns, modular services, comprehensive testing
-- **Risk**: Transaction parsing errors leading to missed activities
-  - **Mitigation**: Robust parsing engines, fallback detection mechanisms, manual verification tools
-- **Risk**: Inaccurate monetary value calculation for activities
-  - **Mitigation**: Multiple price oracles, time-weighted value calculations, anomaly detection
-- **Risk**: Performance issues with complex multiplier calculations
-  - **Mitigation**: Optimized algorithms, pre-calculation of common scenarios, caching strategies
+* Report template selection  
+* Custom report configuration  
+* Export options  
+* Scheduled reports management
 
-### 8.2 Business Risks
-- **Risk**: Exploitation of point system
-  - **Mitigation**: Implement fraud detection and weekly rule adjustments
-- **Risk**: Low user engagement
-  - **Mitigation**: Design intuitive UI and clear value proposition
-- **Risk**: Campaign rule complexity
-  - **Mitigation**: Create flexible rule engine with version control
-- **Risk**: User confusion about multiplier effects on final points
-  - **Mitigation**: Transparent UI showing both base points and multiplier effects, simulation tools
-- **Risk**: Imbalance between points-based and multiplier-based strategies
-  - **Mitigation**: Frequent analysis of reward patterns, adjustable parameters, caps on multipliers
-- **Risk**: Multiplier stacking creating excessive point inflation
-  - **Mitigation**: Clear stacking rules, global caps, diminishing returns on stacked multipliers
-- **Risk**: Multi-wallet strategies circumventing multiplier limits
-  - **Mitigation**: Account linking detection, global user limits, anti-Sybil measures
+  #### **5.3.6 Activities Management**
 
-## 9. Future Enhancements
+* Activity list with status, type, and reward mechanism  
+* Type-specific activity detail pages:  
+  * Passive activities with points/multiplier toggle  
+  * Active activities with transaction parameters  
+* JSON rule editor with form-based controls  
+* Activity-Week assignment interface  
+* Points pool allocation tools
 
-### 9.1 Potential Features
-- Predictive analytics for user behavior
-- Advanced fraud detection using machine learning
-- Mobile application version
-- API for third-party integrations
-- Enhanced visualization tools for complex data
-- Social features for community engagement
-- Dynamic multiplier adjustments based on ecosystem health
-- Personalized multiplier paths based on user behavior
-- Advanced multiplier stacking rules and combinations
-- Cross-activity multipliers (e.g., holding one asset boosts rewards for trading another)
-- AI-powered rule recommendations based on participation data
-- Automated anomaly detection for activity gaming
-- Scheduled week completion with approval workflow
-- Activity effectiveness scoring based on engagement and multiplier impact
+  #### **5.3.7 Transaction Explorer**
 
-## 10. Outstanding Questions and Considerations
+* Transaction list with filtering options  
+* Activity extraction verification  
+* Links to Radix Dashboard for transaction details  
+* Transaction ID integration with official explorer
+
+  #### **5.3.8 Multiplier Configuration**
+
+* Multiplier formula configuration (S-curve)  
+* Multiplier caps and floors
+
+  #### **5.3.9 Week Completion Console**
+
+* Week status dashboard  
+* Week completion workflow with verification steps  
+* Points conversion preview showing multiplier effects  
+* Audit history view
+
+  ## **6\. Non-functional Requirements**
+
+  ### **6.1 Performance**
+
+* Dashboard load time \< 2 seconds  
+* API response time \< 500ms for 95% of requests  
+* Support for 1M potential users  
+* Efficient handling of large transaction volumes
+
+  ### **6.2 Security**
+
+* Secure authentication using ROLA  
+* Data encryption for sensitive information  
+* HTTPS implementation  
+* Input validation on all endpoints  
+* Protection against common web vulnerabilities
+
+  ### **6.3 Scalability**
+
+* Horizontal scaling capability  
+* Database sharding strategy for user data  
+* Caching implementation for frequently accessed data  
+* Background processing for computationally intensive tasks
+
+  ### **6.4 Availability**
+
+* 99.9% uptime target  
+* Graceful degradation during partial outages  
+* Scheduled maintenance windows
+
+  ### **6.5 Monitoring**
+
+* Real-time system health monitoring  
+* Transaction processing metrics  
+* API performance tracking  
+* Error logging and alerting
+
+  ## **7\. Development Phases**
+
+  ### **7.1 Phase 1: Core Infrastructure (4 weeks)**
+
+* Set up AWS Kubernetes environment  
+* Implement database schema  
+* Build blockchain integration components  
+* Develop authentication system  
+* Create basic API structure
+
+  ### **7.2 Phase 2: Admin Dashboard (4 weeks)**
+
+* Develop campaign configuration interface  
+* Implement points calculation engine  
+* Create basic analytics dashboard  
+* Build user management tools  
+* Develop reporting functionality  
+* Implement activities management system  
+* Create transaction processing pipeline  
+* Build week completion workflow
+
+  ### **7.3 Phase 3: User Dashboard (4 weeks)**
+
+* Implement wallet connection interface  
+* Develop points display and activity tracking  
+* Create leaderboard functionality  
+* Build account management features  
+* Implement multiplier visualization
+
+  ### **7.4 Phase 4: Testing and Optimization (2 weeks)**
+
+* Conduct performance testing  
+* Optimize database queries  
+* Implement caching strategy  
+* Address security vulnerabilities  
+* Finalize mobile responsive design
+
+  ### **7.5 Phase 5: Launch and Monitoring (2 weeks)**
+
+* Deploy to production environment  
+* Implement monitoring and alerting  
+* Create documentation  
+* User acceptance testing  
+* Post-launch support
+
+  ## **8\. Risks and Mitigation**
+
+  ### **8.1 Technical Risks**
+
+* **Risk**: High transaction volume affecting performance  
+  * **Mitigation**: Implement efficient indexing, caching, and background processing  
+* **Risk**: Blockchain data integration challenges  
+  * **Mitigation**: Use Radix Gateway SDK with fallback mechanisms  
+* **Risk**: Scaling issues with large user base  
+  * **Mitigation**: Design for horizontal scaling from the beginning  
+* **Risk**: Complexity in handling both direct points and multiplier calculations  
+  * **Mitigation**: Clear separation of concerns, modular services, comprehensive testing  
+* **Risk**: Transaction parsing errors leading to missed activities  
+  * **Mitigation**: Robust parsing engines, fallback detection mechanisms, manual verification tools  
+* **Risk**: Inaccurate monetary value calculation for activities  
+  * **Mitigation**: Multiple price oracles, time-weighted value calculations, anomaly detection  
+* **Risk**: Performance issues with complex multiplier calculations  
+  * **Mitigation**: Optimized algorithms, pre-calculation of common scenarios, caching strategies
+
+  ### **8.2 Business Risks**
+
+* **Risk**: Exploitation of point system  
+  * **Mitigation**: Implement fraud detection and weekly rule adjustments  
+* **Risk**: Low user engagement  
+  * **Mitigation**: Design intuitive UI and clear value proposition  
+* **Risk**: Campaign rule complexity  
+  * **Mitigation**: Create flexible rule engine with version control  
+* **Risk**: User confusion about multiplier effects on final points  
+  * **Mitigation**: Transparent UI showing both base points and multiplier effects, simulation tools  
+* **Risk**: Imbalance between points-based and multiplier-based strategies  
+  * **Mitigation**: Frequent analysis of reward patterns, adjustable parameters, caps on multipliers  
+* **Risk**: Multiplier stacking creating excessive point inflation  
+  * **Mitigation**: Clear stacking rules, global caps, diminishing returns on stacked multipliers  
+* **Risk**: Multi-wallet strategies circumventing multiplier limits  
+  * **Mitigation**: Account linking detection, global user limits, anti-Sybil measures
+
+  ## **9\. Future Enhancements**
+
+  ### **9.1 Potential Features**
+
+* Predictive analytics for user behavior  
+* Advanced fraud detection using machine learning  
+* Mobile application version  
+* API for third-party integrations  
+* Enhanced visualization tools for complex data  
+* Social features for community engagement  
+* Dynamic multiplier adjustments based on ecosystem health  
+* Personalized multiplier paths based on user behavior  
+* Advanced multiplier stacking rules and combinations  
+* Cross-activity multipliers (e.g., holding one asset boosts rewards for trading another)  
+* AI-powered rule recommendations based on participation data  
+* Automated anomaly detection for activity gaming  
+* Scheduled week completion with approval workflow  
+* Activity effectiveness scoring based on engagement and multiplier impact
+
+  ## **10\. Outstanding Questions and Considerations**
 
 The following questions require further discussion and decisions before final implementation:
 
-### 10.1 Points System Design Considerations
-1. **Derivative Assets**: Should the system include base assets of derivatives like Sonic (e.g., yxUSDC minted from xUSDC) in the activity calculations?
-2. **Activity Valuation**: Should activity be valued based on transaction counts or USD value?
-3. **Multi-wallet Strategy**: 
-   - Does either proposed allocation methodology or the S-curve eliminate the advantage of splitting tokens across multiple wallets versus holding the same total amount in a single wallet?
-   - Does this need to be a percentile rather than absolute value due to looping (e.g., lend XRD on root to borrow XRD to lend etc.)?
-   - What activities should be limited to the whitelist?
+### **10.1 Points System Design Considerations**
 
-### 10.2 Anti-Exploitation Mechanisms
-1. **Minimum Holding Requirements**: Is the $50 XRD minimum holding requirement, combined with the other proposed anti-farming measures, sufficient to prevent exploitation? While this threshold appears designed to maintain accessibility for new users, it may be too low to effectively deter farming behavior.
+1. **Derivative Assets**: Should the system include base assets of derivatives like Sonic (e.g., yxUSDC minted from xUSDC) in the activity calculations?  
+2. **Activity Valuation**: Should activity be valued based on transaction counts or USD value?  
+3. **Multi-wallet Strategy**:  
+   * Does either proposed allocation methodology or the S-curve eliminate the advantage of splitting tokens across multiple wallets versus holding the same total amount in a single wallet?  
+   * Does this need to be a percentile rather than absolute value due to looping (e.g., lend XRD on root to borrow XRD to lend etc.)?  
+     1. Most probably not.  
+   * What activities should be limited to the whitelist?
 
-### 10.3 Reward Distribution Mechanics
-1. **Reward Thresholds**: Should everyone who earns season points get some reward, or should there be a minimum cutoff (e.g., must be above the 20th percentile of accounts to get any XRD rewards)?
-2. **Distribution Mechanism**: Should the distribution be automatic, or should there be a claim button? Unclaimed rewards could be used to incentivize the next season, or they could be burned.
-3. **Referral System**: Should the platform include a referral system to help bring people from outside of Radix's ecosystem?
+   ### **10.2 Anti-Exploitation Mechanisms**
 
-## 11. Activity Types and Point Allocation
+1. **Minimum Holding Requirements**: Is the $50 XRD minimum holding requirement, combined with the other proposed anti-farming measures, sufficient to prevent exploitation? While this threshold appears designed to maintain accessibility for new users, it may be too low to effectively deter farming behavior.  
+   1. Minimum to earn ANY points, but a \<1 multiplier until larger values. Could combine with the lowest percentiles for activity earning no SP
 
-### 11.1 Activity Definitions, Categories, and Reward Types
+   ### **10.3 Reward Distribution Mechanics**
 
-#### 11.1.1 Passive Activities
+1. **Reward Thresholds**: Should everyone who earns season points get some reward, or should there be a minimum cutoff (e.g., must be above the 20th percentile of accounts to get any XRD rewards)?  
+   1. There are 3 places we could have minimums:  
+      1. 1 \- X amount of XRD/LSU  
+      2. 2 \- Weekly points (\>20th percentile)  
+      3. 3 \- Season points (\>20th percentile)  
+2. **Distribution Mechanism**: Should the distribution be automatic, or should there be a claim button? Unclaimed rewards could be used to incentivize the next season, or they could be burned.  
+   1. User claims  
+3. **Referral System**: Should the platform include a referral system to help bring people from outside of Radix's ecosystem?  
+   1. Ideally, but can be easily gamed. Perhaps a one time season point bonus?  
+   2. Either way, would suggest this isn't a launch feature requirement
+
+   ## **11\. Activity Types and Point Allocation**
+
+   ### **11.1 Activity Definitions, Categories, and Reward Types**
+
+   #### **11.1.1 Multiplier bonuses**
+
+* **Holding XRD**: Maintaining a balance of XRD tokens  
+  * Reward Type: multiplier bonus  
+  * Measurement: Time-weighted average of holdings  
+  * Minimum Requirements: $50 worth of XRD, 24-hour holding period  
+* **Holding LSUs**: Owning liquid staking units from staking XRD  
+  * Reward Type: multiplier bonus  
+  * Measurement: Time-weighted average of LSU holdings  
+  * Special Considerations: Validator-specific LSUs may be tracked separately
+
+  #### **11.1.2 Passive Activities**
+
+Reward rate MUST be lower than deploying the assets as liquidity in dApps
+
 Passive activities require minimal ongoing user action and generally involve holding assets over time:
 
-- **Holding XRD**: Maintaining a balance of XRD tokens
-  - Reward Type: Can provide either direct points or multiplier bonuses
-  - Measurement: Time-weighted average of holdings
-  - Minimum Requirements: $50 worth of XRD, 24-hour holding period
+* **Holding Stablecoins**: Maintaining balances of tokens like xUSDC, xUSDT  
+  * Reward Type: Typically direct points  
+  * Measurement: Time-weighted average of holdings  
+  * Minimum Requirements: Equivalent to $50, 24-hour holding period  
+* **Holding NFTs**: Owning NFTs from specified collections  
+  * Reward Type: Typically direct points, possibly small multipliers  
+  * Measurement: Periodic snapshots of ownership  
+  * Special Considerations: Points may vary based on rarity tiers
 
-- **Holding LSUs**: Owning liquid staking units from staking XRD
-  - Reward Type: Can provide either direct points or multiplier bonuses
-  - Measurement: Time-weighted average of LSU holdings
-  - Special Considerations: Validator-specific LSUs may be tracked separately
+  #### **11.1.3 Active Activities**
 
-- **Holding Stablecoins**: Maintaining balances of tokens like xUSDC, xUSDT
-  - Reward Type: Typically direct points
-  - Measurement: Time-weighted average of holdings
-  - Minimum Requirements: Equivalent to $50, 24-hour holding period
-
-- **Holding NFTs**: Owning NFTs from specified collections
-  - Reward Type: Typically direct points, possibly small multipliers
-  - Measurement: Periodic snapshots of ownership
-  - Special Considerations: Points may vary based on rarity tiers
-
-#### 11.1.2 Active Activities
 Active activities require specific user transactions and direct engagement with the network:
 
-- **DEX Swaps**: Trading tokens on decentralized exchanges
-  - Reward Type: Direct points
-  - Measurement: Transaction counts and USD value
-  - Special Considerations: Minimum transaction value thresholds
+* **DEX Swaps**: Trading tokens on decentralized exchanges  
+  * Reward Type: Direct points  
+  * Measurement: Transaction counts and USD value  
+  * Special Considerations: Minimum transaction value thresholds to stop wash trading to farm points  
+  * Should also consider a maximum number of Tx per day that can get rewarded  
+* **Adding Liquidity**: Creating new liquidity positions  
+  * Reward Type: Direct points  
+  * Measurement: USD value of liquidity added  
+  * Special Considerations: Distinguished from ongoing liquidity provision  
+* **Providing Liquidity**: Maintaining liquidity positions in pools  
+  * Reward Type: Direct points  
+  * Measurement: Time-weighted average of liquidity value  
+  * Special Considerations: Both Root and Weft DEX positions counted  
+* **Lending/Borrowing**: Interactions with lending protocols  
+  * Reward Type: Direct points  
+  * Measurement: USD value and duration of lending/borrowing  
+  * Special Considerations: Points for both lending and borrowing actions  
+* **Minting**: Creating new tokens or NFTs  
+  * Reward Type: Direct points  
+  * Measurement: Transaction counts and USD value  
+  * Special Considerations: Limited to specific whitelisted assets  
+* **Using Dapp: using a specific dApp, or perhaps number of unique components interacted with per week?**  
+  * **Reward Type: Direct points**  
+  * **Measurement: Transaction counts**  
+  * **Special Considerations: ??**
 
-- **Adding Liquidity**: Creating new liquidity positions
-  - Reward Type: Direct points
-  - Measurement: USD value of liquidity added
-  - Special Considerations: Distinguished from ongoing liquidity provision
+  ### **11.2 Multiplier System**
 
-- **Providing Liquidity**: Maintaining liquidity positions in pools
-  - Reward Type: Direct points
-  - Measurement: Time-weighted average of liquidity value
-  - Special Considerations: Both Root and Weft DEX positions counted
+  #### **11.2.1 Multiplier Types**
 
-- **Lending/Borrowing**: Interactions with lending protocols
-  - Reward Type: Direct points
-  - Measurement: USD value and duration of lending/borrowing
-  - Special Considerations: Points for both lending and borrowing actions
+* **XRD Holding Multipliers**: Based on balance of XRD tokens  
+* **LSU Holding Multipliers**: Based on staked XRD represented by LSUs  
+* **Liquidity Provision Multipliers**: Based on LP tokens held. especially if these positions use XRD/LSU as LP  
+* **NFT Ownership Multipliers**: Based on specific NFT collections. Whitelisted only \- likely just Radmorphs  
+* **Composite Multipliers**: Combinations of multiple factors
 
-- **Minting**: Creating new tokens or NFTs
-  - Reward Type: Direct points
-  - Measurement: Transaction counts and USD value
-  - Special Considerations: Limited to specific whitelisted assets
+  #### **11.2.2 Multiplier Calculation Methods**
 
-### 11.2 Multiplier System
+* **Tiered Multipliers**: Fixed multiplier levels based on thresholds  
+* **S-Curve Multipliers**: Gradual scaling that tapers at upper and lower bounds  
+* **Linear Multipliers**: Direct proportional scaling  
+* **Capped Multipliers**: Maximum limit regardless of activity level
 
-#### 11.2.1 Multiplier Types
-- **XRD Holding Multipliers**: Based on balance of XRD tokens
-- **LSU Holding Multipliers**: Based on staked XRD represented by LSUs
-- **Liquidity Provision Multipliers**: Based on LP tokens held
-- **NFT Ownership Multipliers**: Based on specific NFT collections
-- **Composite Multipliers**: Combinations of multiple factors
+  #### **11.2.3 Multiplier Application**
 
-#### 11.2.2 Multiplier Calculation Methods
-- **Tiered Multipliers**: Fixed multiplier levels based on thresholds
-- **S-Curve Multipliers**: Gradual scaling that tapers at upper and lower bounds
-- **Linear Multipliers**: Direct proportional scaling
-- **Capped Multipliers**: Maximum limit regardless of activity level
+* **Global Multipliers**: Apply to all points earned across activities  
+* **Category Multipliers**: Apply only to specific categories of activities  
+* **Stacking Rules**: How multiple multipliers combine (additive, multiplicative, maximum)
 
-#### 11.2.3 Multiplier Application
-- **Global Multipliers**: Apply to all points earned across activities
-- **Category Multipliers**: Apply only to specific categories of activities
-- **Stacking Rules**: How multiple multipliers combine (additive, multiplicative, maximum)
+  ### **11.3 Trigger and Processing Mechanisms**
 
-### 11.3 Trigger and Processing Mechanisms
+  #### **11.3.1 Passive Activity Processing**
 
-#### 11.3.1 Passive Activity Processing
-- Initial snapshot taken at week start to establish baseline balances
-- Balance updates triggered by transactions that change relevant balances
-- System maintains current balance state for real-time accuracy
-- Time-weighted calculations used for point allocation
+* Initial snapshot taken at week start to establish baseline balances  
+* Balance updates triggered by transactions that change relevant balances  
+* System maintains current balance state for real-time accuracy  
+* Time-weighted calculations used for point allocation
 
-#### 11.3.2 Active Activity Processing
-- System monitors on-chain transactions for specific activities
-- Each qualifying transaction generates one or more activity records
-- USD value calculated for proportional point distribution
-- Transaction ID stored for verification and audit purposes
+  #### **11.3.2 Active Activity Processing**
 
-### 11.4 Week Completion Process
-- Admin initiates week completion when the week ends
-- System finalizes all activity calculations
-- Multipliers are applied to base points
-- Preview of results presented for verification
-- Admin confirms completion
-- Weekly points converted to season points
-- Weekly activity points and multipliers reset
-- Next week activated
-- Comprehensive audit log generated
+* System monitors on-chain transactions for specific activities  
+* Each qualifying transaction generates one or more activity records  
+* USD value calculated for proportional point distribution  
+* Transaction ID stored for verification and audit purposes
+
+  ### **11.4 Week Completion Process**
+
+* Admin initiates week completion when the week ends  
+* System finalizes all activity calculations  
+* Multipliers are applied to base points  
+* Preview of results presented for verification  
+* Admin confirms completion  
+* Weekly points converted to season points  
+* Weekly activity points and multipliers reset  
+* Next week activated  
+* Comprehensive audit log generated  
+* 
+
