@@ -134,7 +134,7 @@ UserSeasonPoints
 
 ### Passive Activity Processing
 
-- Measurement Method: Periodic snapshots of balances (hourly/daily)
+- Measurement Method: Initial snapshot at week start, then balance updates detected via transaction event stream
 - Calculation Approach: Time-weighted average of holdings
 - Reward Options:
   - Points: Direct allocation from points pool
