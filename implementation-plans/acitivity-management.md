@@ -168,6 +168,13 @@ UserSeasonPoints
 - Monetary value of activity is extracted from transaction data where applicable
 - Complex transactions (e.g., multi-step DeFi operations) are decomposed into individual activities
 
+### Multiplier Application
+
+- User-Level Multipliers (Global): Primarily based on XRD/LSU holdings (tracked via UserAccount data). Applied during the week completion process to the user's total _weekly_ base points before conversion to _season_ points.
+- Activity-Level Multipliers (Passive Activities): Some passive activities might grant a multiplier instead of direct points. These are tracked in `UserWeeklyMultipliers` and contribute to the `totalMultiplier` used in the `UserWeeklyPoints` calculation ( `totalPoints = basePoints * appliedMultiplier`).
+- Pool-Size Multipliers (Active/Passive Activities): An activity's configuration might include a multiplier that adjusts its contribution to the weekly points pool, affecting distribution but not applied per-user directly.
+- Stacking Rules: Define how user-level and activity-level multipliers combine (e.g., multiplicative).
+
 ## 5. Multiplier System Design
 
 ### Multiplier Types
@@ -216,7 +223,7 @@ UserSeasonPoints
 
 - Create activities list view with filtering by type, reward mechanism, and week
 - Implement activity detail view for configuration
-- Build JSON rule editor with validation
+- Build JSON rule editor with validation and form-based controls
 - Design UI for assigning activities to weeks with points or multiplier configuration
 - Add specialized controls for passive vs. active activity configuration
 - Create multiplier visualization tools
@@ -497,19 +504,21 @@ UserSeasonPoints
 
 ## 11. Success Criteria
 
-- System correctly differentiates between points-based and multiplier-based activities
-- Transaction processing correctly extracts and categorizes activities
-- Transaction IDs are properly tracked for verification and audit
-- Monetary value of activities is accurately calculated
-- Admins can create and manage activities with type-specific configurations
-- Passive activities properly track time-weighted holdings for both points and multipliers
-- Liquidity provision is correctly tracked as an active activity
-- Multipliers are correctly calculated and applied to base points
-- Points distribution is calculated fairly according to participation and activity values
-- Week completion process successfully converts weekly points to season points
-- Historical data is preserved for reporting and auditing
-- UI provides clear visualization of complex data relationships including multiplier effects
-- System maintains data integrity across all operations
+- System correctly differentiates between points-based and multiplier-based activities (passive).
+- Admins can effectively create, configure, and manage activities with type-specific rules using the admin UI.
+- Transaction processing correctly extracts, categorizes activities, and links them to the originating transaction ID.
+- Transaction IDs are properly tracked for verification and audit, including links to external explorers.
+- Monetary value (USD equivalent) of activities is accurately calculated and used for value-based distributions.
+- Passive activities properly track holdings (e.g., time-weighted averages or based on balance updates) for both points and multipliers.
+- Liquidity provision is correctly tracked as an active activity, considering duration and value.
+- User-level multipliers (e.g., XRD holdings) and activity-level multipliers are correctly calculated based on configuration (S-curve, tiers, etc.).
+- Multipliers are correctly applied according to defined stacking rules during the appropriate calculation phase (e.g., user-level applied during week completion).
+- Points distribution for active activities is calculated fairly based on participation and configured activity values/rules.
+- Week completion process successfully applies multipliers, converts weekly points to season points, and provides a verification preview and audit trail.
+- Admins can effectively use the UI to manage the week completion process.
+- Historical data is preserved for reporting and auditing.
+- UI provides clear visualization of complex data relationships including multiplier types and their effects.
+- System maintains data integrity across all operations.
 
 ## 12. Risks and Mitigation
 
