@@ -7,3 +7,126 @@ alwaysApply: true
 # Database
 
 - All changes related to database should be made in ./packages/db
+
+## 1. Data Structure
+
+### Core Entities and Relationships
+
+- Challenge: Stores challenge strings for ROLA authentication
+- User: Represents user profiles
+- Account: Represents a user's Radix account address
+- Session: Manages user login sessions
+- VerificationToken: Stores tokens used for verification processes
+
+- Season: Top-level container for campaign periods
+- Week: Belongs to a season, contains activities for a specific time period
+- Activity: Has a type (passive/active), reward type (points/multiplier), and rules stored as JSON
+- Activity-Week: Junction entity connecting activities to weeks with a points allocation
+- Transaction: Records of on-chain transactions that generate activity entries
+- UserActivity: Records user participation in activities
+- UserWeeklyPoints: Tracks user points earned each week before conversion
+- UserWeeklyMultipliers: Tracks multipliers earned from passive activities
+- UserSeasonPoints: Aggregated points that contribute to season rankings and rewards
+
+
+
+```
+Challenge
+  ├── challenge (char(64), primary key, auto-generated)
+  └── createdAt (timestamp, default now)
+
+User
+  ├── id (varchar(255), primary key)
+  ├── label (varchar(255), nullable)
+  └── createdAt (timestamp with timezone, not null, default now)
+
+Account
+  ├── address (varchar(255), primary key, not null)
+  ├── userId (varchar(255), not null, foreign key to Users.id)
+  ├── label (varchar(255), nullable)
+  └── createdAt (timestamp with timezone, not null, default now)
+
+Session
+  ├── id (text, primary key)
+  ├── userId (varchar(255), not null, foreign key to Users.id)
+  └── expiresAt (timestamp with timezone, not null)
+
+VerificationToken
+  ├── identifier (varchar(255), not null)
+  ├── token (varchar(255), not null)
+  ├── expires (timestamp with timezone, not null)
+  └── (compound primary key on identifier, token)
+
+Season
+  ├── id
+  ├── name
+  ├── startDate
+  ├── endDate
+  └── status
+
+Week
+  ├── id
+  ├── seasonId (foreign key)
+  ├── startDate
+  ├── endDate
+  ├── status (active, completed, upcoming)
+  └── isProcessed (boolean for week completion)
+
+Activity
+  ├── id
+  ├── name
+  ├── description
+  ├── type (passive/active)
+  ├── rewardType (points/multiplier) - indicates if this activity gives points or a multiplier
+  ├── category (holding, trading, liquidity, etc.)
+  └── rules (JSON)
+
+ActivityWeek
+  ├── id
+  ├── activityId (foreign key)
+  ├── weekId (foreign key)
+  ├── pointsPool (total points allocated for points-based activity)
+  └── status (active, inactive)
+
+Transaction
+  ├── id
+  ├── transactionId (blockchain transaction identifier)
+  ├── userId
+  ├── timestamp
+  ├── stateVersion
+  ├── rawData (JSON)
+  └── processedAt
+
+UserActivity
+  ├── id
+  ├── userId (foreign key)
+  ├── activityId (foreign key)
+  ├── weekId (foreign key)
+  ├── transactionId (foreign key, may be null for passive activities)
+  ├── timestamp
+  ├── value (monetary equivalent/USD value of the activity)
+  └── metadata (JSON with additional context)
+
+UserWeeklyPoints
+  ├── id
+  ├── userId
+  ├── weekId
+  ├── activityPoints (JSON mapping activity IDs to points)
+  ├── basePoints (sum of direct points before multipliers)
+  ├── appliedMultiplier (the calculated multiplier to apply)
+  ├── totalPoints (basePoints * appliedMultiplier)
+  └── isConverted (boolean)
+
+UserWeeklyMultipliers
+  ├── id
+  ├── userId
+  ├── weekId
+  ├── activityMultipliers (JSON mapping activity IDs to multipliers)
+  └── totalMultiplier (combined multiplier from all sources)
+
+UserSeasonPoints
+  ├── id
+  ├── userId
+  ├── seasonId
+  └── totalPoints
+```

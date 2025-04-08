@@ -40,6 +40,11 @@ export const users = createTable("user", {
 
 export const user = users;
 
+export const usersRelations = relations(users, ({ many }) => ({
+  sessions: many(sessions),
+  accounts: many(accounts),
+}));
+
 export const sessions = createTable("session", {
   id: text("id").primaryKey(),
   userId: varchar("user_id", { length: 255 })
@@ -53,6 +58,24 @@ export const sessions = createTable("session", {
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
+}));
+
+export const accounts = createTable("account", {
+  userId: varchar("user_id", { length: 255 })
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  address: varchar("address", { length: 255 }).notNull().primaryKey(),
+  label: varchar("label", { length: 255 }),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  })
+    .defaultNow()
+    .notNull(),
+});
+
+export const accountsRelations = relations(accounts, ({ one }) => ({
+  user: one(users, { fields: [accounts.userId], references: [users.id] }),
 }));
 
 export const verificationTokens = createTable(
@@ -72,6 +95,7 @@ export const verificationTokens = createTable(
 
 export type User = InferSelectModel<typeof users>;
 export type Session = InferSelectModel<typeof sessions>;
+export type Account = InferSelectModel<typeof accounts>;
 
 // Export all admin-related schema components
 export * from "./admin";
