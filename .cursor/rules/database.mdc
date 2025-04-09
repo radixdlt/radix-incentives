@@ -129,4 +129,19 @@ UserSeasonPoints
   ├── userId
   ├── seasonId
   └── totalPoints
+
+  JobLog
+  ├── id (UUID, primary key, auto-generated)
+  ├── jobId (varchar(255), not null)
+  ├── queueName (varchar(100), not null)
+  ├── jobName (varchar(255), not null)
+  ├── jobArguments (JSONB, nullable)
+  ├── triggerSource (varchar(50), not null, default 'system') -- e.g., 'system', 'admin_manual'
+  ├── triggeredByAdminUserId (UUID, nullable, foreign key to User.id)
+  ├── status (varchar(50), not null, default 'pending') -- e.g., 'pending', 'active', 'completed', 'failed'
+  ├── createdAt (timestamp with timezone, not null, default now)
+  ├── startedAt (timestamp with timezone, nullable)
+  ├── endedAt (timestamp with timezone, nullable)
+  ├── errorMessage (text, nullable)
+  └── errorStacktrace (text, nullable) 
 ```
