@@ -27,12 +27,12 @@ const navigationItems = [
   },
   {
     title: "Seasons",
-    href: "/campaign/seasons",
+    href: "/seasons",
     icon: <CalendarDays className="h-5 w-5" />,
   },
   {
     title: "Activities",
-    href: "/campaign/activities",
+    href: "/activities",
     icon: <Activity className="h-5 w-5" />,
   },
   {
