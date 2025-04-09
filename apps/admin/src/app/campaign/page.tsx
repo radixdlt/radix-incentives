@@ -17,6 +17,7 @@ import {
   CheckCircle,
   Flag,
   Gift,
+  PlusCircle,
 } from "lucide-react";
 
 export default function CampaignPage() {
@@ -114,6 +115,25 @@ export default function CampaignPage() {
             </p>
             <Link href="/campaign/seasons">
               <Button>Manage Seasons</Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <PlusCircle className="h-5 w-5 text-primary mb-2" />
+            <CardTitle>Create New Season</CardTitle>
+            <CardDescription>
+              Start a new campaign season with specific dates and settings.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Define the parameters for the next season in the campaign
+              schedule.
+            </p>
+            <Link href="/seasons/new">
+              <Button>Create Season</Button>
             </Link>
           </CardContent>
         </Card>

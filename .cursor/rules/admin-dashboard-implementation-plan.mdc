@@ -23,7 +23,7 @@ This implementation plan outlines the development roadmap for the Administrator 
 #### Database Schema Extension
 
 - Implement the following schema in Drizzle ORM:
-  - `campaignConfig` - Campaign rules, parameters, and versioning
+  - `seasonConfig` - Season rules, parameters, and versioning
   - `adminUsers` - Admin user accounts and permissions
   - `adminLogs` - Audit trail for admin actions
   - `reportTemplates` - Templates for generating reports
