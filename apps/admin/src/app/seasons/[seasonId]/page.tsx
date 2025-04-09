@@ -35,11 +35,12 @@ type Season = {
   description?: string; // Optional description
 };
 
-// Add Week type
+// Update Week type
 type Week = {
   id: string;
   seasonId: string;
-  weekNumber: number;
+  weekNumber: number; // Keep for potential logic, but display name
+  name: string; // Add name field
   startDate: Date;
   endDate: Date;
   status: "active" | "completed" | "upcoming";
@@ -77,12 +78,13 @@ const fetchSeasonById = (id: string): Season | null => {
   return mockSeasons.find((s) => s.id === id) || null;
 };
 
-// Add more mock weeks data
+// Update mock weeks data with names
 const mockWeeksData: Week[] = [
   {
     id: "w1",
     seasonId: "s2",
     weekNumber: 1,
+    name: "Beta Week 1",
     startDate: new Date(2024, 6, 1),
     endDate: new Date(2024, 6, 7),
     status: "completed",
@@ -92,6 +94,7 @@ const mockWeeksData: Week[] = [
     id: "w2",
     seasonId: "s2",
     weekNumber: 2,
+    name: "Beta Week 2",
     startDate: new Date(2024, 6, 8),
     endDate: new Date(2024, 6, 14),
     status: "active",
@@ -101,16 +104,17 @@ const mockWeeksData: Week[] = [
     id: "w3",
     seasonId: "s2",
     weekNumber: 3,
+    name: "Beta Week 3",
     startDate: new Date(2024, 6, 15),
     endDate: new Date(2024, 6, 21),
     status: "upcoming",
     isProcessed: false,
   },
-  // Add more weeks for Season Beta (s2)
   {
     id: "w4",
     seasonId: "s2",
     weekNumber: 4,
+    name: "Beta Week 4",
     startDate: new Date(2024, 6, 22),
     endDate: new Date(2024, 6, 28),
     status: "upcoming",
@@ -120,6 +124,7 @@ const mockWeeksData: Week[] = [
     id: "w5",
     seasonId: "s2",
     weekNumber: 5,
+    name: "Beta Week 5",
     startDate: new Date(2024, 6, 29),
     endDate: new Date(2024, 7, 4),
     status: "upcoming",
@@ -129,6 +134,7 @@ const mockWeeksData: Week[] = [
     id: "w6",
     seasonId: "s2",
     weekNumber: 6,
+    name: "Beta Week 6",
     startDate: new Date(2024, 7, 5),
     endDate: new Date(2024, 7, 11),
     status: "upcoming",
@@ -138,6 +144,7 @@ const mockWeeksData: Week[] = [
     id: "w7",
     seasonId: "s2",
     weekNumber: 7,
+    name: "Beta Week 7",
     startDate: new Date(2024, 7, 12),
     endDate: new Date(2024, 7, 18),
     status: "upcoming",
@@ -147,6 +154,7 @@ const mockWeeksData: Week[] = [
     id: "w8",
     seasonId: "s2",
     weekNumber: 8,
+    name: "Beta Week 8",
     startDate: new Date(2024, 7, 19),
     endDate: new Date(2024, 7, 25),
     status: "upcoming",
@@ -156,6 +164,7 @@ const mockWeeksData: Week[] = [
     id: "w9",
     seasonId: "s2",
     weekNumber: 9,
+    name: "Beta Week 9",
     startDate: new Date(2024, 7, 26),
     endDate: new Date(2024, 8, 1),
     status: "upcoming",
@@ -165,6 +174,7 @@ const mockWeeksData: Week[] = [
     id: "w10",
     seasonId: "s2",
     weekNumber: 10,
+    name: "Beta Week 10",
     startDate: new Date(2024, 8, 2),
     endDate: new Date(2024, 8, 8),
     status: "upcoming",
@@ -174,6 +184,7 @@ const mockWeeksData: Week[] = [
     id: "w11",
     seasonId: "s2",
     weekNumber: 11,
+    name: "Beta Week 11",
     startDate: new Date(2024, 8, 9),
     endDate: new Date(2024, 8, 15),
     status: "upcoming",
@@ -183,16 +194,17 @@ const mockWeeksData: Week[] = [
     id: "w12",
     seasonId: "s2",
     weekNumber: 12,
+    name: "Beta Week 12",
     startDate: new Date(2024, 8, 16),
     endDate: new Date(2024, 8, 22),
     status: "upcoming",
     isProcessed: false,
   },
-  // Week for Season Alpha (s1)
   {
     id: "w13",
     seasonId: "s1",
     weekNumber: 1,
+    name: "Alpha Week 1",
     startDate: new Date(2024, 3, 1),
     endDate: new Date(2024, 3, 7),
     status: "completed",
@@ -336,24 +348,27 @@ function SeasonDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Replace Placeholder with Weeks Section */}
+      {/* Weeks Section Header */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <h2 className="text-2xl font-semibold tracking-tight">
           Weeks in this Season
         </h2>
-        {/* TODO: Link Create New Week Button to /seasons/[seasonId]/weeks/new */}
-        <Button>
-          <PlusCircle className="mr-2 h-4 w-4" /> Create New Week
-        </Button>
+        {/* Wrap Button in Link pointing to the new week page */}
+        <Link href={`/seasons/${seasonId}/weeks/new`}>
+          <Button>
+            <PlusCircle className="mr-2 h-4 w-4" /> Create New Week
+          </Button>
+        </Link>
       </div>
 
-      {/* Weeks Table integrated here */}
+      {/* Weeks Table */}
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Week</TableHead>
+                {/* Change TableHead from Week to Name */}
+                <TableHead>Name</TableHead>
                 <TableHead>Start Date</TableHead>
                 <TableHead>End Date</TableHead>
                 <TableHead>Status</TableHead>
@@ -368,12 +383,12 @@ function SeasonDetailPage() {
                     onClick={() => handleWeekRowClick(week.id)}
                     className="cursor-pointer hover:bg-muted/50"
                   >
-                    <TableCell className="font-medium">
-                      Week {week.weekNumber}
-                    </TableCell>
+                    {/* Display week.name instead of Week {week.weekNumber} */}
+                    <TableCell className="font-medium">{week.name}</TableCell>
                     <TableCell>{format(week.startDate, "PPP")}</TableCell>
                     <TableCell>{format(week.endDate, "PPP")}</TableCell>
                     <TableCell>
+                      {/* ... Status Badge ... */}
                       <Badge
                         variant={getWeekStatusVariant(week.status)}
                         className="capitalize"
@@ -382,6 +397,7 @@ function SeasonDetailPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
+                      {/* ... Processed Badge ... */}
                       <Badge variant={week.isProcessed ? "default" : "outline"}>
                         {week.isProcessed ? "Yes" : "No"}
                       </Badge>
@@ -390,6 +406,7 @@ function SeasonDetailPage() {
                 ))
               ) : (
                 <TableRow>
+                  {/* ColSpan remains 5 */}
                   <TableCell colSpan={5} className="h-24 text-center">
                     No weeks defined for this season yet.
                   </TableCell>
