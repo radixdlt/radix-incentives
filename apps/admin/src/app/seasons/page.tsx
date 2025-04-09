@@ -80,7 +80,7 @@ function ManageSeasonsPage() {
   // TODO: Replace mockSeasons with actual data fetching (e.g., tRPC query)
 
   const handleRowClick = (seasonId: string) => {
-    router.push(`/campaign/seasons/${seasonId}`);
+    router.push(`/seasons/${seasonId}`);
   };
 
   return (

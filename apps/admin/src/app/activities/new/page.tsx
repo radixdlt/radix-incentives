@@ -192,7 +192,7 @@ function CreateActivityForm({
 
       {/* Actions */}
       <div className="flex justify-end space-x-2">
-        <Link href="/campaign/activities">
+        <Link href="/activities">
           <Button type="button" variant="outline">
             Cancel
           </Button>
@@ -238,7 +238,7 @@ function CreateActivityPage() {
     <div className="container mx-auto py-6 pl-6">
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
-        <Link href="/campaign/activities">
+        <Link href="/activities">
           <Button variant="ghost" size="icon" aria-label="Go back">
             <ArrowLeft className="h-5 w-5" />
           </Button>

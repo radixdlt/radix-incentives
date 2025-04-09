@@ -190,7 +190,7 @@ function ManageActivitiesPage() {
   // TODO: Replace mockActivities with actual data fetching
 
   const handleRowClick = (activityId: string) => {
-    router.push(`/campaign/activities/${activityId}/edit`);
+    router.push(`/activities/${activityId}/edit`);
   };
 
   return (
@@ -198,11 +198,6 @@ function ManageActivitiesPage() {
       {/* Header Section */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/campaign">
-            <Button variant="ghost" size="icon" aria-label="Go back">
-              <ArrowLeft className="h-5 w-5" />
-            </Button>
-          </Link>
           <div>
             <h1 className="text-3xl font-bold tracking-tight">
               Manage Activities
@@ -214,7 +209,7 @@ function ManageActivitiesPage() {
           </div>
         </div>
         {/* Wrap Button in Link and remove disabled attribute */}
-        <Link href="/campaign/activities/new">
+        <Link href="/activities/new">
           <Button>
             <PlusCircle className="mr-2 h-4 w-4" /> Create New Activity
           </Button>

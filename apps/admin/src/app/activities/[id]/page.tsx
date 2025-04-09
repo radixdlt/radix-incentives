@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, History, Edit, BarChart4, Save } from "lucide-react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "../../../components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,19 +12,19 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from "../../../../components/ui/card";
+} from "../../../components/ui/card";
 import {
   Tabs,
   TabsContent,
   TabsList,
   TabsTrigger,
-} from "../../../../components/ui/tabs";
-import { Badge } from "../../../../components/ui/badge";
+} from "../../../components/ui/tabs";
+import { Badge } from "../../../components/ui/badge";
 import {
   SAMPLE_ACTIVITY_TYPES,
   SAMPLE_WEEKLY_RULESETS,
   type ActivityRule,
-} from "../../../../lib/types/activity-rules";
+} from "../../../lib/types/activity-rules";
 import { ActivityRuleEditor } from "../components/activity-rule-editor";
 
 interface ActivitySettingsPageProps {
@@ -99,7 +99,7 @@ export default function ActivitySettingsPage({
     return (
       <div className="p-6">
         <div className="flex items-center mb-6">
-          <Link href="/campaign/activities" className="mr-4">
+          <Link href="/activities" className="mr-4">
             <Button variant="outline" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -114,7 +114,7 @@ export default function ActivitySettingsPage({
           </div>
         </div>
         <Button asChild>
-          <Link href="/campaign/activities">Back to Activities</Link>
+          <Link href="/activities">Back to Activities</Link>
         </Button>
       </div>
     );
@@ -124,7 +124,7 @@ export default function ActivitySettingsPage({
     <div className="p-6">
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center">
-          <Link href="/campaign/activities" className="mr-4">
+          <Link href="/activities" className="mr-4">
             <Button variant="outline" size="icon">
               <ArrowLeft className="h-4 w-4" />
             </Button>
@@ -147,7 +147,7 @@ export default function ActivitySettingsPage({
             </p>
           </div>
         </div>
-        <Button onClick={() => router.push("/campaign/activities")}>
+        <Button onClick={() => router.push("/activities")}>
           Back to Activities
         </Button>
       </div>

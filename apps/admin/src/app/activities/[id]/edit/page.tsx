@@ -281,7 +281,7 @@ function EditActivityPage() {
       console.log("Activity update simulated.");
       setIsSubmitting(false);
       // TODO: Show success toast/message
-      router.push("/campaign/activities"); // Redirect back to list after update
+      router.push("/activities"); // Redirect back to list after update
     }, 1500);
   };
 
@@ -294,7 +294,7 @@ function EditActivityPage() {
     return (
       <div className="container mx-auto py-6 pl-6 pr-6">
         <div className="mb-6 flex items-center gap-4">
-          <Link href="/campaign/activities">
+          <Link href="/activities">
             <Button variant="ghost" size="icon" aria-label="Go back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -311,7 +311,7 @@ function EditActivityPage() {
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
         {/* Link back to activity list page */}
-        <Link href="/campaign/activities">
+        <Link href="/activities">
           <Button variant="ghost" size="icon" aria-label="Go back">
             <ArrowLeft className="h-5 w-5" />
           </Button>

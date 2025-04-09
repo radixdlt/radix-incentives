@@ -100,11 +100,11 @@ function SeasonDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 pl-6">
+    <div className="container mx-auto py-6 pl-6 pr-6">
       {/* Header Section */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Link href="/campaign/seasons">
+          <Link href="/seasons">
             {" "}
             {/* Link back to seasons list */}
             <Button variant="ghost" size="icon" aria-label="Go back">
