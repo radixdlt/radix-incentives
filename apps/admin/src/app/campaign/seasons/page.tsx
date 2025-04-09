@@ -84,7 +84,7 @@ function ManageSeasonsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 pl-6">
+    <div className="container mx-auto py-6 pl-6 pr-6">
       {/* Header Section */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">

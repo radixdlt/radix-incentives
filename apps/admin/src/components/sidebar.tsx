@@ -10,6 +10,7 @@ import {
   FileBarChart,
   LogOut,
   CalendarDays,
+  Activity,
 } from "lucide-react";
 import { cn } from "../lib/utils";
 
@@ -20,7 +21,7 @@ const navigationItems = [
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
   {
-    title: "Campaign Configuration",
+    title: "Configuration",
     href: "/campaign",
     icon: <Settings className="h-5 w-5" />,
   },
@@ -28,6 +29,11 @@ const navigationItems = [
     title: "Seasons",
     href: "/campaign/seasons",
     icon: <CalendarDays className="h-5 w-5" />,
+  },
+  {
+    title: "Activities",
+    href: "/campaign/activities",
+    icon: <Activity className="h-5 w-5" />,
   },
   {
     title: "Analytics",
