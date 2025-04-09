@@ -2,8 +2,8 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { useParams } from "next/navigation"; // To get seasonId from URL
-import { ArrowLeft, Edit } from "lucide-react";
+import { useParams, useRouter } from "next/navigation"; // Import useRouter
+import { ArrowLeft, Edit, PlusCircle } from "lucide-react"; // Add PlusCircle
 import { format } from "date-fns";
 
 import { Button } from "~/components/ui/button";
@@ -14,6 +14,14 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+import {
+  Table, // Import Table components
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 
@@ -27,35 +35,175 @@ type Season = {
   description?: string; // Optional description
 };
 
+// Add Week type
+type Week = {
+  id: string;
+  seasonId: string;
+  weekNumber: number;
+  startDate: Date;
+  endDate: Date;
+  status: "active" | "completed" | "upcoming";
+  isProcessed: boolean;
+};
+
 // Mock function to fetch season data - replace with actual API call
 const fetchSeasonById = (id: string): Season | null => {
   // Simulate fetching data
   const mockSeasons: Season[] = [
     {
-      id: "s1",
-      name: "Season Alpha",
-      startDate: new Date(2024, 3, 1),
-      endDate: new Date(2024, 5, 30),
+      id: "s0",
+      name: "Season 0",
+      startDate: new Date(2025, 3, 1),
+      endDate: new Date(2025, 5, 30),
       status: "completed",
       description: "The very first test season.",
     },
     {
-      id: "s2",
-      name: "Season Beta",
-      startDate: new Date(2024, 6, 1),
-      endDate: new Date(2024, 8, 30),
+      id: "s1",
+      name: "Season 1",
+      startDate: new Date(2025, 6, 1),
+      endDate: new Date(2025, 8, 30),
       status: "active",
       description: "Second season, currently active.",
     },
     {
-      id: "s3",
-      name: "Season Gamma",
-      startDate: new Date(2024, 9, 1),
-      endDate: new Date(2024, 11, 31),
+      id: "s2",
+      name: "Season 2",
+      startDate: new Date(2025, 9, 1),
+      endDate: new Date(2025, 11, 31),
       status: "upcoming",
     },
   ];
   return mockSeasons.find((s) => s.id === id) || null;
+};
+
+// Add more mock weeks data
+const mockWeeksData: Week[] = [
+  {
+    id: "w1",
+    seasonId: "s2",
+    weekNumber: 1,
+    startDate: new Date(2024, 6, 1),
+    endDate: new Date(2024, 6, 7),
+    status: "completed",
+    isProcessed: true,
+  },
+  {
+    id: "w2",
+    seasonId: "s2",
+    weekNumber: 2,
+    startDate: new Date(2024, 6, 8),
+    endDate: new Date(2024, 6, 14),
+    status: "active",
+    isProcessed: false,
+  },
+  {
+    id: "w3",
+    seasonId: "s2",
+    weekNumber: 3,
+    startDate: new Date(2024, 6, 15),
+    endDate: new Date(2024, 6, 21),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  // Add more weeks for Season Beta (s2)
+  {
+    id: "w4",
+    seasonId: "s2",
+    weekNumber: 4,
+    startDate: new Date(2024, 6, 22),
+    endDate: new Date(2024, 6, 28),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w5",
+    seasonId: "s2",
+    weekNumber: 5,
+    startDate: new Date(2024, 6, 29),
+    endDate: new Date(2024, 7, 4),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w6",
+    seasonId: "s2",
+    weekNumber: 6,
+    startDate: new Date(2024, 7, 5),
+    endDate: new Date(2024, 7, 11),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w7",
+    seasonId: "s2",
+    weekNumber: 7,
+    startDate: new Date(2024, 7, 12),
+    endDate: new Date(2024, 7, 18),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w8",
+    seasonId: "s2",
+    weekNumber: 8,
+    startDate: new Date(2024, 7, 19),
+    endDate: new Date(2024, 7, 25),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w9",
+    seasonId: "s2",
+    weekNumber: 9,
+    startDate: new Date(2024, 7, 26),
+    endDate: new Date(2024, 8, 1),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w10",
+    seasonId: "s2",
+    weekNumber: 10,
+    startDate: new Date(2024, 8, 2),
+    endDate: new Date(2024, 8, 8),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w11",
+    seasonId: "s2",
+    weekNumber: 11,
+    startDate: new Date(2024, 8, 9),
+    endDate: new Date(2024, 8, 15),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  {
+    id: "w12",
+    seasonId: "s2",
+    weekNumber: 12,
+    startDate: new Date(2024, 8, 16),
+    endDate: new Date(2024, 8, 22),
+    status: "upcoming",
+    isProcessed: false,
+  },
+  // Week for Season Alpha (s1)
+  {
+    id: "w13",
+    seasonId: "s1",
+    weekNumber: 1,
+    startDate: new Date(2024, 3, 1),
+    endDate: new Date(2024, 3, 7),
+    status: "completed",
+    isProcessed: true,
+  },
+];
+
+// Add fetch weeks function
+const fetchWeeksBySeasonId = (seasonId: string): Week[] => {
+  console.log(`Mock fetching weeks for season: ${seasonId}`);
+  return mockWeeksData.filter((w) => w.seasonId === seasonId);
 };
 
 // Helper to get Badge variant based on status
@@ -74,21 +222,48 @@ const getStatusVariant = (
   }
 };
 
+// Add week status helper
+const getWeekStatusVariant = (
+  status: Week["status"]
+): "secondary" | "default" | "outline" => {
+  switch (status) {
+    case "active":
+      return "default";
+    case "upcoming":
+      return "secondary";
+    case "completed":
+      return "outline";
+    default:
+      return "secondary";
+  }
+};
+
 function SeasonDetailPage() {
   const params = useParams();
+  const router = useRouter(); // Use router for navigation
   const seasonId = params.seasonId as string; // Get seasonId from URL
   const [season, setSeason] = React.useState<Season | null>(null);
+  const [weeks, setWeeks] = React.useState<Week[]>([]); // Add state for weeks
   const [loading, setLoading] = React.useState(true);
 
   React.useEffect(() => {
     if (seasonId) {
       setLoading(true);
-      // TODO: Replace mock fetch with actual tRPC query
+      // TODO: Replace with actual tRPC queries (fetch season AND weeks)
       const fetchedSeason = fetchSeasonById(seasonId);
+      const fetchedWeeks = fetchWeeksBySeasonId(seasonId); // Fetch weeks
       setSeason(fetchedSeason);
+      setWeeks(fetchedWeeks); // Set weeks state
       setLoading(false);
     }
   }, [seasonId]);
+
+  const handleWeekRowClick = (weekId: string) => {
+    // TODO: Link to actual week detail/manage page
+    console.log(`Navigate to week: ${weekId} for season ${seasonId}`);
+    // Uncomment and use router.push for navigation
+    router.push(`/seasons/${seasonId}/weeks/${weekId}`);
+  };
 
   if (loading) {
     // TODO: Replace with a proper loading skeleton component
@@ -161,21 +336,67 @@ function SeasonDetailPage() {
         </CardContent>
       </Card>
 
-      {/* Placeholder for related data (e.g., Weeks, Activities) */}
-      <h2 className="mb-4 text-2xl font-semibold tracking-tight">
-        Related Information
-      </h2>
+      {/* Replace Placeholder with Weeks Section */}
+      <div className="mb-6 flex items-center justify-between gap-4">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Weeks in this Season
+        </h2>
+        {/* TODO: Link Create New Week Button to /seasons/[seasonId]/weeks/new */}
+        <Button>
+          <PlusCircle className="mr-2 h-4 w-4" /> Create New Week
+        </Button>
+      </div>
+
+      {/* Weeks Table integrated here */}
       <Card>
-        <CardHeader>
-          <CardTitle>Weeks & Activities</CardTitle>
-          <CardDescription>
-            Weeks and activities associated with this season will be displayed
-            here.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {/* TODO: Add tables or lists for weeks and activities */}
-          <p className="text-center text-muted-foreground">Coming soon...</p>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Week</TableHead>
+                <TableHead>Start Date</TableHead>
+                <TableHead>End Date</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Processed</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {weeks.length > 0 ? (
+                weeks.map((week) => (
+                  <TableRow
+                    key={week.id}
+                    onClick={() => handleWeekRowClick(week.id)}
+                    className="cursor-pointer hover:bg-muted/50"
+                  >
+                    <TableCell className="font-medium">
+                      Week {week.weekNumber}
+                    </TableCell>
+                    <TableCell>{format(week.startDate, "PPP")}</TableCell>
+                    <TableCell>{format(week.endDate, "PPP")}</TableCell>
+                    <TableCell>
+                      <Badge
+                        variant={getWeekStatusVariant(week.status)}
+                        className="capitalize"
+                      >
+                        {week.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={week.isProcessed ? "default" : "outline"}>
+                        {week.isProcessed ? "Yes" : "No"}
+                      </Badge>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={5} className="h-24 text-center">
+                    No weeks defined for this season yet.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </CardContent>
       </Card>
     </div>
