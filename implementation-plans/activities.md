@@ -1,24 +1,28 @@
-# Tracked Activities
+# Activities
 
-## Holdings
+## 1. Holdings
 
-### Holding XRD or Staking (LSUs) weighted by time
+### ✅ 1.1 Holding XRD or Staking (LSUs) weighted by time
 
 - **Type**: Passive
-- **Reward Type**: Multiplier (Core mechanic)
+- **Reward Type**: Multiplier
+- **Priority**: High
+- **Assets**: XRD, LSU
 - **Rules**:
   - Calculate multiplier based on total USD value (XRD + LSUs) via S-curve.
-  - Config: S-curve parameters ($5k-$100k range, max 3x).
-  - Apply time-weighting (min holding period, scaling period).
-  - Config: Min holding duration (e.g., 7 days), scaling duration (e.g., 4 weeks).
+    - Config: S-curve parameters ($5k-$100k range, max 3x).
+  - User must meet minimum holding duration to qualify for the full multiplier.
+    - Config: Min holding duration (e.g., 24h).
   - Enforce eligibility ($50 USD minimum).
-  - Config: Min eligibility value.
-  - Requires balance tracking (snapshots or stream).
+    - Config: Min eligibility value.
+  - Track balance changes between start and end date.
 
-### Bridging/holding stable assets (xUSDC, xUSDT)
+### ✅ 1.2 Bridging/holding stable assets (xUSDC, xUSDT)
 
 - **Type**: Passive
-- **Reward Type**: Points (High Priority)
+- **Reward Type**: Points
+- **Priority**: High
+- **Assets:** xUSDC, xUSDT
 - **Rules**:
   - Award points based on time-weighted average USD value held.
   - Distribute weekly points pool proportionally.
@@ -27,9 +31,9 @@
   - Config: Minimum holding value.
   - Requires balance tracking.
 
-## Trading
+## 2. Trading
 
-### Trading volume in bluechip volatiles (xBTC, xETH)
+### ✅ 2.1 Trading volume in bluechip volatiles (xBTC, xETH)
 
 - **Type**: Active
 - **Reward Type**: Points (High Priority)
@@ -41,7 +45,7 @@
 - **Tracking**:
   - transactions that includes `swap` events
 
-### Trading volume in stables (USDC, USDT)
+### ✅ 2.2 Trading volume in stables (USDC, USDT)
 
 - **Type**: Active
 - **Reward Type**: Points (High Priority)
@@ -49,7 +53,7 @@
   - Similar to bluechip volatile trading.
   - Config: Weekly points pool size, minimum transaction value, diminishing returns parameters (optional).
 
-### Trading volume in XRD
+### ✅ 2.3 Trading volume in XRD
 
 - **Type**: Active
 - **Reward Type**: Points (Moderate Priority)
@@ -57,7 +61,7 @@
   - Similar to stablecoin trading.
   - Config: Weekly points pool size, minimum transaction value, diminishing returns parameters (optional).
 
-### Liquidity in bluechip volatiles
+### ✅ 2.4 Liquidity in bluechip volatiles
 
 - **Type**: Passive (Providing)
 - **Reward Type**: Points (High Priority)
@@ -70,7 +74,7 @@
   - Requires LP token tracking.
   - _(Optional: Active points for Add/Remove actions)._
 
-### Liquidity in stables
+### ✅ 2.5 Liquidity in stables
 
 - **Type**: Passive (Providing)
 - **Reward Type**: Points (High Priority)
@@ -78,7 +82,7 @@
   - Similar to bluechip volatile liquidity.
   - Config: Weekly points pool size, list of recognized stable pools, minimum LP value.
 
-### Trading volume in (specific) Radix native assets
+### 2.6 Trading volume in (specific) Radix native assets
 
 - **Type**: Active
 - **Reward Type**: Points (Moderate Priority)
@@ -87,7 +91,7 @@
   - Requires a configurable list of recognized native tokens.
   - Config: Weekly points pool size, list of native token addresses, minimum transaction value.
 
-### Liquidity in (specific) Radix native assets
+### 2.7 Liquidity in (specific) Radix native assets
 
 - **Type**: Passive (Providing)
 - **Reward Type**: Points (Moderate Priority)
@@ -105,9 +109,9 @@
   - Cap points per user per week.
   - Config: Points per swap/unique pair, minimum swap value (e.g., $5 USD), max points/user/week.
 
-## Lending & Borrowing
+## 3. Lending & Borrowing
 
-### Lend XRD/LSU
+### 3.1 Lend XRD/LSU
 
 - **Type**: Passive (Maintaining position)
 - **Reward Type**: Points (High Priority)
@@ -120,7 +124,7 @@
   - Requires tracking supplied balances.
   - _(Optional: Active points for Initiate Lend actions)._
 
-### Lend stables
+### 3.2 Lend stables
 
 - **Type**: Passive (Maintaining position)
 - **Reward Type**: Points (High Priority)
@@ -128,7 +132,7 @@
   - Similar to Lend XRD/LSU, separate points pool.
   - Config: Points pool size, recognized protocols/assets, minimum lent value.
 
-### Lend blue chip volatiles
+### 3.3 Lend blue chip volatiles
 
 - **Type**: Passive (Maintaining position)
 - **Reward Type**: Points (High Priority)
@@ -136,7 +140,7 @@
   - Similar to Lend XRD/LSU, separate points pool.
   - Config: Points pool size, recognized protocols/assets, minimum lent value.
 
-### Borrow XRD/LSU
+### 3.4 Borrow XRD/LSU
 
 - **Type**: Passive (Maintaining position)
 - **Reward Type**: Points (High Priority, lower weight than lending)
@@ -151,7 +155,7 @@
   - Requires tracking borrowed balances.
   - _(Optional: Active points for Initiate Borrow actions)._
 
-### Borrow stables
+### 3.5 Borrow stables
 
 - **Type**: Passive (Maintaining position)
 - **Reward Type**: Points (High Priority, lower weight than lending)
@@ -159,7 +163,7 @@
   - Similar to Borrow XRD/LSU, separate points pool.
   - Config: Points pool size (lower than lending), recognized protocols/assets, minimum borrowed value, minimum health factor (optional).
 
-### Borrow blue chip volatiles
+### 3.6 Borrow blue chip volatiles
 
 - **Type**: Passive (Maintaining position)
 - **Reward Type**: Points (High Priority, lower weight than lending)
@@ -167,9 +171,9 @@
   - Similar to Borrow XRD/LSU, separate points pool.
   - Config: Points pool size (lower than lending), recognized protocols/assets, minimum borrowed value, minimum health factor (optional).
 
-## NFTs
+## 4. NFTs
 
-### Hold NFTs
+### 4.1 Hold NFTs
 
 - **Type**: Passive
 - **Reward Type**: Points (Low Priority)
@@ -178,7 +182,7 @@
   - Points per NFT or per unique collection.
   - Config: Weekly points pool size, list of whitelisted collections, calculation method, time-weighting params.
 
-### Trade NFT collections
+### 4.2 Trade NFT collections
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -187,11 +191,11 @@
   - Distribute weekly points pool proportionally.
   - Config: Weekly points pool size, list of collections, list of marketplaces, minimum trade value (e.g., $5 USD).
 
-### Hold % of collections
+### ❌ 4.3 Hold % of collections
 
 - _(Skip - Too complex/gameable)_
 
-### List NFTs
+### 4.4 List NFTs
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -201,7 +205,7 @@
   - Consider minimum listing duration (optional).
   - Config: Points per listing, list of collections, list of marketplaces, max points/user/week, min duration (optional).
 
-### Mint NFTs (unsure on this one)
+### 4.5 Mint NFTs (unsure on this one)
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -209,9 +213,9 @@
   - Award points only for minting from specific, whitelisted mints. Use sparingly.
   - Config: Points per mint, list of whitelisted mint contracts.
 
-## Tokens
+## 5. Tokens
 
-### Hold specific tokens
+### 5.1 Hold specific tokens
 
 - **Type**: Passive
 - **Reward Type**: Points (Low Priority unless specified)
@@ -220,11 +224,11 @@
   - Distribute points pool proportionally.
   - Config: Weekly points pool size, list of whitelisted tokens, min holding value/quantity.
 
-### Hold certain amounts of specific tokens
+### 5.2 Hold certain amounts of specific tokens
 
 - _(Covered by minimums in "Hold specific tokens")_
 
-### Hold multiple specific tokens
+### 5.3 Hold multiple specific tokens
 
 - **Type**: Passive
 - **Reward Type**: Points (Low Priority)
@@ -232,7 +236,7 @@
   - Award bonus points for holding minimum number (e.g., 3+) of _different_ whitelisted tokens (each above its threshold).
   - Config: Bonus points amount, list of whitelisted tokens, min number of different tokens required.
 
-### Mint tokens
+### 5.4 Mint tokens
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -240,13 +244,13 @@
   - Avoid generally. Use only for specific, whitelisted token generation events.
   - Config: Points per mint, specific TGE contract/identifier.
 
-### Hold X USD Value of any combination of tokens
+### 5.5 Hold X USD Value of any combination of tokens
 
 - _(Skip - Complex/overlaps)_
 
-## dApp Usage
+## 6. dApp Usage
 
-### Use specific dApps
+### 6.1 Use specific dApps
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -255,7 +259,7 @@
   - Cap points per dApp per user per week.
   - Config: Points per interaction, list of whitelisted component addresses, max points/dApp/user/week.
 
-### First time use specific dApps
+### 6.2 First time use specific dApps
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -264,7 +268,7 @@
   - Requires tracking first interaction per user/dApp/season.
   - Config: Bonus points amount, list of whitelisted component addresses.
 
-### Use multiple dApps
+### 6.3 Use multiple dApps
 
 - **Type**: Active
 - **Reward Type**: Points (Low Priority)
@@ -272,10 +276,10 @@
   - Award bonus points for interacting with minimum number (e.g., 3+) of _different_ whitelisted dApps within a week.
   - Config: Bonus points amount, list of whitelisted component addresses, min number of different dApps required.
 
-### Make user-initiated transactions
+### 6.4 Make user-initiated transactions
 
 - _(Skip - Too broad)_
 
-### Make user-initiated transactions across multiple dapps
+### 6.5 Make user-initiated transactions across multiple dapps
 
 - _(Skip - Covered by "Use multiple dApps")_
