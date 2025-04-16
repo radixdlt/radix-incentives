@@ -1,0 +1,129 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+
+# Clickup project settings
+
+- Always add items to Tech (Space ID: 90154160105)
+- Always use markdown format
+- Link to documentation if available
+- Add mermaid charts to illustrate the user flow
+
+```
+Workspace (Workspace ID: 4593284)
+└── Tech (Space ID: 90154160105)
+    └── List (List ID: 901510243582)
+```
+
+**Example task:**
+
+# 🔐 User Authentication Flow with Radix Connect
+
+## User Story
+
+As a user, I want a secure and intuitive authentication flow using Radix Connect so that I can safely access my dashboard while maintaining control of my wallet information.
+
+## Acceptance Criteria
+
+- The system prompts for Radix Connect authentication when users try to access protected dashboard areas
+- Users receive clear instructions on how to complete the authentication process through their Radix Wallet
+- The system generates and validates challenge strings through ROLA (Radix Off-Ledger Authentication) to verify wallet ownership
+- Users can authenticate multiple accounts through a single session with proper verification for each
+- The system maintains secure session management with appropriate timeout and refresh mechanisms
+- Users receive clear error messages if authentication fails, with guidance on troubleshooting
+- The authentication state persists appropriately across browser sessions based on user preferences
+- Users can manually log out to terminate their authenticated session when desired
+- The authentication flow is responsive and works properly on both desktop and mobile devices
+
+## Notes
+
+This authentication flow should follow the official Radix Connect implementation guidelines and ensure a seamless user experience while maintaining high security standards. The authentication should be the entry point to the entire dashboard experience, enabling all other user stories to function properly once the user is authenticated.
+
+## Technical Considerations
+
+- Integrate with Radix-dApp-toolkit for wallet connection handling
+- Implement secure challenge/response flow for ROLA
+- Create a dedicated API endpoint to generate challenge strings for the ROLA proof
+- Store generated challenges securely with appropriate expiration times
+- Design session management that balances security with usability
+- Ensure proper error handling for all potential authentication failure scenarios
+
+## Authentication Flow Diagram
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant Dashboard
+    participant Backend
+    participant ChallengeStore
+    participant RadixWallet
+    participant Gateway
+
+    User->>Dashboard: Attempt to access protected area
+    Dashboard->>User: Prompt to connect wallet
+    User->>Dashboard: Initiates wallet connection
+    Note over Dashboard,Backend: ROLA Flow Begins
+    Dashboard->>Backend: Request challenge string
+    Backend->>ChallengeStore: Create challenge
+    ChallengeStore-->>Backend: Return challenge with expiration time
+    Backend-->>Dashboard: Return challenge string
+    Dashboard->>RadixWallet: Request authentication with challenge
+    RadixWallet->>User: Request approval for connection
+    User->>RadixWallet: Approves connection
+    RadixWallet->>Dashboard: Return signed challenge (ROLA proof)
+    Dashboard->>Backend: Send ROLA proof for verification
+
+    Note over Backend: ROLA Verification Process
+    Backend->>ChallengeStore: Claim and verify challenge
+    ChallengeStore-->>Backend: Confirm challenge validity
+    Backend->>Backend: Check if challenge has expired
+    Backend->>Backend: Construct signature message with:<br/>- "R" prefix<br/>- Challenge<br/>- dApp definition address length<br/>- dApp definition address<br/>- Origin
+    Backend->>Backend: Hash message using blake2b
+    Backend->>Backend: Verify signature using ECC
+    Backend->>Gateway: Request entity metadata
+    Gateway-->>Backend: Return entity metadata
+
+    alt owner_keys metadata set
+        Backend->>Backend: Hash provided public key
+        Backend->>Backend: Compare with owner_keys
+    else owner_keys metadata not set
+        Backend->>Backend: Derive address from public key
+        Backend->>Backend: Compare with provided address
+    end
+
+    Backend-->>Dashboard: Authentication result & session token
+    Dashboard->>User: Display authenticated dashboard
+
+    alt Multiple Account Connection
+        User->>Dashboard: Request to link additional account
+        Dashboard->>Backend: Request new challenge string
+        Backend->>ChallengeStore: Create new challenge
+        ChallengeStore-->>Backend: Return new challenge
+        Backend-->>Dashboard: Return new challenge string
+        Dashboard->>RadixWallet: Request authentication for new account
+        RadixWallet->>User: Request approval for new account
+        User->>RadixWallet: Approves new account
+        RadixWallet->>Dashboard: Return signed challenge for new account
+        Note over Dashboard,Backend: Repeat ROLA verification process
+        Dashboard->>Backend: Send new ROLA proof
+        Backend-->>Dashboard: Confirm new account linked
+        Dashboard->>User: Show updated account list
+    end
+
+    alt Session Expiry/Logout
+        User->>Dashboard: Click logout or session expires
+        Dashboard->>Backend: End session
+        Backend->>Backend: Invalidate session token
+        Backend-->>Dashboard: Confirm session terminated
+        Dashboard->>User: Show unauthenticated state
+    end
+```
+
+## Metadata
+
+- **Status**: Backlog
+- **Tags**: authentication, user-story, priority
+- **Created**: `1744709923580`
+- **ClickUp URL**: https://app.clickup.com/t/86c333tf6

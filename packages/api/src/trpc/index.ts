@@ -1,11 +1,13 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import {
+  type DependencyLayer,
+  createDependencyLayer,
+} from "./createDependencyLayer";
 
-import type { Db } from "db";
-import { createSessionHelper } from "../auth/sessionHelper";
-import type { Redis } from "ioredis";
-
+export type { DependencyLayer };
+export { createDependencyLayer };
 /**
  * 1. CONTEXT
  *
@@ -20,10 +22,9 @@ import type { Redis } from "ioredis";
  */
 export const createTRPCContext = async (opts: {
   headers: Headers;
-  // db: Db;
-  // redisClient: Redis;
-  // onCreateSession: (session: string, expiresAt: Date) => Promise<void>;
-  // getSessionToken: () => Promise<string | null>;
+  dependencyLayer: DependencyLayer;
+  setSessionToken: (token: string, expiresAt: Date) => Promise<void>;
+  getSessionToken: () => Promise<string | null>;
 }) => {
   // const sessionHelper = createSessionHelper(opts.db);
 

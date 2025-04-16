@@ -63,6 +63,9 @@ catalogs:
     radix-connect:
       specifier: ^0.2.0
       version: 0.2.0
+    radix-web3.js:
+      specifier: ^0.3.3
+      version: 0.3.3
     react:
       specifier: ^19.0.0
       version: 19.1.0
@@ -379,6 +382,9 @@ importers:
       radix-connect:
         specifier: 'catalog:'
         version: 0.2.0
+      radix-web3.js:
+        specifier: 'catalog:'
+        version: 0.3.3
       superjson:
         specifier: 'catalog:'
         version: 2.2.2
@@ -3052,6 +3058,9 @@ packages:
 
   radix-connect@0.2.0:
     resolution: {integrity: sha512-yaRfdfJh46llKjWTqmS5RCaCatAEiwNcO96ZZLCpSLD68cZxa569LbtPNe3jlZs89qI/JYm7ynfuo8H9/ryleQ==}
+
+  radix-web3.js@0.3.3:
+    resolution: {integrity: sha512-dk9VTQlB+uf1JE3iuSuletkQNAyN9W4waf6RMblR1uRb3vzN3paGwdKB3WoEkMyjpFWikHDAvrUVf34JYPzu6g==}
 
   react-day-picker@8.10.1:
     resolution: {integrity: sha512-TMx7fNbhLk15eqcMt+7Z7S2KF7mfTId/XJDjKE8f+IUcFn0l08/kI4FiYTL/0yuOLmEcbR4Fwe3GJf/NiiMnPA==}
@@ -6075,6 +6084,11 @@ snapshots:
       base64url: 3.0.1
       blakejs: 1.2.1
       zod: 3.24.2
+
+  radix-web3.js@0.3.3:
+    dependencies:
+      '@radixdlt/babylon-gateway-api-sdk': 1.10.1
+      '@radixdlt/radix-engine-toolkit': 1.0.5
 
   react-day-picker@8.10.1(date-fns@4.1.0)(react@19.1.0):
     dependencies:

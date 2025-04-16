@@ -51,6 +51,7 @@ export const createSessionHelper = (db: Db) => {
       .from(sessions)
       .innerJoin(users, eq(sessions.userId, users.id))
       .where(eq(sessions.id, sessionId));
+
     if (!result?.length) {
       return { session: null, user: null };
     }

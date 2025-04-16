@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, History, Edit, BarChart4, Save } from "lucide-react";
-import { Button } from "../../../components/ui/button";
+import { Button } from "~/components/ui/button";
 import {
   Card,
   CardContent,
@@ -12,37 +12,26 @@ import {
   CardHeader,
   CardTitle,
   CardFooter,
-} from "../../../components/ui/card";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "../../../components/ui/tabs";
-import { Badge } from "../../../components/ui/badge";
+} from "~/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
+import { Badge } from "~/components/ui/badge";
 import {
   SAMPLE_ACTIVITY_TYPES,
   SAMPLE_WEEKLY_RULESETS,
   type ActivityRule,
-} from "../../../lib/types/activity-rules";
+} from "~/lib/types/activity-rules";
 import { ActivityRuleEditor } from "../components/activity-rule-editor";
 
-interface ActivitySettingsPageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default function ActivitySettingsPage({
-  params,
-}: ActivitySettingsPageProps) {
+export default function ActivitySettingsPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState("rules");
   const [editingCurrentRule, setEditingCurrentRule] = useState(false);
   const [editingDraftRule, setEditingDraftRule] = useState(false);
   const [openRuleHistory, setOpenRuleHistory] = useState(false);
 
-  const activityId = params.id;
+  const { id } = useParams();
+
+  const activityId = id;
 
   // Get tab from URL query parameter
   useEffect(() => {

@@ -1,12 +1,13 @@
 import "server-only";
 
 import { createHydrationHelpers } from "@trpc/react-query/rsc";
-import { headers } from "next/headers";
+import { cookies, headers } from "next/headers";
 import { cache } from "react";
 
-import { createCaller, type AppRouter } from "api";
+import { createCaller, createDependencyLayer, type AppRouter } from "api";
 import { createTRPCContext } from "api";
 import { createQueryClient } from "./query-client";
+import { db } from "db";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -18,6 +19,21 @@ const createContext = cache(async () => {
 
   return createTRPCContext({
     headers: heads,
+    dependencyLayer: createDependencyLayer({
+      dbClient: db,
+    }),
+    setSessionToken: async (token: string, expiresAt: Date) => {
+      const cookieStore = await cookies();
+      cookieStore.set("session", token, {
+        expires: expiresAt,
+      });
+    },
+    getSessionToken: async () => {
+      const cookieStore = await cookies();
+      const sessionToken = cookieStore.get("session")?.value;
+
+      return sessionToken ?? null;
+    },
   });
 });
 

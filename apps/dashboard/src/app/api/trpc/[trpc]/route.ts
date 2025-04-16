@@ -2,8 +2,10 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { appRouter } from "api";
+import { appRouter, createDependencyLayer } from "api";
 import { createTRPCContext } from "api";
+import { db } from "db";
+import { cookies } from "next/headers";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -12,6 +14,21 @@ import { createTRPCContext } from "api";
 const createContext = async (req: NextRequest) => {
   return createTRPCContext({
     headers: req.headers,
+    dependencyLayer: createDependencyLayer({
+      dbClient: db,
+    }),
+    setSessionToken: async (token: string, expiresAt: Date) => {
+      const cookieStore = await cookies();
+      cookieStore.set("session", token, {
+        expires: expiresAt,
+      });
+    },
+    getSessionToken: async () => {
+      const cookieStore = await cookies();
+      const sessionToken = cookieStore.get("session")?.value;
+
+      return sessionToken ?? null;
+    },
   });
 };
 

@@ -1,29 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "../../../../components/ui/button";
+import { Button } from "~/components/ui/button";
 import {
-  Form,
   FormControl,
   FormDescription,
-  FormField,
   FormItem,
   FormLabel,
-  FormMessage,
-} from "../../../../components/ui/form";
-import { Input } from "../../../../components/ui/input";
-import { Switch } from "../../../../components/ui/switch";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "../../../../components/ui/select";
-import type {
-  ActivityRule,
-  ActivityType,
-} from "../../../../lib/types/activity-rules";
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { Switch } from "~/components/ui/switch";
+import type { ActivityRule, ActivityType } from "~/lib/types/activity-rules";
 
 interface ActivityRuleEditorProps {
   rule: ActivityRule | null;

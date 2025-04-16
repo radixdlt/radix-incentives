@@ -14,9 +14,11 @@ Passive activities require minimal ongoing user action and generally - involve h
 - Holding LSUs: Owning liquid staking units from staking XRD
 - Holding Stablecoins: Maintaining balances of tokens like xUSDC, xUSDT
 - Holding NFTs: Owning NFTs from specified collections
-  **Key characteristics:**
+
+**Key characteristics:**
+
 - Measured through periodic snapshots
-- Primarily time-based
+- Primarily time-based (Time Weighted Average)
 - Rewards consistency and commitment
 - Can provide either direct points or multiplier bonuses
 

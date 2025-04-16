@@ -10,7 +10,7 @@ globs: "**/*.ts, **/*.tsx, **/*.js, **/*.jsx"
 
 ## Overview
 
-[tRPC](https://trpc.io/) enables end-to-end typesafe APIs, allowing you to build and consume APIs without schemas, code generation, or runtime errors. These rules will help you follow best practices for tRPC v11.
+[tRPC](mdc:https:/trpc.io) enables end-to-end typesafe APIs, allowing you to build and consume APIs without schemas, code generation, or runtime errors. These rules will help you follow best practices for tRPC v11.
 
 ## Server-Side Setup
 
@@ -255,6 +255,6 @@ This guide is for tRPC v11, which requires:
 
 ## Further Resources
 
-- [Official Documentation](https://trpc.io/docs)
-- [GitHub Repository](https://github.com/trpc/trpc)
-- [Example Apps](https://trpc.io/docs/example-apps)
+- [Official Documentation](mdc:https:/trpc.io/docs)
+- [GitHub Repository](mdc:https:/github.com/trpc/trpc)
+- [Example Apps](mdc:https:/trpc.io/docs/example-apps)

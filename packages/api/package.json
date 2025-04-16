@@ -6,8 +6,7 @@
   "module": "./src/index.ts",
   "private": true,
   "scripts": {
-    "test": "vitest",
-    "build": "tsup"
+    "test": "vitest"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "catalog:",
@@ -25,7 +24,8 @@
     "pino": "catalog:",
     "radix-connect": "catalog:",
     "superjson": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "radix-web3.js": "catalog:"
   },
   "devDependencies": {
     "@types/aws-lambda": "catalog:",

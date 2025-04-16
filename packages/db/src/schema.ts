@@ -31,7 +31,7 @@ export const challenge = createTable("challenge", {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("")
     ),
-  createdAt: timestamp("created_at").defaultNow(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const users = createTable("user", {
@@ -493,6 +493,7 @@ export const userSeasonPointsRelations = relations(
 );
 
 export type User = InferSelectModel<typeof users>;
+export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
 export type Account = InferSelectModel<typeof accounts>;
 export type JobLog = InferSelectModel<typeof jobLogs>;
