@@ -14,13 +14,18 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@radixdlt/radix-dapp-toolkit": "^2.2.1",
     "@t3-oss/env-nextjs": "catalog:",
     "@tanstack/react-query": "catalog:",
     "@trpc/client": "catalog:",
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
+    "api": "workspace:*",
     "clsx": "catalog:",
+    "db": "workspace:*",
     "drizzle-orm": "catalog:",
+    "framer-motion": "^12.6.3",
+    "lucide-react": "^0.487.0",
     "next": "catalog:",
     "postgres": "catalog:",
     "react": "catalog:",
@@ -29,8 +34,10 @@
     "superjson": "catalog:",
     "tailwind-merge": "catalog:",
     "zod": "catalog:",
-    "db": "workspace:*",
-    "api": "workspace:*"
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

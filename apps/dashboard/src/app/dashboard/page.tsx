@@ -1,54 +1,80 @@
 import { cn } from "~/lib/utils";
+import { MoveUpRight, Award, Zap } from "lucide-react";
+import { Card } from "~/components/ui/card";
 
 export default function DashboardPage() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6 flex flex-col space-y-2">
+      <Card className="overflow-hidden">
+        <div className="p-6 flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">This Week</span>
             <span className="text-xs text-muted-foreground">
               Week 12 / Season 1
             </span>
           </div>
-          <div className="text-2xl font-bold">12,500</div>
-          <div className="text-xs text-muted-foreground">Points</div>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-bold tracking-tight">12,500</span>
+            <MoveUpRight className="h-4 w-4 text-green-500 mb-1" />
+            <span className="text-xs text-green-500 mb-1">+8.2%</span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Points earned this week
+          </div>
         </div>
-      </div>
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6 flex flex-col space-y-2">
+      </Card>
+
+      <Card className="overflow-hidden">
+        <div className="p-6 flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Season Total</span>
             <span className="text-xs text-muted-foreground">Season 1</span>
           </div>
-          <div className="text-2xl font-bold">87,200</div>
-          <div className="text-xs text-muted-foreground">Points</div>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-bold tracking-tight">87,200</span>
+            <MoveUpRight className="h-4 w-4 text-green-500 mb-1" />
+            <span className="text-xs text-green-500 mb-1">+12.5%</span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Total points this season
+          </div>
         </div>
-      </div>
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6 flex flex-col space-y-2">
+      </Card>
+
+      <Card className="overflow-hidden">
+        <div className="p-6 flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Multiplier</span>
             <span className="text-xs text-muted-foreground">
               Based on holdings
             </span>
           </div>
-          <div className="text-2xl font-bold">1.5x</div>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-bold tracking-tight">1.5x</span>
+            <Zap className="h-4 w-4 text-amber-500 mb-1" />
+          </div>
           <div className="text-xs text-muted-foreground">
-            Current multiplier
+            Current points multiplier
           </div>
         </div>
-      </div>
-      <div className="rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6 flex flex-col space-y-2">
+      </Card>
+
+      <Card className="overflow-hidden">
+        <div className="p-6 flex flex-col space-y-4">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium">Rank</span>
             <span className="text-xs text-muted-foreground">Global</span>
           </div>
-          <div className="text-2xl font-bold">#342</div>
-          <div className="text-xs text-muted-foreground">Top 5%</div>
+          <div className="flex items-end gap-2">
+            <span className="text-3xl font-bold tracking-tight">#342</span>
+            <Award className="h-4 w-4 text-blue-500 mb-1" />
+            <span className="text-xs text-blue-500 mb-1">Top 5%</span>
+          </div>
+          <div className="text-xs text-muted-foreground">
+            Global leaderboard position
+          </div>
         </div>
-      </div>
+      </Card>
 
       <div className="md:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm">
         <div className="p-6">
