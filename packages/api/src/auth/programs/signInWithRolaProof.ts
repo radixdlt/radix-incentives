@@ -7,15 +7,15 @@ import { UpsertUserService } from "../user/upsertUser";
 import { CreateSessionService } from "../session/createSession";
 import { GenerateSessionTokenService } from "../session/generateSessionToken";
 
-class InvalidChallengeError {
+export class InvalidChallengeError {
   readonly _tag = "InvalidChallengeError";
 }
 
-class InvalidProofError {
+export class InvalidProofError {
   readonly _tag = "InvalidProofError";
 }
 
-class InvalidProofTypeError {
+export class InvalidProofTypeError {
   readonly _tag = "InvalidProofTypeError";
   constructor(readonly proofType: string) {
     this._tag = "InvalidProofTypeError";

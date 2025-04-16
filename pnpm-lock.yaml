@@ -392,6 +392,9 @@ importers:
         specifier: 'catalog:'
         version: 3.24.2
     devDependencies:
+      '@effect/vitest':
+        specifier: ^0.20.10
+        version: 0.20.10(effect@3.14.6)(vitest@3.1.1(@types/node@20.17.30)(jiti@2.4.2)(lightningcss@1.29.2))
       '@types/aws-lambda':
         specifier: 'catalog:'
         version: 8.10.147
@@ -588,6 +591,12 @@ packages:
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
+
+  '@effect/vitest@0.20.10':
+    resolution: {integrity: sha512-DsmGILQRLe89NIyn3akkW03lZxgVjZCIpQj6RzR0sPFgBNeZzmVaIFKJer5ggEUP3axKL7exOp1pRKWnIEl2Ng==}
+    peerDependencies:
+      effect: ^3.14.10
+      vitest: ^3.0.0
 
   '@emnapi/runtime@1.4.0':
     resolution: {integrity: sha512-64WYIf4UYcdLnbKn/umDlNjQDSS8AgZrI/R9+x5ilkUVFxXcA1Ebl+gQLc/6mERA4407Xof0R7wEyEuj091CVw==}
@@ -3916,6 +3925,11 @@ snapshots:
     optional: true
 
   '@drizzle-team/brocli@0.10.2': {}
+
+  '@effect/vitest@0.20.10(effect@3.14.6)(vitest@3.1.1(@types/node@20.17.30)(jiti@2.4.2)(lightningcss@1.29.2))':
+    dependencies:
+      effect: 3.14.6
+      vitest: 3.1.1(@types/node@20.17.30)(jiti@2.4.2)(lightningcss@1.29.2)
 
   '@emnapi/runtime@1.4.0':
     dependencies:

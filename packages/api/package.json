@@ -23,14 +23,15 @@
     "jose": "catalog:",
     "pino": "catalog:",
     "radix-connect": "catalog:",
+    "radix-web3.js": "catalog:",
     "superjson": "catalog:",
-    "zod": "catalog:",
-    "radix-web3.js": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@effect/vitest": "^0.20.10",
     "@types/aws-lambda": "catalog:",
-    "vitest": "catalog:",
-    "tsup": "catalog:"
+    "tsup": "catalog:",
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "restricted"
