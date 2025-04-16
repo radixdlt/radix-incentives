@@ -50,13 +50,6 @@ const navItems = [
       <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
-  {
-    label: "Settings",
-    href: "/dashboard/settings",
-    icon: (
-      <Settings className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-    ),
-  },
 ];
 
 type DashboardLayoutProps = {

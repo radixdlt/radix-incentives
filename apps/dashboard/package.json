@@ -14,6 +14,10 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@radix-ui/react-icons": "^1.3.0",
+    "@radix-ui/react-label": "^2.0.2",
+    "@radix-ui/react-separator": "^1.0.3",
+    "@radix-ui/react-slot": "^1.0.2",
     "@radixdlt/radix-dapp-toolkit": "^2.2.1",
     "@t3-oss/env-nextjs": "catalog:",
     "@tanstack/react-query": "catalog:",
@@ -33,11 +37,8 @@
     "server-only": "catalog:",
     "superjson": "catalog:",
     "tailwind-merge": "catalog:",
-    "zod": "catalog:",
-    "@radix-ui/react-icons": "^1.3.0",
-    "@radix-ui/react-label": "^2.0.2",
-    "@radix-ui/react-separator": "^1.0.3",
-    "@radix-ui/react-slot": "^1.0.2"
+    "tw-animate-css": "^1.2.5",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

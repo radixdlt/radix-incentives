@@ -32,6 +32,7 @@
   },
   "include": [
     "next-env.d.ts",
+    "src/declarations.d.ts",
     "**/*.ts",
     "**/*.tsx",
     "**/*.cjs",

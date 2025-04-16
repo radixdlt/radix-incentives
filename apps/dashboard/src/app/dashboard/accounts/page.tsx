@@ -46,14 +46,6 @@ export default function AccountsPage() {
                   </div>
                   <div>
                     <div className="font-medium">account_ab...z21</div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                      <span className="inline-flex items-center rounded-md bg-green-50 px-2 py-1 text-xs font-medium text-green-700 ring-1 ring-inset ring-green-600/20">
-                        Verified
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        Primary Account
-                      </span>
-                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-2">
@@ -62,12 +54,6 @@ export default function AccountsPage() {
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
                   >
                     View Details
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border-red-300 bg-red-50 text-red-700 shadow-sm hover:bg-red-100 h-9 px-4 py-2"
-                  >
-                    Remove
                   </button>
                 </div>
               </div>
@@ -96,11 +82,6 @@ export default function AccountsPage() {
                   </div>
                   <div>
                     <div className="font-medium">account_cd...f42</div>
-                    <div className="text-sm text-muted-foreground flex items-center gap-1">
-                      <span className="inline-flex items-center rounded-md bg-yellow-50 px-2 py-1 text-xs font-medium text-yellow-800 ring-1 ring-inset ring-yellow-600/20">
-                        Verification Needed
-                      </span>
-                    </div>
                   </div>
                 </div>
                 <div className="flex flex-col md:flex-row gap-2">
@@ -115,12 +96,6 @@ export default function AccountsPage() {
                     className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2"
                   >
                     View Details
-                  </button>
-                  <button
-                    type="button"
-                    className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border-red-300 bg-red-50 text-red-700 shadow-sm hover:bg-red-100 h-9 px-4 py-2"
-                  >
-                    Remove
                   </button>
                 </div>
               </div>

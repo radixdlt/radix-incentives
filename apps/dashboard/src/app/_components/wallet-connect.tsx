@@ -19,5 +19,6 @@ export function WalletConnect() {
     };
   }, []);
 
-  return <radix-connect-button></radix-connect-button>;
+  // @ts-expect-error
+  return <radix-connect-button />;
 }
