@@ -105,7 +105,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
               <div className="flex flex-col gap-2 px-4">
                 {navItems.map((link) => (
-                  <SidebarLink key={link.href} link={link} />
+                  <SidebarLink
+                    key={link.href}
+                    link={link}
+                    pathname={pathname}
+                  />
                 ))}
               </div>
             </div>
