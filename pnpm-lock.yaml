@@ -258,6 +258,9 @@ importers:
 
   apps/dashboard:
     dependencies:
+      '@radix-ui/react-avatar':
+        specifier: ^1.1.3
+        version: 1.1.3(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-icons':
         specifier: ^1.3.0
         version: 1.3.2(react@19.1.0)
@@ -268,7 +271,7 @@ importers:
         specifier: ^1.0.3
         version: 1.1.2(@types/react-dom@19.1.1(@types/react@19.1.0))(@types/react@19.1.0)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       '@radix-ui/react-slot':
-        specifier: ^1.0.2
+        specifier: ^1.2.0
         version: 1.2.0(@types/react@19.1.0)(react@19.1.0)
       '@radixdlt/radix-dapp-toolkit':
         specifier: ^2.2.1
@@ -291,6 +294,9 @@ importers:
       api:
         specifier: workspace:*
         version: link:../../packages/api
+      class-variance-authority:
+        specifier: ^0.7.1
+        version: 0.7.1
       clsx:
         specifier: 'catalog:'
         version: 2.1.1

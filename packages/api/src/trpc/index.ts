@@ -5,6 +5,7 @@ import {
   type DependencyLayer,
   createDependencyLayer,
 } from "./createDependencyLayer";
+import { Exit } from "effect";
 
 export type { DependencyLayer };
 export { createDependencyLayer };
@@ -26,19 +27,11 @@ export const createTRPCContext = async (opts: {
   setSessionToken: (token: string, expiresAt: Date) => Promise<void>;
   getSessionToken: () => Promise<string | null>;
 }) => {
-  // const sessionHelper = createSessionHelper(opts.db);
-
-  // const sessionToken = await opts.getSessionToken();
-
-  // const session = sessionToken
-  //   ? await sessionHelper.validateSessionToken(sessionToken)
-  //   : null;
+  const sessionToken = await opts.getSessionToken();
 
   return {
     ...opts,
-    // sessionHelper,
-    // session,
-    // onCreateSession: opts.onCreateSession,
+    sessionToken,
   };
 };
 
@@ -93,12 +86,6 @@ export const createTRPCRouter = t.router;
 const timingMiddleware = t.middleware(async ({ next, path }) => {
   const start = Date.now();
 
-  if (t._config.isDev) {
-    // artificial delay in dev
-    const waitMs = Math.floor(Math.random() * 400) + 100;
-    await new Promise((resolve) => setTimeout(resolve, waitMs));
-  }
-
   const result = await next();
 
   const end = Date.now();
@@ -124,17 +111,47 @@ export const publicProcedure = t.procedure.use(timingMiddleware);
  *
  * @see https://trpc.io/docs/procedures
  */
-export const protectedProcedure = t.procedure.use(timingMiddleware).use(
-  (
-    { ctx, next } // if (!ctx.session || !ctx.session.user) {
-  ) =>
-    //   throw new TRPCError({ code: "UNAUTHORIZED" });
-    // }
-    // return next({
-    //   ctx: {
-    //     // infers the `session` as non-nullable
-    //     session: { ...ctx.session, user: ctx.session.user },
-    //   },
-    // });
-    next({})
-);
+export const protectedProcedure = t.procedure
+  .use(timingMiddleware)
+  .use(async ({ ctx, next }) => {
+    if (!ctx.sessionToken) {
+      console.error("session token not found");
+      throw new TRPCError({ code: "UNAUTHORIZED" });
+    }
+
+    console.log("validating session token", ctx.sessionToken);
+
+    const result = await ctx.dependencyLayer.validateSessionToken(
+      ctx.sessionToken
+    );
+
+    if (Exit.isFailure(result)) {
+      console.error(result.cause);
+      if (result.cause._tag === "Fail") {
+        switch (result.cause.error._tag) {
+          case "SessionExpiredError":
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Session expired",
+            });
+          case "SessionNotFoundError":
+            throw new TRPCError({
+              code: "UNAUTHORIZED",
+              message: "Session not found",
+            });
+        }
+      }
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Unknown error",
+      });
+    }
+
+    const { user } = result.value;
+
+    return next({
+      ctx: {
+        session: { user },
+      },
+    });
+  });

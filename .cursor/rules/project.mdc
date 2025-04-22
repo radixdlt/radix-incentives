@@ -11,3 +11,4 @@ alwaysApply: true
 - Do not install dependencies on root level
 - When adding a dependency add it in catalog
 
+

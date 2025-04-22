@@ -1,0 +1,81 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+
+# Cursor Project Rules
+
+This document outlines the rules and guidelines for AI-assisted development within this project.
+
+## Core Principles
+
+- **Context is King**: Always refer to the content within the `cursor_project_rules` folder as the primary source of truth for project context, rules, and guidelines. Verify information against this context before proceeding.
+- **Follow Plans**: Adhere strictly to implementation plans outlined in `.mdc` files (e.g., `implementation-plan.mdc`). Update the plan after completing each step.
+- **Incremental Changes**: Make changes file by file to allow for review.
+- **Clarity and Readability**: Prioritize clear, readable code. Use explicit variable names (e.g., `handleEventName` for event handlers) and follow the existing coding style.
+- **Performance & Security**: Consider performance implications and follow a security-first approach in all changes.
+- **Modularity**: Encourage modular design for maintainability and reusability.
+- **Testing**: Include appropriate unit tests (using Vitest for TypeScript) for new or modified code, ensuring they pass and cover the logic.
+- **Error Handling**: Implement robust error handling and logging.
+- **Avoid Assumptions**: Do not invent changes, make assumptions, or speculate without evidence from the context. Do not discuss current implementation unless necessary or asked.
+- **No Unnecessary Communication**: Avoid apologies, understanding feedback, whitespace suggestions, unnecessary summaries, confirmations of provided info, or requests for manual verification (provide automated checks instead).
+
+## Project Specifics
+
+- **Project Structure**: This is a Turbo Monorepo.
+- **Package Management**: Use `pnpm`. Install dependencies within specific packages (referencing the catalog), not at the root level.
+- **Technology Stack**:
+  - Frontend: Next.js, ReactJS, TypeScript, TailwindCSS, Shadcn, Radix UI
+  - Backend: Node.js, TypeScript, tRPC
+  - Database: PostgreSQL with Drizzle ORM (`./packages/db`)
+  - Caching: Redis
+  - Job Processing: Bull MQ
+  - Blockchain: Radix Gateway SDK, Radix-dApp-toolkit
+- **ClickUp Integration**:
+  - Use Space ID `90154160105` (Tech) and List ID `901510243582`.
+  - Tasks must be in Markdown format, include Mermaid charts for flows, and link to documentation if available. (See `clickup` rule for example format).
+- **Database Rules**:
+  - All database changes occur in `./packages/db`.
+  - Refer to the `database` rule for the schema structure.
+- **Development Process**: Follow the `high-level-overview`, `PRD`, and `development` rules for strategic direction and feature details.
+- **User Dashboard**: Follow the `user-dashboard-implementation-plan.mdc` for implementation steps.
+
+## Coding Guidelines
+
+- **TypeScript (`**/\*.ts`)\*\*:
+  - Use `type` over `interface`.
+  - Use functions over classes.
+  - Use named exports over default exports.
+  - Document all functions.
+  - Write Vitest unit tests covering all functions.
+  - Use the `Effect` library for functional composition (`pipe`).
+  - Follow `typescript` rule specifics.
+- **React/Next.js (`apps/admin/src/**/_.ts`, `apps/dashboard/src/\*\*/_.ts`)\*\*:
+  - Follow `nextjs` rule specifics.
+  - Use Tailwind classes for styling (no inline CSS or `<style>` tags).
+  - Prefer `class:` over tertiary operators in class attributes.
+  - Implement accessibility features (e.g., `tabindex`, `aria-label`, keyboard events).
+  - Use `const` arrow functions (`const myFunc = () => {}`) with types.
+  - Use early returns.
+- **tRPC**:
+  - Follow `trpc` rule specifics (v11).
+  - Initialize backend once (`server/trpc.ts`).
+  - Use Zod for input validation.
+  - Organize routers by feature.
+  - Use middleware for common logic (e.g., auth).
+  - Use `TRPCError` for error handling.
+  - Use SuperJSON transformer.
+  - Leverage React Query integration (`useQuery`, `useMutation`).
+  - Create proper context (`server/context.ts`).
+  - Export only router _types_ (`AppRouter`) to the client.
+  - Use distinct procedure types (public, protected, admin).
+  - Use batching (`httpBatchLink`) and prefetching (`createServerSideHelpers`).
+- **General**:
+  - Avoid magic numbers; use named constants.
+  - Consider and handle edge cases.
+  - Use assertions where appropriate.
+  - Ensure version compatibility (check project versions if unsure).
+  - Preserve existing unrelated code and functionality.
+  - Provide edits in single chunks per file.
+  - Use real file links when referencing files.

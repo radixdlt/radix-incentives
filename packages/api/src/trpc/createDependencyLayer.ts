@@ -1,26 +1,32 @@
 import type { Db } from "db";
-import {
-  type AppConfig,
-  createAppConfigLive,
-} from "../effect/services/appConfig";
-import { createDbClientLive } from "../effect";
-import { LoggerLive } from "../effect/services/logger";
+import { type AppConfig, createAppConfigLive } from "../services/appConfig";
+import { createDbClientLive } from "../services";
+import { LoggerLive } from "../services/logger";
 import { Effect, Layer } from "effect";
-import { GatewayApiClientLive } from "../effect/services/gatewayApiClient";
-import { RolaServiceLive } from "../effect/services/rola";
+import { RolaServiceLive } from "../services/rola";
 import {
   CreateChallengeLive,
   createChallengeProgram,
-} from "../auth/challenge/createChallenge";
+} from "../challenge/createChallenge";
+import { VerifyRolaProofLive } from "../rola/verifyRolaProof";
 import {
-  type VerifyRolaProofInput,
-  VerifyRolaProofLive,
-} from "../auth/rola/verifyRolaProof";
-import { signInWithRolaProof } from "../auth/programs/signInWithRolaProof";
-import { GenerateSessionTokenLive } from "../auth/session/generateSessionToken";
-import { CreateSessionLive } from "../auth/session/createSession";
-import { VerifyChallengeLive } from "../auth/challenge/verifyChallenge";
-import { UpsertUserLive } from "../auth/user/upsertUser";
+  signInWithRolaProof,
+  type SignInWithRolaProofInput,
+} from "../programs/signInWithRolaProof";
+import { GenerateSessionTokenLive } from "../session/generateSessionToken";
+import { CreateSessionLive } from "../session/createSession";
+import { VerifyChallengeLive } from "../challenge/verifyChallenge";
+import { UpsertUserLive } from "../user/upsertUser";
+import { validateSessionTokenProgram } from "../programs/validateSessionToken";
+import { InvalidateSessionLive } from "../session/invalidateSession";
+import {
+  verifyAccountOwnershipProgram,
+  type VerifyAccountOwnershipInput,
+} from "../programs/verifyAccountOwnership";
+import { UpsertAccountsLive } from "../account/upsertAccounts";
+import { GetSessionLive } from "../session/getSession";
+import { getAccountsProgram } from "../programs/getAccounts";
+import { signOutProgram } from "../programs/signOutProgram";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -34,10 +40,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const appConfigLive = createAppConfigLive(input.appConfig);
 
   const loggerLive = LoggerLive.pipe(Layer.provide(appConfigLive));
-
-  const gatewayApiClientLive = GatewayApiClientLive.pipe(
-    Layer.provide(appConfigLive)
-  );
 
   const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
 
@@ -64,12 +66,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(rolaServiceLive)
   );
 
+  const invalidateSessionLive = InvalidateSessionLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const upsertAccountsLive = UpsertAccountsLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
+
   const createChallenge = () =>
     Effect.runPromiseExit(
       createChallengeProgram.pipe(Effect.provide(createChallengeLive))
     );
 
-  const signIn = (input: VerifyRolaProofInput) => {
+  const signIn = (input: SignInWithRolaProofInput) => {
     const program = Effect.provide(
       signInWithRolaProof(input),
       Layer.mergeAll(
@@ -88,8 +100,62 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const validateSessionToken = (sessionToken: string) => {
+    const program = Effect.provide(
+      validateSessionTokenProgram(sessionToken),
+      Layer.mergeAll(
+        getSessionLive,
+        invalidateSessionLive,
+        dbClientLive,
+        appConfigLive,
+        loggerLive
+      )
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const verifyAccountOwnership = (input: VerifyAccountOwnershipInput) => {
+    const program = Effect.provide(
+      verifyAccountOwnershipProgram(input),
+      Layer.mergeAll(
+        rolaServiceLive,
+        loggerLive,
+        appConfigLive,
+        dbClientLive,
+        verifyRolaProofLive,
+        verifyChallengeLive,
+        upsertAccountsLive
+      )
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getAccounts = (userId: string) => {
+    const program = Effect.provide(
+      getAccountsProgram(userId),
+      Layer.mergeAll(dbClientLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const signOut = (userId: string) => {
+    const program = Effect.provide(
+      signOutProgram(userId),
+      Layer.mergeAll(dbClientLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
+    validateSessionToken,
+    verifyAccountOwnership,
+    getAccounts,
+    signOut,
   };
 };

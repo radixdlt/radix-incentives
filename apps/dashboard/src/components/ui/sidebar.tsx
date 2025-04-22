@@ -4,7 +4,7 @@ import { cn } from "~/lib/utils"; // Adjusted path
 import Link from "next/link"; // Keep default import for usage
 import type { LinkProps } from "next/link"; // Type-only import
 import type React from "react"; // Make React import type-only
-import { useState, createContext, useContext } from "react"; // Keep specific hooks
+import { useState, createContext, useContext, useEffect } from "react"; // Keep specific hooks
 import type { ReactNode, JSX } from "react"; // Type-only imports
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, X } from "lucide-react";
@@ -29,7 +29,12 @@ export const useSidebar = () => {
   if (!context) {
     throw new Error("useSidebar must be used within a SidebarProvider");
   }
-  return { open: context.open, setOpen: context.setOpen };
+  return {
+    open: context.open,
+    setOpen: (value: boolean) => {
+      return context.setOpen(value);
+    },
+  };
 };
 
 export const SidebarProvider = ({
@@ -122,7 +127,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full h-full"
+          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 h-full"
         )}
         {...props}
       >
@@ -131,7 +136,7 @@ export const MobileSidebar = ({
           <button
             type="button"
             className="text-neutral-800 dark:text-neutral-200 cursor-pointer p-1 rounded focus:outline-none focus:ring-2 focus:ring-ring"
-            onClick={handleToggle}
+            onClick={() => handleToggle()}
             onKeyDown={handleKeyDown}
             aria-label={open ? "Close sidebar" : "Open sidebar"}
             aria-expanded={open}
@@ -193,13 +198,7 @@ export const SidebarLink = ({
       {...props}
     >
       {link.icon}
-      <motion.span
-        animate={{
-          display: open ? "inline-block" : "none",
-          opacity: open ? 1 : 0,
-        }}
-        className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0"
-      >
+      <motion.span className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre inline-block !p-0 !m-0">
         {link.label}
       </motion.span>
     </Link>

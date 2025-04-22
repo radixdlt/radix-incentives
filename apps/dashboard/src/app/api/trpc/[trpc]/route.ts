@@ -18,9 +18,14 @@ const createContext = async (req: NextRequest) => {
       dbClient: db,
     }),
     setSessionToken: async (token: string, expiresAt: Date) => {
+      console.log("setting session token", { token, expiresAt });
       const cookieStore = await cookies();
       cookieStore.set("session", token, {
         expires: expiresAt,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        path: "/",
       });
     },
     getSessionToken: async () => {

@@ -72,7 +72,7 @@ export const accounts = createTable("account", {
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
   address: varchar("address", { length: 255 }).notNull().primaryKey(),
-  label: varchar("label", { length: 255 }),
+  label: varchar("label", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", {
     mode: "date",
     withTimezone: true,
