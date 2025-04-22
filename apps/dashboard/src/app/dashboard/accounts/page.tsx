@@ -9,6 +9,7 @@ import { EmptyState } from "~/components/ui/empty-state";
 import { AlertTriangle, Wallet } from "lucide-react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { usePersona } from "~/lib/hooks/usePersona";
+import { ConnectedState } from "../components/ConnectedState";
 
 export default function AccountsPage() {
   const persona = usePersona();
@@ -20,14 +21,16 @@ export default function AccountsPage() {
 
   if (!persona) {
     return (
-      <div className="space-y-4">
-        <EmptyState
-          title="Not connected"
-          description="Connect your Radix wallet to get started."
-          icon={Wallet}
-          className="max-w-full"
-        />
-      </div>
+      <ConnectedState>
+        <div className="space-y-4">
+          <EmptyState
+            title="Not connected"
+            description="Connect your Radix wallet to get started."
+            icon={Wallet}
+            className="max-w-full"
+          />
+        </div>
+      </ConnectedState>
     );
   }
 

@@ -5,6 +5,8 @@ import { toast } from "sonner";
 
 import { ConsultationCard } from "./components/ConsultationCard";
 import { NoActiveConsultationMessage } from "./components/NoActiveConsultationMessage";
+import { useDappToolkit } from "~/lib/hooks/useRdt";
+import { ConnectedState } from "../components/ConnectedState";
 
 // --- Exported Types (used by child components) ---
 export type VotingOption = {
@@ -31,8 +33,9 @@ export type PlaceholderConsultation = {
  */
 const VotingPage: FC = () => {
   const [selectedOptionId, setSelectedOptionId] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(false); // Simulate loading state
-  const [hasVotedStatus, setHasVotedStatus] = useState<boolean>(false); // Simulate voted status
+  const [isLoading, setIsLoading] = useState<boolean>(false); // Loading for vote submission
+  const [hasVotedStatus, setHasVotedStatus] = useState<boolean>(false);
+  const rdt = useDappToolkit();
 
   // --- Placeholder Data (remains in parent for now) ---
   const placeholderConsultation: PlaceholderConsultation | null = {
@@ -83,25 +86,26 @@ const VotingPage: FC = () => {
     }, 1500);
   };
 
-  // --- Render Logic ---
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Community Consultation</h1>
+    <ConnectedState>
+      <div className="space-y-6">
+        <h1 className="text-3xl font-bold">Community Consultation</h1>
 
-      {placeholderConsultation ? (
-        <ConsultationCard
-          consultation={placeholderConsultation}
-          selectedOptionId={selectedOptionId}
-          isLoading={isLoading}
-          onOptionChange={setSelectedOptionId} // Pass state setter directly
-          onSubmit={handleVoteSubmit}
-        />
-      ) : (
-        <NoActiveConsultationMessage />
-      )}
+        {placeholderConsultation ? (
+          <ConsultationCard
+            consultation={placeholderConsultation}
+            selectedOptionId={selectedOptionId}
+            isLoading={isLoading}
+            onOptionChange={setSelectedOptionId}
+            onSubmit={handleVoteSubmit}
+          />
+        ) : (
+          <NoActiveConsultationMessage />
+        )}
 
-      {/* TODO: Add section for past consultations and results */}
-    </div>
+        {/* TODO: Add section for past consultations and results */}
+      </div>
+    </ConnectedState>
   );
 };
 
