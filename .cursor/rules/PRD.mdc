@@ -1,9 +1,8 @@
 ---
 description: Product Requirement Document
-globs:
+globs: 
 alwaysApply: true
 ---
-
 # **Radix Incentives Campaign Platform**
 
 ## **Product Requirements Document (PRD)**
@@ -138,6 +137,22 @@ This platform will provide the technical infrastructure to:
   - Efficient leaderboard calculation
   - Performance optimization for large user bases
   - Real-time updates
+
+#### **3.1.6 Community Consultations**
+
+- **Description**: Allow users to view and participate in the active community consultation.
+- **Acceptance Criteria**:
+  - Users can view the details of the active community consultation, including the question, options, start/end dates, and voting mechanism (e.g., snapshot-based).
+  - Users can participate in the active consultation using their connected and verified wallets.
+  - Voting power is calculated based on configured token holdings (e.g., XRD, LSUs) at specified snapshot times or averaged over multiple snapshots.
+  - Users can see their calculated voting power for the specific consultation.
+  - Users receive confirmation after casting their vote.
+  - Results of the completed consultation are viewable (if permitted by admin configuration).
+- **Technical Considerations**:
+  - Integration with the backend API to fetch consultation details and submit votes.
+  - Secure handling of vote casting via Radix Connect / ROLA.
+  - Clear display of voting power calculation based on snapshot data.
+  - User-friendly interface for viewing and participating in the consultation.
 
 ### **3.2 Administrator Dashboard**
 
@@ -510,6 +525,13 @@ The API will be implemented using tRPC to provide type-safe API endpoints.
 - Account verification status
 - Add/remove account functionality
 - Account-specific metrics
+
+  #### **5.2.5 Community Consultations**
+
+- Detailed view for the consultation (question, options, rules, dates)
+- Voting interface for the active consultation
+- Display of user's voting power
+- View results of the completed consultation
 
   ### **5.3 Admin Dashboard Screens**
 
