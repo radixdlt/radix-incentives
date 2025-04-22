@@ -9,6 +9,8 @@ alwaysApply: true
 - apply to all typescript files **/*.ts
 - Use type over interface
 - Use functions over class
+- Use function expressions over declarations
+- Use const
 - Break down code into small building blocks and compose using functional programming 
 - Use named exports over default export
 - Document all functions

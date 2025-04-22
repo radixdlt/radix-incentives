@@ -12,6 +12,7 @@ import {
   List,
   Users,
   Settings,
+  Vote,
 } from "lucide-react";
 
 const navItems = [
@@ -48,6 +49,13 @@ const navItems = [
     href: "/dashboard/accounts",
     icon: (
       <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+    ),
+  },
+  {
+    label: "Voting",
+    href: "/dashboard/voting",
+    icon: (
+      <Vote className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
 ];

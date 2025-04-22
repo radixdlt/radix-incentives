@@ -5,6 +5,7 @@ import { Geist } from "next/font/google";
 
 import { TRPCReactProvider } from "~/trpc/react";
 import { RadixDappToolkitProvider } from "~/lib/providers/rdtProvider";
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Radix Incentives",
@@ -27,7 +28,10 @@ export default function RootLayout({
       </head>
       <body className="bg-background text-foreground min-h-screen antialiased">
         <TRPCReactProvider>
-          <RadixDappToolkitProvider>{children}</RadixDappToolkitProvider>
+          <RadixDappToolkitProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </RadixDappToolkitProvider>
         </TRPCReactProvider>
       </body>
     </html>
