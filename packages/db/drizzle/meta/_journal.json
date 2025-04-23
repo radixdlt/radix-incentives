@@ -8,6 +8,13 @@
       "when": 1744027766005,
       "tag": "0000_confused_proemial_gods",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1745402058286,
+      "tag": "0001_optimal_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }
