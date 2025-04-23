@@ -9,49 +9,38 @@ import { api } from "~/trpc/react";
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 
-const createRdtClient = () => {
-  const signOut = api.auth.signOut.useMutation();
-
-  const rdt = RadixDappToolkit({
-    dAppDefinitionAddress:
-      "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
-    networkId: 1,
-    onDisconnect: async () => {
-      await signOut.mutateAsync();
-    },
-  });
-
-  rdt.buttonApi.setMode("dark");
-  rdt.buttonApi.setTheme("white");
-
-  rdt.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
-
-  return rdt;
-};
-
+// biome-ignore lint/style/useConst: <explanation>
 let rdtSingleton: RadixDappToolkit | undefined = undefined;
 
-const getRdt = () => {
-  if (typeof window === "undefined") {
-    // RDT is not available on server
-    return;
-  }
-  // Browser: use singleton pattern to keep the same query client
-  rdtSingleton ??= createRdtClient();
-
-  return rdtSingleton;
-};
-
 export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
-  const rdtClient = getRdt();
-
-  const [rdt] = useState(() => rdtClient);
-
   const signIn = api.auth.signIn.useMutation();
-
+  const signOut = api.auth.signOut.useMutation();
   const generateChallenge = api.auth.generateChallenge.useMutation({});
+  const [rdt, setRdt] = useState<RadixDappToolkit | undefined>(undefined);
+
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    // RDT is not available on server
+    if (typeof window === "undefined") return;
+
+    const rdt =
+      rdtSingleton ??
+      RadixDappToolkit({
+        dAppDefinitionAddress:
+          "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
+        networkId: 1,
+        onDisconnect: async () => {
+          await signOut.mutateAsync();
+        },
+      });
+
+    setRdt(rdt);
+
+    rdt.buttonApi.setMode("dark");
+    rdt.buttonApi.setTheme("white");
+
+    rdt.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
+
     rdt?.walletApi.provideChallengeGenerator(() =>
       generateChallenge.mutateAsync()
     );
