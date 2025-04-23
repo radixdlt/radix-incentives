@@ -16,7 +16,7 @@ export type AppConfig = {
 
 const expectedOrigin =
   process.env.VERCEL_ENV === "production"
-    ? "https://points.radixdlt.com"
+    ? `https://${process.env.VERCEL_BRANCH_URL}`
     : process.env.VERCEL_BRANCH_URL
       ? `https://${process.env.VERCEL_BRANCH_URL}`
       : "http://localhost:3000";
