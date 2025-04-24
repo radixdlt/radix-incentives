@@ -52,9 +52,9 @@ export const VotingForm: FC<VotingFormProps> = ({
       <Button
         type="submit"
         disabled={isLoading || !selectedOptionId}
-        aria-label="Submit your vote"
+        aria-label="Submit your consultation"
       >
-        {isLoading ? "Submitting..." : "Submit Vote"}
+        {isLoading ? "Submitting..." : "Submit Consultation"}
       </Button>
     </form>
   );

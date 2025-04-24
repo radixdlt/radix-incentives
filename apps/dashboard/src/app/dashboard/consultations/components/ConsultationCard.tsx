@@ -2,12 +2,20 @@
 
 import type { FC } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import type { PlaceholderConsultation } from "../page"; // Assuming type export from parent
+
 import { VotingForm } from "./VotingForm";
 import { VotedMessage } from "./VotedMessage";
 
 type ConsultationCardProps = {
-  consultation: PlaceholderConsultation;
+  consultation: {
+    question: string;
+    startDate: Date;
+    endDate: Date;
+    options: {
+      id: string;
+      text: string;
+    }[];
+  };
   selectedOptionId: string | null;
   isLoading: boolean;
   onOptionChange: (value: string) => void;
@@ -27,30 +35,20 @@ export const ConsultationCard: FC<ConsultationCardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Active Consultation: {consultation.question}</CardTitle>
+        <CardTitle>{consultation.question}</CardTitle>
         <p className="text-sm text-muted-foreground">
           Voting period: {consultation.startDate.toLocaleDateString()} -{" "}
           {consultation.endDate.toLocaleDateString()}
         </p>
-        <p className="text-sm text-muted-foreground">
-          Rules: {consultation.rules}
-        </p>
-        <p className="text-sm font-medium">
-          Your Voting Power: {consultation.userVotingPower.toLocaleString()}
-        </p>
       </CardHeader>
       <CardContent>
-        {consultation.userHasVoted ? (
-          <VotedMessage />
-        ) : (
-          <VotingForm
-            options={consultation.options}
-            selectedOptionId={selectedOptionId}
-            isLoading={isLoading}
-            onOptionChange={onOptionChange}
-            onSubmit={onSubmit}
-          />
-        )}
+        <VotingForm
+          options={consultation.options}
+          selectedOptionId={selectedOptionId}
+          isLoading={isLoading}
+          onOptionChange={onOptionChange}
+          onSubmit={onSubmit}
+        />
       </CardContent>
     </Card>
   );

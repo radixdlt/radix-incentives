@@ -15,6 +15,13 @@
       "when": 1745402058286,
       "tag": "0001_optimal_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1745488617658,
+      "tag": "0002_naive_jack_murdock",
+      "breakpoints": true
     }
   ]
 }

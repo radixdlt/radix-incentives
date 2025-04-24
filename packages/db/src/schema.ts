@@ -13,6 +13,7 @@ import {
   json,
   decimal,
   pgEnum,
+  uniqueIndex,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -492,6 +493,45 @@ export const userSeasonPointsRelations = relations(
   })
 );
 
+export const consultations = createTable(
+  "consultation",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    consultationId: text("consultation_id").notNull(),
+    accountAddress: varchar("account_address", { length: 255 }) // Link to the user profile
+      .notNull()
+      .references(() => accounts.address, { onDelete: "cascade" }),
+    selectedOption: text("selected_option").notNull(),
+    rolaProof: jsonb("rola_proof"), // Store ROLA proof details
+    timestamp: timestamp("timestamp", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => {
+    return {
+      // Unique constraint for one vote per account per consultation
+      consultationVoteUid: uniqueIndex("consultation_vote_uidx").on(
+        table.consultationId,
+        table.accountAddress
+      ),
+      consultationIdIdx: index("consultation_id_idx").on(table.consultationId),
+      accountAddressIdx: index("account_address_idx").on(table.accountAddress),
+    };
+  }
+);
+
+export const consultationsRelations = relations(consultations, ({ one }) => ({
+  account: one(accounts, {
+    fields: [consultations.accountAddress],
+    references: [accounts.address],
+  }),
+}));
+
+// --- End Community Consultation Schema ---
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
@@ -508,3 +548,4 @@ export type UserWeeklyMultipliers = InferSelectModel<
   typeof userWeeklyMultipliers
 >;
 export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
+export type Consultation = InferSelectModel<typeof consultations>;
