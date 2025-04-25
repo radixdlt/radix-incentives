@@ -27,6 +27,13 @@ import { UpsertAccountsLive } from "../account/upsertAccounts";
 import { GetSessionLive } from "../session/getSession";
 import { getAccountsProgram } from "../programs/getAccounts";
 import { signOutProgram } from "../programs/signOutProgram";
+import {
+  type VerifyConsultationSignatureInput,
+  verifyConsultationSignatureProgram,
+} from "../programs/verifyConsultationSignature";
+import { AddConsultationToDbLive } from "../consultation/addConsultationToDb";
+import { CreateConsultationMessageLive } from "../consultation/createConsultationMessage";
+import { getConsultationsProgram } from "../programs/getConsulations";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -75,6 +82,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
+
+  const addConsultationToDbLive = AddConsultationToDbLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const createConsultationMessageLive = CreateConsultationMessageLive;
 
   const createChallenge = () =>
     Effect.runPromiseExit(
@@ -150,6 +163,33 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const verifyConsultationSignature = (
+    input: VerifyConsultationSignatureInput
+  ) => {
+    const program = Effect.provide(
+      verifyConsultationSignatureProgram(input),
+      Layer.mergeAll(
+        dbClientLive,
+        createConsultationMessageLive,
+        addConsultationToDbLive,
+        verifyRolaProofLive,
+        loggerLive,
+        rolaServiceLive
+      )
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getConsultations = (userId: string) => {
+    const program = Effect.provide(
+      getConsultationsProgram(userId),
+      Layer.mergeAll(dbClientLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -157,5 +197,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     verifyAccountOwnership,
     getAccounts,
     signOut,
+    verifyConsultationSignature,
+    getConsultations,
   };
 };
