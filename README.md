@@ -82,3 +82,105 @@ Learn more about the power of Turborepo:
 - [Filtering](https://turbo.build/repo/docs/core-concepts/monorepos/filtering)
 - [Configuration Options](https://turbo.build/repo/docs/reference/configuration)
 - [CLI Usage](https://turbo.build/repo/docs/reference/command-line-reference)
+
+
+#  Local setup for running environment locally
+## Prerequisites
+
+- Install or update nvm:
+  ```bash
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.5/install.sh | bash
+  source ~/.nvm/nvm.sh
+  ```
+- Use nvm to install and use Node.js v20:
+  ```bash
+  nvm install 20
+  nvm use 20
+  ```
+## 🚀 Getting Started with Radix Incentives
+
+Follow these steps to get the project up and running locally, run migrations, and troubleshoot common issues.
+
+---
+
+### 1. Prerequisites
+
+- **Node.js**: version **>= 20.0.0**  
+  Download from https://nodejs.org/en/download/  
+- **pnpm**: package manager  
+  Install via  
+  ```bash
+  npm install -g pnpm
+  ```
+- **Docker & Docker-Compose**  
+  Install from https://docs.docker.com/get-docker/
+
+---
+
+### 2. Initial Setup
+
+1. **Verify Node.js version**  
+   ```bash
+   node --version
+   # Should output v20.x.x or higher
+   ```
+
+2. **Install dependencies**  
+   ```bash
+   pnpm install
+   ```
+
+---
+
+### 3. Start Services
+
+Bring up the Postgres container (and any other services defined in `docker-compose.yml`):
+
+```bash
+docker-compose up -d
+```
+
+---
+
+### 4. Database Migrations
+
+Change into the `db` package and run Drizzle migrations:
+
+```bash
+cd packages/db
+pnpm run db:migrate
+```
+
+> **Troubleshooting**  
+> If you see an error about missing `DATABASE_URL`, you need to export it first.
+
+---
+
+### 5. Setting the `DATABASE_URL`
+
+Drizzle needs the `DATABASE_URL` environment variable to connect to Postgres. Based on your `docker-compose.yml`, it can look like this:
+
+```bash
+export DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentives"
+```
+
+Then re-run the migration:
+
+```bash
+pnpm run db:migrate
+```
+
+---
+
+### 6. Useful Links
+
+- **Node.js Downloads & Docs**  
+  https://nodejs.org/en/download/  
+- **pnpm Docs**  
+  https://pnpm.io/  
+- **Drizzle ORM Migrations**  
+  https://orm.drizzle.team/docs/getting-started  
+- **Docker-Compose Reference**  
+  https://docs.docker.com/compose/
+
+---

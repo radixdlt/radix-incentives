@@ -6,15 +6,27 @@ alwaysApply: true
 
 # Clickup project settings
 
-- Always add items to Tech (Space ID: 90154160105)
+- Always add items to Radix-Incentives (Space ID: 90154280384)
 - Always use markdown format
 - Link to documentation if available
 - Add mermaid charts to illustrate the user flow
 
 ```
 Workspace (Workspace ID: 4593284)
-└── Tech (Space ID: 90154160105)
-    └── List (List ID: 901510243582)
+└── Radix-Incentives (Space ID: 90154280384)
+    ├── Ceremonies (Folder ID: 90156521651)
+    │   ├── Retrospectives (List ID: 901510463828)
+    │   └── Meeting Tracker (List ID: 901510463830)
+    ├── Sprints (Folder ID: 90156521650)
+    │   ├── Sprint 1 (3/6 - 3/19) (List ID: 901510463807)
+    │   └── Sprint 2 (3/20 - 4/2) (List ID: 901510463808)
+    ├── QA (Folder ID: 90156521649)
+    │   ├── Test Runs (List ID: 901510463806)
+    │   └── Test Scenarios & Cases (List ID: 901510463805)
+    ├── ✨ Template Guide (Folder ID: 90156521666)
+    └── Backlog (Folder ID: 90156521668)
+        ├── Bug Tracking (List ID: 901510463839)
+        └── Product Backlog (List ID: 901510463840)
 ```
 
 **Example task:**
