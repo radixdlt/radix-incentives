@@ -4,3 +4,4 @@ export * from "./gateway/gatewayModule";
 export * from "./services/dbClient";
 export * from "./consultation/createConsultationMessage";
 export * from "./crypto/toHex";
+export * from "./programs/runTransactionStreamLoop";

@@ -1,0 +1,12 @@
+{
+  "name": "stateversion",
+  "scripts": {
+    "start": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "@radixdlt/babylon-gateway-api-sdk": "catalog:"
+  },
+  "devDependencies": {
+    "tsx": "catalog:"
+  }
+}
