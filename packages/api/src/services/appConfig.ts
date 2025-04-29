@@ -12,6 +12,8 @@ export type AppConfig = {
   challengeTTL: number;
   sessionTTL: number;
   sessionRefreshThreshold: number;
+  stateVersionKey: string;
+  redisUrl: string;
 };
 
 const expectedOrigin =
@@ -31,6 +33,9 @@ export const defaultAppConfig: AppConfig = {
   challengeTTL: 1000 * 60 * 5,
   sessionTTL: THIRTY_DAYS,
   sessionRefreshThreshold: FIFTEEN_DAYS,
+  stateVersionKey: "stateVersion",
+  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  redisUrl: process.env.REDIS_URL!,
 };
 
 export type CreateAppConfigInput = Partial<AppConfig>;

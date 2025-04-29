@@ -1,0 +1,20 @@
+{
+  "name": "xrd-calculation",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src/index.ts | pino-pretty",
+    "test": "vitest",
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "pino-pretty": "catalog:",
+    "tsup": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "api": "workspace:*",
+    "bignumber.js": "^9.3.0",
+    "effect": "catalog:"
+  }
+}
