@@ -8,11 +8,12 @@
     "format": "biome format --write ./packages/**/**/*.ts",
     "lint": "biome lint --write ./packages/**/**/*.ts",
     "check-types": "biome check --write ./packages/**/**/*.ts",
-    "db:generate": "turbo run db:generate",
-    "db:migrate": "turbo run db:migrate",
-    "db:studio": "turbo run db:studio",
-    "db:push": "turbo run db:push",
-    "db:pull": "turbo run db:pull"
+    "db:start": "docker compose -f docker-compose.yml up -d",
+    "db:generate": "turbo run db:generate:incentives db:generate:consultation",
+    "db:migrate": "turbo run db:migrate:incentives db:migrate:consultation",
+    "db:studio": "turbo run db:studio:incentives db:studio:consultation",
+    "db:push": "turbo run db:push:incentives db:push:consultation",
+    "db:create": "./postgres-init/init-db.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

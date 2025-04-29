@@ -5,11 +5,19 @@
   "module": "./src/index.ts",
   "private": true,
   "type": "module",
+  "exports": {
+    "./incentives": "./src/incentives/index.ts",
+    "./consultation": "./src/consultation/index.ts"
+  },
   "scripts": {
-    "dev": "drizzle-kit studio",
-    "db:migrate": "drizzle-kit migrate",
-    "db:push": "drizzle-kit push",
-    "db:generate": "drizzle-kit generate",
+    "dev:incentives": "drizzle-kit studio --config=./src/incentives/drizzle.config.ts",
+    "dev:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts",
+    "db:migrate:incentives": "drizzle-kit migrate --config=./src/incentives/drizzle.config.ts",
+    "db:migrate:consultation": "drizzle-kit migrate --config=./src/consultation/drizzle.config.ts",
+    "db:push:incentives": "drizzle-kit push --config=./src/incentives/drizzle.config.ts",
+    "db:push:consultation": "drizzle-kit push --config=./src/consultation/drizzle.config.ts",
+    "db:generate:incentives": "drizzle-kit generate --config=./src/incentives/drizzle.config.ts",
+    "db:generate:consultation": "drizzle-kit generate --config=./src/consultation/drizzle.config.ts",
     "db:start": "docker compose up -d",
     "db:studio": "drizzle-kit studio"
   },

@@ -4,7 +4,8 @@
   "envMode": "loose",
   "tasks": {
     "dev": {
-      "persistent": true
+      "persistent": true,
+      "cache": false
     },
     "build": {
       "dependsOn": ["^build"],
@@ -14,10 +15,29 @@
     "test": {
       "persistent": true
     },
-    "db:generate": {},
-    "db:migrate": {},
-    "db:studio": {},
-    "db:push": {},
-    "db:pull": {}
+    "db:generate:incentives": {
+      "cache": false
+    },
+    "db:generate:consultation": {
+      "cache": false
+    },
+    "db:migrate:incentives": {
+      "cache": false
+    },
+    "db:migrate:consultation": {
+      "cache": false
+    },
+    "db:studio:incentives": {
+      "cache": false
+    },
+    "db:studio:consultation": {
+      "cache": false
+    },
+    "db:push:incentives": {
+      "cache": false
+    },
+    "db:push:consultation": {
+      "cache": false
+    }
   }
 }

@@ -10,11 +10,11 @@ services:
     ports:
       - 5432:5432
     volumes:
+      - ./postgres-init:/docker-entrypoint-initdb.d
       - ~/apps/postgres-17:/var/lib/postgresql/data
     environment:
       - POSTGRES_PASSWORD=password
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=radix-incentives
 
   redis:
     image: redis:7.0-alpine

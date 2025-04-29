@@ -2,8 +2,7 @@
   "name": "multiplier",
   "type": "module",
   "scripts": {
-    "test": "vitest",
-    "build": "tsup"
+    "test": "vitest"
   },
   "devDependencies": {
     "tsup": "^8.4.0",

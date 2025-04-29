@@ -4,7 +4,7 @@ import type { NextRequest } from "next/server";
 import { env } from "~/env";
 import { appRouter, createDependencyLayer } from "api";
 import { createTRPCContext } from "api";
-import { db } from "db";
+import { db } from "db/incentives";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when

@@ -7,7 +7,7 @@ import { cache } from "react";
 import { createCaller, createDependencyLayer, type AppRouter } from "api";
 import { createTRPCContext } from "api";
 import { createQueryClient } from "./query-client";
-import { db } from "db";
+import { db } from "db/incentives";
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
