@@ -1,7 +1,7 @@
 // packages/db/src/seed.ts
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
-import * as schema from "./incentives/schema"; // Adjust the path to your schema file
+import * as schema from "./schema"; // Adjust the path to your schema file
 
 const connectionString = process.env.DATABASE_URL; // Ensure DATABASE_URL is set in your environment
 

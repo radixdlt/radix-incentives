@@ -4,9 +4,9 @@ import { Effect, Layer } from "effect";
 import {
   createStateVersionManager,
   createStateVersionManagerLive,
-} from "../transaction-stream/stateVersionManager";
-import { TransactionStreamLive } from "../transaction-stream/transactionStream";
-import { transactionStreamLoop } from "../transaction-stream/transactionStreamLoop";
+} from "./stateVersionManager";
+import { TransactionStreamLive } from "./transactionStream";
+import { transactionStreamLoop } from "./transactionStreamLoop";
 import { createTransactionStream } from "radix-transaction-stream";
 import { createRadixNetworkClient } from "radix-web3.js";
 import {

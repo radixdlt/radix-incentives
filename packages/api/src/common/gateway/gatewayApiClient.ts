@@ -2,20 +2,19 @@ import { Context, Effect, Layer } from "effect";
 import { AppConfigService } from "../../consultation/config/appConfig";
 import { createRadixNetworkClient } from "radix-web3.js";
 
-type GatewayApiClientImpl = ReturnType<typeof createRadixNetworkClient>;
+export type GatewayApiClientImpl = ReturnType<typeof createRadixNetworkClient>;
 
-export class GatewayApiClient extends Context.Tag("GatewayApiClient")<
-  GatewayApiClient,
-  GatewayApiClientImpl
->() {}
+export class GatewayApiClientService extends Context.Tag(
+  "GatewayApiClientService"
+)<GatewayApiClientService, GatewayApiClientImpl>() {}
 
 export const GatewayApiClientLive = Layer.effect(
-  GatewayApiClient,
+  GatewayApiClientService,
   Effect.gen(function* () {
     const config = yield* AppConfigService;
 
     return createRadixNetworkClient({
       networkId: config.networkId,
     });
-  }) as Effect.Effect<GatewayApiClientImpl, never, AppConfigService>
+  })
 );

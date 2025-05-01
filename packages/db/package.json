@@ -19,7 +19,8 @@
     "db:generate:incentives": "drizzle-kit generate --config=./src/incentives/drizzle.config.ts",
     "db:generate:consultation": "drizzle-kit generate --config=./src/consultation/drizzle.config.ts",
     "db:start": "docker compose up -d",
-    "db:studio": "drizzle-kit studio"
+    "db:studio:incentives": "drizzle-kit studio --config=./src/incentives/drizzle.config.ts",
+    "db:studio:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts"
   },
   "dependencies": {
     "drizzle-orm": "catalog:"
