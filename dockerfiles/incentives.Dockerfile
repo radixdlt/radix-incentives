@@ -2,6 +2,8 @@
 FROM node:22.3.0-bullseye-slim AS base
 WORKDIR /app
 
+ENV DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentives"
+
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"

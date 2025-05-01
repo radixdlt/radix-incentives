@@ -1,0 +1,3 @@
+.github/     @radixdlt/devops
+dockerfiles/ @radixdlt/devops
+deploy/      @radixdlt/devops
