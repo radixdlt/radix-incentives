@@ -2,8 +2,8 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { appRouter, createDependencyLayer } from "api";
-import { createTRPCContext } from "api";
+import { appRouter, createDependencyLayer } from "api/incentives";
+import { createTRPCContext } from "api/incentives";
 import { db } from "db/incentives";
 
 /**

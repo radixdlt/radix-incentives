@@ -9,6 +9,9 @@ catalogs:
     '@aws-sdk/client-sqs':
       specifier: ^3.515.0
       version: 3.782.0
+    '@calamari-radix/sbor-ez-mode':
+      specifier: ^1.2.1
+      version: 1.2.1
     '@noble/hashes':
       specifier: ^1.8.0
       version: 1.8.0
@@ -45,6 +48,9 @@ catalogs:
     '@types/aws-lambda':
       specifier: 8.10.147
       version: 8.10.147
+    bignumber.js:
+      specifier: ^9.3.0
+      version: 9.3.0
     blakejs:
       specifier: ^1.2.1
       version: 1.2.1
@@ -571,6 +577,9 @@ importers:
       '@aws-sdk/client-sqs':
         specifier: 'catalog:'
         version: 3.782.0
+      '@calamari-radix/sbor-ez-mode':
+        specifier: 'catalog:'
+        version: 1.2.1
       '@noble/hashes':
         specifier: 'catalog:'
         version: 1.8.0
@@ -593,7 +602,7 @@ importers:
         specifier: 'catalog:'
         version: 11.0.2(typescript@5.8.2)
       bignumber.js:
-        specifier: ^9.3.0
+        specifier: 'catalog:'
         version: 9.3.0
       blakejs:
         specifier: 'catalog:'
@@ -838,6 +847,9 @@ packages:
     engines: {node: '>=14.21.3'}
     cpu: [x64]
     os: [win32]
+
+  '@calamari-radix/sbor-ez-mode@1.2.1':
+    resolution: {integrity: sha512-fQl6hYFzvYG081WYBKOR08WfQwdt8/nsjnP79+b3zldlfThc3RUEBabPpRllr9QpSGKhb2wJ60ORo2cxVS9xyg==}
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
@@ -4453,6 +4465,11 @@ snapshots:
 
   '@biomejs/cli-win32-x64@1.9.4':
     optional: true
+
+  '@calamari-radix/sbor-ez-mode@1.2.1':
+    dependencies:
+      '@radixdlt/babylon-gateway-api-sdk': 1.10.1
+      neverthrow: 8.2.0
 
   '@drizzle-team/brocli@0.10.2': {}
 

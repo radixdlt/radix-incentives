@@ -45,3 +45,5 @@ catalog:
   "@oslojs/encoding": "^1.1.0"
   "blakejs": "^1.2.1"
   "pino-pretty": "^13.0.0"
+  "bignumber.js": "^9.3.0"
+  "@calamari-radix/sbor-ez-mode": "^1.2.1"

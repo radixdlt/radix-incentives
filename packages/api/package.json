@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "catalog:",
+    "@calamari-radix/sbor-ez-mode": "catalog:",
     "@noble/hashes": "catalog:",
     "@oslojs/crypto": "catalog:",
     "@oslojs/encoding": "catalog:",
@@ -21,7 +22,7 @@
     "@radixdlt/babylon-gateway-api-sdk": "catalog:",
     "@radixdlt/rola": "catalog:",
     "@trpc/server": "catalog:",
-    "bignumber.js": "^9.3.0",
+    "bignumber.js": "catalog:",
     "blakejs": "catalog:",
     "db": "workspace:*",
     "drizzle-orm": "catalog:",
