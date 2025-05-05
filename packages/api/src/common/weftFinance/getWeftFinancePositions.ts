@@ -8,17 +8,16 @@ import type {
   GetStateVersionService,
 } from "../gateway/getStateVersion";
 import type { GatewayError } from "../gateway/errors";
-import {
-  type EntityNotFoundError,
-  type GetEntityDetailsError,
+import type {
+  EntityNotFoundError,
+  GetEntityDetailsError,
   GetNonFungibleBalanceService,
-  type InvalidInputError,
-  type StateEntityDetailsInput,
+  InvalidInputError,
+  StateEntityDetailsInput,
 } from "../gateway/getNonFungibleBalance";
 import type { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
 import { dAppAddresses, KNOWN_RESOURCE_ADDRESSES } from "../config/appConfig";
 import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
 
 import { BigNumber } from "bignumber.js";
 import {
@@ -67,19 +66,20 @@ const weftFungibleRecourceAddresses = new Map<string, ResourceAddress>([
   ],
 ]);
 
+type AssetBalance = {
+  resourceAddress: ResourceAddress;
+  amount: BigNumber;
+};
+
+type WeftLendingPosition = {
+  unitToAssetRatio: BigNumber;
+  wrappedAsset: AssetBalance;
+  unwrappedAsset: AssetBalance;
+};
+
 export type GetWeftFinancePositionsOutput = {
   address: string;
-  items: {
-    unitToAssetRatio: BigNumber;
-    wrappedAsset: {
-      resourceAddress: ResourceAddress;
-      amount: BigNumber;
-    };
-    unwrappedAsset: {
-      resourceAddress: ResourceAddress;
-      amount: BigNumber;
-    };
-  }[];
+  lending: WeftLendingPosition[];
 };
 
 export class GetWeftFinancePositionsService extends Context.Tag(
@@ -116,41 +116,28 @@ type ResourceAddress = string;
 export const GetWeftFinancePositionsLive = Layer.effect(
   GetWeftFinancePositionsService,
   Effect.gen(function* () {
-    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
     const getFungibleBalanceService = yield* GetFungibleBalanceService;
-    const getEntityDetailsService = yield* GetEntityDetailsService;
     const getComponentStateService = yield* GetComponentStateService;
     const getKeyValueStoreService = yield* GetKeyValueStoreService;
 
     return (input) => {
       return Effect.gen(function* () {
-        const poolToUnitToAssetRatio = new Map<ResourceAddress, BigNumber>();
-
         const accountBalancesMap = new Map<
           AccountAddress,
-          {
-            unitToAssetRatio: BigNumber;
-            wrappedAsset: {
-              resourceAddress: ResourceAddress;
-              amount: BigNumber;
-            };
-            unwrappedAsset: {
-              resourceAddress: ResourceAddress;
-              amount: BigNumber;
-            };
-          }[]
+          WeftLendingPosition[]
         >();
 
         for (const accountAddress of input.accountAddresses) {
           accountBalancesMap.set(accountAddress, []);
         }
 
-        const keyValueStoreResponse = yield* getKeyValueStoreService({
+        // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
+        const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService({
           address: WeftFinanceAddresses.v2.lendingPool.kvsAddress,
           stateVersion: input.stateVersion,
         }).pipe(
           Effect.catchTags({
-            // missing key value store here means that the v2 lending pool is not deployed
+            // EntityNotFoundError here means that the v2 lending pool is not deployed at the provided state version
             EntityNotFoundError: () =>
               Effect.succeed({
                 entries: [],
@@ -158,7 +145,9 @@ export const GetWeftFinancePositionsLive = Layer.effect(
           })
         );
 
-        for (const item of keyValueStoreResponse.entries) {
+        const poolToUnitToAssetRatio = new Map<ResourceAddress, BigNumber>();
+
+        for (const item of lendingPoolV2KeyValueStore.entries) {
           const lendingPool = LendingPoolSchema.safeParse(
             item.value.programmatic_json
           );
@@ -175,7 +164,8 @@ export const GetWeftFinancePositionsLive = Layer.effect(
           }
         }
 
-        const componentStateV1 = yield* getComponentStateService({
+        // WEFT V1 Lending pool component states contains the unit to asset ratio for each asset
+        const lendingPoolV1ComponentStates = yield* getComponentStateService({
           addresses: [
             WeftFinanceAddresses.v1.wLSULP.componentAddress,
             WeftFinanceAddresses.v1.wXRD.componentAddress,
@@ -185,7 +175,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
           stateVersion: input.stateVersion,
         });
 
-        for (const item of componentStateV1) {
+        for (const item of lendingPoolV1ComponentStates) {
           poolToUnitToAssetRatio.set(
             item.state.pool_unit_res_manager,
             new BigNumber(item.state.unit_to_asset_ratio)
@@ -215,7 +205,6 @@ export const GetWeftFinancePositionsLive = Layer.effect(
                 ...items,
                 {
                   unitToAssetRatio,
-
                   wrappedAsset: {
                     resourceAddress,
                     amount,
@@ -235,7 +224,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
         return Array.from(accountBalancesMap.entries()).map(
           ([address, items]) => ({
             address,
-            items,
+            lending: items,
           })
         );
       });
