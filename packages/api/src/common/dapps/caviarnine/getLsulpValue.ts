@@ -4,27 +4,21 @@ import {
   type GetEntityDetailsError,
   type InvalidInputError,
   GetFungibleBalanceService,
-} from "./getFungibleBalance";
-import type { GatewayError } from "./errors";
+} from "../../gateway/getFungibleBalance";
+import type { GatewayError } from "../../gateway/errors";
 import type {
   GetStateVersionError,
   GetStateVersionService,
-} from "./getStateVersion";
-import type { GatewayApiClientService } from "./gatewayApiClient";
-import type { LoggerService } from "../logger/logger";
-import type { EntityFungiblesPageService } from "./entityFungiblesPage";
+} from "../../gateway/getStateVersion";
+import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
+import type { LoggerService } from "../../logger/logger";
+import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import { BigNumber } from "bignumber.js";
 import type {
   ProgrammaticScryptoSborValue,
   ProgrammaticScryptoSborValueDecimal,
 } from "@radixdlt/babylon-gateway-api-sdk";
-
-const LSULP = {
-  component:
-    "component_rdx1cppy08xgra5tv5melsjtj79c0ngvrlmzl8hhs7vwtzknp9xxs63mfp",
-  resourceAddress:
-    "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
-};
+import { CaviarNineConstants } from "./constants";
 
 class LsulpNotFoundError {
   readonly _tag = "LsulpNotFoundError";
@@ -68,7 +62,10 @@ export const GetLsulpValueLive = Layer.effect(
       return Effect.gen(function* () {
         const [lsulpComponentResult, lsulpResourceResult] =
           yield* getFungibleBalanceService({
-            addresses: [LSULP.component, LSULP.resourceAddress],
+            addresses: [
+              CaviarNineConstants.LSULP.component,
+              CaviarNineConstants.LSULP.resourceAddress,
+            ],
             state: {
               state_version: input.stateVersion,
             },

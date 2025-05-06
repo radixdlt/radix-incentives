@@ -1,22 +1,22 @@
 import { Effect, Layer } from "effect";
-import { CoreApiClientLive } from "../core/coreApiClient";
+import { CoreApiClientLive } from "../../core/coreApiClient";
 import {
   GetShapeLiquidityAssetsLive,
   GetShapeLiquidityAssetsService,
-  shapeLiquidityReceiptSet,
 } from "./getShapeLiquidityAssets";
-import { PreviewTransactionLive } from "../core/previewTransaction";
+import { PreviewTransactionLive } from "../../core/previewTransaction";
 import {
   GetNonFungibleBalanceLive,
   GetNonFungibleBalanceService,
-} from "../gateway/getNonFungibleBalance";
-import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { createAppConfigLive } from "../config/appConfig";
-import { GetStateVersionLive } from "../gateway/getStateVersion";
-import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
-import { LoggerLive } from "../logger/logger";
-import { EntityNonFungibleDataLive } from "../gateway/entityNonFungiblesData";
-import { EntityNonFungiblesPageLive } from "../gateway/entityNonFungiblesPage";
+} from "../../gateway/getNonFungibleBalance";
+import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
+import { createAppConfigLive } from "../../config/appConfig";
+import { GetStateVersionLive } from "../../gateway/getStateVersion";
+import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
+import { LoggerLive } from "../../logger/logger";
+import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
+import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
+import { shapeLiquidityReceiptSet } from "./constants";
 
 const coreApiClientLive = CoreApiClientLive;
 
@@ -95,6 +95,7 @@ describe("getShapeLiquidityAssets", () => {
             const { x, y } = yield* getShapeLiquidityAssets({
               componentAddress: shapeLiquidityPool.componentAddress,
               nonFungibleLocalId: nft.id,
+              networkId: 1,
             });
 
             console.log(

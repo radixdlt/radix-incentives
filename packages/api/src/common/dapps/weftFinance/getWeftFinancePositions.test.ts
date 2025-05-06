@@ -1,24 +1,24 @@
 import { Effect, Layer } from "effect";
-import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
-import { createAppConfigLive } from "../config/appConfig";
-import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive } from "../gateway/getStateVersion";
+import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
+import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
+import { createAppConfigLive } from "../../config/appConfig";
+import { LoggerLive } from "../../logger/logger";
+import { GetStateVersionLive } from "../../gateway/getStateVersion";
 
-import { EntityFungiblesPageLive } from "../gateway/entityFungiblesPage";
+import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 
-import { GetNonFungibleBalanceLive } from "../gateway/getNonFungibleBalance";
-import { EntityNonFungiblesPageLive } from "../gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataLive } from "../gateway/entityNonFungiblesData";
+import { GetNonFungibleBalanceLive } from "../../gateway/getNonFungibleBalance";
+import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
+import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
 import {
   GetWeftFinancePositionsLive,
   GetWeftFinancePositionsService,
 } from "./getWeftFinancePositions";
-import { GetFungibleBalanceLive } from "../gateway/getFungibleBalance";
-import { GetComponentStateLive } from "../gateway/getComponentState";
-import { GetKeyValueStoreLive } from "../gateway/getKeyValueStore";
-import { KeyValueStoreDataLive } from "../gateway/keyValueStoreData";
-import { KeyValueStoreKeysLive } from "../gateway/keyValueStoreKeys";
+import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
+import { GetComponentStateLive } from "../../gateway/getComponentState";
+import { GetKeyValueStoreLive } from "../../gateway/getKeyValueStore";
+import { KeyValueStoreDataLive } from "../../gateway/keyValueStoreData";
+import { KeyValueStoreKeysLive } from "../../gateway/keyValueStoreKeys";
 
 const appConfigServiceLive = createAppConfigLive();
 

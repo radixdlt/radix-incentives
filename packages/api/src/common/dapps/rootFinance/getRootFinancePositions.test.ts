@@ -1,19 +1,19 @@
 import { Effect, Layer } from "effect";
-import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
-import { createAppConfigLive } from "../config/appConfig";
-import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive } from "../gateway/getStateVersion";
+import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
+import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
+import { createAppConfigLive } from "../../config/appConfig";
+import { LoggerLive } from "../../logger/logger";
+import { GetStateVersionLive } from "../../gateway/getStateVersion";
 
-import { EntityFungiblesPageLive } from "../gateway/entityFungiblesPage";
+import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 
 import {
   GetRootFinancePositionsService,
   GetRootFinancePositionsLive,
 } from "./getRootFinancePositions";
-import { GetNonFungibleBalanceLive } from "../gateway/getNonFungibleBalance";
-import { EntityNonFungiblesPageLive } from "../gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataLive } from "../gateway/entityNonFungiblesData";
+import { GetNonFungibleBalanceLive } from "../../gateway/getNonFungibleBalance";
+import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
+import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -92,6 +92,6 @@ describe("GetRootFinancePositionService", () => {
 
     const result = await Effect.runPromise(program);
 
-    console.log(result);
+    console.log(JSON.stringify(result, null, 2));
   });
 });

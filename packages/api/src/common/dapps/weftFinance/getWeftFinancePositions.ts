@@ -1,70 +1,39 @@
 import { Context, Effect, Layer } from "effect";
 
-import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
-import type { LoggerService } from "../logger/logger";
-import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
+import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
+import type { LoggerService } from "../../logger/logger";
+import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import type {
   GetStateVersionError,
   GetStateVersionService,
-} from "../gateway/getStateVersion";
-import type { GatewayError } from "../gateway/errors";
+} from "../../gateway/getStateVersion";
+import type { GatewayError } from "../../gateway/errors";
 import type {
   EntityNotFoundError,
   GetEntityDetailsError,
   GetNonFungibleBalanceService,
   InvalidInputError,
   StateEntityDetailsInput,
-} from "../gateway/getNonFungibleBalance";
-import type { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
-import { dAppAddresses, KNOWN_RESOURCE_ADDRESSES } from "../config/appConfig";
-import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
+} from "../../gateway/getNonFungibleBalance";
+import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
+
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
 
 import { BigNumber } from "bignumber.js";
 import {
   GetComponentStateService,
   type InvalidComponentStateError,
-} from "../gateway/getComponentState";
+} from "../../gateway/getComponentState";
 import { LendingPoolSchema, SingleResourcePool } from "./schemas";
-import { GetKeyValueStoreService } from "../gateway/getKeyValueStore";
-import type { KeyValueStoreDataService } from "../gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../gateway/keyValueStoreKeys";
+import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
+import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
+import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
+import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
 
 export class FailedToParseLendingPoolSchemaError {
   readonly _tag = "FailedToParseLendingPoolSchemaError";
   constructor(readonly lendingPool: unknown) {}
 }
-
-const WeftFinanceAddresses = dAppAddresses.weftFinance;
-
-const weftFungibleRecourceAddresses = new Map<string, ResourceAddress>([
-  [WeftFinanceAddresses.v1.wXRD.resourceAddress, KNOWN_RESOURCE_ADDRESSES.xrd],
-  [
-    WeftFinanceAddresses.v1.wxUSDC.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xUSDC,
-  ],
-  [
-    WeftFinanceAddresses.v1.wLSULP.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.LSULP,
-  ],
-
-  [WeftFinanceAddresses.v2.w2XRD.resourceAddress, KNOWN_RESOURCE_ADDRESSES.xrd],
-  [
-    WeftFinanceAddresses.v2.w2xUSDC.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xUSDC,
-  ],
-  [
-    WeftFinanceAddresses.v2.w2xUSDT.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xUSDT,
-  ],
-  [
-    WeftFinanceAddresses.v2.w2xwBTC.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.wxBTC,
-  ],
-  [
-    WeftFinanceAddresses.v2.w2wETH.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xETH,
-  ],
-]);
 
 type AssetBalance = {
   resourceAddress: ResourceAddress;
@@ -133,7 +102,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
 
         // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
         const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService({
-          address: WeftFinanceAddresses.v2.lendingPool.kvsAddress,
+          address: WeftFinance.v2.lendingPool.kvsAddress,
           stateVersion: input.stateVersion,
         }).pipe(
           Effect.catchTags({
@@ -167,9 +136,9 @@ export const GetWeftFinancePositionsLive = Layer.effect(
         // WEFT V1 Lending pool component states contains the unit to asset ratio for each asset
         const lendingPoolV1ComponentStates = yield* getComponentStateService({
           addresses: [
-            WeftFinanceAddresses.v1.wLSULP.componentAddress,
-            WeftFinanceAddresses.v1.wXRD.componentAddress,
-            WeftFinanceAddresses.v1.wxUSDC.componentAddress,
+            WeftFinance.v1.wLSULP.componentAddress,
+            WeftFinance.v1.wXRD.componentAddress,
+            WeftFinance.v1.wxUSDC.componentAddress,
           ],
           schema: SingleResourcePool,
           stateVersion: input.stateVersion,
