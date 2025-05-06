@@ -1,0 +1,91 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  NOTIFICATION_INTERNAL_API_HOST: notification
+  NOTIFICATION_INTERNAL_API_PORT: 4000
+  NOTIFICATION_WEBSOCKET_HOST: 9000
+  REDIS_HOST: incentives-dev-redis.rdx-works-main.internal
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: 
+  LOG_LEVEL: debug
+  NOTIFICATION_INTERNAL_API_URL: http://notification-http-internal:3001
+  PUBLIC_NETWORK_ID: 2
+  GATEWAY_URL: https://stokenet.radixdlt.com
+  EVENT_WORKER_CONCURRENCY: 20
+  TRANSACTION_WORKER_CONCURRENCY: 20
+  
+secrets:
+  - external_secret_name: workers-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+
+  - external_secret_name: workers-ro-postgres-url
+    env_variable: "RO_DATABASE_URL"
+    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
+    aws_secret_key: "ro-database-url"
+    secret_key: "ro-database-url"
+
+  - external_secret_name: worker-payer-mnemonic
+    env_variable: "PAYER_MNEMONIC"
+    aws_secret_name: "rdx-works-main/eks/incentives/stokenet/worker-payer-primary"
+    aws_secret_key: "mnemonic"
+    secret_key: "workers_stokenet_payer_mnemonic"
+  
+  - external_secret_name: worker-system-mnemonic
+    env_variable: "SYSTEM_MNEMONIC"
+    aws_secret_name: "rdx-works-main/eks/incentives/stokenet/worker-system-primary"
+    aws_secret_key: "mnemonic"
+    secret_key: "workers_stokenet_system_mnemonic"
+
+  - external_secret_name: worker-owner-mnemonic
+    env_variable: "OWNER_MNEMONIC"
+    aws_secret_name: "rdx-works-main/eks/incentives/stokenet/worker-owner-primary"
+    aws_secret_key: "mnemonic"
+    secret_key: "workers_stokenet_owner_mnemonic"
+
+  - external_secret_name: worker-letty-dapp-mnemonic
+    env_variable: "LETTYSWAP_DAPP_DEFINITION_MNEMONIC"
+    aws_secret_name: "rdx-works-main/eks/incentives/stokenet/letty-dapp-definition-primary"
+    aws_secret_key: "mnemonic"
+    secret_key: "mnemonic"
+
+  - external_secret_name: worker-mailer-lite-api-key
+    env_variable: "MAILER_LITE_API_KEY"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "mailer_lite_api_key"
+    secret_key: "mailer_lite_api_key"
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 512Mi
+
+pm2_metrics:
+  enabled: true
+  port: 9209
+
+affinity:
+  podAntiAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        podAffinityTerm:
+          labelSelector:
+            matchExpressions:
+              - key: app
+                operator: In
+                values:
+                  - incentives-worker
+          topologyKey: "kubernetes.io/hostname"

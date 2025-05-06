@@ -1,0 +1,56 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  REDIS_HOST: incentives-prod-redis.rtlj-prod.internal
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: ""
+  LOG_LEVEL: debug
+  PUBLIC_NETWORK_ID: 1
+  GATEWAY_URL: "http://babylon-mainnet-active-ng.internal-dns:8080"
+
+secrets:
+  - external_secret_name: transaction-stream-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+
+  - external_secret_name: transaction-stream-ro-postgres-url
+    env_variable: "RO_DATABASE_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/postgres"
+    aws_secret_key: "ro-database-url"
+    secret_key: "ro-database-url"
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 1
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1Gi
+
+pm2_metrics:
+  enabled: true
+  port: 9209
+
+metrics:
+  enabled: true
+  port: 9210
+  alert_labels:
+    cluster: rtlj-prod
+    env: prod
+
+alerts:
+  aws_infrastructure_enabled: true
+  free_rds_ram_warning_threshold_in_bytes: "2000000000"
+  free_rds_ram_warning_threshold: "2 GB"
+  free_rds_ram_critical_threshold_in_bytes: "1000000000"
+  free_rds_ram_critical_threshold: "1 GB"

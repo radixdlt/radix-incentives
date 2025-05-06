@@ -1,0 +1,30 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public"
+  RO_DATABASE_URL: postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+
+secrets:
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+    
+metrics:
+  alert_labels:
+    cluster: rdx-works-main-dev
+    env: prs
+
+alerts:
+  aws_infrastructure_enabled: false

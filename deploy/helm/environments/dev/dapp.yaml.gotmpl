@@ -1,0 +1,83 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+enable_db_migrations: true
+
+params:
+  REDIS_HOST: incentives-dev-redis.rdx-works-main.internal
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: 
+  PORT: 3000
+  EXPECTED_ORIGIN: https://incentives-dev.rdx-works-main.extratools.works
+  PUBLIC_DAPP_DEFINITION_ADDRESS: account_tdx_2_12ypap8t44k4pw9p0p56aqdp0ewexjcszzsj5suxduvsfnnmxpcj5qk
+  PUBLIC_NETWORK_ID: 2
+  PUBLIC_NOTIFICATION_URL: wss://incentives-notification-dev.rdx-works-main.extratools.works
+  MAINTENANCE_MODE: false
+  GATEWAY_URL: https://stokenet.radixdlt.com
+  IPQS_ALLOW_ALL: true
+
+secrets:
+  - external_secret_name: dapp-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+
+  - external_secret_name: dapp-ro-postgres-url
+    env_variable: "RO_DATABASE_URL"
+    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
+    aws_secret_key: "ro-database-url"
+    secret_key: "ro-database-url"
+
+  - external_secret_name: dapp-jwt-secret
+    env_variable: "JWT_SECRET"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "dapp_jwt_secret"
+    secret_key: "dapp_jwt_secret"
+
+  - external_secret_name: dapp-mailer-lite-api-key
+    env_variable: "MAILER_LITE_API_KEY"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "mailer_lite_api_key"
+    secret_key: "mailer_lite_api_key"
+
+  - external_secret_name: dapp-ipqs-key
+    env_variable: "IPQS_KEY"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "ipqs_key"
+    secret_key: "ipqs_key"
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
+  hosts:
+    - host: incentives-dev.rdx-works-main.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+
+pm2_metrics:
+  enabled: true
+  port: 9209
+
+metrics:
+  alert_labels:
+    cluster: rdx-works-main-dev
+    env: dev

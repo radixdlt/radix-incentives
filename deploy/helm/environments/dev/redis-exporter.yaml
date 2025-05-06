@@ -1,0 +1,3 @@
+redisAddress: incentives-dev-redis.rdx-works-main.internal
+rbac:
+  pspEnabled: false

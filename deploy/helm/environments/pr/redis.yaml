@@ -1,0 +1,72 @@
+architecture: standalone
+auth:
+  enabled: false
+master:
+  persistence:
+    enabled: false
+  extraFlags: 
+  - "--maxmemory-policy noeviction"
+  - "--maxmemory 250mb"
+  resources:
+    requests:
+      cpu: 0.5
+      memory: 128Mi
+    limits:
+      cpu: 1
+      memory: 256Mi
+metrics:
+  enabled: true
+  image:
+    registry: docker.io
+    repository: bitnami/redis-exporter
+    tag: 1.58.0-debian-12-r4
+  containerPorts:
+    http: 9121
+  redisTargetHost: "localhost"
+  podAnnotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9121"
+  service:
+    enabled: true
+    ports:
+      http: 9121
+  serviceMonitor:
+    port: http-metrics
+    enabled: true
+    interval: 30s
+    scrapeTimeout: ""
+  prometheusRule:
+    enabled: true
+    additionalLabels: {}
+    rules:
+      - alert: RedisDown
+        expr: redis_up{service="{{ template "common.names.fullname" . }}-metrics",namespace=~"incentives-pr-.*"} == 0
+        for: 2m
+        labels:
+          severity: error
+        annotations:
+          summary: Redis instance {{ "{{ $labels.instance }}" }} down
+          description: Redis instance {{ "{{ $labels.instance }}" }} is down
+      - alert: RedisMemoryHigh
+        expr: >
+          redis_memory_used_bytes{service="{{ template "common.names.fullname" . }}-metrics",namespace=~"incentives-pr-.*"} * 100
+          /
+          redis_memory_max_bytes{service="{{ template "common.names.fullname" . }}-metrics"}
+          > 90
+        for: 2m
+        labels:
+          severity: error
+        annotations:
+          summary: Redis instance {{ "{{ $labels.instance }}" }} is using too much memory
+          description: |
+            Redis instance {{ "{{ $labels.instance }}" }} is using {{ "{{ $value }}" }}% of its available memory.
+      - alert: RedisKeyEviction
+        expr: |
+          increase(redis_evicted_keys_total{service="{{ template "common.names.fullname" . }}-metrics",namespace=~"incentives-pr-.*"}[5m]) > 0
+        for: 1s
+        labels:
+          severity: error
+        annotations:
+          summary: 'Redis instance {{ "{{ $labels.instance }}" }} has evicted keys'
+          description: |
+            'Redis instance has evicted {{ "{{ $value }}" }} keys in the last 5 minutes.'

@@ -1,0 +1,80 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+enable_db_migrations: true
+
+params:
+  REDIS_HOST: incentives-prod-redis.rtlj-prod.internal
+  REDIS_PORT: 6379
+  REDIS_PASSWORD: 
+  PORT: 3000
+  EXPECTED_ORIGIN: https://incentives.io
+  PUBLIC_DAPP_DEFINITION_ADDRESS: account_rdx12xkqkcxqzkuc0xnsme9etvttmwfz8aqnhpwc0ygv8tnnpdw2v5cfzd
+  PUBLIC_NETWORK_ID: 1
+  PUBLIC_NOTIFICATION_URL: wss://notification.incentives.io
+  MAINTENANCE_MODE: false
+  GATEWAY_URL: "http://babylon-mainnet-active-ng.internal-dns:8080"
+  IPQS_ALLOW_ALL: true
+
+secrets:
+  - external_secret_name: dapp-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+
+  - external_secret_name: dapp-ro-postgres-url
+    env_variable: "RO_DATABASE_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/postgres"
+    aws_secret_key: "ro-database-url"
+    secret_key: "ro-database-url"
+
+  - external_secret_name: dapp-jwt-secret
+    env_variable: "JWT_SECRET"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/secrets"
+    aws_secret_key: "dapp_jwt_secret"
+    secret_key: "dapp_jwt_secret"
+
+  - external_secret_name: dapp-mailer-lite-api-key
+    env_variable: "MAILER_LITE_API_KEY"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/secrets"
+    aws_secret_key: "mailer_lite_api_key"
+    secret_key: "mailer_lite_api_key"
+  
+  - external_secret_name: dapp-ipqs-key
+    env_variable: "IPQS_KEY"
+    aws_secret_name: "rtlj-prod/eks/incentives/prod/secrets"
+    aws_secret_key: "ipqs_key"
+    secret_key: "ipqs_key"
+
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: incentives.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+autoscaling:
+  enabled: true
+  minReplicas: 3
+  maxReplicas: 30
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 2
+    memory: 2Gi
+
+pm2_metrics:
+  enabled: true
+  port: 9209
+
+metrics:
+  alert_labels:
+    cluster: rtlj-prod
+    env: prod

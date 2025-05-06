@@ -1,0 +1,46 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  NOTIFICATION_INTERNAL_API_PORT: 4000
+  NOTIFICATION_WEBSOCKET_PORT: 9000
+  LOG_LEVEL: debug
+
+secrets:
+  - external_secret_name: notification-jwt-secret
+    env_variable: "JWT_SECRET"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "notification_jwt_secret"
+    secret_key: "notification_jwt_secret"
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: incentives-notification-dev.rdx-works-main.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+pm2_metrics:
+  enabled: true
+  port: 9209
+
+metrics:
+  enabled: true
+  port: 4000

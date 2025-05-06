@@ -1,0 +1,30 @@
+{{- $ns := .Release.Namespace -}}
+{{- $metrics := .Values.metrics -}}
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "incentives-dapp.fullname" . }}
+  labels:
+    {{- include "incentives-dapp.labels" . | nindent 4 }}
+spec:
+  groups:
+  - name: IncentivesDapp
+    rules:
+    - alert: DappHpaMaxedOut
+      expr: >
+        kube_horizontalpodautoscaler_status_current_replicas{namespace="{{ $ns }}",horizontalpodautoscaler="dapp"} == kube_horizontalpodautoscaler_spec_max_replicas{namespace="{{ $ns }}",horizontalpodautoscaler="dapp"}
+      for: 15m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: dapp
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "Incentives dapp HPA is running at max replicas"
+        description: "Incentives dapps has been running at max replicas for longer than 15 minutes"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"

@@ -1,0 +1,74 @@
+image:
+  repository: docker.io/radixdlt/incentives-admin
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets:
+  - name: dockerhub-dev-admin
+
+replicaCount: 1
+
+pm2_metrics:
+  enabled: false
+  port: 9209
+
+metrics:
+  enabled: false
+  port: 9210
+
+nameOverride: "admin"
+
+fullnameOverride: "admin"
+
+params:
+
+secrets: {}
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  className: "nginx"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+docker:
+  secrets:
+    name: docker.io/radixdlt
+
+# Set it to true if you want to secret to be deployed.
+docker_secret: 
+    enabled: true

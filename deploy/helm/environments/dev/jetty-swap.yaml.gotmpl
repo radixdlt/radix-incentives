@@ -1,0 +1,33 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  PORT: 3001
+  PUBLIC_NETWORK_ID: 2
+  PUBLIC_LOG_LEVEL: "debug"
+  PUBLIC_SWAP_VARIATION: JETTY
+
+secrets:
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+  hosts:
+    - host: jettyswap-dev.rdx-works-main.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+    - host: stokenet.jettyswap.io
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi

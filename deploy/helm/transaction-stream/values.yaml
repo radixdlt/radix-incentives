@@ -1,0 +1,83 @@
+image:
+  repository: docker.io/radixdlt/incentives-transaction-stream
+  pullPolicy: Always
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ''
+
+imagePullSecrets:
+  - name: dockerhub-dev-transaction-stream
+
+replicaCount: 1
+
+pm2_metrics:
+  enabled: false
+  port: 9209
+
+metrics:
+  enabled: false
+  port: 9210
+
+nameOverride: 'transaction-stream'
+
+fullnameOverride: 'transaction-stream'
+
+params:
+  PUBLIC_NETWORK_ID: 2
+  REDIS_HOST: 'redis-master'
+  REDIS_PORT: '6379'
+  REDIS_PASSWORD: ''
+
+secrets: {}
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ''
+
+podAnnotations: {}
+
+podSecurityContext: {}
+
+securityContext: {}
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: false
+  basic_auth: false
+  className: ''
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+  tls: []
+
+resources: {}
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  # targetMemoryUtilizationPercentage: 80
+
+livenessProbe:
+
+readinessProbe:
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+docker:
+  secrets:
+    name: docker.io/radixdlt
+
+# Set it to true if you want to secret to be deployed.
+docker_secret:
+  enabled: true

@@ -1,0 +1,3 @@
+redisAddress: incentives-prod-redis.rtlj-prod.internal
+rbac:
+  pspEnabled: false

@@ -1,0 +1,302 @@
+{{- $subsystem := list "Event" "System" -}}
+{{- $ns := .Release.Namespace -}}
+{{- $metrics := .Values.metrics -}}
+
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: {{ include "incentives-transaction-stream.fullname" . }}
+  labels:
+    {{- include "incentives-transaction-stream.labels" . | nindent 4 }}
+spec:
+  groups:
+  - name: IncentivesTransactionStream
+    rules:
+    - alert: HighEventQueueCompletedJobs
+      expr: sum(increase(Event_queue_failed_jobs{namespace="{{ $ns }}"}[5m])) > 100
+      for: 5m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "High number of completed jobs in Event queue"
+        description: "The Event queue has seen more than 100 completed jobs in the last 5 minutes ."
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+{{- range $subsystem }}
+    - alert: Critical{{ title .}}QueueFailedJobs
+      expr: sum(increase({{ . }}_queue_failed_jobs{namespace="{{ $ns }}"}[5m])) > 100
+      for: 5m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "Critical number of failed jobs in {{ . }} queue"
+        description: "The {{ . }} queue has seen more than 100 failed jobs in the last 5 minutes."
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: High{{ title . }}QueueFailedJobs
+      expr: sum(increase({{ . }}_queue_failed_jobs{namespace="{{ $ns }}"}[5m])) > 50
+      for: 5m
+      labels:
+        severity: warning
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "High number of failed jobs in {{ . }} queue"
+        description: "The {{ . }} queue has seen more than 50 failed jobs in the last 5 minutes."
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: High{{ title . }}QueueWaitingJobs
+      expr: sum(increase({{ . }}_queue_waiting_jobs{namespace="{{ $ns }}"}[5m])) > 20
+      for: 5m
+      labels:
+        tier: application
+        application: incentives
+        severity: critical
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "High number of waiting jobs in {{ . }} queue"
+        description: "The {{ . }} queue has seen more than 10 waiting jobs in the last 5 minutes."
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+{{- end }}
+
+  - name: IncentivesDependentServices
+    rules:
+    - alert: GatewayStatusAsSeenByIncentives
+      expr: >
+        (gateway_status{namespace="{{ $ns }}"})  == 0
+      for: 5m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "Incentives is not able to reach Gateway"
+        description: "Gateway used by Transaction stream to inject network transaction is not reachable"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+    
+    - alert: GatewayVersionNotIncreasing
+      expr: >
+        rate(transaction_stream_processed_state_version{namespace="{{ $ns }}"}[10m]) == 0
+      for: 10m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "GatewayVersionStagnant"
+        description: "Gateway version read by Transaction stream is stagnant"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+  - name: IncentivesRedis
+    rules:
+    - alert: IncentivesRedisMemoryCritical
+      expr: >
+        redis_memory_used_bytes{namespace="{{ $ns }}", service="redis-exporter"} * 100
+        /
+        redis_memory_max_bytes{namespace="{{ $ns }}", service="redis-exporter"}
+        > 90 <= 100
+      for: 5m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "Critical memory usage on the Redis instance"
+        description: "The memory utilization on the Redis instance is over 90%"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: IncentivesRedisMemoryHigh
+      expr: >
+        redis_memory_used_bytes{namespace="{{ $ns }}", service="redis-exporter"} * 100
+        /
+        redis_memory_max_bytes{namespace="{{ $ns }}", service="redis-exporter"}
+        > 70 <= 100
+      for: 5m
+      labels:
+        severity: warning
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "High memory usage on the Redis instance"
+        description: "The memory utilization on the Redis instance is over 70%"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: IncentivesRedisHighLatency
+      expr: histogram_quantile(0.95, sum(rate(redis_commands_latencies_usec_bucket{namespace="{{ $ns }}"}[2m])) by (le, cmd)) > 500 * 1000
+      for: 2m
+      labels:
+        severity: warning
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "High latency on the Redis commands"
+        description: "There is over 500ms latency for the p95 for some Redis commands"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: IncentivesRedisCriticalLatency
+      expr: histogram_quantile(0.95, sum(rate(redis_commands_latencies_usec_bucket{namespace="{{ $ns }}"}[2m])) by (le, cmd)) > 1000 * 1000
+      for: 2m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        component: transaction-stream
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: "High latency on the Redis commands"
+        description: "There is over 1s latency for the p95 for some Redis commands"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+{{- if .Values.alerts.aws_infrastructure_enabled }}
+
+  - name: IncentivesRDS
+    rules:
+    - alert: RDSCpuUtilizationHigh
+      expr: aws_rds_cpuutilization_average *on(dbinstance_identifier) group_left(tag_radixdlt_rds_cluster) aws_resource_info{dbinstance_identifier=~"{{ $ns }}.*"} > 80
+      for: 15m
+      labels:
+        severity: warning
+        tier: application
+        application: incentives
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: {{`"High CPU utilization for {{ $labels.dbinstance_identifier }} instance."`}}
+        description: {{`"The CPU utilization of RDS {{ $labels.dbinstance_identifier }} instance is over 80% for 15mins."`}}
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: RDSCpuUtilizationCritical
+      expr: aws_rds_cpuutilization_average *on(dbinstance_identifier) group_left(tag_radixdlt_rds_cluster) aws_resource_info{dbinstance_identifier=~"{{ $ns }}.*"} > 90
+      for: 15m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: {{`"High CPU utilization for {{ $labels.dbinstance_identifier }} instance."`}}
+        description: {{`"The CPU utilization of RDS {{ $labels.dbinstance_identifier }} instance is over 90% for 15mins."`}}
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: RDSLowFreeRamHigh
+      expr: aws_rds_freeable_memory_average *on(dbinstance_identifier) group_left(tag_radixdlt_rds_cluster) aws_resource_info{dbinstance_identifier=~"{{ $ns }}.*"} < {{ .Values.alerts.free_rds_ram_warning_threshold_in_bytes }}
+      for: 15m
+      labels:
+        severity: warning
+        tier: application
+        application: incentives
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: {{`"Low free RAM for {{ $labels.dbinstance_identifier }} instance."`}}
+        description: "RDS instance is having less than {{ .Values.alerts.free_rds_ram_warning_threshold }} for 15mins"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: RDSLowFreeRamCritical
+      expr: aws_rds_freeable_memory_average *on(dbinstance_identifier) group_left(tag_radixdlt_rds_cluster) aws_resource_info{dbinstance_identifier=~"{{ $ns }}.*"} < {{ .Values.alerts.free_rds_ram_critical_threshold_in_bytes }}
+      for: 15m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: {{`"Low free RAM for {{ $labels.dbinstance_identifier }} instance."`}}
+        description: "RDS instance is having less than {{ .Values.alerts.free_rds_ram_critical_threshold }} for 15mins"
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+  - name: IncentivesElasticacheRedis
+    rules:
+    - alert: RedisCpuUtilizationHigh
+      expr: aws_elasticache_cpuutilization_average *on(cache_cluster_id) group_left(tag_radixdlt_application) aws_resource_info{cache_cluster_id=~"{{ $ns }}.*"} > 80
+      for: 15m
+      labels:
+        severity: warning
+        tier: application
+        application: incentives
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: {{`"High CPU utilization for {{ $labels.cache_cluster_id }} node"`}}
+        description: {{`"The CPU utilization of Redis {{ $labels.cache_cluster_id }} node is over 80% for 15mins."`}}
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+    - alert: RedisCpuUtilizationCritical
+      expr: aws_elasticache_cpuutilization_average *on(cache_cluster_id) group_left(tag_radixdlt_application) aws_resource_info{cache_cluster_id=~"{{ $ns }}.*"} > 90
+      for: 15m
+      labels:
+        severity: critical
+        tier: application
+        application: incentives
+        namespace: {{ $ns }}
+        cluster: {{ $metrics.alert_labels.cluster }}
+        env: {{ $metrics.alert_labels.env }}
+      annotations:
+        summary: {{`"High CPU utilization for {{ $labels.cache_cluster_id }} node"`}}
+        description: {{`"The CPU utilization of Redis {{ $labels.cache_cluster_id }} node is over 90% for 15mins."`}}
+        dashboard: {{ $metrics.dashboard_url }}
+        runbook_url: "https://runbooks.extratools.works"
+
+{{- end }}
