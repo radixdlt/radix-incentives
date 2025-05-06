@@ -13,7 +13,7 @@ export const RadixContext = createContext<RadixDappToolkit | null>(null);
 let rdtSingleton: RadixDappToolkit | undefined = undefined;
 
 export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
-  const signIn = api.auth.signIn.useMutation();
+  const signIn = api.auth.signIn.useMutation({ retry: false, retryDelay: 0 });
   const signOut = api.auth.signOut.useMutation();
   const generateChallenge = api.auth.generateChallenge.useMutation({});
   const [rdt, setRdt] = useState<RadixDappToolkit | undefined>(undefined);

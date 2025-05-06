@@ -1,5 +1,5 @@
 {
-  "id": "77cefb92-ae17-4bcc-8a23-1071a9942aa8",
+  "id": "8dcdff7b-6c93-4323-b5bf-32d709e503d9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,7 +10,7 @@
       "columns": {
         "user_id": {
           "name": "user_id",
-          "type": "varchar(255)",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -202,7 +202,7 @@
         },
         "user_id": {
           "name": "user_id",
-          "type": "varchar(255)",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -238,8 +238,15 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "varchar(255)",
+          "type": "uuid",
           "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "identity_address": {
+          "name": "identity_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
           "notNull": true
         },
         "label": {
@@ -259,7 +266,15 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {
+        "user_identity_address_unique": {
+          "name": "user_identity_address_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "identity_address"
+          ]
+        }
+      }
     },
     "public.verification_token": {
       "name": "verification_token",

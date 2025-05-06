@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "account" (
-	"user_id" varchar(255) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"address" varchar(255) PRIMARY KEY NOT NULL,
 	"label" varchar(255) NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
@@ -21,14 +21,16 @@ CREATE TABLE IF NOT EXISTS "consultation" (
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "session" (
 	"id" text PRIMARY KEY NOT NULL,
-	"user_id" varchar(255) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"expires_at" timestamp with time zone NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user" (
-	"id" varchar(255) PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"identity_address" varchar(255) NOT NULL,
 	"label" varchar(255),
-	"created_at" timestamp with time zone DEFAULT now() NOT NULL
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "user_identity_address_unique" UNIQUE("identity_address")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "verification_token" (
