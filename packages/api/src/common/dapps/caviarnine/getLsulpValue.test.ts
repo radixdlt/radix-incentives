@@ -1,13 +1,16 @@
 import { Effect, Layer } from "effect";
-import { ConvertLsuToXrdLive } from "./convertLsuToXrd";
-import { GatewayApiClientLive } from "./gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "./getEntityDetails";
-import { createAppConfigLive } from "../config/appConfig";
-import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive, GetStateVersionService } from "./getStateVersion";
-import { GetAllValidatorsLive } from "./getAllValidators";
-import { GetFungibleBalanceLive } from "./getFungibleBalance";
-import { EntityFungiblesPageLive } from "./entityFungiblesPage";
+import { ConvertLsuToXrdLive } from "../../gateway/convertLsuToXrd";
+import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
+import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
+import { createAppConfigLive } from "../../config/appConfig";
+import { LoggerLive } from "../../logger/logger";
+import {
+  GetStateVersionLive,
+  GetStateVersionService,
+} from "../../gateway/getStateVersion";
+import { GetAllValidatorsLive } from "../../gateway/getAllValidators";
+import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
+import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 import { GetLsulpValueLive, GetLsulpValueService } from "./getLsulpValue";
 
 const appConfigServiceLive = createAppConfigLive();

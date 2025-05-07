@@ -595,6 +595,9 @@ importers:
       '@radixdlt/babylon-gateway-api-sdk':
         specifier: 'catalog:'
         version: 1.10.1
+      '@radixdlt/radix-engine-toolkit':
+        specifier: ^1.0.5
+        version: 1.0.5
       '@radixdlt/rola':
         specifier: 'catalog:'
         version: 2.1.0

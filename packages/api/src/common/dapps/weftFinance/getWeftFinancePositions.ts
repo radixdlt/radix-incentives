@@ -1,85 +1,54 @@
 import { Context, Effect, Layer } from "effect";
 
-import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
-import type { LoggerService } from "../logger/logger";
-import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
+import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
+import type { LoggerService } from "../../logger/logger";
+import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import type {
   GetStateVersionError,
   GetStateVersionService,
-} from "../gateway/getStateVersion";
-import type { GatewayError } from "../gateway/errors";
-import {
-  type EntityNotFoundError,
-  type GetEntityDetailsError,
+} from "../../gateway/getStateVersion";
+import type { GatewayError } from "../../gateway/errors";
+import type {
+  EntityNotFoundError,
+  GetEntityDetailsError,
   GetNonFungibleBalanceService,
-  type InvalidInputError,
-  type StateEntityDetailsInput,
-} from "../gateway/getNonFungibleBalance";
-import type { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
-import { dAppAddresses, KNOWN_RESOURCE_ADDRESSES } from "../config/appConfig";
-import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
+  InvalidInputError,
+  StateEntityDetailsInput,
+} from "../../gateway/getNonFungibleBalance";
+import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
+
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
 
 import { BigNumber } from "bignumber.js";
 import {
   GetComponentStateService,
   type InvalidComponentStateError,
-} from "../gateway/getComponentState";
+} from "../../gateway/getComponentState";
 import { LendingPoolSchema, SingleResourcePool } from "./schemas";
-import { GetKeyValueStoreService } from "../gateway/getKeyValueStore";
-import type { KeyValueStoreDataService } from "../gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../gateway/keyValueStoreKeys";
+import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
+import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
+import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
+import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
 
 export class FailedToParseLendingPoolSchemaError {
   readonly _tag = "FailedToParseLendingPoolSchemaError";
   constructor(readonly lendingPool: unknown) {}
 }
 
-const WeftFinanceAddresses = dAppAddresses.weftFinance;
+type AssetBalance = {
+  resourceAddress: ResourceAddress;
+  amount: BigNumber;
+};
 
-const weftFungibleRecourceAddresses = new Map<string, ResourceAddress>([
-  [WeftFinanceAddresses.v1.wXRD.resourceAddress, KNOWN_RESOURCE_ADDRESSES.xrd],
-  [
-    WeftFinanceAddresses.v1.wxUSDC.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xUSDC,
-  ],
-  [
-    WeftFinanceAddresses.v1.wLSULP.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.LSULP,
-  ],
-
-  [WeftFinanceAddresses.v2.w2XRD.resourceAddress, KNOWN_RESOURCE_ADDRESSES.xrd],
-  [
-    WeftFinanceAddresses.v2.w2xUSDC.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xUSDC,
-  ],
-  [
-    WeftFinanceAddresses.v2.w2xUSDT.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xUSDT,
-  ],
-  [
-    WeftFinanceAddresses.v2.w2xwBTC.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.wxBTC,
-  ],
-  [
-    WeftFinanceAddresses.v2.w2wETH.resourceAddress,
-    KNOWN_RESOURCE_ADDRESSES.xETH,
-  ],
-]);
+type WeftLendingPosition = {
+  unitToAssetRatio: BigNumber;
+  wrappedAsset: AssetBalance;
+  unwrappedAsset: AssetBalance;
+};
 
 export type GetWeftFinancePositionsOutput = {
   address: string;
-  items: {
-    unitToAssetRatio: BigNumber;
-    wrappedAsset: {
-      resourceAddress: ResourceAddress;
-      amount: BigNumber;
-    };
-    unwrappedAsset: {
-      resourceAddress: ResourceAddress;
-      amount: BigNumber;
-    };
-  }[];
+  lending: WeftLendingPosition[];
 };
 
 export class GetWeftFinancePositionsService extends Context.Tag(
@@ -116,41 +85,28 @@ type ResourceAddress = string;
 export const GetWeftFinancePositionsLive = Layer.effect(
   GetWeftFinancePositionsService,
   Effect.gen(function* () {
-    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
     const getFungibleBalanceService = yield* GetFungibleBalanceService;
-    const getEntityDetailsService = yield* GetEntityDetailsService;
     const getComponentStateService = yield* GetComponentStateService;
     const getKeyValueStoreService = yield* GetKeyValueStoreService;
 
     return (input) => {
       return Effect.gen(function* () {
-        const poolToUnitToAssetRatio = new Map<ResourceAddress, BigNumber>();
-
         const accountBalancesMap = new Map<
           AccountAddress,
-          {
-            unitToAssetRatio: BigNumber;
-            wrappedAsset: {
-              resourceAddress: ResourceAddress;
-              amount: BigNumber;
-            };
-            unwrappedAsset: {
-              resourceAddress: ResourceAddress;
-              amount: BigNumber;
-            };
-          }[]
+          WeftLendingPosition[]
         >();
 
         for (const accountAddress of input.accountAddresses) {
           accountBalancesMap.set(accountAddress, []);
         }
 
-        const keyValueStoreResponse = yield* getKeyValueStoreService({
-          address: WeftFinanceAddresses.v2.lendingPool.kvsAddress,
+        // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
+        const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService({
+          address: WeftFinance.v2.lendingPool.kvsAddress,
           stateVersion: input.stateVersion,
         }).pipe(
           Effect.catchTags({
-            // missing key value store here means that the v2 lending pool is not deployed
+            // EntityNotFoundError here means that the v2 lending pool is not deployed at the provided state version
             EntityNotFoundError: () =>
               Effect.succeed({
                 entries: [],
@@ -158,7 +114,9 @@ export const GetWeftFinancePositionsLive = Layer.effect(
           })
         );
 
-        for (const item of keyValueStoreResponse.entries) {
+        const poolToUnitToAssetRatio = new Map<ResourceAddress, BigNumber>();
+
+        for (const item of lendingPoolV2KeyValueStore.entries) {
           const lendingPool = LendingPoolSchema.safeParse(
             item.value.programmatic_json
           );
@@ -175,17 +133,18 @@ export const GetWeftFinancePositionsLive = Layer.effect(
           }
         }
 
-        const componentStateV1 = yield* getComponentStateService({
+        // WEFT V1 Lending pool component states contains the unit to asset ratio for each asset
+        const lendingPoolV1ComponentStates = yield* getComponentStateService({
           addresses: [
-            WeftFinanceAddresses.v1.wLSULP.componentAddress,
-            WeftFinanceAddresses.v1.wXRD.componentAddress,
-            WeftFinanceAddresses.v1.wxUSDC.componentAddress,
+            WeftFinance.v1.wLSULP.componentAddress,
+            WeftFinance.v1.wXRD.componentAddress,
+            WeftFinance.v1.wxUSDC.componentAddress,
           ],
           schema: SingleResourcePool,
           stateVersion: input.stateVersion,
         });
 
-        for (const item of componentStateV1) {
+        for (const item of lendingPoolV1ComponentStates) {
           poolToUnitToAssetRatio.set(
             item.state.pool_unit_res_manager,
             new BigNumber(item.state.unit_to_asset_ratio)
@@ -215,7 +174,6 @@ export const GetWeftFinancePositionsLive = Layer.effect(
                 ...items,
                 {
                   unitToAssetRatio,
-
                   wrappedAsset: {
                     resourceAddress,
                     amount,
@@ -235,7 +193,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
         return Array.from(accountBalancesMap.entries()).map(
           ([address, items]) => ({
             address,
-            items,
+            lending: items,
           })
         );
       });

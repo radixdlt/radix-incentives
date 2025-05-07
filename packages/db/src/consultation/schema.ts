@@ -36,7 +36,10 @@ export const challenge = createTable("challenge", {
 });
 
 export const users = createTable("user", {
-  id: varchar("id", { length: 255 }).notNull().primaryKey(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  identityAddress: varchar("identity_address", { length: 255 })
+    .unique()
+    .notNull(),
   label: varchar("label", { length: 255 }),
   createdAt: timestamp("created_at", {
     mode: "date",
@@ -55,9 +58,10 @@ export const usersRelations = relations(users, ({ many }) => ({
 
 export const sessions = createTable("session", {
   id: text("id").primaryKey(),
-  userId: varchar("user_id", { length: 255 })
+  userId: uuid("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => users.id, { onDelete: "cascade" })
+    .$defaultFn(() => crypto.randomUUID()),
   expiresAt: timestamp("expires_at", {
     withTimezone: true,
     mode: "date",
@@ -69,9 +73,10 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 }));
 
 export const accounts = createTable("account", {
-  userId: varchar("user_id", { length: 255 })
+  userId: uuid("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
+    .references(() => users.id, { onDelete: "cascade" })
+    .$defaultFn(() => crypto.randomUUID()),
   address: varchar("address", { length: 255 }).notNull().primaryKey(),
   label: varchar("label", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", {

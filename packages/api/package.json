@@ -20,6 +20,7 @@
     "@oslojs/encoding": "catalog:",
     "@radixdlt/babylon-core-api-sdk": "catalog:",
     "@radixdlt/babylon-gateway-api-sdk": "catalog:",
+    "@radixdlt/radix-engine-toolkit": "^1.0.5",
     "@radixdlt/rola": "catalog:",
     "@trpc/server": "catalog:",
     "bignumber.js": "catalog:",
