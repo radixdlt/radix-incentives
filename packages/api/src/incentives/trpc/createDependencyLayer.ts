@@ -1,4 +1,4 @@
-import type { Db } from "db/consultation";
+import type { Db } from "db/incentives";
 import { type AppConfig, createAppConfigLive } from "../config/appConfig";
 import { createDbClientLive } from "../db/dbClient";
 import { LoggerLive } from "../../common/logger/logger";

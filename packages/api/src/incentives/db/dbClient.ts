@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import type { Db } from "db/consultation";
+import type { Db } from "db/incentives";
 
 export class DbError {
   readonly _tag: "DbError";
