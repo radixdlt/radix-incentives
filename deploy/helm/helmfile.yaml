@@ -1,7 +1,6 @@
 environments:
   dev: {}
   pr: {}
-  prod: {}
 ---
 helmDefaults:
   verify: false
@@ -79,5 +78,3 @@ releases:
     installed: {{ ne .Environment.Name "pr" }}
     values:
       - environments/{{ .Environment.Name }}/alertmanager.yaml.gotmpl
-
-

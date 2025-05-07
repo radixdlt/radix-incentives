@@ -77,11 +77,6 @@ spec:
               containerPort: {{ .Values.metrics.port }}
               protocol: TCP
           {{- end }}
-          {{- if .Values.pm2_metrics.enabled }}
-            - name: pm2-metrics
-              containerPort: {{ .Values.pm2_metrics.port }}
-              protocol: TCP
-          {{- end }}
           livenessProbe:
             httpGet:
               path: /
