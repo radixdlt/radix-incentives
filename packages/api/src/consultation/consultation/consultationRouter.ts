@@ -21,6 +21,13 @@ export const consultationRouter = createTRPCRouter({
   verifyConsultationSignature: protectedProcedure
     .input(verifyConsultationSignatureInputSchema)
     .mutation(async ({ input, ctx }) => {
+      if (new Date("2025-05-19T23:59:00Z") < new Date()) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Consultation has ended",
+        });
+      }
+
       const result =
         await ctx.dependencyLayer.verifyConsultationSignature(input);
 

@@ -6,6 +6,8 @@ export const authRouter = createTRPCRouter({
   generateChallenge: publicProcedure.mutation(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.createChallenge();
 
+    await ctx.setSessionToken("", new Date(0));
+
     if (result._tag === "Failure") {
       console.error(result.cause);
       throw new TRPCError({
@@ -32,6 +34,8 @@ export const authRouter = createTRPCRouter({
     )
     .mutation(async ({ input, ctx }) => {
       const result = await ctx.dependencyLayer.signIn(input);
+
+      console.log(JSON.stringify({ result, input }, null, 2));
 
       if (result._tag === "Failure") {
         console.error(result.cause);
