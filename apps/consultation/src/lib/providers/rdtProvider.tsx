@@ -6,6 +6,7 @@ import {
   RadixDappToolkit,
 } from "@radixdlt/radix-dapp-toolkit";
 import { api } from "~/trpc/react";
+import { toast } from "sonner";
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 
@@ -41,9 +42,10 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
 
     rdt.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
 
-    rdt?.walletApi.provideChallengeGenerator(() =>
-      generateChallenge.mutateAsync()
-    );
+    rdt?.walletApi.provideChallengeGenerator(() => {
+      toast.info("Open your wallet to continue");
+      return generateChallenge.mutateAsync();
+    });
 
     rdt?.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
 
