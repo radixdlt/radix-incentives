@@ -1,18 +1,13 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { verifyConsultationSignatureInputSchema } from "../programs/verifyConsultationSignature";
-import { z } from "zod";
 import { createConsultationMessageHash } from "./createConsultationHash";
 import { toHex } from "../../common/crypto";
+import { repurposeTheStablecoinReserveSchema } from "./schemas";
 
 export const consultationRouter = createTRPCRouter({
   createConsultationHash: protectedProcedure
-    .input(
-      z.object({
-        consultationId: z.string(),
-        selectedOption: z.string(),
-      })
-    )
+    .input(repurposeTheStablecoinReserveSchema)
     .mutation(
       async ({ input }) =>
         await createConsultationMessageHash(input).then(toHex)

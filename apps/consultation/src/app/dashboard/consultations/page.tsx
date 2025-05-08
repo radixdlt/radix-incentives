@@ -14,6 +14,7 @@ import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { usePersona } from "~/lib/hooks/usePersona";
 import { EmptyState } from "~/components/ui/empty-state";
 import { Wallet } from "lucide-react";
+import { consultationConfig } from "./consultationConfig";
 
 // --- Types (Adjust based on actual API response) ---
 // Assuming the API returns a structure similar to PlaceholderConsultation
@@ -91,10 +92,11 @@ const VotingPage: FC = () => {
     }
 
     setIsSubmitting(true); // Use isSubmitting state
-    toast.info("Submitting your vote...");
+    toast.info("Submitting your consultation...");
 
     const userConsultationValue = {
-      consultationId: "Repurpose the Stablecoin Reserve",
+      consultationId:
+        consultationConfig.RepurposeTheStablecoinReserve.consultationId,
       selectedOption: selectedOptionId,
     };
 
@@ -219,12 +221,10 @@ const VotingPage: FC = () => {
           // This assumes ConsultationCard expects a type compatible with 'Consultation'
           consultation={{
             question: `Repurpose the Stablecoin Reserve. <a class="text-blue-500 text-lg hover:underline" href="https://www.radixdlt.com/blog/token-holder-consultation-repurposing-the-stablecoin-reserve" target="_blank" rel="noopener noreferrer">Learn more</a>`,
-            startDate: new Date("2025-05-09T00:00:00Z"),
-            endDate: new Date("2025-05-19T23:59:00Z"),
-            options: [
-              { id: "1", text: "Yes" },
-              { id: "2", text: "No" },
-            ],
+            startDate:
+              consultationConfig.RepurposeTheStablecoinReserve.startDate,
+            endDate: consultationConfig.RepurposeTheStablecoinReserve.endDate,
+            options: consultationConfig.RepurposeTheStablecoinReserve.options,
           }}
           selectedOptionId={selectedOptionId}
           isLoading={isSubmitting} // Pass submission loading state
