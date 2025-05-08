@@ -69,6 +69,11 @@ const VotingPage: FC = () => {
     refetch: refetchConsultations,
   } = api.consultation.getConsultations.useQuery();
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  useEffect(() => {
+    refetchConsultations();
+  }, [persona?.identityAddress]);
+
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
     enabled: !!persona,
