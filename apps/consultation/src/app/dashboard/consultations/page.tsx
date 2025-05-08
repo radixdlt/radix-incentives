@@ -219,8 +219,8 @@ const VotingPage: FC = () => {
           // This assumes ConsultationCard expects a type compatible with 'Consultation'
           consultation={{
             question: `Repurpose the Stablecoin Reserve. <a class="text-blue-500 text-lg hover:underline" href="https://www.radixdlt.com/blog/token-holder-consultation-repurposing-the-stablecoin-reserve" target="_blank" rel="noopener noreferrer">Learn more</a>`,
-            startDate: new Date(),
-            endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
+            startDate: new Date("2025-05-09T00:00:00Z"),
+            endDate: new Date("2025-05-19T23:59:00Z"),
             options: [
               { id: "1", text: "Yes" },
               { id: "2", text: "No" },
