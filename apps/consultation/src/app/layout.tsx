@@ -10,7 +10,7 @@ import { Toaster } from "sonner";
 export const metadata: Metadata = {
   title: "Radix Consultation",
   description: "Dashboard for the Radix Consultation",
-  icons: [{ rel: "icon", url: "/favicon.ico" }],
+  icons: [{ rel: "icon", url: "/favicon.png" }],
 };
 
 const geist = Geist({
