@@ -25,9 +25,9 @@ const expectedOrigin =
 
 export const defaultAppConfig: AppConfig = {
   networkId: 1,
-  applicationName: "Radix Incentivization dApp",
+  applicationName: "Radix Consultation dApp",
   dAppDefinitionAddress:
-    "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
+    "account_rdx129xqyvgkn9h73atyrzndal004fwye3tzw49kkygv9ltm2kyrv2lmda",
   expectedOrigin,
   logLevel: "debug",
   challengeTTL: 1000 * 60 * 5,

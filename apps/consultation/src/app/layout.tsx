@@ -8,8 +8,8 @@ import { RadixDappToolkitProvider } from "~/lib/providers/rdtProvider";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
-  title: "Radix Incentives",
-  description: "Dashboard for the Radix Incentives campaign",
+  title: "Radix Consultation",
+  description: "Dashboard for the Radix Consultation",
   icons: [{ rel: "icon", url: "/favicon.ico" }],
 };
 
