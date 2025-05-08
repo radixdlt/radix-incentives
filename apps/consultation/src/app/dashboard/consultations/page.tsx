@@ -1,19 +1,19 @@
 "use client";
 
-import { type FC, useState, useMemo } from "react";
+import { type FC, useState, useEffect } from "react";
 import { toast } from "sonner";
 
 import { ConsultationCard } from "./components/ConsultationCard";
-import { NoActiveConsultationMessage } from "./components/NoActiveConsultationMessage";
 import { SubmittedConsultationsCard } from "./components/SubmittedConsultationsCard";
 import { useDappToolkit } from "~/lib/hooks/useRdt";
 import { ConnectedState } from "../components/ConnectedState";
 import { OneTimeDataRequestBuilder } from "@radixdlt/radix-dapp-toolkit";
 import { api } from "~/trpc/react";
 import { Skeleton } from "~/components/ui/skeleton";
-// import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { ExclamationTriangleIcon } from "@radix-ui/react-icons";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
+import { usePersona } from "~/lib/hooks/usePersona";
+import { EmptyState } from "~/components/ui/empty-state";
+import { Wallet } from "lucide-react";
 
 // --- Types (Adjust based on actual API response) ---
 // Assuming the API returns a structure similar to PlaceholderConsultation
@@ -59,6 +59,7 @@ const VotingPage: FC = () => {
   const rdt = useDappToolkit();
   const verifyConsultationSignature =
     api.consultation.verifyConsultationSignature.useMutation({ retry: false });
+  const persona = usePersona();
 
   const {
     data: consultationsData,
@@ -66,6 +67,18 @@ const VotingPage: FC = () => {
     error: consultationError,
     refetch: refetchConsultations,
   } = api.consultation.getConsultations.useQuery();
+
+  const accounts = api.account.getAccounts.useQuery(undefined, {
+    refetchOnMount: true,
+    enabled: !!persona,
+    retry: false,
+  });
+
+  useEffect(() => {
+    if (accounts.error?.data?.code === "UNAUTHORIZED") {
+      rdt?.disconnect();
+    }
+  }, [accounts.error, rdt]);
 
   /**
    * Handler for submitting a vote, now uses activeConsultation.
@@ -81,7 +94,7 @@ const VotingPage: FC = () => {
     toast.info("Submitting your vote...");
 
     const userConsultationValue = {
-      consultationId: "proposal_1",
+      consultationId: "Repurpose the Stablecoin Reserve",
       selectedOption: selectedOptionId,
     };
 
@@ -185,6 +198,19 @@ const VotingPage: FC = () => {
       );
     }
 
+    if (accounts.data?.length === 0) {
+      return (
+        <div className="space-y-6">
+          <EmptyState
+            title={`<a class=" text-lg hover:underline" href="/dashboard/accounts">No connected accounts</a>`}
+            description="Please register an account to add your consultation."
+            icon={Wallet}
+            className="max-w-full"
+          />
+        </div>
+      );
+    }
+
     // Data loaded successfully
     return (
       <div className="space-y-6">
@@ -192,7 +218,7 @@ const VotingPage: FC = () => {
           // Cast activeConsultation to the type expected by ConsultationCard if necessary
           // This assumes ConsultationCard expects a type compatible with 'Consultation'
           consultation={{
-            question: "Use strategic stablecoin reserve?",
+            question: `Repurpose the Stablecoin Reserve. <a class="text-blue-500 text-lg hover:underline" href="https://www.radixdlt.com/blog/token-holder-consultation-repurposing-the-stablecoin-reserve" target="_blank" rel="noopener noreferrer">Learn more</a>`,
             startDate: new Date(),
             endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
             options: [

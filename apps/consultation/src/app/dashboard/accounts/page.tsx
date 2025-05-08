@@ -10,14 +10,27 @@ import { AlertTriangle, Wallet } from "lucide-react";
 import { Skeleton } from "~/components/ui/skeleton";
 import { usePersona } from "~/lib/hooks/usePersona";
 import { ConnectedState } from "../components/ConnectedState";
+import { useDappToolkit } from "~/lib/hooks/useRdt";
 
 export default function AccountsPage() {
   const persona = usePersona();
+  const rdt = useDappToolkit();
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
     enabled: !!persona,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (accounts.error?.data?.code === "UNAUTHORIZED") {
+      rdt?.disconnect();
+    }
+  }, [accounts.error, rdt]);
+
+  useEffect(() => {
+    if (persona?.identityAddress) accounts.refetch();
+  }, [persona?.identityAddress, accounts.refetch]);
 
   if (!persona) {
     return (

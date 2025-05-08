@@ -42,7 +42,7 @@ export const SubmittedConsultationsCard: FC<
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your History</CardTitle>
+        <CardTitle>Your Consultation History</CardTitle>
       </CardHeader>
       <CardContent>
         {consultations.length > 0 ? (
@@ -55,7 +55,7 @@ export const SubmittedConsultationsCard: FC<
                   <div>
                     <p className="font-medium">{consultation.consultationId}</p>
                     <p className="text-sm text-muted-foreground">
-                      Voted on: {consultation.timestamp.toLocaleDateString()}
+                      Created at: {consultation.timestamp.toLocaleDateString()}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {consultation.accountAddress}
@@ -65,7 +65,7 @@ export const SubmittedConsultationsCard: FC<
                     </pre>
                   </div>
                   <Badge variant="secondary">
-                    Your consultation:{" "}
+                    Your input:{" "}
                     {getSelectedOptionText(
                       [
                         { id: "1", text: "Yes" },

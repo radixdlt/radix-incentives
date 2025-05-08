@@ -60,16 +60,16 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       const { address, type, challenge, proof } = request.proofs[0];
       const { label } = request.persona;
 
-      const result = await signIn.mutateAsync({
-        address,
-        type,
-        label,
-        challenge,
-        proof,
-      });
-
-      if (!result.success) {
-        throw new Error("Proof verification failed");
+      try {
+        const result = await signIn.mutateAsync({
+          address,
+          type,
+          label,
+          challenge,
+          proof,
+        });
+      } catch (error) {
+        rdt.disconnect();
       }
     });
 

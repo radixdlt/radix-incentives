@@ -35,9 +35,12 @@ export const ConsultationCard: FC<ConsultationCardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{consultation.question}</CardTitle>
+        <CardTitle
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+          dangerouslySetInnerHTML={{ __html: consultation.question }}
+        />
         <p className="text-sm text-muted-foreground">
-          Voting period: {consultation.startDate.toLocaleDateString()} -{" "}
+          Consultation Period: {consultation.startDate.toLocaleDateString()} -{" "}
           {consultation.endDate.toLocaleDateString()}
         </p>
       </CardHeader>

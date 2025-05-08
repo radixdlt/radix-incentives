@@ -6,6 +6,7 @@ import { OneTimeDataRequestBuilder } from "@radixdlt/radix-dapp-toolkit";
 import { useDappToolkit } from "~/lib/hooks/useRdt";
 import { StarBorder } from "~/components/ui/star-border";
 import { api } from "~/trpc/react";
+import { toast } from "sonner";
 
 export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
   const rdt = useDappToolkit();
@@ -30,22 +31,31 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
         const challenge = value.proofs[0]?.challenge!;
         const proofs = value.proofs;
 
-        const result = await verifyAccountOwnership.mutateAsync({
-          challenge,
-          items: proofs.map((proof) => ({
-            address: proof.address,
-            // biome-ignore lint/style/noNonNullAssertion: exists
-            label: accounts.find((account) => account.address === proof.address)
-              ?.label!,
-            type: "account",
-            proof: proof.proof,
-          })),
-        });
+        const result = await verifyAccountOwnership.mutateAsync(
+          {
+            challenge,
+            items: proofs.map((proof) => ({
+              address: proof.address,
+              // biome-ignore lint/style/noNonNullAssertion: exists
+              label: accounts.find(
+                (account) => account.address === proof.address
+              )?.label!,
+              type: "account",
+              proof: proof.proof,
+            })),
+          },
+          {
+            onError: (error) => {
+              toast.error(error.message);
+            },
+          }
+        );
 
         onConnect();
       }
     } catch (error) {
       console.error("Failed to connect account:", error);
+
       // TODO: Show error message to the user with toast or something
     } finally {
       setIsConnecting(false);

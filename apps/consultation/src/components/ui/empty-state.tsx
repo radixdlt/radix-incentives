@@ -41,7 +41,11 @@ export function EmptyState({
           </div>
         </div>
       )}
-      <h2 className="text-foreground font-medium">{title}</h2>
+      <h2
+        className="text-foreground font-medium"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+        dangerouslySetInnerHTML={{ __html: title }}
+      />
       <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
         {description}
       </p>
