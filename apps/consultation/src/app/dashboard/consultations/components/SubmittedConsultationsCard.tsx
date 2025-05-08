@@ -5,6 +5,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import type { VotingOption } from "../page"; // Assuming types are exported from page.tsx for now
+import { consultationConfig } from "../consultationConfig";
 
 // --- Component Types ---
 type SubmittedConsultation = {
@@ -67,10 +68,7 @@ export const SubmittedConsultationsCard: FC<
                   <Badge variant="secondary">
                     Your input:{" "}
                     {getSelectedOptionText(
-                      [
-                        { id: "1", text: "Yes" },
-                        { id: "2", text: "No" },
-                      ],
+                      consultationConfig.RepurposeTheStablecoinReserve.options,
                       consultation.selectedOption
                     )}
                   </Badge>
