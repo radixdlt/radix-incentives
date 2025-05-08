@@ -103,7 +103,7 @@ export default function AccountsPage() {
       ) : (
         <EmptyState
           title="No Accounts Connected"
-          description="Connect wallet to get started."
+          description="Connect accounts to get started."
           icon={Wallet}
           className="max-w-full"
         />
