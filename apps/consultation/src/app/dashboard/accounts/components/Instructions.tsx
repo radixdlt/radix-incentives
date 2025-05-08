@@ -69,7 +69,7 @@ export const ConnectAccountInstructions = () => {
 
         <p className="text-sm text-muted-foreground mt-1">
           Please note, an account can only be connected to the dApp with 1
-          Persona.
+          Persona and once linked cannot be removed.
         </p>
       </div>
     </div>
