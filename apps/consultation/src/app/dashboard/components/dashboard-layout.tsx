@@ -65,6 +65,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     key={link.href}
                     link={link}
                     pathname={pathname}
+                    setOpen={setOpen}
                   />
                 ))}
               </div>

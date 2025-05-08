@@ -131,12 +131,14 @@ export const MobileSidebar = ({
         )}
         {...props}
       >
-        <div className="flex justify-end z-20 w-full">
+        <div className="flex justify-end z-20">
           {/* Use button element for semantics and accessibility */}
           <button
             type="button"
             className="text-neutral-800 dark:text-neutral-200 cursor-pointer p-1 rounded focus:outline-none focus:ring-2 focus:ring-ring"
-            onClick={() => handleToggle()}
+            onClick={() => {
+              handleToggle();
+            }}
             onKeyDown={handleKeyDown}
             aria-label={open ? "Close sidebar" : "Open sidebar"}
             aria-expanded={open}
@@ -182,19 +184,28 @@ export const SidebarLink = ({
   link,
   className,
   pathname,
+  setOpen,
   ...props
 }: {
   link: Links;
   className?: string;
   pathname: string;
+  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
   props?: LinkProps;
 }) => {
   const { open } = useSidebar();
   const isActive = pathname === link.href;
 
+  const handleClick = () => {
+    if (open) {
+      setOpen(false);
+    }
+  };
+
   return (
     <Link
       href={link.href}
+      onClick={handleClick}
       className={cn(
         "flex items-center justify-start gap-2 group/sidebar py-2 px-3 rounded-md text-sm font-medium transition-colors",
         isActive
