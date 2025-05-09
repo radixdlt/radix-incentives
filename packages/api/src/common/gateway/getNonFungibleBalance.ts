@@ -94,6 +94,7 @@ export const GetNonFungibleBalanceLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
+        yield* Effect.logTrace(input);
         const aggregationLevel = "Vault";
         let atStateVersion = input.state?.state_version;
         const atStateVersionTimestamp = input.state?.timestamp;
@@ -231,7 +232,8 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                 details: result.details,
               };
             });
-          })
+          }),
+          { concurrency: "unbounded" }
         ).pipe(
           Effect.map((result) => {
             return {
