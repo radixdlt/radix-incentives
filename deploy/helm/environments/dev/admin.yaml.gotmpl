@@ -3,12 +3,11 @@ image:
 
 params:
   PORT: 3000
-  PUBLIC_NETWORK_ID: 2
   PUBLIC_INCENTIVES_API_URL: https://incentives-dev.rdx-works-main.extratools.works
   PUBLIC_LOG_LEVEL: debug
-  REDIS_HOST: incentives-dev-redis.rdx-works-main.internal
-  REDIS_PORT: 6379
-  REDIS_PASSWORD: 
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
 
 secrets:
   - external_secret_name: admin-postgres-url
@@ -16,12 +15,6 @@ secrets:
     aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
     aws_secret_key: "database-url"
     secret_key: "database-url"
-
-  - external_secret_name: admin-ro-postgres-url
-    env_variable: "RO_DATABASE_URL"
-    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
-    aws_secret_key: "ro-database-url"
-    secret_key: "ro-database-url"
 
   - external_secret_name: admin-jwt-secret
     env_variable: "JWT_SECRET"

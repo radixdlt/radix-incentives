@@ -2,12 +2,10 @@ image:
     tag: {{ .StateValues.ci.tag }}
 
 params:
-  REDIS_HOST: incentives-dev-redis.rdx-works-main.internal
-  REDIS_PORT: 6379
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   LOG_LEVEL: debug
-  PUBLIC_NETWORK_ID: 2
-  GATEWAY_URL: https://stokenet.radixdlt.com
 
 secrets:
   - external_secret_name: transaction-stream-postgres-url
@@ -15,12 +13,6 @@ secrets:
     aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
     aws_secret_key: "database-url"
     secret_key: "database-url"
-
-  - external_secret_name: transaction-stream-ro-postgres-url
-    env_variable: "RO_DATABASE_URL"
-    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
-    aws_secret_key: "ro-database-url"
-    secret_key: "ro-database-url"
 
 ingress:
   enabled: false
