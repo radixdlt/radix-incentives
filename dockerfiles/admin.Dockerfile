@@ -38,7 +38,7 @@ WORKDIR /app
 COPY --from=installer /app/apps/ apps
 COPY --from=installer /app/packages/ packages
 COPY --from=installer /app/node_modules/ node_modules
-COPY --from=installer /app/apps/incentives/public/ /app/apps/incentives/.next/standalone/apps/incentives/public
-COPY --from=installer /app/apps/incentives/.next/static /app/apps/incentives/.next/standalone/apps/incentives/.next/static
+COPY --from=installer /app/apps/admin/public/ /app/apps/admin/.next/standalone/apps/admin/public
+COPY --from=installer /app/apps/admin/.next/static /app/apps/admin/.next/standalone/apps/admin/.next/static
 
 CMD node apps/admin/.next/standalone/apps/admin/server.js
