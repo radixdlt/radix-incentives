@@ -27,6 +27,11 @@ export const accountRouter = createTRPCRouter({
                 code: "BAD_REQUEST",
                 message: "Invalid account ownership proof",
               });
+            case "AccountAlreadyRegisteredError":
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message: result.cause.error.error,
+              });
           }
         }
 

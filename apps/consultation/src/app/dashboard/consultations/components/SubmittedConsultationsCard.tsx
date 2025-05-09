@@ -5,6 +5,7 @@ import { ScrollArea } from "~/components/ui/scroll-area";
 import { Badge } from "~/components/ui/badge";
 import { Separator } from "~/components/ui/separator";
 import type { VotingOption } from "../page"; // Assuming types are exported from page.tsx for now
+import { consultationConfig } from "../consultationConfig";
 
 // --- Component Types ---
 type SubmittedConsultation = {
@@ -42,7 +43,7 @@ export const SubmittedConsultationsCard: FC<
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Your History</CardTitle>
+        <CardTitle>Your Consultation History</CardTitle>
       </CardHeader>
       <CardContent>
         {consultations.length > 0 ? (
@@ -55,7 +56,7 @@ export const SubmittedConsultationsCard: FC<
                   <div>
                     <p className="font-medium">{consultation.consultationId}</p>
                     <p className="text-sm text-muted-foreground">
-                      Voted on: {consultation.timestamp.toLocaleDateString()}
+                      Created at: {consultation.timestamp.toLocaleDateString()}
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {consultation.accountAddress}
@@ -65,12 +66,9 @@ export const SubmittedConsultationsCard: FC<
                     </pre>
                   </div>
                   <Badge variant="secondary">
-                    Your consultation:{" "}
+                    Your input:{" "}
                     {getSelectedOptionText(
-                      [
-                        { id: "1", text: "Yes" },
-                        { id: "2", text: "No" },
-                      ],
+                      consultationConfig.RepurposeTheStablecoinReserve.options,
                       consultation.selectedOption
                     )}
                   </Badge>

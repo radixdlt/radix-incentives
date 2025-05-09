@@ -4,6 +4,7 @@ import { VerifyRolaProofService } from "../rola/verifyRolaProof";
 import { VerifyChallengeService } from "../challenge/verifyChallenge";
 import { z } from "zod";
 import { UpsertAccountsService } from "../account/upsertAccounts";
+import { GetAccountsByAddressService } from "../account/getAccountsByAddress";
 
 export class InvalidChallengeError {
   readonly _tag = "InvalidChallengeError";
@@ -11,6 +12,11 @@ export class InvalidChallengeError {
 
 export class InvalidProofError {
   readonly _tag = "InvalidProofError";
+}
+
+export class AccountAlreadyRegisteredError {
+  readonly _tag = "AccountAlreadyRegisteredError";
+  constructor(readonly error: string) {}
 }
 
 export const verifyAccountOwnershipInputSchema = z.object({
@@ -41,6 +47,7 @@ export const verifyAccountOwnershipProgram = (
     const verifyChallenge = yield* VerifyChallengeService;
     const verifyProof = yield* VerifyRolaProofService;
     const upsertAccounts = yield* UpsertAccountsService;
+    const getAccountsByAddress = yield* GetAccountsByAddressService;
 
     const isValidChallenge = yield* verifyChallenge(input.challenge);
 
@@ -53,6 +60,26 @@ export const verifyAccountOwnershipProgram = (
     });
 
     if (!isValidProof) return yield* Effect.fail(new InvalidProofError());
+
+    const addresses = input.items.map((item) => item.address);
+
+    const existingAccounts = yield* getAccountsByAddress({
+      addresses,
+    });
+
+    const existingAccountAddresses = existingAccounts.map(
+      (account) => account.address
+    );
+
+    if (existingAccounts.length > 0) {
+      return yield* Effect.fail(
+        new AccountAlreadyRegisteredError(
+          `accounts with addresses ${existingAccountAddresses.join(
+            ", "
+          )} already registered`
+        )
+      );
+    }
 
     const accounts = yield* upsertAccounts({
       userId: input.userId,

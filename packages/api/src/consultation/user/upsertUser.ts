@@ -22,7 +22,7 @@ export const UpsertUserLive = Layer.effect(
             .insert(user)
             .values({ identityAddress: address, label })
             .onConflictDoUpdate({
-              target: [user.id],
+              target: [user.identityAddress],
               set: { label },
             })
             .returning(),

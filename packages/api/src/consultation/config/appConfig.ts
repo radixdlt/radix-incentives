@@ -18,16 +18,16 @@ export type AppConfig = {
 
 const expectedOrigin =
   process.env.VERCEL_ENV === "production"
-    ? "https://radix-incentives-dashboard.vercel.app"
+    ? "https://consultation.radixdlt.com"
     : process.env.VERCEL_BRANCH_URL
       ? `https://${process.env.VERCEL_BRANCH_URL}`
       : "http://localhost:3002";
 
 export const defaultAppConfig: AppConfig = {
   networkId: 1,
-  applicationName: "Radix Incentivization dApp",
+  applicationName: "Radix Consultation dApp",
   dAppDefinitionAddress:
-    "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
+    "account_rdx129xqyvgkn9h73atyrzndal004fwye3tzw49kkygv9ltm2kyrv2lmda",
   expectedOrigin,
   logLevel: "debug",
   challengeTTL: 1000 * 60 * 5,

@@ -26,7 +26,8 @@ export const ConnectedAccounts = ({ accounts }: { accounts: Account[] }) => (
     <div className="p-6">
       <h3 className="text-lg font-medium">Connected Accounts</h3>
       <p className="text-sm text-muted-foreground mt-1">
-        Manage your connected Radix accounts and verify ownership.
+        Connected Radix accounts and verify ownership. Once an account is
+        linked, it cannot be removed.
       </p>
     </div>
     {accounts.map((account) => (
