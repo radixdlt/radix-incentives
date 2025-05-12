@@ -38,6 +38,7 @@ export const GetEntityDetailsServiceLive = Layer.effect(
   GetEntityDetailsService,
   Effect.gen(function* () {
     const gatewayClient = yield* GatewayApiClientService;
+
     const logger = yield* LoggerService;
 
     return (input, options, state) => {

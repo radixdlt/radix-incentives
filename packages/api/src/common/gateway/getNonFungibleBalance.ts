@@ -17,6 +17,7 @@ import type {
 } from "@radixdlt/babylon-gateway-api-sdk";
 import { EntityNonFungiblesPageService } from "./entityNonFungiblesPage";
 import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
+import { chunker } from "../helpers/chunker";
 
 export class GetEntityDetailsError {
   readonly _tag = "GetEntityDetailsError";
@@ -112,23 +113,41 @@ export const GetNonFungibleBalanceLive = Layer.effect(
           atStateVersion = stateVersionResult.stateVersion;
         }
 
-        const results = yield* Effect.tryPromise({
-          try: () =>
-            gatewayClient.gatewayApiClient.state.innerClient.stateEntityDetails(
-              {
-                stateEntityDetailsRequest: {
-                  addresses: input.addresses,
-                  opt_ins: optIns,
-                  at_ledger_state: { state_version: atStateVersion },
-                  aggregation_level: aggregationLevel,
-                },
-              }
-            ),
-          catch: (error) => {
-            logger.error(error);
-            return new GetEntityDetailsError(error);
-          },
-        });
+        const chunks = chunker(input.addresses, 20);
+
+        const results = yield* Effect.all(
+          chunks.map((chunk) =>
+            Effect.tryPromise({
+              try: () =>
+                gatewayClient.gatewayApiClient.state.innerClient.stateEntityDetails(
+                  {
+                    stateEntityDetailsRequest: {
+                      addresses: chunk,
+                      opt_ins: optIns,
+                      at_ledger_state: { state_version: atStateVersion },
+                      aggregation_level: aggregationLevel,
+                    },
+                  }
+                ),
+              catch: (error) => {
+                logger.error(error);
+                return new GetEntityDetailsError(error);
+              },
+            })
+          ),
+          {
+            concurrency: 3,
+          }
+        ).pipe(
+          Effect.map((results) => {
+            const items = results.flatMap((result) => result.items);
+
+            return {
+              items,
+              ledger_state: results[0].ledger_state,
+            };
+          })
+        );
 
         const stateVersion = results.ledger_state.state_version;
 

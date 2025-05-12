@@ -19,6 +19,7 @@ export const GatewayModule = ({
       networkId: RadixNetwork.Mainnet,
       applicationName: "hookah.ing",
       applicationVersion: "0.0.1",
+      basePath: "https://mainnet-gateway.radixdlt.com",
     });
 
   const stokenetGateway =

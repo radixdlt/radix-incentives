@@ -14,6 +14,7 @@ export type AppConfig = {
   sessionRefreshThreshold: number;
   stateVersionKey: string;
   redisUrl: string;
+  gatewayApiBaseUrl: string;
 };
 
 const expectedOrigin =
@@ -35,7 +36,7 @@ export const defaultAppConfig: AppConfig = {
   sessionRefreshThreshold: FIFTEEN_DAYS,
   stateVersionKey: "stateVersion",
   redisUrl: "redis://localhost:6379",
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+  gatewayApiBaseUrl: "https://mainnet-gateway.radixdlt.com",
 };
 
 export type CreateAppConfigInput = Partial<AppConfig>;
@@ -50,5 +51,6 @@ export class AppConfigService extends Context.Tag("AppConfigService")<
   AppConfig
 >() {}
 
-export const createAppConfigLive = (input: AppConfig = defaultAppConfig) =>
-  Layer.effect(AppConfigService, Effect.succeed(input));
+export const createAppConfigLive = (input: AppConfig = defaultAppConfig) => {
+  return Layer.effect(AppConfigService, Effect.succeed({ ...input }));
+};
