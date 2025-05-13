@@ -3,14 +3,10 @@ import { Context, Effect, Layer } from "effect";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { LoggerService } from "../../logger/logger";
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../../gateway/getStateVersion";
+import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayError } from "../../gateway/errors";
 import {
   type EntityNotFoundError,
-  type GetEntityDetailsError,
   GetNonFungibleBalanceService,
   type InvalidInputError,
   type StateEntityDetailsInput,
@@ -20,13 +16,14 @@ import { RootFinance } from "./constants";
 
 import { CollaterizedDebtPositionData } from "./schema";
 import type { SborError } from "@calamari-radix/sbor-ez-mode";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 
-class ParseSborError {
+export class ParseSborError {
   readonly _tag = "ParseSborError";
   constructor(readonly error: SborError) {}
 }
 
-class InvalidRootReceiptItemError extends Error {
+export class InvalidRootReceiptItemError extends Error {
   readonly _tag = "InvalidRootReceiptItemError";
 }
 
@@ -45,7 +42,6 @@ type CollaterizedDebtPosition = {
 };
 
 export type GetRootFinancePositionsServiceOutput = {
-  stateVersion: number;
   items: {
     accountAddress: AccountAddress;
     collaterizedDebtPositions: CollaterizedDebtPosition[];
@@ -65,14 +61,13 @@ export class GetRootFinancePositionsService extends Context.Tag(
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
-    | GetStateVersionError
     | ParseSborError
     | InvalidRootReceiptItemError,
     | GetNonFungibleBalanceService
     | GatewayApiClientService
     | LoggerService
     | EntityFungiblesPageService
-    | GetStateVersionService
+    | GetLedgerStateService
     | EntityNonFungiblesPageService
   >
 >() {}
@@ -99,7 +94,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
           options: {
             non_fungible_include_nfids: true,
           },
-        });
+        }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
         for (const account of result.items) {
           const collaterizedDebtPositionList: CollaterizedDebtPosition[] = [];
@@ -161,7 +156,6 @@ export const GetRootFinancePositionsLive = Layer.effect(
         );
 
         return {
-          stateVersion: result.stateVersion,
           items,
         };
       });

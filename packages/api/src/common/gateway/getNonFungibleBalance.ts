@@ -6,10 +6,7 @@ import {
 } from "./gatewayApiClient";
 
 import type { GatewayError } from "./errors";
-import {
-  type GetStateVersionError,
-  GetStateVersionService,
-} from "./getStateVersion";
+import { GetLedgerStateService } from "./getLedgerState";
 import type {
   ProgrammaticScryptoSborValue,
   StateEntityDetailsResponseItemDetails,
@@ -18,11 +15,7 @@ import type {
 import { EntityNonFungiblesPageService } from "./entityNonFungiblesPage";
 import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
 import { chunker } from "../helpers/chunker";
-
-export class GetEntityDetailsError {
-  readonly _tag = "GetEntityDetailsError";
-  constructor(readonly error: unknown) {}
-}
+import { GetEntityDetailsError } from "./getEntityDetails";
 
 export class EntityNotFoundError {
   readonly _tag = "EntityNotFoundError";
@@ -71,16 +64,15 @@ export class GetNonFungibleBalanceService extends Context.Tag(
   (
     input: StateEntityDetailsInput
   ) => Effect.Effect<
-    { items: GetNonFungibleBalanceOutput; stateVersion: number },
+    { items: GetNonFungibleBalanceOutput },
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
-    | GatewayError
-    | GetStateVersionError,
+    | GatewayError,
     | GatewayApiClientService
     | LoggerService
     | EntityNonFungiblesPageService
-    | GetStateVersionService
+    | GetLedgerStateService
   >
 >() {}
 
@@ -91,7 +83,7 @@ export const GetNonFungibleBalanceLive = Layer.effect(
     const logger = yield* LoggerService;
     const entityNonFungiblesPageService = yield* EntityNonFungiblesPageService;
     const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
-    const getStateVersionService = yield* GetStateVersionService;
+    const getStateVersionService = yield* GetLedgerStateService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -103,14 +95,16 @@ export const GetNonFungibleBalanceLive = Layer.effect(
 
         if (atStateVersionTimestamp) {
           const stateVersionResult = yield* getStateVersionService(
-            atStateVersionTimestamp
-          );
-          atStateVersion = stateVersionResult.stateVersion;
+            input.state
+          ).pipe(Effect.withSpan("getStateVersionService"));
+          atStateVersion = stateVersionResult.state_version;
         }
 
         if (!atStateVersion) {
-          const stateVersionResult = yield* getStateVersionService(new Date());
-          atStateVersion = stateVersionResult.stateVersion;
+          const stateVersionResult = yield* getStateVersionService(
+            input.state
+          ).pipe(Effect.withSpan("getStateVersionService"));
+          atStateVersion = stateVersionResult.state_version;
         }
 
         const chunks = chunker(input.addresses, 20);
@@ -134,22 +128,17 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                 return new GetEntityDetailsError(error);
               },
             })
-          ),
-          {
-            concurrency: 3,
-          }
+          )
         ).pipe(
           Effect.map((results) => {
             const items = results.flatMap((result) => result.items);
 
             return {
               items,
-              ledger_state: results[0].ledger_state,
             };
-          })
+          }),
+          Effect.withSpan("getStateEntityDetails")
         );
-
-        const stateVersion = results.ledger_state.state_version;
 
         return yield* Effect.all(
           results.items.map((result) => {
@@ -172,7 +161,7 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                   aggregation_level: aggregationLevel,
                   opt_ins: optIns,
                   cursor: next_cursor,
-                });
+                }).pipe(Effect.withSpan("entityNonFungiblesPageService"));
 
                 next_cursor = nextBalances.next_cursor;
                 allNonFungibleResources.push(...nextBalances.items);
@@ -218,7 +207,7 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                 const nftData = yield* entityNonFungibleDataService({
                   resource_address: nft.resourceAddress,
                   non_fungible_ids: nft.items,
-                });
+                }).pipe(Effect.withSpan("entityNonFungibleDataService"));
 
                 const items: {
                   id: string;
@@ -252,12 +241,11 @@ export const GetNonFungibleBalanceLive = Layer.effect(
               };
             });
           }),
-          { concurrency: "unbounded" }
+          { concurrency: 20 }
         ).pipe(
           Effect.map((result) => {
             return {
               items: result,
-              stateVersion,
             };
           })
         );

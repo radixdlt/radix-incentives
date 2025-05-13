@@ -35,6 +35,31 @@ import {
 import { AddConsultationToDbLive } from "../consultation/addConsultationToDb";
 import { CreateConsultationMessageLive } from "../consultation/createConsultationMessage";
 import { getConsultationsProgram } from "../programs/getConsulations";
+import { GetVotingPowerAtStateVersionLive } from "../voting-power/getVotingPowerAtStateVersion";
+import { ConvertLsuToXrdLive } from "../../common/staking/convertLsuToXrd";
+import { GetLsulpValueLive } from "../../common/dapps/caviarnine/getLsulpValue";
+import { GetLsulpLive } from "../../common/dapps/caviarnine/getLsulp";
+import { GetUserStakingPositionsLive } from "../../common/staking/getUserStakingPositions";
+import { GetNonFungibleBalanceLive } from "../../common/gateway/getNonFungibleBalance";
+import { EntityNonFungibleDataLive } from "../../common/gateway/entityNonFungiblesData";
+import { EntityNonFungiblesPageLive } from "../../common/gateway/entityNonFungiblesPage";
+import { GetFungibleBalanceLive } from "../../common/gateway/getFungibleBalance";
+import { EntityFungiblesPageLive } from "../../common/gateway/entityFungiblesPage";
+import { GetAllValidatorsLive } from "../../common/gateway/getAllValidators";
+import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
+import { GetEntityDetailsServiceLive } from "../../common/gateway/getEntityDetails";
+import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
+import {
+  getVotingPowerAtStateVersionProgram,
+  type GetVotingPowerAtStateVersionProgramInput,
+} from "../voting-power/getVotingPowerAtStateVersionProgram";
+import { GetWeftFinancePositionsLive } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import { GetRootFinancePositionsLive } from "../../common/dapps/rootFinance/getRootFinancePositions";
+import { GetComponentStateLive } from "../../common/gateway/getComponentState";
+import { GetKeyValueStoreLive } from "../../common/gateway/getKeyValueStore";
+import { KeyValueStoreDataLive } from "../../common/gateway/keyValueStoreData";
+import { KeyValueStoreKeysLive } from "../../common/gateway/keyValueStoreKeys";
+import { AddVotingPowerToDbLive } from "../voting-power/addVotingPowerToDb";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -93,6 +118,161 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const createConsultationMessageLive = CreateConsultationMessageLive;
+
+  const appConfigServiceLive = createAppConfigLive();
+
+  const gatewayApiClientLive = GatewayApiClientLive.pipe(
+    Layer.provide(appConfigServiceLive)
+  );
+
+  const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive)
+  );
+
+  const getLedgerStateLive = GetLedgerStateLive.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+  const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+  const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+  const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
+    Layer.provide(getEntityDetailsServiceLive),
+    Layer.provide(loggerLive),
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive)
+  );
+
+  const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+  const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+  const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
+    Layer.provide(getEntityDetailsServiceLive),
+    Layer.provide(loggerLive),
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(entityNonFungiblesPageServiceLive),
+    Layer.provide(entityNonFungibleDataServiceLive),
+    Layer.provide(getLedgerStateLive)
+  );
+
+  const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive),
+    Layer.provide(stateEntityDetailsLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(entityNonFungiblesPageServiceLive),
+    Layer.provide(entityNonFungibleDataServiceLive),
+    Layer.provide(getNonFungibleBalanceLive),
+    Layer.provide(getAllValidatorsServiceLive)
+  );
+
+  const getLsulpLive = GetLsulpLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive),
+    Layer.provide(stateEntityDetailsLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive)
+  );
+
+  const getLsulpValueLive = GetLsulpValueLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive),
+    Layer.provide(stateEntityDetailsLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive)
+  );
+
+  const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
+    Layer.provide(getEntityDetailsServiceLive),
+    Layer.provide(loggerLive),
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive)
+  );
+
+  const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+    Layer.provide(getEntityDetailsServiceLive),
+    Layer.provide(loggerLive),
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive)
+  );
+
+  const getComponentStateServiceLive = GetComponentStateLive.pipe(
+    Layer.provide(getEntityDetailsServiceLive),
+    Layer.provide(loggerLive),
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(appConfigServiceLive)
+  );
+
+  const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive)
+  );
+
+  const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive)
+  );
+
+  const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(loggerLive),
+    Layer.provide(keyValueStoreDataServiceLive),
+    Layer.provide(keyValueStoreKeysServiceLive)
+  );
+
+  const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
+    Layer.provide(getNonFungibleBalanceLive),
+    Layer.provide(entityNonFungiblesPageServiceLive),
+    Layer.provide(entityFungiblesPageServiceLive),
+    Layer.provide(getEntityDetailsServiceLive),
+    Layer.provide(getFungibleBalanceLive),
+    Layer.provide(getComponentStateServiceLive),
+    Layer.provide(getKeyValueStoreServiceLive)
+  );
+
+  const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
+    Layer.provide(getNonFungibleBalanceLive),
+    Layer.provide(entityNonFungiblesPageServiceLive)
+  );
+
+  const getVotingPowerAtStateVersionLive =
+    GetVotingPowerAtStateVersionLive.pipe(
+      Layer.provide(stateEntityDetailsLive),
+      Layer.provide(entityFungiblesPageServiceLive),
+      Layer.provide(getLedgerStateLive),
+      Layer.provide(entityNonFungiblesPageServiceLive),
+      Layer.provide(entityNonFungibleDataServiceLive),
+      Layer.provide(getNonFungibleBalanceLive),
+      Layer.provide(getAllValidatorsServiceLive),
+      Layer.provide(getUserStakingPositionsLive),
+      Layer.provide(getLsulpLive),
+      Layer.provide(getLsulpValueLive),
+      Layer.provide(convertLsuToXrdLive),
+      Layer.provide(getLsulpValueLive),
+      Layer.provide(getEntityDetailsServiceLive),
+      Layer.provide(getWeftFinancePositionsLive),
+      Layer.provide(getRootFinancePositionLive)
+    );
+
+  const addVotingPowerToDbLive = AddVotingPowerToDbLive.pipe(
+    Layer.provide(dbClientLive)
+  );
 
   const createChallenge = () =>
     Effect.runPromiseExit(
@@ -196,6 +376,40 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getVotingPowerAtStateVersion = (
+    input: GetVotingPowerAtStateVersionProgramInput
+  ) => {
+    const program = Effect.provide(
+      getVotingPowerAtStateVersionProgram(input),
+      Layer.mergeAll(
+        getVotingPowerAtStateVersionLive,
+        gatewayApiClientLive,
+        loggerLive,
+        stateEntityDetailsLive,
+        entityFungiblesPageServiceLive,
+        getLedgerStateLive,
+        entityNonFungiblesPageServiceLive,
+        entityNonFungibleDataServiceLive,
+        getNonFungibleBalanceLive,
+        getAllValidatorsServiceLive,
+        getUserStakingPositionsLive,
+        getLsulpLive,
+        getLsulpValueLive,
+        convertLsuToXrdLive,
+        getEntityDetailsServiceLive,
+        getWeftFinancePositionsLive,
+        getKeyValueStoreServiceLive,
+        keyValueStoreDataServiceLive,
+        keyValueStoreKeysServiceLive,
+        getRootFinancePositionLive,
+        addVotingPowerToDbLive,
+        dbClientLive
+      )
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -205,5 +419,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     signOut,
     verifyConsultationSignature,
     getConsultations,
+    getVotingPowerAtStateVersion,
   };
 };

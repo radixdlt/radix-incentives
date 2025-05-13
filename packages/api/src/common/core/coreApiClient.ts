@@ -10,8 +10,9 @@ export class CoreNodeError {
   constructor(readonly error: unknown) {}
 }
 
-export class MissingBasicAuthError {
-  readonly _tag = "MissingBasicAuthError";
+export class InvalidConfigError {
+  readonly _tag = "InvalidConfigError";
+  constructor(readonly error: unknown) {}
 }
 
 export const retPublicKeyToGatewayPublicKey = (
@@ -39,13 +40,10 @@ type CreateCoreApiClientInput = {
   basicAuth: string;
 };
 
-export const createCoreApiClient = async (
-  input?: Partial<CreateCoreApiClientInput>
-) => {
-  const defaultInput = {
-    basePath:
-      "https://babylon-mainnet-eu-central-1-fullnode1.radixdlt.com/core",
-    logicalNetworkName: "mainnet",
+export const createCoreApiClient = async (input: CreateCoreApiClientInput) => {
+  return await CoreApiClient.initialize({
+    basePath: input.basePath,
+    logicalNetworkName: input.logicalNetworkName,
     advanced: {
       agent: new https.Agent({
         keepAlive: true,
@@ -53,17 +51,15 @@ export const createCoreApiClient = async (
         //   rejectUnauthorized: false,
       }),
       headers: {
-        Authorization: `Basic ${input?.basicAuth}`,
+        Authorization: `Basic ${input.basicAuth}`,
       },
     },
-    ...(input ?? {}),
-  } satisfies CoreApiClientCtor;
-  return await CoreApiClient.initialize(defaultInput);
+  });
 };
 
 export class CoreApiClientService extends Context.Tag("CoreApiClientService")<
   CoreApiClientService,
-  () => Effect.Effect<CoreApiClient, MissingBasicAuthError | CoreNodeError>
+  () => Effect.Effect<CoreApiClient, InvalidConfigError | CoreNodeError>
 >() {}
 
 export const CoreApiClientLive = Layer.effect(
@@ -72,14 +68,33 @@ export const CoreApiClientLive = Layer.effect(
     return () =>
       Effect.gen(function* () {
         const basicAuth = process.env.CORE_NODE_BASIC_AUTH;
+        const basePath = process.env.CORE_NODE_URL;
+        const logicalNetworkName = process.env.CORE_NODE_LOGICAL_NETWORK_NAME;
 
         if (!basicAuth) {
-          return yield* Effect.fail(new MissingBasicAuthError());
+          return yield* Effect.fail(
+            new InvalidConfigError("missing basic auth")
+          );
+        }
+
+        if (!basePath) {
+          return yield* Effect.fail(
+            new InvalidConfigError("missing base path")
+          );
+        }
+
+        if (!logicalNetworkName) {
+          return yield* Effect.fail(
+            new InvalidConfigError("missing logical network name")
+          );
         }
 
         const result = yield* Effect.tryPromise({
-          try: () => createCoreApiClient({ basicAuth }),
-          catch: (error) => new CoreNodeError(error),
+          try: () =>
+            createCoreApiClient({ basicAuth, basePath, logicalNetworkName }),
+          catch: (error) => {
+            return new CoreNodeError(error);
+          },
         });
 
         return result;

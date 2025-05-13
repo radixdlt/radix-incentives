@@ -7,18 +7,11 @@ import {
 } from "./gatewayApiClient";
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
 import type { GatewayError } from "./errors";
-import {
-  type GetStateVersionError,
-  GetStateVersionService,
-} from "./getStateVersion";
+import { GetLedgerStateService } from "./getLedgerState";
 import type { StateEntityDetailsResponseItemDetails } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
-
-export class GetEntityDetailsError {
-  readonly _tag = "GetEntityDetailsError";
-  constructor(readonly error: unknown) {}
-}
+import { GetEntityDetailsError } from "./getEntityDetails";
 
 export class EntityNotFoundError {
   readonly _tag = "EntityNotFoundError";
@@ -61,12 +54,11 @@ export class GetFungibleBalanceService extends Context.Tag(
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
-    | GatewayError
-    | GetStateVersionError,
+    | GatewayError,
     | GatewayApiClientService
     | LoggerService
     | EntityFungiblesPageService
-    | GetStateVersionService
+    | GetLedgerStateService
   >
 >() {}
 
@@ -76,7 +68,7 @@ export const GetFungibleBalanceLive = Layer.effect(
     const gatewayClient = yield* GatewayApiClientService;
     const logger = yield* LoggerService;
     const entityFungiblesPageService = yield* EntityFungiblesPageService;
-    const getStateVersionService = yield* GetStateVersionService;
+    const getStateVersionService = yield* GetLedgerStateService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -85,15 +77,13 @@ export const GetFungibleBalanceLive = Layer.effect(
         const atStateVersionTimestamp = input.state?.timestamp;
 
         if (atStateVersionTimestamp) {
-          const stateVersionResult = yield* getStateVersionService(
-            atStateVersionTimestamp
-          );
-          atStateVersion = stateVersionResult.stateVersion;
+          const stateVersionResult = yield* getStateVersionService(input.state);
+          atStateVersion = stateVersionResult.state_version;
         }
 
         if (!atStateVersion) {
-          const stateVersionResult = yield* getStateVersionService(new Date());
-          atStateVersion = stateVersionResult.stateVersion;
+          const stateVersionResult = yield* getStateVersionService(input.state);
+          atStateVersion = stateVersionResult.state_version;
         }
 
         return yield* Effect.all(

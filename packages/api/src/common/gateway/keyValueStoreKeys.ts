@@ -5,7 +5,6 @@ import {
 } from "./gatewayApiClient";
 import type { StateKeyValueStoreKeysResponse } from "@radixdlt/babylon-gateway-api-sdk";
 import { EntityNotFoundError, GatewayError } from "./errors";
-import type { GatewayError as GatewayErrorType } from "@radixdlt/babylon-gateway-api-sdk";
 
 type KeyValueStoreKeysParams = Parameters<
   GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["keyValueStoreKeys"]

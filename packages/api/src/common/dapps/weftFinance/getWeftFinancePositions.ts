@@ -3,14 +3,10 @@ import { Context, Effect, Layer } from "effect";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { LoggerService } from "../../logger/logger";
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../../gateway/getStateVersion";
+import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayError } from "../../gateway/errors";
 import type {
   EntityNotFoundError,
-  GetEntityDetailsError,
   GetNonFungibleBalanceService,
   InvalidInputError,
   StateEntityDetailsInput,
@@ -29,6 +25,7 @@ import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
 import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
 import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 
 export class FailedToParseLendingPoolSchemaError {
   readonly _tag = "FailedToParseLendingPoolSchemaError";
@@ -64,14 +61,13 @@ export class GetWeftFinancePositionsService extends Context.Tag(
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
-    | GetStateVersionError
     | InvalidComponentStateError
     | FailedToParseLendingPoolSchemaError,
     | GetNonFungibleBalanceService
     | GatewayApiClientService
     | LoggerService
     | EntityFungiblesPageService
-    | GetStateVersionService
+    | GetLedgerStateService
     | EntityNonFungiblesPageService
     | GetKeyValueStoreService
     | KeyValueStoreDataService

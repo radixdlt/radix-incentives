@@ -12,9 +12,9 @@ import {
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { createAppConfigLive } from "../../config/appConfig";
 import {
-  GetStateVersionLive,
-  GetStateVersionService,
-} from "../../gateway/getStateVersion";
+  GetLedgerStateLive,
+  GetLedgerStateService,
+} from "../../gateway/getLedgerState";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { LoggerLive } from "../../logger/logger";
 import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
@@ -47,7 +47,7 @@ const gatewayApiClientLive = GatewayApiClientLive.pipe(
   Layer.provide(appConfigServiceLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -71,7 +71,7 @@ const entityNonFungiblesPageLive = EntityNonFungiblesPageLive.pipe(
 
 const getNonfungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(getStateVersionLive),
+  Layer.provide(getLedgerStateLive),
   Layer.provide(loggerLive),
   Layer.provide(entityNonFungibleDataLive),
   Layer.provide(entityNonFungiblesPageLive)
@@ -102,25 +102,27 @@ describe("getShapeLiquidityAssets", () => {
       Effect.gen(function* () {
         const getShapeLiquidityAssets = yield* GetShapeLiquidityAssetsService;
         const getNonfungibleBalance = yield* GetNonFungibleBalanceService;
-        const getStateVersionService = yield* GetStateVersionService;
+        const getLedgerStateService = yield* GetLedgerStateService;
         const getResourceHoldersService = yield* GetResourceHoldersService;
 
-        const stateVersion = yield* getStateVersionService(new Date());
+        const state = yield* getLedgerStateService({
+          state_version: 286058118,
+        });
+
+        console.log(state);
 
         const resourceHolders = yield* getResourceHoldersService({
           resourceAddress:
             CaviarNineConstants.shapeLiquidityPools[2].liquidity_receipt,
         });
 
-        const addresses = resourceHolders.items.map(
-          (item) => item.holder_address
-        );
+        const addresses = resourceHolders.items
+          .map((item) => item.holder_address)
+          .slice(0, 1);
 
         const nonFungiblesResults = yield* getNonfungibleBalance({
-          addresses: addresses,
-          state: {
-            state_version: stateVersion.stateVersion,
-          },
+          addresses,
+          state,
         });
 
         const nonFungiblesResultItems = nonFungiblesResults.items;
@@ -143,7 +145,7 @@ describe("getShapeLiquidityAssets", () => {
                 nonFungibleLocalId: nft.id,
                 networkId: 1,
                 stateVersion: {
-                  state_version: stateVersion.stateVersion,
+                  state_version: state.state_version,
                   type: "ByStateVersion",
                 },
               });
@@ -153,7 +155,7 @@ describe("getShapeLiquidityAssets", () => {
                   getRedemptionValue({
                     componentAddress: shapeLiquidityPool.componentAddress,
                     nftId: nft.id,
-                    stateVersion: stateVersion.stateVersion,
+                    stateVersion: state.state_version,
                   }),
                 catch: (error) => {
                   console.error(
@@ -161,7 +163,7 @@ describe("getShapeLiquidityAssets", () => {
                     {
                       componentAddress: shapeLiquidityPool.componentAddress,
                       nftId: nft.id,
-                      stateVersion: stateVersion.stateVersion,
+                      stateVersion: state.state_version,
                     },
                     error
                   );
@@ -218,7 +220,7 @@ describe("getShapeLiquidityAssets", () => {
         loggerLive,
         entityNonFungibleDataLive,
         entityNonFungiblesPageLive,
-        getStateVersionLive,
+        getLedgerStateLive,
         getEntityDetailsServiceLive,
         getResourceHoldersLive
       )

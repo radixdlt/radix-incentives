@@ -2,18 +2,17 @@ import { Context, Effect, Layer } from "effect";
 
 import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
 import type { LoggerService } from "../logger/logger";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../gateway/getStateVersion";
+import type { GetLedgerStateService } from "./getLedgerState";
 import type { GatewayError } from "../gateway/errors";
 import type {
   EntityNotFoundError,
-  GetEntityDetailsError,
   InvalidInputError,
   StateEntityDetailsInput,
 } from "../gateway/getNonFungibleBalance";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
+import {
+  type GetEntityDetailsError,
+  GetEntityDetailsService,
+} from "../gateway/getEntityDetails";
 
 import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 
@@ -49,9 +48,8 @@ export class GetComponentStateService extends Context.Tag(
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
-    | GetStateVersionError
     | InvalidComponentStateError,
-    GatewayApiClientService | LoggerService | GetStateVersionService
+    GatewayApiClientService | LoggerService | GetLedgerStateService
   >
 >() {}
 

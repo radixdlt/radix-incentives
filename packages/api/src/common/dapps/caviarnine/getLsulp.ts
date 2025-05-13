@@ -1,7 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import {
   type EntityNotFoundError,
-  type GetEntityDetailsError,
   GetFungibleBalanceService,
   type InvalidInputError,
   type StateEntityDetailsInput,
@@ -11,11 +10,9 @@ import { BigNumber } from "bignumber.js";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { LoggerService } from "../../logger/logger";
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../../gateway/getStateVersion";
+import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayError } from "../../gateway/errors";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 
 export type GetLsulpOutput = {
   address: string;
@@ -35,13 +32,12 @@ export class GetLsulpService extends Context.Tag("GetLsulpService")<
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
-    | GatewayError
-    | GetStateVersionError,
-    | GetFungibleBalanceService
+    | GatewayError,
+    | GetLedgerStateService
     | GatewayApiClientService
     | LoggerService
     | EntityFungiblesPageService
-    | GetStateVersionService
+    | GetLedgerStateService
   >
 >() {}
 

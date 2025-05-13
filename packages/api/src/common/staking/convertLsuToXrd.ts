@@ -1,15 +1,11 @@
-import { Context, Effect, type Either, Layer } from "effect";
+import { Context, Effect, Layer } from "effect";
 import type BigNumber from "bignumber.js";
 import {
   type GetEntityDetailsError,
   GetEntityDetailsService,
-  type GetEntityDetailsState,
 } from "../gateway/getEntityDetails";
-import { LoggerService } from "../logger/logger";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../gateway/getStateVersion";
+import type { GetLedgerStateService } from "../gateway/getLedgerState";
+import type { StateEntityDetailsInput } from "../gateway/getFungibleBalance";
 
 export class InvalidResourceError {
   readonly _tag = "InvalidResourceError";
@@ -35,33 +31,20 @@ export class ConvertLsuToXrdService extends Context.Tag(
 )<
   ConvertLsuToXrdService,
   (input: {
-    items: {
-      lsuResourceAddress: string;
-      amount: BigNumber;
-    }[];
-    stateVersion?: GetEntityDetailsState;
+    addresses: string[];
+    state?: StateEntityDetailsInput["state"];
   }) => Effect.Effect<
-    Either.Either<
-      {
-        validatorAddress: string;
-        lsuResourceAddress: string;
-        lsuAmount: BigNumber;
-        xrdAmount: BigNumber;
-      },
-      | InvalidResourceError
-      | InvalidNativeResourceKindError
-      | InvalidAmountError
-      | GetEntityDetailsError
-      | EntityDetailsNotFoundError
-      | GetStateVersionError
-    >[],
+    {
+      validatorAddress: string;
+      lsuResourceAddress: string;
+      converter: (amount: BigNumber) => BigNumber;
+    }[],
     | InvalidResourceError
     | InvalidNativeResourceKindError
     | InvalidAmountError
     | GetEntityDetailsError
-    | EntityDetailsNotFoundError
-    | GetStateVersionError,
-    GetEntityDetailsService | GetStateVersionService
+    | EntityDetailsNotFoundError,
+    GetEntityDetailsService | GetLedgerStateService
   >
 >() {}
 
@@ -69,33 +52,23 @@ export const ConvertLsuToXrdLive = Layer.effect(
   ConvertLsuToXrdService,
   Effect.gen(function* () {
     const getEntityDetails = yield* GetEntityDetailsService;
-    const logger = yield* LoggerService;
 
     return (input) => {
       return Effect.gen(function* () {
         const entityDetailsResponse = yield* getEntityDetails(
-          input.items.map((item) => item.lsuResourceAddress),
+          input.addresses,
           {
             nativeResourceDetails: true,
           },
-          input.stateVersion
-        );
-
-        const itemMap = new Map(
-          input.items.map((item) => [item.lsuResourceAddress, item])
+          input.state
         );
 
         return yield* Effect.all(
           entityDetailsResponse.map((entityDetails) => {
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            const { amount } = itemMap.get(entityDetails.address)!;
-
             return Effect.gen(function* () {
               if (!entityDetails) {
                 return yield* Effect.fail(new EntityDetailsNotFoundError());
               }
-
-              logger.trace(entityDetails, "getEntityDetails result");
 
               if (entityDetails.details?.type !== "FungibleResource") {
                 return yield* Effect.fail(
@@ -119,7 +92,9 @@ export const ConvertLsuToXrdLive = Layer.effect(
                 entityDetails.details.native_resource_details
                   .unit_redemption_value;
 
-              if (!value?.amount) {
+              const unit_redemption_value = value?.amount;
+
+              if (!unit_redemption_value) {
                 return yield* Effect.fail(new InvalidAmountError("No amount"));
               }
 
@@ -128,12 +103,11 @@ export const ConvertLsuToXrdLive = Layer.effect(
                   entityDetails.details.native_resource_details
                     .validator_address,
                 lsuResourceAddress: entityDetails.address,
-                lsuAmount: amount,
-                xrdAmount: amount.multipliedBy(value.amount),
+                converter: (amount: BigNumber) =>
+                  amount.multipliedBy(unit_redemption_value),
               };
             });
-          }),
-          { mode: "either" }
+          })
         );
       });
     };
