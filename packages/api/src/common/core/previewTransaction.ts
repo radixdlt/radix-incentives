@@ -9,6 +9,7 @@ import type {
   CoreApiClient,
   TransactionPreviewResponse,
 } from "@radixdlt/babylon-core-api-sdk";
+import { object } from "zod";
 
 export type PreviewTransactionInput = Parameters<
   CoreApiClient["transaction"]["innerClient"]["transactionPreviewPost"]
@@ -41,7 +42,9 @@ export const PreviewTransactionLive = Layer.effect(
             client.transaction.innerClient.transactionPreviewPost({
               transactionPreviewRequest: input,
             }),
-          catch: (error) => new CoreNodeError(error),
+          catch: (error) => {
+            return new CoreNodeError(error);
+          },
         });
 
         return result;
