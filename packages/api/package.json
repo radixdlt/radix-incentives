@@ -28,6 +28,7 @@
     "@radixdlt/babylon-gateway-api-sdk": "catalog:",
     "@radixdlt/radix-engine-toolkit": "^1.0.5",
     "@radixdlt/rola": "catalog:",
+    "@stabilis/c9-shape-liquidity-getter": "^1.1.0",
     "@trpc/server": "catalog:",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",

@@ -619,6 +619,9 @@ importers:
       '@radixdlt/rola':
         specifier: 'catalog:'
         version: 2.1.0
+      '@stabilis/c9-shape-liquidity-getter':
+        specifier: ^1.1.0
+        version: 1.1.0
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.2(typescript@5.8.2)
@@ -2704,6 +2707,9 @@ packages:
   '@smithy/util-utf8@4.0.0':
     resolution: {integrity: sha512-b+zebfKCfRdgNJDknHCob3O7FpeYQN6ZG6YLExMcasDHsCXlsXCEuiPZeLnJLpwa5dvPetGlnGCiMHuLwGvFow==}
     engines: {node: '>=18.0.0'}
+
+  '@stabilis/c9-shape-liquidity-getter@1.1.0':
+    resolution: {integrity: sha512-5XOtPmMSWtRtcQfGgYVNw2lfx0dis8EoFxecyxAcEBvwHqYWPz8eUyMIY1/SW4JnOmZkJOWnGlRjdbEo6bJi1A==}
 
   '@standard-schema/spec@1.0.0':
     resolution: {integrity: sha512-m2bOd0f2RT9k8QJx1JN85cZYyH1RqFBdlwtkSlf4tBDYLCiiZnv1fIIwacK6cqwXavOydf0NPToMQgpKq+dVlA==}
@@ -6268,6 +6274,11 @@ snapshots:
     dependencies:
       '@smithy/util-buffer-from': 4.0.0
       tslib: 2.8.1
+
+  '@stabilis/c9-shape-liquidity-getter@1.1.0':
+    dependencies:
+      '@radixdlt/babylon-gateway-api-sdk': 1.10.1
+      decimal.js: 10.4.3
 
   '@standard-schema/spec@1.0.0': {}
 
