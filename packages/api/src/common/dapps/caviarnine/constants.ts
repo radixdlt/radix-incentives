@@ -7,14 +7,16 @@ export const CaviarNineConstants = {
   LSULP: {
     component:
       "component_rdx1cppy08xgra5tv5melsjtj79c0ngvrlmzl8hhs7vwtzknp9xxs63mfp",
-    resourceAddress: Assets.Fungible.LSULP,
+    resourceAddress:
+      "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
   },
   shapeLiquidityPools: [
     {
       name: "LSULP/XRD",
       componentAddress:
         "component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas",
-      token_x: Assets.Fungible.LSULP,
+      token_x:
+        "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
       token_y: Assets.Fungible.XRD,
       liquidity_receipt:
         "resource_rdx1ntrysy2sncpj6t6shjlgsfr55dns9290e2zsy67fwwrp6mywsrrgsc",
