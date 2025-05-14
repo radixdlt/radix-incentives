@@ -1,4 +1,5 @@
 import { Assets } from "../../assets/constants";
+import { CaviarNineConstants } from "../caviarnine/constants";
 
 export const WeftFinance = {
   v1: {
@@ -77,7 +78,10 @@ export const WeftFinance = {
 export const weftFungibleRecourceAddresses = new Map<string, string>([
   [WeftFinance.v1.wXRD.resourceAddress, Assets.Fungible.XRD],
   [WeftFinance.v1.wxUSDC.resourceAddress, Assets.Fungible.xUSDC],
-  [WeftFinance.v1.wLSULP.resourceAddress, Assets.Fungible.LSULP],
+  [
+    WeftFinance.v1.wLSULP.resourceAddress,
+    CaviarNineConstants.LSULP.resourceAddress,
+  ],
   [WeftFinance.v2.w2XRD.resourceAddress, Assets.Fungible.XRD],
   [WeftFinance.v2.w2xUSDC.resourceAddress, Assets.Fungible.xUSDC],
   [WeftFinance.v2.w2xUSDT.resourceAddress, Assets.Fungible.xUSDT],

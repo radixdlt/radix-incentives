@@ -3,7 +3,10 @@ import {
   type GatewayApiClientImpl,
   GatewayApiClientService,
 } from "./gatewayApiClient";
-import type { StateNonFungibleDataResponse } from "@radixdlt/babylon-gateway-api-sdk";
+import {
+  GatewayApiClient,
+  type StateNonFungibleDataResponse,
+} from "@radixdlt/babylon-gateway-api-sdk";
 import { GatewayError } from "./errors";
 
 type EntityNonFungibleDataParams = Parameters<

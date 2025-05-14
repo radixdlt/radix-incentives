@@ -4,12 +4,12 @@ import {
   type GetEntityDetailsError,
   GetEntityDetailsService,
   type GetEntityDetailsState,
-} from "./getEntityDetails";
+} from "../gateway/getEntityDetails";
 import { LoggerService } from "../logger/logger";
 import type {
   GetStateVersionError,
   GetStateVersionService,
-} from "./getStateVersion";
+} from "../gateway/getStateVersion";
 
 export class InvalidResourceError {
   readonly _tag = "InvalidResourceError";

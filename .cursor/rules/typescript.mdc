@@ -18,4 +18,5 @@ alwaysApply: true
 - Make sure unit tests pass
 - All functions should be covered by unit tests
 - Use Effect library to compose functions using pipe
-  
+- when importing modules that only contain types, use import type
+- when importing a mix use inline type

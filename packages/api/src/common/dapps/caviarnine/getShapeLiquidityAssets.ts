@@ -91,6 +91,13 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
         });
 
         if (result.receipt.status !== "Succeeded") {
+          if (
+            result.receipt.error_message?.startsWith(
+              "ApplicationError(NonFungibleResourceManagerError(NonFungibleNotFound(NonFungibleGlobalId"
+            )
+          ) {
+            return { x: new BigNumber(0), y: new BigNumber(0) };
+          }
           return yield* Effect.fail(new TransactionPreviewError(result));
         }
 

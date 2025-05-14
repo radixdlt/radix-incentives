@@ -22,6 +22,7 @@ export class GetAllValidatorsService extends Context.Tag(
       address: string;
       name: string;
       lsuResourceAddress: string;
+      claimNftResourceAddress: string;
     }[],
     GetAllValidatorsError,
     GatewayApiClientService
@@ -44,29 +45,40 @@ export const GetAllValidatorsLive = Layer.effect(
 
         return result.items.map((item) => {
           const address = item.address;
-          const { name, lsuResourceAddress } = item.metadata.items.reduce(
-            (acc, curr) => {
-              if (curr.key === "name" && curr.value.typed.type === "String") {
-                acc.name = curr.value.typed.value;
+          const { name, lsuResourceAddress, claimNftResourceAddress } =
+            item.metadata.items.reduce(
+              (acc, curr) => {
+                if (curr.key === "name" && curr.value.typed.type === "String") {
+                  acc.name = curr.value.typed.value;
+                }
+                if (
+                  curr.key === "pool_unit" &&
+                  curr.value.typed.type === "GlobalAddress"
+                ) {
+                  acc.lsuResourceAddress = curr.value.typed.value;
+                }
+
+                if (
+                  curr.key === "claim_nft" &&
+                  curr.value.typed.type === "GlobalAddress"
+                ) {
+                  acc.claimNftResourceAddress = curr.value.typed.value;
+                }
+
+                return acc;
+              },
+              {
+                name: "",
+                lsuResourceAddress: "",
+                claimNftResourceAddress: "",
               }
-              if (
-                curr.key === "pool_unit" &&
-                curr.value.typed.type === "GlobalAddress"
-              ) {
-                acc.lsuResourceAddress = curr.value.typed.value;
-              }
-              return acc;
-            },
-            {
-              name: "",
-              lsuResourceAddress: "",
-            }
-          );
+            );
 
           return {
             address,
             name,
             lsuResourceAddress,
+            claimNftResourceAddress,
           };
         });
       });
