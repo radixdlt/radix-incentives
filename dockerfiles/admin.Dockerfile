@@ -2,7 +2,7 @@
 FROM node:22.3.0-bullseye-slim AS base
 WORKDIR /app
 
-ENV DATABASE_URL="postgres://postgres:password@localhost:5432/radix-admin"
+ENV DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentives"
 
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"
@@ -38,5 +38,7 @@ WORKDIR /app
 COPY --from=installer /app/apps/ apps
 COPY --from=installer /app/packages/ packages
 COPY --from=installer /app/node_modules/ node_modules
+COPY --from=installer /app/apps/admin/public/ /app/apps/admin/.next/standalone/apps/admin/public
+COPY --from=installer /app/apps/admin/.next/static /app/apps/admin/.next/standalone/apps/admin/.next/static
 
 CMD node apps/admin/.next/standalone/apps/admin/server.js
