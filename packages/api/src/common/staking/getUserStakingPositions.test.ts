@@ -3,7 +3,7 @@ import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
 import { createAppConfigLive } from "../config/appConfig";
 import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive } from "../gateway/getStateVersion";
+import { GetStateVersionLive } from "../gateway/getLedgerState";
 import { GetFungibleBalanceLive } from "../gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../gateway/entityFungiblesPage";
 import {

@@ -1,4 +1,5 @@
 import { type InferSelectModel, relations } from "drizzle-orm";
+import { date } from "drizzle-orm/mysql-core";
 import {
   pgTableCreator,
   timestamp,
@@ -143,8 +144,29 @@ export const consultationsRelations = relations(consultations, ({ one }) => ({
   }),
 }));
 
+export const votingPower = createTable(
+  "voting_power",
+  {
+    timestamp: timestamp("timestamp", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+    accountAddress: varchar("account_address", { length: 255 })
+      .notNull()
+      .references(() => accounts.address, { onDelete: "cascade" }),
+    votingPower: text("voting_power").notNull(),
+    balances: jsonb("balances"),
+  },
+  (vp) => ({
+    compoundKey: primaryKey({ columns: [vp.timestamp, vp.accountAddress] }),
+  })
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
 export type Account = InferSelectModel<typeof accounts>;
 export type Consultation = InferSelectModel<typeof consultations>;
+export type VotingPower = InferSelectModel<typeof votingPower>;

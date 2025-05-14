@@ -3,7 +3,7 @@ import { GatewayApiClientLive } from "./gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "./getEntityDetails";
 import { createAppConfigLive } from "../config/appConfig";
 import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive } from "./getStateVersion";
+import { GetLedgerStateLive } from "./getLedgerState";
 import {
   GetFungibleBalanceService,
   GetFungibleBalanceLive,
@@ -23,7 +23,7 @@ const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(loggerLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -36,7 +36,7 @@ const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
   Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const ACCOUNT_ADDRESSES = [
@@ -67,7 +67,7 @@ describe("GetFungibleBalanceService", () => {
         loggerLive,
         stateEntityDetailsLive,
         entityFungiblesPageServiceLive,
-        getStateVersionLive
+        getLedgerStateLive
       )
     );
 

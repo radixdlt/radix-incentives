@@ -1,15 +1,12 @@
 import { Context, Effect, Layer } from "effect";
 import {
   type EntityNotFoundError,
-  type GetEntityDetailsError,
   type InvalidInputError,
   GetFungibleBalanceService,
+  type StateEntityDetailsInput,
 } from "../../gateway/getFungibleBalance";
 import type { GatewayError } from "../../gateway/errors";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../../gateway/getStateVersion";
+import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { LoggerService } from "../../logger/logger";
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
@@ -19,34 +16,33 @@ import type {
   ProgrammaticScryptoSborValueDecimal,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import { CaviarNineConstants } from "./constants";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 
-class LsulpNotFoundError {
+export class LsulpNotFoundError {
   readonly _tag = "LsulpNotFoundError";
   constructor(readonly error: unknown) {}
 }
 
-class InvalidEntityAddressError {
+export class InvalidEntityAddressError {
   readonly _tag = "InvalidEntityAddressError";
   constructor(readonly error: unknown) {}
 }
 
 export class GetLsulpValueService extends Context.Tag("GetLsulpValueService")<
   GetLsulpValueService,
-  (input: { stateVersion: number }) => Effect.Effect<
+  (input: { state?: StateEntityDetailsInput["state"] }) => Effect.Effect<
     {
       lsulpTotalSupply: BigNumber;
       dexValuationXrd: BigNumber;
       lsulpValue: BigNumber;
-      stateVersion: number;
     },
     | LsulpNotFoundError
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
-    | GetStateVersionError
     | InvalidEntityAddressError,
-    | GetStateVersionService
+    | GetLedgerStateService
     | GatewayApiClientService
     | LoggerService
     | EntityFungiblesPageService
@@ -66,15 +62,13 @@ export const GetLsulpValueLive = Layer.effect(
               CaviarNineConstants.LSULP.component,
               CaviarNineConstants.LSULP.resourceAddress,
             ],
-            state: {
-              state_version: input.stateVersion,
-            },
+            state: input.state,
           });
 
         if (!lsulpResourceResult || !lsulpComponentResult) {
           return yield* Effect.fail(
             new LsulpNotFoundError(
-              `resource or component not found at state version: ${input.stateVersion}`
+              "resource or component not found at state version"
             )
           );
         }
@@ -128,7 +122,6 @@ export const GetLsulpValueLive = Layer.effect(
         const lsulpValue = dexValuationXrd.dividedBy(lsulpTotalSupply);
 
         return {
-          stateVersion: input.stateVersion,
           lsulpTotalSupply,
           dexValuationXrd,
           lsulpValue: lsulpValue.isNaN() ? new BigNumber(0) : lsulpValue,

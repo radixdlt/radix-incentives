@@ -3,11 +3,8 @@ import { GatewayApiClientLive } from "./gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "./getEntityDetails";
 import { createAppConfigLive } from "../config/appConfig";
 import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive } from "./getStateVersion";
-import {
-  GetFungibleBalanceService,
-  GetFungibleBalanceLive,
-} from "./getFungibleBalance";
+import { GetLedgerStateLive } from "./getLedgerState";
+import { GetFungibleBalanceLive } from "./getFungibleBalance";
 import { EntityFungiblesPageLive } from "./entityFungiblesPage";
 import {
   GetKeyValueStoreLive,
@@ -29,7 +26,7 @@ const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(loggerLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -42,7 +39,7 @@ const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
   Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(

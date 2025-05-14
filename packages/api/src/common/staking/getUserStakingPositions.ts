@@ -1,7 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import {
   type EntityNotFoundError,
-  type GetEntityDetailsError,
   GetFungibleBalanceService,
   type InvalidInputError,
   type StateEntityDetailsInput,
@@ -14,17 +13,14 @@ import {
 import { claimNftSchema } from "./schema";
 import { BigNumber } from "bignumber.js";
 import type { GatewayError } from "../gateway/errors";
-import type {
-  GetStateVersionError,
-  GetStateVersionService,
-} from "../gateway/getStateVersion";
+import type { GetLedgerStateService } from "../gateway/getLedgerState";
 import type { LoggerService } from "../logger/logger";
 import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
 import type { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
 import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
+import type { GetEntityDetailsError } from "../gateway/getEntityDetails";
 
 export type UserStakingPositionsOutput = {
-  stateVersion: number;
   items: {
     address: string;
     staked: { resourceAddress: string; amount: BigNumber }[];
@@ -50,13 +46,12 @@ export class GetUserStakingPositionsService extends Context.Tag(
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
-    | GatewayError
-    | GetStateVersionError,
+    | GatewayError,
     | GetNonFungibleBalanceService
     | GetAllValidatorsService
     | GetFungibleBalanceService
     | LoggerService
-    | GetStateVersionService
+    | GetLedgerStateService
     | EntityFungiblesPageService
     | EntityNonFungiblesPageService
     | GatewayApiClientService
@@ -153,7 +148,6 @@ export const GetUserStakingPositionsLive = Layer.effect(
         });
 
         return {
-          stateVersion: nonFungibleBalanceResults.stateVersion,
           items: results,
         };
       });

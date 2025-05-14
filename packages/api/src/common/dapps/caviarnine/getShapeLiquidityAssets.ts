@@ -6,7 +6,7 @@ import {
 import type {
   CoreApiClientService,
   CoreNodeError,
-  MissingBasicAuthError,
+  InvalidConfigError,
 } from "../../core/coreApiClient";
 import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 import type { TransactionPreviewResponse } from "@radixdlt/babylon-core-api-sdk";
@@ -46,7 +46,7 @@ export class GetShapeLiquidityAssetsService extends Context.Tag(
     },
     | TransactionOutputNotFoundError
     | CoreNodeError
-    | MissingBasicAuthError
+    | InvalidConfigError
     | TransactionPreviewError
     | InvalidTransactionOutputError
     | InvalidNetworkError,

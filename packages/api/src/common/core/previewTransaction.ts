@@ -3,13 +3,12 @@ import { Context, Effect, Layer } from "effect";
 import {
   CoreApiClientService,
   CoreNodeError,
-  type MissingBasicAuthError,
+  type InvalidConfigError,
 } from "./coreApiClient";
 import type {
   CoreApiClient,
   TransactionPreviewResponse,
 } from "@radixdlt/babylon-core-api-sdk";
-import { object } from "zod";
 
 export type PreviewTransactionInput = Parameters<
   CoreApiClient["transaction"]["innerClient"]["transactionPreviewPost"]
@@ -23,7 +22,7 @@ export class PreviewTransactionService extends Context.Tag(
     input: PreviewTransactionInput
   ) => Effect.Effect<
     TransactionPreviewResponse,
-    CoreNodeError | MissingBasicAuthError,
+    CoreNodeError | InvalidConfigError,
     CoreApiClientService
   >
 >() {}
@@ -42,9 +41,7 @@ export const PreviewTransactionLive = Layer.effect(
             client.transaction.innerClient.transactionPreviewPost({
               transactionPreviewRequest: input,
             }),
-          catch: (error) => {
-            return new CoreNodeError(error);
-          },
+          catch: (error) => new CoreNodeError(error),
         });
 
         return result;

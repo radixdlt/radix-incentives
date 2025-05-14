@@ -3,7 +3,7 @@ import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { createAppConfigLive } from "../../config/appConfig";
 import { LoggerLive } from "../../logger/logger";
-import { GetStateVersionLive } from "../../gateway/getStateVersion";
+import { GetLedgerStateLive } from "../../gateway/getLedgerState";
 
 import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 
@@ -34,7 +34,7 @@ const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(appConfigServiceLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -55,7 +55,7 @@ const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
   Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
@@ -65,7 +65,7 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const getComponentStateServiceLive = GetComponentStateLive.pipe(
@@ -124,7 +124,7 @@ describe("GetWeftFinancePositionsService", () => {
         getNonFungibleBalanceLive,
         entityFungiblesPageServiceLive,
         entityNonFungiblesPageServiceLive,
-        getStateVersionLive,
+        getLedgerStateLive,
         getEntityDetailsServiceLive,
         getFungibleBalanceLive,
         getComponentStateServiceLive,

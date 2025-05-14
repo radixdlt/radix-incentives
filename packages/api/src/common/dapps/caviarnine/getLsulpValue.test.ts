@@ -1,17 +1,18 @@
 import { Effect, Layer } from "effect";
-import { ConvertLsuToXrdLive } from "../../gateway/convertLsuToXrd";
+
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { createAppConfigLive } from "../../config/appConfig";
 import { LoggerLive } from "../../logger/logger";
 import {
-  GetStateVersionLive,
-  GetStateVersionService,
-} from "../../gateway/getStateVersion";
+  GetLedgerStateLive,
+  GetLedgerStateService,
+} from "../../gateway/getLedgerState";
 import { GetAllValidatorsLive } from "../../gateway/getAllValidators";
 import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 import { GetLsulpValueLive, GetLsulpValueService } from "./getLsulpValue";
+import { ConvertLsuToXrdLive } from "../../staking/convertLsuToXrd";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -31,7 +32,7 @@ const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
   Layer.provide(loggerLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -49,14 +50,14 @@ const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
   Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const getLsulpValueLive = GetLsulpValueLive.pipe(
   Layer.provide(getFungibleBalanceLive),
   Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 describe("GetLsulpValueService", () => {
@@ -64,20 +65,25 @@ describe("GetLsulpValueService", () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getLsulpValue = yield* GetLsulpValueService;
-        const getStateVersion = yield* GetStateVersionService;
+        const getLedgerState = yield* GetLedgerStateService;
 
-        const stateVersion = yield* getStateVersion(
-          new Date("2025-04-01T00:00:00.000Z")
-        );
+        const state = yield* getLedgerState({
+          // timestamp: new Date("2025-04-01T00:00:00.000Z"),
+          state_version: 286058118,
+        });
 
-        return yield* getLsulpValue(stateVersion);
+        console.log(JSON.stringify(state, null, 2));
+
+        return yield* getLsulpValue({
+          state: { state_version: state.state_version },
+        });
       }),
       Layer.mergeAll(
         gatewayApiClientLive,
         loggerLive,
         getFungibleBalanceLive,
         entityFungiblesPageServiceLive,
-        getStateVersionLive,
+        getLedgerStateLive,
         getLsulpValueLive
       )
     );
