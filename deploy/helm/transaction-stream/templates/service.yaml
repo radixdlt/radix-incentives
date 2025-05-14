@@ -1,0 +1,34 @@
+{{- if .Values.metrics.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "incentives-transaction-stream.fullname" . }}-metrics
+  labels:
+    {{- include "incentives-transaction-stream.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.metrics.port }}
+    name: metrics
+    targetPort: {{ .Values.metrics.port }}
+  selector:
+    {{- include "incentives-transaction-stream.selectorLabels" . | nindent 4 }}
+{{- end }}
+{{- if .Values.pm2_metrics.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "incentives-transaction-stream.fullname" . }}-pm2-metrics
+  labels:
+    {{- include "incentives-transaction-stream.labels" . | nindent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.pm2_metrics.port }}
+    name: pm2-metrics
+    targetPort: {{ .Values.pm2_metrics.port }}
+  selector:
+    {{- include "incentives-transaction-stream.selectorLabels" . | nindent 4 }}
+{{- end }}

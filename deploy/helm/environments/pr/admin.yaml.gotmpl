@@ -1,0 +1,36 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  PORT: 3000
+  PUBLIC_INCENTIVES_API_URL: https://incentives-pr-{{ .StateValues.ci.prNumber }}.rdx-works-main.extratools.works
+  PUBLIC_LOG_LEVEL: debug
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public"
+  RO_DATABASE_URL: postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public
+  JWT_SECRET: FkaGHXoq32rYBcEHwAn2rkhawtUCe4sE
+
+secrets:
+
+ingress:
+  enabled: true
+  className: nginx-internal
+  annotations:
+    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
+  hosts:
+    - host: incentives-admin-pr-{{ .StateValues.ci.prNumber }}.rdx-works-main.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
