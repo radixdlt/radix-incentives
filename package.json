@@ -3,17 +3,20 @@
   "private": true,
   "scripts": {
     "dev": "turbo run dev",
+    "dev:streamer": "turbo run dev --filter=streamer --filter=db",
     "build": "turbo run build",
     "test": "turbo run test",
     "format": "biome format --write ./packages/**/**/*.ts",
     "lint": "biome lint --write ./packages/**/**/*.ts",
     "check-types": "biome check --write ./packages/**/**/*.ts",
     "db:start": "docker compose -f docker-compose.yml up -d",
-    "db:generate": "turbo run db:generate:incentives db:generate:consultation",
-    "db:migrate": "turbo run db:migrate:incentives db:migrate:consultation",
-    "db:studio": "turbo run db:studio:incentives db:studio:consultation",
-    "db:push": "turbo run db:push:incentives db:push:consultation",
-    "db:create": "./postgres-init/init-db.sh"
+    "db:generate": "turbo run db:generate:incentives",
+    "db:migrate": "turbo run db:migrate:incentives",
+    "db:migrate:consultation": "turbo run db:migrate:consultation",
+    "db:studio": "turbo run db:studio:incentives",
+    "db:push": "turbo run db:push:incentives",
+    "db:create": "./postgres-init/init-db.sh",
+    "db:reset": "./packages/db/scripts/reset.sh"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
