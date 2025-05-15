@@ -24,9 +24,8 @@ secrets:
 
 ingress:
   enabled: true
-  className: nginx-internal
+  className: nginx
   annotations:
-    external-dns.alpha.kubernetes.io/cloudflare-proxied: "false"
     nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
     nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
   hosts:
