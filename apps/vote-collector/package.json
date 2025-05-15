@@ -6,10 +6,12 @@
     "build": "tsup"
   },
   "dependencies": {
+    "@calamari-radix/sbor-ez-mode": "catalog:",
     "api": "workspace:*",
-    "effect": "catalog:",
+    "csv-writer": "^1.6.0",
     "db": "workspace:*",
-    "@calamari-radix/sbor-ez-mode": "catalog:"
+    "effect": "catalog:",
+    "pg": "^8.16.0"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
