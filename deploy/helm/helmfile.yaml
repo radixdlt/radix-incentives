@@ -54,8 +54,8 @@ releases:
   - name: redis
     chart: bitnami/redis
     version: 18.6.4
-    installed: {{ eq .Environment.Name "pr" }}
-    values:
+    installed: {{ or (eq .Environment.Name "pr") (eq .Environment.Name "dev") }}
+      values:
       - environments/{{ .Environment.Name }}/redis.yaml
 
   - name: developer-access
