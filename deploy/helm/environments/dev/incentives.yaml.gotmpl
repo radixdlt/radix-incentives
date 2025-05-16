@@ -1,7 +1,7 @@
 image: 
-    tag: {{ .StateValues.ci.tag }}
+  tag: {{ .StateValues.ci.tag }}
 
-enable_db_migrations: false
+enable_db_migrations: true
 
 params:
   REDIS_HOST: "redis-master"
