@@ -1,7 +1,7 @@
 import { Exit, Effect } from "effect";
 import { createDependencyLayer } from "api/consultation";
 import { db } from "db/consultation";
-import { accounts } from "./accounts";
+import { accounts } from "./consultation_accounts";
 import { Client } from 'pg'
 import { createObjectCsvWriter as csvWriter } from 'csv-writer';
 
@@ -41,15 +41,17 @@ const main = async () => {
       header: [
         { id: 'account_address', title: 'Account Address' },
         { id: 'time_weighted_average', title: 'Time Weighted Average' },
-        { id: 'selected_option', title: 'Selected Option' }
+        { id: 'selected_option', title: 'Selected Option' },
+        { id: 'rola_proof', title: 'Rola Proof' }
       ]
     });
 
     const records = timeWeightedAverageResult.rows.map((row:
-      { account_address: any; time_weighted_average: any; selected_option: any; }) => ({
+      { account_address: any; time_weighted_average: any; selected_option: any; rola_proof: any; }) => ({
         account_address: row.account_address,
-        time_weighted_average: row.time_weighted_average,
-        selected_option: row.selected_option
+        time_weighted_average: parseFloat(Number(row.time_weighted_average).toFixed(2)),
+        selected_option: row.selected_option,
+        rola_proof: row.rola_proof
       }));
 
     await csvWriterInstance.writeRecords(records);
@@ -63,7 +65,9 @@ const main = async () => {
         const account = accounts.find(acc => acc.account_address === record.accountAddress);
         return {
           ...record,
-          selected_option: account ? account.selected_option : null
+          selected_option: account ? account.selected_option : null,
+          rola_proof: account ? account.rola_proof : null
+
         };
       });
     });
@@ -82,15 +86,16 @@ const main = async () => {
           balances JSONB,
           timestamp TIMESTAMP,
           selected_option VARCHAR(255),
-          PRIMARY KEY (account_address, timestamp)
+          PRIMARY KEY (account_address, timestamp),
+          rola_proof VARCHAR(255)
         );
       `;
 
       await client.query(createTableQuery);
 
       const insertQuery = `
-        INSERT INTO voting_power_results (account_address, voting_power, balances, timestamp, selected_option)
-        VALUES ($1, $2, $3, $4, $5)
+        INSERT INTO voting_power_results (account_address, voting_power, balances, timestamp, selected_option,rola_proof)
+        VALUES ($1, $2, $3, $4, $5,$6)
         ON CONFLICT (account_address, timestamp) DO UPDATE
         SET voting_power = EXCLUDED.voting_power,
             balances = EXCLUDED.balances;
@@ -103,7 +108,8 @@ const main = async () => {
             record.votingPower,
             JSON.stringify(record.balances),
             record.timestamp,
-            record.selected_option
+            record.selected_option,
+            record.rola_proof
           ]);
         }
       }
@@ -120,17 +126,18 @@ const main = async () => {
               account_address,
               voting_power,
               selected_option,
+              rola_proof,
               EXTRACT(EPOCH FROM (LEAD(timestamp, 1, NOW()) OVER (PARTITION BY account_address ORDER BY timestamp) - timestamp)) AS interval_seconds
             FROM 
               voting_power_results
           )
           SELECT 
-            account_address, selected_option,
+            account_address, selected_option,rola_proof,
             SUM(voting_power * interval_seconds) / SUM(interval_seconds) AS time_weighted_average
           FROM 
             intervals
           GROUP BY 
-            account_address,selected_option;
+            account_address,selected_option,rola_proof;
     `;
 
     try {
@@ -141,9 +148,6 @@ const main = async () => {
     }
 
     await client.end();
-
-
-    // if failure report the error and exit
 
 
   }
