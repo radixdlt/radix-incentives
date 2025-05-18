@@ -2,6 +2,8 @@ import { Effect } from "effect";
 
 import { GetVotingPowerAtStateVersionService } from "./getVotingPowerAtStateVersion";
 import { getDatesBetweenIntervals } from "../../common/helpers/getDatesBetweenIntervals";
+import { insertResult } from "./insertResults"; // or inject as a service
+
 
 export type GetVotingPowerAtStateVersionProgramInput = {
   startDate: Date;
@@ -31,6 +33,17 @@ export const getVotingPowerAtStateVersionProgram = (
           addresses: input.addresses,
           state: { timestamp: date },
         });
+
+
+        // For each record, insert immediately
+        yield* Effect.forEach(result, (item) =>
+          insertResult({
+            accountAddress: item.address,
+            votingPower: item.votingPower.toString(),
+            balances: item.balances,
+            timestamp: date,
+          })
+        );
 
         return result.map((item) => ({
           accountAddress: item.address,

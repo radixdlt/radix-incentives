@@ -35,6 +35,7 @@
     "effect": "catalog:",
     "ioredis": "catalog:",
     "jose": "catalog:",
+    "pg": "^8.16.0",
     "pino": "catalog:",
     "radix-connect": "catalog:",
     "radix-transaction-stream": "catalog:",
@@ -45,6 +46,7 @@
   "devDependencies": {
     "@effect/vitest": "^0.20.10",
     "@types/aws-lambda": "catalog:",
+    "@types/pg": "^8.15.2",
     "tsup": "catalog:",
     "vitest": "catalog:"
   },
