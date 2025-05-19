@@ -17,6 +17,7 @@ import type {
 } from "@radixdlt/babylon-gateway-api-sdk";
 import { CaviarNineConstants } from "./constants";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
+import type { AtLedgerState } from "../../gateway/schemas";
 
 export class LsulpNotFoundError {
   readonly _tag = "LsulpNotFoundError";
@@ -30,7 +31,7 @@ export class InvalidEntityAddressError {
 
 export class GetLsulpValueService extends Context.Tag("GetLsulpValueService")<
   GetLsulpValueService,
-  (input: { state?: StateEntityDetailsInput["state"] }) => Effect.Effect<
+  (input: { at_ledger_state: AtLedgerState }) => Effect.Effect<
     {
       lsulpTotalSupply: BigNumber;
       dexValuationXrd: BigNumber;
@@ -62,7 +63,7 @@ export const GetLsulpValueLive = Layer.effect(
               CaviarNineConstants.LSULP.component,
               CaviarNineConstants.LSULP.resourceAddress,
             ],
-            state: input.state,
+            at_ledger_state: input.at_ledger_state,
           });
 
         if (!lsulpResourceResult || !lsulpComponentResult) {

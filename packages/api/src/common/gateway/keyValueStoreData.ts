@@ -6,6 +6,7 @@ import {
 import type { StateKeyValueStoreDataResponse } from "@radixdlt/babylon-gateway-api-sdk";
 import { GatewayError } from "./errors";
 import type { GatewayError as GatewayErrorType } from "@radixdlt/babylon-gateway-api-sdk";
+import type { AtLedgerState } from "./schemas";
 
 type KeyValueStoreDataParams = Parameters<
   GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["keyValueStoreData"]
@@ -16,7 +17,9 @@ export class KeyValueStoreDataService extends Context.Tag(
 )<
   KeyValueStoreDataService,
   (
-    input: KeyValueStoreDataParams
+    input: Omit<KeyValueStoreDataParams, "at_ledger_state"> & {
+      at_ledger_state: AtLedgerState;
+    }
   ) => Effect.Effect<
     StateKeyValueStoreDataResponse,
     GatewayError,

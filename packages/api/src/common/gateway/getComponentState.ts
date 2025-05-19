@@ -7,7 +7,6 @@ import type { GatewayError } from "../gateway/errors";
 import type {
   EntityNotFoundError,
   InvalidInputError,
-  StateEntityDetailsInput,
 } from "../gateway/getNonFungibleBalance";
 import {
   type GetEntityDetailsError,
@@ -21,6 +20,7 @@ import type {
   StructDefinition,
   StructSchema,
 } from "@calamari-radix/sbor-ez-mode/dist/schemas/struct";
+import type { AtLedgerState } from "./schemas";
 
 export class InvalidComponentStateError {
   readonly _tag = "InvalidComponentStateError";
@@ -33,8 +33,8 @@ export class GetComponentStateService extends Context.Tag(
   GetComponentStateService,
   <T extends StructDefinition, R extends boolean>(input: {
     addresses: string[];
-    stateVersion?: StateEntityDetailsInput["state"];
     schema: StructSchema<T, R>;
+    at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     {
       address: string;
@@ -60,14 +60,14 @@ export const GetComponentStateLive = Layer.effect(
 
     return <T extends StructDefinition, R extends boolean>(input: {
       addresses: string[];
-      stateVersion?: StateEntityDetailsInput["state"];
+      at_ledger_state: AtLedgerState;
       schema: StructSchema<T, R>;
     }) => {
       return Effect.gen(function* () {
         const entityDetails = yield* getEntityDetailsService(
           input.addresses,
           {},
-          input.stateVersion
+          input.at_ledger_state
         );
 
         const results: {

@@ -5,6 +5,7 @@ import {
 } from "./gatewayApiClient";
 import type { StateEntityFungiblesPageResponse } from "@radixdlt/babylon-gateway-api-sdk";
 import { GatewayError } from "./errors";
+import type { AtLedgerState } from "./schemas";
 
 type EntityFungiblesPageParams = Parameters<
   GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["entityFungiblesPage"]
@@ -15,7 +16,9 @@ export class EntityFungiblesPageService extends Context.Tag(
 )<
   EntityFungiblesPageService,
   (
-    input: EntityFungiblesPageParams
+    input: Omit<EntityFungiblesPageParams, "at_ledger_state"> & {
+      at_ledger_state: AtLedgerState;
+    }
   ) => Effect.Effect<
     StateEntityFungiblesPageResponse,
     GatewayError,

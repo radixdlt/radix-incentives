@@ -3,7 +3,6 @@ import {
   type EntityNotFoundError,
   GetFungibleBalanceService,
   type InvalidInputError,
-  type StateEntityDetailsInput,
 } from "../../gateway/getFungibleBalance";
 import { CaviarNineConstants } from "./constants";
 import { BigNumber } from "bignumber.js";
@@ -13,6 +12,7 @@ import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPa
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayError } from "../../gateway/errors";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
+import type { AtLedgerState } from "../../gateway/schemas";
 
 export type GetLsulpOutput = {
   address: string;
@@ -25,7 +25,7 @@ export type GetLsulpOutput = {
 export class GetLsulpService extends Context.Tag("GetLsulpService")<
   GetLsulpService,
   (input: {
-    state?: StateEntityDetailsInput["state"];
+    at_ledger_state: AtLedgerState;
     addresses: string[];
   }) => Effect.Effect<
     GetLsulpOutput,

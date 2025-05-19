@@ -7,11 +7,12 @@ import {
 } from "./gatewayApiClient";
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
 import type { GatewayError } from "./errors";
-import { GetLedgerStateService } from "./getLedgerState";
+import type { GetLedgerStateService } from "./getLedgerState";
 import type { StateEntityDetailsResponseItemDetails } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
 import { GetEntityDetailsError } from "./getEntityDetails";
+import type { AtLedgerState } from "./schemas";
 
 export class EntityNotFoundError {
   readonly _tag = "EntityNotFoundError";
@@ -31,10 +32,7 @@ type StateEntityDetailsOptionsParams = StateEntityDetailsParams["opt_ins"];
 export type StateEntityDetailsInput = {
   addresses: string[];
   options?: StateEntityDetailsOptionsParams;
-  state?: {
-    timestamp?: Date;
-    state_version?: number;
-  };
+  at_ledger_state: AtLedgerState;
 };
 
 export class GetFungibleBalanceService extends Context.Tag(
@@ -68,23 +66,10 @@ export const GetFungibleBalanceLive = Layer.effect(
     const gatewayClient = yield* GatewayApiClientService;
     const logger = yield* LoggerService;
     const entityFungiblesPageService = yield* EntityFungiblesPageService;
-    const getStateVersionService = yield* GetLedgerStateService;
 
     return (input) => {
       return Effect.gen(function* () {
         const aggregationLevel = "Global";
-        let atStateVersion = input.state?.state_version;
-        const atStateVersionTimestamp = input.state?.timestamp;
-
-        if (atStateVersionTimestamp) {
-          const stateVersionResult = yield* getStateVersionService(input.state);
-          atStateVersion = stateVersionResult.state_version;
-        }
-
-        if (!atStateVersion) {
-          const stateVersionResult = yield* getStateVersionService(input.state);
-          atStateVersion = stateVersionResult.state_version;
-        }
 
         return yield* Effect.all(
           chunker(input.addresses, 20).map((chunk) =>
@@ -96,7 +81,7 @@ export const GetFungibleBalanceLive = Layer.effect(
                       stateEntityDetailsRequest: {
                         addresses: chunk,
                         opt_ins: input.options,
-                        at_ledger_state: { state_version: atStateVersion },
+                        at_ledger_state: input.at_ledger_state,
                         aggregation_level: aggregationLevel,
                       },
                     }
@@ -126,7 +111,7 @@ export const GetFungibleBalanceLive = Layer.effect(
                         address,
                         aggregation_level: aggregationLevel,
                         cursor: nextCursor,
-                        at_ledger_state: { state_version: atStateVersion },
+                        at_ledger_state: input.at_ledger_state,
                       });
                       nextCursor = result.next_cursor;
                       allFungibleResources.push(...result.items);

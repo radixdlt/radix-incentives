@@ -29,7 +29,7 @@ export const getVotingPowerAtStateVersionProgram = (
         yield* Effect.log(`getting voting power for ${date.toISOString()}`);
         const result = yield* getVotingPowerAtStateVersion({
           addresses: input.addresses,
-          state: { timestamp: date },
+          at_ledger_state: { timestamp: date },
         });
 
         return result.map((item) => ({

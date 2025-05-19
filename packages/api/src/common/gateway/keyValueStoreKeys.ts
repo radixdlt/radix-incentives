@@ -5,6 +5,7 @@ import {
 } from "./gatewayApiClient";
 import type { StateKeyValueStoreKeysResponse } from "@radixdlt/babylon-gateway-api-sdk";
 import { EntityNotFoundError, GatewayError } from "./errors";
+import type { AtLedgerState } from "./schemas";
 
 type KeyValueStoreKeysParams = Parameters<
   GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["keyValueStoreKeys"]
@@ -15,7 +16,9 @@ export class KeyValueStoreKeysService extends Context.Tag(
 )<
   KeyValueStoreKeysService,
   (
-    input: KeyValueStoreKeysParams
+    input: Omit<KeyValueStoreKeysParams, "at_ledger_state"> & {
+      at_ledger_state: AtLedgerState;
+    }
   ) => Effect.Effect<
     StateKeyValueStoreKeysResponse,
     GatewayError | EntityNotFoundError,

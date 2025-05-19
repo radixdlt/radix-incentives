@@ -4,6 +4,7 @@ import {
   GatewayApiClientService,
 } from "../gateway/gatewayApiClient";
 import { LoggerService } from "../logger/logger";
+import type { AtLedgerState } from "./schemas";
 
 export class GetEntityDetailsError {
   readonly _tag = "GetEntityDetailsError";
@@ -30,7 +31,7 @@ export class GetEntityDetailsService extends Context.Tag(
   (
     input: GetEntityDetailsInput,
     options: GetEntityDetailsOptions,
-    state?: GetEntityDetailsState
+    at_ledger_state: AtLedgerState
   ) => Effect.Effect<GetEntityDetailsResult, GetEntityDetailsError, never>
 >() {}
 

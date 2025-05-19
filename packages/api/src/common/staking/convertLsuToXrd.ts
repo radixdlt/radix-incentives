@@ -5,7 +5,7 @@ import {
   GetEntityDetailsService,
 } from "../gateway/getEntityDetails";
 import type { GetLedgerStateService } from "../gateway/getLedgerState";
-import type { StateEntityDetailsInput } from "../gateway/getFungibleBalance";
+import type { AtLedgerState } from "../gateway/schemas";
 
 export class InvalidResourceError {
   readonly _tag = "InvalidResourceError";
@@ -32,7 +32,7 @@ export class ConvertLsuToXrdService extends Context.Tag(
   ConvertLsuToXrdService,
   (input: {
     addresses: string[];
-    state?: StateEntityDetailsInput["state"];
+    at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     {
       validatorAddress: string;
@@ -60,7 +60,7 @@ export const ConvertLsuToXrdLive = Layer.effect(
           {
             nativeResourceDetails: true,
           },
-          input.state
+          input.at_ledger_state
         );
 
         return yield* Effect.all(

@@ -112,7 +112,7 @@ describe("GetWeftFinancePositionsService", () => {
           accountAddresses: [
             "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
           ],
-          stateVersion: {
+          at_ledger_state: {
             timestamp: new Date(),
           },
         });
