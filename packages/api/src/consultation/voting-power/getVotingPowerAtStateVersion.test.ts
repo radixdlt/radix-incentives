@@ -211,8 +211,8 @@ describe("calculateVotingPower", () => {
 
         return yield* getVotingPowerAtStateVersionService({
           addresses: addresses,
-          state: {
-            timestamp: new Date(),
+          at_ledger_state: {
+            timestamp: new Date("2025-05-01T00:00:00.000Z"),
           },
         }).pipe(Effect.withSpan("getVotingPowerAtStateVersionService"));
       }),

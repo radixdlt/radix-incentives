@@ -68,7 +68,7 @@ describe("GetKeyValueStoreService", () => {
         return yield* getKeyValueStore({
           address:
             "internal_keyvaluestore_rdx1kzjr763caq96j0kv883vy8gnf3jvrrp7dfm9zr5n0akryvzsxvyujc",
-          stateVersion: {
+          at_ledger_state: {
             timestamp: new Date("2025-01-01T00:00:00.000Z"),
           },
         });

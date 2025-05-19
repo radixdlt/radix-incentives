@@ -69,13 +69,17 @@ describe("GetLsulpValueService", () => {
 
         const state = yield* getLedgerState({
           // timestamp: new Date("2025-04-01T00:00:00.000Z"),
-          state_version: 286058118,
+          at_ledger_state: {
+            state_version: 286058118,
+          },
         });
 
         console.log(JSON.stringify(state, null, 2));
 
         return yield* getLsulpValue({
-          state: { state_version: state.state_version },
+          at_ledger_state: {
+            state_version: state.state_version,
+          },
         });
       }),
       Layer.mergeAll(

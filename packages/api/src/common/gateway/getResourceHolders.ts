@@ -9,7 +9,6 @@ export class GetResourceHoldersService extends Context.Tag(
   GetResourceHoldersService,
   (input: {
     resourceAddress: string;
-
     cursor?: string;
   }) => Effect.Effect<
     ResourceHoldersResponse,

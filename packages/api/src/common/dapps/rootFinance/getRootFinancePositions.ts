@@ -17,6 +17,7 @@ import { RootFinance } from "./constants";
 import { CollaterizedDebtPositionData } from "./schema";
 import type { SborError } from "@calamari-radix/sbor-ez-mode";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
+import type { AtLedgerState } from "../../gateway/schemas";
 
 export class ParseSborError {
   readonly _tag = "ParseSborError";
@@ -54,7 +55,7 @@ export class GetRootFinancePositionsService extends Context.Tag(
   GetRootFinancePositionsService,
   (input: {
     accountAddresses: string[];
-    stateVersion?: StateEntityDetailsInput["state"];
+    at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     GetRootFinancePositionsServiceOutput,
     | GetEntityDetailsError
@@ -90,7 +91,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
       return Effect.gen(function* () {
         const result = yield* getNonFungibleBalanceService({
           addresses: input.accountAddresses,
-          state: input.stateVersion,
+          at_ledger_state: input.at_ledger_state,
           options: {
             non_fungible_include_nfids: true,
           },
