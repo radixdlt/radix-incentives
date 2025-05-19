@@ -1,15 +1,15 @@
 import { Effect, Either, Layer } from "effect";
 import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from "./convertLsuToXrd";
-import { GatewayApiClientLive } from "./gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "./getEntityDetails";
+import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
+import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
 import { createAppConfigLive } from "../config/appConfig";
 import { BigNumber } from "bignumber.js";
 import { LoggerLive, LoggerService } from "../logger/logger";
-import { GetStateVersionLive } from "./getStateVersion";
+import { GetLedgerStateLive } from "../gateway/getLedgerState";
 import {
   GetAllValidatorsLive,
   GetAllValidatorsService,
-} from "./getAllValidators";
+} from "../gateway/getAllValidators";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -29,7 +29,7 @@ const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
   Layer.provide(loggerLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getStateVersionLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -51,11 +51,8 @@ describe("ConvertLsuToXrdService", () => {
         const validators = yield* getAllValidators();
 
         return yield* convertLsuToXrd({
-          items: validators.map((validator) => ({
-            lsuResourceAddress: validator.lsuResourceAddress,
-            amount: lsuAmount,
-          })),
-          stateVersion: {
+          addresses: [],
+          at_ledger_state: {
             timestamp: new Date("2025-01-01T00:00:00Z"),
           },
         });
@@ -72,11 +69,7 @@ describe("ConvertLsuToXrdService", () => {
 
     const result = await Effect.runPromise(program);
 
-    const successResponses = result
-      .filter(Either.isRight)
-      .map((response) => response.right);
-
-    console.log(successResponses);
+    console.log(result);
 
     // expect(lsuAmount.lt(result)).toBe(true);
   });

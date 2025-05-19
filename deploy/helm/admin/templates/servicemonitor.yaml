@@ -1,0 +1,38 @@
+{{- if .Values.metrics.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "incentives-admin.serviceAccountName" . }}-metrics
+  labels:
+    release: prometheus-operator
+    {{- include "incentives-admin.labels" . | nindent 4 }}
+spec:
+  endpoints:
+  - port: metrics
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace | quote }}
+  selector:
+    matchLabels:
+      {{- include "incentives-admin.selectorLabels" . | nindent 6 }}
+{{- end }}
+{{- if .Values.pm2_metrics.enabled }}
+---
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "incentives-admin.serviceAccountName" . }}-pm2-metrics
+  labels:
+    release: prometheus-operator
+    {{- include "incentives-admin.labels" . | nindent 4 }}
+spec:
+  endpoints:
+  - port: pm2-metrics
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace | quote }}
+  selector:
+    matchLabels:
+      {{- include "incentives-admin.selectorLabels" . | nindent 6 }}
+{{- end }}

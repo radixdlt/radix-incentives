@@ -106,7 +106,9 @@ describe("getShapeLiquidityAssets", () => {
         const getResourceHoldersService = yield* GetResourceHoldersService;
 
         const state = yield* getLedgerStateService({
-          state_version: 286058118,
+          at_ledger_state: {
+            state_version: 286058118,
+          },
         });
 
         console.log(state);
@@ -122,7 +124,9 @@ describe("getShapeLiquidityAssets", () => {
 
         const nonFungiblesResults = yield* getNonfungibleBalance({
           addresses,
-          state,
+          at_ledger_state: {
+            state_version: 286058118,
+          },
         });
 
         const nonFungiblesResultItems = nonFungiblesResults.items;

@@ -1,14 +1,15 @@
 import { Context, Effect, Layer } from "effect";
 import { GatewayApiClientService } from "./gatewayApiClient";
 import { GatewayError } from "./errors";
-import type { StateEntityDetailsInput } from "./getFungibleBalance";
+
 import type { LedgerState } from "@radixdlt/babylon-gateway-api-sdk";
+import type { AtLedgerState } from "./schemas";
 
 export class GetLedgerStateService extends Context.Tag("GetLedgerStateService")<
   GetLedgerStateService,
-  (
-    input: StateEntityDetailsInput["state"]
-  ) => Effect.Effect<LedgerState, GatewayError, GatewayApiClientService>
+  (input: {
+    at_ledger_state: AtLedgerState;
+  }) => Effect.Effect<LedgerState, GatewayError, GatewayApiClientService>
 >() {}
 
 export const GetLedgerStateLive = Layer.effect(
@@ -24,7 +25,7 @@ export const GetLedgerStateLive = Layer.effect(
               {
                 streamTransactionsRequest: {
                   limit_per_page: 1,
-                  at_ledger_state: input,
+                  at_ledger_state: input.at_ledger_state,
                 },
               }
             ),

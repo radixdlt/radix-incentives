@@ -3,7 +3,6 @@ import {
   type EntityNotFoundError,
   GetFungibleBalanceService,
   type InvalidInputError,
-  type StateEntityDetailsInput,
 } from "../gateway/getFungibleBalance";
 import { GetNonFungibleBalanceService } from "../gateway/getNonFungibleBalance";
 import {
@@ -19,6 +18,7 @@ import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage"
 import type { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
 import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
 import type { GetEntityDetailsError } from "../gateway/getEntityDetails";
+import type { AtLedgerState } from "../gateway/schemas";
 
 export type UserStakingPositionsOutput = {
   items: {
@@ -39,7 +39,7 @@ export class GetUserStakingPositionsService extends Context.Tag(
   GetUserStakingPositionsService,
   (input: {
     addresses: string[];
-    state?: StateEntityDetailsInput["state"];
+    at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     UserStakingPositionsOutput,
     | GetAllValidatorsError
@@ -79,12 +79,12 @@ export const GetUserStakingPositionsLive = Layer.effect(
 
         const nonFungibleBalanceResults = yield* getNonFungibleBalanceService({
           addresses: input.addresses,
-          state: input.state,
+          at_ledger_state: input.at_ledger_state,
         }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
         const fungibleBalanceResults = yield* getFungibleBalanceService({
           addresses: input.addresses,
-          state: input.state,
+          at_ledger_state: input.at_ledger_state,
         }).pipe(Effect.withSpan("getFungibleBalanceService"));
 
         const staked = fungibleBalanceResults.map((item) => {

@@ -1,0 +1,72 @@
+environments:
+  dev: {}
+  pr: {}
+---
+helmDefaults:
+  verify: false
+  wait: true
+  timeout: 300
+  recreatePods: false
+  force: false
+  createNamespace: false
+repositories:
+  - name: bitnami
+    url: https://charts.bitnami.com/bitnami
+  - name: rdx-works
+    url: https://raw.githubusercontent.com/radixdlt/helm-charts/master/
+    username: {{ requiredEnv "HELM_GH_USER" }}
+    password: {{ requiredEnv "HELM_GH_PASS" }}
+  - name: kubesphere 
+    url: https://charts.kubesphere.io/main
+releases:
+  - name: incentives
+    chart: ./incentives
+    values:
+      - environments/{{ .Environment.Name }}/incentives.yaml.gotmpl
+
+  - name: admin
+    chart: ./admin
+    values:
+      - environments/{{ .Environment.Name }}/admin.yaml.gotmpl
+      
+  # - name: transaction-stream
+  #   chart: ./transaction-stream
+  #   values:
+  #     - environments/{{ .Environment.Name }}/transaction-stream.yaml.gotmpl
+
+  # - name: worker
+  #   chart: ./worker
+  #   values:
+  #     - environments/{{ .Environment.Name }}/worker.yaml.gotmpl
+
+  - name: postgres
+    chart: bitnami/postgresql
+    version:  12.12.10
+    installed: {{ eq .Environment.Name "pr" }}
+    values:
+      - auth:
+          postgresPassword: "secretString123"
+          database: incentives
+        primary:
+          persistence:
+            enabled: false
+
+  - name: redis
+    chart: bitnami/redis
+    version: 18.6.4
+    values:
+      - environments/{{ .Environment.Name }}/redis.yaml
+
+  - name: developer-access
+    chart: rdx-works/developer-access
+    version: 1.0.0
+    values:
+      - project: incentives
+      - environments/{{ .Environment.Name }}/developer-access.yaml.gotmpl
+
+  - name: alertmanager
+    chart: rdx-works/alertmanager-configs
+    version: 1.1.0
+    installed: {{ ne .Environment.Name "pr" }}
+    values:
+      - environments/{{ .Environment.Name }}/alertmanager.yaml.gotmpl

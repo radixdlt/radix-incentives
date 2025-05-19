@@ -5,6 +5,7 @@ import {
 } from "./gatewayApiClient";
 import type { StateNonFungibleDataResponse } from "@radixdlt/babylon-gateway-api-sdk";
 import { GatewayError } from "./errors";
+import type { AtLedgerState } from "./schemas";
 
 type EntityNonFungibleDataParams = Parameters<
   GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["nonFungibleData"]
@@ -15,7 +16,9 @@ export class EntityNonFungibleDataService extends Context.Tag(
 )<
   EntityNonFungibleDataService,
   (
-    input: EntityNonFungibleDataParams
+    input: Omit<EntityNonFungibleDataParams, "at_ledger_state"> & {
+      at_ledger_state: AtLedgerState;
+    }
   ) => Effect.Effect<
     StateNonFungibleDataResponse,
     GatewayError,

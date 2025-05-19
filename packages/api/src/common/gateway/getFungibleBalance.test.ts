@@ -57,7 +57,7 @@ describe("GetFungibleBalanceService", () => {
           options: {
             native_resource_details: true,
           },
-          state: {
+          at_ledger_state: {
             timestamp: new Date("2025-04-31T00:00:00.000Z"),
           },
         });

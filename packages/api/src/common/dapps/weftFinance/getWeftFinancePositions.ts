@@ -9,7 +9,6 @@ import type {
   EntityNotFoundError,
   GetNonFungibleBalanceService,
   InvalidInputError,
-  StateEntityDetailsInput,
 } from "../../gateway/getNonFungibleBalance";
 import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 
@@ -26,6 +25,7 @@ import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
 import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
 import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
+import type { AtLedgerState } from "../../gateway/schemas";
 
 export class FailedToParseLendingPoolSchemaError {
   readonly _tag = "FailedToParseLendingPoolSchemaError";
@@ -54,7 +54,7 @@ export class GetWeftFinancePositionsService extends Context.Tag(
   GetWeftFinancePositionsService,
   (input: {
     accountAddresses: string[];
-    stateVersion?: StateEntityDetailsInput["state"];
+    at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     GetWeftFinancePositionsOutput[],
     | GetEntityDetailsError
@@ -99,7 +99,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
         // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
         const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService({
           address: WeftFinance.v2.lendingPool.kvsAddress,
-          stateVersion: input.stateVersion,
+          at_ledger_state: input.at_ledger_state,
         }).pipe(
           Effect.catchTags({
             // EntityNotFoundError here means that the v2 lending pool is not deployed at the provided state version
@@ -137,7 +137,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
             WeftFinance.v1.wxUSDC.componentAddress,
           ],
           schema: SingleResourcePool,
-          stateVersion: input.stateVersion,
+          at_ledger_state: input.at_ledger_state,
         });
 
         for (const item of lendingPoolV1ComponentStates) {
@@ -149,7 +149,7 @@ export const GetWeftFinancePositionsLive = Layer.effect(
 
         const accountBalances = yield* getFungibleBalanceService({
           addresses: input.accountAddresses,
-          state: input.stateVersion,
+          at_ledger_state: input.at_ledger_state,
         });
 
         for (const accountBalance of accountBalances) {

@@ -1,0 +1,38 @@
+image: 
+  tag: {{ .StateValues.ci.tag }}
+
+enable_db_migrations: true
+
+params:
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  PORT: 3000
+  DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public"
+  RO_DATABASE_URL: postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public
+  JWT_SECRET: FkaGHXoq32rYBcEHwAn2rkhawtUCe4sE
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
+  hosts:
+    - host: incentives-pr-{{ .StateValues.ci.prNumber }}.rdx-works-main.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+autoscaling:
+  enabled: false
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+
+metrics:
+  alert_labels:
+    cluster: rdx-works-main-dev
+    env: prs

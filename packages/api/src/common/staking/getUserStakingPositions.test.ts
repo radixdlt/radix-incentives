@@ -3,7 +3,7 @@ import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
 import { createAppConfigLive } from "../config/appConfig";
 import { LoggerLive } from "../logger/logger";
-import { GetStateVersionLive } from "../gateway/getLedgerState";
+import { GetLedgerStateLive } from "../gateway/getLedgerState";
 import { GetFungibleBalanceLive } from "../gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../gateway/entityFungiblesPage";
 import {
@@ -32,7 +32,7 @@ const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(loggerLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -49,7 +49,7 @@ const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
   Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
@@ -67,7 +67,7 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
@@ -75,7 +75,7 @@ const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
   Layer.provide(loggerLive),
   Layer.provide(stateEntityDetailsLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getStateVersionLive),
+  Layer.provide(getLedgerStateLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
   Layer.provide(getNonFungibleBalanceLive),
@@ -99,7 +99,7 @@ describe("getUserStakingPositions", () => {
             addresses: accounts.map((account) =>
               account.account_address.slice(0, 10)
             ),
-            state: {
+            at_ledger_state: {
               state_version: 283478629,
             },
           });
@@ -109,7 +109,7 @@ describe("getUserStakingPositions", () => {
           loggerLive,
           stateEntityDetailsLive,
           entityFungiblesPageServiceLive,
-          getStateVersionLive,
+          getLedgerStateLive,
           entityNonFungiblesPageServiceLive,
           entityNonFungibleDataServiceLive,
           getNonFungibleBalanceLive,

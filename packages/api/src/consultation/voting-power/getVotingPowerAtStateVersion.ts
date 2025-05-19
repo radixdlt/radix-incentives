@@ -3,7 +3,6 @@ import {
   type EntityNotFoundError,
   GetFungibleBalanceService,
   type InvalidInputError,
-  type StateEntityDetailsInput,
 } from "../../common/gateway/getFungibleBalance";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
@@ -12,7 +11,7 @@ import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
 import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
 import type { LoggerService } from "../../common/logger/logger";
 import type { EntityFungiblesPageService } from "../../common/gateway/entityFungiblesPage";
-import type { GetLedgerStateService } from "../../common/gateway/getLedgerState";
+import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 import type { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
 import type {
   GetAllValidatorsError,
@@ -50,10 +49,13 @@ import {
   type InvalidRootReceiptItemError,
   type ParseSborError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
+import { type InvalidStateInputError, validateStateInput } from "./schemas";
+import type { UnknownException } from "effect/Cause";
+import type { AtLedgerState } from "../../common/gateway/schemas";
 
 export type GetVotingPowerAtStateVersionInput = {
   addresses: string[];
-  state?: StateEntityDetailsInput["state"];
+  at_ledger_state: AtLedgerState;
 };
 
 export type GetVotingPowerAtStateVersionOutputItem = {
@@ -80,7 +82,7 @@ export class GetVotingPowerAtStateVersionService extends Context.Tag(
   GetVotingPowerAtStateVersionService,
   (input: {
     addresses: string[];
-    state?: StateEntityDetailsInput["state"];
+    at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     GetVotingPowerAtStateVersionOutput,
     | GetAllValidatorsError
@@ -97,7 +99,9 @@ export class GetVotingPowerAtStateVersionService extends Context.Tag(
     | InvalidComponentStateError
     | FailedToParseLendingPoolSchemaError
     | ParseSborError
-    | InvalidRootReceiptItemError,
+    | InvalidRootReceiptItemError
+    | InvalidStateInputError
+    | UnknownException,
     | GetFungibleBalanceService
     | GetLsulpService
     | GetUserStakingPositionsService
@@ -132,37 +136,49 @@ export const GetVotingPowerAtStateVersionLive = Layer.effect(
       yield* GetWeftFinancePositionsService;
     const getRootFinancePositionsService =
       yield* GetRootFinancePositionsService;
+    const getLedgerStateService = yield* GetLedgerStateService;
 
     return (input) => {
       return Effect.gen(function* () {
+        yield* validateStateInput(input.at_ledger_state);
+
+        // convert timestamp to state version
+        const { state_version } = yield* getLedgerStateService({
+          at_ledger_state: input.at_ledger_state,
+        }).pipe(Effect.withSpan("getLedgerStateService"));
+
+        const atLedgerState = {
+          state_version,
+        } satisfies AtLedgerState;
+
         yield* Effect.logTrace(input);
         const userStakingPositions = yield* getUserStakingPositionsService({
           addresses: input.addresses,
-          state: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getUserStakingPositionsService"));
 
         const lsulpResults = yield* getLsulpService({
           addresses: input.addresses,
-          state: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getLsulpService"));
 
         const fungibleBalanceResults = yield* getFungibleBalanceService({
           addresses: input.addresses,
-          state: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getFungibleBalanceService"));
 
         const lsulpValue = yield* getLsulpValueService({
-          state: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getLsulpValueService"));
 
         const weftFinancePositions = yield* getWeftFinancePositionsService({
           accountAddresses: input.addresses,
-          stateVersion: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getWeftFinancePositionsService"));
 
         const rootFinancePositions = yield* getRootFinancePositionsService({
           accountAddresses: input.addresses,
-          stateVersion: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getRootFinancePositionsService"));
 
         const lsuResourceAddresses = [
@@ -175,7 +191,7 @@ export const GetVotingPowerAtStateVersionLive = Layer.effect(
 
         const convertLsuToXrdMap = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
-          state: input.state,
+          at_ledger_state: atLedgerState,
         }).pipe(
           Effect.map(
             (results) =>

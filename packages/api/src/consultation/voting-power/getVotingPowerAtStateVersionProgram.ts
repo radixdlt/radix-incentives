@@ -43,7 +43,7 @@ export const getVotingPowerAtStateVersionProgram = (
         const addresses = input.addresses.map((address) => address.account_address);
         const result = yield* getVotingPowerAtStateVersion({
           addresses: addresses,
-          state: { timestamp: date },
+          at_ledger_state: { timestamp: date },
         });
 
         // For each record, insert immediately

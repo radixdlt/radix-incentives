@@ -1,0 +1,49 @@
+image: 
+  tag: {{ .StateValues.ci.tag }}
+
+enable_db_migrations: true
+
+params:
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  PORT: 3000
+  EXPECTED_ORIGIN: https://incentives-dev.rdx-works-main.extratools.works
+
+secrets:
+  - external_secret_name: incentives-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+
+ingress:
+  enabled: true
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
+  hosts:
+    - host: incentives-dev.rdx-works-main.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+
+metrics:
+  alert_labels:
+    cluster: rdx-works-main-dev
+    env: dev
