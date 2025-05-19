@@ -60,6 +60,7 @@ import { GetKeyValueStoreLive } from "../../common/gateway/getKeyValueStore";
 import { KeyValueStoreDataLive } from "../../common/gateway/keyValueStoreData";
 import { KeyValueStoreKeysLive } from "../../common/gateway/keyValueStoreKeys";
 import { AddVotingPowerToDbLive } from "../voting-power/addVotingPowerToDb";
+import { localDbClientLive } from "../voting-power/localDbClientLayer";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -403,11 +404,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         keyValueStoreKeysServiceLive,
         getRootFinancePositionLive,
         addVotingPowerToDbLive,
-        dbClientLive
+        dbClientLive,
+        localDbClientLive
       )
     );
 
-    return Effect.runPromiseExit(program);
+    return Effect.runPromiseExit(Effect.scoped(program));
   };
 
   return {
