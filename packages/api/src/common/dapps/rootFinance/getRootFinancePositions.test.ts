@@ -3,7 +3,10 @@ import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { createAppConfigLive } from "../../config/appConfig";
 import { LoggerLive } from "../../logger/logger";
-import { GetStateVersionLive } from "../../gateway/getLedgerState";
+import {
+  GetLedgerStateLive,
+  GetLedgerStateService,
+} from "../../gateway/getLedgerState";
 
 import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 
@@ -28,7 +31,11 @@ const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(loggerLive)
 );
 
-const getStateVersionLive = GetStateVersionLive.pipe(
+// const getStateVersionLive = GetStateVersionLive.pipe(
+//   Layer.provide(gatewayApiClientLive)
+// );
+
+const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -51,7 +58,7 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getStateVersionLive)
+  Layer.provide(getLedgerStateLive)
 );
 
 const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
@@ -72,7 +79,7 @@ describe("GetRootFinancePositionService", () => {
 
         return yield* getRootFinancePositions({
           accountAddresses: [
-            "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
+            "account_rdx16xqpkw4lujmuuyt6hdqgjutdlu0d7kqlqc8sxsxyhtveq84stmh28g",
           ],
           stateVersion: {
             timestamp: new Date(),
@@ -86,7 +93,7 @@ describe("GetRootFinancePositionService", () => {
         getNonFungibleBalanceLive,
         entityFungiblesPageServiceLive,
         entityNonFungiblesPageServiceLive,
-        getStateVersionLive
+        getLedgerStateLive
       )
     );
 

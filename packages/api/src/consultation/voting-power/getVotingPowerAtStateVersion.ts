@@ -260,22 +260,18 @@ export const GetVotingPowerAtStateVersionLive = Layer.effect(
           const rootFinanceLending =
             rootFinanceAccountPositions?.collaterizedDebtPositions.reduce(
               (acc, position) => {
-                if (position.nft.resourceAddress === Assets.Fungible.XRD) {
-                  acc.xrd = acc.xrd.plus(
-                    position.loans?.[Assets.Fungible.XRD] ?? "0"
+                // Check XRD collaterals
+                if (position.collaterals?.[Assets.Fungible.XRD]) {
+                  acc.xrd = acc.xrd.plus(position.collaterals[Assets.Fungible.XRD]);
+                }
+
+                // Check LSULP collaterals
+                if (position.collaterals?.[CaviarNineConstants.LSULP.resourceAddress]) {
+                  acc.lsulp = acc.lsulp.plus(
+                    position.collaterals[CaviarNineConstants.LSULP.resourceAddress]
                   );
                 }
 
-                if (
-                  position.nft.resourceAddress ===
-                  CaviarNineConstants.LSULP.resourceAddress
-                ) {
-                  acc.lsulp = acc.lsulp.plus(
-                    position.loans?.[
-                      CaviarNineConstants.LSULP.resourceAddress
-                    ] ?? "0"
-                  );
-                }
                 return acc;
               },
               { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
