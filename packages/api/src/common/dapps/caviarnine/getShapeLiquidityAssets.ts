@@ -101,6 +101,8 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           return yield* Effect.fail(new TransactionPreviewError(result));
         }
 
+        // console.log(result.at_ledger_state);
+
         const output = result.receipt?.output?.[0]
           ?.programmatic_json as ProgrammaticScryptoSborValue;
 

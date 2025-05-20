@@ -1,0 +1,16 @@
+{
+  "name": "streamer",
+  "scripts": {
+    "dev": "tsx watch ./src/index.ts"
+  },
+  "dependencies": {
+    "api": "workspace:*",
+    "effect": "catalog:",
+    "db": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsup": "catalog:",
+    "tsx": "catalog:"
+  }
+}

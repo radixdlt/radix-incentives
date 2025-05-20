@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1744027766005,
-      "tag": "0000_confused_proemial_gods",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1745402058286,
-      "tag": "0001_optimal_squadron_supreme",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1745488617658,
-      "tag": "0002_naive_jack_murdock",
+      "when": 1747417568343,
+      "tag": "0000_abandoned_tony_stark",
       "breakpoints": true
     }
   ]

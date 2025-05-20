@@ -72,7 +72,12 @@ export const transformEvent = (
   }
 };
 
-export type FormattedTransaction = ReturnType<typeof transformTransactions>;
+export type TransformedTransaction = ReturnType<
+  typeof transformTransactions
+>[0];
+
+export type TransformTransactionsOutput = TransformedTransaction[];
+
 export const transformTransactions = (
   transactions: CommittedTransactionInfo[]
 ) =>
@@ -122,7 +127,7 @@ export const transformTransactions = (
     })
     .filter((t) => t !== undefined);
 
-export const toEventMatcherFormat = (items: FormattedTransaction) =>
+export const toEventMatcherFormat = (items: TransformTransactionsOutput) =>
   items.flatMap((tx) =>
     tx.events.map((event) => ({
       eventName: event.event.name,

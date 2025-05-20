@@ -35,7 +35,7 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "account" (
-	"user_id" varchar(255) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"address" varchar(255) PRIMARY KEY NOT NULL,
 	"label" varchar(255) NOT NULL,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL
@@ -85,6 +85,11 @@ CREATE TABLE IF NOT EXISTS "admin_users" (
 	CONSTRAINT "admin_users_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "challenge" (
+	"challenge" char(64) PRIMARY KEY NOT NULL,
+	"created_at" timestamp DEFAULT now() NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "job_log" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"job_id" varchar(255) NOT NULL,
@@ -121,48 +126,72 @@ CREATE TABLE IF NOT EXISTS "season" (
 	"status" "season_status" DEFAULT 'upcoming' NOT NULL
 );
 --> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "session" (
+	"id" text PRIMARY KEY NOT NULL,
+	"user_id" uuid NOT NULL,
+	"expires_at" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "transaction" (
 	"transaction_id" text PRIMARY KEY NOT NULL,
-	"timestamp" timestamp with time zone NOT NULL,
-	"state_version" text,
-	"raw_data" jsonb NOT NULL,
-	"processed_at" timestamp with time zone
+	"timestamp" timestamp with time zone NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "user" (
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"identity_address" varchar(255) NOT NULL,
+	"label" varchar(255),
+	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
+	CONSTRAINT "user_identity_address_unique" UNIQUE("identity_address")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_activity" (
-	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" varchar(255) NOT NULL,
+	"account_address" varchar(255) NOT NULL,
 	"activity_id" uuid NOT NULL,
-	"week_id" uuid NOT NULL,
-	"transaction_id" text,
+	"transaction_id" text NOT NULL,
+	"event_index" integer NOT NULL,
 	"timestamp" timestamp with time zone NOT NULL,
-	"value" numeric(18, 2),
-	"metadata" jsonb
+	"dApp" text NOT NULL,
+	"state_version" integer NOT NULL,
+	"round_timestamp" timestamp with time zone NOT NULL,
+	"global_emitter" text NOT NULL,
+	"package_address" text NOT NULL,
+	"blueprint" text NOT NULL,
+	"event_name" text NOT NULL,
+	"event_data" jsonb NOT NULL,
+	CONSTRAINT "user_activity_transaction_id_event_index_pk" PRIMARY KEY("transaction_id","event_index")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_season_points" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" varchar(255) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"season_id" uuid NOT NULL,
 	"total_points" numeric(18, 2) DEFAULT '0' NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_weekly_multipliers" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" varchar(255) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"week_id" uuid NOT NULL,
 	"activity_multipliers" jsonb
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "user_weekly_points" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"user_id" varchar(255) NOT NULL,
+	"user_id" uuid NOT NULL,
 	"week_id" uuid NOT NULL,
 	"activity_points" jsonb,
 	"base_points" numeric(18, 2) DEFAULT '0' NOT NULL,
 	"applied_multiplier" numeric(10, 4) DEFAULT '1' NOT NULL,
 	"total_points" numeric(18, 2) DEFAULT '0' NOT NULL,
 	"is_converted" boolean DEFAULT false NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE IF NOT EXISTS "verification_token" (
+	"identifier" varchar(255) NOT NULL,
+	"token" varchar(255) NOT NULL,
+	"expires" timestamp with time zone NOT NULL,
+	CONSTRAINT "verification_token_identifier_token_pk" PRIMARY KEY("identifier","token")
 );
 --> statement-breakpoint
 CREATE TABLE IF NOT EXISTS "week" (
@@ -174,7 +203,6 @@ CREATE TABLE IF NOT EXISTS "week" (
 	"is_processed" boolean DEFAULT false NOT NULL
 );
 --> statement-breakpoint
-ALTER TABLE "challenge" ALTER COLUMN "created_at" SET NOT NULL;--> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "account" ADD CONSTRAINT "account_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
@@ -212,19 +240,19 @@ EXCEPTION
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
- ALTER TABLE "user_activity" ADD CONSTRAINT "user_activity_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+ ALTER TABLE "session" ADD CONSTRAINT "session_user_id_user_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."user"("id") ON DELETE cascade ON UPDATE no action;
+EXCEPTION
+ WHEN duplicate_object THEN null;
+END $$;
+--> statement-breakpoint
+DO $$ BEGIN
+ ALTER TABLE "user_activity" ADD CONSTRAINT "user_activity_account_address_account_address_fk" FOREIGN KEY ("account_address") REFERENCES "public"."account"("address") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;
 --> statement-breakpoint
 DO $$ BEGIN
  ALTER TABLE "user_activity" ADD CONSTRAINT "user_activity_activity_id_activity_id_fk" FOREIGN KEY ("activity_id") REFERENCES "public"."activity"("id") ON DELETE cascade ON UPDATE no action;
-EXCEPTION
- WHEN duplicate_object THEN null;
-END $$;
---> statement-breakpoint
-DO $$ BEGIN
- ALTER TABLE "user_activity" ADD CONSTRAINT "user_activity_week_id_week_id_fk" FOREIGN KEY ("week_id") REFERENCES "public"."week"("id") ON DELETE cascade ON UPDATE no action;
 EXCEPTION
  WHEN duplicate_object THEN null;
 END $$;

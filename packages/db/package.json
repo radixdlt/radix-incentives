@@ -10,7 +10,7 @@
     "./consultation": "./src/consultation/index.ts"
   },
   "scripts": {
-    "dev:incentives": "drizzle-kit studio --config=./src/incentives/drizzle.config.ts",
+    "dev": "drizzle-kit studio --config=./src/incentives/drizzle.config.ts",
     "dev:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts",
     "db:migrate:incentives": "drizzle-kit migrate --config=./src/incentives/drizzle.config.ts",
     "db:migrate:consultation": "drizzle-kit migrate --config=./src/consultation/drizzle.config.ts",
@@ -20,7 +20,9 @@
     "db:generate:consultation": "drizzle-kit generate --config=./src/consultation/drizzle.config.ts",
     "db:start": "docker compose up -d",
     "db:studio:incentives": "drizzle-kit studio --config=./src/incentives/drizzle.config.ts",
-    "db:studio:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts"
+    "db:studio:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts",
+    "db:seed": "tsx src/incentives/seed/users.ts",
+    "db:reset": "./scripts/reset.sh"
   },
   "dependencies": {
     "drizzle-orm": "catalog:"
@@ -28,7 +30,8 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "drizzle-kit": "^0.22.0",
-    "postgres": "^3.4.4"
+    "postgres": "^3.4.4",
+    "tsx": "catalog:"
   },
   "publishConfig": {
     "access": "restricted"

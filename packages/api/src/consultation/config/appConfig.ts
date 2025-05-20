@@ -14,6 +14,8 @@ export type AppConfig = {
   sessionRefreshThreshold: number;
   stateVersionKey: string;
   redisUrl: string;
+  redisPassword: string;
+  redisPort: number;
   gatewayApiBaseUrl: string;
 };
 
@@ -34,8 +36,10 @@ export const defaultAppConfig: AppConfig = {
   challengeTTL: 1000 * 60 * 5,
   sessionTTL: THIRTY_DAYS,
   sessionRefreshThreshold: FIFTEEN_DAYS,
-  stateVersionKey: "stateVersion",
-  redisUrl: "redis://localhost:6379",
+  stateVersionKey: "streamerStateVersion",
+  redisUrl: "localhost",
+  redisPassword: "password",
+  redisPort: 6379,
   gatewayApiBaseUrl: "https://mainnet-gateway.radixdlt.com",
 };
 

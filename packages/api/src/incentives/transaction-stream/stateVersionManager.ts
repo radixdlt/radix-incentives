@@ -5,9 +5,7 @@ import { SetStateVersionService } from "../stateversion";
 
 export type StateVersionManager = ReturnType<typeof createStateVersionManager>;
 
-export const createStateVersionManager = (
-  initialStateVersion: number | undefined
-) => {
+export const createStateVersionManager = (initialStateVersion?: number) => {
   let stateVersion: number | undefined = initialStateVersion;
 
   return {

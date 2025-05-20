@@ -71,6 +71,8 @@ export const WeftFinance = {
         "resource_rdx1nt22yfvhuuhxww7jnnml5ec3yt5pkxh0qlghm6f0hz46z2wfk80s9r",
       componentAddress:
         "component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w",
+      packageAddress:
+        "package_rdx1pktdrmwan4mcugates06wwcvspn4y0hsapm9zkyg4clh0sf8qn7c6t",
     },
   },
 } as const;
@@ -87,4 +89,13 @@ export const weftFungibleRecourceAddresses = new Map<string, string>([
   [WeftFinance.v2.w2xUSDT.resourceAddress, Assets.Fungible.xUSDT],
   [WeftFinance.v2.w2xwBTC.resourceAddress, Assets.Fungible.wxBTC],
   [WeftFinance.v2.w2wETH.resourceAddress, Assets.Fungible.xETH],
+]);
+
+export const weftFungibleComponentAddressSet = new Set<string>([
+  WeftFinance.v1.wXRD.componentAddress,
+  WeftFinance.v1.wxUSDC.componentAddress,
+  WeftFinance.v1.wLSULP.componentAddress,
+  WeftFinance.v1.Wefty.componentAddress,
+  WeftFinance.v2.lendingPool.componentAddress,
+  WeftFinance.v2.WeftyV2.componentAddress,
 ]);

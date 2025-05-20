@@ -29,6 +29,8 @@ import {
 import path from "node:path";
 import { writeFile } from "node:fs/promises";
 import { BigNumber } from "bignumber.js";
+import { getDatesBetweenIntervals } from "../../helpers/getDatesBetweenIntervals";
+import { accounts } from "../../../fixtures/accounts";
 
 const coreApiClientLive = CoreApiClientLive;
 
@@ -81,21 +83,6 @@ const getResourceHoldersLive = GetResourceHoldersLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const outputPath = path.join(__dirname, "output.json");
-
-const output: {
-  preview: {
-    xToken: BigNumber;
-    yToken: BigNumber;
-    nfId: string;
-  };
-  octoLib: {
-    xToken: BigNumber;
-    yToken: BigNumber;
-    nfId: string;
-  } | null;
-}[] = [];
-
 describe("getShapeLiquidityAssets", () => {
   it("should get the shape liquidity assets", async () => {
     const program = Effect.provide(
@@ -105,112 +92,153 @@ describe("getShapeLiquidityAssets", () => {
         const getLedgerStateService = yield* GetLedgerStateService;
         const getResourceHoldersService = yield* GetResourceHoldersService;
 
-        const state = yield* getLedgerStateService({
-          at_ledger_state: {
-            state_version: 286058118,
-          },
-        });
+        const dates = getDatesBetweenIntervals(
+          new Date(),
+          new Date(),
+          (value) => {
+            return value.setHours(value.getHours() + 12);
+          }
+        );
 
-        console.log(state);
+        yield* Effect.forEach(dates, (date) => {
+          return Effect.gen(function* () {
+            const state = yield* getLedgerStateService({
+              at_ledger_state: {
+                timestamp: date,
+              },
+            });
+            console.log(state);
 
-        const resourceHolders = yield* getResourceHoldersService({
-          resourceAddress:
-            CaviarNineConstants.shapeLiquidityPools[2].liquidity_receipt,
-        });
+            const output: {
+              preview: {
+                xToken: BigNumber;
+                yToken: BigNumber;
+                nfId: string;
+              };
+              octoLib: {
+                xToken: BigNumber;
+                yToken: BigNumber;
+                nfId: string;
+              } | null;
+            }[] = [];
 
-        const addresses = resourceHolders.items
-          .map((item) => item.holder_address)
-          .slice(0, 1);
+            const shapeLiquidityPool =
+              CaviarNineConstants.shapeLiquidityPools[2];
 
-        const nonFungiblesResults = yield* getNonfungibleBalance({
-          addresses,
-          at_ledger_state: {
-            state_version: 286058118,
-          },
-        });
-
-        const nonFungiblesResultItems = nonFungiblesResults.items;
-
-        for (const nonFungiblesResult of nonFungiblesResultItems) {
-          const shapeLiquidityNftCollections =
-            nonFungiblesResult.nonFungibleResources.filter((item) => {
-              return shapeLiquidityReceiptSet.has(item.resourceAddress);
+            const resourceHolders = yield* getResourceHoldersService({
+              resourceAddress: shapeLiquidityPool.liquidity_receipt,
             });
 
-          for (const collection of shapeLiquidityNftCollections) {
-            for (const nft of collection.items) {
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
-              const shapeLiquidityPool = shapeLiquidityReceiptSet.get(
-                collection.resourceAddress
-              )!;
+            const addresses = resourceHolders.items
+              .filter((item) => item.holder_address.startsWith("account_"))
+              .map((item) => item.holder_address)
+              .slice(0, 10);
 
-              const { x, y } = yield* getShapeLiquidityAssets({
-                componentAddress: shapeLiquidityPool.componentAddress,
-                nonFungibleLocalId: nft.id,
-                networkId: 1,
-                stateVersion: {
-                  state_version: state.state_version,
-                  type: "ByStateVersion",
-                },
-              });
+            console.log(addresses);
 
-              const octoLib = yield* tryPromise({
-                try: () =>
-                  getRedemptionValue({
+            const outputPath = path.join(
+              __dirname,
+              `${state.proposer_round_timestamp}_${shapeLiquidityPool.name.split("/").join("_")}.json`
+            );
+
+            const nonFungiblesResults = yield* getNonfungibleBalance({
+              addresses,
+              at_ledger_state: {
+                state_version: state.state_version,
+              },
+            });
+
+            const nonFungiblesResultItems = nonFungiblesResults.items;
+
+            for (const nonFungiblesResult of nonFungiblesResultItems) {
+              const shapeLiquidityNftCollections =
+                nonFungiblesResult.nonFungibleResources.filter((item) =>
+                  shapeLiquidityReceiptSet.has(item.resourceAddress)
+                );
+
+              for (const collection of shapeLiquidityNftCollections) {
+                for (const nft of collection.items) {
+                  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                  const shapeLiquidityPool = shapeLiquidityReceiptSet.get(
+                    collection.resourceAddress
+                  )!;
+
+                  const { x, y } = yield* getShapeLiquidityAssets({
                     componentAddress: shapeLiquidityPool.componentAddress,
-                    nftId: nft.id,
-                    stateVersion: state.state_version,
-                  }),
-                catch: (error) => {
-                  console.error(
-                    "octoLib error",
-                    {
-                      componentAddress: shapeLiquidityPool.componentAddress,
-                      nftId: nft.id,
-                      stateVersion: state.state_version,
+                    nonFungibleLocalId: nft.id,
+                    networkId: 1,
+                    stateVersion: {
+                      state_version: state.state_version,
+                      type: "ByStateVersion",
                     },
-                    error
+                  });
+
+                  const octoLib = yield* tryPromise({
+                    try: () =>
+                      getRedemptionValue({
+                        componentAddress: shapeLiquidityPool.componentAddress,
+                        nftId: nft.id,
+                        stateVersion: state.state_version,
+                      }),
+                    catch: (error) => {
+                      console.error(
+                        "octoLib error",
+                        {
+                          componentAddress: shapeLiquidityPool.componentAddress,
+                          nftId: nft.id,
+                          stateVersion: state.state_version,
+                        },
+                        error
+                      );
+                      return error;
+                    },
+                  }).pipe(
+                    catchAll((error) => {
+                      if (error instanceof Error) {
+                        if (error.message === "NFT not found") {
+                          return Effect.succeed(null);
+                        }
+                      }
+                      return Effect.fail(error);
+                    })
                   );
-                  return error;
-                },
-              }).pipe(
-                catchAll((error) => {
-                  if (error instanceof Error) {
-                    if (error.message === "NFT not found") {
-                      return Effect.succeed(null);
-                    }
+
+                  console.log(
+                    "preview",
+                    JSON.stringify(
+                      { xToken: x, yToken: y, nfId: nft.id },
+                      null,
+                      2
+                    )
+                  );
+
+                  console.log(
+                    "octoLib",
+                    JSON.stringify({ ...octoLib, nfId: nft.id }, null, 2)
+                  );
+
+                  if (x.isZero() && y.isZero()) {
+                    continue;
                   }
-                  return Effect.fail(error);
-                })
-              );
 
-              console.log(
-                "preview",
-                JSON.stringify({ xToken: x, yToken: y, nfId: nft.id }, null, 2)
-              );
-
-              console.log(
-                "octoLib",
-                JSON.stringify({ ...octoLib, nfId: nft.id }, null, 2)
-              );
-
-              output.push({
-                preview: { xToken: x, yToken: y, nfId: nft.id },
-                octoLib: {
-                  xToken: octoLib?.xToken
-                    ? new BigNumber(octoLib.xToken)
-                    : new BigNumber(0),
-                  yToken: octoLib?.yToken
-                    ? new BigNumber(octoLib.yToken)
-                    : new BigNumber(0),
-                  nfId: nft.id,
-                },
-              });
+                  output.push({
+                    preview: { xToken: x, yToken: y, nfId: nft.id },
+                    octoLib: {
+                      xToken: octoLib?.xToken
+                        ? new BigNumber(octoLib.xToken)
+                        : new BigNumber(0),
+                      yToken: octoLib?.yToken
+                        ? new BigNumber(octoLib.yToken)
+                        : new BigNumber(0),
+                      nfId: nft.id,
+                    },
+                  });
+                }
+              }
             }
-          }
-        }
-
-        writeFile(outputPath, JSON.stringify(output, null, 2));
+            writeFile(outputPath, JSON.stringify(output, null, 2));
+          });
+        });
 
         return "done";
       }),
@@ -238,5 +266,5 @@ describe("getShapeLiquidityAssets", () => {
       console.error(JSON.stringify(error, null, 2));
       throw error;
     }
-  }, 300_000);
+  }, 3_000_000);
 });
