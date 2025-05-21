@@ -6,17 +6,13 @@ import {
   GatewayApiClientService,
 } from "./gatewayApiClient";
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
-import type { GatewayError } from "./errors";
+import { EntityNotFoundError, type GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
 import type { StateEntityDetailsResponseItemDetails } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
 import { GetEntityDetailsError } from "./getEntityDetails";
 import type { AtLedgerState } from "./schemas";
-
-export class EntityNotFoundError {
-  readonly _tag = "EntityNotFoundError";
-}
 
 export class InvalidInputError {
   readonly _tag = "InvalidInputError";

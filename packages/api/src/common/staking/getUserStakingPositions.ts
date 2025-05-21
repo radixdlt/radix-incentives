@@ -1,6 +1,5 @@
 import { Context, Effect, Layer } from "effect";
 import {
-  type EntityNotFoundError,
   GetFungibleBalanceService,
   type InvalidInputError,
 } from "../gateway/getFungibleBalance";
@@ -11,7 +10,7 @@ import {
 } from "../gateway/getAllValidators";
 import { claimNftSchema } from "./schema";
 import { BigNumber } from "bignumber.js";
-import type { GatewayError } from "../gateway/errors";
+import type { EntityNotFoundError, GatewayError } from "../gateway/errors";
 import type { GetLedgerStateService } from "../gateway/getLedgerState";
 import type { LoggerService } from "../logger/logger";
 import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";

@@ -1,11 +1,9 @@
 import { Context, Effect, Layer } from "effect";
 import {
-  type EntityNotFoundError,
   type InvalidInputError,
   GetFungibleBalanceService,
-  type StateEntityDetailsInput,
 } from "../../gateway/getFungibleBalance";
-import type { GatewayError } from "../../gateway/errors";
+import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { LoggerService } from "../../logger/logger";

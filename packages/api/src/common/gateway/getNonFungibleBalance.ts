@@ -5,7 +5,7 @@ import {
   GatewayApiClientService,
 } from "./gatewayApiClient";
 
-import type { GatewayError } from "./errors";
+import { EntityNotFoundError, type GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
 import type {
   ProgrammaticScryptoSborValue,
@@ -17,10 +17,6 @@ import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
 import { chunker } from "../helpers/chunker";
 import { GetEntityDetailsError } from "./getEntityDetails";
 import type { AtLedgerState } from "./schemas";
-
-export class EntityNotFoundError {
-  readonly _tag = "EntityNotFoundError";
-}
 
 export class InvalidInputError {
   readonly _tag = "InvalidInputError";

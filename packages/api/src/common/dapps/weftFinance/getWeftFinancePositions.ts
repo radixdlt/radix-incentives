@@ -4,9 +4,8 @@ import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { LoggerService } from "../../logger/logger";
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
-import type { GatewayError } from "../../gateway/errors";
+import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import type {
-  EntityNotFoundError,
   GetNonFungibleBalanceService,
   InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";

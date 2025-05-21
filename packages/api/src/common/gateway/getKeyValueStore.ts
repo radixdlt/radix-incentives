@@ -5,6 +5,7 @@ import type { EntityNotFoundError, GatewayError } from "./errors";
 import { KeyValueStoreDataService } from "./keyValueStoreData";
 import type { StateKeyValueStoreDataResponse } from "@radixdlt/babylon-gateway-api-sdk";
 import type { AtLedgerState } from "./schemas";
+import { chunker } from "../helpers/chunker";
 
 export class GetKeyValueStoreService extends Context.Tag(
   "GetKeyValueStoreService"
@@ -51,15 +52,34 @@ export const GetKeyValueStoreLive = Layer.effect(
           nextCursor = nextKeyResults.next_cursor;
         }
 
-        const data = yield* keyValueStoreDataService({
-          key_value_store_address: input.address,
-          keys: allKeys.map(({ key }) => ({
-            key_json: key.programmatic_json,
-          })),
-          at_ledger_state: input.at_ledger_state,
-        });
+        const batchSize = 100;
 
-        return data;
+        const chunks = chunker(allKeys, batchSize);
+
+        return yield* Effect.forEach(chunks, (keys) => {
+          return Effect.gen(function* () {
+            const data = yield* keyValueStoreDataService({
+              key_value_store_address: input.address,
+              keys: keys.map(({ key }) => ({
+                key_json: key.programmatic_json,
+              })),
+              at_ledger_state: input.at_ledger_state,
+            });
+
+            return data;
+          });
+        }).pipe(
+          Effect.map((res) => {
+            // biome-ignore lint/style/noNonNullAssertion: <explanation>
+            const { key_value_store_address, ledger_state } = res[0]!;
+            const entries = res.flatMap((item) => item.entries);
+            return {
+              key_value_store_address,
+              ledger_state,
+              entries,
+            };
+          })
+        );
       });
     };
   })
