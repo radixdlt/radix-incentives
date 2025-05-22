@@ -1,6 +1,5 @@
 import { Context, Effect, Layer } from "effect";
 import {
-  type EntityNotFoundError,
   GetFungibleBalanceService,
   type InvalidInputError,
 } from "../../common/gateway/getFungibleBalance";
@@ -18,7 +17,10 @@ import type {
   GetAllValidatorsService,
 } from "../../common/gateway/getAllValidators";
 import type { EntityNonFungiblesPageService } from "../../common/gateway/entityNonFungiblesPage";
-import type { GatewayError } from "../../common/gateway/errors";
+import type {
+  EntityNotFoundError,
+  GatewayError,
+} from "../../common/gateway/errors";
 import {
   GetLsulpValueService,
   type InvalidEntityAddressError,

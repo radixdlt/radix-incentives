@@ -1,10 +1,4 @@
 import { Effect, Layer } from "effect";
-import { CoreApiClientLive } from "../../core/coreApiClient";
-import {
-  GetShapeLiquidityAssetsLive,
-  GetShapeLiquidityAssetsService,
-} from "./getShapeLiquidityAssets";
-import { PreviewTransactionLive } from "../../core/previewTransaction";
 import {
   GetNonFungibleBalanceLive,
   GetNonFungibleBalanceService,
@@ -19,29 +13,21 @@ import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { LoggerLive } from "../../logger/logger";
 import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
 import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
-import { CaviarNineConstants, shapeLiquidityReceiptSet } from "./constants";
-import { getRedemptionValue } from "@stabilis/c9-shape-liquidity-getter";
-import { catchAll, tryPromise } from "effect/Effect";
+import { CaviarNineConstants } from "./constants";
 import {
   GetResourceHoldersLive,
   GetResourceHoldersService,
 } from "../../gateway/getResourceHolders";
-import path from "node:path";
-import { writeFile } from "node:fs/promises";
-import { BigNumber } from "bignumber.js";
-import { getDatesBetweenIntervals } from "../../helpers/getDatesBetweenIntervals";
-import { accounts } from "../../../fixtures/accounts";
-
-const coreApiClientLive = CoreApiClientLive;
-
-const previewTransactionLive = PreviewTransactionLive.pipe(
-  Layer.provide(coreApiClientLive)
-);
-
-const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
-  Layer.provide(coreApiClientLive),
-  Layer.provide(previewTransactionLive)
-);
+import {
+  GetShapeLiquidityAssetsLive,
+  GetShapeLiquidityAssetsService,
+} from "./getShapeLiquidityAssets";
+import { GetKeyValueStoreLive } from "../../gateway/getKeyValueStore";
+import { KeyValueStoreDataLive } from "../../gateway/keyValueStoreData";
+import { KeyValueStoreKeysLive } from "../../gateway/keyValueStoreKeys";
+import { GetComponentStateLive } from "../../gateway/getComponentState";
+import { GetQuantaSwapBinMapLive } from "./getQuantaSwapBinMap";
+import { GetShapeLiquidityClaimsLive } from "./getShapeLiquidityClaims";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -56,6 +42,16 @@ const getLedgerStateLive = GetLedgerStateLive.pipe(
 const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(loggerLive)
+);
+
+const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(loggerLive)
+);
+
+const getEntityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(loggerLive)
 );
@@ -83,188 +79,142 @@ const getResourceHoldersLive = GetResourceHoldersLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
+const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(loggerLive)
+);
+
+const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
+  Layer.provide(gatewayApiClientLive)
+);
+
+const getKeyValueStoreKeysLive = KeyValueStoreKeysLive.pipe(
+  Layer.provide(gatewayApiClientLive)
+);
+
+const getKeyValueStoreLive = GetKeyValueStoreLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(keyValueStoreDataLive),
+  Layer.provide(getKeyValueStoreKeysLive)
+);
+
+const getComponentStateLive = GetComponentStateLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(getEntityDetailsLive)
+);
+
+const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(loggerLive),
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(getEntityDetailsLive),
+  Layer.provide(getKeyValueStoreLive),
+  Layer.provide(getComponentStateLive)
+);
+
+const getShapeLiquidityClaimsLive = GetShapeLiquidityClaimsLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(loggerLive),
+  Layer.provide(getEntityDetailsLive),
+  Layer.provide(entityNonFungibleDataLive)
+);
+
+const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(loggerLive),
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(getResourceHoldersLive),
+  Layer.provide(getNonfungibleBalanceLive),
+  Layer.provide(getEntityDetailsLive),
+  Layer.provide(entityNonFungibleDataLive),
+  Layer.provide(getKeyValueStoreLive),
+  Layer.provide(getComponentStateLive),
+  Layer.provide(getQuantaSwapBinMapLive),
+  Layer.provide(getShapeLiquidityClaimsLive)
+);
+
 describe("getShapeLiquidityAssets", () => {
   it("should get the shape liquidity assets", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const getShapeLiquidityAssets = yield* GetShapeLiquidityAssetsService;
-        const getNonfungibleBalance = yield* GetNonFungibleBalanceService;
-        const getLedgerStateService = yield* GetLedgerStateService;
+        const getShapeLiquidityAssetsService =
+          yield* GetShapeLiquidityAssetsService;
+        const getLedgerState = yield* GetLedgerStateService;
         const getResourceHoldersService = yield* GetResourceHoldersService;
+        const getNonfungibleBalance = yield* GetNonFungibleBalanceService;
 
-        const dates = getDatesBetweenIntervals(
-          new Date(),
-          new Date(),
-          (value) => {
-            return value.setHours(value.getHours() + 12);
-          }
-        );
-
-        yield* Effect.forEach(dates, (date) => {
-          return Effect.gen(function* () {
-            const state = yield* getLedgerStateService({
-              at_ledger_state: {
-                timestamp: date,
-              },
-            });
-            console.log(state);
-
-            const output: {
-              preview: {
-                xToken: BigNumber;
-                yToken: BigNumber;
-                nfId: string;
-              };
-              octoLib: {
-                xToken: BigNumber;
-                yToken: BigNumber;
-                nfId: string;
-              } | null;
-            }[] = [];
-
-            const shapeLiquidityPool =
-              CaviarNineConstants.shapeLiquidityPools[2];
-
-            const resourceHolders = yield* getResourceHoldersService({
-              resourceAddress: shapeLiquidityPool.liquidity_receipt,
-            });
-
-            const addresses = resourceHolders.items
-              .filter((item) => item.holder_address.startsWith("account_"))
-              .map((item) => item.holder_address)
-              .slice(0, 10);
-
-            console.log(addresses);
-
-            const outputPath = path.join(
-              __dirname,
-              `${state.proposer_round_timestamp}_${shapeLiquidityPool.name.split("/").join("_")}.json`
-            );
-
-            const nonFungiblesResults = yield* getNonfungibleBalance({
-              addresses,
-              at_ledger_state: {
-                state_version: state.state_version,
-              },
-            });
-
-            const nonFungiblesResultItems = nonFungiblesResults.items;
-
-            for (const nonFungiblesResult of nonFungiblesResultItems) {
-              const shapeLiquidityNftCollections =
-                nonFungiblesResult.nonFungibleResources.filter((item) =>
-                  shapeLiquidityReceiptSet.has(item.resourceAddress)
-                );
-
-              for (const collection of shapeLiquidityNftCollections) {
-                for (const nft of collection.items) {
-                  // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                  const shapeLiquidityPool = shapeLiquidityReceiptSet.get(
-                    collection.resourceAddress
-                  )!;
-
-                  const { x, y } = yield* getShapeLiquidityAssets({
-                    componentAddress: shapeLiquidityPool.componentAddress,
-                    nonFungibleLocalId: nft.id,
-                    networkId: 1,
-                    stateVersion: {
-                      state_version: state.state_version,
-                      type: "ByStateVersion",
-                    },
-                  });
-
-                  const octoLib = yield* tryPromise({
-                    try: () =>
-                      getRedemptionValue({
-                        componentAddress: shapeLiquidityPool.componentAddress,
-                        nftId: nft.id,
-                        stateVersion: state.state_version,
-                      }),
-                    catch: (error) => {
-                      console.error(
-                        "octoLib error",
-                        {
-                          componentAddress: shapeLiquidityPool.componentAddress,
-                          nftId: nft.id,
-                          stateVersion: state.state_version,
-                        },
-                        error
-                      );
-                      return error;
-                    },
-                  }).pipe(
-                    catchAll((error) => {
-                      if (error instanceof Error) {
-                        if (error.message === "NFT not found") {
-                          return Effect.succeed(null);
-                        }
-                      }
-                      return Effect.fail(error);
-                    })
-                  );
-
-                  console.log(
-                    "preview",
-                    JSON.stringify(
-                      { xToken: x, yToken: y, nfId: nft.id },
-                      null,
-                      2
-                    )
-                  );
-
-                  console.log(
-                    "octoLib",
-                    JSON.stringify({ ...octoLib, nfId: nft.id }, null, 2)
-                  );
-
-                  if (x.isZero() && y.isZero()) {
-                    continue;
-                  }
-
-                  output.push({
-                    preview: { xToken: x, yToken: y, nfId: nft.id },
-                    octoLib: {
-                      xToken: octoLib?.xToken
-                        ? new BigNumber(octoLib.xToken)
-                        : new BigNumber(0),
-                      yToken: octoLib?.yToken
-                        ? new BigNumber(octoLib.yToken)
-                        : new BigNumber(0),
-                      nfId: nft.id,
-                    },
-                  });
-                }
-              }
-            }
-            writeFile(outputPath, JSON.stringify(output, null, 2));
-          });
+        const state = yield* getLedgerState({
+          // timestamp: new Date(),
+          at_ledger_state: {
+            timestamp: new Date("2025-04-01T00:00:00.000Z"),
+            // state_version: 286058118,
+          },
         });
 
-        return "done";
+        console.log(JSON.stringify(state, null, 2));
+
+        const {
+          componentAddress,
+          liquidity_receipt: liquidityReceiptResourceAddress,
+        } = CaviarNineConstants.shapeLiquidityPools[0];
+
+        const resourceHolders = yield* getResourceHoldersService({
+          resourceAddress: liquidityReceiptResourceAddress,
+        });
+
+        const addresses = resourceHolders.items
+          .filter((item) => item.holder_address.startsWith("account_"))
+          .map((item) => item.holder_address);
+
+        const accountNonFungibleBalances = yield* getNonfungibleBalance({
+          addresses,
+          at_ledger_state: {
+            state_version: state.state_version,
+          },
+        });
+
+        const nftIds = accountNonFungibleBalances.items.flatMap((item) =>
+          item.nonFungibleResources
+            .filter(
+              (item) => item.resourceAddress === liquidityReceiptResourceAddress
+            )
+
+            .flatMap((item) => item.items.map((item) => item.id))
+        );
+
+        const result = yield* getShapeLiquidityAssetsService({
+          componentAddress,
+          liquidityReceiptResourceAddress,
+          nonFungibleLocalIds: nftIds,
+          at_ledger_state: {
+            state_version: state.state_version,
+          },
+        });
+
+        return result;
       }),
       Layer.mergeAll(
-        getShapeLiquidityAssetsLive,
-        coreApiClientLive,
-        previewTransactionLive,
-        getNonfungibleBalanceLive,
         gatewayApiClientLive,
-        appConfigServiceLive,
         loggerLive,
-        entityNonFungibleDataLive,
-        entityNonFungiblesPageLive,
         getLedgerStateLive,
-        getEntityDetailsServiceLive,
-        getResourceHoldersLive
+        getResourceHoldersLive,
+        getNonfungibleBalanceLive,
+        getShapeLiquidityAssetsLive,
+        getEntityDetailsLive,
+        entityNonFungibleDataLive,
+        getEntityNonFungibleDataServiceLive,
+        entityNonFungiblesPageServiceLive,
+        getKeyValueStoreLive,
+        getKeyValueStoreKeysLive,
+        keyValueStoreDataLive,
+        getComponentStateLive,
+        getQuantaSwapBinMapLive,
+        getShapeLiquidityClaimsLive
       )
     );
 
-    try {
-      const result = await Effect.runPromise(program);
+    const result = await Effect.runPromise(program);
 
-      console.log(JSON.stringify(result, null, 2));
-    } catch (error) {
-      console.error(JSON.stringify(error, null, 2));
-      throw error;
-    }
-  }, 3_000_000);
+    console.log(JSON.stringify(result, null, 2));
+  }, 300_000);
 });

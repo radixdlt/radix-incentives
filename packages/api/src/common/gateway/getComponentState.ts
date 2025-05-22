@@ -1,19 +1,19 @@
 import { Context, Effect, Layer } from "effect";
 
 import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
-import type { LoggerService } from "../logger/logger";
 import type { GetLedgerStateService } from "./getLedgerState";
 import type { GatewayError } from "../gateway/errors";
-import type {
-  EntityNotFoundError,
-  InvalidInputError,
-} from "../gateway/getNonFungibleBalance";
+import type { InvalidInputError } from "../gateway/getNonFungibleBalance";
 import {
   type GetEntityDetailsError,
+  type GetEntityDetailsOptions,
   GetEntityDetailsService,
 } from "../gateway/getEntityDetails";
 
-import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
+import type {
+  ProgrammaticScryptoSborValue,
+  StateEntityDetailsVaultResponseItem,
+} from "@radixdlt/babylon-gateway-api-sdk";
 
 import type {
   ParsedType,
@@ -21,6 +21,7 @@ import type {
   StructSchema,
 } from "@calamari-radix/sbor-ez-mode/dist/schemas/struct";
 import type { AtLedgerState } from "./schemas";
+import type { EntityNotFoundError } from "./errors";
 
 export class InvalidComponentStateError {
   readonly _tag = "InvalidComponentStateError";
@@ -35,6 +36,7 @@ export class GetComponentStateService extends Context.Tag(
     addresses: string[];
     schema: StructSchema<T, R>;
     at_ledger_state: AtLedgerState;
+    options?: GetEntityDetailsOptions;
   }) => Effect.Effect<
     {
       address: string;
@@ -43,13 +45,14 @@ export class GetComponentStateService extends Context.Tag(
           ? ParsedType<T[K]> | null
           : ParsedType<T[K]>;
       };
+      details: StateEntityDetailsVaultResponseItem;
     }[],
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
     | InvalidComponentStateError,
-    GatewayApiClientService | LoggerService | GetLedgerStateService
+    GatewayApiClientService | GetLedgerStateService
   >
 >() {}
 
@@ -62,11 +65,12 @@ export const GetComponentStateLive = Layer.effect(
       addresses: string[];
       at_ledger_state: AtLedgerState;
       schema: StructSchema<T, R>;
+      options?: GetEntityDetailsOptions;
     }) => {
       return Effect.gen(function* () {
         const entityDetails = yield* getEntityDetailsService(
           input.addresses,
-          {},
+          input.options,
           input.at_ledger_state
         );
 
@@ -77,6 +81,7 @@ export const GetComponentStateLive = Layer.effect(
               ? ParsedType<T[K]> | null
               : ParsedType<T[K]>;
           };
+          details: StateEntityDetailsVaultResponseItem;
         }[] = [];
 
         for (const item of entityDetails) {
@@ -98,6 +103,7 @@ export const GetComponentStateLive = Layer.effect(
               results.push({
                 address: item.address,
                 state: parsed.value,
+                details: item,
               });
             }
           }

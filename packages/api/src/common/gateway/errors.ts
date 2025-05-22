@@ -5,5 +5,5 @@ export class GatewayError {
 
 export class EntityNotFoundError {
   readonly _tag = "EntityNotFoundError";
-  constructor(readonly error: unknown) {}
+  constructor(readonly error?: unknown) {}
 }
