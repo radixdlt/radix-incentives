@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-import type { LoggerService } from "../../logger/logger";
+
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
@@ -64,7 +64,6 @@ export class GetWeftFinancePositionsService extends Context.Tag(
     | FailedToParseLendingPoolSchemaError,
     | GetNonFungibleBalanceService
     | GatewayApiClientService
-    | LoggerService
     | EntityFungiblesPageService
     | GetLedgerStateService
     | EntityNonFungiblesPageService

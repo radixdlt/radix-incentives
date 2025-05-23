@@ -28,6 +28,7 @@ import { KeyValueStoreKeysLive } from "../../gateway/keyValueStoreKeys";
 import { GetComponentStateLive } from "../../gateway/getComponentState";
 import { GetQuantaSwapBinMapLive } from "./getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "./getShapeLiquidityClaims";
+import { calculatePrice } from "./tickCalculator";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -47,11 +48,6 @@ const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
 );
 
 const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
-);
-
-const getEntityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(loggerLive)
 );
@@ -156,7 +152,7 @@ describe("getShapeLiquidityAssets", () => {
         const {
           componentAddress,
           liquidity_receipt: liquidityReceiptResourceAddress,
-        } = CaviarNineConstants.shapeLiquidityPools[0];
+        } = CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC;
 
         const resourceHolders = yield* getResourceHoldersService({
           resourceAddress: liquidityReceiptResourceAddress,
@@ -184,8 +180,11 @@ describe("getShapeLiquidityAssets", () => {
 
         const result = yield* getShapeLiquidityAssetsService({
           componentAddress,
-          liquidityReceiptResourceAddress,
-          nonFungibleLocalIds: nftIds,
+          addresses: addresses,
+          priceBounds: {
+            lower: 0.7,
+            upper: 1.3,
+          },
           at_ledger_state: {
             state_version: state.state_version,
           },
@@ -195,14 +194,12 @@ describe("getShapeLiquidityAssets", () => {
       }),
       Layer.mergeAll(
         gatewayApiClientLive,
-        loggerLive,
         getLedgerStateLive,
         getResourceHoldersLive,
         getNonfungibleBalanceLive,
         getShapeLiquidityAssetsLive,
         getEntityDetailsLive,
         entityNonFungibleDataLive,
-        getEntityNonFungibleDataServiceLive,
         entityNonFungiblesPageServiceLive,
         getKeyValueStoreLive,
         getKeyValueStoreKeysLive,
@@ -213,7 +210,14 @@ describe("getShapeLiquidityAssets", () => {
       )
     );
 
-    const result = await Effect.runPromise(program);
+    const result = await Effect.runPromise(
+      program.pipe(
+        Effect.catchAll((error) => {
+          console.error(JSON.stringify(error, null, 2));
+          return Effect.fail(error);
+        })
+      )
+    );
 
     console.log(JSON.stringify(result, null, 2));
   }, 300_000);

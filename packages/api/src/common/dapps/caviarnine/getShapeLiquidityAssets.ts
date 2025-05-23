@@ -16,7 +16,10 @@ import {
   GetComponentStateService,
   type InvalidComponentStateError,
 } from "../../gateway/getComponentState";
-import type { InvalidInputError } from "../../gateway/getNonFungibleBalance";
+import {
+  GetNonFungibleBalanceService,
+  type InvalidInputError,
+} from "../../gateway/getNonFungibleBalance";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import { GetQuantaSwapBinMapService } from "./getQuantaSwapBinMap";
 import {
@@ -24,11 +27,30 @@ import {
   GetShapeLiquidityClaimsService,
 } from "./getShapeLiquidityClaims";
 import { I192 } from "../../helpers/i192";
+import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
+import { calculatePrice, calculateTick } from "./tickCalculator";
 
 export class FailedToParseComponentStateError {
   readonly _tag = "FailedToParseComponentStateError";
   constructor(readonly error: unknown) {}
 }
+
+export type ShapeLiquidityAsset = {
+  xToken: {
+    withinPriceBounds: string;
+    outsidePriceBounds: string;
+    resourceAddress: string;
+  };
+  yToken: {
+    withinPriceBounds: string;
+    outsidePriceBounds: string;
+    resourceAddress: string;
+  };
+  currentPrice: string;
+  nonFungibleId: string;
+  resourceAddress: string;
+  isActive: boolean;
+};
 
 export class GetShapeLiquidityAssetsService extends Context.Tag(
   "GetShapeLiquidityAssetsService"
@@ -36,20 +58,16 @@ export class GetShapeLiquidityAssetsService extends Context.Tag(
   GetShapeLiquidityAssetsService,
   (input: {
     componentAddress: string;
-    liquidityReceiptResourceAddress: string;
-    nonFungibleLocalIds: string[];
+    addresses: string[];
     at_ledger_state: AtLedgerState;
+    priceBounds: {
+      lower: number;
+      upper: number;
+    };
   }) => Effect.Effect<
     {
-      xToken: {
-        amount: string;
-        resourceAddress: string;
-      };
-      yToken: {
-        amount: string;
-        resourceAddress: string;
-      };
-      isActive: boolean;
+      address: string;
+      items: ShapeLiquidityAsset[];
     }[],
     | FailedToParseComponentStateError
     | GetEntityDetailsError
@@ -68,6 +86,8 @@ export class GetShapeLiquidityAssetsService extends Context.Tag(
     | GetLedgerStateService
     | GetQuantaSwapBinMapService
     | GetShapeLiquidityClaimsService
+    | GetNonFungibleBalanceService
+    | EntityNonFungiblesPageService
   >
 >() {}
 
@@ -78,6 +98,7 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
     const getQuantaSwapBinMapService = yield* GetQuantaSwapBinMapService;
     const getShapeLiquidityClaimsService =
       yield* GetShapeLiquidityClaimsService;
+    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -111,10 +132,7 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           );
         }
 
-        const active_total_claim = new I192(quantaSwapState.active_total_claim);
-        const active_x = new I192(quantaSwapState.active_x);
-        const active_y = new I192(quantaSwapState.active_y);
-
+        const binSpan = quantaSwapState.bin_span;
         const currentTick =
           quantaSwapState.tick_index.current.variant === "Some"
             ? quantaSwapState.tick_index.current.value[0]
@@ -125,6 +143,45 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
             new FailedToParseComponentStateError("Current tick is not defined")
           );
 
+        const nonFungibleBalances = yield* getNonFungibleBalanceService({
+          addresses: input.addresses,
+          at_ledger_state: input.at_ledger_state,
+        });
+
+        const shapeLiquidityNfts = nonFungibleBalances.items.flatMap((item) =>
+          item.nonFungibleResources
+            .filter(
+              (nft) =>
+                nft.resourceAddress ===
+                quantaSwapState.liquidity_receipt_manager
+            )
+            .flatMap((nft) => nft.items)
+            .map((nft) => ({ ...nft, address: item.address }))
+        );
+
+        const nftIds = shapeLiquidityNfts.map((nft) => nft.id);
+
+        const nftOwnerMap = shapeLiquidityNfts.reduce((acc, nft) => {
+          acc.set(nft.id, nft.address);
+          return acc;
+        }, new Map<string, string>());
+
+        if (nftIds.length === 0) {
+          return yield* Effect.succeed([]);
+        }
+
+        const active_total_claim = new I192(quantaSwapState.active_total_claim);
+        const active_x = new I192(quantaSwapState.active_x);
+        const active_y = new I192(quantaSwapState.active_y);
+
+        const middleTick = currentTick + Math.floor(binSpan / 2);
+        const currentPrice = calculatePrice(middleTick);
+
+        const lowerPrice = currentPrice.mul(input.priceBounds.lower);
+        const upperPrice = currentPrice.mul(input.priceBounds.upper);
+        const lowerTick = calculateTick(lowerPrice);
+        const upperTick = calculateTick(upperPrice);
+
         const binMapData = yield* getQuantaSwapBinMapService({
           address: quantaSwapState.bin_map,
           at_ledger_state: input.at_ledger_state,
@@ -133,20 +190,38 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
         const nfts = yield* getShapeLiquidityClaimsService({
           componentAddress: input.componentAddress,
           liquidityReceiptResourceAddress:
-            input.liquidityReceiptResourceAddress,
-          nonFungibleLocalIds: input.nonFungibleLocalIds,
+            quantaSwapState.liquidity_receipt_manager,
+          nonFungibleLocalIds: nftIds,
           at_ledger_state: input.at_ledger_state,
-        });
+        }).pipe(
+          Effect.map((items) =>
+            items.map((nft) => ({
+              ...nft,
+              // biome-ignore lint/style/noNonNullAssertion: <explanation>
+              address: nftOwnerMap.get(nft.nonFungibleId)!,
+            }))
+          )
+        );
 
         return yield* Effect.forEach(
           nfts,
-          ({ liquidityClaims, nonFungibleId, resourceAddress }) => {
+          ({ liquidityClaims, nonFungibleId, resourceAddress, address }) => {
             return Effect.gen(function* () {
-              let amount_x = I192.zero();
-              let amount_y = I192.zero();
               let isActive = false;
 
+              const withinPriceBounds = {
+                amount_x: I192.zero(),
+                amount_y: I192.zero(),
+              };
+              const outsidePriceBounds = {
+                amount_x: I192.zero(),
+                amount_y: I192.zero(),
+              };
+
               for (const [tick, claimAmount] of liquidityClaims.entries()) {
+                const isTickWithinPriceBounds =
+                  tick >= lowerTick && tick <= upperTick;
+
                 const bin = binMapData.get(tick);
                 const binIsDefined = !!bin;
 
@@ -163,12 +238,26 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
 
                 if (tickIsLessThanCurrentTick) {
                   const share = new I192(claimAmount).divide(bin.total_claim);
-                  amount_y = amount_y.add(share.multiply(bin.amount));
+                  const amount = share.multiply(bin.amount);
+                  if (isTickWithinPriceBounds) {
+                    withinPriceBounds.amount_y =
+                      withinPriceBounds.amount_y.add(amount);
+                  } else {
+                    outsidePriceBounds.amount_y =
+                      outsidePriceBounds.amount_y.add(amount);
+                  }
                 }
 
                 if (tickIsGreaterThanCurrentTick) {
                   const share = new I192(claimAmount).divide(bin.total_claim);
-                  amount_x = amount_x.add(share.multiply(bin.amount));
+                  const amount = share.multiply(bin.amount);
+                  if (isTickWithinPriceBounds) {
+                    withinPriceBounds.amount_x =
+                      withinPriceBounds.amount_x.add(amount);
+                  } else {
+                    outsidePriceBounds.amount_x =
+                      outsidePriceBounds.amount_x.add(amount);
+                  }
                 }
 
                 if (tickIsEqualToCurrentTick) {
@@ -177,26 +266,58 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
                   const share = new I192(claimAmount).divide(
                     active_total_claim
                   );
-                  amount_x = amount_x.add(active_x.multiply(share));
-                  amount_y = amount_y.add(active_y.multiply(share));
+                  const amount_x = active_x.multiply(share);
+                  const amount_y = active_y.multiply(share);
+
+                  withinPriceBounds.amount_x =
+                    withinPriceBounds.amount_x.add(amount_x);
+                  withinPriceBounds.amount_y =
+                    withinPriceBounds.amount_y.add(amount_y);
                 }
               }
 
               return yield* Effect.succeed({
+                address,
                 xToken: {
-                  amount: amount_x.toString(),
+                  withinPriceBounds: withinPriceBounds.amount_x.toString(),
+                  outsidePriceBounds: outsidePriceBounds.amount_x.toString(),
                   resourceAddress: token_x_address,
                 },
                 yToken: {
-                  amount: amount_y.toString(),
+                  withinPriceBounds: withinPriceBounds.amount_y.toString(),
+                  outsidePriceBounds: outsidePriceBounds.amount_y.toString(),
                   resourceAddress: token_y_address,
                 },
                 isActive,
                 nonFungibleId,
                 resourceAddress,
+                currentPrice: currentPrice.toString(),
               });
             });
           }
+        ).pipe(
+          Effect.map((items) => {
+            const addressAssetMap = new Map<string, ShapeLiquidityAsset[]>();
+
+            for (const { address, ...rest } of items) {
+              const existing = addressAssetMap.get(address);
+              if (!existing) {
+                addressAssetMap.set(address, [rest]);
+              } else {
+                existing.push(rest);
+              }
+            }
+
+            const result = Array.from(addressAssetMap.entries()).map(
+              ([address, items]) => ({
+                at_ledger_state: input.at_ledger_state,
+                address,
+                items,
+              })
+            );
+
+            return result;
+          })
         );
       });
     };

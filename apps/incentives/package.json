@@ -5,6 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "next build",
+    "clean": "rm -rf .next",
     "check": "biome check .",
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",

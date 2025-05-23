@@ -6,7 +6,7 @@ import {
 import { CaviarNineConstants } from "./constants";
 import { BigNumber } from "bignumber.js";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-import type { LoggerService } from "../../logger/logger";
+
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
@@ -34,7 +34,6 @@ export class GetLsulpService extends Context.Tag("GetLsulpService")<
     | GatewayError,
     | GetLedgerStateService
     | GatewayApiClientService
-    | LoggerService
     | EntityFungiblesPageService
     | GetLedgerStateService
   >
