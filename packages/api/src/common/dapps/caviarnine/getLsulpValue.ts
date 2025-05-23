@@ -6,7 +6,7 @@ import {
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-import type { LoggerService } from "../../logger/logger";
+
 import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import { BigNumber } from "bignumber.js";
 import type {
@@ -41,10 +41,7 @@ export class GetLsulpValueService extends Context.Tag("GetLsulpValueService")<
     | InvalidInputError
     | GatewayError
     | InvalidEntityAddressError,
-    | GetLedgerStateService
-    | GatewayApiClientService
-    | LoggerService
-    | EntityFungiblesPageService
+    GetLedgerStateService | GatewayApiClientService | EntityFungiblesPageService
   >
 >() {}
 

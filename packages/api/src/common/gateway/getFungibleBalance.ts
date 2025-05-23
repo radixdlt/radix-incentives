@@ -1,5 +1,4 @@
 import { Context, Effect, Layer } from "effect";
-import { LoggerService } from "../logger/logger";
 import { BigNumber } from "bignumber.js";
 import {
   type GatewayApiClientImpl,
@@ -49,10 +48,7 @@ export class GetFungibleBalanceService extends Context.Tag(
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError,
-    | GatewayApiClientService
-    | LoggerService
-    | EntityFungiblesPageService
-    | GetLedgerStateService
+    GatewayApiClientService | EntityFungiblesPageService | GetLedgerStateService
   >
 >() {}
 
@@ -60,7 +56,7 @@ export const GetFungibleBalanceLive = Layer.effect(
   GetFungibleBalanceService,
   Effect.gen(function* () {
     const gatewayClient = yield* GatewayApiClientService;
-    const logger = yield* LoggerService;
+
     const entityFungiblesPageService = yield* EntityFungiblesPageService;
 
     return (input) => {
@@ -83,7 +79,6 @@ export const GetFungibleBalanceLive = Layer.effect(
                     }
                   ),
                 catch: (error) => {
-                  logger.error(error);
                   return new GetEntityDetailsError(error);
                 },
               });

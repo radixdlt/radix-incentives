@@ -1,5 +1,4 @@
 import { Context, Effect, Layer } from "effect";
-import { LoggerService } from "../logger/logger";
 import {
   type GatewayApiClientImpl,
   GatewayApiClientService,
@@ -69,7 +68,6 @@ export class GetNonFungibleBalanceService extends Context.Tag(
     | InvalidInputError
     | GatewayError,
     | GatewayApiClientService
-    | LoggerService
     | EntityNonFungiblesPageService
     | GetLedgerStateService
   >
@@ -79,7 +77,6 @@ export const GetNonFungibleBalanceLive = Layer.effect(
   GetNonFungibleBalanceService,
   Effect.gen(function* () {
     const gatewayClient = yield* GatewayApiClientService;
-    const logger = yield* LoggerService;
     const entityNonFungiblesPageService = yield* EntityNonFungiblesPageService;
     const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
 
@@ -106,10 +103,7 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                     },
                   }
                 ),
-              catch: (error) => {
-                logger.error(error);
-                return new GetEntityDetailsError(error);
-              },
+              catch: (error) => new GetEntityDetailsError(error),
             })
           )
         ).pipe(

@@ -3,7 +3,6 @@ import {
   type GatewayApiClientImpl,
   GatewayApiClientService,
 } from "../gateway/gatewayApiClient";
-import { LoggerService } from "../logger/logger";
 import type { AtLedgerState } from "./schemas";
 
 export class GetEntityDetailsError {
@@ -40,8 +39,6 @@ export const GetEntityDetailsServiceLive = Layer.effect(
   Effect.gen(function* () {
     const gatewayClient = yield* GatewayApiClientService;
 
-    const logger = yield* LoggerService;
-
     return (input, options, state) => {
       return Effect.gen(function* () {
         return yield* Effect.tryPromise({
@@ -52,7 +49,6 @@ export const GetEntityDetailsServiceLive = Layer.effect(
               state
             ),
           catch: (error) => {
-            logger.error(error);
             return new GetEntityDetailsError(error);
           },
         });

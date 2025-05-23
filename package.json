@@ -5,6 +5,8 @@
     "dev": "turbo run dev",
     "dev:streamer": "turbo run dev --filter=streamer --filter=db",
     "build": "turbo run build",
+    "build:clean": "turbo run build && ./scripts/clean.sh",
+    "clean": "./scripts/clean.sh",
     "test": "turbo run test",
     "format": "biome format --write ./packages/**/**/*.ts",
     "lint": "biome lint --write ./packages/**/**/*.ts",
