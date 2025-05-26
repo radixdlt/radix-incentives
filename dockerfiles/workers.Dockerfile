@@ -1,40 +1,40 @@
+# Base node image
 FROM node:22.3.0-bullseye-slim AS base
-
-ARG NPM_LOCAL_CACHE=.cache
-
-FROM base AS prepare-build
-
 WORKDIR /app
 
-RUN npm install -g turbo
+# Enable pnpm
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable && corepack prepare pnpm@10.0.0 --activate 
+
+# Install Turbo globally
+FROM base AS builder
+
+RUN pnpm add -g turbo@2.3.3
+
+# Copy all files
 COPY . .
-RUN turbo prune --scope=workers --docker
 
-FROM base AS build
+# Prune the monorepo for the clinch package
+RUN turbo prune workers --docker
 
+# Development dependencies installation stage
+FROM base AS installer
+
+COPY --from=builder /app/out/json/ .
+RUN pnpm install
+
+# Copy source code and build
+COPY --from=builder /app/out/full/ .
+RUN pnpm turbo run build --filter=workers...
+
+# Production image
+FROM base AS runner
 WORKDIR /app
 
-COPY --from=prepare-build /app/out/json/ .
-COPY --from=prepare-build /app/out/package-lock.json ./package-lock.json
+# Copy built application
+COPY --from=installer /app/apps/ apps
+COPY --from=installer /app/packages/ packages
+COPY --from=installer /app/node_modules/ node_modules
 
-RUN npm install
-
-COPY --from=prepare-build /app/out/full/ .
-
-COPY turbo.json turbo.json
-
-RUN npx turbo run build --filter=workers
-
-FROM base AS application
-
-WORKDIR /app
-
-COPY --from=build /app/apps/ apps
-COPY --from=build /app/packages/ packages
-COPY --from=build /app/packages/database/src/ .
-COPY --from=build /app/node_modules node_modules
-
-RUN npm install pm2 -g && \
-    pm2 install pm2-metrics
-
-CMD ["pm2-runtime","apps/workers/dist/index.cjs"]
+CMD node apps/workers/dist/index.js

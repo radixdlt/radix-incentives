@@ -1,7 +1,8 @@
 {
   "name": "workers",
   "scripts": {
-    "dev": "tsx watch ./src/index.ts"
+    "dev": "tsx watch ./src/index.ts",
+    "build": "tsup"
   },
   "type": "module",
   "dependencies": {
@@ -11,7 +12,8 @@
     "effect": "catalog:",
     "ioredis": "catalog:",
     "zod": "catalog:",
-    "drizzle-orm": "catalog:"
+    "drizzle-orm": "catalog:",
+    "pino": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
