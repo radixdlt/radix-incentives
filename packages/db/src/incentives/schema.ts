@@ -10,10 +10,8 @@ import {
   jsonb,
   index,
   boolean,
-  json,
   decimal,
   pgEnum,
-  uniqueIndex,
   integer,
 } from "drizzle-orm/pg-core";
 
@@ -107,122 +105,6 @@ export const verificationTokens = createTable(
   })
 );
 
-// Export all admin-related schema components
-export const adminUsers = createTable("admin_users", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  email: text("email").notNull().unique(),
-  name: text("name").notNull(),
-  password: text("password").notNull(), // Hashed password
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  role: text("role").notNull().default("admin"), // admin, superadmin
-  isActive: boolean("is_active").notNull().default(true),
-  lastLoginAt: timestamp("last_login_at", { withTimezone: true }),
-  permissions: json("permissions").default({}),
-});
-
-export const adminLogs = createTable("admin_logs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  adminId: uuid("admin_id")
-    .notNull()
-    .references(() => adminUsers.id),
-  action: text("action").notNull(),
-  entityType: text("entity_type").notNull(),
-  entityId: text("entity_id"),
-  details: json("details"),
-  ipAddress: text("ip_address"),
-  userAgent: text("user_agent"),
-  timestamp: timestamp("timestamp", { withTimezone: true }).defaultNow(),
-});
-
-export const reportTemplates = createTable("report_templates", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  name: text("name").notNull().unique(),
-  description: text("description"),
-  template: json("template").notNull(),
-  createdById: uuid("created_by_id")
-    .notNull()
-    .references(() => adminUsers.id),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow(),
-  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow(),
-  isActive: boolean("is_active").notNull().default(true),
-});
-
-// Relations
-export const adminRelations = relations(adminUsers, ({ many }) => ({
-  logs: many(adminLogs),
-  reportTemplates: many(reportTemplates),
-}));
-
-export const adminLogsRelations = relations(adminLogs, ({ one }) => ({
-  adminUser: one(adminUsers, {
-    fields: [adminLogs.adminId],
-    references: [adminUsers.id],
-  }),
-}));
-
-export const reportTemplatesRelations = relations(
-  reportTemplates,
-  ({ one }) => ({
-    createdBy: one(adminUsers, {
-      fields: [reportTemplates.createdById],
-      references: [adminUsers.id],
-    }),
-  })
-);
-
-// --- Add JobLog Schema Below ---
-
-export const jobLogs = createTable(
-  "job_log",
-  {
-    id: uuid("id").primaryKey().defaultRandom(), // Log entry's unique PK
-    jobId: varchar("job_id", { length: 255 }).notNull(), // Application-generated ID passed to BullMQ
-    queueName: varchar("queue_name", { length: 100 }).notNull(),
-    jobName: varchar("job_name", { length: 255 }).notNull(),
-    jobArguments: jsonb("job_arguments"),
-    triggerSource: varchar("trigger_source", { length: 50 })
-      .notNull()
-      .default("system"),
-    triggeredByAdminUserId: uuid("triggered_by_admin_user_id").references(
-      () => adminUsers.id,
-      { onDelete: "set null" }
-    ),
-    status: varchar("status", { length: 50 }).notNull().default("pending"),
-    createdAt: timestamp("created_at", { mode: "date", withTimezone: true })
-      .notNull()
-      .defaultNow(), // When enqueued
-    startedAt: timestamp("started_at", { mode: "date", withTimezone: true }), // When worker started
-    endedAt: timestamp("ended_at", { mode: "date", withTimezone: true }), // When worker finished
-    errorMessage: text("error_message"),
-    errorStacktrace: text("error_stacktrace"),
-  },
-  (table) => {
-    return {
-      // Index on the jobId used by BullMQ and for lookups
-      jobIdIdx: index("joblog_job_id_idx").on(table.jobId),
-      // Other indexes remain useful
-      queueStatusIdx: index("joblog_queue_status_idx").on(
-        table.queueName,
-        table.status
-      ),
-      jobNameIdx: index("joblog_job_name_idx").on(table.jobName),
-      createdAtIdx: index("joblog_created_at_idx").on(table.createdAt),
-    };
-  }
-);
-
-// Relations for JobLog
-export const jobLogsRelations = relations(jobLogs, ({ one }) => ({
-  triggeredByAdmin: one(adminUsers, {
-    fields: [jobLogs.triggeredByAdminUserId],
-    references: [adminUsers.id],
-    relationName: "triggered_by_admin", // Optional custom relation name
-  }),
-}));
-
-// --- New Schema based on acitivity-management.md ---
-
 // Enums (Define possible string values for enum columns)
 export const seasonStatusEnum = pgEnum("season_status", [
   "upcoming",
@@ -269,7 +151,6 @@ export const seasons = createTable("season", {
 
 export const seasonsRelations = relations(seasons, ({ many }) => ({
   weeks: many(weeks),
-  userSeasonPoints: many(userSeasonPoints),
 }));
 
 // Week Table
@@ -293,8 +174,6 @@ export const weeks = createTable("week", {
 export const weeksRelations = relations(weeks, ({ one, many }) => ({
   season: one(seasons, { fields: [weeks.seasonId], references: [seasons.id] }),
   activityWeeks: many(activityWeeks),
-  userWeeklyPoints: many(userWeeklyPoints),
-  userWeeklyMultipliers: many(userWeeklyMultipliers),
 }));
 
 // Activity Table
@@ -303,8 +182,8 @@ export const activities = createTable("activity", {
   name: varchar("name", { length: 255 }).notNull(),
   description: text("description"),
   type: activityTypeEnum("type").notNull(),
-  rewardType: rewardTypeEnum("reward_type").notNull(),
   category: activityCategoryEnum("category").notNull(),
+  rewardType: rewardTypeEnum("reward_type").notNull(),
   rules: jsonb("rules"),
 });
 
@@ -398,115 +277,70 @@ export const eventsRelations = relations(events, ({ one }) => ({
   }),
 }));
 
-// UserWeeklyPoints Table
-export const userWeeklyPoints = createTable("user_weekly_points", {
+export const snapshotStatusEnum = pgEnum("snapshot_status", [
+  "not_started",
+  "processing",
+  "completed",
+  "failed",
+]);
+
+export const snapshots = createTable("snapshot", {
   id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
+  timestamp: timestamp("timestamp", {
+    mode: "date",
+    withTimezone: true,
+  }),
+  status: snapshotStatusEnum("status").notNull().default("not_started"),
+  updatedAt: timestamp("updated_at", {
+    mode: "date",
+    withTimezone: true,
+  })
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  weekId: uuid("week_id")
-    .notNull()
-    .references(() => weeks.id, { onDelete: "cascade" }),
-  activityPoints: jsonb("activity_points"), // JSON: { activityId: points, ... }
-  basePoints: decimal("base_points", { precision: 18, scale: 2 })
-    .notNull()
-    .default("0"),
-  appliedMultiplier: decimal("applied_multiplier", { precision: 10, scale: 4 })
-    .notNull()
-    .default("1"),
-  totalPoints: decimal("total_points", { precision: 18, scale: 2 })
-    .notNull()
-    .default("0"),
-  isConverted: boolean("is_converted").notNull().default(false), // To season points
+    .defaultNow(),
 });
 
-export const userWeeklyPointsRelations = relations(
-  userWeeklyPoints,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [userWeeklyPoints.userId],
-      references: [users.id],
-    }),
-    week: one(weeks, {
-      fields: [userWeeklyPoints.weekId],
-      references: [weeks.id],
+export const accountBalances = createTable(
+  "account_balances",
+  {
+    timestamp: timestamp("timestamp", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    accountAddress: varchar("account_address", { length: 255 })
+      .notNull()
+      .references(() => accounts.address, { onDelete: "cascade" }),
+    usdValue: decimal("usd_value", { precision: 18, scale: 2 }).notNull(),
+    activityId: text("activity_id")
+      .notNull()
+      .references(() => activities.id, { onDelete: "cascade" }),
+    data: jsonb("data").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.accountAddress, table.timestamp, table.activityId],
     }),
   })
 );
 
-// UserWeeklyMultipliers Table
-export const userWeeklyMultipliers = createTable("user_weekly_multipliers", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  weekId: uuid("week_id")
-    .notNull()
-    .references(() => weeks.id, { onDelete: "cascade" }),
-  activityMultipliers: jsonb("activity_multipliers"), // JSON: { activityId: multiplier, ... }
-  // totalMultiplier field might be redundant if the main multiplier is applied globally later.
-  // totalMultiplier: decimal("total_multiplier", { precision: 10, scale: 4 }).notNull().default("1"),
-});
-
-export const userWeeklyMultipliersRelations = relations(
-  userWeeklyMultipliers,
+export const accountBalancesRelations = relations(
+  accountBalances,
   ({ one }) => ({
-    user: one(users, {
-      fields: [userWeeklyMultipliers.userId],
-      references: [users.id],
-    }),
-    week: one(weeks, {
-      fields: [userWeeklyMultipliers.weekId],
-      references: [weeks.id],
+    activity: one(activities, {
+      fields: [accountBalances.activityId],
+      references: [activities.id],
     }),
   })
 );
-
-// UserSeasonPoints Table
-export const userSeasonPoints = createTable("user_season_points", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  userId: uuid("user_id")
-    .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  seasonId: uuid("season_id")
-    .notNull()
-    .references(() => seasons.id, { onDelete: "cascade" }),
-  totalPoints: decimal("total_points", { precision: 18, scale: 2 })
-    .notNull()
-    .default("0"),
-  // Rank might be better calculated dynamically or stored in a separate leaderboard table
-  // rank: integer("rank"),
-});
-
-export const userSeasonPointsRelations = relations(
-  userSeasonPoints,
-  ({ one }) => ({
-    user: one(users, {
-      fields: [userSeasonPoints.userId],
-      references: [users.id],
-    }),
-    season: one(seasons, {
-      fields: [userSeasonPoints.seasonId],
-      references: [seasons.id],
-    }),
-  })
-);
-
-// --- End Community Consultation Schema ---
 
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
 export type Account = InferSelectModel<typeof accounts>;
-export type JobLog = InferSelectModel<typeof jobLogs>;
 export type Season = InferSelectModel<typeof seasons>;
 export type Week = InferSelectModel<typeof weeks>;
 export type Activity = InferSelectModel<typeof activities>;
 export type ActivityWeek = InferSelectModel<typeof activityWeeks>;
 export type Transaction = InferSelectModel<typeof transactions>;
 export type Event = InferSelectModel<typeof events>;
-export type UserWeeklyPoints = InferSelectModel<typeof userWeeklyPoints>;
-export type UserWeeklyMultipliers = InferSelectModel<
-  typeof userWeeklyMultipliers
->;
-export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
+export type Snapshot = InferSelectModel<typeof snapshots>;
+export type AccountBalance = InferSelectModel<typeof accountBalances>;

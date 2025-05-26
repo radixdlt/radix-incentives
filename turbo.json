@@ -16,16 +16,20 @@
       "persistent": true
     },
     "db:generate:incentives": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "db:generate:consultation": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "db:migrate:incentives": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "db:migrate:consultation": {
-      "cache": false
+      "cache": false,
+      "persistent": true
     },
     "db:studio:incentives": {
       "cache": false

@@ -2,11 +2,8 @@ import type {
   TransformedEvent,
   TransformedTransaction,
 } from "../transformEvent";
-import type {
-  StructDefinition,
-  StructSchema,
-} from "@calamari-radix/sbor-ez-mode/dist/schemas/struct";
-import type { OrderedTupleSchema } from "@calamari-radix/sbor-ez-mode/dist/schemas/orderedTuple";
+import type { StructDefinition, StructSchema } from "sbor-ez-mode";
+import type { OrderedTupleSchema } from "sbor-ez-mode";
 import { Effect } from "effect";
 
 export type CapturedEvent<U> = {

@@ -1,0 +1,21 @@
+{
+  "name": "workers",
+  "scripts": {
+    "dev": "tsx watch ./src/index.ts"
+  },
+  "type": "module",
+  "dependencies": {
+    "api": "workspace:*",
+    "bullmq": "catalog:",
+    "db": "workspace:*",
+    "effect": "catalog:",
+    "ioredis": "catalog:",
+    "zod": "catalog:",
+    "drizzle-orm": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.10",
+    "tsup": "catalog:",
+    "tsx": "catalog:"
+  }
+}

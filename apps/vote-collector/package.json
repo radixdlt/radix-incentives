@@ -9,7 +9,7 @@
     "api": "workspace:*",
     "effect": "catalog:",
     "db": "workspace:*",
-    "@calamari-radix/sbor-ez-mode": "catalog:"
+    "sbor-ez-mode": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

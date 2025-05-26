@@ -102,15 +102,31 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const [{ state: quantaSwapState, details }] =
-          yield* getComponentStateService({
-            addresses: [input.componentAddress],
-            schema: QuantaSwap,
-            at_ledger_state: input.at_ledger_state,
-            options: {
-              explicitMetadata: ["token_x", "token_y"],
-            },
-          });
+        const componentStateResult = yield* getComponentStateService({
+          addresses: [input.componentAddress],
+          schema: QuantaSwap,
+          at_ledger_state: input.at_ledger_state,
+          options: {
+            explicitMetadata: ["token_x", "token_y"],
+          },
+        });
+
+        if (componentStateResult.length === 0) {
+          return yield* Effect.fail(
+            new FailedToParseComponentStateError("Component not found")
+          );
+        }
+
+        const componentResult = componentStateResult[0];
+        if (!componentResult) {
+          return yield* Effect.fail(
+            new FailedToParseComponentStateError(
+              "Component result is undefined"
+            )
+          );
+        }
+
+        const { state: quantaSwapState, details } = componentResult;
 
         const metadata = details.explicit_metadata?.items;
         const token_x = metadata?.find((item) => item.key === "token_x");

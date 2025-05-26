@@ -15,11 +15,7 @@ import type {
   StateEntityDetailsVaultResponseItem,
 } from "@radixdlt/babylon-gateway-api-sdk";
 
-import type {
-  ParsedType,
-  StructDefinition,
-  StructSchema,
-} from "@calamari-radix/sbor-ez-mode/dist/schemas/struct";
+import type { ParsedType, StructDefinition, StructSchema } from "sbor-ez-mode";
 import type { AtLedgerState } from "./schemas";
 import type { EntityNotFoundError } from "./errors";
 

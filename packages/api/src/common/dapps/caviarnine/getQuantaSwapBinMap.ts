@@ -6,7 +6,7 @@ import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
 import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
-import s from "@calamari-radix/sbor-ez-mode";
+import s from "sbor-ez-mode";
 
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 import { I192 } from "../../helpers/i192";
