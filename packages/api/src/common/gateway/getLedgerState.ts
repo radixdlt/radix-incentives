@@ -5,6 +5,10 @@ import { GatewayError } from "./errors";
 import type { LedgerState } from "@radixdlt/babylon-gateway-api-sdk";
 import type { AtLedgerState } from "./schemas";
 
+export type GetLedgerStateInput = {
+  at_ledger_state: AtLedgerState;
+};
+
 export class GetLedgerStateService extends Context.Tag("GetLedgerStateService")<
   GetLedgerStateService,
   (input: {

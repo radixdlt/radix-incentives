@@ -35,21 +35,21 @@ import { AddTransactionsToDbLive } from "./addTransactionsToDb";
 import { GetActivitiesLive } from "../activity/getActivities";
 
 export const runTransactionStreamLoop = async () => {
-  const REDIS_URL = process.env.REDIS_URL;
+  const REDIS_HOST = process.env.REDIS_HOST;
   const START_STATE_VERSION = process.env.START_STATE_VERSION;
 
-  if (!REDIS_URL) {
+  if (!REDIS_HOST) {
     throw new Error("REDIS_URL is not set");
   }
 
   const config = createConfig({
     networkId: 1,
     logLevel: "debug",
-    redisUrl: REDIS_URL,
+    redisUrl: REDIS_HOST,
   });
 
   const redis = new Redis({
-    host: config.redisUrl,
+    host: REDIS_HOST,
     port: config.redisPort,
     password: config.redisPassword,
   });

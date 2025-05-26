@@ -5,7 +5,7 @@ import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesDa
 import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 import type { GatewayError } from "../../gateway/errors";
-import s from "@calamari-radix/sbor-ez-mode";
+import s from "sbor-ez-mode";
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 
 export class FailedToParseLiquidityClaimsError {

@@ -10,6 +10,7 @@ import {
   weeks,
 } from "../schema";
 import { db } from "../client";
+import { sql } from "drizzle-orm";
 
 await db
   .insert(users)
@@ -69,7 +70,7 @@ const [weekResult] = await db
 
 console.log("Week seeded", weekResult);
 
-const [activityResult] = await db
+const [lendingActivityResult, liquidityActivityResult] = await db
   .insert(activities)
   .values([
     {
@@ -80,19 +81,41 @@ const [activityResult] = await db
       category: "lending",
       rules: {},
     },
+    {
+      id: "provideLiquidityToDex",
+      name: "Provide liquidity to a DEX",
+      type: "active",
+      rewardType: "points",
+      category: "liquidity",
+      rules: {},
+    },
   ])
   .returning()
-  .onConflictDoNothing();
+  .onConflictDoUpdate({
+    target: [activities.id],
+    set: {
+      name: sql`excluded.name`,
+    },
+  });
 
-console.log("Activities seeded", activityResult);
+console.log("Activities seeded", [
+  lendingActivityResult,
+  liquidityActivityResult,
+]);
 
 const [activityWeekResult] = await db
   .insert(activityWeeks)
   .values([
     {
-      activityId: activityResult.id,
+      activityId: lendingActivityResult.id,
       weekId: weekResult.id,
-      pointsPool: 1000000,
+      pointsPool: 500_000,
+      status: "active",
+    },
+    {
+      activityId: liquidityActivityResult.id,
+      weekId: weekResult.id,
+      pointsPool: 1_000_000,
       status: "active",
     },
   ])

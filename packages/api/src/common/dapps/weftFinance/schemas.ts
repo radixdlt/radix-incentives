@@ -1,4 +1,4 @@
-import s from "@calamari-radix/sbor-ez-mode";
+import s from "sbor-ez-mode";
 
 export const ContributionStateSchema = s.struct({
   divisibility: s.number(),

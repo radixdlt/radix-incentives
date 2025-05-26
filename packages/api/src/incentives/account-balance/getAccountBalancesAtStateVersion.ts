@@ -120,7 +120,7 @@ type CaviarNinePosition = {
   xrdUsdc: ShapeLiquidityAsset[];
 };
 
-type AccountBalance = {
+export type AccountBalance = {
   address: string;
   staked: Lsu[];
   unstaked: Unstaked[];

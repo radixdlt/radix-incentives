@@ -14,7 +14,7 @@ import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungi
 import { RootFinance } from "./constants";
 
 import { CollaterizedDebtPositionData } from "./schema";
-import type { SborError } from "@calamari-radix/sbor-ez-mode";
+import type { SborError } from "sbor-ez-mode";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
