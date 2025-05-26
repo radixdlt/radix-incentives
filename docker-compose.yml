@@ -35,3 +35,16 @@ services:
       - REDIS_PASSWORD=password
     ports:
       - "8081:8081"
+
+  workers:
+    hostname: workers
+    build:
+      context: .
+      dockerfile: dockerfiles/workers.Dockerfile
+    image: workers:latest
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=password
