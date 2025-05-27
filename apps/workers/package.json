@@ -6,14 +6,19 @@
   },
   "type": "module",
   "dependencies": {
+    "@bull-board/api": "^6.9.6",
+    "@bull-board/hono": "^6.9.6",
+    "@hono/node-server": "catalog:",
     "api": "workspace:*",
+    "bullMQAdapter": "link:@bull-board/api/bullMQAdapter",
     "bullmq": "catalog:",
     "db": "workspace:*",
-    "effect": "catalog:",
-    "ioredis": "catalog:",
-    "zod": "catalog:",
     "drizzle-orm": "catalog:",
-    "pino": "catalog:"
+    "effect": "catalog:",
+    "hono": "^4.7.10",
+    "ioredis": "catalog:",
+    "pino": "catalog:",
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
