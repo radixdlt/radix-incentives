@@ -48,3 +48,4 @@ catalog:
   "bignumber.js": "^9.3.0"
   "bullmq": "^5.53.0"
   "neverthrow": "^8.2.0"
+  "@hono/node-server": "^1.14.2"
