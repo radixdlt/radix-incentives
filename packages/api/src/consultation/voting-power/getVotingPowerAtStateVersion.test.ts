@@ -1,8 +1,6 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../common/gateway/getEntityDetails";
-import { createAppConfigLive } from "../../common/config/appConfig";
-import { LoggerLive } from "../../common/logger/logger";
 import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
 import { GetFungibleBalanceLive } from "../../common/gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../../common/gateway/entityFungiblesPage";
@@ -31,17 +29,10 @@ import { KeyValueStoreKeysLive } from "../../common/gateway/keyValueStoreKeys";
 import { GetKeyValueStoreLive } from "../../common/gateway/getKeyValueStore";
 import { GetRootFinancePositionsLive } from "../../common/dapps/rootFinance/getRootFinancePositions";
 
-const appConfigServiceLive = createAppConfigLive();
-
-const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const getLedgerStateLive = GetLedgerStateLive.pipe(
@@ -58,7 +49,6 @@ const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
 
 const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -74,7 +64,6 @@ const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
 
 const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
@@ -84,7 +73,6 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
 
 const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(stateEntityDetailsLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive),
@@ -96,7 +84,6 @@ const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
 
 const getLsulpLive = GetLsulpLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(stateEntityDetailsLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -104,7 +91,6 @@ const getLsulpLive = GetLsulpLive.pipe(
 
 const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -112,7 +98,6 @@ const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
 
 const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -120,7 +105,6 @@ const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
 
 const getLsulpValueLive = GetLsulpValueLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(stateEntityDetailsLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -128,31 +112,25 @@ const getLsulpValueLive = GetLsulpValueLive.pipe(
 
 const getComponentStateServiceLive = GetComponentStateLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(appConfigServiceLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(keyValueStoreDataServiceLive),
   Layer.provide(keyValueStoreKeysServiceLive)
 );
 
 const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -219,7 +197,6 @@ describe("calculateVotingPower", () => {
       Layer.mergeAll(
         getVotingPowerAtStateVersionLive,
         gatewayApiClientLive,
-        loggerLive,
         stateEntityDetailsLive,
         entityFungiblesPageServiceLive,
         getLedgerStateLive,

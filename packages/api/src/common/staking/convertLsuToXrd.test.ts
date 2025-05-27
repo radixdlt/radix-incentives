@@ -1,32 +1,22 @@
-import { Effect, Either, Layer } from "effect";
+import { Effect, Layer } from "effect";
 import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from "./convertLsuToXrd";
 import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
-import { createAppConfigLive } from "../config/appConfig";
 import { BigNumber } from "bignumber.js";
-import { LoggerLive, LoggerService } from "../logger/logger";
 import { GetLedgerStateLive } from "../gateway/getLedgerState";
 import {
   GetAllValidatorsLive,
   GetAllValidatorsService,
 } from "../gateway/getAllValidators";
 
-const appConfigServiceLive = createAppConfigLive();
-
-const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive)
+  Layer.provide(getEntityDetailsServiceLive)
 );
 
 const getStateVersionLive = GetLedgerStateLive.pipe(
@@ -34,8 +24,7 @@ const getStateVersionLive = GetLedgerStateLive.pipe(
 );
 
 const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 describe("ConvertLsuToXrdService", () => {
@@ -46,7 +35,6 @@ describe("ConvertLsuToXrdService", () => {
       Effect.gen(function* () {
         const convertLsuToXrd = yield* ConvertLsuToXrdService;
         const getAllValidators = yield* GetAllValidatorsService;
-        const logger = yield* LoggerService;
 
         const validators = yield* getAllValidators();
 
@@ -62,8 +50,7 @@ describe("ConvertLsuToXrdService", () => {
         getEntityDetailsServiceLive,
         getStateVersionLive,
         gatewayApiClientLive,
-        getAllValidatorsServiceLive,
-        loggerLive
+        getAllValidatorsServiceLive
       )
     );
 

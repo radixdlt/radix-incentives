@@ -4,13 +4,12 @@ import {
   GetNonFungibleBalanceService,
 } from "../../gateway/getNonFungibleBalance";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { createAppConfigLive } from "../../config/appConfig";
 import {
   GetLedgerStateLive,
   GetLedgerStateService,
 } from "../../gateway/getLedgerState";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { LoggerLive } from "../../logger/logger";
+
 import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
 import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
 import { CaviarNineConstants } from "./constants";
@@ -30,43 +29,32 @@ import { GetQuantaSwapBinMapLive } from "./getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "./getShapeLiquidityClaims";
 import { calculatePrice } from "./tickCalculator";
 
-const appConfigServiceLive = createAppConfigLive();
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getLedgerStateLive = GetLedgerStateLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
-
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const entityNonFungibleDataLive = EntityNonFungibleDataLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const entityNonFungiblesPageLive = EntityNonFungiblesPageLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(entityNonFungibleDataLive)
 );
 
 const getNonfungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getLedgerStateLive),
-  Layer.provide(loggerLive),
   Layer.provide(entityNonFungibleDataLive),
   Layer.provide(entityNonFungiblesPageLive)
 );
@@ -76,8 +64,7 @@ const getResourceHoldersLive = GetResourceHoldersLive.pipe(
 );
 
 const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
@@ -101,7 +88,6 @@ const getComponentStateLive = GetComponentStateLive.pipe(
 
 const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(getLedgerStateLive),
   Layer.provide(getEntityDetailsLive),
   Layer.provide(getKeyValueStoreLive),
@@ -110,14 +96,12 @@ const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
 
 const getShapeLiquidityClaimsLive = GetShapeLiquidityClaimsLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(getEntityDetailsLive),
   Layer.provide(entityNonFungibleDataLive)
 );
 
 const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(getLedgerStateLive),
   Layer.provide(getResourceHoldersLive),
   Layer.provide(getNonfungibleBalanceLive),

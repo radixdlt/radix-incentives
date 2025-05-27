@@ -41,3 +41,9 @@ export const GetLedgerStateLive = Layer.effect(
     };
   })
 );
+
+export const getLedgerStateProgram = (input: GetLedgerStateInput) =>
+  Effect.gen(function* () {
+    const getLedgerState = yield* GetLedgerStateService;
+    return yield* getLedgerState(input);
+  });

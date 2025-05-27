@@ -1,7 +1,6 @@
 import type { Db } from "db/incentives";
 import { type AppConfig, createAppConfigLive } from "../config/appConfig";
 import { createDbClientLive } from "../db/dbClient";
-import { LoggerLive } from "../../common/logger/logger";
 import { Effect, Layer } from "effect";
 import { RolaServiceLive } from "../rola/rola";
 import {
@@ -39,8 +38,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const dbClientLive = createDbClientLive(input.dbClient);
   const appConfigLive = createAppConfigLive(input.appConfig);
 
-  const loggerLive = LoggerLive.pipe(Layer.provide(appConfigLive));
-
   const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
 
   const createChallengeLive = CreateChallengeLive.pipe(
@@ -62,7 +59,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const verifyRolaProofLive = VerifyRolaProofLive.pipe(
-    Layer.provide(loggerLive),
     Layer.provide(rolaServiceLive)
   );
 
@@ -86,7 +82,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       signInWithRolaProof(input),
       Layer.mergeAll(
         rolaServiceLive,
-        loggerLive,
         appConfigLive,
         dbClientLive,
         verifyRolaProofLive,
@@ -107,8 +102,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         getSessionLive,
         invalidateSessionLive,
         dbClientLive,
-        appConfigLive,
-        loggerLive
+        appConfigLive
       )
     );
 
@@ -120,7 +114,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       verifyAccountOwnershipProgram(input),
       Layer.mergeAll(
         rolaServiceLive,
-        loggerLive,
         appConfigLive,
         dbClientLive,
         verifyRolaProofLive,

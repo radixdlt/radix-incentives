@@ -2,28 +2,17 @@ import { Effect, Layer } from "effect";
 import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import type { GetUsdValueService } from "../token-price/getUsdValue";
-import { AggregateCaviarninePositionsService } from "./aggregateCaviarninePositions";
+import {
+  type AggregateCaviarninePositionsOutput,
+  AggregateCaviarninePositionsService,
+} from "./aggregateCaviarninePositions";
 
 type AggregateAccountBalanceInput = {
   accountBalances: AccountBalance[];
   timestamp: Date;
 };
 
-type C9XrdUsdcLp = {
-  type: "c9_xrd_usdc_lp";
-  xTokenResourceAddress: string;
-  xTokenWithinPriceBounds: string;
-  yTokenResourceAddress: string;
-  yTokenWithinPriceBounds: string;
-};
-
-export type AggregateAccountBalanceOutput = {
-  timestamp: Date;
-  address: string;
-  activityId: string;
-  usdValue: string;
-  data: C9XrdUsdcLp;
-};
+export type AggregateAccountBalanceOutput = AggregateCaviarninePositionsOutput;
 
 export class AggregateAccountBalanceService extends Context.Tag(
   "AggregateAccountBalanceService"

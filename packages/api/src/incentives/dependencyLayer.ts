@@ -1,7 +1,7 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../common/gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../common/gateway/getEntityDetails";
-import { createAppConfigLive } from "../common/config/appConfig";
+
 import {
   type GetLedgerStateInput,
   GetLedgerStateLive,
@@ -41,6 +41,7 @@ import { db } from "db/incentives";
 import { GetUsdValueLive } from "./token-price/getUsdValue";
 import { AggregateAccountBalanceLive } from "./account-balance/aggregateAccountBalance";
 import { AggregateCaviarninePositionsLive } from "./account-balance/aggregateCaviarninePositions";
+import { createAppConfigLive } from "./config/appConfig";
 
 const appConfigServiceLive = createAppConfigLive();
 

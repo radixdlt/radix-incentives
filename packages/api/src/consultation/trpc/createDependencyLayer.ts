@@ -1,7 +1,6 @@
 import type { Db } from "db/consultation";
 import { type AppConfig, createAppConfigLive } from "../config/appConfig";
 import { createDbClientLive } from "../db/dbClient";
-import { LoggerLive } from "../../common/logger/logger";
 import { Effect, Layer } from "effect";
 import { RolaServiceLive } from "../rola/rola";
 import {
@@ -72,8 +71,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const dbClientLive = createDbClientLive(input.dbClient);
   const appConfigLive = createAppConfigLive(input.appConfig);
 
-  const loggerLive = LoggerLive.pipe(Layer.provide(appConfigLive));
-
   const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
 
   const createChallengeLive = CreateChallengeLive.pipe(
@@ -95,7 +92,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const verifyRolaProofLive = VerifyRolaProofLive.pipe(
-    Layer.provide(loggerLive),
     Layer.provide(rolaServiceLive)
   );
 
@@ -126,8 +122,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-    Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive)
+    Layer.provide(gatewayApiClientLive)
   );
 
   const getLedgerStateLive = GetLedgerStateLive.pipe(
@@ -144,7 +139,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
     Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(loggerLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
@@ -160,7 +154,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
     Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(loggerLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(entityNonFungiblesPageServiceLive),
@@ -170,7 +163,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
     Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive),
     Layer.provide(stateEntityDetailsLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive),
@@ -182,7 +174,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getLsulpLive = GetLsulpLive.pipe(
     Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive),
     Layer.provide(stateEntityDetailsLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
@@ -190,7 +181,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getLsulpValueLive = GetLsulpValueLive.pipe(
     Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive),
     Layer.provide(stateEntityDetailsLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
@@ -198,7 +188,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
     Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(loggerLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
@@ -206,7 +195,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
     Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(loggerLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
@@ -214,24 +202,20 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getComponentStateServiceLive = GetComponentStateLive.pipe(
     Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(loggerLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(appConfigServiceLive)
   );
 
   const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
-    Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive)
+    Layer.provide(gatewayApiClientLive)
   );
 
   const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
-    Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive)
+    Layer.provide(gatewayApiClientLive)
   );
 
   const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
     Layer.provide(gatewayApiClientLive),
-    Layer.provide(loggerLive),
     Layer.provide(keyValueStoreDataServiceLive),
     Layer.provide(keyValueStoreKeysServiceLive)
   );
@@ -284,7 +268,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       signInWithRolaProof(input),
       Layer.mergeAll(
         rolaServiceLive,
-        loggerLive,
         appConfigLive,
         dbClientLive,
         verifyRolaProofLive,
@@ -305,8 +288,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         getSessionLive,
         invalidateSessionLive,
         dbClientLive,
-        appConfigLive,
-        loggerLive
+        appConfigLive
       )
     );
 
@@ -318,7 +300,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       verifyAccountOwnershipProgram(input),
       Layer.mergeAll(
         rolaServiceLive,
-        loggerLive,
         appConfigLive,
         dbClientLive,
         verifyRolaProofLive,
@@ -359,7 +340,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         createConsultationMessageLive,
         addConsultationToDbLive,
         verifyRolaProofLive,
-        loggerLive,
         rolaServiceLive
       )
     );
@@ -384,7 +364,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Layer.mergeAll(
         getVotingPowerAtStateVersionLive,
         gatewayApiClientLive,
-        loggerLive,
         stateEntityDetailsLive,
         entityFungiblesPageServiceLive,
         getLedgerStateLive,

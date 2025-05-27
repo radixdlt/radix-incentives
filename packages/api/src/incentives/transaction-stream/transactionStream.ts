@@ -4,8 +4,6 @@ import type {
   TransactionStream,
 } from "radix-transaction-stream";
 
-import { LoggerService } from "../../common/logger/logger";
-
 import type { CommittedTransactionInfo } from "@radixdlt/babylon-gateway-api-sdk";
 
 type TransformTransactionResultOutput = ReturnType<
@@ -46,8 +44,6 @@ export const TransactionStreamLive = (
   Layer.effect(
     TransactionStreamService,
     Effect.gen(function* () {
-      const logger = yield* LoggerService;
-
       let backoffMs = 1000;
       const MAX_BACKOFF_MS = 30000;
 
@@ -58,10 +54,10 @@ export const TransactionStreamLive = (
       return (stateVersion: number) =>
         Effect.gen(function* () {
           const exponentialBackoff = () => {
-            logger.debug(`sleeping for ${backoffMs}ms`);
+            console.log(`sleeping for ${backoffMs}ms`);
             return Effect.sleep(backoffMs).pipe(
               Effect.tap(() => {
-                logger.debug("waking up");
+                console.log("waking up");
                 backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF_MS);
               }),
 
@@ -116,16 +112,16 @@ export const TransactionStreamLive = (
             ),
             Effect.catchTags({
               RateLimitedError: () => {
-                logger.debug("Rate limited, waiting...");
+                console.log("Rate limited, waiting...");
                 return exponentialBackoff();
               },
               StateVersionBeyondEndOfKnownLedgerError: () => {
-                logger.debug("Reached the end of the ledger, waiting...");
+                console.log("Reached the end of the ledger, waiting...");
                 return exponentialBackoff();
               },
               UnknownTransactionStreamError: (error) => {
-                logger.debug("Unknown transaction stream error, waiting...");
-                logger.error({ error: error });
+                console.log("Unknown transaction stream error, waiting...");
+                console.error({ error: error });
                 return exponentialBackoff();
               },
             })

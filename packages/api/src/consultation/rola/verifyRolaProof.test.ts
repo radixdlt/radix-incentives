@@ -8,7 +8,7 @@ import {
   VerifyRolaProofError,
 } from "./verifyRolaProof";
 import { RolaService } from "./rola";
-import { LoggerService } from "../../common/logger/logger";
+
 import type { SignedChallenge } from "@radixdlt/rola";
 
 // --- Mock Services ---
@@ -22,14 +22,9 @@ const RolaTest = Layer.succeed(
 // Simplified Logger Mock Layer
 // Reverting to 'as any' as MinimalLogger wasn't sufficient and full mock is complex
 const mockLoggerError = vi.fn();
-const LoggerTest = Layer.succeed(
-  LoggerService,
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  LoggerService.of({ error: mockLoggerError } as any) // Cast to any to simplify mock
-);
 
 // Combine mock layers
-const testLayer = Layer.merge(RolaTest, LoggerTest);
+const testLayer = Layer.merge(RolaTest);
 
 // --- Test Data ---
 

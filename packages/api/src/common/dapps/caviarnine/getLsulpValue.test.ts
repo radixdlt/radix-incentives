@@ -2,8 +2,6 @@ import { Effect, Layer } from "effect";
 
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { createAppConfigLive } from "../../config/appConfig";
-import { LoggerLive } from "../../logger/logger";
 import {
   GetLedgerStateLive,
   GetLedgerStateService,
@@ -14,22 +12,14 @@ import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 import { GetLsulpValueLive, GetLsulpValueService } from "./getLsulpValue";
 import { ConvertLsuToXrdLive } from "../../staking/convertLsuToXrd";
 
-const appConfigServiceLive = createAppConfigLive();
-
-const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive)
+  Layer.provide(getEntityDetailsServiceLive)
 );
 
 const getLedgerStateLive = GetLedgerStateLive.pipe(
@@ -37,8 +27,7 @@ const getLedgerStateLive = GetLedgerStateLive.pipe(
 );
 
 const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
@@ -47,7 +36,6 @@ const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
 
 const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -55,7 +43,6 @@ const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
 
 const getLsulpValueLive = GetLsulpValueLive.pipe(
   Layer.provide(getFungibleBalanceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getLedgerStateLive)
 );
@@ -84,7 +71,6 @@ describe("GetLsulpValueService", () => {
       }),
       Layer.mergeAll(
         gatewayApiClientLive,
-        loggerLive,
         getFungibleBalanceLive,
         entityFungiblesPageServiceLive,
         getLedgerStateLive,

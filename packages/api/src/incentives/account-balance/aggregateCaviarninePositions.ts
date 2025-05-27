@@ -17,12 +17,12 @@ type NoData = {
   type: "no_data";
 };
 
-type AggregateCaviarninePositionsInput = {
+export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalance;
   timestamp: Date;
 };
 
-type AggregateCaviarninePositionsOutput = {
+export type AggregateCaviarninePositionsOutput = {
   timestamp: Date;
   address: string;
   activityId: string;

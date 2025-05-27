@@ -1,5 +1,4 @@
 import { Context, Effect, Layer } from "effect";
-import { AppConfigService } from "../config/appConfig";
 import { createRadixNetworkClient } from "radix-web3.js";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 
@@ -12,17 +11,23 @@ export class GatewayApiClientService extends Context.Tag(
 export const GatewayApiClientLive = Layer.effect(
   GatewayApiClientService,
   Effect.gen(function* () {
-    const config = yield* AppConfigService;
+    const networkId = Number.parseInt(process.env.NETWORK_ID ?? "1");
+    const basePath =
+      process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com";
+    const applicationName = process.env.APPLICATION_NAME ?? "";
 
-    const gatewayApiClient = GatewayApiClient.initialize({
-      networkId: config.networkId,
-      applicationName: config.applicationName,
-      basePath:
-        config.gatewayApiBaseUrl ?? "https://mainnet-gateway.radixdlt.com",
-    });
+    const options = {
+      networkId,
+      applicationName,
+      basePath,
+    };
+
+    yield* Effect.logDebug("Initializing gateway API client", options);
+
+    const gatewayApiClient = GatewayApiClient.initialize(options);
 
     return createRadixNetworkClient({
-      networkId: config.networkId,
+      networkId,
       gatewayApiClient,
     });
   })
