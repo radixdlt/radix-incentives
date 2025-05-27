@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import { AppConfigService } from "../../consultation/config/appConfig";
+import { AppConfigService } from "../config/appConfig";
 import { createRadixNetworkClient } from "radix-web3.js";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 

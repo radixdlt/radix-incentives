@@ -14,6 +14,7 @@ export type AppConfig = {
   sessionRefreshThreshold: number;
   stateVersionKey: string;
   redisUrl: string;
+  gatewayApiBaseUrl: string;
 };
 
 const expectedOrigin =
@@ -36,6 +37,8 @@ export const defaultAppConfig: AppConfig = {
   stateVersionKey: "stateVersion",
   // biome-ignore lint/style/noNonNullAssertion: <explanation>
   redisUrl: process.env.REDIS_URL!,
+  gatewayApiBaseUrl:
+    process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
 };
 
 export type CreateAppConfigInput = Partial<AppConfig>;

@@ -3,7 +3,7 @@ import { GatewayApiClientLive } from "./gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "./getEntityDetails";
 import { createAppConfigLive } from "../config/appConfig";
 import { LoggerLive } from "../logger/logger";
-import { GetLedgerStateLive } from "./getLedgerState";
+import { GetLedgerStateLive, GetLedgerStateService } from "./getLedgerState";
 import {
   GetFungibleBalanceService,
   GetFungibleBalanceLive,
@@ -51,6 +51,13 @@ describe("GetFungibleBalanceService", () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getFungibleBalance = yield* GetFungibleBalanceService;
+        const getLedgerState = yield* GetLedgerStateService;
+
+        const ledgerState = yield* getLedgerState({
+          at_ledger_state: {
+            timestamp: new Date("2025-04-31T00:00:00.000Z"),
+          },
+        });
 
         return yield* getFungibleBalance({
           addresses: ACCOUNT_ADDRESSES,
@@ -58,7 +65,7 @@ describe("GetFungibleBalanceService", () => {
             native_resource_details: true,
           },
           at_ledger_state: {
-            timestamp: new Date("2025-04-31T00:00:00.000Z"),
+            state_version: ledgerState.state_version,
           },
         });
       }),
@@ -71,7 +78,14 @@ describe("GetFungibleBalanceService", () => {
       )
     );
 
-    const result = await Effect.runPromise(program);
+    const result = await Effect.runPromise(
+      program.pipe(
+        Effect.catchAll((error) => {
+          console.error(JSON.stringify(error, null, 2));
+          return Effect.fail(null);
+        })
+      )
+    );
 
     for (const account of result) {
       console.log(

@@ -40,7 +40,8 @@ export const defaultAppConfig: AppConfig = {
   redisUrl: "localhost",
   redisPassword: "password",
   redisPort: 6379,
-  gatewayApiBaseUrl: "https://mainnet-gateway.radixdlt.com",
+  gatewayApiBaseUrl:
+    process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
 };
 
 export type CreateAppConfigInput = Partial<AppConfig>;

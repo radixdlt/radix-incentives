@@ -24,6 +24,8 @@ export const defaultAppConfig = {
   sessionRefreshThreshold: FIFTEEN_DAYS,
   stateVersionKey: "stateVersion",
   redisUrl: "redis://localhost:6379",
+  gatewayApiBaseUrl:
+    process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
 };
 
 export type CreateAppConfigInput = Partial<AppConfig>;
