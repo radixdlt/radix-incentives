@@ -1,8 +1,6 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
-import { createAppConfigLive } from "../config/appConfig";
-import { LoggerLive } from "../logger/logger";
 import { GetLedgerStateLive } from "../gateway/getLedgerState";
 import { GetFungibleBalanceLive } from "../gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../gateway/entityFungiblesPage";
@@ -19,17 +17,10 @@ import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 
-const appConfigServiceLive = createAppConfigLive();
-
-const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const getLedgerStateLive = GetLedgerStateLive.pipe(
@@ -46,7 +37,6 @@ const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
 
 const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -62,7 +52,6 @@ const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
 
 const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
@@ -72,7 +61,6 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
 
 const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive),
   Layer.provide(stateEntityDetailsLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive),
@@ -106,7 +94,6 @@ describe("getUserStakingPositions", () => {
         }),
         Layer.mergeAll(
           gatewayApiClientLive,
-          loggerLive,
           stateEntityDetailsLive,
           entityFungiblesPageServiceLive,
           getLedgerStateLive,

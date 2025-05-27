@@ -1,8 +1,7 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "./gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "./getEntityDetails";
-import { createAppConfigLive } from "../config/appConfig";
-import { LoggerLive } from "../logger/logger";
+
 import { GetLedgerStateLive, GetLedgerStateService } from "./getLedgerState";
 import {
   GetFungibleBalanceService,
@@ -10,17 +9,10 @@ import {
 } from "./getFungibleBalance";
 import { EntityFungiblesPageLive } from "./entityFungiblesPage";
 
-const appConfigServiceLive = createAppConfigLive();
-
-const loggerLive = LoggerLive.pipe(Layer.provide(appConfigServiceLive));
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(loggerLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const getLedgerStateLive = GetLedgerStateLive.pipe(
@@ -33,7 +25,7 @@ const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
 
 const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(loggerLive),
+
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
@@ -71,7 +63,6 @@ describe("GetFungibleBalanceService", () => {
       }),
       Layer.mergeAll(
         gatewayApiClientLive,
-        loggerLive,
         stateEntityDetailsLive,
         entityFungiblesPageServiceLive,
         getLedgerStateLive

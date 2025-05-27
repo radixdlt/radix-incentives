@@ -2,7 +2,7 @@ import { Context, Effect, Layer } from "effect";
 
 import { z } from "zod";
 import { RolaService } from "./rola";
-import { LoggerService } from "../../common/logger/logger";
+
 import type { UnknownException } from "effect/Cause";
 
 export const signedChallengeSchema = z.object({
@@ -46,14 +46,13 @@ export class VerifyRolaProofService extends Context.Tag(
   ) => Effect.Effect<
     boolean,
     ParseRolaProofInputError | VerifyRolaProofError | UnknownException,
-    RolaService | LoggerService
+    RolaService
   >
 >() {}
 
 export const VerifyRolaProofLive = Layer.effect(
   VerifyRolaProofService,
   Effect.gen(function* () {
-    const logger = yield* LoggerService;
     const verifySignedChallenge = yield* RolaService;
 
     return (input) =>
@@ -63,7 +62,7 @@ export const VerifyRolaProofLive = Layer.effect(
         );
 
         if (verifyInputResult.error) {
-          logger.error(
+          yield* Effect.logError(
             {
               input,
               error: verifyInputResult.error,
@@ -92,7 +91,7 @@ export const VerifyRolaProofLive = Layer.effect(
           .map((item) => item.error);
 
         if (errors.length > 0) {
-          logger.error(
+          yield* Effect.logError(
             {
               input,
               errors,

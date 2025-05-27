@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import type { UnknownException } from "effect/Cause";
 import type { Redis } from "ioredis";
-import { AppConfigService } from "../consultation/config/appConfig";
+import { AppConfigService } from "../incentives/config/appConfig";
 import { RedisClientService } from "../common/redis/redisClient";
 
 export const getStateVersion = (stateVersionKey: string, redisClient: Redis) =>
@@ -69,3 +69,14 @@ export const GetStateVersionLive = Layer.effect(
       });
   })
 );
+
+export const getStateVersionProgram = Effect.gen(function* () {
+  const getStateVersion = yield* GetStateVersionService;
+  return yield* getStateVersion();
+});
+
+export const setStateVersionProgram = (stateVersion: number) =>
+  Effect.gen(function* () {
+    const setStateVersion = yield* SetStateVersionService;
+    return yield* setStateVersion(stateVersion);
+  });

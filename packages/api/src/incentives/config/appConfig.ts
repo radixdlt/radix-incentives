@@ -13,7 +13,9 @@ export type AppConfig = {
   sessionTTL: number;
   sessionRefreshThreshold: number;
   stateVersionKey: string;
-  redisUrl: string;
+  redisHost: string;
+  redisPassword: string;
+  redisPort: number;
   gatewayApiBaseUrl: string;
 };
 
@@ -35,8 +37,9 @@ export const defaultAppConfig: AppConfig = {
   sessionTTL: THIRTY_DAYS,
   sessionRefreshThreshold: FIFTEEN_DAYS,
   stateVersionKey: "stateVersion",
-  // biome-ignore lint/style/noNonNullAssertion: <explanation>
-  redisUrl: process.env.REDIS_URL!,
+  redisHost: process.env.REDIS_HOST ?? "localhost",
+  redisPassword: process.env.REDIS_PASSWORD ?? "password",
+  redisPort: Number.parseInt(process.env.REDIS_PORT ?? "6379"),
   gatewayApiBaseUrl:
     process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
 };

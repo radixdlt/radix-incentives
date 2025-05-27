@@ -9,7 +9,7 @@ import { sha256 } from "@oslojs/crypto/sha2";
 import { GetSessionService } from "../session/getSession";
 import { sessions } from "db/consultation";
 import { eq } from "drizzle-orm";
-import { LoggerService } from "../../common/logger/logger";
+
 class SessionExpiredError {
   readonly _tag = "SessionExpiredError";
 }
@@ -20,13 +20,12 @@ export const validateSessionTokenProgram = (token: string) =>
     const appConfig = yield* AppConfigService;
     const invalidateSession = yield* InvalidateSessionService;
     const getSession = yield* GetSessionService;
-    const logger = yield* LoggerService;
 
     const sessionId = encodeHexLowerCase(
       sha256(new TextEncoder().encode(token))
     );
 
-    logger.info({ token, sessionId }, "Validating session token");
+    yield* Effect.logDebug({ token, sessionId }, "Validating session token");
 
     const { user, session } = yield* getSession(sessionId);
 

@@ -8,7 +8,6 @@ import { Assets } from "../../common/assets/constants";
 import { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
 import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
 import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
-import type { LoggerService } from "../../common/logger/logger";
 import type { EntityFungiblesPageService } from "../../common/gateway/entityFungiblesPage";
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 import type { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
@@ -108,7 +107,6 @@ export class GetVotingPowerAtStateVersionService extends Context.Tag(
     | GetLsulpService
     | GetUserStakingPositionsService
     | GatewayApiClientService
-    | LoggerService
     | EntityFungiblesPageService
     | GetLedgerStateService
     | GetNonFungibleBalanceService

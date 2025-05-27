@@ -6,7 +6,6 @@ import { UpsertUserService } from "../user/upsertUser";
 import { CreateSessionService } from "../session/createSession";
 import { GenerateSessionTokenService } from "../session/generateSessionToken";
 import { z } from "zod";
-import { LoggerService } from "../../common/logger/logger";
 
 export class InvalidChallengeError {
   readonly _tag = "InvalidChallengeError";
@@ -39,7 +38,6 @@ export const signInWithRolaProof = (input: SignInWithRolaProofInput) =>
     const upsertUser = yield* UpsertUserService;
     const generateSessionToken = yield* GenerateSessionTokenService;
     const createSession = yield* CreateSessionService;
-    const logger = yield* LoggerService;
 
     const isValidChallenge = yield* verifyChallenge(input.challenge);
 
@@ -64,8 +62,6 @@ export const signInWithRolaProof = (input: SignInWithRolaProofInput) =>
       token,
       userId,
     });
-
-    logger.info({ session, token }, "Signed in with rola proof");
 
     return { session, token };
   });
