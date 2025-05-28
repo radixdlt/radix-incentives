@@ -14,6 +14,14 @@ app.get("/health", (c) => {
   return c.text("ok");
 });
 
+app.get("/metrics", async (c) => {
+  const snapshotQueueMetrics =
+    await snapshotQueue.queue.exportPrometheusMetrics();
+  const scheduledSnapshotQueueMetrics =
+    await scheduledSnapshotQueue.queue.exportPrometheusMetrics();
+  return c.text("".concat(snapshotQueueMetrics, scheduledSnapshotQueueMetrics));
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 
 console.log(`🚀 Starting server on port ${port}`);

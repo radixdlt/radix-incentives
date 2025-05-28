@@ -2,12 +2,15 @@
   "name": "streamer",
   "type": "module",
   "scripts": {
-    "dev": "tsx watch ./src/index.ts"
+    "dev": "tsx watch ./src/index.ts",
+    "build": "tsup"
   },
   "dependencies": {
     "api": "workspace:*",
     "effect": "catalog:",
-    "db": "workspace:*"
+    "db": "workspace:*",
+    "pino": "catalog:",
+    "ioredis": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

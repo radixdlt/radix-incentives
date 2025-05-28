@@ -32,11 +32,14 @@ import { GetActivitiesLive } from "../activity/getActivities";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
-  const START_STATE_VERSION = process.env.START_STATE_VERSION;
+  const REDIS_PORT = process.env.REDIS_PORT;
+  const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
-  if (!REDIS_HOST) {
-    throw new Error("REDIS_URL is not set");
+  if (!REDIS_HOST || !REDIS_PORT || !REDIS_PASSWORD) {
+    throw new Error("REDIS_HOST, REDIS_PORT, and REDIS_PASSWORD must be set");
   }
+
+  const START_STATE_VERSION = process.env.START_STATE_VERSION;
 
   const config = createConfig({
     networkId: 1,
@@ -156,5 +159,5 @@ export const runTransactionStreamLoop = async () => {
     )
   );
 
-  return await Effect.runPromise(transactionStream);
+  await Effect.runPromise(transactionStream);
 };

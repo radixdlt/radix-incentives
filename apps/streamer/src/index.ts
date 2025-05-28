@@ -1,3 +1,3 @@
 import { runTransactionStreamLoop } from "api/incentives";
 
-runTransactionStreamLoop();
+await runTransactionStreamLoop();
