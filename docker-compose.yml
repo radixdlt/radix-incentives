@@ -36,15 +36,34 @@ services:
     ports:
       - "8081:8081"
 
-  workers:
-    hostname: workers
-    build:
-      context: .
-      dockerfile: dockerfiles/workers.Dockerfile
-    image: workers:latest
-    restart: always
-    environment:
-      - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - REDIS_PASSWORD=password
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - '4318:4318'
+      - '16686:16686'
+
+  # workers:
+  #   hostname: workers
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfiles/workers.Dockerfile
+  #   image: workers:latest
+  #   restart: always
+  #   environment:
+  #     - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=password
+
+  # streamer:
+  #   hostname: streamer
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfiles/streamer.Dockerfile
+  #   image: streamer:latest
+  #   restart: always
+  #   environment:
+  #     - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=password

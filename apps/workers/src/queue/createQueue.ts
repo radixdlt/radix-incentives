@@ -1,4 +1,5 @@
 import { type Job, Queue, QueueEvents, Worker } from "bullmq";
+import { BullMQOtel } from "bullmq-otel";
 import type Redis from "ioredis";
 
 export const createQueue = <Input, Output = unknown>(input: {
@@ -9,6 +10,7 @@ export const createQueue = <Input, Output = unknown>(input: {
 }) => {
   const queue = new Queue<Input, Output>(input.name, {
     connection: input.redisClient,
+    telemetry: new BullMQOtel(input.name),
   });
 
   const queueEvents = new QueueEvents(queue.name, {
@@ -17,6 +19,7 @@ export const createQueue = <Input, Output = unknown>(input: {
 
   const worker = new Worker<Input, Output>(queue.name, input.worker, {
     connection: input.redisClient,
+    telemetry: new BullMQOtel(input.name),
   });
 
   worker.on("error", input.onError);
