@@ -148,7 +148,7 @@ Change into the `db` package and run Drizzle migrations:
 
 ```bash
 cd packages/db
-pnpm run db:migrate
+pnpm run db:migrate:incentives
 ```
 
 > **Troubleshooting**  
@@ -167,8 +167,73 @@ export DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentive
 Then re-run the migration:
 
 ```bash
-pnpm run db:migrate
+pnpm run db:migrate:incentives
 ```
+
+
+
+
+### 5. Port Forward Mainnet Gateway Service
+
+To port forward the mainnet gateway service, ensure you have the `role-admin-developer` role assigned on the production cluster `rtjl-prod`. The active mainnet gateway namespace can be either `ng-babylon-mainnet-green` or `ng-babylon-mainnet-blue`.
+
+1. Switch to the production context:
+   ```bash
+   kubectl config use-context rtlj-prod
+   ```
+
+2. Port forward the gateway API service:
+   ```bash
+   kubectl port-forward service/gateway-api 8080:8080 -n ng-babylon-mainnet-green
+   ```
+
+> **Note**: Verify the active namespace (`ng-babylon-mainnet-green` or `ng-babylon-mainnet-blue`) before executing the port forward command.
+
+
+### 6. Seeding the Database
+
+If you are starting with a fresh database, you need to seed it with initial data. Change into the `db` package directory and run the following command:
+
+```
+pnpm db:seed
+```
+
+
+### 7. Setting Up Local Redis and Gateway API
+
+Once the gateway API service is port-forwarded, running `docker-compose` will also start a local Redis instance. You need to export the following environment variables to ensure your application can connect to the gateway and Redis:
+
+```
+export GATEWAY_URL="http://localhost:8080"
+export REDIS_HOST="localhost"
+export REDIS_PORT=6379
+export REDIS_PASSWORD=password
+```
+
+
+### 8. Triggering Workers
+
+To trigger the snapshot worker manually, you can use the following command. This is useful for testing purposes or when you need to process a snapshot job immediately.
+
+1. Ensure your environment variables are set correctly, especially `DATABASE_URL`, `GATEWAY_URL`, `REDIS_HOST`, `REDIS_PORT`, and `REDIS_PASSWORD`.
+
+2. Use the following command to add a job to the snapshot queue. Below code needs to be added to apps/workers/src
+
+   ```bash
+    import { snapshotQueue } from "./snapshot/queue";
+    import { getHourStartInUTC } from "./helpers/getHourStartInUTC";
+
+    snapshotQueue.queue.add("snapshot", {
+      addresses: ['address1', 'address2'], // Replace with actual addresses
+      timestamp: getHourStartInUTC().toISOString(),
+    });
+   ```
+
+> **Note**: Replace `'address1', 'address2'` with the actual addresses you want to process in the snapshot job.
+
+To run the workers, use the following command:
+`pnpm dev:workers`
+
 
 ---
 
