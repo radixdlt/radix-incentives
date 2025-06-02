@@ -3,7 +3,15 @@ import { defineConfig } from "tsup";
 export default defineConfig({
   entry: ["src/index.ts"],
   format: ["esm"],
-  external: [/^node:.*/, "pino", "pino-pretty", "pino-abstract-transport"],
+  external: [
+    /^node:.*/,
+    "pino",
+    "pino-pretty",
+    "pino-abstract-transport",
+    // OpenTelemetry packages that cause bundling issues
+    /^@opentelemetry\/.*/,
+    "bullmq-otel",
+  ],
   dts: false,
   splitting: false,
   clean: true,

@@ -49,11 +49,14 @@ services:
   #     dockerfile: dockerfiles/workers.Dockerfile
   #   image: workers:latest
   #   restart: always
+  #   ports:
+  #     - '3003:3003'
   #   environment:
   #     - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
   #     - REDIS_HOST=redis
   #     - REDIS_PORT=6379
   #     - REDIS_PASSWORD=password
+  #     - OTLP_BASE_URL=http://jaeger:4318
 
   # streamer:
   #   hostname: streamer
@@ -67,3 +70,5 @@ services:
   #     - REDIS_HOST=redis
   #     - REDIS_PORT=6379
   #     - REDIS_PASSWORD=password
+  #     - OTLP_BASE_URL=http://jaeger:4318
+  #     - WORKERS_API_BASE_URL=http://workers:3003
