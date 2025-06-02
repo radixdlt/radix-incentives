@@ -217,7 +217,7 @@ To trigger the snapshot worker manually, you can use the following command. This
 
 1. Ensure your environment variables are set correctly, especially `DATABASE_URL`, `GATEWAY_URL`, `REDIS_HOST`, `REDIS_PORT`, and `REDIS_PASSWORD`.
 
-2. Use the following command to add a job to the snapshot queue. Below code needs to be added to apps/workers/src
+2. Use the following command to add a job to the snapshot queue. Below code needs to be added to apps/workers/src/index.ts
 
    ```bash
     import { snapshotQueue } from "./snapshot/queue";
