@@ -5,6 +5,8 @@ export const StateVersionSchema = z.object({
   state_version: z.number(),
 });
 
+export type StateVersion = z.infer<typeof StateVersionSchema>;
+
 export const TimestampSchema = z.object({
   timestamp: z.date(),
 });

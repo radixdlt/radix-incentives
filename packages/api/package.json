@@ -41,7 +41,8 @@
     "radix-transaction-stream": "catalog:",
     "radix-web3.js": "catalog:",
     "superjson": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "@bull-board/api": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "^0.20.10",

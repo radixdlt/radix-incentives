@@ -6,7 +6,11 @@ export const createQueue = <Input, Output = unknown>(input: {
   name: string;
   redisClient: Redis;
   worker: (job: Job<Input>) => Promise<Output>;
-  onError: (err: Error) => Promise<void>;
+  onError: (
+    job: Job<Input, Output, string> | undefined,
+    error: Error,
+    prev: string
+  ) => Promise<void>;
 }) => {
   const queue = new Queue<Input, Output>(input.name, {
     connection: input.redisClient,
@@ -22,9 +26,14 @@ export const createQueue = <Input, Output = unknown>(input: {
     telemetry: new BullMQOtel(input.name),
   });
 
-  worker.on("error", input.onError);
+  // prevents nodejs to exit when worker throws an error
+  worker.on("error", (err) => {
+    console.error("worker error", err);
+  });
 
   console.log(`${queue.name} queue instantiated`);
+
+  worker.on("failed", input.onError);
 
   return {
     queue,

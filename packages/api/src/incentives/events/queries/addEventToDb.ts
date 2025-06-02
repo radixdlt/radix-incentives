@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { DbClientService, DbError } from "../../db/dbClient";
 
 import { events, type Event } from "db/incentives";
 import SuperJSON from "superjson";
@@ -23,7 +23,7 @@ export const AddEventsToDbLive = Layer.effect(
               .values(
                 input.map((item) => ({
                   ...item,
-                  eventData: SuperJSON.stringify(item.eventData),
+                  eventData: SuperJSON.serialize(item.eventData),
                 }))
               )
               .returning()

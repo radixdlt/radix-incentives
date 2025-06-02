@@ -26,9 +26,11 @@ import {
 import { createDbClientLive } from "../db/dbClient";
 import { db } from "db/incentives";
 import { FilterTransactionsLive } from "./filterTransactions";
-import { AddEventsToDbLive } from "../events/addEventToDb";
+import { AddEventsToDbLive } from "../events/queries/addEventToDb";
 import { AddTransactionsToDbLive } from "./addTransactionsToDb";
 import { GetActivitiesLive } from "../activity/getActivities";
+import { AddToEventQueueLive } from "../events/addToEventQueue";
+import { EventQueueClientLive } from "../events/eventQueueClient";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -39,7 +41,9 @@ export const runTransactionStreamLoop = async () => {
     throw new Error("REDIS_HOST, REDIS_PORT, and REDIS_PASSWORD must be set");
   }
 
-  const START_STATE_VERSION = process.env.START_STATE_VERSION;
+  const START_TIMESTAMP = process.env.START_TIMESTAMP
+    ? new Date(process.env.START_TIMESTAMP)
+    : undefined;
 
   const config = createConfig({
     networkId: 1,
@@ -52,6 +56,8 @@ export const runTransactionStreamLoop = async () => {
     port: config.redisPort,
     password: config.redisPassword,
   });
+
+  const stateVersionManager = createStateVersionManager();
 
   const configLive = createAppConfigLive(config);
 
@@ -66,7 +72,25 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(configLive)
   );
 
-  const ledgerState = await Effect.runPromise(
+  const redisClientLive = createRedisClientLive(redis);
+
+  const setStateVersionLive = SetStateVersionLive.pipe(
+    Layer.provide(redisClientLive),
+    Layer.provide(configLive)
+  );
+
+  const addEventsLive = AddEventsToDbLive.pipe(Layer.provide(dbClientLive));
+
+  const addTransactionsToDbLive = AddTransactionsToDbLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getStateVersionLive = GetStateVersionLive.pipe(
+    Layer.provide(redisClientLive),
+    Layer.provide(configLive)
+  );
+
+  const currentLedgerState = await Effect.runPromise(
     Effect.provide(
       getLedgerStateProgram({
         at_ledger_state: {
@@ -77,50 +101,73 @@ export const runTransactionStreamLoop = async () => {
     )
   );
 
-  const addEventsLive = AddEventsToDbLive.pipe(Layer.provide(dbClientLive));
+  if (START_TIMESTAMP) {
+    console.log(
+      `using START_TIMESTAMP "${START_TIMESTAMP.toISOString()}", overriding state version`
+    );
 
-  const addTransactionsToDbLive = AddTransactionsToDbLive.pipe(
-    Layer.provide(dbClientLive)
-  );
+    const ledgerState = await Effect.runPromise(
+      Effect.provide(
+        getLedgerStateProgram({
+          at_ledger_state: {
+            timestamp: START_TIMESTAMP,
+          },
+        }),
+        Layer.mergeAll(getLedgerStateLive, apiGatewayClientLive)
+      )
+    );
 
-  const redisClientLive = createRedisClientLive(redis);
+    await Effect.runPromise(
+      Effect.provide(
+        setStateVersionProgram(ledgerState.state_version),
+        Layer.mergeAll(setStateVersionLive, configLive)
+      )
+    );
 
-  const getStateVersionLive = GetStateVersionLive.pipe(
-    Layer.provide(redisClientLive),
-    Layer.provide(configLive)
-  );
+    stateVersionManager.setStateVersion(ledgerState.state_version);
+  } else {
+    const stateVersion = await Effect.runPromise(
+      Effect.provide(
+        getStateVersionProgram,
+        Layer.mergeAll(getStateVersionLive, configLive)
+      ).pipe(
+        Effect.catchTags({
+          StateVersionNotFoundError: () => {
+            console.log(
+              "State version not found, using current ledger state version",
+              currentLedgerState.state_version
+            );
+            return Effect.succeed(currentLedgerState.state_version);
+          },
+        })
+      )
+    );
+    const ledgerState = await Effect.runPromise(
+      Effect.provide(
+        getLedgerStateProgram({
+          at_ledger_state: {
+            state_version: stateVersion,
+          },
+        }),
+        Layer.mergeAll(getLedgerStateLive, apiGatewayClientLive)
+      )
+    );
 
-  const setStateVersionLive = SetStateVersionLive.pipe(
-    Layer.provide(redisClientLive),
-    Layer.provide(configLive)
-  );
+    console.log(
+      `using last processed state version ${ledgerState.proposer_round_timestamp}`
+    );
 
-  const stateVersion = await Effect.runPromise(
-    Effect.provide(
-      getStateVersionProgram,
-      Layer.mergeAll(getStateVersionLive, configLive)
-    ).pipe(
-      Effect.catchTags({
-        StateVersionNotFoundError: () => {
-          console.log(
-            "State version not found, using current ledger state version",
-            ledgerState.state_version
-          );
-          return Effect.succeed(ledgerState.state_version);
-        },
-      })
-    )
-  );
-
-  await Effect.runPromise(
-    Effect.provide(
-      setStateVersionProgram(stateVersion),
-      Layer.mergeAll(setStateVersionLive, configLive)
-    )
-  );
+    await Effect.runPromise(
+      Effect.provide(
+        setStateVersionProgram(stateVersion),
+        Layer.mergeAll(setStateVersionLive, configLive)
+      )
+    );
+    stateVersionManager.setStateVersion(stateVersion);
+  }
 
   const stateVersionManagerLive = createStateVersionManagerLive(
-    createStateVersionManager()
+    stateVersionManager
   ).pipe(Layer.provide(setStateVersionLive));
 
   const transactionStreamClient = createTransactionStream({
@@ -142,8 +189,14 @@ export const runTransactionStreamLoop = async () => {
 
   const getActivitiesLive = GetActivitiesLive.pipe(Layer.provide(dbClientLive));
 
+  const eventQueueClientLive = EventQueueClientLive;
+
+  const addToEventQueueLive = AddToEventQueueLive.pipe(
+    Layer.provide(eventQueueClientLive)
+  );
+
   const transactionStream = Effect.provide(
-    transactionStreamLoop(stateVersion),
+    transactionStreamLoop(),
     Layer.mergeAll(
       transactionStreamLive,
       setStateVersionLive,
@@ -155,7 +208,9 @@ export const runTransactionStreamLoop = async () => {
       getActivitiesLive,
       addEventsLive,
       addTransactionsToDbLive,
-      configLive
+      configLive,
+      addToEventQueueLive,
+      eventQueueClientLive
     )
   );
 
