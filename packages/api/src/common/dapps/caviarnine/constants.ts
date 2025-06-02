@@ -48,3 +48,10 @@ export const shapeLiquidityReceiptSet = new Map<string, ShapeLiquidityPool>(
     pool,
   ])
 );
+
+export const shapeLiquidityComponentSet = new Map<string, ShapeLiquidityPool>(
+  Object.values(CaviarNineConstants.shapeLiquidityPools).map((pool) => [
+    pool.componentAddress,
+    pool,
+  ])
+);

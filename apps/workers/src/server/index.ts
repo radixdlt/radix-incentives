@@ -7,6 +7,8 @@ import { serveStatic } from "@hono/node-server/serve-static";
 import { snapshotQueue } from "../snapshot/queue";
 import { scheduledSnapshotQueue } from "../scheduled-snapshot/queue";
 import { showRoutes } from "hono/dev";
+import { eventQueue } from "../event/queue";
+import { eventQueueJobSchema } from "../event/schemas";
 
 const app = new Hono();
 
@@ -19,7 +21,25 @@ app.get("/metrics", async (c) => {
     await snapshotQueue.queue.exportPrometheusMetrics();
   const scheduledSnapshotQueueMetrics =
     await scheduledSnapshotQueue.queue.exportPrometheusMetrics();
-  return c.text("".concat(snapshotQueueMetrics, scheduledSnapshotQueueMetrics));
+  const eventQueueMetrics = await eventQueue.queue.exportPrometheusMetrics();
+  return c.text(
+    "".concat(
+      snapshotQueueMetrics,
+      scheduledSnapshotQueueMetrics,
+      eventQueueMetrics
+    )
+  );
+});
+
+app.post("/queues/event/add", async (c) => {
+  const input = await c.req.json();
+
+  const parsedInput = eventQueueJobSchema.safeParse(input);
+  if (!parsedInput.success) {
+    return c.json({ error: parsedInput.error.message }, 400);
+  }
+  await eventQueue.queue.add("event", parsedInput.data);
+  return c.text("ok");
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
@@ -33,6 +53,7 @@ createBullBoard({
   queues: [
     new BullMQAdapter(snapshotQueue.queue),
     new BullMQAdapter(scheduledSnapshotQueue.queue),
+    new BullMQAdapter(eventQueue.queue),
   ],
   serverAdapter,
 });

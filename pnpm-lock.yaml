@@ -9,6 +9,12 @@ catalogs:
     '@aws-sdk/client-sqs':
       specifier: ^3.515.0
       version: 3.782.0
+    '@bull-board/api':
+      specifier: ^6.9.6
+      version: 6.9.6
+    '@bull-board/hono':
+      specifier: ^6.9.6
+      version: 6.9.6
     '@hono/node-server':
       specifier: ^1.14.2
       version: 1.14.3
@@ -587,10 +593,10 @@ importers:
   apps/workers:
     dependencies:
       '@bull-board/api':
-        specifier: ^6.9.6
+        specifier: 'catalog:'
         version: 6.9.6(@bull-board/ui@6.9.6)
       '@bull-board/hono':
-        specifier: ^6.9.6
+        specifier: 'catalog:'
         version: 6.9.6
       '@hono/node-server':
         specifier: 'catalog:'
@@ -610,9 +616,6 @@ importers:
       api:
         specifier: workspace:*
         version: link:../../packages/api
-      bullMQAdapter:
-        specifier: link:@bull-board/api/bullMQAdapter
-        version: link:@bull-board/api/bullMQAdapter
       bullmq:
         specifier: 'catalog:'
         version: 5.53.0
@@ -703,6 +706,9 @@ importers:
       '@aws-sdk/client-sqs':
         specifier: 'catalog:'
         version: 3.782.0
+      '@bull-board/api':
+        specifier: 'catalog:'
+        version: 6.9.6(@bull-board/ui@6.9.6)
       '@effect/opentelemetry':
         specifier: ^0.47.0
         version: 0.47.0(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.33.0)(effect@3.14.6)

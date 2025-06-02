@@ -2,30 +2,21 @@ import { Effect } from "effect";
 import { TransactionStreamService } from "./transactionStream";
 
 import { StateVersionManagerService } from "./stateVersionManager";
-import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
-import { weftFinanceEventMatcher } from "./event-matchers/weftFinanceEventMatcher";
+import { weftFinanceEventMatcher } from "../events/event-matchers/weftFinanceEventMatcher";
 import { FilterTransactionsService } from "./filterTransactions";
-import { AddEventsToDbService } from "../events/addEventToDb";
+import { AddEventsToDbService } from "../events/queries/addEventToDb";
 import { AddTransactionsToDbService } from "./addTransactionsToDb";
+import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
+import { AddToEventQueueService } from "../events/addToEventQueue";
 
-export const transactionStreamLoop = (startStateVersion: number) =>
+export const transactionStreamLoop = () =>
   Effect.gen(function* () {
     const transactionStreamService = yield* TransactionStreamService;
     const stateVersionManager = yield* StateVersionManagerService;
-    const getLedgerStateService = yield* GetLedgerStateService;
     const filterTransactionsService = yield* FilterTransactionsService;
     const addEventsToDbService = yield* AddEventsToDbService;
     const addTransactionsToDbService = yield* AddTransactionsToDbService;
-
-    const ledgerState = yield* getLedgerStateService({
-      at_ledger_state: {
-        state_version: startStateVersion,
-      },
-    });
-
-    yield* stateVersionManager.setStateVersion(ledgerState.state_version);
-
-    yield* Effect.log("starting streamer at ledger state", ledgerState);
+    const addToEventQueueService = yield* AddToEventQueueService;
 
     while (true) {
       const nextStateVersion = yield* stateVersionManager.getStateVersion();
@@ -49,13 +40,33 @@ export const transactionStreamLoop = (startStateVersion: number) =>
         const weftFinanceEvents =
           yield* weftFinanceEventMatcher(filteredTransactions);
 
-        // concat all captured events and add account address to each event
-        const allCapturedEvents = [...weftFinanceEvents];
+        const caviarnineEvents =
+          yield* caviarnineEventMatcher(filteredTransactions);
+
+        // concat all captured events
+        const allCapturedEvents = [...caviarnineEvents];
 
         // store all captured events to db
         if (allCapturedEvents.length > 0) {
-          yield* Effect.log("adding events to db", allCapturedEvents);
           yield* addEventsToDbService(allCapturedEvents);
+        }
+
+        if (allCapturedEvents.length > 0) {
+          yield* Effect.log(
+            "adding events to event queue",
+            allCapturedEvents.map((item) => ({
+              dApp: item.dApp,
+              eventData: item.eventData.type,
+              transactionId: item.transactionId,
+              eventIndex: item.eventIndex,
+            }))
+          );
+          yield* addToEventQueueService(
+            allCapturedEvents.map((event) => ({
+              transactionId: event.transactionId,
+              eventIndex: event.eventIndex,
+            }))
+          );
         }
       }
 

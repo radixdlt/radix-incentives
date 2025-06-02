@@ -41,9 +41,22 @@ import { db } from "db/incentives";
 import { GetUsdValueLive } from "./token-price/getUsdValue";
 import { AggregateAccountBalanceLive } from "./account-balance/aggregateAccountBalance";
 import { AggregateCaviarninePositionsLive } from "./account-balance/aggregateCaviarninePositions";
-import { createAppConfigLive } from "./config/appConfig";
+import { createAppConfigLive, createConfig } from "./config/appConfig";
+import {
+  type DeriveAccountFromEventInput,
+  DeriveAccountFromEventLive,
+  DeriveAccountFromEventService,
+} from "./events/deriveAccountFromEvent";
+import { GetNonFungibleLocationLive } from "../common/gateway/getNonFungibleLocation";
+import { GetEventsFromDbLive } from "./events/queries/getEventsFromDb";
+import { GetAddressByNonFungibleLive } from "../common/gateway/getAddressByNonFungible";
+import { GetAccountsIntersectionLive } from "./account/getAccountsIntersection";
+import { NodeSdk } from "@effect/opentelemetry";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 
-const appConfigServiceLive = createAppConfigLive();
+const appConfig = createConfig();
+const appConfigServiceLive = createAppConfigLive(appConfig);
 
 const dbClientLive = createDbClientLive(db);
 
@@ -286,6 +299,41 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(aggregateAccountBalanceLive)
 );
 
+const getNonFungibleLocationLive = GetNonFungibleLocationLive.pipe(
+  Layer.provide(gatewayApiClientLive)
+);
+
+const getEventsFromDbLive = GetEventsFromDbLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const getAddressByNonFungibleLive = GetAddressByNonFungibleLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(getNonFungibleLocationLive)
+);
+
+const getAccountsIntersectionLive = GetAccountsIntersectionLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const deriveAccountFromEventLive = DeriveAccountFromEventLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(getNonFungibleLocationLive),
+  Layer.provide(getEventsFromDbLive),
+  Layer.provide(getAddressByNonFungibleLive),
+  Layer.provide(getAccountsIntersectionLive)
+);
+
+const NodeSdkLive = NodeSdk.layer(() => ({
+  resource: { serviceName: "api" },
+  spanProcessor: new BatchSpanProcessor(
+    new OTLPTraceExporter({
+      url: `${appConfig.otlpBaseUrl}/v1/traces`,
+    })
+  ),
+}));
+
 const snapshotProgram = (input: SnapshotInput) => {
   const program = Effect.provide(
     Effect.gen(function* () {
@@ -334,22 +382,47 @@ const snapshotProgram = (input: SnapshotInput) => {
       aggregateCaviarninePositionsLive,
       aggregateAccountBalanceLive
     )
-  );
+  ).pipe(Effect.provide(NodeSdkLive));
 
   return Effect.runPromiseExit(program);
 };
 
-const getLedgerState = (input: GetLedgerStateInput) =>
-  Effect.provide(
+const getLedgerState = (input: GetLedgerStateInput) => {
+  const program = Effect.provide(
     Effect.gen(function* () {
       const getLedgerStateService = yield* GetLedgerStateService;
 
       return yield* getLedgerStateService(input);
     }),
-    Layer.mergeAll(getLedgerStateLive)
+    Layer.mergeAll(getLedgerStateLive, gatewayApiClientLive)
   );
+
+  return Effect.runPromiseExit(program);
+};
+
+const deriveAccountFromEvent = (input: DeriveAccountFromEventInput) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const deriveAccountFromEventService =
+        yield* DeriveAccountFromEventService;
+
+      return yield* deriveAccountFromEventService(input);
+    }),
+    Layer.mergeAll(
+      getNonFungibleLocationLive,
+      getEventsFromDbLive,
+      dbClientLive,
+      gatewayApiClientLive,
+      getAccountsIntersectionLive,
+      deriveAccountFromEventLive
+    )
+  );
+
+  return Effect.runPromiseExit(program);
+};
 
 export const dependencyLayer = {
   snapshot: snapshotProgram,
   getLedgerState,
+  deriveAccountFromEvent,
 };

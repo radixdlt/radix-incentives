@@ -17,6 +17,7 @@ export type AppConfig = {
   redisPassword: string;
   redisPort: number;
   gatewayApiBaseUrl: string;
+  otlpBaseUrl: string;
 };
 
 const expectedOrigin =
@@ -42,6 +43,7 @@ export const defaultAppConfig: AppConfig = {
   redisPort: Number.parseInt(process.env.REDIS_PORT ?? "6379"),
   gatewayApiBaseUrl:
     process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
+  otlpBaseUrl: process.env.OTLP_BASE_URL ?? "http://127.0.0.1:4318",
 };
 
 export type CreateAppConfigInput = Partial<AppConfig>;

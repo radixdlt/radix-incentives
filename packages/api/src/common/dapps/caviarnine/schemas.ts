@@ -76,3 +76,6 @@ export const BurnLiquidityReceiptEvent = s.struct({
 export const MintLiquidityReceiptEvent = s.struct({
   liquidity_receipt_id: s.nonFungibleLocalId(),
 });
+
+export type AddLiquidityEvent = s.infer<typeof AddLiquidityEvent>;
+export type RemoveLiquidityEvent = s.infer<typeof RemoveLiquidityEvent>;

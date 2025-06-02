@@ -1,7 +1,7 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../common/gateway/getEntityDetails";
-import { createAppConfigLive } from "../../common/config/appConfig";
+import { createAppConfigLive } from "../config/appConfig";
 import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
 import { GetFungibleBalanceLive } from "../../common/gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../../common/gateway/entityFungiblesPage";

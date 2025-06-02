@@ -1,9 +1,12 @@
 import type {
   TransformedEvent,
   TransformedTransaction,
-} from "../transformEvent";
-import type { StructDefinition, StructSchema } from "sbor-ez-mode";
-import type { OrderedTupleSchema } from "sbor-ez-mode";
+} from "../../transaction-stream/transformEvent";
+import type {
+  StructDefinition,
+  StructSchema,
+  OrderedTupleSchema,
+} from "sbor-ez-mode";
 import { Effect } from "effect";
 
 export type CapturedEvent<U> = {
@@ -33,7 +36,7 @@ export class FailedToParseEventDataError {
 
 export const parseEventData = <T extends StructDefinition, R extends boolean>(
   event: TransformedEvent,
-  schema: OrderedTupleSchema<[StructSchema<T, R>]>
+  schema: OrderedTupleSchema<[StructSchema<T, R>]> | StructSchema<T, R>
 ) => {
   return Effect.gen(function* () {
     const parsedResult = schema.safeParse(event.event.payload);
@@ -49,7 +52,10 @@ export const parseEventData = <T extends StructDefinition, R extends boolean>(
       packageAddress: event.package.address,
       blueprint: event.package.blueprint,
       eventName: event.event.name,
-      eventData: parsedResult.value,
+      eventData: {
+        type: event.event.name,
+        data: parsedResult.value,
+      },
     };
   });
 };

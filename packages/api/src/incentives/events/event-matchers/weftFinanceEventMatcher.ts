@@ -1,5 +1,5 @@
 import { Effect } from "effect";
-import type { TransformedEvent } from "../transformEvent";
+import type { TransformedEvent } from "../../transaction-stream/transformEvent";
 import { WeftFinance } from "../../../common/dapps/weftFinance/constants";
 import {
   AddCollateralEvent,
@@ -23,19 +23,37 @@ import {
 } from "./createEventMatcher";
 
 export type WeftFinanceEmittableEvents =
-  | AddCollateralEvent
-  | BorrowEvent
-  | RepayEvent
-  | RemoveCollateralEvent
-  | AddNFTCollateralEvent
-  | RemoveNFTCollateralEvent
-  | CDPRepayForLiquidationEvent
-  | CDPRepayForNFTLiquidationEvent
-  | CDPRepayForRefinanceEvent
-  | CDPRemoveCollateralForLiquidation
-  | FlashAddCollateralEvent
-  | FlashRemoveCollateralEvent
-  | CDPCreationFeeEvent;
+  | { readonly type: "AddCollateralEvent"; data: AddCollateralEvent }
+  | { readonly type: "BorrowEvent"; data: BorrowEvent }
+  | { readonly type: "RepayEvent"; data: RepayEvent }
+  | { readonly type: "RemoveCollateralEvent"; data: RemoveCollateralEvent }
+  | { readonly type: "AddNFTCollateralEvent"; data: AddNFTCollateralEvent }
+  | {
+      readonly type: "RemoveNFTCollateralEvent";
+      data: RemoveNFTCollateralEvent;
+    }
+  | {
+      readonly type: "CDPRepayForLiquidationEvent";
+      data: CDPRepayForLiquidationEvent;
+    }
+  | {
+      readonly type: "CDPRepayForNFTLiquidationEvent";
+      data: CDPRepayForNFTLiquidationEvent;
+    }
+  | {
+      readonly type: "CDPRepayForRefinanceEvent";
+      data: CDPRepayForRefinanceEvent;
+    }
+  | {
+      readonly type: "CDPRemoveCollateralForLiquidation";
+      data: CDPRemoveCollateralForLiquidation;
+    }
+  | { readonly type: "FlashAddCollateralEvent"; data: FlashAddCollateralEvent }
+  | {
+      readonly type: "FlashRemoveCollateralEvent";
+      data: FlashRemoveCollateralEvent;
+    }
+  | { readonly type: "CDPCreationFeeEvent"; data: CDPCreationFeeEvent };
 
 export type CapturedWeftFinanceEvent =
   CapturedEvent<WeftFinanceEmittableEvents>;
@@ -81,7 +99,9 @@ export const weftFinanceEventMatcherFn = (input: TransformedEvent) =>
         return yield* parseEventData(input, CDPCreationFeeEvent);
     }
 
-    yield* Effect.log(`No match found for event: ${input?.event.name}`);
+    yield* Effect.log(
+      `No match found for event: weftFinance.${input?.event.name}`
+    );
 
     return yield* Effect.succeed(null);
   });
