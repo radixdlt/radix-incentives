@@ -6,8 +6,8 @@ export const scheduledSnapshotQueue = createQueue({
   name: "scheduledSnapshot",
   redisClient,
   worker: scheduledSnapshotWorker,
-  onError: async (err) => {
-    console.error(err);
+  onError: async (_, error) => {
+    console.error(error);
   },
 });
 
