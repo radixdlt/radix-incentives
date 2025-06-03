@@ -4,7 +4,7 @@ import {
   GatewayApiClientService,
 } from "./gatewayApiClient";
 
-import { EntityNotFoundError, type GatewayError } from "./errors";
+import { EntityNotFoundError, GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
 import type {
   ProgrammaticScryptoSborValue,
@@ -14,7 +14,7 @@ import type {
 import { EntityNonFungiblesPageService } from "./entityNonFungiblesPage";
 import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
 import { chunker } from "../helpers/chunker";
-import { GetEntityDetailsError } from "./getEntityDetails";
+
 import type { AtLedgerState } from "./schemas";
 
 export class InvalidInputError {
@@ -101,9 +101,10 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                     },
                   }
                 ),
-              catch: (error) => new GetEntityDetailsError(error),
+              catch: (error) => new GatewayError(error),
             })
-          )
+          ),
+          { concurrency: 10 }
         ).pipe(
           Effect.map((results) => {
             const items = results.flatMap((result) => result.items);
