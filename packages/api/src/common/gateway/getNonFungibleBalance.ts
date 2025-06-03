@@ -28,15 +28,6 @@ type StateEntityDetailsParams = Parameters<
 
 type StateEntityDetailsOptionsParams = StateEntityDetailsParams["opt_ins"];
 
-export type StateEntityDetailsInput = {
-  addresses: string[];
-  options?: StateEntityDetailsOptionsParams;
-  state?: {
-    timestamp?: Date;
-    state_version?: number;
-  };
-};
-
 export type GetNonFungibleBalanceOutput = {
   items: {
     address: string;
@@ -58,6 +49,7 @@ export type GetNonFungibleBalanceOutput = {
 type GetNonFungibleBalanceInput = {
   addresses: string[];
   at_ledger_state: AtLedgerState;
+  resourceAddresses?: string[];
   options?: StateEntityDetailsOptionsParams;
 };
 
@@ -156,7 +148,15 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                 lastUpdatedStateVersion: number;
               }[] = [];
 
-              for (const nonFungible of allNonFungibleResources) {
+              const filteredNonFungibleResources = input.resourceAddresses
+                ? allNonFungibleResources.filter((resource) =>
+                    input?.resourceAddresses?.includes(
+                      resource.resource_address
+                    )
+                  )
+                : allNonFungibleResources;
+
+              for (const nonFungible of filteredNonFungibleResources) {
                 if (nonFungible.aggregation_level !== "Vault")
                   return yield* Effect.fail(new InvalidInputError(nonFungible));
 

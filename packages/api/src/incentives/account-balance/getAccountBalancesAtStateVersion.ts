@@ -222,6 +222,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         const nonFungibleBalanceResults = yield* getNonFungibleBalanceService({
           addresses: input.addresses,
           at_ledger_state: atLedgerState,
+          resourceAddresses: [
+            CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC.liquidity_receipt,
+          ],
         }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
         const userStakingPositions = yield* getUserStakingPositionsService({
