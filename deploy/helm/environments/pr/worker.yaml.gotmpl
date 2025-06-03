@@ -2,8 +2,7 @@ image:
     tag: {{ .StateValues.ci.tag }}
 
 params:
-  DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public"
-  RO_DATABASE_URL: postgresql://postgres:secretString123@postgres-postgresql:5432/incentives?schema=public
+  DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives"
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""

@@ -36,8 +36,7 @@ spec:
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command: ["/bin/sh", "-c", "-e"]
           args:
-            - cd packages/db
-            - pnpm db:migrate
+            - cd packages/db && pnpm db:migrate:incentives
           env:
           {{- range $secret := .Values.secrets }}
           - name: {{ $secret.env_variable }}

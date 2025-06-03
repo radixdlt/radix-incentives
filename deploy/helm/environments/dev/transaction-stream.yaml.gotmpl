@@ -1,11 +1,11 @@
 image: 
-    tag: {{ .StateValues.ci.tag }}
+  tag: {{ .StateValues.ci.tag }}
 
 params:
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
-  LOG_LEVEL: debug
+  WORKERS_API_BASE_URL: "http://worker:3000"
 
 secrets:
   - external_secret_name: transaction-stream-postgres-url

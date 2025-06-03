@@ -29,15 +29,15 @@ releases:
     values:
       - environments/{{ .Environment.Name }}/admin.yaml.gotmpl
       
-  # - name: transaction-stream
-  #   chart: ./transaction-stream
-  #   values:
-  #     - environments/{{ .Environment.Name }}/transaction-stream.yaml.gotmpl
+  - name: transaction-stream
+    chart: ./transaction-stream
+    values:
+      - environments/{{ .Environment.Name }}/transaction-stream.yaml.gotmpl
 
-  # - name: worker
-  #   chart: ./worker
-  #   values:
-  #     - environments/{{ .Environment.Name }}/worker.yaml.gotmpl
+  - name: worker
+    chart: ./worker
+    values:
+      - environments/{{ .Environment.Name }}/worker.yaml.gotmpl
 
   - name: postgres
     chart: bitnami/postgresql

@@ -37,7 +37,7 @@ export const runTransactionStreamLoop = async () => {
   const REDIS_PORT = process.env.REDIS_PORT;
   const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
-  if (!REDIS_HOST || !REDIS_PORT || !REDIS_PASSWORD) {
+  if (!REDIS_HOST || !REDIS_PORT || REDIS_PASSWORD === undefined) {
     throw new Error("REDIS_HOST, REDIS_PORT, and REDIS_PASSWORD must be set");
   }
 
