@@ -12,7 +12,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "catalog:",
-    "sbor-ez-mode": "workspace:*",
+    "@bull-board/api": "catalog:",
     "@effect/opentelemetry": "^0.47.0",
     "@noble/hashes": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
@@ -28,6 +28,7 @@
     "@radixdlt/rola": "catalog:",
     "@stabilis/c9-shape-liquidity-getter": "^1.1.2",
     "@trpc/server": "catalog:",
+    "@types/make-fetch-happen": "^10.0.4",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",
     "db": "workspace:*",
@@ -36,13 +37,14 @@
     "effect": "catalog:",
     "ioredis": "catalog:",
     "jose": "catalog:",
+    "make-fetch-happen": "^14.0.3",
     "pino": "catalog:",
     "radix-connect": "catalog:",
     "radix-transaction-stream": "catalog:",
     "radix-web3.js": "catalog:",
+    "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:",
-    "@bull-board/api": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "^0.20.10",

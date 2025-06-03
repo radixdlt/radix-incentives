@@ -1,6 +1,16 @@
 import { Context, Effect, Layer } from "effect";
 import { createRadixNetworkClient } from "radix-web3.js";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
+import makeFetchHappen from "make-fetch-happen";
+
+/**
+ * Request method is NOT POST; AND
+ * Request status is one of: 408, 420, 429, or any status in the 500-range.; OR
+ * Request errored with ECONNRESET, ECONNREFUSED, EADDRINUSE, ETIMEDOUT, or the fetch error request-timeout.
+ */
+const fetchImpl = makeFetchHappen.defaults(
+  {}
+) as unknown as (typeof globalThis)["fetch"];
 
 export type GatewayApiClientImpl = ReturnType<typeof createRadixNetworkClient>;
 
@@ -24,7 +34,10 @@ export const GatewayApiClientLive = Layer.effect(
 
     yield* Effect.logDebug("Initializing gateway API client", options);
 
-    const gatewayApiClient = GatewayApiClient.initialize(options);
+    const gatewayApiClient = GatewayApiClient.initialize({
+      ...options,
+      fetchApi: fetchImpl,
+    });
 
     return createRadixNetworkClient({
       networkId,
