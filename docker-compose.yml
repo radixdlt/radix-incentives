@@ -23,7 +23,7 @@ services:
       - "6379:6379"
     expose:
       - "6379"
-    command: redis-server --save 20 1 --loglevel warning --requirepass password --maxmemory-policy noeviction
+    command: redis-server --save 20 1 --loglevel warning --maxmemory-policy noeviction
 
   redis-commander:
     hostname: redis-commander
@@ -32,7 +32,6 @@ services:
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-      - REDIS_PASSWORD=password
     ports:
       - "8081:8081"
 
@@ -41,6 +40,15 @@ services:
     ports:
       - '4318:4318'
       - '16686:16686'
+
+  taskforce-connector:
+    build: https://github.com/taskforcesh/taskforce-connector.git#master
+    environment:
+      TASKFORCE_CONNECTION: "local taskforce provisioner"
+      TASKFORCE_TEAM: "Stelea"
+      TASKFORCE_TOKEN: ${TASKFORCE_TOKEN}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
 
   # workers:
   #   hostname: workers
