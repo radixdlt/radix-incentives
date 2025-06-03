@@ -27,6 +27,14 @@ export const UpsertAccountBalancesLive = Layer.effect(
 
     return (input) =>
       Effect.gen(function* () {
+        // Early return if no data to insert
+        if (input.length === 0) {
+          yield* Effect.log(
+            "No account balances to upsert, skipping database operation"
+          );
+          return;
+        }
+
         yield* Effect.tryPromise({
           try: () =>
             db
