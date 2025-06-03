@@ -4,7 +4,7 @@ import {
   GatewayApiClientService,
 } from "./gatewayApiClient";
 
-import { EntityNotFoundError, type GatewayError } from "./errors";
+import { EntityNotFoundError, GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
 import type {
   ProgrammaticScryptoSborValue,
@@ -14,7 +14,7 @@ import type {
 import { EntityNonFungiblesPageService } from "./entityNonFungiblesPage";
 import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
 import { chunker } from "../helpers/chunker";
-import { GetEntityDetailsError } from "./getEntityDetails";
+
 import type { AtLedgerState } from "./schemas";
 
 export class InvalidInputError {
@@ -28,45 +28,40 @@ type StateEntityDetailsParams = Parameters<
 
 type StateEntityDetailsOptionsParams = StateEntityDetailsParams["opt_ins"];
 
-export type StateEntityDetailsInput = {
-  addresses: string[];
-  options?: StateEntityDetailsOptionsParams;
-  state?: {
-    timestamp?: Date;
-    state_version?: number;
-  };
+export type GetNonFungibleBalanceOutput = {
+  items: {
+    address: string;
+    nonFungibleResources: {
+      resourceAddress: string;
+      lastUpdatedStateVersion: number;
+      nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
+      items: {
+        id: string;
+        lastUpdatedStateVersion: number;
+        sbor?: ProgrammaticScryptoSborValue;
+        isBurned: boolean;
+      }[];
+    }[];
+    details?: StateEntityDetailsResponseItemDetails;
+  }[];
 };
 
-export type GetNonFungibleBalanceOutput = {
-  address: string;
-  nonFungibleResources: {
-    resourceAddress: string;
-    lastUpdatedStateVersion: number;
-    nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
-    items: {
-      id: string;
-      lastUpdatedStateVersion: number;
-      sbor?: ProgrammaticScryptoSborValue;
-      isBurned: boolean;
-    }[];
-  }[];
-  details?: StateEntityDetailsResponseItemDetails;
-}[];
+type GetNonFungibleBalanceInput = {
+  addresses: string[];
+  at_ledger_state: AtLedgerState;
+  resourceAddresses?: string[];
+  options?: StateEntityDetailsOptionsParams;
+};
 
 export class GetNonFungibleBalanceService extends Context.Tag(
   "GetNonFungibleBalanceService"
 )<
   GetNonFungibleBalanceService,
-  (input: {
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-    options?: StateEntityDetailsOptionsParams;
-  }) => Effect.Effect<
-    { items: GetNonFungibleBalanceOutput },
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError,
+  (
+    input: GetNonFungibleBalanceInput
+  ) => Effect.Effect<
+    GetNonFungibleBalanceOutput,
+    EntityNotFoundError | InvalidInputError | GatewayError,
     | GatewayApiClientService
     | EntityNonFungiblesPageService
     | GetLedgerStateService
@@ -103,9 +98,10 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                     },
                   }
                 ),
-              catch: (error) => new GetEntityDetailsError(error),
+              catch: (error) => new GatewayError(error),
             })
-          )
+          ),
+          { concurrency: 10 }
         ).pipe(
           Effect.map((results) => {
             const items = results.flatMap((result) => result.items);
@@ -150,7 +146,15 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                 lastUpdatedStateVersion: number;
               }[] = [];
 
-              for (const nonFungible of allNonFungibleResources) {
+              const filteredNonFungibleResources = input.resourceAddresses
+                ? allNonFungibleResources.filter((resource) =>
+                    input?.resourceAddresses?.includes(
+                      resource.resource_address
+                    )
+                  )
+                : allNonFungibleResources;
+
+              for (const nonFungible of filteredNonFungibleResources) {
                 if (nonFungible.aggregation_level !== "Vault")
                   return yield* Effect.fail(new InvalidInputError(nonFungible));
 

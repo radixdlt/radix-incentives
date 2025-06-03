@@ -53,7 +53,7 @@ export const GetShapeLiquidityClaimsLive = Layer.effect(
           resource_address: input.liquidityReceiptResourceAddress,
           non_fungible_ids: input.nonFungibleLocalIds,
           at_ledger_state: input.at_ledger_state,
-        });
+        }).pipe(Effect.withSpan("entityNonFungibleDataService"));
 
         return yield* Effect.forEach(
           nonFungibleDataResult.non_fungible_ids,

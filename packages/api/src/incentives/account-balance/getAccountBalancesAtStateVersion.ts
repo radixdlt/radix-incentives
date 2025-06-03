@@ -219,55 +219,76 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           state_version,
         } satisfies AtLedgerState;
 
-        const userStakingPositions = yield* getUserStakingPositionsService({
-          addresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getUserStakingPositionsService"));
-
-        const lsulpResults = yield* getLsulpService({
-          addresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getLsulpService"));
-
-        const fungibleBalanceResults = yield* getFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getFungibleBalanceService"));
-
-        const nonFungibleBalanceResults = yield* getNonFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
-
-        const allWeftFinancePositions = yield* getWeftFinancePositionsService({
-          accountAddresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getWeftFinancePositionsService"));
-
-        const allRootFinancePositions = yield* getRootFinancePositionsService({
-          accountAddresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getRootFinancePositionsService"));
+        const [nonFungibleBalanceResults, fungibleBalanceResults] =
+          yield* Effect.all(
+            [
+              getNonFungibleBalanceService({
+                addresses: input.addresses,
+                at_ledger_state: atLedgerState,
+                resourceAddresses: [
+                  CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC
+                    .liquidity_receipt,
+                ],
+              }).pipe(Effect.withSpan("getNonFungibleBalanceService")),
+              getFungibleBalanceService({
+                addresses: input.addresses,
+                at_ledger_state: atLedgerState,
+              }).pipe(Effect.withSpan("getFungibleBalanceService")),
+            ],
+            { concurrency: "unbounded" }
+          );
 
         const C9Pool_XRD_xUSDC =
           CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC;
 
-        const xrdUsdcShapeLiquidityAssets =
-          yield* getShapeLiquidityAssetsService({
-            addresses: input.addresses,
-            at_ledger_state: atLedgerState,
-            componentAddress: C9Pool_XRD_xUSDC.componentAddress,
-            priceBounds: {
-              lower: 0.7,
-              upper: 1.3,
-            },
-          }).pipe(
-            Effect.withSpan("C9Pool_XRD_xUSDC_getShapeLiquidityAssetsService")
-          );
-
-        const lsulpValue = yield* getLsulpValueService({
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getLsulpValueService"));
+        const [
+          userStakingPositions,
+          lsulpResults,
+          allWeftFinancePositions,
+          allRootFinancePositions,
+          xrdUsdcShapeLiquidityAssets,
+          lsulpValue,
+        ] = yield* Effect.all(
+          [
+            getUserStakingPositionsService({
+              addresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              nonFungibleBalance: nonFungibleBalanceResults,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getUserStakingPositionsService")),
+            getLsulpService({
+              addresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getLsulpService")),
+            getWeftFinancePositionsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getWeftFinancePositionsService")),
+            getRootFinancePositionsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              nonFungibleBalance: nonFungibleBalanceResults,
+            }).pipe(Effect.withSpan("getRootFinancePositionsService")),
+            getShapeLiquidityAssetsService({
+              addresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              componentAddress: C9Pool_XRD_xUSDC.componentAddress,
+              priceBounds: {
+                lower: 0.7,
+                upper: 1.3,
+              },
+              nonFungibleBalance: nonFungibleBalanceResults,
+            }).pipe(
+              Effect.withSpan("C9Pool_XRD_xUSDC_getShapeLiquidityAssetsService")
+            ),
+            getLsulpValueService({
+              at_ledger_state: atLedgerState,
+            }).pipe(Effect.withSpan("getLsulpValueService")),
+          ],
+          { concurrency: "unbounded" }
+        );
 
         const lsuResourceAddresses = [
           ...new Set(

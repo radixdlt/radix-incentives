@@ -61,7 +61,7 @@ export const ConvertLsuToXrdLive = Layer.effect(
             nativeResourceDetails: true,
           },
           input.at_ledger_state
-        );
+        ).pipe(Effect.withSpan("getEntityDetails"));
 
         return yield* Effect.all(
           entityDetailsResponse.map((entityDetails) => {

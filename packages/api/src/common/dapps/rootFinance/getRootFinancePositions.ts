@@ -6,6 +6,7 @@ import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPa
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import {
+  type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
   type InvalidInputError,
   type StateEntityDetailsInput,
@@ -30,6 +31,8 @@ export class InvalidRootReceiptItemError extends Error {
 export type GetRootFinancePositionsServiceInput = {
   accountAddresses: string[];
   stateVersion?: StateEntityDetailsInput["state"];
+  nonFungibleBalance?: GetNonFungibleBalanceOutput;
+  at_ledger_state: AtLedgerState;
 };
 
 export type CollaterizedDebtPosition = {
@@ -52,10 +55,9 @@ export class GetRootFinancePositionsService extends Context.Tag(
   "GetRootFinancePositionsService"
 )<
   GetRootFinancePositionsService,
-  (input: {
-    accountAddresses: string[];
-    at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<
+  (
+    input: GetRootFinancePositionsServiceInput
+  ) => Effect.Effect<
     GetRootFinancePositionsServiceOutput,
     | GetEntityDetailsError
     | EntityNotFoundError
@@ -87,13 +89,15 @@ export const GetRootFinancePositionsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const result = yield* getNonFungibleBalanceService({
-          addresses: input.accountAddresses,
-          at_ledger_state: input.at_ledger_state,
-          options: {
-            non_fungible_include_nfids: true,
-          },
-        }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
+        const result = input.nonFungibleBalance
+          ? input.nonFungibleBalance
+          : yield* getNonFungibleBalanceService({
+              addresses: input.accountAddresses,
+              at_ledger_state: input.at_ledger_state,
+              options: {
+                non_fungible_include_nfids: true,
+              },
+            }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
         for (const account of result.items) {
           const collaterizedDebtPositionList: CollaterizedDebtPosition[] = [];

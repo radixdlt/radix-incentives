@@ -27,9 +27,7 @@ export const createQueue = <Input, Output = unknown>(input: {
   });
 
   // prevents nodejs to exit when worker throws an error
-  worker.on("error", (err) => {
-    console.error("worker error", err);
-  });
+  worker.on("error", () => {});
 
   console.log(`${queue.name} queue instantiated`);
 

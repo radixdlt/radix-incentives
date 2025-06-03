@@ -1,9 +1,13 @@
 import { Context, Effect, Layer } from "effect";
 import {
+  type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
   type InvalidInputError,
 } from "../gateway/getFungibleBalance";
-import { GetNonFungibleBalanceService } from "../gateway/getNonFungibleBalance";
+import {
+  type GetNonFungibleBalanceOutput,
+  GetNonFungibleBalanceService,
+} from "../gateway/getNonFungibleBalance";
 import {
   type GetAllValidatorsError,
   GetAllValidatorsService,
@@ -39,6 +43,8 @@ export class GetUserStakingPositionsService extends Context.Tag(
   (input: {
     addresses: string[];
     at_ledger_state: AtLedgerState;
+    nonFungibleBalance?: GetNonFungibleBalanceOutput;
+    fungibleBalance?: GetFungibleBalanceOutput;
   }) => Effect.Effect<
     UserStakingPositionsOutput,
     | GetAllValidatorsError
@@ -75,15 +81,19 @@ export const GetUserStakingPositionsLive = Layer.effect(
           validators.map((validator) => validator.lsuResourceAddress)
         );
 
-        const nonFungibleBalanceResults = yield* getNonFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
+        const nonFungibleBalanceResults = input.nonFungibleBalance
+          ? input.nonFungibleBalance
+          : yield* getNonFungibleBalanceService({
+              addresses: input.addresses,
+              at_ledger_state: input.at_ledger_state,
+            }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
-        const fungibleBalanceResults = yield* getFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("getFungibleBalanceService"));
+        const fungibleBalanceResults = input.fungibleBalance
+          ? input.fungibleBalance
+          : yield* getFungibleBalanceService({
+              addresses: input.addresses,
+              at_ledger_state: input.at_ledger_state,
+            }).pipe(Effect.withSpan("getFungibleBalanceService"));
 
         const staked = fungibleBalanceResults.map((item) => {
           const lsus = item.fungibleResources.filter((resource) =>

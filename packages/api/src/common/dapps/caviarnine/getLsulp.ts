@@ -1,5 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import {
+  type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
   type InvalidInputError,
 } from "../../gateway/getFungibleBalance";
@@ -26,6 +27,7 @@ export class GetLsulpService extends Context.Tag("GetLsulpService")<
   (input: {
     at_ledger_state: AtLedgerState;
     addresses: string[];
+    fungibleBalance?: GetFungibleBalanceOutput;
   }) => Effect.Effect<
     GetLsulpOutput,
     | GetEntityDetailsError
@@ -46,7 +48,11 @@ export const GetLsulpLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const fungibleBalanceResults = yield* getFungibleBalanceService(input);
+        const fungibleBalanceResults = input.fungibleBalance
+          ? input.fungibleBalance
+          : yield* getFungibleBalanceService(input).pipe(
+              Effect.withSpan("getFungibleBalanceService")
+            );
 
         return fungibleBalanceResults.map((item) => {
           const lsulpAmount = item.fungibleResources.find(

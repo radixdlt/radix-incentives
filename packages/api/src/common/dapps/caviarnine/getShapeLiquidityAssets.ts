@@ -17,6 +17,7 @@ import {
   type InvalidComponentStateError,
 } from "../../gateway/getComponentState";
 import {
+  type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
   type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
@@ -60,6 +61,7 @@ export class GetShapeLiquidityAssetsService extends Context.Tag(
     componentAddress: string;
     addresses: string[];
     at_ledger_state: AtLedgerState;
+    nonFungibleBalance?: GetNonFungibleBalanceOutput;
     priceBounds: {
       lower: number;
       upper: number;
@@ -159,10 +161,12 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
             new FailedToParseComponentStateError("Current tick is not defined")
           );
 
-        const nonFungibleBalances = yield* getNonFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: input.at_ledger_state,
-        });
+        const nonFungibleBalances = input.nonFungibleBalance
+          ? input.nonFungibleBalance
+          : yield* getNonFungibleBalanceService({
+              addresses: input.addresses,
+              at_ledger_state: input.at_ledger_state,
+            });
 
         const shapeLiquidityNfts = nonFungibleBalances.items.flatMap((item) =>
           item.nonFungibleResources
@@ -201,7 +205,7 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
         const binMapData = yield* getQuantaSwapBinMapService({
           address: quantaSwapState.bin_map,
           at_ledger_state: input.at_ledger_state,
-        });
+        }).pipe(Effect.withSpan("getQuantaSwapBinMapService"));
 
         const nfts = yield* getShapeLiquidityClaimsService({
           componentAddress: input.componentAddress,
@@ -210,6 +214,7 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           nonFungibleLocalIds: nftIds,
           at_ledger_state: input.at_ledger_state,
         }).pipe(
+          Effect.withSpan("getShapeLiquidityClaimsService"),
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,

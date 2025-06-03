@@ -5,12 +5,12 @@ import {
   GatewayApiClientService,
 } from "./gatewayApiClient";
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
-import { EntityNotFoundError, type GatewayError } from "./errors";
+import { EntityNotFoundError, GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
 import type { StateEntityDetailsResponseItemDetails } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
-import { GetEntityDetailsError } from "./getEntityDetails";
+
 import type { AtLedgerState } from "./schemas";
 
 export class InvalidInputError {
@@ -30,24 +30,25 @@ export type StateEntityDetailsInput = {
   at_ledger_state: AtLedgerState;
 };
 
+export type GetFungibleBalanceOutput = {
+  address: string;
+  fungibleResources: {
+    resourceAddress: string;
+    amount: BigNumber;
+    lastUpdatedStateVersion: number;
+  }[];
+  details?: StateEntityDetailsResponseItemDetails;
+}[];
+
 export class GetFungibleBalanceService extends Context.Tag(
   "GetFungibleBalanceService"
 )<
   GetFungibleBalanceService,
-  (input: StateEntityDetailsInput) => Effect.Effect<
-    {
-      address: string;
-      fungibleResources: {
-        resourceAddress: string;
-        amount: BigNumber;
-        lastUpdatedStateVersion: number;
-      }[];
-      details?: StateEntityDetailsResponseItemDetails;
-    }[],
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError,
+  (
+    input: StateEntityDetailsInput
+  ) => Effect.Effect<
+    GetFungibleBalanceOutput,
+    EntityNotFoundError | InvalidInputError | GatewayError,
     GatewayApiClientService | EntityFungiblesPageService | GetLedgerStateService
   >
 >() {}
@@ -79,7 +80,7 @@ export const GetFungibleBalanceLive = Layer.effect(
                     }
                   ),
                 catch: (error) => {
-                  return new GetEntityDetailsError(error);
+                  return new GatewayError(error);
                 },
               });
 
