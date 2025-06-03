@@ -219,9 +219,15 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           state_version,
         } satisfies AtLedgerState;
 
+        const nonFungibleBalanceResults = yield* getNonFungibleBalanceService({
+          addresses: input.addresses,
+          at_ledger_state: atLedgerState,
+        }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
+
         const userStakingPositions = yield* getUserStakingPositionsService({
           addresses: input.addresses,
           at_ledger_state: atLedgerState,
+          nonFungibleBalance: nonFungibleBalanceResults,
         }).pipe(Effect.withSpan("getUserStakingPositionsService"));
 
         const lsulpResults = yield* getLsulpService({
@@ -234,11 +240,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           at_ledger_state: atLedgerState,
         }).pipe(Effect.withSpan("getFungibleBalanceService"));
 
-        const nonFungibleBalanceResults = yield* getNonFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
-
         const allWeftFinancePositions = yield* getWeftFinancePositionsService({
           accountAddresses: input.addresses,
           at_ledger_state: atLedgerState,
@@ -247,6 +248,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         const allRootFinancePositions = yield* getRootFinancePositionsService({
           accountAddresses: input.addresses,
           at_ledger_state: atLedgerState,
+          nonFungibleBalance: nonFungibleBalanceResults,
         }).pipe(Effect.withSpan("getRootFinancePositionsService"));
 
         const C9Pool_XRD_xUSDC =
@@ -261,6 +263,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               lower: 0.7,
               upper: 1.3,
             },
+            nonFungibleBalance: nonFungibleBalanceResults,
           }).pipe(
             Effect.withSpan("C9Pool_XRD_xUSDC_getShapeLiquidityAssetsService")
           );

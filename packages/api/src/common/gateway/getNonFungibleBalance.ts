@@ -38,31 +38,37 @@ export type StateEntityDetailsInput = {
 };
 
 export type GetNonFungibleBalanceOutput = {
-  address: string;
-  nonFungibleResources: {
-    resourceAddress: string;
-    lastUpdatedStateVersion: number;
-    nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
-    items: {
-      id: string;
+  items: {
+    address: string;
+    nonFungibleResources: {
+      resourceAddress: string;
       lastUpdatedStateVersion: number;
-      sbor?: ProgrammaticScryptoSborValue;
-      isBurned: boolean;
+      nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
+      items: {
+        id: string;
+        lastUpdatedStateVersion: number;
+        sbor?: ProgrammaticScryptoSborValue;
+        isBurned: boolean;
+      }[];
     }[];
+    details?: StateEntityDetailsResponseItemDetails;
   }[];
-  details?: StateEntityDetailsResponseItemDetails;
-}[];
+};
+
+type GetNonFungibleBalanceInput = {
+  addresses: string[];
+  at_ledger_state: AtLedgerState;
+  options?: StateEntityDetailsOptionsParams;
+};
 
 export class GetNonFungibleBalanceService extends Context.Tag(
   "GetNonFungibleBalanceService"
 )<
   GetNonFungibleBalanceService,
-  (input: {
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-    options?: StateEntityDetailsOptionsParams;
-  }) => Effect.Effect<
-    { items: GetNonFungibleBalanceOutput },
+  (
+    input: GetNonFungibleBalanceInput
+  ) => Effect.Effect<
+    GetNonFungibleBalanceOutput,
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
