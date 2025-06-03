@@ -11,10 +11,12 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
 
   if (Exit.isFailure(result)) {
     if (result.cause._tag === "Fail") {
-      console.error(result.cause.error);
-      throw result.cause.error;
+      const enhancedError = new Error(result.cause.error._tag);
+      enhancedError.stack = `${JSON.stringify(result.cause.error, null, 2)}`;
+      enhancedError.cause = result.cause.error._tag;
+      throw enhancedError;
     }
-    console.error(result.cause);
-    throw result.cause;
+
+    throw new Error(JSON.stringify(result.cause, null, 2));
   }
 };

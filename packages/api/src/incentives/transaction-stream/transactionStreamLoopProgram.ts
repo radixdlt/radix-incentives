@@ -35,10 +35,9 @@ import { EventQueueClientLive } from "../events/eventQueueClient";
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
   const REDIS_PORT = process.env.REDIS_PORT;
-  const REDIS_PASSWORD = process.env.REDIS_PASSWORD;
 
-  if (!REDIS_HOST || !REDIS_PORT || REDIS_PASSWORD === undefined) {
-    throw new Error("REDIS_HOST, REDIS_PORT, and REDIS_PASSWORD must be set");
+  if (!REDIS_HOST || !REDIS_PORT) {
+    throw new Error("REDIS_HOST, REDIS_PORT must be set");
   }
 
   const START_TIMESTAMP = process.env.START_TIMESTAMP
@@ -54,7 +53,6 @@ export const runTransactionStreamLoop = async () => {
   const redis = new Redis({
     host: REDIS_HOST,
     port: config.redisPort,
-    password: config.redisPassword,
   });
 
   const stateVersionManager = createStateVersionManager();
