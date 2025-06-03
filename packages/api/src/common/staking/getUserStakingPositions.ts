@@ -1,5 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import {
+  type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
   type InvalidInputError,
 } from "../gateway/getFungibleBalance";
@@ -43,6 +44,7 @@ export class GetUserStakingPositionsService extends Context.Tag(
     addresses: string[];
     at_ledger_state: AtLedgerState;
     nonFungibleBalance?: GetNonFungibleBalanceOutput;
+    fungibleBalance?: GetFungibleBalanceOutput;
   }) => Effect.Effect<
     UserStakingPositionsOutput,
     | GetAllValidatorsError
@@ -86,10 +88,12 @@ export const GetUserStakingPositionsLive = Layer.effect(
               at_ledger_state: input.at_ledger_state,
             }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
-        const fungibleBalanceResults = yield* getFungibleBalanceService({
-          addresses: input.addresses,
-          at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("getFungibleBalanceService"));
+        const fungibleBalanceResults = input.fungibleBalance
+          ? input.fungibleBalance
+          : yield* getFungibleBalanceService({
+              addresses: input.addresses,
+              at_ledger_state: input.at_ledger_state,
+            }).pipe(Effect.withSpan("getFungibleBalanceService"));
 
         const staked = fungibleBalanceResults.map((item) => {
           const lsus = item.fungibleResources.filter((resource) =>

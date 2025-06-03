@@ -11,7 +11,10 @@ import type {
 } from "../../gateway/getNonFungibleBalance";
 import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 
-import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
+import {
+  type GetFungibleBalanceOutput,
+  GetFungibleBalanceService,
+} from "../../gateway/getFungibleBalance";
 
 import { BigNumber } from "bignumber.js";
 import {
@@ -54,6 +57,7 @@ export class GetWeftFinancePositionsService extends Context.Tag(
   (input: {
     accountAddresses: string[];
     at_ledger_state: AtLedgerState;
+    fungibleBalance?: GetFungibleBalanceOutput;
   }) => Effect.Effect<
     GetWeftFinancePositionsOutput[],
     | GetEntityDetailsError
@@ -145,10 +149,12 @@ export const GetWeftFinancePositionsLive = Layer.effect(
           );
         }
 
-        const accountBalances = yield* getFungibleBalanceService({
-          addresses: input.accountAddresses,
-          at_ledger_state: input.at_ledger_state,
-        });
+        const accountBalances = input.fungibleBalance
+          ? input.fungibleBalance
+          : yield* getFungibleBalanceService({
+              addresses: input.accountAddresses,
+              at_ledger_state: input.at_ledger_state,
+            });
 
         for (const accountBalance of accountBalances) {
           const fungibleResources = accountBalance.fungibleResources;

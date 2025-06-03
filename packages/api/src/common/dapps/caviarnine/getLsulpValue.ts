@@ -1,6 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import {
   type InvalidInputError,
+  type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from "../../gateway/getFungibleBalance";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";

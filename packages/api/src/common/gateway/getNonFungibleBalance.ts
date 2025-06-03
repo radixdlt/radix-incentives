@@ -61,10 +61,7 @@ export class GetNonFungibleBalanceService extends Context.Tag(
     input: GetNonFungibleBalanceInput
   ) => Effect.Effect<
     GetNonFungibleBalanceOutput,
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError,
+    EntityNotFoundError | InvalidInputError | GatewayError,
     | GatewayApiClientService
     | EntityNonFungiblesPageService
     | GetLedgerStateService

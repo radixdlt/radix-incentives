@@ -205,7 +205,7 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
         const binMapData = yield* getQuantaSwapBinMapService({
           address: quantaSwapState.bin_map,
           at_ledger_state: input.at_ledger_state,
-        });
+        }).pipe(Effect.withSpan("getQuantaSwapBinMapService"));
 
         const nfts = yield* getShapeLiquidityClaimsService({
           componentAddress: input.componentAddress,
@@ -214,6 +214,7 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           nonFungibleLocalIds: nftIds,
           at_ledger_state: input.at_ledger_state,
         }).pipe(
+          Effect.withSpan("getShapeLiquidityClaimsService"),
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,
