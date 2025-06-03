@@ -9,6 +9,8 @@ import { showRoutes } from "hono/dev";
 import { eventQueue } from "../event/queue";
 import { eventQueueJobSchema } from "../event/schemas";
 import { BullMQAdapter } from "@bull-board/api/dist/src/queueAdapters/bullMQ.js";
+import { snapshotDateRangeQueue } from "../snapshot-date-range/queue";
+import { snapshotDateRangeJobSchema } from "../snapshot-date-range/schemas";
 
 const app = new Hono();
 
@@ -22,11 +24,14 @@ app.get("/metrics", async (c) => {
   const scheduledSnapshotQueueMetrics =
     await scheduledSnapshotQueue.queue.exportPrometheusMetrics();
   const eventQueueMetrics = await eventQueue.queue.exportPrometheusMetrics();
+  const scheduledSnapshotDateRangeQueueMetrics =
+    await snapshotDateRangeQueue.queue.exportPrometheusMetrics();
   return c.text(
     "".concat(
       snapshotQueueMetrics,
       scheduledSnapshotQueueMetrics,
-      eventQueueMetrics
+      eventQueueMetrics,
+      scheduledSnapshotDateRangeQueueMetrics
     )
   );
 });
@@ -42,6 +47,16 @@ app.post("/queues/event/add", async (c) => {
   return c.text("ok");
 });
 
+app.post("/queues/snapshot-date-range/add", async (c) => {
+  const input = await c.req.json();
+  const parsedInput = snapshotDateRangeJobSchema.safeParse(input);
+  if (!parsedInput.success) {
+    return c.json({ error: parsedInput.error.message }, 400);
+  }
+  await snapshotDateRangeQueue.queue.add("snapshotDateRange", parsedInput.data);
+  return c.text("ok");
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 
 console.log(`🚀 Starting server on port ${port}`);
@@ -54,6 +69,7 @@ createBullBoard({
     new BullMQAdapter(snapshotQueue.queue),
     new BullMQAdapter(scheduledSnapshotQueue.queue),
     new BullMQAdapter(eventQueue.queue),
+    new BullMQAdapter(snapshotDateRangeQueue.queue),
   ],
   serverAdapter,
 });
