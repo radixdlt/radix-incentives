@@ -9,7 +9,6 @@ import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
   type InvalidInputError,
-  type StateEntityDetailsInput,
 } from "../../gateway/getNonFungibleBalance";
 import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 import { RootFinance } from "./constants";
@@ -30,7 +29,6 @@ export class InvalidRootReceiptItemError extends Error {
 
 export type GetRootFinancePositionsServiceInput = {
   accountAddresses: string[];
-  stateVersion?: StateEntityDetailsInput["state"];
   nonFungibleBalance?: GetNonFungibleBalanceOutput;
   at_ledger_state: AtLedgerState;
 };

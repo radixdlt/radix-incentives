@@ -1,7 +1,10 @@
 import { Effect, Layer } from "effect";
 import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
-import type { GetUsdValueService } from "../token-price/getUsdValue";
+import type {
+  GetUsdValueService,
+  InvalidResourceAddressError,
+} from "../token-price/getUsdValue";
 import {
   type AggregateCaviarninePositionsOutput,
   AggregateCaviarninePositionsService,
@@ -20,7 +23,11 @@ export class AggregateAccountBalanceService extends Context.Tag(
   AggregateAccountBalanceService,
   (
     input: AggregateAccountBalanceInput
-  ) => Effect.Effect<AggregateAccountBalanceOutput[], never, GetUsdValueService>
+  ) => Effect.Effect<
+    AggregateAccountBalanceOutput[],
+    InvalidResourceAddressError,
+    GetUsdValueService
+  >
 >() {}
 
 export const AggregateAccountBalanceLive = Layer.effect(
