@@ -5,12 +5,21 @@ export default defineConfig({
   format: ["esm"],
   external: [
     /^node:.*/,
+    "url",
     "pino",
     "pino-pretty",
     "pino-abstract-transport",
     // OpenTelemetry packages that cause bundling issues
     /^@opentelemetry\/.*/,
     "bullmq-otel",
+    // Packages that use dynamic require and cause ESM issues
+    "minipass-fetch",
+    "make-fetch-happen",
+    "node-fetch",
+    "undici",
+    // Bull MQ and Redis related
+    "bullmq",
+    "ioredis",
   ],
   dts: false,
   splitting: false,

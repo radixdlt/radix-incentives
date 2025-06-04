@@ -28,7 +28,6 @@
     "@radixdlt/rola": "catalog:",
     "@stabilis/c9-shape-liquidity-getter": "^1.1.2",
     "@trpc/server": "catalog:",
-    "@types/make-fetch-happen": "^10.0.4",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",
     "db": "workspace:*",
@@ -37,7 +36,7 @@
     "effect": "catalog:",
     "ioredis": "catalog:",
     "jose": "catalog:",
-    "make-fetch-happen": "^14.0.3",
+    "make-fetch-happen": "catalog:",
     "pino": "catalog:",
     "radix-connect": "catalog:",
     "radix-transaction-stream": "catalog:",
@@ -50,7 +49,8 @@
     "@effect/vitest": "^0.20.10",
     "@types/aws-lambda": "catalog:",
     "tsup": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@types/make-fetch-happen": "catalog:"
   },
   "publishConfig": {
     "access": "restricted"

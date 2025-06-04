@@ -21,11 +21,13 @@
     "@opentelemetry/sdk-node": "catalog:",
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-node": "catalog:",
-    "@opentelemetry/semantic-conventions": "catalog:"
+    "@opentelemetry/semantic-conventions": "catalog:",
+    "make-fetch-happen": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
     "tsup": "catalog:",
-    "tsx": "catalog:"
+    "tsx": "catalog:",
+    "@types/make-fetch-happen": "catalog:"
   }
 }
