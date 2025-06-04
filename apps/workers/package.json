@@ -29,11 +29,13 @@
     "hono": "^4.7.10",
     "ioredis": "catalog:",
     "pino": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "make-fetch-happen": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
     "tsup": "catalog:",
-    "tsx": "catalog:"
+    "tsx": "catalog:",
+    "@types/make-fetch-happen": "catalog:"
   }
 }

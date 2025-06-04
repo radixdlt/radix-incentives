@@ -62,3 +62,5 @@ catalog:
   "@opentelemetry/semantic-conventions": "^1.34.0"
   "@bull-board/api": "^6.9.6"
   "@bull-board/hono": "^6.9.6"
+  "@types/make-fetch-happen": "^10.0.4"
+  "make-fetch-happen": "^14.0.3"
