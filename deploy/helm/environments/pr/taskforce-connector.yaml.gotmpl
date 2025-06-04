@@ -1,0 +1,21 @@
+replicaCount: 1
+
+# This sets the container image more information can be found here: https://kubernetes.io/docs/concepts/containers/images/
+image:
+  repository: ghcr.io/taskforcesh/taskforce-connector@sha256
+  # This sets the pull policy for images.
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: "a5fd30082e405d17646c0084db24333bef6b792f08327a64851ea57681988347"
+
+params:
+    TASKFORCE_CONNECTION: "incentives-pr-{{ .StateValues.ci.prNumber }}"
+    TASKFORCE_TEAM: "devops"
+    REDIS_HOST: "redis-master"
+
+secrets:
+  - external_secret_name: taskforce-token-secret
+    env_variable: "TASKFORCE_TOKEN"
+    aws_secret_name: "rdx-works-main/eks/incentives-dev/taskforce-connector"
+    aws_secret_key: "token"
+    secret_key: "taskforce-token"
