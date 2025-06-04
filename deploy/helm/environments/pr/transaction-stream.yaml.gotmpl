@@ -7,6 +7,7 @@ params:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   WORKERS_API_BASE_URL: "http://worker:3000"
+  GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
 
 secrets:
 

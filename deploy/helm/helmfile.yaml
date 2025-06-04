@@ -19,6 +19,8 @@ repositories:
   - name: kubesphere 
     url: https://charts.kubesphere.io/main
 releases:
+{{ $INSTALL_TASKFORCE_CONNECTOR := .StateValues.ci.install_connector }}
+
   - name: incentives
     chart: ./incentives
     values:
@@ -38,6 +40,13 @@ releases:
     chart: ./worker
     values:
       - environments/{{ .Environment.Name }}/worker.yaml.gotmpl
+
+  - name: taskforce-connector
+    chart: ./taskforce-connector
+    values:
+      - environments/{{ .Environment.Name }}/taskforce-connector.yaml.gotmpl
+    installed: {{ $INSTALL_TASKFORCE_CONNECTOR }}
+
 
   - name: postgres
     chart: bitnami/postgresql
