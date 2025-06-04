@@ -1,7 +1,10 @@
 import { Effect, Layer } from "effect";
 import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
-import { GetUsdValueService } from "../token-price/getUsdValue";
+import {
+  GetUsdValueService,
+  type InvalidResourceAddressError,
+} from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 
 type C9XrdUsdcLp = {
@@ -38,7 +41,7 @@ export class AggregateCaviarninePositionsService extends Context.Tag(
     input: AggregateCaviarninePositionsInput
   ) => Effect.Effect<
     AggregateCaviarninePositionsOutput[],
-    never,
+    InvalidResourceAddressError,
     GetUsdValueService
   >
 >() {}
