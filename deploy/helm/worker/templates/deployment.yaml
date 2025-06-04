@@ -47,7 +47,7 @@ spec:
           {{- end }}
           ports:
             - name: http
-              containerPort: 3000
+              containerPort: 3003
               protocol: TCP
           {{- if .Values.metrics.enabled }}
             - name: metrics
