@@ -41,6 +41,19 @@ spec:
           volumeMounts:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+          env:
+          {{- range $secret := .Values.secrets }}
+          - name: {{ $secret.env_variable }}
+            valueFrom:
+              secretKeyRef:
+                name: {{ $secret.external_secret_name }}
+                key: {{ $secret.secret_key }}
+          {{- end }}
+          {{- range $key, $value := .Values.params }}
+          - name: {{ $key }}
+            value: {{ $value | quote }}
+          {{- end }}
+
       {{- with .Values.volumes }}
       volumes:
         {{- toYaml . | nindent 8 }}
