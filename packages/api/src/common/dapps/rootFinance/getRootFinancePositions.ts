@@ -8,9 +8,9 @@ import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
+  type GetNonFungibleBalanceServiceDependencies,
   type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
-import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 import { RootFinance } from "./constants";
 
 import { CollaterizedDebtPositionData } from "./schema";
@@ -49,6 +49,20 @@ export type GetRootFinancePositionsServiceOutput = {
   }[];
 };
 
+export type GetRootFinancePositionsServiceError =
+  | GetEntityDetailsError
+  | EntityNotFoundError
+  | InvalidInputError
+  | GatewayError
+  | ParseSborError
+  | InvalidRootReceiptItemError;
+
+export type GetRootFinancePositionsServiceDependencies =
+  | GetNonFungibleBalanceServiceDependencies
+  | GatewayApiClientService
+  | EntityFungiblesPageService
+  | GetLedgerStateService;
+
 export class GetRootFinancePositionsService extends Context.Tag(
   "GetRootFinancePositionsService"
 )<
@@ -57,17 +71,8 @@ export class GetRootFinancePositionsService extends Context.Tag(
     input: GetRootFinancePositionsServiceInput
   ) => Effect.Effect<
     GetRootFinancePositionsServiceOutput,
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError
-    | ParseSborError
-    | InvalidRootReceiptItemError,
-    | GetNonFungibleBalanceService
-    | GatewayApiClientService
-    | EntityFungiblesPageService
-    | GetLedgerStateService
-    | EntityNonFungiblesPageService
+    GetRootFinancePositionsServiceError,
+    GetRootFinancePositionsServiceDependencies
   >
 >() {}
 

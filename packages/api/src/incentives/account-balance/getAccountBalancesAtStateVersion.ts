@@ -76,8 +76,8 @@ import type {
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
-  StateNonFungibleDataResponse,
 } from "@radixdlt/babylon-gateway-api-sdk";
+import type { GetNftResourceManagersServiceDependencies } from "../../common/gateway/getNftResourceManagers";
 
 type Lsu = {
   resourceAddress: string;
@@ -102,8 +102,6 @@ type FungibleTokenBalance = {
 
 type NonFungibleTokenBalance = {
   resourceAddress: string;
-  lastUpdatedStateVersion: number;
-  nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
   items: {
     id: string;
     lastUpdatedStateVersion: number;
@@ -184,6 +182,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
     | GetComponentStateService
     | GetQuantaSwapBinMapService
     | GetShapeLiquidityClaimsService
+    | GetNftResourceManagersServiceDependencies
   >
 >() {}
 

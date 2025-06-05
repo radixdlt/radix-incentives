@@ -54,6 +54,8 @@ import { GetAccountsIntersectionLive } from "./account/getAccountsIntersection";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
+import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 
 const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -95,13 +97,28 @@ const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
+const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(entityNonFungibleDataServiceLive)
+);
+
+const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(entityNonFungiblesPageServiceLive),
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(entityNonFungibleDataServiceLive),
+  Layer.provide(getNonFungibleIdsLive)
+);
+
 const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(getNftResourceManagersLive)
 );
 
 const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
@@ -262,6 +279,12 @@ const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(aggregateCaviarninePositionsLive)
 );
 
+const c9Layers = Layer.mergeAll(
+  getShapeLiquidityAssetsLive,
+  getShapeLiquidityClaimsLive,
+  getQuantaSwapBinMapLive
+);
+
 const getAccountBalancesAtStateVersionLive =
   GetAccountBalancesAtStateVersionLive.pipe(
     Layer.provide(stateEntityDetailsLive),
@@ -278,12 +301,12 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getEntityDetailsServiceLive),
     Layer.provide(getWeftFinancePositionsLive),
     Layer.provide(getRootFinancePositionLive),
-    Layer.provide(getShapeLiquidityAssetsLive),
-    Layer.provide(getShapeLiquidityClaimsLive),
-    Layer.provide(getQuantaSwapBinMapLive),
+    Layer.provide(c9Layers),
     Layer.provide(getAccountAddressesLive),
     Layer.provide(upsertAccountBalancesLive),
-    Layer.provide(updateSnapshotLive)
+    Layer.provide(updateSnapshotLive),
+    Layer.provide(getNftResourceManagersLive),
+    Layer.provide(getNonFungibleIdsLive)
   );
 
 const snapshotLive = SnapshotLive.pipe(
@@ -380,7 +403,9 @@ const snapshotProgram = (input: SnapshotInput) => {
       createSnapshotLive,
       getUsdValueLive,
       aggregateCaviarninePositionsLive,
-      aggregateAccountBalanceLive
+      aggregateAccountBalanceLive,
+      getNftResourceManagersLive,
+      getNonFungibleIdsLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 
