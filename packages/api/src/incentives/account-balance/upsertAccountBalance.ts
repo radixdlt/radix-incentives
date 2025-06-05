@@ -3,7 +3,7 @@ import { DbClientService, DbError } from "../db/dbClient";
 import { accountBalances } from "db/incentives";
 import { sql } from "drizzle-orm";
 
-const BATCH_SIZE = 10000; // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
+const BATCH_SIZE = 5000; // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
 
 type UpsertAccountBalanceInput = {
   timestamp: Date;
