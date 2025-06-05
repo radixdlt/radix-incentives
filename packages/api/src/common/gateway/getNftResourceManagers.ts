@@ -202,14 +202,21 @@ export const GetNftResourceManagersLive = Layer.effect(
 
                         const nftIds = yield* Effect.forEach(vaults, (vault) =>
                           Effect.gen(function* () {
-                            const { ids } = yield* getNonFungibleIdsService({
-                              vaultAddress: vault.vault_address,
-                              resourceAddress: resourceManager.resource_address,
-                              at_ledger_state: input.at_ledger_state,
-                              address: resourceManagerResult.address,
-                            });
+                            const nftIds = vault?.items || [];
 
-                            return ids;
+                            if (vault.next_cursor) {
+                              const { ids } = yield* getNonFungibleIdsService({
+                                vaultAddress: vault.vault_address,
+                                resourceAddress:
+                                  resourceManager.resource_address,
+                                at_ledger_state: input.at_ledger_state,
+                                address: resourceManagerResult.address,
+                                cursor: vault.next_cursor,
+                              });
+                              nftIds.push(...ids);
+                            }
+
+                            return nftIds;
                           })
                         ).pipe(
                           Effect.withSpan("getNonFungibleResourceVaultPage"),

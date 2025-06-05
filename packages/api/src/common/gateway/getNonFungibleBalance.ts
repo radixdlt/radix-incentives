@@ -84,14 +84,12 @@ export const GetNonFungibleBalanceLive = Layer.effect(
           at_ledger_state: input.at_ledger_state,
           resourceAddresses: input.resourceAddresses,
           options: optIns,
-        });
+        }).pipe(Effect.withSpan("getNftResourceManagersService"));
 
         const result = yield* Effect.forEach(
           resourceManagersResults,
           (resourceManagerResult) => {
             return Effect.gen(function* () {
-              yield* Effect.logTrace(resourceManagerResult);
-
               const nonFungibleResources = yield* Effect.forEach(
                 resourceManagerResult.items,
                 (resourceManager) => {
@@ -99,7 +97,6 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                     if (resourceManager.nftIds.length === 0) {
                       return yield* Effect.succeed({
                         resourceAddress: resourceManager.resourceAddress,
-
                         items: [],
                       });
                     }
@@ -134,7 +131,8 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                 nonFungibleResources,
               };
             });
-          }
+          },
+          { concurrency: 10 }
         );
 
         return { items: result };
