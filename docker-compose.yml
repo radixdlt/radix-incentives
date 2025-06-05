@@ -44,8 +44,8 @@ services:
   taskforce-connector:
     build: https://github.com/taskforcesh/taskforce-connector.git#master
     environment:
-      TASKFORCE_CONNECTION: "local taskforce provisioner"
-      TASKFORCE_TEAM: "Stelea"
+      TASKFORCE_CONNECTION: "local taskforce ${USER}"
+      TASKFORCE_TEAM: "devops"
       TASKFORCE_TOKEN: ${TASKFORCE_TOKEN}
       REDIS_HOST: redis
       REDIS_PORT: 6379
