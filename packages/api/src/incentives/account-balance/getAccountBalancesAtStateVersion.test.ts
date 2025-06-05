@@ -31,6 +31,8 @@ import { GetRootFinancePositionsLive } from "../../common/dapps/rootFinance/getR
 import { GetQuantaSwapBinMapLive } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import { GetNftResourceManagersLive } from "../../common/gateway/getNftResourceManagers";
+import { GetNonFungibleIdsLive } from "../../common/gateway/getNonFungibleIds";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -69,13 +71,28 @@ const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
+const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(entityNonFungibleDataServiceLive)
+);
+
+const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(entityNonFungiblesPageServiceLive),
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(entityNonFungibleDataServiceLive),
+  Layer.provide(getNonFungibleIdsLive)
+);
+
 const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(getNftResourceManagersLive)
 );
 
 const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
@@ -232,7 +249,9 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getRootFinancePositionLive),
     Layer.provide(getShapeLiquidityAssetsLive),
     Layer.provide(getShapeLiquidityClaimsLive),
-    Layer.provide(getQuantaSwapBinMapLive)
+    Layer.provide(getQuantaSwapBinMapLive),
+    Layer.provide(getNftResourceManagersLive),
+    Layer.provide(getNonFungibleIdsLive)
   );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
@@ -248,9 +267,7 @@ for (const account of accounts) {
 
 describe("getAccountBalancesAtStateVersion", () => {
   it("should get account balances at state version", async () => {
-    const addresses = accounts
-      .map((account) => account.account_address)
-      .slice(0, 20);
+    const addresses = accounts.map((account) => account.account_address);
 
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -260,7 +277,7 @@ describe("getAccountBalancesAtStateVersion", () => {
         return yield* getAccountBalancesAtStateVersionService({
           addresses: addresses,
           at_ledger_state: {
-            timestamp: new Date("2025-05-01T00:00:00.000Z"),
+            timestamp: new Date("2025-06-05T08:00:00.000Z"),
           },
         }).pipe(Effect.withSpan("getAccountBalancesAtStateVersionService"));
       }),
@@ -292,7 +309,9 @@ describe("getAccountBalancesAtStateVersion", () => {
         keyValueStoreDataLive,
         getComponentStateLive,
         getQuantaSwapBinMapLive,
-        getShapeLiquidityClaimsLive
+        getShapeLiquidityClaimsLive,
+        getNftResourceManagersLive,
+        getNonFungibleIdsLive
       )
     );
 

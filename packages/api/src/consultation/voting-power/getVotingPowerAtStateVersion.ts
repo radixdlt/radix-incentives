@@ -10,7 +10,7 @@ import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
 import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
 import type { EntityFungiblesPageService } from "../../common/gateway/entityFungiblesPage";
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
-import type { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
+import type { GetNonFungibleBalanceServiceDependencies } from "../../common/gateway/getNonFungibleBalance";
 import type {
   GetAllValidatorsError,
   GetAllValidatorsService,
@@ -109,7 +109,7 @@ export class GetVotingPowerAtStateVersionService extends Context.Tag(
     | GatewayApiClientService
     | EntityFungiblesPageService
     | GetLedgerStateService
-    | GetNonFungibleBalanceService
+    | GetNonFungibleBalanceServiceDependencies
     | GetAllValidatorsService
     | EntityNonFungiblesPageService
     | GetLsulpValueService

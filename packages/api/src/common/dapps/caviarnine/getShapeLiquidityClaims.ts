@@ -55,35 +55,32 @@ export const GetShapeLiquidityClaimsLive = Layer.effect(
           at_ledger_state: input.at_ledger_state,
         }).pipe(Effect.withSpan("entityNonFungibleDataService"));
 
-        return yield* Effect.forEach(
-          nonFungibleDataResult.non_fungible_ids,
-          (result) => {
-            return Effect.gen(function* () {
-              const { data, non_fungible_id } = result;
+        return yield* Effect.forEach(nonFungibleDataResult, (result) => {
+          return Effect.gen(function* () {
+            const { data, non_fungible_id } = result;
 
-              const parsedLiquidityReceipt = liquidityReceiptSchema.safeParse(
-                data?.programmatic_json as ProgrammaticScryptoSborValue
+            const parsedLiquidityReceipt = liquidityReceiptSchema.safeParse(
+              data?.programmatic_json as ProgrammaticScryptoSborValue
+            );
+
+            if (parsedLiquidityReceipt.isErr()) {
+              return yield* Effect.fail(
+                new FailedToParseLiquidityClaimsError(
+                  parsedLiquidityReceipt.error
+                )
               );
+            }
 
-              if (parsedLiquidityReceipt.isErr()) {
-                return yield* Effect.fail(
-                  new FailedToParseLiquidityClaimsError(
-                    parsedLiquidityReceipt.error
-                  )
-                );
-              }
+            const liquidityClaims =
+              parsedLiquidityReceipt.value.liquidity_claims;
 
-              const liquidityClaims =
-                parsedLiquidityReceipt.value.liquidity_claims;
-
-              return {
-                nonFungibleId: non_fungible_id,
-                resourceAddress: nonFungibleDataResult.resource_address,
-                liquidityClaims,
-              };
-            });
-          }
-        );
+            return {
+              nonFungibleId: non_fungible_id,
+              resourceAddress: input.liquidityReceiptResourceAddress,
+              liquidityClaims,
+            };
+          });
+        });
       });
     };
   })

@@ -7,6 +7,7 @@ import {
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
+  type GetNonFungibleBalanceServiceDependencies,
 } from "../gateway/getNonFungibleBalance";
 import {
   type GetAllValidatorsError,
@@ -18,7 +19,6 @@ import type { EntityNotFoundError, GatewayError } from "../gateway/errors";
 import type { GetLedgerStateService } from "../gateway/getLedgerState";
 
 import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
-import type { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
 import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
 import type { GetEntityDetailsError } from "../gateway/getEntityDetails";
 import type { AtLedgerState } from "../gateway/schemas";
@@ -57,7 +57,7 @@ export class GetUserStakingPositionsService extends Context.Tag(
     | GetFungibleBalanceService
     | GetLedgerStateService
     | EntityFungiblesPageService
-    | EntityNonFungiblesPageService
+    | GetNonFungibleBalanceServiceDependencies
     | GatewayApiClientService
   >
 >() {}

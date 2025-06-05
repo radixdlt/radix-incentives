@@ -21,6 +21,15 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
         throw enhancedError;
       }
 
+    if (result.cause._tag === "Die") {
+      // @ts-ignore
+      const enhancedError = new Error(result.cause.defect.message);
+      // @ts-ignore
+      enhancedError.stack = result.cause.defect.stack as string;
+      enhancedError.cause = "unhandled error";
+      throw enhancedError;
+    }
+
       const error = new Error(JSON.stringify(result.cause, null, 2));
       console.error(`Snapshot job ${input.id} failed:`, error);
       throw error;
