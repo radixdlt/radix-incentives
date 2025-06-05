@@ -52,6 +52,8 @@ export const AggregateAccountBalanceLive = Layer.effect(
           }
         ).pipe(Effect.map((items) => items.flat()));
 
+        yield* Effect.log("account balances aggregated");
+
         return result;
       });
   })

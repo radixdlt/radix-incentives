@@ -33,6 +33,9 @@ export const createQueue = <Input, Output = unknown>(input: {
   console.log(`${queue.name} queue instantiated`);
 
   worker.on("failed", input.onError);
+  worker.on("stalled", (jobId) => {
+    console.log(`${queue.name} worker stalled for job ${jobId}`);
+  });
 
   return {
     queue,
