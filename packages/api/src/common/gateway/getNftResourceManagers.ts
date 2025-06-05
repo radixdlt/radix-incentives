@@ -166,79 +166,88 @@ export const GetNftResourceManagersLive = Layer.effect(
 
         const chunks = chunker(input.addresses, 20);
 
-        return yield* Effect.forEach(chunks, (chunk) =>
-          Effect.gen(function* () {
-            const stateEntityDetails = yield* getStateEntityDetails(chunk);
+        return yield* Effect.forEach(
+          chunks,
+          (chunk) =>
+            Effect.gen(function* () {
+              const stateEntityDetails = yield* getStateEntityDetails(chunk);
 
-            const resourceManagerResults = yield* getResourceManagers(
-              stateEntityDetails.items
-            );
+              const resourceManagerResults = yield* getResourceManagers(
+                stateEntityDetails.items
+              );
 
-            return yield* Effect.forEach(
-              resourceManagerResults,
-              (resourceManagerResult) => {
-                return Effect.gen(function* () {
-                  const nftIds = yield* Effect.forEach(
-                    resourceManagerResult.resourceManagers,
-                    (resourceManager) => {
-                      return Effect.gen(function* () {
-                        const vaults = [...resourceManager.vaults.items];
-                        let next_cursor = resourceManager.vaults.next_cursor;
+              return yield* Effect.forEach(
+                resourceManagerResults,
+                (resourceManagerResult) => {
+                  return Effect.gen(function* () {
+                    const nftIds = yield* Effect.forEach(
+                      resourceManagerResult.resourceManagers,
+                      (resourceManager) => {
+                        return Effect.gen(function* () {
+                          const vaults = [...resourceManager.vaults.items];
+                          let next_cursor = resourceManager.vaults.next_cursor;
 
-                        while (next_cursor) {
-                          const vaultsPage =
-                            yield* getNonFungibleResourceVaultPage({
-                              address: resourceManagerResult.address,
-                              cursor: next_cursor,
-                              resourceAddress: resourceManager.resource_address,
-                            }).pipe(
-                              Effect.withSpan("getNonFungibleResourceVaultPage")
-                            );
-
-                          vaults.push(...vaultsPage.items);
-
-                          next_cursor = vaultsPage.next_cursor;
-                        }
-
-                        const nftIds = yield* Effect.forEach(vaults, (vault) =>
-                          Effect.gen(function* () {
-                            const nftIds = vault?.items || [];
-
-                            if (vault.next_cursor) {
-                              const { ids } = yield* getNonFungibleIdsService({
-                                vaultAddress: vault.vault_address,
+                          while (next_cursor) {
+                            const vaultsPage =
+                              yield* getNonFungibleResourceVaultPage({
+                                address: resourceManagerResult.address,
+                                cursor: next_cursor,
                                 resourceAddress:
                                   resourceManager.resource_address,
-                                at_ledger_state: input.at_ledger_state,
-                                address: resourceManagerResult.address,
-                                cursor: vault.next_cursor,
-                              });
-                              nftIds.push(...ids);
-                            }
+                              }).pipe(
+                                Effect.withSpan(
+                                  "getNonFungibleResourceVaultPage"
+                                )
+                              );
 
-                            return nftIds;
-                          })
-                        ).pipe(
-                          Effect.withSpan("getNonFungibleResourceVaultPage"),
-                          Effect.map((ids) => ids.flat())
-                        );
+                            vaults.push(...vaultsPage.items);
 
-                        return {
-                          resourceAddress: resourceManager.resource_address,
-                          nftIds,
-                        };
-                      });
-                    }
-                  );
+                            next_cursor = vaultsPage.next_cursor;
+                          }
 
-                  return {
-                    address: resourceManagerResult.address,
-                    items: nftIds,
-                  };
-                });
-              }
-            );
-          })
+                          const nftIds = yield* Effect.forEach(
+                            vaults,
+                            (vault) =>
+                              Effect.gen(function* () {
+                                const nftIds = vault?.items || [];
+
+                                if (vault.next_cursor) {
+                                  const { ids } =
+                                    yield* getNonFungibleIdsService({
+                                      vaultAddress: vault.vault_address,
+                                      resourceAddress:
+                                        resourceManager.resource_address,
+                                      at_ledger_state: input.at_ledger_state,
+                                      address: resourceManagerResult.address,
+                                      cursor: vault.next_cursor,
+                                    });
+                                  nftIds.push(...ids);
+                                }
+
+                                return nftIds;
+                              })
+                          ).pipe(
+                            Effect.withSpan("getNonFungibleResourceVaultPage"),
+                            Effect.map((ids) => ids.flat())
+                          );
+
+                          return {
+                            resourceAddress: resourceManager.resource_address,
+                            nftIds,
+                          };
+                        });
+                      }
+                    );
+
+                    return {
+                      address: resourceManagerResult.address,
+                      items: nftIds,
+                    };
+                  });
+                }
+              );
+            }),
+          { concurrency: 15 }
         ).pipe(Effect.map((items) => items.flat()));
       });
     };
