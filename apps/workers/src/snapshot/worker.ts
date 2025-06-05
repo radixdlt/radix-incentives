@@ -17,6 +17,15 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
       throw enhancedError;
     }
 
+    if (result.cause._tag === "Die") {
+      // @ts-ignore
+      const enhancedError = new Error(result.cause.defect.message);
+      // @ts-ignore
+      enhancedError.stack = result.cause.defect.stack as string;
+      enhancedError.cause = "unhandled error";
+      throw enhancedError;
+    }
+
     throw new Error(JSON.stringify(result.cause, null, 2));
   }
 };

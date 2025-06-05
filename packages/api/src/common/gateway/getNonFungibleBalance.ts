@@ -1,21 +1,15 @@
 import { Context, Effect, Layer } from "effect";
-import {
-  type GatewayApiClientImpl,
-  GatewayApiClientService,
-} from "./gatewayApiClient";
+import type { GatewayApiClientImpl } from "./gatewayApiClient";
 
-import { EntityNotFoundError, GatewayError } from "./errors";
-import type { GetLedgerStateService } from "./getLedgerState";
-import type {
-  ProgrammaticScryptoSborValue,
-  StateEntityDetailsResponseItemDetails,
-  StateNonFungibleDataResponse,
-} from "@radixdlt/babylon-gateway-api-sdk";
-import { EntityNonFungiblesPageService } from "./entityNonFungiblesPage";
+import type { EntityNotFoundError, GatewayError } from "./errors";
+import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
-import { chunker } from "../helpers/chunker";
 
 import type { AtLedgerState } from "./schemas";
+import {
+  GetNftResourceManagersService,
+  type GetNftResourceManagersServiceDependencies,
+} from "./getNftResourceManagers";
 
 export class InvalidInputError {
   readonly _tag = "InvalidInputError";
@@ -33,8 +27,6 @@ export type GetNonFungibleBalanceOutput = {
     address: string;
     nonFungibleResources: {
       resourceAddress: string;
-      lastUpdatedStateVersion: number;
-      nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
       items: {
         id: string;
         lastUpdatedStateVersion: number;
@@ -42,7 +34,6 @@ export type GetNonFungibleBalanceOutput = {
         isBurned: boolean;
       }[];
     }[];
-    details?: StateEntityDetailsResponseItemDetails;
   }[];
 };
 
@@ -53,6 +44,16 @@ type GetNonFungibleBalanceInput = {
   options?: StateEntityDetailsOptionsParams;
 };
 
+export type GetNonFungibleBalanceServiceDependencies =
+  | GetNftResourceManagersServiceDependencies
+  | GetNftResourceManagersServiceDependencies
+  | GetNonFungibleBalanceService;
+
+export type GetNonFungibleBalanceServiceError =
+  | EntityNotFoundError
+  | InvalidInputError
+  | GatewayError;
+
 export class GetNonFungibleBalanceService extends Context.Tag(
   "GetNonFungibleBalanceService"
 )<
@@ -61,176 +62,82 @@ export class GetNonFungibleBalanceService extends Context.Tag(
     input: GetNonFungibleBalanceInput
   ) => Effect.Effect<
     GetNonFungibleBalanceOutput,
-    EntityNotFoundError | InvalidInputError | GatewayError,
-    | GatewayApiClientService
-    | EntityNonFungiblesPageService
-    | GetLedgerStateService
+    GetNonFungibleBalanceServiceError,
+    GetNonFungibleBalanceServiceDependencies
   >
 >() {}
 
 export const GetNonFungibleBalanceLive = Layer.effect(
   GetNonFungibleBalanceService,
   Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
-    const entityNonFungiblesPageService = yield* EntityNonFungiblesPageService;
     const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
+    const getNftResourceManagersService = yield* GetNftResourceManagersService;
 
     return (input) => {
       return Effect.gen(function* () {
         yield* Effect.logTrace(input);
-        const aggregationLevel = "Vault";
 
         const optIns = { ...input.options, non_fungible_include_nfids: true };
 
-        const chunks = chunker(input.addresses, 20);
+        const resourceManagersResults = yield* getNftResourceManagersService({
+          addresses: input.addresses,
+          at_ledger_state: input.at_ledger_state,
+          resourceAddresses: input.resourceAddresses,
+          options: optIns,
+        });
 
-        const results = yield* Effect.all(
-          chunks.map((chunk) =>
-            Effect.tryPromise({
-              try: () =>
-                gatewayClient.gatewayApiClient.state.innerClient.stateEntityDetails(
-                  {
-                    stateEntityDetailsRequest: {
-                      addresses: chunk,
-                      opt_ins: optIns,
-                      at_ledger_state: input.at_ledger_state,
-                      aggregation_level: aggregationLevel,
-                    },
-                  }
-                ),
-              catch: (error) => new GatewayError(error),
-            })
-          ),
-          { concurrency: 10 }
-        ).pipe(
-          Effect.map((results) => {
-            const items = results.flatMap((result) => result.items);
-
-            return {
-              items,
-            };
-          }),
-          Effect.withSpan("getStateEntityDetails")
-        );
-
-        return yield* Effect.all(
-          results.items.map((result) => {
+        const result = yield* Effect.forEach(
+          resourceManagersResults,
+          (resourceManagerResult) => {
             return Effect.gen(function* () {
-              if (!result) {
-                return yield* Effect.fail(new EntityNotFoundError());
-              }
+              yield* Effect.logTrace(resourceManagerResult);
 
-              const address = result.address;
+              const nonFungibleResources = yield* Effect.forEach(
+                resourceManagerResult.items,
+                (resourceManager) => {
+                  return Effect.gen(function* () {
+                    if (resourceManager.nftIds.length === 0) {
+                      return yield* Effect.succeed({
+                        resourceAddress: resourceManager.resourceAddress,
 
-              const allNonFungibleResources =
-                result.non_fungible_resources?.items ?? [];
+                        items: [],
+                      });
+                    }
+                    return yield* entityNonFungibleDataService({
+                      resource_address: resourceManager.resourceAddress,
+                      non_fungible_ids: resourceManager.nftIds,
+                      at_ledger_state: input.at_ledger_state,
+                    }).pipe(
+                      Effect.withSpan("entityNonFungibleDataService"),
+                      Effect.map((nftDataResult) => {
+                        const items = nftDataResult.map((nftDataItem) => ({
+                          id: nftDataItem.non_fungible_id,
+                          lastUpdatedStateVersion:
+                            nftDataItem.last_updated_at_state_version,
+                          sbor: nftDataItem.data?.programmatic_json,
+                          isBurned: nftDataItem.is_burned,
+                        }));
 
-              let next_cursor = result.non_fungible_resources?.next_cursor;
+                        return {
+                          resourceAddress: resourceManager.resourceAddress,
 
-              while (next_cursor) {
-                const nextBalances = yield* entityNonFungiblesPageService({
-                  address,
-                  at_ledger_state: input.at_ledger_state,
-                  aggregation_level: aggregationLevel,
-                  opt_ins: optIns,
-                  cursor: next_cursor,
-                }).pipe(Effect.withSpan("entityNonFungiblesPageService"));
-
-                next_cursor = nextBalances.next_cursor;
-                allNonFungibleResources.push(...nextBalances.items);
-              }
-
-              const nfts: {
-                resourceAddress: string;
-                items: string[];
-                lastUpdatedStateVersion: number;
-              }[] = [];
-
-              const filteredNonFungibleResources = input.resourceAddresses
-                ? allNonFungibleResources.filter((resource) =>
-                    input?.resourceAddresses?.includes(
-                      resource.resource_address
-                    )
-                  )
-                : allNonFungibleResources;
-
-              for (const nonFungible of filteredNonFungibleResources) {
-                if (nonFungible.aggregation_level !== "Vault")
-                  return yield* Effect.fail(new InvalidInputError(nonFungible));
-
-                const resourceAddress = nonFungible.resource_address;
-
-                for (const vault of nonFungible.vaults.items) {
-                  nfts.push({
-                    resourceAddress,
-                    items: vault.items ?? [],
-                    lastUpdatedStateVersion:
-                      vault.last_updated_at_state_version,
+                          items,
+                        };
+                      })
+                    );
                   });
                 }
-              }
-
-              const nftsWithData: {
-                resourceAddress: string;
-                lastUpdatedStateVersion: number;
-                nonFungibleIdType: StateNonFungibleDataResponse["non_fungible_id_type"];
-                items: {
-                  id: string;
-                  lastUpdatedStateVersion: number;
-                  sbor?: ProgrammaticScryptoSborValue;
-                  isBurned: boolean;
-                }[];
-              }[] = [];
-
-              for (const nft of nfts) {
-                if (!nft.items.length) continue;
-
-                const nftData = yield* entityNonFungibleDataService({
-                  resource_address: nft.resourceAddress,
-                  non_fungible_ids: nft.items,
-                  at_ledger_state: input.at_ledger_state,
-                }).pipe(Effect.withSpan("entityNonFungibleDataService"));
-
-                const items: {
-                  id: string;
-                  lastUpdatedStateVersion: number;
-                  sbor?: ProgrammaticScryptoSborValue;
-                  isBurned: boolean;
-                }[] = [];
-
-                for (const nftDataItem of nftData.non_fungible_ids) {
-                  const id = nftDataItem.non_fungible_id;
-                  const sbor = nftDataItem.data?.programmatic_json;
-                  const lastUpdatedStateVersion =
-                    nftDataItem.last_updated_at_state_version;
-                  const isBurned = nftDataItem.is_burned;
-
-                  items.push({ id, lastUpdatedStateVersion, sbor, isBurned });
-                }
-
-                nftsWithData.push({
-                  resourceAddress: nft.resourceAddress,
-                  lastUpdatedStateVersion: nft.lastUpdatedStateVersion,
-                  nonFungibleIdType: nftData.non_fungible_id_type,
-                  items,
-                });
-              }
+              );
 
               return {
-                address: result.address,
-                nonFungibleResources: nftsWithData,
-                details: result.details,
+                address: resourceManagerResult.address,
+                nonFungibleResources,
               };
             });
-          }),
-          { concurrency: 20 }
-        ).pipe(
-          Effect.map((result) => {
-            return {
-              items: result,
-            };
-          })
+          }
         );
+
+        return { items: result };
       });
     };
   })

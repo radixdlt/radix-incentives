@@ -3,7 +3,7 @@ import {
   type GatewayApiClientImpl,
   GatewayApiClientService,
 } from "./gatewayApiClient";
-import type { StateNonFungibleDataResponse } from "@radixdlt/babylon-gateway-api-sdk";
+import type { StateNonFungibleDetailsResponseItem } from "@radixdlt/babylon-gateway-api-sdk";
 import { GatewayError } from "./errors";
 import type { AtLedgerState } from "./schemas";
 import { chunker } from "../helpers/chunker";
@@ -21,7 +21,7 @@ export class EntityNonFungibleDataService extends Context.Tag(
       at_ledger_state: AtLedgerState;
     }
   ) => Effect.Effect<
-    StateNonFungibleDataResponse,
+    StateNonFungibleDetailsResponseItem[],
     GatewayError,
     GatewayApiClientService
   >
@@ -55,16 +55,8 @@ export const EntityNonFungibleDataLive = Layer.effect(
             const non_fungible_ids = res.flatMap(
               (item) => item.non_fungible_ids
             );
-            const { non_fungible_id_type, ledger_state, resource_address } =
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
-              res[0]!;
 
-            return {
-              non_fungible_id_type,
-              ledger_state,
-              resource_address,
-              non_fungible_ids,
-            };
+            return non_fungible_ids;
           })
         );
       });

@@ -19,6 +19,7 @@ import {
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
+  type GetNonFungibleBalanceServiceDependencies,
   type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
@@ -90,6 +91,7 @@ export class GetShapeLiquidityAssetsService extends Context.Tag(
     | GetShapeLiquidityClaimsService
     | GetNonFungibleBalanceService
     | EntityNonFungiblesPageService
+    | GetNonFungibleBalanceServiceDependencies
   >
 >() {}
 

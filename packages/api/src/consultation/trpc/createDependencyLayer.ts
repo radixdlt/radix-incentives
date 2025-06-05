@@ -59,6 +59,8 @@ import { GetKeyValueStoreLive } from "../../common/gateway/getKeyValueStore";
 import { KeyValueStoreDataLive } from "../../common/gateway/keyValueStoreData";
 import { KeyValueStoreKeysLive } from "../../common/gateway/keyValueStoreKeys";
 import { AddVotingPowerToDbLive } from "../voting-power/addVotingPowerToDb";
+import { GetNftResourceManagersLive } from "../../common/gateway/getNftResourceManagers";
+import { GetNonFungibleIdsLive } from "../../common/gateway/getNonFungibleIds";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -152,13 +154,43 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(gatewayApiClientLive)
   );
 
+  const getNonFungibleIdsServiceLive = GetNonFungibleIdsLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(entityNonFungibleDataServiceLive)
+  );
+
+  const getNftResourceManagersServiceLive = GetNftResourceManagersLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(entityNonFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(entityNonFungibleDataServiceLive),
+    Layer.provide(getNonFungibleIdsServiceLive)
+  );
+
+  const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(entityNonFungibleDataServiceLive)
+  );
+
+  const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(entityNonFungiblesPageServiceLive),
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(entityNonFungibleDataServiceLive),
+    Layer.provide(getNonFungibleIdsLive)
+  );
+
   const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
     Layer.provide(getEntityDetailsServiceLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(entityNonFungiblesPageServiceLive),
     Layer.provide(entityNonFungibleDataServiceLive),
-    Layer.provide(getLedgerStateLive)
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(getNftResourceManagersServiceLive),
+    Layer.provide(getNftResourceManagersLive)
   );
 
   const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
@@ -382,7 +414,9 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         keyValueStoreKeysServiceLive,
         getRootFinancePositionLive,
         addVotingPowerToDbLive,
-        dbClientLive
+        dbClientLive,
+        getNftResourceManagersLive,
+        getNonFungibleIdsLive
       )
     );
 

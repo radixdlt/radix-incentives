@@ -14,7 +14,10 @@ import type { GetEntityDetailsService } from "../../common/gateway/getEntityDeta
 import type { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
 import type { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
 import type { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
-import type { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
+import type {
+  GetNonFungibleBalanceService,
+  GetNonFungibleBalanceServiceDependencies,
+} from "../../common/gateway/getNonFungibleBalance";
 import type { GetAllValidatorsError } from "../../common/gateway/getAllValidators";
 import type {
   EntityDetailsNotFoundError,
@@ -127,6 +130,7 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | UpsertAccountBalancesService
     | GetUsdValueService
     | AggregateAccountBalanceService
+    | GetNonFungibleBalanceServiceDependencies
   >
 >() {}
 
