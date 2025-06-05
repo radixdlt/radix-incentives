@@ -1,7 +1,9 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
-import { sql } from "drizzle-orm";
 import { accountBalances } from "db/incentives";
+import { sql } from "drizzle-orm";
+
+const BATCH_SIZE = 10000; // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
 
 type UpsertAccountBalanceInput = {
   timestamp: Date;
@@ -26,21 +28,15 @@ export const UpsertAccountBalancesLive = Layer.effect(
     const db = yield* DbClientService;
 
     return (input) =>
-      Effect.gen(function* () {
-        // Early return if no data to insert
-        if (input.length === 0) {
-          yield* Effect.log(
-            "No account balances to upsert, skipping database operation"
-          );
-          return;
-        }
-
-        yield* Effect.tryPromise({
-          try: () =>
-            db
+      Effect.tryPromise({
+        try: async () => {
+          // Process in batches
+          for (let i = 0; i < input.length; i += BATCH_SIZE) {
+            const batch = input.slice(i, i + BATCH_SIZE);
+            await db
               .insert(accountBalances)
               .values(
-                input.map(
+                batch.map(
                   ({
                     timestamp,
                     address: accountAddress,
@@ -66,9 +62,10 @@ export const UpsertAccountBalancesLive = Layer.effect(
                   usdValue: sql`excluded.usd_value`,
                   data: sql`excluded.data`,
                 },
-              }),
-          catch: (error) => new DbError(error),
-        });
+              });
+          }
+        },
+        catch: (error) => new DbError(error),
       });
   })
 );
