@@ -1,4 +1,4 @@
-import { type Job, Queue, QueueEvents, Worker } from "bullmq";
+import { type Job, Queue, QueueEvents, Worker, WorkerOptions } from "bullmq";
 import { BullMQOtel } from "bullmq-otel";
 import type Redis from "ioredis";
 
@@ -11,6 +11,7 @@ export const createQueue = <Input, Output = unknown>(input: {
     error: Error,
     prev: string
   ) => Promise<void>;
+  workerOptions?: WorkerOptions;
 }) => {
   const queue = new Queue<Input, Output>(input.name, {
     connection: input.redisClient,
@@ -24,7 +25,7 @@ export const createQueue = <Input, Output = unknown>(input: {
   const worker = new Worker<Input, Output>(queue.name, input.worker, {
     connection: input.redisClient,
     telemetry: new BullMQOtel(input.name),
-    stalledInterval: 1000 * 60,
+    ...input.workerOptions,
   });
 
   // prevents nodejs to exit when worker throws an error
