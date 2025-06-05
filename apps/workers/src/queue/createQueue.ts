@@ -24,6 +24,7 @@ export const createQueue = <Input, Output = unknown>(input: {
   const worker = new Worker<Input, Output>(queue.name, input.worker, {
     connection: input.redisClient,
     telemetry: new BullMQOtel(input.name),
+    stalledInterval: 1000 * 60,
   });
 
   // prevents nodejs to exit when worker throws an error
