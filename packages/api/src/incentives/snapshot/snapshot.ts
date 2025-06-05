@@ -233,10 +233,14 @@ export const SnapshotLive = Layer.effect(
 
         yield* upsertAccountBalances(aggregatedAccountBalance);
 
+        yield* Effect.log("updating snapshot");
+
         yield* updateSnapshot({
           id: snapshotId,
           status: "completed",
         });
+
+        yield* Effect.log("snapshot completed");
       });
   })
 );
