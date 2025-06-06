@@ -78,6 +78,7 @@ import type {
   ProgrammaticScryptoSborValue,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import type { GetNftResourceManagersServiceDependencies } from "../../common/gateway/getNftResourceManagers";
+import BigNumber from "bignumber.js";
 
 type Lsu = {
   resourceAddress: string;
@@ -241,7 +242,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         const C9Pool_XRD_xUSDC =
           CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC;
 
-        yield* Effect.log("getting user staking positions, lsulp, weft finance positions, root finance positions, xrd usdc shape liquidity assets, lsulp value");
+        yield* Effect.log(
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, xrd usdc shape liquidity assets, lsulp value"
+        );
         const [
           userStakingPositions,
           lsulpResults,
