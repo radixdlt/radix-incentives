@@ -7,14 +7,7 @@ import { Effect } from "effect";
 export const snapshotQueue = createQueue<SnapshotJob, void>({
   name: "snapshot",
   redisClient,
-  worker: async (job) => {
-    try {
-      const result = await snapshotWorker(job);
-      return;
-    } catch (error) {
-      throw error;
-    }
-  },
+  worker: snapshotWorker,
   onError: async (job, error) => {
     Effect.runSync(
       Effect.gen(function* () {
