@@ -7,6 +7,7 @@ params:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
+  INSERT_BATCH_SIZE: "4000"
 
 secrets:
 
@@ -18,5 +19,5 @@ autoscaling:
 
 resources:
   requests:
-    cpu: 50m
-    memory: 128Mi
+    cpu: 1
+    memory: 1Gi

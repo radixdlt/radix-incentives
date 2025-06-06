@@ -218,6 +218,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           state_version,
         } satisfies AtLedgerState;
 
+        yield* Effect.log("getting non fungible and fungible balance");
         const [nonFungibleBalanceResults, fungibleBalanceResults] =
           yield* Effect.all(
             [
@@ -240,6 +241,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         const C9Pool_XRD_xUSDC =
           CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC;
 
+        yield* Effect.log("getting user staking positions, lsulp, weft finance positions, root finance positions, xrd usdc shape liquidity assets, lsulp value");
         const [
           userStakingPositions,
           lsulpResults,
@@ -375,6 +377,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               } satisfies AccountBalance;
             })
         );
+
+        yield* Effect.log("account balances fetched");
 
         return { items: accountBalances, ledgerState };
       });

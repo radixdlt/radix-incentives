@@ -1,5 +1,5 @@
 import { usersData } from "./data/usersData";
-import { accountsData } from "./data/accountsData";
+import { accountsData } from "./data/accounts30KData";
 import {
   accounts,
   activities,
@@ -10,6 +10,17 @@ import {
 } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
+
+const chunker = <T>(array: T[], size: number) => {
+  return array.reduce((acc, item, index) => {
+    const chunkIndex = Math.floor(index / size);
+    if (!acc[chunkIndex]) {
+      acc[chunkIndex] = [];
+    }
+    acc[chunkIndex].push(item);
+    return acc;
+  }, [] as T[][]);
+};
 
 await db
   .insert(users)
@@ -26,17 +37,21 @@ await db
 
 console.log("Users seeded");
 
-await db
-  .insert(accounts)
-  .values(
-    accountsData.map((account) => ({
-      address: account.address,
-      createdAt: new Date(account.created_at),
-      label: account.label,
-      userId: account.user_id,
-    }))
-  )
-  .onConflictDoNothing();
+const chunkSize = 1000; // Adjust the chunk size as needed
+const chunks = chunker(accountsData, chunkSize);
+for (const chunk of chunks) {
+  await db
+    .insert(accounts)
+    .values(
+      chunk.map((account) => ({
+        address: account.address,
+        createdAt: new Date(account.created_at),
+        label: account.label,
+        userId: account.user_id,
+      }))
+    )
+    .onConflictDoNothing();
+}
 
 console.log("Accounts seeded");
 
