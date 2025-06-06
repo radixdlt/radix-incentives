@@ -11,7 +11,7 @@ import {
 } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
-
+import {chunker} from "../../../../api/src/common/helpers/chunker"
 await db
   .insert(users)
   .values(
@@ -28,8 +28,8 @@ await db
 console.log("Users seeded");
 
 const chunkSize = 1000; // Adjust the chunk size as needed
-for (let i = 0; i < accountsData.length; i += chunkSize) {
-  const chunk = accountsData.slice(i, i + chunkSize);
+const chunks = chunker(accountsData, chunkSize);
+for (const chunk of chunks) {
   await db
     .insert(accounts)
     .values(
