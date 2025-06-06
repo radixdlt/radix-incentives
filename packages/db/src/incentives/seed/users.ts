@@ -1,5 +1,5 @@
 import { usersData } from "./data/usersData";
-import { accountsData } from "./data/accountsData";
+import { accountsData } from "./data/accounts30KData";
 import {
   accounts,
   activities,
@@ -27,17 +27,21 @@ await db
 
 console.log("Users seeded");
 
-await db
-  .insert(accounts)
-  .values(
-    accountsData.map((account) => ({
-      address: account.address,
-      createdAt: new Date(account.created_at),
-      label: account.label,
-      userId: account.user_id,
-    }))
-  )
-  .onConflictDoNothing();
+const chunkSize = 1000; // Adjust the chunk size as needed
+for (let i = 0; i < accountsData.length; i += chunkSize) {
+  const chunk = accountsData.slice(i, i + chunkSize);
+  await db
+    .insert(accounts)
+    .values(
+      chunk.map((account) => ({
+        address: account.address,
+        createdAt: new Date(account.created_at),
+        label: account.label,
+        userId: account.user_id,
+      }))
+    )
+    .onConflictDoNothing();
+}
 
 console.log("Accounts seeded");
 
