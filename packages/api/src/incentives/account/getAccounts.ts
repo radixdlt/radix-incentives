@@ -7,9 +7,6 @@ type GetAccountsInput = {
   createdAt: Date;
 };
 
-const DEFAULT_ACCOUNT_LIMIT = 1000;
-const ACCOUNT_LIMIT = Number(process.env.ACCOUNT_LIMIT ?? DEFAULT_ACCOUNT_LIMIT);
-
 export class GetAccountAddressesService extends Context.Tag(
   "GetAccountAddressesService"
 )<
@@ -29,7 +26,6 @@ export const GetAccountAddressesLive = Layer.effect(
             .select({ address: accounts.address })
             .from(accounts)
             .where(lte(accounts.createdAt, input.createdAt))
-            .limit(ACCOUNT_LIMIT)
             .then((res) => res.map((r) => r.address)),
         catch: (error) => new DbError(error),
       });
