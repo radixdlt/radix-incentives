@@ -183,7 +183,7 @@ export const SnapshotLive = Layer.effect(
               at_ledger_state: {
                 state_version: lederState.state_version,
               },
-            }),
+            }).pipe(Effect.withSpan("getAccountBalancesAtStateVersion")),
           ],
           { mode: "either" }
         );
@@ -208,7 +208,7 @@ export const SnapshotLive = Layer.effect(
             aggregateAccountBalanceService({
               accountBalances: accountBalances.items,
               timestamp: input.timestamp,
-            }),
+            }).pipe(Effect.withSpan("aggregateAccountBalance")),
           ],
           { mode: "either" }
         );
@@ -235,7 +235,9 @@ export const SnapshotLive = Layer.effect(
 
         yield* Effect.log("updating account balances", groupedByActivityId);
 
-        yield* upsertAccountBalances(aggregatedAccountBalance);
+        yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
+          Effect.withSpan("upsertAccountBalances")
+        );
 
         yield* Effect.log("updating snapshot");
 

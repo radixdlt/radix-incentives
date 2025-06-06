@@ -15,6 +15,13 @@
       "when": 1749135580533,
       "tag": "0001_icy_microbe",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1749228634266,
+      "tag": "0002_reflective_albert_cleary",
+      "breakpoints": true
     }
   ]
 }

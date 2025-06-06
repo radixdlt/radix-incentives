@@ -319,6 +319,12 @@ export const accountBalances = createTable(
     pk: primaryKey({
       columns: [table.accountAddress, table.timestamp, table.activityId],
     }),
+    // Index for conflict resolution speed during upserts
+    conflictIdx: index("idx_account_balances_conflict").on(
+      table.accountAddress,
+      table.timestamp,
+      table.activityId
+    ),
   })
 );
 

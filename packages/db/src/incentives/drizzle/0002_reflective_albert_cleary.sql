@@ -1,0 +1,1 @@
+CREATE INDEX IF NOT EXISTS "idx_account_balances_conflict" ON "account_balances" USING btree ("account_address","timestamp","activity_id");
