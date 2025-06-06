@@ -56,6 +56,14 @@ import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
+import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
+import { UpsertAccountActivityPointsLive } from "./activity-points/upsertAccountActivityPoints";
+import { GetWeekByIdLive } from "./week/getWeekById";
+import { GetWeekAccountBalancesLive } from "./activity-points/getWeekAccountBalances";
+import {
+  CalculateActivityPointsWorkerLive,
+  CalculateActivityPointsWorkerService,
+} from "./activity-points/calculateActivityPointsWorker";
 
 const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -348,6 +356,31 @@ const deriveAccountFromEventLive = DeriveAccountFromEventLive.pipe(
   Layer.provide(getAccountsIntersectionLive)
 );
 
+const upsertAccountActivityPointsLive = UpsertAccountActivityPointsLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
+
+const getWeekAccountBalancesLive = GetWeekAccountBalancesLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(upsertAccountActivityPointsLive),
+  Layer.provide(getWeekByIdLive),
+  Layer.provide(getWeekAccountBalancesLive)
+);
+
+const calculateActivityPointsWorkerLive =
+  CalculateActivityPointsWorkerLive.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(calculateActivityPointsLive),
+    Layer.provide(getWeekByIdLive),
+    Layer.provide(getWeekAccountBalancesLive)
+  );
+
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "api" },
   spanProcessor: new BatchSpanProcessor(
@@ -446,8 +479,36 @@ const deriveAccountFromEvent = (input: DeriveAccountFromEventInput) => {
   return Effect.runPromiseExit(program);
 };
 
+const calculateActivityPoints = (input: {
+  weekId: string;
+  addresses?: string[];
+}) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const calculateActivityPointsWorkerService =
+        yield* CalculateActivityPointsWorkerService;
+
+      return yield* calculateActivityPointsWorkerService({
+        weekId: input.weekId,
+        addresses: input.addresses,
+      });
+    }),
+    Layer.mergeAll(
+      dbClientLive,
+      getWeekByIdLive,
+      calculateActivityPointsLive,
+      upsertAccountActivityPointsLive,
+      getWeekAccountBalancesLive,
+      calculateActivityPointsWorkerLive
+    )
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
 export const dependencyLayer = {
   snapshot: snapshotProgram,
   getLedgerState,
   deriveAccountFromEvent,
+  calculateActivityPoints,
 };

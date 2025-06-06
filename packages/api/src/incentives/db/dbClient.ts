@@ -1,10 +1,10 @@
 import { Context, Effect, Layer } from "effect";
 import type { Db } from "db/incentives";
 
-export class DbError {
-  readonly _tag: "DbError";
+export class DbError extends Error {
+  _tag = "DbError";
   constructor(readonly error: unknown) {
-    this._tag = "DbError";
+    super(error instanceof Error ? error.message : String(error));
   }
 }
 

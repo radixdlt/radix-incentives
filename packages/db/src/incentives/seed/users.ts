@@ -5,7 +5,6 @@ import {
   activities,
   activityWeeks,
   seasons,
-  user,
   users,
   weeks,
 } from "../schema";
@@ -60,8 +59,8 @@ const [weekResult] = await db
   .insert(weeks)
   .values([
     {
-      startDate: new Date("2025-05-01:00:00:00Z"),
-      endDate: new Date("2025-05-07:23:59:59Z"),
+      startDate: new Date("2025-05-19:00:00:00Z"),
+      endDate: new Date("2025-05-26:00:00:00Z"),
       seasonId: seasonResult.id,
     },
   ])
