@@ -332,6 +332,45 @@ export const accountBalancesRelations = relations(
   })
 );
 
+export const accountActivityPoints = createTable(
+  "account_activity_points",
+  {
+    accountAddress: varchar("account_address", { length: 255 })
+      .notNull()
+      .references(() => accounts.address, { onDelete: "cascade" }),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+    activityId: text("activity_id")
+      .notNull()
+      .references(() => activities.id, { onDelete: "cascade" }),
+    activityPoints: integer("activity_points").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.accountAddress, table.weekId, table.activityId],
+    }),
+  })
+);
+
+export const accountActivityPointsRelations = relations(
+  accountActivityPoints,
+  ({ one }) => ({
+    account: one(accounts, {
+      fields: [accountActivityPoints.accountAddress],
+      references: [accounts.address],
+    }),
+    week: one(weeks, {
+      fields: [accountActivityPoints.weekId],
+      references: [weeks.id],
+    }),
+    activity: one(activities, {
+      fields: [accountActivityPoints.activityId],
+      references: [activities.id],
+    }),
+  })
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
@@ -344,3 +383,6 @@ export type Transaction = InferSelectModel<typeof transactions>;
 export type Event = InferSelectModel<typeof events>;
 export type Snapshot = InferSelectModel<typeof snapshots>;
 export type AccountBalance = InferSelectModel<typeof accountBalances>;
+export type AccountActivityPoints = InferSelectModel<
+  typeof accountActivityPoints
+>;
