@@ -9,7 +9,7 @@ const BATCH_SIZE = Number.parseInt(process.env.INSERT_BATCH_SIZE || "5000"); // 
 type UpsertAccountBalanceInput = {
   timestamp: Date;
   address: string;
-  usdValue: string;
+  usdValue: BigNumber;
   activityId: string;
   data: Record<string, string>;
 }[];
@@ -48,7 +48,7 @@ export const UpsertAccountBalancesLive = Layer.effect(
                       accountAddress,
                       activityId,
                       data,
-                      usdValue,
+                      usdValue: usdValue.toString(),
                     })
                   )
                 )
