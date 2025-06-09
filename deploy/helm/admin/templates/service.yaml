@@ -14,23 +14,6 @@ spec:
       name: http
   selector:
     {{- include "incentives-admin.selectorLabels" . | nindent 4 }}
-{{- if .Values.pm2_metrics.enabled }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "incentives-admin.fullname" . }}-pm2-metrics
-  labels:
-    {{- include "incentives-admin.labels" . | nindent 4 }}
-spec:
-  type: ClusterIP
-  ports:
-  - port: {{ .Values.pm2_metrics.port }}
-    name: pm2-metrics
-    targetPort: {{ .Values.pm2_metrics.port }}
-  selector:
-    {{- include "incentives-admin.selectorLabels" . | nindent 4 }}
-{{- end }}
 {{- if .Values.metrics.enabled }}
 ---
 apiVersion: v1

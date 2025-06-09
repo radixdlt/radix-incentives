@@ -9,6 +9,7 @@ params:
   EVENT_WORKER_CONCURRENCY: 20
   TRANSACTION_WORKER_CONCURRENCY: 20
   GATEWAY_URL: "https://mainnet.radixdlt.com"
+  OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
 
   
 secrets:
@@ -32,10 +33,6 @@ resources:
   requests:
     cpu: 50m
     memory: 512Mi
-
-pm2_metrics:
-  enabled: false
-  port: 9209
 
 affinity:
   podAntiAffinity:

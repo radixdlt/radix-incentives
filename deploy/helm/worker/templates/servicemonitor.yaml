@@ -17,22 +17,3 @@ spec:
     matchLabels:
       {{- include "incentives-worker.selectorLabels" . | nindent 6 }}
 {{- end }}
-{{- if .Values.pm2_metrics.enabled }}
----
-apiVersion: monitoring.coreos.com/v1
-kind: ServiceMonitor
-metadata:
-  name: {{ include "incentives-worker.serviceAccountName" . }}-pm2-metrics
-  labels:
-    release: prometheus-operator
-    {{- include "incentives-worker.labels" . | nindent 4 }}
-spec:
-  endpoints:
-  - port: pm2-metrics
-  namespaceSelector:
-    matchNames:
-    - {{ .Release.Namespace | quote }}
-  selector:
-    matchLabels:
-      {{- include "incentives-worker.selectorLabels" . | nindent 6 }}
-{{- end }}

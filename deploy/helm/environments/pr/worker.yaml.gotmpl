@@ -7,6 +7,7 @@ params:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
+  OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
   INSERT_BATCH_SIZE: "4000"
 
 secrets:

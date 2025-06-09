@@ -9,10 +9,6 @@ imagePullSecrets:
 
 replicaCount: 1
 
-pm2_metrics:
-  enabled: false
-  port: 9209
-
 metrics:
   enabled: false
   port: 9210

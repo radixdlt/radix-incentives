@@ -31,20 +31,3 @@ spec:
   selector:
     {{- include "incentives-worker.selectorLabels" . | nindent 4 }}
 {{- end }}
-{{- if .Values.pm2_metrics.enabled }}
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: {{ include "incentives-worker.fullname" . }}-pm2-metrics
-  labels:
-    {{- include "incentives-worker.labels" . | nindent 4 }}
-spec:
-  type: ClusterIP
-  ports:
-  - port: {{ .Values.pm2_metrics.port }}
-    name: pm2-metrics
-    targetPort: {{ .Values.pm2_metrics.port }}
-  selector:
-    {{- include "incentives-worker.selectorLabels" . | nindent 4 }}
-{{- end }}
