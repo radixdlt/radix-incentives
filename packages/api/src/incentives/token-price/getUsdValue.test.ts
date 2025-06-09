@@ -4,6 +4,8 @@ import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 import { GetUsdValueLive, GetUsdValueService, InvalidResourceAddressError, ApiError } from "./getUsdValue";
 
+
+
 describe("GetUsdValueService", () => {
   const mockFetch = vi.fn();
   global.fetch = mockFetch;
@@ -46,9 +48,6 @@ describe("GetUsdValueService", () => {
       "https://token-price-service.radixdlt.com/price/historicalPrice",
       expect.objectContaining({
         method: "POST",
-        headers: expect.objectContaining({
-          "x-api-key": "SsNUTBBoJKg5tINqUKv9"
-        }),
         body: expect.stringContaining(Assets.Fungible.xUSDC)
       })
     );

@@ -8,8 +8,15 @@ params:
   REDIS_PASSWORD: ""
   GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
   INSERT_BATCH_SIZE: "4000"
+  TOKEN_PRICE_SERVICE_URL : "https://token-price-service.radixdlt.com/price/historicalPrice"
+
 
 secrets:
+  - external_secret_name: workers-token-price-service-key
+    env_variable: "TOKEN_PRICE_SERVICE_API_KEY"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "token_price_service_key"
+    secret_key: "token_price_service_key"
 
 ingress:
   enabled: false

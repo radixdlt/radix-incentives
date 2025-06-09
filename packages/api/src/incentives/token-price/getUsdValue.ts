@@ -25,14 +25,14 @@ export class GetUsdValueService extends Context.Tag("GetUsdValueService")<
   ) => Effect.Effect<BigNumber, InvalidResourceAddressError | ApiError>
 >() {}
 
-const TOKEN_PRICE_SERVICE_URL = "https://token-price-service.radixdlt.com/price/historicalPrice";
-const API_KEY = "SsNUTBBoJKg5tINqUKv9";
+const TOKEN_PRICE_SERVICE_URL = process.env.TOKEN_PRICE_SERVICE_URL || "https://token-price-service.radixdlt.com/price/historicalPrice";
+const TOKEN_PRICE_SERVICE_API_KEY = process.env.TOKEN_PRICE_SERVICE_API_KEY || "dummy";
 
 const getTokenPrice = async (resourceAddress: string, timestamp: Date): Promise<number> => {
   const response = await fetch(TOKEN_PRICE_SERVICE_URL, {
     method: 'POST',
     headers: {
-      'x-api-key': API_KEY,
+      'x-api-key': TOKEN_PRICE_SERVICE_API_KEY,
       'Content-Type': 'application/json'
     },
     body: JSON.stringify({
