@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Effect, Layer } from "effect";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
-import { GetUsdValueLive, GetUsdValueService, InvalidResourceAddressError, ApiError } from "./getUsdValue";
+import { GetUsdValueLive, GetUsdValueService, InvalidResourceAddressError, PriceServiceApiError } from "./getUsdValue";
 
 
 

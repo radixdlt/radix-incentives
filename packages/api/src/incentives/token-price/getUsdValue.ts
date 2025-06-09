@@ -13,8 +13,8 @@ export class InvalidResourceAddressError {
   constructor(readonly message: string) {}
 }
 
-export class ApiError {
-  readonly _tag = "ApiError";
+export class PriceServiceApiError {
+  readonly _tag = "PriceServiceApiError";
   constructor(readonly message: string) {}
 }
 
@@ -22,7 +22,7 @@ export class GetUsdValueService extends Context.Tag("GetUsdValueService")<
   GetUsdValueService,
   (
     input: GetUsdValueInput
-  ) => Effect.Effect<BigNumber, InvalidResourceAddressError | ApiError>
+  ) => Effect.Effect<BigNumber, InvalidResourceAddressError | PriceServiceApiError>
 >() {}
 
 const TOKEN_PRICE_SERVICE_URL = process.env.TOKEN_PRICE_SERVICE_URL || "https://token-price-service.radixdlt.com/price/historicalPrice";
@@ -71,7 +71,7 @@ export const GetUsdValueLive = Layer.effect(
 
         const price = yield* Effect.tryPromise({
           try: () => getTokenPrice(input.resourceAddress, input.timestamp),
-          catch: (error) => new ApiError(
+          catch: (error) => new PriceServiceApiError(
             `Failed to get USD value: ${error instanceof Error ? error.message : String(error)}`
           )
         });
