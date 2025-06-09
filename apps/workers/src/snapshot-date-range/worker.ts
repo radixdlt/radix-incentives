@@ -17,7 +17,7 @@ export const snapshotDateRangeWorker = async (
     new Date(input.data.fromTimestamp),
     new Date(input.data.toTimestamp),
     (date) => {
-      date.setHours(date.getHours() + 1);
+      date.setHours(date.getHours() + parsedInput.data.intervalInHours);
     }
   );
 
