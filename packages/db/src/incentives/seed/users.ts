@@ -1,4 +1,3 @@
-import { usersData } from "./data/usersData";
 import { accountsData } from "./data/accounts30KData";
 import {
   accounts,
@@ -22,35 +21,36 @@ const chunker = <T>(array: T[], size: number) => {
   }, [] as T[][]);
 };
 
-await db
-  .insert(users)
-  .values(
-    usersData.map((user) => ({
-      identityAddress: user.identity_address,
-      createdAt: new Date(user.created_at),
-      label: user.label,
-      id: user.id,
-      userId: user.id,
-    }))
-  )
-  .onConflictDoNothing();
+const CHUNK_SIZE = 1000; // Adjust the chunk size as needed
+
+const numberOfUsers = accountsData.length;
+
+const usersToSeed = new Array(numberOfUsers).fill(0).map((_, index) => ({
+  identityAddress: `user-${index}`,
+  createdAt: new Date("2025-01-01:00:00:00Z"),
+  label: `User ${index}`,
+  id: crypto.randomUUID(),
+}));
+
+const userChunks = chunker(usersToSeed, CHUNK_SIZE);
+
+for (const userChunk of userChunks) {
+  await db.insert(users).values(userChunk).onConflictDoNothing();
+}
 
 console.log("Users seeded");
 
-const chunkSize = 1000; // Adjust the chunk size as needed
-const chunks = chunker(accountsData, chunkSize);
-for (const chunk of chunks) {
-  await db
-    .insert(accounts)
-    .values(
-      chunk.map((account) => ({
-        address: account.address,
-        createdAt: new Date(account.created_at),
-        label: account.label,
-        userId: account.user_id,
-      }))
-    )
-    .onConflictDoNothing();
+const accountsToSeed = accountsData.map((account, index) => ({
+  address: account.address,
+  createdAt: new Date(account.created_at),
+  label: account.label,
+  userId: usersToSeed[index].id,
+}));
+
+const accountsChunks = chunker(accountsToSeed, CHUNK_SIZE);
+
+for (const accountChunk of accountsChunks) {
+  await db.insert(accounts).values(accountChunk).onConflictDoNothing();
 }
 
 console.log("Accounts seeded");
@@ -74,9 +74,10 @@ const [weekResult] = await db
   .insert(weeks)
   .values([
     {
-      startDate: new Date("2025-06-03:00:00:00Z"),
-      endDate: new Date("2025-06-10:00:00:00Z"),
+      startDate: new Date("2025-06-02:00:00:00Z"),
+      endDate: new Date("2025-06-09:00:00:00Z"),
       seasonId: seasonResult.id,
+      id: "6b209cf9-5932-487e-bf75-9d6f7d2330dd",
     },
   ])
   .returning()

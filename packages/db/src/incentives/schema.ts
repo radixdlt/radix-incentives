@@ -74,8 +74,7 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
 export const accounts = createTable("account", {
   userId: uuid("user_id")
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" })
-    .$defaultFn(() => crypto.randomUUID()),
+    .references(() => users.id, { onDelete: "cascade" }),
   address: varchar("address", { length: 255 }).notNull().primaryKey(),
   label: varchar("label", { length: 255 }).notNull(),
   createdAt: timestamp("created_at", {
@@ -168,7 +167,6 @@ export const weeks = createTable("week", {
     withTimezone: true,
   }).notNull(),
   status: weekStatusEnum("status").notNull().default("upcoming"),
-  isProcessed: boolean("is_processed").notNull().default(false),
 });
 
 export const weeksRelations = relations(weeks, ({ one, many }) => ({
@@ -377,6 +375,25 @@ export const accountActivityPointsRelations = relations(
   })
 );
 
+export const userSeasonPoints = createTable(
+  "user_season_points",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    seasonId: uuid("season_id")
+      .notNull()
+      .references(() => seasons.id, { onDelete: "cascade" }),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+    points: integer("points").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.userId, table.seasonId, table.weekId] }),
+  })
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
@@ -392,3 +409,4 @@ export type AccountBalance = InferSelectModel<typeof accountBalances>;
 export type AccountActivityPoints = InferSelectModel<
   typeof accountActivityPoints
 >;
+export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;

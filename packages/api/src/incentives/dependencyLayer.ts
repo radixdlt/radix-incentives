@@ -64,6 +64,16 @@ import {
   CalculateActivityPointsWorkerLive,
   CalculateActivityPointsWorkerService,
 } from "./activity-points/calculateActivityPointsWorker";
+import {
+  CalculateSeasonPointsLive,
+  CalculateSeasonPointsService,
+} from "./season-points/calculateSeasonPoints";
+import { GetSeasonByIdLive } from "./season/getSeasonById";
+import { GetActivitiesByWeekIdLive } from "./activity/getActivitiesByWeekId";
+import { GetUserActivityPointsLive } from "./user/getUserActivityPoints";
+import { ApplyMultiplierLive } from "./multiplier/applyMultiplier";
+import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
+import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
 
 const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -381,6 +391,34 @@ const calculateActivityPointsWorkerLive =
     Layer.provide(getWeekAccountBalancesLive)
   );
 
+const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
+const getActivitiesByWeekIdLive = GetActivitiesByWeekIdLive.pipe(
+  Layer.provide(dbClientLive)
+);
+const getUserActivityPointsLive = GetUserActivityPointsLive.pipe(
+  Layer.provide(dbClientLive)
+);
+const applyMultiplierLive = ApplyMultiplierLive.pipe(
+  Layer.provide(dbClientLive)
+);
+const addSeasonPointsToUserLive = AddSeasonPointsToUserLive.pipe(
+  Layer.provide(dbClientLive)
+);
+const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(getSeasonByIdLive),
+  Layer.provide(getWeekByIdLive),
+  Layer.provide(getActivitiesByWeekIdLive),
+  Layer.provide(getUserActivityPointsLive),
+  Layer.provide(applyMultiplierLive),
+  Layer.provide(addSeasonPointsToUserLive),
+  Layer.provide(updateWeekStatusLive)
+);
+
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "api" },
   spanProcessor: new BatchSpanProcessor(
@@ -506,9 +544,33 @@ const calculateActivityPoints = (input: {
   return Effect.runPromiseExit(program);
 };
 
+const calculateSeasonPoints = (input: { seasonId: string; weekId: string }) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
+
+      return yield* calculateSeasonPointsService(input);
+    }),
+    Layer.mergeAll(
+      dbClientLive,
+      calculateSeasonPointsLive,
+      getWeekByIdLive,
+      getSeasonByIdLive,
+      getActivitiesByWeekIdLive,
+      getUserActivityPointsLive,
+      applyMultiplierLive,
+      addSeasonPointsToUserLive,
+      updateWeekStatusLive
+    )
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
 export const dependencyLayer = {
   snapshot: snapshotProgram,
   getLedgerState,
   deriveAccountFromEvent,
   calculateActivityPoints,
+  calculateSeasonPoints,
 };

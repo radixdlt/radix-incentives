@@ -13,6 +13,8 @@ import { snapshotDateRangeQueue } from "../snapshot-date-range/queue";
 import { snapshotDateRangeJobSchema } from "../snapshot-date-range/schemas";
 import { calculateActivityPointsQueue } from "../calculate-activity-points/queue";
 import { calculateActivityPointsJobSchema } from "../calculate-activity-points/schemas";
+import { calculateSeasonPointsJobSchema } from "../calculate-season-points/schemas";
+import { calculateSeasonPointsQueue } from "../calculate-season-points/queue";
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -76,6 +78,19 @@ app.post("/queues/calculate-activity-points/add", async (c) => {
   return c.text("ok");
 });
 
+app.post("/queues/calculate-season-points/add", async (c) => {
+  const input = await c.req.json();
+  const parsedInput = calculateSeasonPointsJobSchema.safeParse(input);
+  if (!parsedInput.success) {
+    return c.json({ error: parsedInput.error.message }, 400);
+  }
+  await calculateSeasonPointsQueue.queue.add(
+    "calculateSeasonPoints",
+    parsedInput.data
+  );
+  return c.text("ok");
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT ? Number.parseInt(process.env.METRICS_PORT) : 9210;
 
@@ -91,6 +106,7 @@ createBullBoard({
     new BullMQAdapter(eventQueue.queue),
     new BullMQAdapter(snapshotDateRangeQueue.queue),
     new BullMQAdapter(calculateActivityPointsQueue.queue),
+    new BullMQAdapter(calculateSeasonPointsQueue.queue),
   ],
   serverAdapter,
 });
