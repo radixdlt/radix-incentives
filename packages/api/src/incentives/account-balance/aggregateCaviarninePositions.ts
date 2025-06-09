@@ -4,6 +4,7 @@ import { Context } from "effect";
 import {
   GetUsdValueService,
   type InvalidResourceAddressError,
+  type ApiError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 
@@ -41,7 +42,7 @@ export class AggregateCaviarninePositionsService extends Context.Tag(
     input: AggregateCaviarninePositionsInput
   ) => Effect.Effect<
     AggregateCaviarninePositionsOutput[],
-    InvalidResourceAddressError,
+    InvalidResourceAddressError | ApiError,
     GetUsdValueService
   >
 >() {}
