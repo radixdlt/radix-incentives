@@ -46,3 +46,10 @@ affinity:
                 values:
                   - incentives-worker
           topologyKey: "kubernetes.io/hostname"
+
+metrics:
+  enabled: true
+  port: 9210
+  alert_labels:
+    cluster: rdx-works-main-dev
+    env: dev
