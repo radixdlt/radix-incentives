@@ -30,7 +30,7 @@ export type AggregateCaviarninePositionsOutput = {
   timestamp: Date;
   address: string;
   activityId: string;
-  usdValue: string;
+  usdValue: BigNumber;
   data: C9XrdUsdcLp | NoData;
 };
 
@@ -61,7 +61,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               timestamp: input.timestamp,
               address: input.accountBalance.address,
               activityId: "provideLiquidityToDex",
-              usdValue: "0",
+              usdValue: new BigNumber(0),
               data: {
                 type: "no_data",
               },
@@ -97,12 +97,17 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           timestamp: input.timestamp,
         });
 
+        yield* Effect.log("caviarnine positions aggregated", {
+          xTokenUSDValue,
+          yTokenUSDValue,
+        });
+
         return [
           {
             timestamp: input.timestamp,
             address: input.accountBalance.address,
             activityId: "provideLiquidityToDex",
-            usdValue: xTokenUSDValue.plus(yTokenUSDValue).toString(),
+            usdValue: xTokenUSDValue.plus(yTokenUSDValue),
             data: {
               type: "c9_xrd_usdc_lp",
               xTokenResourceAddress: xToken.resourceAddress,

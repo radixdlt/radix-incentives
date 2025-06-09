@@ -50,9 +50,8 @@ const getTokenPrice = async (resourceAddress: string, timestamp: Date): Promise<
   if (!data || !data.prices || !data.prices[resourceAddress]) {
     throw new Error("Invalid response format from price service");
   }
-
-  return data.prices[resourceAddress];
-};
+  return data.prices[resourceAddress].usd_price;
+};  
 
 export const GetUsdValueLive = Layer.effect(
   GetUsdValueService,
@@ -76,7 +75,7 @@ export const GetUsdValueLive = Layer.effect(
             `Failed to get USD value: ${error instanceof Error ? error.message : String(error)}`
           )
         });
-          
+                  
         return yield* Effect.succeed(
           new BigNumber(price).multipliedBy(input.amount)
         );
