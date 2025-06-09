@@ -97,10 +97,6 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           timestamp: input.timestamp,
         });
 
-        yield* Effect.log("caviarnine positions aggregated", {
-          xTokenUSDValue,
-          yTokenUSDValue,
-        });
 
         return [
           {
