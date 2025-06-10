@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Workers",
+      "skipFiles": ["<node_internals>/**"],
+      "runtimeExecutable": "/Users/shambu/.nvm/versions/node/v20.15.0/bin/node",
+      "runtimeArgs": ["--import", "tsx"],
+      "args": ["./src/index.ts"],
+      "cwd": "${workspaceFolder}/apps/workers",
+      "console": "integratedTerminal",
+      "outFiles": ["${workspaceFolder}/apps/workers/dist/**/*.js"],
+      "env": {
+        "DATABASE_URL": "postgresql://postgres:postgres@localhost:5432/radix_incentives",
+        "TOKEN_PRICE_SERVICE_URL": "https://token-price-service.radixdlt.com/price/historicalPrice",
+      }
+    }
+  ]
+} 
