@@ -4,6 +4,7 @@ import { Context } from "effect";
 import {
   GetUsdValueService,
   type InvalidResourceAddressError,
+  type PriceServiceApiError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 
@@ -29,7 +30,7 @@ export type AggregateCaviarninePositionsOutput = {
   timestamp: Date;
   address: string;
   activityId: string;
-  usdValue: string;
+  usdValue: BigNumber;
   data: C9XrdUsdcLp | NoData;
 };
 
@@ -41,7 +42,7 @@ export class AggregateCaviarninePositionsService extends Context.Tag(
     input: AggregateCaviarninePositionsInput
   ) => Effect.Effect<
     AggregateCaviarninePositionsOutput[],
-    InvalidResourceAddressError,
+    InvalidResourceAddressError | PriceServiceApiError,
     GetUsdValueService
   >
 >() {}
@@ -60,7 +61,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               timestamp: input.timestamp,
               address: input.accountBalance.address,
               activityId: "provideLiquidityToDex",
-              usdValue: "0",
+              usdValue: new BigNumber(0),
               data: {
                 type: "no_data",
               },
@@ -96,12 +97,13 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           timestamp: input.timestamp,
         });
 
+
         return [
           {
             timestamp: input.timestamp,
             address: input.accountBalance.address,
             activityId: "provideLiquidityToDex",
-            usdValue: xTokenUSDValue.plus(yTokenUSDValue).toString(),
+            usdValue: xTokenUSDValue.plus(yTokenUSDValue),
             data: {
               type: "c9_xrd_usdc_lp",
               xTokenResourceAddress: xToken.resourceAddress,

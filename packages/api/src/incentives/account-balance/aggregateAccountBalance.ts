@@ -4,6 +4,7 @@ import { Context } from "effect";
 import type {
   GetUsdValueService,
   InvalidResourceAddressError,
+  PriceServiceApiError,
 } from "../token-price/getUsdValue";
 import {
   type AggregateCaviarninePositionsOutput,
@@ -25,7 +26,7 @@ export class AggregateAccountBalanceService extends Context.Tag(
     input: AggregateAccountBalanceInput
   ) => Effect.Effect<
     AggregateAccountBalanceOutput[],
-    InvalidResourceAddressError,
+    InvalidResourceAddressError | PriceServiceApiError,
     GetUsdValueService
   >
 >() {}

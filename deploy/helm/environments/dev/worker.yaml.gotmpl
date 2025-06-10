@@ -10,6 +10,7 @@ params:
   TRANSACTION_WORKER_CONCURRENCY: 20
   GATEWAY_URL: "https://mainnet.radixdlt.com"
   OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
+  TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
 
   
 secrets:
@@ -18,6 +19,11 @@ secrets:
     aws_secret_name: "rdx-works-main-dev/eks/incentives/dev/postgres"
     aws_secret_key: "database-url"
     secret_key: "database-url"
+  - external_secret_name: workers-token-price-service-key
+    env_variable: "TOKEN_PRICE_SERVICE_API_KEY"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "token_price_service_key"
+    secret_key: "token_price_service_key"
 
 ingress:
   enabled: false
