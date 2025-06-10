@@ -27,7 +27,7 @@ export const snapshotQueue = createQueue<SnapshotJob, void>({
     stalledInterval: 60000, // Check for stalled jobs every 30 seconds
     maxStalledCount: 2, // Allow 2 stalls before marking as failed
     lockDuration: 300000, // Lock jobs for 5 minutes
-    concurrency: 3 // Process one job at a time to prevent overload
+    concurrency: 1 // Process one job at a time to prevent overload
   }
 });
 
