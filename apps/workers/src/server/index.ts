@@ -15,12 +15,13 @@ import { calculateActivityPointsQueue } from "../calculate-activity-points/queue
 import { calculateActivityPointsJobSchema } from "../calculate-activity-points/schemas";
 
 const app = new Hono();
+const metricsApp = new Hono();
 
 app.get("/health", (c) => {
   return c.text("ok");
 });
 
-app.get("/metrics", async (c) => {
+metricsApp.get("/metrics", async (c) => {
   const snapshotQueueMetrics =
     await snapshotQueue.queue.exportPrometheusMetrics();
   const scheduledSnapshotQueueMetrics =
@@ -31,13 +32,13 @@ app.get("/metrics", async (c) => {
   const calculateActivityPointsQueueMetrics =
     await calculateActivityPointsQueue.queue.exportPrometheusMetrics();
   return c.text(
-    "".concat(
+    [
       snapshotQueueMetrics,
       scheduledSnapshotQueueMetrics,
       eventQueueMetrics,
       snapshotDateRangeQueueMetrics,
       calculateActivityPointsQueueMetrics
-    )
+    ].join('\n')
   );
 });
 
@@ -76,6 +77,7 @@ app.post("/queues/calculate-activity-points/add", async (c) => {
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
+const metricsPort = process.env.METRICS_PORT ? Number.parseInt(process.env.METRICS_PORT) : 9210;
 
 console.log(`🚀 Starting server on port ${port}`);
 console.log(`📍 Server will be available at: http://localhost:${port}`);
@@ -106,6 +108,16 @@ serve(
   },
   () => {
     console.log(`✅ Server is now running on http://localhost:${port}`);
+  }
+);
+
+serve(
+  {
+    fetch: metricsApp.fetch,
+    port: metricsPort,
+  },
+  () => {
+    console.log(`✅ Metrics server running on http://localhost:${metricsPort}/metrics`);
   }
 );
 
