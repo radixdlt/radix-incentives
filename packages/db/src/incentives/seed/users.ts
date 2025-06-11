@@ -104,6 +104,14 @@ const [lendingActivityResult, liquidityActivityResult] = await db
       category: "liquidity",
       rules: {},
     },
+    {
+      id: "maintainXrdBalance",
+      name: "Maintain XRD balance",
+      type: "active",
+      rewardType: "points",
+      category: "holding",
+      rules: {},
+    },
   ])
   .returning()
   .onConflictDoUpdate({

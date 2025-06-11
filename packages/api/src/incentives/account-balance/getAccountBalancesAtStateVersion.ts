@@ -294,6 +294,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           { concurrency: "unbounded" }
         );
 
+        yield* Effect.log("userStakingPositions", userStakingPositions);
+
         const lsuResourceAddresses = [
           ...new Set(
             userStakingPositions.items.flatMap((item) =>
@@ -301,6 +303,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
             )
           ),
         ];
+
+        yield* Effect.log("lsuResourceAddresses", lsuResourceAddresses);
 
         const convertLsuToXrdMap = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
@@ -323,11 +327,15 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 (item) => item.address === address
               );
 
+              yield* Effect.log("accountStakingPositions", accountStakingPositions);
+
               const staked: Lsu[] =
                 accountStakingPositions?.staked.map((item) => ({
                   resourceAddress: item.resourceAddress,
                   amount: item.amount,
                 })) ?? [];
+
+              yield* Effect.log("staked", staked);
 
               const unstaked: Unstaked[] =
                 accountStakingPositions?.unstaked.map((item) => ({
@@ -335,12 +343,16 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   amount: item.amount,
                 })) ?? [];
 
+              yield* Effect.log("unstaked", unstaked);
+
               const lsulp: Lsulp = lsulpResults.find(
                 (item) => item.address === address
               )?.lsulp ?? {
                 resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
                 amount: new BigNumber(0),
               };
+
+              yield* Effect.log("lsulp", lsulp);
 
               const fungibleTokenBalances: FungibleTokenBalance[] =
                 fungibleBalanceResults.find((item) => item.address === address)

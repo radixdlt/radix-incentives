@@ -74,7 +74,7 @@ import { GetUserActivityPointsLive } from "./user/getUserActivityPoints";
 import { ApplyMultiplierLive } from "./multiplier/applyMultiplier";
 import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
-
+import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
@@ -287,6 +287,7 @@ const createSnapshotLive = CreateSnapshotLive.pipe(Layer.provide(dbClientLive));
 const updateSnapshotLive = UpdateSnapshotLive.pipe(Layer.provide(dbClientLive));
 
 const getUsdValueLive = GetUsdValueLive.pipe(Layer.provide(dbClientLive));
+const xrdBalanceLive = XrdBalanceLive.pipe(Layer.provide(getUsdValueLive));
 
 const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
   Layer.provide(getUsdValueLive)
@@ -294,7 +295,8 @@ const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
-  Layer.provide(aggregateCaviarninePositionsLive)
+  Layer.provide(aggregateCaviarninePositionsLive),
+  Layer.provide(xrdBalanceLive)
 );
 
 const c9Layers = Layer.mergeAll(

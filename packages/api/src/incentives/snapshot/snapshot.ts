@@ -64,10 +64,10 @@ import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
 import type { GetUsdValueService } from "../token-price/getUsdValue";
 import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
-
+import { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
 export class SnapshotError {
   _tag = "SnapshotError";
-  constructor(public readonly message: string) {}
+  constructor(public readonly message: string) { }
 }
 
 export type SnapshotInput = {
@@ -131,8 +131,9 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | GetUsdValueService
     | AggregateAccountBalanceService
     | GetNonFungibleBalanceServiceDependencies
+    | XrdBalanceService
   >
->() {}
+>() { }
 
 export const SnapshotLive = Layer.effect(
   SnapshotService,
