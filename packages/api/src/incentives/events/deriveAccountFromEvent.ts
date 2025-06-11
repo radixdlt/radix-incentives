@@ -71,11 +71,37 @@ export const DeriveAccountFromEventLive = Layer.effect(
           return Effect.gen(function* () {
             if (event.dApp === "Caviarnine") {
               const eventData = event.eventData as CaviarnineEmittableEvents;
-              const nonFungibleId = eventData.data.liquidity_receipt_id;
-              const pool = shapeLiquidityComponentSet.get(event.globalEmitter);
+
               const at_ledger_state = {
                 timestamp: event.timestamp,
               };
+
+              if (
+                eventData.type === "WithdrawNonFungibleEvent" ||
+                eventData.type === "DepositNonFungibleEvent"
+              ) {
+                const registeredAccounts =
+                  yield* getAccountsIntersectionService({
+                    addresses: [eventData.data.accountAddress],
+                  });
+
+                // account is not registered in incentives program
+                if (registeredAccounts.length === 0) {
+                  yield* Effect.log(
+                    `Skipping ${eventData.data.accountAddress}, not registered in incentives program`
+                  );
+                  return null;
+                }
+
+                return {
+                  address: eventData.data.accountAddress,
+                  activityId: event.activityId,
+                  timestamp: event.timestamp.toISOString(),
+                };
+              }
+
+              const nonFungibleId = eventData.data.liquidity_receipt_id;
+              const pool = shapeLiquidityComponentSet.get(event.globalEmitter);
 
               if (!pool) {
                 return yield* Effect.fail(
