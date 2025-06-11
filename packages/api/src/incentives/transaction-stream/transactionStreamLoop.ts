@@ -33,15 +33,24 @@ export const transactionStreamLoop = () =>
         );
 
       if (filteredTransactions.length > 0) {
+        // remove duplicate transactions using Map for O(n) performance
+        const transactionMap = new Map(
+          filteredTransactions.map((transaction) => [
+            transaction.transactionId,
+            transaction,
+          ])
+        );
+        const uniqueTransactions = Array.from(transactionMap.values());
+
         // stores transactions which registered accounts are involved in
-        yield* addTransactionsToDbService(filteredTransactions);
+        yield* addTransactionsToDbService(uniqueTransactions);
 
         // get all weft finance events from transactions data
         const weftFinanceEvents =
-          yield* weftFinanceEventMatcher(filteredTransactions);
+          yield* weftFinanceEventMatcher(uniqueTransactions);
 
         const caviarnineEvents =
-          yield* caviarnineEventMatcher(filteredTransactions);
+          yield* caviarnineEventMatcher(uniqueTransactions);
 
         // concat all captured events
         const allCapturedEvents = [...caviarnineEvents];
