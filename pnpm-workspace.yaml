@@ -64,3 +64,6 @@ catalog:
   "@bull-board/hono": "^6.9.6"
   "@types/make-fetch-happen": "^10.0.4"
   "make-fetch-happen": "^14.0.3"
+  "inquirer": "^8.2.6"
+  "@types/inquirer": "^9.0.7"
+  "@types/node": "^20.0.0"

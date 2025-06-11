@@ -22,23 +22,32 @@ export class GetUsdValueService extends Context.Tag("GetUsdValueService")<
   GetUsdValueService,
   (
     input: GetUsdValueInput
-  ) => Effect.Effect<BigNumber, InvalidResourceAddressError | PriceServiceApiError>
+  ) => Effect.Effect<
+    BigNumber,
+    InvalidResourceAddressError | PriceServiceApiError
+  >
 >() {}
 
-const TOKEN_PRICE_SERVICE_URL = process.env.TOKEN_PRICE_SERVICE_URL || "https://token-price-service.radixdlt.com/price/historicalPrice";
-const TOKEN_PRICE_SERVICE_API_KEY = process.env.TOKEN_PRICE_SERVICE_API_KEY || "dummy";
+const TOKEN_PRICE_SERVICE_URL =
+  process.env.TOKEN_PRICE_SERVICE_URL ||
+  "https://token-price-service.radixdlt.com/price/historicalPrice";
+const TOKEN_PRICE_SERVICE_API_KEY =
+  process.env.TOKEN_PRICE_SERVICE_API_KEY || "dummy";
 
-const getTokenPrice = async (resourceAddress: string, timestamp: Date): Promise<number> => {
+const getTokenPrice = async (
+  resourceAddress: string,
+  timestamp: Date
+): Promise<number> => {
   const response = await fetch(TOKEN_PRICE_SERVICE_URL, {
-    method: 'POST',
+    method: "POST",
     headers: {
-      'x-api-key': TOKEN_PRICE_SERVICE_API_KEY,
-      'Content-Type': 'application/json'
+      "x-api-key": TOKEN_PRICE_SERVICE_API_KEY,
+      "Content-Type": "application/json",
     },
     body: JSON.stringify({
       tokens: [resourceAddress],
-      timestamp: Math.floor(timestamp.getTime() / 1000)
-    })
+      timestamp: Math.floor(timestamp.getTime() / 1000),
+    }),
   });
 
   if (!response.ok) {
@@ -46,12 +55,12 @@ const getTokenPrice = async (resourceAddress: string, timestamp: Date): Promise<
   }
 
   const data = await response.json();
-  
+
   if (!data || !data.prices || !data.prices[resourceAddress]) {
     throw new Error("Invalid response format from price service");
   }
   return data.prices[resourceAddress].usd_price;
-};  
+};
 
 export const GetUsdValueLive = Layer.effect(
   GetUsdValueService,
@@ -71,11 +80,14 @@ export const GetUsdValueLive = Layer.effect(
 
         const price = yield* Effect.tryPromise({
           try: () => getTokenPrice(input.resourceAddress, input.timestamp),
-          catch: (error) => new PriceServiceApiError(
-            `Failed to get USD value: ${error instanceof Error ? error.message : String(error)}`
-          )
+          catch: (error) => {
+            console.error(error);
+            return new PriceServiceApiError(
+              `Failed to get USD value: ${error instanceof Error ? error.message : String(error)}`
+            );
+          },
         });
-                  
+
         return yield* Effect.succeed(
           new BigNumber(price).multipliedBy(input.amount)
         );

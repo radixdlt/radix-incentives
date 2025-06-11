@@ -10,12 +10,13 @@ export class WeekNotFoundError {
 }
 
 export type GetWeekByIdError = DbError | WeekNotFoundError;
+export type GetWeekByIdServiceDependency = DbClientService;
 
 export class GetWeekByIdService extends Context.Tag("GetWeekByIdService")<
   GetWeekByIdService,
   (input: {
     id: string;
-  }) => Effect.Effect<Week, GetWeekByIdError, DbClientService>
+  }) => Effect.Effect<Week, GetWeekByIdError, GetWeekByIdServiceDependency>
 >() {}
 
 export const GetWeekByIdLive = Layer.effect(
