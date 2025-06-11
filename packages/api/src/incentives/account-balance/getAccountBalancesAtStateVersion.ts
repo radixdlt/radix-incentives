@@ -83,11 +83,13 @@ import BigNumber from "bignumber.js";
 type Lsu = {
   resourceAddress: string;
   amount: BigNumber;
+  xrdAmount: BigNumber;
 };
 
 type Unstaked = {
   resourceAddress: string;
   amount: BigNumber;
+  xrdAmount: BigNumber;
 };
 
 type Lsulp = {
@@ -330,9 +332,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               yield* Effect.log("accountStakingPositions", accountStakingPositions);
 
               const staked: Lsu[] =
-                accountStakingPositions?.staked.map((item) => ({
+                accountStakingPositions?.staked.map((item) => (
+                  {
                   resourceAddress: item.resourceAddress,
                   amount: item.amount,
+                  xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
                 })) ?? [];
 
               yield* Effect.log("staked", staked);
@@ -341,6 +345,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 accountStakingPositions?.unstaked.map((item) => ({
                   resourceAddress: item.resourceAddress,
                   amount: item.amount,
+                  xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
                 })) ?? [];
 
               yield* Effect.log("unstaked", unstaked);
