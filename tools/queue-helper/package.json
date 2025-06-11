@@ -1,0 +1,17 @@
+{
+  "name": "queue-helper",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "queue": "tsx addItemToQueue.ts"
+  },
+  "dependencies": {
+    "tsx": "catalog:",
+    "inquirer": "catalog:"
+  },
+  "devDependencies": {
+    "@types/inquirer": "catalog:",
+    "@types/node": "catalog:"
+  }
+} 
