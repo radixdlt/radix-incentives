@@ -110,7 +110,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
         const week = yield* getWeekById({ id: input.weekId });
 
         yield* Effect.log(
-          `processing week ${input.weekId} with start date ${week.startDate.toISOString()} and end date ${week.endDate.toISOString()}`
+          `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`
         );
 
         if (week.status === "completed" && !input.force) {
@@ -145,7 +145,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
 
               const userActivityPoints = yield* getUserActivityPoints({
                 weekId: input.weekId,
-                activityId: activity.id,
+                activityId: activity.activityId,
                 minPoints: minimumPoints,
               });
 
