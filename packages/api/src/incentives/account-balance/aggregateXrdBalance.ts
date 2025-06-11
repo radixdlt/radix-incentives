@@ -68,7 +68,7 @@ export const XrdBalanceLive = Layer.effect(
                 )?.amount ?? new BigNumber(0);
 
                 const stakedXrd = input.accountBalance.staked.reduce((acc, item) => acc.plus(item.xrdAmount), new BigNumber(0));
-                const unstakedXrd = input.accountBalance.unstaked.reduce((acc, item) => acc.plus(item.xrdAmount), new BigNumber(0));
+                const unstakedXrd = input.accountBalance.unstaked.reduce((acc, item) => acc.plus(item.amount), new BigNumber(0));
                 // const lsulp = input.accountBalances.reduce((acc, item) => acc.plus(item.lsulp.amount), new BigNumber(0));
                 // const unstaked = input.accountBalances.reduce((acc, item) => acc.plus(item.unstaked.reduce((acc, item) => acc.plus(item.amount), new BigNumber(0))), new BigNumber(0));
                 // const staked = input.accountBalances.reduce((acc, item) => acc.plus(item.staked.reduce((acc, item) => acc.plus(item.amount), new BigNumber(0))), new BigNumber(0));

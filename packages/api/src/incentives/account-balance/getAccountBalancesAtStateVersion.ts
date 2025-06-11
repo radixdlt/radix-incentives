@@ -89,7 +89,6 @@ type Lsu = {
 type Unstaked = {
   resourceAddress: string;
   amount: BigNumber;
-  xrdAmount: BigNumber;
 };
 
 type Lsulp = {
@@ -258,9 +257,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           [
             getUserStakingPositionsService({
               addresses: input.addresses,
-              at_ledger_state: atLedgerState,
-              nonFungibleBalance: nonFungibleBalanceResults,
-              fungibleBalance: fungibleBalanceResults,
+              at_ledger_state: atLedgerState
             }).pipe(Effect.withSpan("getUserStakingPositionsService")),
             getLsulpService({
               addresses: input.addresses,
@@ -296,8 +293,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           { concurrency: "unbounded" }
         );
 
-        yield* Effect.log("userStakingPositions", userStakingPositions);
-
         const lsuResourceAddresses = [
           ...new Set(
             userStakingPositions.items.flatMap((item) =>
@@ -306,7 +301,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           ),
         ];
 
-        yield* Effect.log("lsuResourceAddresses", lsuResourceAddresses);
 
         const convertLsuToXrdMap = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
@@ -328,8 +322,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               const accountStakingPositions = userStakingPositions.items.find(
                 (item) => item.address === address
               );
-
-              yield* Effect.log("accountStakingPositions", accountStakingPositions);
+              // yield* Effect.log("accountStakingPositions", accountStakingPositions);
 
               const staked: Lsu[] =
                 accountStakingPositions?.staked.map((item) => (
@@ -339,16 +332,15 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
                 })) ?? [];
 
-              yield* Effect.log("staked", staked);
+              // yield* Effect.log("staked", staked);
 
               const unstaked: Unstaked[] =
                 accountStakingPositions?.unstaked.map((item) => ({
                   resourceAddress: item.resourceAddress,
                   amount: item.amount,
-                  xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
                 })) ?? [];
 
-              yield* Effect.log("unstaked", unstaked);
+              // yield* Effect.log("unstaked", unstaked);
 
               const lsulp: Lsulp = lsulpResults.find(
                 (item) => item.address === address
