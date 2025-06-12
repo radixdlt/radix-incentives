@@ -75,13 +75,13 @@ export const XrdBalanceLive = Layer.effect(
                     (acc, position) => {
                         // Check XRD collaterals
                         if (position.collaterals?.[Assets.Fungible.XRD]) {
-                            acc.xrd = acc.xrd.plus(position.collaterals[Assets.Fungible.XRD]);
+                            acc.xrd = acc.xrd.plus(position.collaterals[Assets.Fungible.XRD] ?? 0);
                         }
 
                         // Check LSULP collaterals
                         if (position.collaterals?.[CaviarNineConstants.LSULP.resourceAddress]) {
                             acc.lsulp = acc.lsulp.plus(
-                                position.collaterals[CaviarNineConstants.LSULP.resourceAddress]
+                                position.collaterals[CaviarNineConstants.LSULP.resourceAddress] ?? 0
                             );
                         }
 
