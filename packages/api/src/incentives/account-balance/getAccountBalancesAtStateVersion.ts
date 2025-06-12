@@ -322,7 +322,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               const accountStakingPositions = userStakingPositions.items.find(
                 (item) => item.address === address
               );
-              // yield* Effect.log("accountStakingPositions", accountStakingPositions);
 
               const staked: Lsu[] =
                 accountStakingPositions?.staked.map((item) => (
@@ -332,7 +331,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
                 })) ?? [];
 
-              // yield* Effect.log("staked", staked);
 
               const unstaked: Unstaked[] =
                 accountStakingPositions?.unstaked.map((item) => ({
@@ -340,7 +338,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   amount: item.amount,
                 })) ?? [];
 
-              // yield* Effect.log("unstaked", unstaked);
 
               const lsulp: Lsulp = lsulpResults.find(
                 (item) => item.address === address
