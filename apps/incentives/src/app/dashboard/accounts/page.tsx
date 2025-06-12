@@ -1,23 +1,36 @@
-"use client";
+'use client';
 
-import { ConnectAccount } from "./components/ConnectAccount";
-import { api } from "~/trpc/react";
-import { ConnectAccountInstructions } from "./components/Instructions";
-import { useEffect } from "react";
-import { ConnectedAccounts } from "./components/ConnectedAccounts";
-import { EmptyState } from "~/components/ui/empty-state";
-import { AlertTriangle, Wallet } from "lucide-react";
-import { Skeleton } from "~/components/ui/skeleton";
-import { usePersona } from "~/lib/hooks/usePersona";
-import { ConnectedState } from "../components/ConnectedState";
+import { ConnectAccount } from './components/ConnectAccount';
+import { api } from '~/trpc/react';
+import { ConnectAccountInstructions } from './components/Instructions';
+import { useEffect } from 'react';
+import { ConnectedAccounts } from './components/ConnectedAccounts';
+import { EmptyState } from '~/components/ui/empty-state';
+import { AlertTriangle, Wallet } from 'lucide-react';
+import { Skeleton } from '~/components/ui/skeleton';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { ConnectedState } from '../components/ConnectedState';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
 
 export default function AccountsPage() {
   const persona = usePersona();
+  const rdt = useDappToolkit();
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
     enabled: !!persona,
+    retry: false,
   });
+
+  useEffect(() => {
+    if (accounts.error?.data?.code === 'UNAUTHORIZED') {
+      rdt?.disconnect();
+    }
+  }, [accounts.error, rdt]);
+
+  useEffect(() => {
+    if (persona?.identityAddress) accounts.refetch();
+  }, [persona?.identityAddress, accounts.refetch]);
 
   if (!persona) {
     return (
@@ -66,7 +79,7 @@ export default function AccountsPage() {
           title="Error Loading Accounts"
           description={
             accounts.error.message ||
-            "An unexpected error occurred. Please try again."
+            'An unexpected error occurred. Please try again.'
           }
           icon={AlertTriangle}
           className="max-w-full"
@@ -90,7 +103,7 @@ export default function AccountsPage() {
       ) : (
         <EmptyState
           title="No Accounts Connected"
-          description="Connect wallet to get started."
+          description="Connect accounts to get started."
           icon={Wallet}
           className="max-w-full"
         />

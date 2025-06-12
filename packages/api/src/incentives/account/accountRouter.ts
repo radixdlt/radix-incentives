@@ -1,7 +1,7 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 
-import type { Account } from "db/consultation";
+import type { Account } from "db/incentives";
 import { verifyAccountOwnershipInputSchema } from "../programs/verifyAccountOwnership";
 
 export const accountRouter = createTRPCRouter({
@@ -26,6 +26,14 @@ export const accountRouter = createTRPCRouter({
               throw new TRPCError({
                 code: "BAD_REQUEST",
                 message: "Invalid account ownership proof",
+              });
+            case "AccountAlreadyRegisteredError":
+              throw new TRPCError({
+                code: "BAD_REQUEST",
+                message:
+                  typeof result.cause.error === "string"
+                    ? result.cause.error
+                    : "Account already registered",
               });
           }
         }

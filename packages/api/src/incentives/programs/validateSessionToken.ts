@@ -7,7 +7,7 @@ import { InvalidateSessionService } from "../session/invalidateSession";
 import { encodeHexLowerCase } from "@oslojs/encoding";
 import { sha256 } from "@oslojs/crypto/sha2";
 import { GetSessionService } from "../session/getSession";
-import { sessions } from "db/consultation";
+import { sessions } from "db/incentives";
 import { eq } from "drizzle-orm";
 
 class SessionExpiredError {

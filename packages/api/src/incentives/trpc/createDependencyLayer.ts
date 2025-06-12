@@ -23,6 +23,7 @@ import {
   type VerifyAccountOwnershipInput,
 } from "../programs/verifyAccountOwnership";
 import { UpsertAccountsLive } from "../account/upsertAccounts";
+import { GetAccountsByAddressLive } from "../account/getAccountsByAddress";
 import { GetSessionLive } from "../session/getSession";
 import { getAccountsProgram } from "../programs/getAccounts";
 import { signOutProgram } from "../programs/signOutProgram";
@@ -67,6 +68,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const upsertAccountsLive = UpsertAccountsLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getAccountsByAddressLive = GetAccountsByAddressLive.pipe(
     Layer.provide(dbClientLive)
   );
 
@@ -118,7 +123,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         dbClientLive,
         verifyRolaProofLive,
         verifyChallengeLive,
-        upsertAccountsLive
+        upsertAccountsLive,
+        getAccountsByAddressLive
       )
     );
 
