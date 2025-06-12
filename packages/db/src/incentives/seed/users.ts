@@ -25,6 +25,9 @@ const CHUNK_SIZE = 1000; // Adjust the chunk size as needed
 
 const numberOfUsers = accountsData.length;
 
+const WEEK_ID = "6b209cf9-5932-487e-bf75-9d6f7d2330dd";
+const SEASON_ID = "036031e3-8bfb-4d2f-b653-f05c76f07704";
+
 const usersToSeed = new Array(numberOfUsers).fill(0).map((_, index) => ({
   identityAddress: `user-${index}`,
   createdAt: new Date("2025-01-01:00:00:00Z"),
@@ -63,6 +66,7 @@ const [seasonResult] = await db
       endDate: new Date("2025-06-30:23:59:59Z"),
       name: "Season 1",
       status: "active",
+      id: SEASON_ID,
     },
   ])
   .returning()
@@ -76,8 +80,8 @@ const [weekResult] = await db
     {
       startDate: new Date("2025-06-02:00:00:00Z"),
       endDate: new Date("2025-06-09:00:00:00Z"),
-      seasonId: seasonResult.id,
-      id: "6b209cf9-5932-487e-bf75-9d6f7d2330dd",
+      seasonId: SEASON_ID,
+      id: WEEK_ID,
     },
   ])
   .returning()
@@ -123,13 +127,13 @@ const [activityWeekResult] = await db
   .values([
     {
       activityId: lendingActivityResult.id,
-      weekId: weekResult.id,
+      weekId: WEEK_ID,
       pointsPool: 500_000,
       status: "active",
     },
     {
       activityId: liquidityActivityResult.id,
-      weekId: weekResult.id,
+      weekId: WEEK_ID,
       pointsPool: 1_000_000,
       status: "active",
     },
@@ -138,3 +142,7 @@ const [activityWeekResult] = await db
   .onConflictDoNothing();
 
 console.log("ActivityWeeks seeded", activityWeekResult);
+
+console.log("Users and accounts successfully seeded");
+
+process.exit(0);

@@ -2,7 +2,11 @@ import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
 import type { NextRequest } from "next/server";
 
 import { env } from "~/env";
-import { appRouter, createDependencyLayer } from "api/incentives";
+import {
+  adminAppRouter,
+  appRouter,
+  createDependencyLayer,
+} from "api/incentives";
 import { createTRPCContext } from "api/incentives";
 import { db } from "db/incentives";
 
@@ -30,7 +34,7 @@ const handler = (req: NextRequest) =>
   fetchRequestHandler({
     endpoint: "/api/trpc",
     req,
-    router: appRouter,
+    router: adminAppRouter,
     createContext: () => createContext(req),
     onError:
       env.NODE_ENV === "development"

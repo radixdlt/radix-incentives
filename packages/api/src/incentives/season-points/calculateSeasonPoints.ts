@@ -87,7 +87,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        yield* Effect.log(`calculating season points`, input);
+        yield* Effect.log("calculating season points", input);
 
         const parsedInput = calculateSeasonPointsInputSchema.safeParse(input);
 
@@ -139,7 +139,9 @@ export const CalculateSeasonPointsLive = Layer.effect(
           (activity) => {
             return Effect.gen(function* () {
               if (activity.pointsPool === null) {
-                yield* Effect.log(`activity ${activity.id} has no points pool`);
+                yield* Effect.log(
+                  `activity ${activity.activityId} has no points pool`
+                );
                 return;
               }
 
@@ -150,7 +152,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
               });
 
               yield* Effect.log(
-                `processing ${userActivityPoints.length} users for activity ${activity.id}`
+                `processing ${userActivityPoints.length} users for activity ${activity.activityId}`
               );
 
               const withoutLowerBounds = yield* supplyPercentileTrim(

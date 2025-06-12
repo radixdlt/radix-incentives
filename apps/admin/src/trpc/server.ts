@@ -5,9 +5,9 @@ import { headers } from "next/headers";
 import { cache } from "react";
 
 import {
-  createCaller,
+  createAdminCaller,
   createDependencyLayer,
-  type AppRouter,
+  type AdminAppRouter,
 } from "api/incentives";
 import { createTRPCContext } from "api/incentives";
 import { createQueryClient } from "./query-client";
@@ -37,9 +37,7 @@ const createContext = cache(async () => {
 });
 
 const getQueryClient = cache(createQueryClient);
-const caller = createCaller(createContext);
+const caller = createAdminCaller(createContext);
 
-export const { trpc: api, HydrateClient } = createHydrationHelpers<AppRouter>(
-  caller,
-  getQueryClient
-);
+export const { trpc: api, HydrateClient } =
+  createHydrationHelpers<AdminAppRouter>(caller, getQueryClient);

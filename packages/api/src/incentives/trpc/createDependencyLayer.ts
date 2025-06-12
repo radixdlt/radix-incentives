@@ -1,4 +1,4 @@
-import type { Db } from "db/incentives";
+import type { Db, Week } from "db/incentives";
 import { type AppConfig, createAppConfigLive } from "../config/appConfig";
 import { createDbClientLive } from "../db/dbClient";
 import { Effect, Layer } from "effect";
@@ -27,6 +27,31 @@ import { GetAccountsByAddressLive } from "../account/getAccountsByAddress";
 import { GetSessionLive } from "../session/getSession";
 import { getAccountsProgram } from "../programs/getAccounts";
 import { signOutProgram } from "../programs/signOutProgram";
+import {
+  GetActivitiesLive,
+  GetActivitiesService,
+} from "../activity/getActivities";
+import { GetSeasonsLive, GetSeasonsService } from "../season/getSeasons";
+import {
+  GetSeasonByIdLive,
+  GetSeasonByIdService,
+} from "../season/getSeasonById";
+import {
+  GetActivityByIdLive,
+  GetActivityByIdService,
+} from "../activity/getActivityById";
+import {
+  GetActivityWeeksByWeekIdsLive,
+  GetActivityWeeksByWeekIdsService,
+} from "../activity-week/getActivityWeeksByWeekIds";
+import {
+  GetUsersPaginatedLive,
+  GetUsersPaginatedService,
+} from "../user/getUsersPaginated";
+import {
+  UpdateWeekStatusLive,
+  UpdateWeekStatusService,
+} from "../week/updateWeekStatus";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -76,6 +101,28 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
+
+  const getActivitiesLive = GetActivitiesLive.pipe(Layer.provide(dbClientLive));
+
+  const getSeasonsLive = GetSeasonsLive.pipe(Layer.provide(dbClientLive));
+
+  const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
+
+  const getActivityByIdLive = GetActivityByIdLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getActivityWeeksByWeekIdsLive = GetActivityWeeksByWeekIdsLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getUsersPaginatedLive = GetUsersPaginatedLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
+    Layer.provide(dbClientLive)
+  );
 
   const createChallenge = () =>
     Effect.runPromiseExit(
@@ -149,6 +196,102 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getActivities = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getActivitiesService = yield* GetActivitiesService;
+        return yield* getActivitiesService();
+      }),
+      Layer.mergeAll(dbClientLive, getActivitiesLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getActivityById = (input: { id: string }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getActivityByIdService = yield* GetActivityByIdService;
+        return yield* getActivityByIdService(input);
+      }),
+      Layer.mergeAll(dbClientLive, getActivityByIdLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getSeasons = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getSeasonsService = yield* GetSeasonsService;
+        return yield* getSeasonsService();
+      }),
+      Layer.mergeAll(dbClientLive, getSeasonsLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getSeasonById = (input: { id: string; includeWeeks?: boolean }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getSeasonByIdService = yield* GetSeasonByIdService;
+        const { weeks, ...season } = yield* getSeasonByIdService(input);
+        const getActivityWeeksService = yield* GetActivityWeeksByWeekIdsService;
+
+        const activityWeeks = yield* getActivityWeeksService({
+          ids: weeks?.map((week) => week.id) ?? [],
+        });
+
+        return { season, weeks, activityWeeks };
+      }),
+      Layer.mergeAll(
+        dbClientLive,
+        getSeasonByIdLive,
+        getActivityWeeksByWeekIdsLive
+      )
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getActivityWeeksByWeekIds = (input: { ids: string[] }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getActivityWeeksByWeekIdsService =
+          yield* GetActivityWeeksByWeekIdsService;
+        return yield* getActivityWeeksByWeekIdsService(input);
+      }),
+      Layer.mergeAll(dbClientLive, getActivityWeeksByWeekIdsLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getUsersPaginated = (input: { page: number; limit: number }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getUsersPaginatedService = yield* GetUsersPaginatedService;
+        return yield* getUsersPaginatedService(input);
+      }),
+      Layer.mergeAll(dbClientLive, getUsersPaginatedLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateWeekStatus = (input: { id: string; status: Week["status"] }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const updateWeekStatusService = yield* UpdateWeekStatusService;
+        return yield* updateWeekStatusService(input);
+      }),
+      Layer.mergeAll(dbClientLive, updateWeekStatusLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -156,5 +299,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     verifyAccountOwnership,
     getAccounts,
     signOut,
+    getActivities,
+    getActivityById,
+    getSeasons,
+    getSeasonById,
+    getActivityWeeksByWeekIds,
+    getUsersPaginated,
+    updateWeekStatus,
   };
 };
