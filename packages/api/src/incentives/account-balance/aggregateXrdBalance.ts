@@ -79,28 +79,14 @@ export const XrdBalanceLive = Layer.effect(
                 const usdValue = yield* getUsdValueService({
                     timestamp: input.timestamp,
                     resourceAddress: Assets.Fungible.XRD,
-                    amount: xrd,
+                    amount: xrd.plus(stakedXrd).plus(unstakedXrd),
                 });
-
-                const stakedUsdValue = yield* getUsdValueService({
-                    timestamp: input.timestamp,
-                    resourceAddress: Assets.Fungible.XRD,
-                    amount: stakedXrd,
-                });
-
-                const unstakedUsdValue = yield* getUsdValueService({
-                    timestamp: input.timestamp,
-                    resourceAddress: Assets.Fungible.XRD,
-                    amount: unstakedXrd,
-                });
-
-                const totalUsdValue = usdValue.plus(stakedUsdValue).plus(unstakedUsdValue);
 
                 return [{
                     timestamp: input.timestamp,
                     address: input.accountBalance.address,
                     activityId: "maintainXrdBalance",
-                    usdValue: totalUsdValue,
+                    usdValue: usdValue,
                     data,
                 }];
             });

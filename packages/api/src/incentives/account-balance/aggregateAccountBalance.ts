@@ -41,7 +41,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
     const xrdBalanceService = yield* XrdBalanceService;
     return (input) =>
       Effect.gen(function* () {
-        const CaviarninePositions = yield* Effect.forEach(
+        const caviarninePositions = yield* Effect.forEach(
           input.accountBalances,
           (accountBalance) => {
             return Effect.gen(function* () {
@@ -71,7 +71,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
         
         yield* Effect.log("account balances aggregated");
 
-        return [...CaviarninePositions, ...xrdBalanceResult];
+        return [...caviarninePositions, ...xrdBalanceResult];
       });
   })
 );
