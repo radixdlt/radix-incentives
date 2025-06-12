@@ -10,6 +10,7 @@ params:
   TRANSACTION_WORKER_CONCURRENCY: 20
   GATEWAY_URL: "https://mainnet.radixdlt.com"
   OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
+  OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
 
   

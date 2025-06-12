@@ -8,6 +8,8 @@ params:
   REDIS_PASSWORD: ""
   WORKERS_API_BASE_URL: "http://worker:3000"
   GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
+  OTLP_BASE_URL: "http://opentelemetry-collector.monitoring:4318"
+  OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
 
 secrets:
 
