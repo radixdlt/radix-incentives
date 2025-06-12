@@ -94,6 +94,7 @@ type Unstaked = {
 type Lsulp = {
   resourceAddress: string;
   amount: BigNumber;
+  lsulpValue: BigNumber;
 };
 
 type FungibleTokenBalance = {
@@ -186,7 +187,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
     | GetShapeLiquidityClaimsService
     | GetNftResourceManagersServiceDependencies
   >
->() {}
+>() { }
 
 export const GetAccountBalancesAtStateVersionLive = Layer.effect(
   GetAccountBalancesAtStateVersionService,
@@ -272,7 +273,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
             getRootFinancePositionsService({
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
-              nonFungibleBalance: nonFungibleBalanceResults,
             }).pipe(Effect.withSpan("getRootFinancePositionsService")),
             getShapeLiquidityAssetsService({
               addresses: input.addresses,
@@ -326,10 +326,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               const staked: Lsu[] =
                 accountStakingPositions?.staked.map((item) => (
                   {
-                  resourceAddress: item.resourceAddress,
-                  amount: item.amount,
-                  xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
-                })) ?? [];
+                    resourceAddress: item.resourceAddress,
+                    amount: item.amount,
+                    xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
+                  })) ?? [];
 
 
               const unstaked: Unstaked[] =
@@ -339,11 +339,12 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 })) ?? [];
 
 
-              const lsulp: Lsulp = lsulpResults.find(
-                (item) => item.address === address
-              )?.lsulp ?? {
-                resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
-                amount: new BigNumber(0),
+
+              const lsulpPosition = lsulpResults.find((item) => item.address === address)?.lsulp;
+              const lsulp: Lsulp = {
+                resourceAddress: lsulpPosition?.resourceAddress ?? CaviarNineConstants.LSULP.resourceAddress,
+                amount: lsulpPosition?.amount ?? new BigNumber(0),
+                lsulpValue: lsulpValue.lsulpValue,
               };
 
               yield* Effect.log("lsulp", lsulp);

@@ -2,6 +2,7 @@ import { Effect, Layer } from "effect";
 import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import { Assets } from "../../common/assets/constants";
+import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 
 import {
     GetUsdValueService,
@@ -17,6 +18,10 @@ type XrdBalance = {
     unstakedXrd: string;
     lsulp: string;
     xrdPrice: string;
+    rootFinanceXrd: string;
+    rootFinanceLsulp: string;
+    weftFinanceXrd: string;
+    weftFinanceLsulp: string;
 };
 
 // biome
@@ -63,7 +68,51 @@ export const XrdBalanceLive = Layer.effect(
 
                 const stakedXrd = input.accountBalance.staked.reduce((acc, item) => acc.plus(item.xrdAmount), new BigNumber(0));
                 const unstakedXrd = input.accountBalance.unstaked.reduce((acc, item) => acc.plus(item.amount), new BigNumber(0));
-                const lsulp = input.accountBalance.lsulp.amount;
+                const lsulp = input.accountBalance.lsulp.amount.multipliedBy(input.accountBalance.lsulp.lsulpValue);
+
+
+                const rootFinanceLending = input.accountBalance.rootFinancePositions.reduce(
+                    (acc, position) => {
+                        // Check XRD collaterals
+                        if (position.collaterals?.[Assets.Fungible.XRD]) {
+                            acc.xrd = acc.xrd.plus(position.collaterals[Assets.Fungible.XRD] ?? 0);
+                        }
+
+                        // Check LSULP collaterals
+                        if (position.collaterals?.[CaviarNineConstants.LSULP.resourceAddress]) {
+                            acc.lsulp = acc.lsulp.plus(
+                                position.collaterals[CaviarNineConstants.LSULP.resourceAddress] ?? 0
+                            );
+                        }
+
+                        return acc;
+                    },
+                    { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+                ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
+
+                const weftFinanceLending =
+                    input.accountBalance.weftFinancePositions.reduce(
+                        (acc, position) => {
+                            if (
+                                position.unwrappedAsset.resourceAddress ===
+                                Assets.Fungible.XRD
+                            ) {
+                                acc.xrd = acc.xrd.plus(position.unwrappedAsset.amount);
+                            }
+
+                            if (
+                                position.unwrappedAsset.resourceAddress ===
+                                CaviarNineConstants.LSULP.resourceAddress
+                            ) {
+                                acc.lsulp = acc.lsulp.plus(position.unwrappedAsset.amount);
+                            }
+
+                            return acc;
+                        },
+                        { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+                    ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
+
+
                 const xrdPrice = yield* getUsdValueService({
                     timestamp: input.timestamp,
                     resourceAddress: Assets.Fungible.XRD,
@@ -72,17 +121,31 @@ export const XrdBalanceLive = Layer.effect(
 
                 const data: XrdBalance = {
                     type: "maintainXrdBalance",
-                    xrd : xrd.toString(),
+                    xrd: xrd.toString(),
                     stakedXrd: stakedXrd.toString(),
                     unstakedXrd: unstakedXrd.toString(),
                     xrdPrice: xrdPrice.toString(),
-                    lsulp: lsulp.toString()
+                    lsulp: lsulp.toString(),
+                    rootFinanceXrd: rootFinanceLending.xrd.toString(),
+                    rootFinanceLsulp: rootFinanceLending.lsulp.toString(),
+                    weftFinanceXrd: weftFinanceLending.xrd.toString(),
+                    weftFinanceLsulp: weftFinanceLending.lsulp.toString()
                 };
 
                 const usdValue = yield* getUsdValueService({
                     timestamp: input.timestamp,
                     resourceAddress: Assets.Fungible.XRD,
-                    amount: xrd.plus(stakedXrd).plus(unstakedXrd).plus(lsulp),
+                    amount: xrd
+                        .plus(stakedXrd)
+                        .plus(unstakedXrd)
+                        .plus(lsulp)
+                        .plus(rootFinanceLending.xrd)
+                        .plus(rootFinanceLending.lsulp.
+                            multipliedBy(input.accountBalance.lsulp.lsulpValue))
+                        .plus(weftFinanceLending.xrd)
+                        .plus(weftFinanceLending.lsulp
+                            .multipliedBy(input.accountBalance.lsulp.lsulpValue))
+
                 });
 
                 return [{
