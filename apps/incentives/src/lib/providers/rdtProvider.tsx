@@ -1,11 +1,12 @@
-"use client";
+'use client';
 
-import { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect } from 'react';
 import {
   DataRequestBuilder,
   RadixDappToolkit,
-} from "@radixdlt/radix-dapp-toolkit";
-import { api } from "~/trpc/react";
+} from '@radixdlt/radix-dapp-toolkit';
+import { api } from '~/trpc/react';
+import { toast } from 'sonner';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 
@@ -13,7 +14,7 @@ export const RadixContext = createContext<RadixDappToolkit | null>(null);
 let rdtSingleton: RadixDappToolkit | undefined = undefined;
 
 export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
-  const signIn = api.auth.signIn.useMutation();
+  const signIn = api.auth.signIn.useMutation({ retry: false, retryDelay: 0 });
   const signOut = api.auth.signOut.useMutation();
   const generateChallenge = api.auth.generateChallenge.useMutation({});
   const [rdt, setRdt] = useState<RadixDappToolkit | undefined>(undefined);
@@ -21,13 +22,13 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // RDT is not available on server
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const rdt =
       rdtSingleton ??
       RadixDappToolkit({
         dAppDefinitionAddress:
-          "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
+          'account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k',
         networkId: 1,
         onDisconnect: async () => {
           await signOut.mutateAsync();
@@ -36,14 +37,15 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
 
     setRdt(rdt);
 
-    rdt.buttonApi.setMode("dark");
-    rdt.buttonApi.setTheme("white");
+    rdt.buttonApi.setMode('dark');
+    rdt.buttonApi.setTheme('white');
 
     rdt.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
 
-    rdt?.walletApi.provideChallengeGenerator(() =>
-      generateChallenge.mutateAsync()
-    );
+    rdt?.walletApi.provideChallengeGenerator(() => {
+      toast.info('Open your wallet to continue');
+      return generateChallenge.mutateAsync();
+    });
 
     rdt?.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
 
@@ -52,7 +54,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
         !request.persona ||
         !request.proofs ||
         !request.proofs[0] ||
-        request.proofs[0].type !== "persona"
+        request.proofs[0].type !== 'persona'
       ) {
         return;
       }
@@ -60,16 +62,16 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       const { address, type, challenge, proof } = request.proofs[0];
       const { label } = request.persona;
 
-      const result = await signIn.mutateAsync({
-        address,
-        type,
-        label,
-        challenge,
-        proof,
-      });
-
-      if (!result.success) {
-        throw new Error("Proof verification failed");
+      try {
+        const result = await signIn.mutateAsync({
+          address,
+          type,
+          label,
+          challenge,
+          proof,
+        });
+      } catch (error) {
+        rdt.disconnect();
       }
     });
 

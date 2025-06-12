@@ -5,6 +5,7 @@
     "dev": "turbo run dev",
     "dev:streamer": "turbo run dev --filter=streamer --filter=db",
     "dev:workers": "turbo run dev --filter=workers --filter=db --filter=streamer",
+    "dev:fe": "turbo run dev --filter=incentives --filter=db",
     "build": "turbo run build",
     "build:clean": "turbo run build && ./scripts/clean.sh",
     "clean": "./scripts/clean.sh",

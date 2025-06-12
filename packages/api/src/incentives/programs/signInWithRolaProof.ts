@@ -63,7 +63,5 @@ export const signInWithRolaProof = (input: SignInWithRolaProofInput) =>
       userId,
     });
 
-    yield* Effect.logDebug({ session, token }, "Signed in with rola proof");
-
     return { session, token };
   });
