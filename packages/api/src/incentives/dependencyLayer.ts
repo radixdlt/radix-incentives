@@ -478,7 +478,8 @@ const snapshotProgram = (input: SnapshotInput) => {
       aggregateCaviarninePositionsLive,
       aggregateAccountBalanceLive,
       getNftResourceManagersLive,
-      getNonFungibleIdsLive
+      getNonFungibleIdsLive,
+      xrdBalanceLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 
