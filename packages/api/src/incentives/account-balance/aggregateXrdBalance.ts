@@ -15,6 +15,7 @@ type XrdBalance = {
     xrd: string;
     stakedXrd: string;
     unstakedXrd: string;
+    lsulp: string;
     xrdPrice: string;
 };
 
@@ -62,6 +63,7 @@ export const XrdBalanceLive = Layer.effect(
 
                 const stakedXrd = input.accountBalance.staked.reduce((acc, item) => acc.plus(item.xrdAmount), new BigNumber(0));
                 const unstakedXrd = input.accountBalance.unstaked.reduce((acc, item) => acc.plus(item.amount), new BigNumber(0));
+                const lsulp = input.accountBalance.lsulp.amount;
                 const xrdPrice = yield* getUsdValueService({
                     timestamp: input.timestamp,
                     resourceAddress: Assets.Fungible.XRD,
@@ -73,13 +75,14 @@ export const XrdBalanceLive = Layer.effect(
                     xrd : xrd.toString(),
                     stakedXrd: stakedXrd.toString(),
                     unstakedXrd: unstakedXrd.toString(),
-                    xrdPrice: xrdPrice.toString()
+                    xrdPrice: xrdPrice.toString(),
+                    lsulp: lsulp.toString()
                 };
 
                 const usdValue = yield* getUsdValueService({
                     timestamp: input.timestamp,
                     resourceAddress: Assets.Fungible.XRD,
-                    amount: xrd.plus(stakedXrd).plus(unstakedXrd),
+                    amount: xrd.plus(stakedXrd).plus(unstakedXrd).plus(lsulp),
                 });
 
                 return [{
