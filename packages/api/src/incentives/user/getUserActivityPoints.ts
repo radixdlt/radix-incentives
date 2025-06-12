@@ -61,7 +61,8 @@ export const GetUserActivityPointsLive = Layer.effect(
         const groupedByUserId = result.reduce(
           (acc, curr) => {
             acc[curr.userId] = acc[curr.userId] || new BigNumber(0);
-            acc[curr.userId] = acc[curr.userId].plus(curr.activityPoints);
+            // biome-ignore lint/style/noNonNullAssertion: <explanation>
+            acc[curr.userId] = acc[curr.userId]!.plus(curr.activityPoints);
             return acc;
           },
           {} as Record<string, BigNumber>

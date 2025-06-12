@@ -21,7 +21,12 @@ export const supplyPercentileTrim = (
     }, []);
 
     return users.filter((_, index) => {
-      return pointsMatrix[index]
+      const cumulativePoints = pointsMatrix[index];
+      if (!cumulativePoints) {
+        return false;
+      }
+
+      return cumulativePoints
         .dividedBy(totalPoints)
         .gte(options.lowerBoundsPercentage);
     });
