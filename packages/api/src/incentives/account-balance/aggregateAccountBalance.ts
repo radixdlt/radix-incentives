@@ -11,12 +11,14 @@ import {
   AggregateCaviarninePositionsService,
 } from "./aggregateCaviarninePositions";
 
+import { type XrdBalanceOutput, XrdBalanceService } from "./aggregateXrdBalance";
+
 type AggregateAccountBalanceInput = {
   accountBalances: AccountBalance[];
   timestamp: Date;
 };
 
-export type AggregateAccountBalanceOutput = AggregateCaviarninePositionsOutput;
+export type AggregateAccountBalanceOutput = AggregateCaviarninePositionsOutput | XrdBalanceOutput;
 
 export class AggregateAccountBalanceService extends Context.Tag(
   "AggregateAccountBalanceService"
@@ -26,7 +28,7 @@ export class AggregateAccountBalanceService extends Context.Tag(
     input: AggregateAccountBalanceInput
   ) => Effect.Effect<
     AggregateAccountBalanceOutput[],
-    InvalidResourceAddressError | PriceServiceApiError,
+    InvalidResourceAddressError | PriceServiceApiError ,
     GetUsdValueService
   >
 >() {}
@@ -36,9 +38,10 @@ export const AggregateAccountBalanceLive = Layer.effect(
   Effect.gen(function* () {
     const aggregateCaviarninePositionsService =
       yield* AggregateCaviarninePositionsService;
+    const xrdBalanceService = yield* XrdBalanceService;
     return (input) =>
       Effect.gen(function* () {
-        const result = yield* Effect.forEach(
+        const caviarninePositions = yield* Effect.forEach(
           input.accountBalances,
           (accountBalance) => {
             return Effect.gen(function* () {
@@ -53,9 +56,22 @@ export const AggregateAccountBalanceLive = Layer.effect(
           }
         ).pipe(Effect.map((items) => items.flat()));
 
+        const xrdBalanceResult = yield* Effect.forEach(
+          input.accountBalances,
+          (accountBalance) => {
+            return Effect.gen(function* () {
+              const xrdBalance = yield* xrdBalanceService({
+                accountBalance,
+                timestamp: input.timestamp, 
+              });
+              return [...xrdBalance];
+            });
+          }
+        ).pipe(Effect.map((items) => items.flat()));
+        
         yield* Effect.log("account balances aggregated");
 
-        return result;
+        return [...caviarninePositions, ...xrdBalanceResult];
       });
   })
 );

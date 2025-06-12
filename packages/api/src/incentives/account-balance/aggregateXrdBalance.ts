@@ -1,0 +1,97 @@
+import { Effect, Layer } from "effect";
+import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
+import { Context } from "effect";
+import { Assets } from "../../common/assets/constants";
+
+import {
+    GetUsdValueService,
+    type InvalidResourceAddressError,
+    type PriceServiceApiError,
+} from "../token-price/getUsdValue";
+import { BigNumber } from "bignumber.js";
+
+type XrdBalance = {
+    type: "maintainXrdBalance";
+    xrd: string;
+    stakedXrd: string;
+    unstakedXrd: string;
+    lsulp: string;
+    xrdPrice: string;
+};
+
+// biome
+type NoData = {
+    type: "no_data";
+};
+
+export type XrdBalanceInput = {
+    accountBalance: AccountBalance;
+    timestamp: Date;
+};
+
+export type XrdBalanceOutput = {
+    timestamp: Date;
+    address: string;
+    activityId: string;
+    usdValue: BigNumber;
+    data: XrdBalance | NoData;
+};
+
+
+export class XrdBalanceService extends Context.Tag(
+    "XrdBalanceService"
+)<
+    XrdBalanceService,
+    (
+        input: XrdBalanceInput
+    ) => Effect.Effect<
+        XrdBalanceOutput[],
+        InvalidResourceAddressError | PriceServiceApiError,
+        GetUsdValueService
+    >
+>() { }
+
+export const XrdBalanceLive = Layer.effect(
+    XrdBalanceService,
+    Effect.gen(function* () {
+        const getUsdValueService = yield* GetUsdValueService;
+        return (input) =>
+            Effect.gen(function* () {
+                const xrd = input.accountBalance.fungibleTokenBalances.find(
+                    (resource) => resource.resourceAddress === Assets.Fungible.XRD
+                )?.amount ?? new BigNumber(0);
+
+                const stakedXrd = input.accountBalance.staked.reduce((acc, item) => acc.plus(item.xrdAmount), new BigNumber(0));
+                const unstakedXrd = input.accountBalance.unstaked.reduce((acc, item) => acc.plus(item.amount), new BigNumber(0));
+                const lsulp = input.accountBalance.lsulp.amount;
+                const xrdPrice = yield* getUsdValueService({
+                    timestamp: input.timestamp,
+                    resourceAddress: Assets.Fungible.XRD,
+                    amount: new BigNumber(1),
+                });
+
+                const data: XrdBalance = {
+                    type: "maintainXrdBalance",
+                    xrd : xrd.toString(),
+                    stakedXrd: stakedXrd.toString(),
+                    unstakedXrd: unstakedXrd.toString(),
+                    xrdPrice: xrdPrice.toString(),
+                    lsulp: lsulp.toString()
+                };
+
+                const usdValue = yield* getUsdValueService({
+                    timestamp: input.timestamp,
+                    resourceAddress: Assets.Fungible.XRD,
+                    amount: xrd.plus(stakedXrd).plus(unstakedXrd).plus(lsulp),
+                });
+
+                return [{
+                    timestamp: input.timestamp,
+                    address: input.accountBalance.address,
+                    activityId: "maintainXrdBalance",
+                    usdValue: usdValue,
+                    data,
+                }];
+            });
+    })
+);

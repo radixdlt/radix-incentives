@@ -83,6 +83,7 @@ import BigNumber from "bignumber.js";
 type Lsu = {
   resourceAddress: string;
   amount: BigNumber;
+  xrdAmount: BigNumber;
 };
 
 type Unstaked = {
@@ -256,9 +257,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           [
             getUserStakingPositionsService({
               addresses: input.addresses,
-              at_ledger_state: atLedgerState,
-              nonFungibleBalance: nonFungibleBalanceResults,
-              fungibleBalance: fungibleBalanceResults,
+              at_ledger_state: atLedgerState
             }).pipe(Effect.withSpan("getUserStakingPositionsService")),
             getLsulpService({
               addresses: input.addresses,
@@ -302,6 +301,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           ),
         ];
 
+
         const convertLsuToXrdMap = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
           at_ledger_state: atLedgerState,
@@ -324,10 +324,13 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               );
 
               const staked: Lsu[] =
-                accountStakingPositions?.staked.map((item) => ({
+                accountStakingPositions?.staked.map((item) => (
+                  {
                   resourceAddress: item.resourceAddress,
                   amount: item.amount,
+                  xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
                 })) ?? [];
+
 
               const unstaked: Unstaked[] =
                 accountStakingPositions?.unstaked.map((item) => ({
@@ -335,12 +338,15 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   amount: item.amount,
                 })) ?? [];
 
+
               const lsulp: Lsulp = lsulpResults.find(
                 (item) => item.address === address
               )?.lsulp ?? {
                 resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
                 amount: new BigNumber(0),
               };
+
+              yield* Effect.log("lsulp", lsulp);
 
               const fungibleTokenBalances: FungibleTokenBalance[] =
                 fungibleBalanceResults.find((item) => item.address === address)
