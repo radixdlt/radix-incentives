@@ -13,7 +13,7 @@ import type { GetComponentStateService } from "../../common/gateway/getComponent
 import type { GetEntityDetailsService } from "../../common/gateway/getEntityDetails";
 import type { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
 import type { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
-import type { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
+import { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
 import type {
   GetNonFungibleBalanceService,
   GetNonFungibleBalanceServiceDependencies,
@@ -64,10 +64,10 @@ import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
 import type { GetUsdValueService } from "../token-price/getUsdValue";
 import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
-import { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
+import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
 export class SnapshotError {
   _tag = "SnapshotError";
-  constructor(public readonly message: string) { }
+  constructor(public readonly message: string) {}
 }
 
 export type SnapshotInput = {
@@ -133,7 +133,7 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | GetNonFungibleBalanceServiceDependencies
     | XrdBalanceService
   >
->() { }
+>() {}
 
 export const SnapshotLive = Layer.effect(
   SnapshotService,
@@ -147,6 +147,7 @@ export const SnapshotLive = Layer.effect(
     const upsertAccountBalances = yield* UpsertAccountBalancesService;
     const aggregateAccountBalanceService =
       yield* AggregateAccountBalanceService;
+    const getAllValidatorsService = yield* GetAllValidatorsService;
 
     return (input) =>
       Effect.gen(function* () {
@@ -175,6 +176,8 @@ export const SnapshotLive = Layer.effect(
           status: "processing",
         });
 
+        const validators = yield* getAllValidatorsService();
+
         yield* Effect.log("getting account balances");
 
         const [accountBalancesResult] = yield* Effect.all(
@@ -184,6 +187,7 @@ export const SnapshotLive = Layer.effect(
               at_ledger_state: {
                 state_version: lederState.state_version,
               },
+              validators: validators,
             }).pipe(Effect.withSpan("getAccountBalancesAtStateVersion")),
           ],
           { mode: "either" }

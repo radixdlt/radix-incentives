@@ -13,17 +13,19 @@ export type GetAllValidatorsResult = Awaited<
   ReturnType<GatewayApiClientImpl["gatewayApiClient"]["state"]["getValidators"]>
 >;
 
+export type Validator = {
+  address: string;
+  name: string;
+  lsuResourceAddress: string;
+  claimNftResourceAddress: string;
+};
+
 export class GetAllValidatorsService extends Context.Tag(
   "GetAllValidatorsService"
 )<
   GetAllValidatorsService,
   () => Effect.Effect<
-    {
-      address: string;
-      name: string;
-      lsuResourceAddress: string;
-      claimNftResourceAddress: string;
-    }[],
+    Validator[],
     GetAllValidatorsError,
     GatewayApiClientService
   >

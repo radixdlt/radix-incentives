@@ -14,6 +14,7 @@ import { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibl
 import type {
   GetAllValidatorsError,
   GetAllValidatorsService,
+  Validator,
 } from "../../common/gateway/getAllValidators";
 import type { EntityNonFungiblesPageService } from "../../common/gateway/entityNonFungiblesPage";
 import type {
@@ -79,6 +80,8 @@ import type {
 } from "@radixdlt/babylon-gateway-api-sdk";
 import type { GetNftResourceManagersServiceDependencies } from "../../common/gateway/getNftResourceManagers";
 import BigNumber from "bignumber.js";
+import { RootFinance } from "../../common/dapps/rootFinance/constants";
+import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 
 type Lsu = {
   resourceAddress: string;
@@ -140,6 +143,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   (input: {
     addresses: string[];
     at_ledger_state: AtLedgerState;
+    validators: Validator[];
   }) => Effect.Effect<
     {
       items: AccountBalance[];
@@ -187,7 +191,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
     | GetShapeLiquidityClaimsService
     | GetNftResourceManagersServiceDependencies
   >
->() { }
+>() {}
 
 export const GetAccountBalancesAtStateVersionLive = Layer.effect(
   GetAccountBalancesAtStateVersionService,
@@ -231,6 +235,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 resourceAddresses: [
                   CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC
                     .liquidity_receipt,
+                  RootFinance.receiptResourceAddress,
+                  ...input.validators.map(
+                    (validator) => validator.claimNftResourceAddress
+                  ),
                 ],
               }).pipe(Effect.withSpan("getNonFungibleBalanceService")),
               getFungibleBalanceService({
@@ -258,7 +266,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           [
             getUserStakingPositionsService({
               addresses: input.addresses,
-              at_ledger_state: atLedgerState
+              at_ledger_state: atLedgerState,
+              nonFungibleBalance: nonFungibleBalanceResults,
+              fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getUserStakingPositionsService")),
             getLsulpService({
               addresses: input.addresses,
@@ -273,6 +283,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
             getRootFinancePositionsService({
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
+              nonFungibleBalance: nonFungibleBalanceResults,
             }).pipe(Effect.withSpan("getRootFinancePositionsService")),
             getShapeLiquidityAssetsService({
               addresses: input.addresses,
@@ -301,7 +312,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           ),
         ];
 
-
         const convertLsuToXrdMap = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
           at_ledger_state: atLedgerState,
@@ -324,13 +334,14 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               );
 
               const staked: Lsu[] =
-                accountStakingPositions?.staked.map((item) => (
-                  {
-                    resourceAddress: item.resourceAddress,
-                    amount: item.amount,
-                    xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(item.amount)
-                  })) ?? [];
-
+                accountStakingPositions?.staked.map((item) => ({
+                  resourceAddress: item.resourceAddress,
+                  amount: item.amount,
+                  // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                  xrdAmount: convertLsuToXrdMap.get(item.resourceAddress)!(
+                    item.amount
+                  ),
+                })) ?? [];
 
               const unstaked: Unstaked[] =
                 accountStakingPositions?.unstaked.map((item) => ({
@@ -338,16 +349,16 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   amount: item.amount,
                 })) ?? [];
 
-
-
-              const lsulpPosition = lsulpResults.find((item) => item.address === address)?.lsulp;
+              const lsulpPosition = lsulpResults.find(
+                (item) => item.address === address
+              )?.lsulp;
               const lsulp: Lsulp = {
-                resourceAddress: lsulpPosition?.resourceAddress ?? CaviarNineConstants.LSULP.resourceAddress,
+                resourceAddress:
+                  lsulpPosition?.resourceAddress ??
+                  CaviarNineConstants.LSULP.resourceAddress,
                 amount: lsulpPosition?.amount ?? new BigNumber(0),
                 lsulpValue: lsulpValue.lsulpValue,
               };
-
-              yield* Effect.log("lsulp", lsulp);
 
               const fungibleTokenBalances: FungibleTokenBalance[] =
                 fungibleBalanceResults.find((item) => item.address === address)
