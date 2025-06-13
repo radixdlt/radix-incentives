@@ -63,8 +63,12 @@ import type { DbClientService, DbError } from "../db/dbClient";
 import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
 import type { GetUsdValueService } from "../token-price/getUsdValue";
-import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
+import {
+  AggregateAccountBalanceService,
+  type AggregateAccountBalanceServiceDependency,
+} from "../account-balance/aggregateAccountBalance";
 import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
+
 export class SnapshotError {
   _tag = "SnapshotError";
   constructor(public readonly message: string) {}
@@ -132,6 +136,7 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | AggregateAccountBalanceService
     | GetNonFungibleBalanceServiceDependencies
     | XrdBalanceService
+    | AggregateAccountBalanceServiceDependency
   >
 >() {}
 

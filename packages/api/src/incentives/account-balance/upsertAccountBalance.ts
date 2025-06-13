@@ -11,7 +11,7 @@ type UpsertAccountBalanceInput = {
   address: string;
   usdValue: BigNumber;
   activityId: string;
-  data: Record<string, string>;
+  data?: Record<string, string>;
 }[];
 
 export class UpsertAccountBalancesService extends Context.Tag(
@@ -42,7 +42,7 @@ export const UpsertAccountBalancesLive = Layer.effect(
                       address: accountAddress,
                       usdValue,
                       activityId,
-                      data,
+                      data = {},
                     }) => ({
                       timestamp,
                       accountAddress,
