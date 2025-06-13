@@ -160,7 +160,7 @@ This platform will provide the technical infrastructure to:
 
 - **Description**: Tools to configure point allocation rules and campaign parameters
 - **Acceptance Criteria**:
-  - Admins can define point values *or relative weights* for different activities contributing to weekly rankings
+  - Admins can define point values for different activities contributing to weekly rankings
   - Admins can configure the conversion mechanism from weekly activity percentile rankings to season points
   - Admins can configure multiplier thresholds
   - System supports weekly adjustments to point calculations

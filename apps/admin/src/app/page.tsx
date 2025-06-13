@@ -6,7 +6,7 @@ import {
   CircleUser,
   MousePointerClick,
   Users,
-} from "lucide-react";
+} from 'lucide-react';
 
 export default function DashboardPage() {
   return (
@@ -81,39 +81,39 @@ export default function DashboardPage() {
           <div className="space-y-6">
             {[
               {
-                activity: "DEX Trading",
+                activity: 'DEX Trading',
                 count: 5843,
-                change: "+12%",
-                color: "bg-primary",
-                id: "dex-trading",
+                change: '+12%',
+                color: 'bg-primary',
+                id: 'dex-trading',
               },
               {
-                activity: "Liquidity Provider",
+                activity: 'Liquidity Provider',
                 count: 4237,
-                change: "+8%",
-                color: "bg-blue-500",
-                id: "liquidity-provider",
+                change: '+8%',
+                color: 'bg-blue-500',
+                id: 'liquidity-provider',
               },
               {
-                activity: "NFT Collection",
+                activity: 'NFT Collection',
                 count: 1259,
-                change: "+24%",
-                color: "bg-purple-500",
-                id: "nft-collection",
+                change: '+24%',
+                color: 'bg-purple-500',
+                id: 'nft-collection',
               },
               {
-                activity: "dApp Usage",
+                activity: 'dApp Usage',
                 count: 3125,
-                change: "+18%",
-                color: "bg-orange-500",
-                id: "dapp-usage",
+                change: '+18%',
+                color: 'bg-orange-500',
+                id: 'dapp-usage',
               },
               {
-                activity: "Bridging",
+                activity: 'Bridging',
                 count: 2478,
-                change: "+9%",
-                color: "bg-teal-500",
-                id: "bridging",
+                change: '+9%',
+                color: 'bg-teal-500',
+                id: 'bridging',
               },
             ].map((item) => (
               <div key={item.id} className="space-y-2">
@@ -148,34 +148,34 @@ export default function DashboardPage() {
           <div className="h-[350px] flex items-end justify-between gap-2">
             {[
               {
-                activity: "DEX Trading",
+                activity: 'DEX Trading',
                 count: 5843,
-                color: "bg-primary",
-                id: "dex-bar",
+                color: 'bg-primary',
+                id: 'dex-bar',
               },
               {
-                activity: "Liquidity Provider",
+                activity: 'Liquidity Provider',
                 count: 4237,
-                color: "bg-blue-500",
-                id: "lp-bar",
+                color: 'bg-blue-500',
+                id: 'lp-bar',
               },
               {
-                activity: "NFT Collection",
+                activity: 'NFT Collection',
                 count: 1259,
-                color: "bg-purple-500",
-                id: "nft-bar",
+                color: 'bg-purple-500',
+                id: 'nft-bar',
               },
               {
-                activity: "dApp Usage",
+                activity: 'dApp Usage',
                 count: 3125,
-                color: "bg-orange-500",
-                id: "dapp-bar",
+                color: 'bg-orange-500',
+                id: 'dapp-bar',
               },
               {
-                activity: "Bridging",
+                activity: 'Bridging',
                 count: 2478,
-                color: "bg-teal-500",
-                id: "bridging-bar",
+                color: 'bg-teal-500',
+                id: 'bridging-bar',
               },
             ].map((item) => (
               <div
@@ -189,7 +189,7 @@ export default function DashboardPage() {
                   }}
                 />
                 <div className="mt-2 text-xs text-muted-foreground text-center w-full">
-                  {item.activity.split(" ")[0]}
+                  {item.activity.split(' ')[0]}
                 </div>
               </div>
             ))}
@@ -197,7 +197,7 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2">
         <div className="rounded-xl border bg-card p-6">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-medium">Recent On-chain Activity</h2>
@@ -211,39 +211,39 @@ export default function DashboardPage() {
           <div className="mt-4 space-y-4">
             {[
               {
-                action: "DEX Trading",
-                user: "0x7a...3f9a",
-                time: "2 minutes ago",
+                action: 'DEX Trading',
+                user: '0x7a...3f9a',
+                time: '2 minutes ago',
                 points: 100,
-                id: "activity-1",
+                id: 'activity-1',
               },
               {
-                action: "Liquidity Provider",
-                user: "0x5c...1e4b",
-                time: "15 minutes ago",
+                action: 'Liquidity Provider',
+                user: '0x5c...1e4b',
+                time: '15 minutes ago',
                 points: 500,
-                id: "activity-2",
+                id: 'activity-2',
               },
               {
-                action: "LSU Staking",
-                user: "0x3b...8d2c",
-                time: "42 minutes ago",
+                action: 'LSU Staking',
+                user: '0x3b...8d2c',
+                time: '42 minutes ago',
                 points: 50,
-                id: "activity-3",
+                id: 'activity-3',
               },
               {
-                action: "XRD Holding",
-                user: "0xf1...2e7d",
-                time: "1 hour ago",
+                action: 'XRD Holding',
+                user: '0xf1...2e7d',
+                time: '1 hour ago',
                 points: 250,
-                id: "activity-4",
+                id: 'activity-4',
               },
               {
-                action: "NFT Collection",
-                user: "0x9a...5f8b",
-                time: "3 hours ago",
+                action: 'NFT Collection',
+                user: '0x9a...5f8b',
+                time: '3 hours ago',
                 points: 150,
-                id: "activity-5",
+                id: 'activity-5',
               },
             ].map((activity) => (
               <div key={activity.id} className="flex items-center gap-4">
@@ -281,34 +281,34 @@ export default function DashboardPage() {
           <div className="mt-4 space-y-4">
             {[
               {
-                task: "1x Multiplier",
+                task: '1x Multiplier',
                 completed: 2450,
                 total: 3000,
-                id: "task-1",
+                id: 'task-1',
               },
               {
-                task: "1.2x - 1.5x",
+                task: '1.2x - 1.5x',
                 completed: 1960,
                 total: 3000,
-                id: "task-2",
+                id: 'task-2',
               },
               {
-                task: "1.5x - 2.0x",
+                task: '1.5x - 2.0x',
                 completed: 1650,
                 total: 3000,
-                id: "task-3",
+                id: 'task-3',
               },
               {
-                task: "2.0x - 2.5x",
+                task: '2.0x - 2.5x',
                 completed: 1200,
                 total: 3000,
-                id: "task-4",
+                id: 'task-4',
               },
               {
-                task: "2.5x - 3.0x",
+                task: '2.5x - 3.0x',
                 completed: 840,
                 total: 3000,
-                id: "task-5",
+                id: 'task-5',
               },
             ].map((task) => (
               <div key={task.id} className="space-y-2">
@@ -323,47 +323,13 @@ export default function DashboardPage() {
                     className="h-full rounded-full bg-primary"
                     style={{
                       width: `${Math.round(
-                        (task.completed / task.total) * 100
+                        (task.completed / task.total) * 100,
                       )}%`,
                     }}
                   />
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-
-        <div className="rounded-xl border bg-card p-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-medium">Campaign Configuration</h2>
-            <button
-              type="button"
-              className="text-sm text-primary hover:underline"
-            >
-              Edit Rules
-            </button>
-          </div>
-          <div className="mt-4 space-y-4">
-            <div className="flex items-center justify-between rounded-md border bg-card/50 p-3">
-              <div className="font-medium">Season</div>
-              <div className="text-muted-foreground">Season 1</div>
-            </div>
-            <div className="flex items-center justify-between rounded-md border bg-card/50 p-3">
-              <div className="font-medium">Current Week</div>
-              <div className="text-muted-foreground">Week 6 of 12</div>
-            </div>
-            <div className="flex items-center justify-between rounded-md border bg-card/50 p-3">
-              <div className="font-medium">Total XRD Budget</div>
-              <div className="text-muted-foreground">250,000,000 XRD</div>
-            </div>
-            <div className="flex items-center justify-between rounded-md border bg-card/50 p-3">
-              <div className="font-medium">Min XRD Requirement</div>
-              <div className="text-muted-foreground">$50 worth of XRD</div>
-            </div>
-            <div className="flex items-center justify-between rounded-md border bg-card/50 p-3">
-              <div className="font-medium">Last Rule Change</div>
-              <div className="text-muted-foreground">3 days ago</div>
-            </div>
           </div>
         </div>
       </div>
@@ -376,7 +342,7 @@ interface StatCardProps {
   value: string;
   icon: React.ReactNode;
   change: string;
-  direction: "up" | "down";
+  direction: 'up' | 'down';
   description: string;
 }
 
@@ -396,7 +362,7 @@ function StatCard({
         </div>
         <span
           className={`flex items-center text-xs font-medium ${
-            direction === "up" ? "text-emerald-500" : "text-rose-500"
+            direction === 'up' ? 'text-emerald-500' : 'text-rose-500'
           }`}
         >
           {change}

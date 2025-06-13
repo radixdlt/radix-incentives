@@ -46,20 +46,6 @@ This implementation plan outlines the development roadmap for the Administrator 
 
 ### Phase 2: Campaign Configuration Module (2 weeks)
 
-#### Rule Engine
-
-- Develop flexible activity point allocation system
-- Create multiplier threshold configuration interface
-- Implement versioning for configuration changes
-- Build validation system for rule changes
-
-#### Configuration UI
-
-- Create point allocation matrix interface
-- Develop multiplier curve visualization tool
-- Build configuration version history viewer
-- Implement change preview and impact assessment tools
-
 #### Admin API Extension
 
 - Extend tRPC API routes for:
@@ -67,22 +53,6 @@ This implementation plan outlines the development roadmap for the Administrator 
   - Configuration version control
   - Rule deployment and activation
   - Rule validation
-
-### Phase 3: Analytics Dashboard (2 weeks)
-
-#### Data Aggregation
-
-- Implement data collection pipeline
-- Create aggregation jobs for key metrics
-- Design data warehouse for efficient querying
-- Build caching layer for frequently accessed metrics
-
-#### Analytics Components
-
-- Develop key metrics dashboard
-- Create activity distribution visualizations
-- Build user engagement trend charts
-- Implement custom date range selector
 
 #### Performance Optimization
 
@@ -100,13 +70,6 @@ This implementation plan outlines the development roadmap for the Administrator 
 - Develop user profile detail view
 - Build account linking visualization
 
-#### Fraud Detection
-
-- Implement suspicious pattern detection algorithms
-- Create alert system for potential exploitation
-- Develop threshold-based flagging system
-- Build manual review queues
-
 #### Account Management
 
 - Create account exclusion functionality
@@ -115,13 +78,6 @@ This implementation plan outlines the development roadmap for the Administrator 
 - Build multi-account relationship visualization
 
 ### Phase 5: Reporting System & Final Polish (2 weeks)
-
-#### Report Generation
-
-- Create report template system
-- Implement scheduled report generation
-- Develop export functionality (CSV, PDF, Excel)
-- Build custom report builder
 
 #### Final Polish
 
@@ -146,20 +102,6 @@ This implementation plan outlines the development roadmap for the Administrator 
 - Use React Query for data fetching and caching
 - Set up background workers for intensive operations
 
-### Security
-
-- Implement strict RBAC for all admin functions
-- Audit log all administrative actions
-- Validate all configuration changes
-- Set up IP restrictions for admin access
-
-### Scalability
-
-- Design for horizontal scaling
-- Implement efficient database indexing
-- Use caching for frequently accessed data
-- Separate read and write operations where possible
-
 ## Dependencies
 
 - Next.js for frontend framework
@@ -169,12 +111,3 @@ This implementation plan outlines the development roadmap for the Administrator 
 - Recharts for data visualization
 - React Table for data grid components
 - Tailwind CSS, Shadcn, and Radix UI for components
-
-## Success Criteria
-
-- Admins can configure campaign rules with version control
-- Analytics dashboard provides comprehensive campaign insights
-- User management tools enable effective oversight
-- Reports can be generated, scheduled, and exported
-- All admin actions are securely logged and auditable
-- System performs efficiently with large datasets
