@@ -205,7 +205,10 @@ export const activityWeeks = createTable(
   },
   (table) => {
     return {
-      pk: primaryKey({ columns: [table.activityId, table.weekId] }),
+      pk: primaryKey({
+        name: "activity_week_pk",
+        columns: [table.activityId, table.weekId],
+      }),
     };
   }
 );

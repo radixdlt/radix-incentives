@@ -29,13 +29,6 @@
       "when": 1749631356915,
       "tag": "0003_brainy_kingpin",
       "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1749801486454,
-      "tag": "0004_absent_tigra",
-      "breakpoints": true
     }
   ]
 }

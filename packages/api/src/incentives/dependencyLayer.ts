@@ -342,7 +342,8 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getAccountAddressesLive),
   Layer.provide(getUsdValueLive),
-  Layer.provide(aggregateAccountBalanceLive)
+  Layer.provide(aggregateAccountBalanceLive),
+  Layer.provide(getAllValidatorsServiceLive)
 );
 
 const getNonFungibleLocationLive = GetNonFungibleLocationLive.pipe(
