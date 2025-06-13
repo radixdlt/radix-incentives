@@ -29,6 +29,13 @@
       "when": 1749631356915,
       "tag": "0003_brainy_kingpin",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1749823595596,
+      "tag": "0004_spotty_revanche",
+      "breakpoints": true
     }
   ]
 }
