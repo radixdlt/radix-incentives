@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
-import { seasons, type Season } from "db/incentives";
+import { seasons, type Week, type Season } from "db/incentives";
 import { eq } from "drizzle-orm";
 
 export class SeasonNotFoundError {
@@ -15,7 +15,12 @@ export class GetSeasonByIdService extends Context.Tag("GetSeasonByIdService")<
   GetSeasonByIdService,
   (input: {
     id: string;
-  }) => Effect.Effect<Season, GetSeasonByIdError, DbClientService>
+    includeWeeks?: boolean;
+  }) => Effect.Effect<
+    Season & { weeks?: Week[] },
+    GetSeasonByIdError,
+    DbClientService
+  >
 >() {}
 
 export const GetSeasonByIdLive = Layer.effect(
@@ -27,12 +32,12 @@ export const GetSeasonByIdLive = Layer.effect(
       Effect.gen(function* () {
         const season = yield* Effect.tryPromise({
           try: () =>
-            db
-              .select()
-              .from(seasons)
-              .where(eq(seasons.id, input.id))
-              .limit(1)
-              .then((r) => r[0]),
+            db.query.seasons.findFirst({
+              where: eq(seasons.id, input.id),
+              with: {
+                weeks: input.includeWeeks ? true : undefined,
+              },
+            }),
           catch: (error) => new DbError(error),
         });
 

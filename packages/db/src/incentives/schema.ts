@@ -194,7 +194,6 @@ export const activitiesRelations = relations(activities, ({ many }) => ({
 export const activityWeeks = createTable(
   "activity_week",
   {
-    id: uuid("id").primaryKey().defaultRandom(),
     activityId: text("activity_id")
       .notNull()
       .references(() => activities.id, { onDelete: "cascade" }),
@@ -206,11 +205,7 @@ export const activityWeeks = createTable(
   },
   (table) => {
     return {
-      // Unique constraint to prevent duplicate activity entries for the same week
-      activityWeekUid: index("activity_week_uidx").on(
-        table.activityId,
-        table.weekId
-      ),
+      pk: primaryKey({ columns: [table.activityId, table.weekId] }),
     };
   }
 );

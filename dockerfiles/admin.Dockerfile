@@ -3,6 +3,7 @@ FROM node:22.3.0-bullseye-slim AS base
 WORKDIR /app
 
 ENV DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentives"
+ENV WORKERS_API_BASE_URL="http://localhost:3003"
 
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"

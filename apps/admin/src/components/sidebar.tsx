@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import {
   BarChart3,
   LayoutDashboard,
@@ -11,45 +11,45 @@ import {
   LogOut,
   CalendarDays,
   Activity,
-} from "lucide-react";
-import { cn } from "../lib/utils";
+} from 'lucide-react';
+import { cn } from '../lib/utils';
 
 const navigationItems = [
   {
-    title: "Dashboard",
-    href: "/",
+    title: 'Dashboard',
+    href: '/',
     icon: <LayoutDashboard className="h-5 w-5" />,
   },
+  // {
+  //   title: "Configuration",
+  //   href: "/campaign",
+  //   icon: <Settings className="h-5 w-5" />,
+  // },
   {
-    title: "Configuration",
-    href: "/campaign",
-    icon: <Settings className="h-5 w-5" />,
-  },
-  {
-    title: "Seasons",
-    href: "/seasons",
+    title: 'Seasons',
+    href: '/seasons',
     icon: <CalendarDays className="h-5 w-5" />,
   },
   {
-    title: "Activities",
-    href: "/activities",
+    title: 'Activities',
+    href: '/activities',
     icon: <Activity className="h-5 w-5" />,
   },
+  // {
+  //   title: 'Analytics',
+  //   href: '/analytics',
+  //   icon: <BarChart3 className="h-5 w-5" />,
+  // },
   {
-    title: "Analytics",
-    href: "/analytics",
-    icon: <BarChart3 className="h-5 w-5" />,
-  },
-  {
-    title: "User Management",
-    href: "/users",
+    title: 'User Management',
+    href: '/users',
     icon: <Users className="h-5 w-5" />,
   },
-  {
-    title: "Reports",
-    href: "/reports",
-    icon: <FileBarChart className="h-5 w-5" />,
-  },
+  // {
+  //   title: 'Reports',
+  //   href: '/reports',
+  //   icon: <FileBarChart className="h-5 w-5" />,
+  // },
 ];
 
 export function Sidebar() {
@@ -71,10 +71,10 @@ export function Sidebar() {
             key={item.href}
             href={item.href}
             className={cn(
-              "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
               pathname === item.href
-                ? "bg-muted text-foreground"
-                : "text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? 'bg-muted text-foreground'
+                : 'text-muted-foreground hover:bg-muted hover:text-foreground',
             )}
           >
             {item.icon}

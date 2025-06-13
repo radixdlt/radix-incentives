@@ -1,14 +1,15 @@
-import type { Metadata } from "next";
-import { Inter } from "next/font/google";
-import "../styles/globals.css";
-import { ThemeProvider } from "../components/theme-provider";
-import { Sidebar } from "../components/sidebar";
+import type { Metadata } from 'next';
+import { Inter } from 'next/font/google';
+import '../styles/globals.css';
+import { ThemeProvider } from '../components/theme-provider';
+import { Sidebar } from '../components/sidebar';
+import { TRPCReactProvider } from '~/trpc/react';
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: "Radix Incentives Admin Dashboard",
-  description: "Admin interface for the Radix Incentives Campaign",
+  title: 'Radix Incentives Admin Dashboard',
+  description: 'Admin interface for the Radix Incentives Campaign',
 };
 
 export default function RootLayout({
@@ -19,12 +20,14 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider attribute="class" defaultTheme="dark">
-          <div className="flex h-screen">
-            <Sidebar />
-            <main className="ml-64 flex-1 overflow-auto">{children}</main>
-          </div>
-        </ThemeProvider>
+        <TRPCReactProvider>
+          <ThemeProvider attribute="class" defaultTheme="dark">
+            <div className="flex h-screen">
+              <Sidebar />
+              <main className="ml-64 flex-1 overflow-auto">{children}</main>
+            </div>
+          </ThemeProvider>
+        </TRPCReactProvider>
       </body>
     </html>
   );
