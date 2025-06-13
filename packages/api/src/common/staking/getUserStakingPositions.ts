@@ -12,6 +12,7 @@ import {
 import {
   type GetAllValidatorsError,
   GetAllValidatorsService,
+  type Validator,
 } from "../gateway/getAllValidators";
 import { claimNftSchema } from "./schema";
 import { BigNumber } from "bignumber.js";
@@ -45,6 +46,7 @@ export class GetUserStakingPositionsService extends Context.Tag(
     at_ledger_state: AtLedgerState;
     nonFungibleBalance?: GetNonFungibleBalanceOutput;
     fungibleBalance?: GetFungibleBalanceOutput;
+    validators?: Validator[];
   }) => Effect.Effect<
     UserStakingPositionsOutput,
     | GetAllValidatorsError
@@ -71,7 +73,8 @@ export const GetUserStakingPositionsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const validators = yield* getAllValidatorsService();
+        const validators =
+          input.validators ?? (yield* getAllValidatorsService());
 
         const claimNftResourceAddressSet = new Set(
           validators.map((validator) => validator.claimNftResourceAddress)
