@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import type { DbClientService, DbError } from "../db/dbClient";
+import { DbClientService, DbError } from "../db/dbClient";
 import { z } from "zod";
 import { GetWeekAccountBalancesService } from "../activity-points/getWeekAccountBalances";
 import { calculateTWA } from "../activity-points/calculateTWA";
@@ -10,6 +10,9 @@ import {
 } from "../week/getWeekById";
 import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplier";
+import { accounts } from "db/consultation";
+import { lte } from "drizzle-orm";
+import { db } from "../../../../db/src/incentives/client";
 
 export const calculateSPMultiplierInputSchema = z.object({
   weekId: z.string(),
@@ -73,21 +76,32 @@ function applyMultiplierToUsers(
   });
 }
 
+
+
 export const CalculateSPMultiplierLive = Layer.effect(
   CalculateSPMultiplierService,
   Effect.gen(function* () {
     const getWeekById = yield* GetWeekByIdService;
     const getWeekAccountBalances = yield* GetWeekAccountBalancesService;
-    const getAccounts = yield* GetAccountAddressesService;
     const upsertUserTwaWithMultiplier = yield* UpsertUserTwaWithMultiplierService;
 
     return (input) => {
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
         
-        // Fetch accounts with userId (default columns)
-        const accountsWithUserId = yield* getAccounts({ createdAt: week.endDate });
+        const getAccountsWithUserId = (createdAt: Date) => {
+          return Effect.tryPromise({
+            try: () => {
+              return db.select({ address: accounts.address, userId: accounts.userId })
+              .from(accounts)
+              .where(lte(accounts.createdAt, createdAt))
+              .then(res => res.map(r => ({ address: r.address, userId: r.userId })));
+            },
+            catch: (error) => new DbError(error),
+          });
+        };
         // accountsWithUserId is: Array<{ address: string, userId: string }>
+        const accountsWithUserId = yield* getAccountsWithUserId(week.endDate);
         
         const items = yield* getWeekAccountBalances({
           startDate: week.startDate,
@@ -147,7 +161,7 @@ export const CalculateSPMultiplierLive = Layer.effect(
         // userTwaBalancesWithCumulative now has: { userId, totalTwaBalance, cumulativeTwaBalance ,weekId}
 
         const totalTwaBalanceSum = userTwaBalancesWithCumulative.length > 0
-          ? userTwaBalancesWithCumulative[userTwaBalancesWithCumulative.length - 1].cumulativeTWABalance
+          ? userTwaBalancesWithCumulative.at(-1)?.cumulativeTWABalance ?? 0
           : 0;
         const userTwaWithMultiplier = applyMultiplierToUsers(userTwaBalancesWithCumulative, totalTwaBalanceSum);
         // userTwaWithMultiplier: Array<{ userId, totalTwaBalance, cumulativeTwaBalance, multiplier, weekId }>

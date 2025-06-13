@@ -31,7 +31,7 @@ export const UpsertUserTwaWithMultiplierLive = Layer.effect(
                 ],
                 set: {
                   multiplier: sql`excluded.multiplier`,
-                  totalTwaBalance: sql`excluded.total_twa_balance`,
+                  totalTWABalance: sql`excluded.total_twa_balance`,
                 },
               }),
           catch: (error) => new DbError(error),
