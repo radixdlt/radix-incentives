@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { accountBalances } from "db/incentives";
-import { and, gte, inArray, lte } from "drizzle-orm";
+import { and, gte, inArray, lte, eq } from "drizzle-orm";
 
 type AccountBalance = {
   accountAddress: string;
@@ -16,6 +16,7 @@ export type GetWeekAccountBalancesInput = {
   startDate: Date;
   endDate: Date;
   addresses: string[];
+  activityId?: string;
 };
 
 export type GetWeekAccountBalancesOutput = Record<
@@ -30,7 +31,7 @@ export class GetWeekAccountBalancesService extends Context.Tag(
   (
     input: GetWeekAccountBalancesInput
   ) => Effect.Effect<GetWeekAccountBalancesOutput, DbError, DbClientService>
->() {}
+>() { }
 
 export const GetWeekAccountBalancesLive = Layer.effect(
   GetWeekAccountBalancesService,
@@ -39,6 +40,14 @@ export const GetWeekAccountBalancesLive = Layer.effect(
 
     return (input) =>
       Effect.gen(function* () {
+        const whereClauses = [
+          inArray(accountBalances.accountAddress, input.addresses),
+          gte(accountBalances.timestamp, input.startDate),
+          lte(accountBalances.timestamp, input.endDate),
+        ];
+        if (input.activityId) {
+          whereClauses.push(eq(accountBalances.activityId, input.activityId));
+        }
         const result = yield* Effect.tryPromise({
           try: () =>
             db
@@ -49,13 +58,7 @@ export const GetWeekAccountBalancesLive = Layer.effect(
                 activityId: accountBalances.activityId,
               })
               .from(accountBalances)
-              .where(
-                and(
-                  inArray(accountBalances.accountAddress, input.addresses),
-                  gte(accountBalances.timestamp, input.startDate),
-                  lte(accountBalances.timestamp, input.endDate)
-                )
-              ),
+              .where(and(...whereClauses)),
           catch: (error) => new DbError(error),
         });
 

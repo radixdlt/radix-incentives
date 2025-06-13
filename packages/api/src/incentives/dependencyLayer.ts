@@ -75,7 +75,10 @@ import { ApplyMultiplierLive } from "./multiplier/applyMultiplier";
 import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
-const appConfig = createConfig();
+import { SeasonPointsMultiplierWorkerLive, SeasonPointsMultiplierWorkerService } from "./season-point-multiplier/seasonPointsMultiplierWorker";
+import { CalculateSPMultiplierLive } from "./season-point-multiplier/calculateSeasonPointMultiplier";
+import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
+const appConfig = createConfig(); 
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
 const dbClientLive = createDbClientLive(db);
@@ -372,6 +375,10 @@ const upsertAccountActivityPointsLive = UpsertAccountActivityPointsLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const upsertUserTwaWithMultiplierLive = UpsertUserTwaWithMultiplierLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
 
 const getWeekAccountBalancesLive = GetWeekAccountBalancesLive.pipe(
@@ -419,6 +426,22 @@ const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
   Layer.provide(applyMultiplierLive),
   Layer.provide(addSeasonPointsToUserLive),
   Layer.provide(updateWeekStatusLive)
+);
+
+const calculateSPMultiplierLive = CalculateSPMultiplierLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(getWeekByIdLive),
+  Layer.provide(getSeasonByIdLive),
+  Layer.provide(getWeekAccountBalancesLive),
+  Layer.provide(getAccountAddressesLive),
+  Layer.provide(upsertUserTwaWithMultiplierLive),
+  Layer.provide(getActivitiesByWeekIdLive)
+);
+
+const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(calculateSPMultiplierLive),
+  Layer.provide(getWeekByIdLive),
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
@@ -570,10 +593,32 @@ const calculateSeasonPoints = (input: { seasonId: string; weekId: string }) => {
   return Effect.runPromiseExit(program);
 };
 
+const calculateSPMultiplier = (input: { weekId: string; userIds?: string[] }) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const calculateSPMultiplierWorkerService = yield* SeasonPointsMultiplierWorkerService;
+
+      return yield* calculateSPMultiplierWorkerService(input);
+    }),
+    Layer.mergeAll(
+      dbClientLive,
+      getWeekByIdLive,
+      calculateSPMultiplierLive,
+      seasonPointsMultiplierWorkerLive,
+      getWeekAccountBalancesLive,
+      getAccountAddressesLive,
+      upsertUserTwaWithMultiplierLive,
+    )
+  ).pipe(Effect.provide(NodeSdkLive));
+
+  return Effect.runPromiseExit(program);
+};
+
 export const dependencyLayer = {
   snapshot: snapshotProgram,
   getLedgerState,
   deriveAccountFromEvent,
   calculateActivityPoints,
   calculateSeasonPoints,
+  calculateSPMultiplier,
 };

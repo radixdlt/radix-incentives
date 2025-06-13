@@ -32,7 +32,7 @@ export class CalculateActivityPointsWorkerService extends Context.Tag(
     CalculateActivityPointsError | InvalidInputError,
     CalculateActivityPointsDependency
   >
->() {}
+>() { }
 
 export const CalculateActivityPointsWorkerLive = Layer.effect(
   CalculateActivityPointsWorkerService,
