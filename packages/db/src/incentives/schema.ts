@@ -426,3 +426,4 @@ export type AccountActivityPoints = InferSelectModel<
   typeof accountActivityPoints
 >;
 export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
+export type SeasonPointsMultiplier = InferSelectModel<typeof seasonPointsMultiplier>;
