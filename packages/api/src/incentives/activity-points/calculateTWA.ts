@@ -10,12 +10,16 @@ export type AccountActivityPointsMap = Record<
   Record<ActivityId, BigNumber>
 >;
 
+export type TWACalculationType = "USDValue" | "USDValueDurationMultiplied";
+
 export const calculateTWA = ({
   items: grouped,
   week,
+  calculationType = "USDValueDurationMultiplied",
 }: {
   items: GetWeekAccountBalancesOutput;
   week: { endDate: Date };
+  calculationType?: TWACalculationType;
 }) =>
   Effect.gen(function* () {
     const resultWithTwa: Record<
@@ -84,10 +88,10 @@ export const calculateTWA = ({
           1000 * 60
         );
 
-        // TODO: different formula for calculating activity points for each activity
-        resultWithTwa[accountAddress][activityId] = timeWeightedAverageUsdValue
-          .multipliedBy(totalDurationInMinutes)
-          .decimalPlaces(0);
+        // Calculate result based on calculation type
+        resultWithTwa[accountAddress][activityId] = calculationType === "USDValue"
+          ? timeWeightedAverageUsdValue.decimalPlaces(0)
+          : timeWeightedAverageUsdValue.multipliedBy(totalDurationInMinutes).decimalPlaces(0);
       }
     }
 

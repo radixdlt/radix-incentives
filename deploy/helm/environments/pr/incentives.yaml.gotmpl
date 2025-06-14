@@ -10,7 +10,7 @@ params:
   PORT: 3000
   DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives"
   JWT_SECRET: FkaGHXoq32rYBcEHwAn2rkhawtUCe4sE
-  APP_URL : "http://incentives-pr-{{ .StateValues.ci.prNumber }}.rdx-works-main.extratools.works"
+  APP_URL : "https://incentives-pr-{{ .StateValues.ci.prNumber }}.rdx-works-main.extratools.works"
 
 ingress:
   enabled: true

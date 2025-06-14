@@ -76,7 +76,7 @@ import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import { SeasonPointsMultiplierWorkerLive, SeasonPointsMultiplierWorkerService } from "./season-point-multiplier/seasonPointsMultiplierWorker";
-import { CalculateSPMultiplierLive } from "./season-point-multiplier/calculateSeasonPointMultiplier";
+import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
 const appConfig = createConfig(); 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -429,7 +429,7 @@ const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
   Layer.provide(updateWeekStatusLive)
 );
 
-const calculateSPMultiplierLive = CalculateSPMultiplierLive.pipe(
+const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getWeekByIdLive),
   Layer.provide(getSeasonByIdLive),
@@ -443,6 +443,7 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(calculateSPMultiplierLive),
   Layer.provide(getWeekByIdLive),
+  Layer.provide(upsertUserTwaWithMultiplierLive),
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
