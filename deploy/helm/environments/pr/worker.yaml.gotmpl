@@ -7,8 +7,9 @@ params:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
-  OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
-  OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
+  # Uncomment to enable tracing
+  # OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
+  # OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   INSERT_BATCH_SIZE: "4000"
   TOKEN_PRICE_SERVICE_URL : "https://token-price-service.radixdlt.com/price/historicalPrice"
 
