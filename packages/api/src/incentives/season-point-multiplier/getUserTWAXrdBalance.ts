@@ -106,7 +106,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
 
         // Aggregate sum of twaBalance for each userId
         const addressToUserId = new Map<string, string>();
-        for (const { address, userId } of accountsWithUserId as Array<{ address: string; userId: string }>) {
+        for (const { address, userId } of accountsWithUserId) {
           addressToUserId.set(address, userId);
         }
 
