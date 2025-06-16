@@ -19,6 +19,9 @@ export type AggregateWeftFinancePositionsOutput = {
   address: string;
   activityId: string;
   usdValue: BigNumber;
+  data: Partial<{
+    xUSDC: string;
+  }>;
 };
 
 export class AggregateWeftFinancePositionsService extends Context.Tag(
@@ -52,6 +55,7 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
               address: input.accountBalance.address,
               activityId: "lending",
               usdValue: new BigNumber(0),
+              data: {},
             },
           ];
         }
@@ -78,6 +82,9 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
             address: input.accountBalance.address,
             activityId: "lending",
             usdValue: xUSDCValue,
+            data: {
+              xUSDC: xUSDC.toString(),
+            },
           },
         ];
       });

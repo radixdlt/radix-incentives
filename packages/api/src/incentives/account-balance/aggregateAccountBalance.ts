@@ -91,7 +91,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
           }
         ).pipe(Effect.map((items) => items.flat()));
 
-        const weftFinancePositions = yield* Effect.forEach(
+        const lendingPositions = yield* Effect.forEach(
           input.accountBalances,
           (accountBalance) => {
             return Effect.gen(function* () {
@@ -110,7 +110,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
         return [
           ...caviarninePositions,
           ...xrdBalanceResult,
-          ...weftFinancePositions,
+          ...lendingPositions,
         ];
       });
   })
