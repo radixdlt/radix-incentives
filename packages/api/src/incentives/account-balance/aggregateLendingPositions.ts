@@ -9,33 +9,36 @@ import {
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 
-export type AggregateWeftFinancePositionsInput = {
+export type AggregateLendingPositionsInput = {
   accountBalance: AccountBalance;
   timestamp: Date;
 };
 
-export type AggregateWeftFinancePositionsOutput = {
+export type AggregateLendingPositionsOutput = {
   timestamp: Date;
   address: string;
   activityId: string;
   usdValue: BigNumber;
+  data: Partial<{
+    weftxUSDC: string;
+  }>;
 };
 
-export class AggregateWeftFinancePositionsService extends Context.Tag(
-  "AggregateWeftFinancePositionsService"
+export class AggregateLendingPositionsService extends Context.Tag(
+  "AggregateLendingPositionsService"
 )<
-  AggregateWeftFinancePositionsService,
+  AggregateLendingPositionsService,
   (
-    input: AggregateWeftFinancePositionsInput
+    input: AggregateLendingPositionsInput
   ) => Effect.Effect<
-    AggregateWeftFinancePositionsOutput[],
+    AggregateLendingPositionsOutput[],
     InvalidResourceAddressError | PriceServiceApiError,
     GetUsdValueService
   >
 >() {}
 
-export const AggregateWeftFinancePositionsLive = Layer.effect(
-  AggregateWeftFinancePositionsService,
+export const AggregateLendingPositionsLive = Layer.effect(
+  AggregateLendingPositionsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
     return (input) =>
@@ -52,6 +55,7 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
               address: input.accountBalance.address,
               activityId: "lending",
               usdValue: new BigNumber(0),
+              data: {},
             },
           ];
         }
@@ -78,6 +82,9 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
             address: input.accountBalance.address,
             activityId: "lending",
             usdValue: xUSDCValue,
+            data: {
+              weftxUSDC: xUSDC.toString(),
+            },
           },
         ];
       });
