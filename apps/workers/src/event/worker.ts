@@ -10,7 +10,10 @@ export const eventQueueWorker = async (job: Job<EventQueueJob>) => {
   const result = await dependencyLayer.deriveAccountFromEvent(job.data);
 
   if (Exit.isFailure(result)) {
-    console.error("error in eventQueueWorker", result.cause);
+    console.error(
+      "error in eventQueueWorker",
+      JSON.stringify(result.cause, null, 2)
+    );
     throw result.cause;
   }
 
