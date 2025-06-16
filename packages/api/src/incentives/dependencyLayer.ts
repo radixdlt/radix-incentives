@@ -76,6 +76,8 @@ import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
+import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
+import { CombineActivityResultsLive } from "./account-balance/combineActivityResults";
 const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
@@ -297,11 +299,18 @@ const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
 const aggregateWeftFinancePositionsLive =
   AggregateWeftFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
 
+const aggregateRootFinancePositionsLive =
+  AggregateRootFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+
+const combineActivityResultsLive = CombineActivityResultsLive;
+
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(aggregateCaviarninePositionsLive),
   Layer.provide(xrdBalanceLive),
-  Layer.provide(aggregateWeftFinancePositionsLive)
+  Layer.provide(aggregateWeftFinancePositionsLive),
+  Layer.provide(aggregateRootFinancePositionsLive),
+  Layer.provide(combineActivityResultsLive)
 );
 
 const c9Layers = Layer.mergeAll(
@@ -486,7 +495,9 @@ const snapshotProgram = (input: SnapshotInput) => {
       getNftResourceManagersLive,
       getNonFungibleIdsLive,
       xrdBalanceLive,
-      aggregateWeftFinancePositionsLive
+      aggregateWeftFinancePositionsLive,
+      aggregateRootFinancePositionsLive,
+      combineActivityResultsLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 
