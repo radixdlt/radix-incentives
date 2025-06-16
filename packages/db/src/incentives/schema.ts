@@ -392,6 +392,24 @@ export const userSeasonPoints = createTable(
   })
 );
 
+export const seasonPointsMultiplier = createTable(
+  "season_points_multiplier",
+  {
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+    multiplier: decimal("multiplier", { precision: 18, scale: 2 }).notNull(),
+    cumulativeTWABalance: decimal("cumulative_twa_balance", { precision: 18, scale: 2 }).notNull(),
+    totalTWABalance: decimal("total_twa_balance", { precision: 18, scale: 2 }).notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.userId, table.weekId] }),
+  })
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
@@ -408,3 +426,4 @@ export type AccountActivityPoints = InferSelectModel<
   typeof accountActivityPoints
 >;
 export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
+export type SeasonPointsMultiplier = InferSelectModel<typeof seasonPointsMultiplier>;
