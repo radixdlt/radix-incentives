@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { accountBalances } from "db/incentives";
-import { and, gte, inArray, lte, eq } from "drizzle-orm";
+import { and, gte, inArray, lt, eq } from "drizzle-orm";
 
 type AccountBalance = {
   accountAddress: string;
@@ -43,7 +43,7 @@ export const GetWeekAccountBalancesLive = Layer.effect(
         const whereClauses = [
           inArray(accountBalances.accountAddress, input.addresses),
           gte(accountBalances.timestamp, input.startDate),
-          lte(accountBalances.timestamp, input.endDate),
+          lt(accountBalances.timestamp, input.endDate),
         ];
         if (input.activityId) {
           whereClauses.push(eq(accountBalances.activityId, input.activityId));
