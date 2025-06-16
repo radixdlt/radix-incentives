@@ -1,0 +1,1 @@
+ALTER TYPE "activity_category" ADD VALUE 'none';

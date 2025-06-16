@@ -11,37 +11,11 @@ import {
   createEventMatcher,
 } from "./createEventMatcher";
 
-import { parseWithdrawEvent } from "./parseWithdrawEvent";
-import { parseDepositEvent } from "./parseDepositEvent";
-
 export type CaviarnineEmittableEvents =
   | { readonly type: "AddLiquidityEvent"; data: AddLiquidityEvent }
-  | { readonly type: "RemoveLiquidityEvent"; data: RemoveLiquidityEvent }
-  | {
-      readonly type: "WithdrawNonFungibleEvent";
-      data: {
-        resourceAddress: string;
-        nftIds: string[];
-        accountAddress: string;
-      };
-    }
-  | {
-      readonly type: "DepositNonFungibleEvent";
-      data: {
-        resourceAddress: string;
-        nftIds: string[];
-        accountAddress: string;
-      };
-    };
+  | { readonly type: "RemoveLiquidityEvent"; data: RemoveLiquidityEvent };
 
 export type CapturedCaviarnineEvent = CapturedEvent<CaviarnineEmittableEvents>;
-
-const isWhiteListedResourceAddress = (resourceAddress: string) =>
-  (
-    [
-      CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC.liquidity_receipt,
-    ] as string[]
-  ).includes(resourceAddress);
 
 const isWhiteListedComponent = (componentAddress: string) =>
   (
@@ -52,18 +26,6 @@ const isWhiteListedComponent = (componentAddress: string) =>
 
 export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
-    const withdrawEventResult = parseWithdrawEvent(input, {
-      isWhiteListedResourceAddress,
-    });
-
-    if (withdrawEventResult) return yield* Effect.succeed(withdrawEventResult);
-
-    const depositEventResult = parseDepositEvent(input, {
-      isWhiteListedResourceAddress,
-    });
-
-    if (depositEventResult) return yield* Effect.succeed(depositEventResult);
-
     if (!isWhiteListedComponent(input.emitter.globalEmitter))
       return yield* Effect.succeed(null);
 

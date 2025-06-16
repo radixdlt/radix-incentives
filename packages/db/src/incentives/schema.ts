@@ -126,6 +126,7 @@ export const activityCategoryEnum = pgEnum("activity_category", [
   "nft",
   "token",
   "dapp_usage",
+  "none",
   // Add other categories as needed
 ]);
 export const activityWeekStatusEnum = pgEnum("activity_week_status", [

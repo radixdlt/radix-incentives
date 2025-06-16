@@ -10,8 +10,8 @@ import {
   CDPRepayForLiquidationEvent,
   CDPRepayForNFTLiquidationEvent,
   CDPRepayForRefinanceEvent,
-  FlashAddCollateralEvent,
-  FlashRemoveCollateralEvent,
+  type FlashAddCollateralEvent,
+  type FlashRemoveCollateralEvent,
   RemoveCollateralEvent,
   RemoveNFTCollateralEvent,
   RepayEvent,
@@ -89,14 +89,13 @@ export const weftFinanceEventMatcherFn = (input: TransformedEvent) =>
         return yield* parseEventData(input, CDPRepayForRefinanceEvent);
       case "CDPRemoveCollateralForLiquidation":
         return yield* parseEventData(input, CDPRemoveCollateralForLiquidation);
-      case "FlashAddCollateralEvent":
-        return yield* parseEventData(input, FlashAddCollateralEvent);
-      case "FlashRemoveCollateralEvent":
-        return yield* parseEventData(input, FlashRemoveCollateralEvent);
       case "CDPRepayForNFTLiquidationEvent":
         return yield* parseEventData(input, CDPRepayForNFTLiquidationEvent);
       case "CDPCreationFeeEvent":
         return yield* parseEventData(input, CDPCreationFeeEvent);
+      case "FlashAddCollateralEvent":
+      case "FlashRemoveCollateralEvent":
+        return yield* Effect.succeed(null);
     }
 
     yield* Effect.log(
