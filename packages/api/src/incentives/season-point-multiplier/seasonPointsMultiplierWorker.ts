@@ -188,7 +188,6 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
                                 weekId: input.weekId,
                                 addresses: addresses.map((address: { address: string }) => address.address)
                             });
-                        yield* Effect.log(userTwaBalances);
                         allUserTwaBalances.push(...userTwaBalances);
                         offset += userIdsLimitPerPage;
                     }

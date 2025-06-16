@@ -69,7 +69,6 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
         }).pipe(
           Effect.flatMap((items) => {
             const twa = calculateTWA({ items, week , calculationType: "USDValue"});
-            console.log(twa);
             return twa;
           }),
           Effect.map((items) =>
