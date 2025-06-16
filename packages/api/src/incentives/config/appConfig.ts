@@ -46,6 +46,12 @@ export const defaultAppConfig: AppConfig = {
   otlpBaseUrl: process.env.OTLP_BASE_URL ?? "http://127.0.0.1:4318",
 };
 
+console.log("rolaConfig", {
+  expectedOrigin: defaultAppConfig.expectedOrigin,
+  dAppDefinitionAddress: defaultAppConfig.dAppDefinitionAddress,
+  networkId: defaultAppConfig.networkId,
+});
+
 export type CreateAppConfigInput = Partial<AppConfig>;
 
 export const createConfig = (input: CreateAppConfigInput = {}) => {
