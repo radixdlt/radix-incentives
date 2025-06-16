@@ -402,8 +402,8 @@ export const seasonPointsMultiplier = createTable(
       .notNull()
       .references(() => weeks.id, { onDelete: "cascade" }),
     multiplier: decimal("multiplier", { precision: 18, scale: 2 }).notNull(),
-    cumulativeTWABalance: integer("cumulative_twa_balance").notNull(),
-    totalTWABalance: integer("total_twa_balance").notNull(),
+    cumulativeTWABalance: decimal("cumulative_twa_balance", { precision: 18, scale: 2 }).notNull(),
+    totalTWABalance: decimal("total_twa_balance", { precision: 18, scale: 2 }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.weekId] }),

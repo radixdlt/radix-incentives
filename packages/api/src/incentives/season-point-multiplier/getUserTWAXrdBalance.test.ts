@@ -141,15 +141,15 @@ describe("GetUserTWAXrdBalanceService", () => {
     // Find user-1 (should have combined balance from address[0] and address[2])
     const user1Result = result.find(r => r.userId === "user-1");
     expect(user1Result).toBeDefined();
-    expect(user1Result?.totalTWABalance).toBeGreaterThan(0);
+    expect(user1Result?.totalTWABalance.toNumber()).toBeGreaterThan(0);
     
     // Find user-2 (should have balance from address[1])
     const user2Result = result.find(r => r.userId === "user-2");
     expect(user2Result).toBeDefined();
-    expect(user2Result?.totalTWABalance).toBeGreaterThan(0);
+    expect(user2Result?.totalTWABalance.toNumber()).toBeGreaterThan(0);
     
     // user-1 should have higher balance since they have two addresses
-    expect(user1Result!.totalTWABalance).toBeGreaterThan(user2Result!.totalTWABalance);
+    expect(user1Result!.totalTWABalance.toNumber()).toBeGreaterThan(user2Result!.totalTWABalance.toNumber());
   });
 
   it("should handle empty addresses array", async () => {
@@ -283,6 +283,6 @@ describe("GetUserTWAXrdBalanceService", () => {
 
     expect(result).toHaveLength(1);
     expect(result[0].userId).toBe("user-1");
-    expect(result[0].totalTWABalance).toBeGreaterThan(0);
+    expect(result[0].totalTWABalance.toNumber()).toBeGreaterThan(0);
   });
 }); 

@@ -90,7 +90,7 @@ export const calculateTWA = ({
 
         // Calculate result based on calculation type
         resultWithTwa[accountAddress][activityId] = calculationType === "USDValue"
-          ? timeWeightedAverageUsdValue.decimalPlaces(0)
+          ? timeWeightedAverageUsdValue.decimalPlaces(2)
           : timeWeightedAverageUsdValue.multipliedBy(totalDurationInMinutes).decimalPlaces(0);
       }
     }

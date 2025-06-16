@@ -4,6 +4,7 @@ import {
     GetUserTWAXrdBalanceService,
     type UsersWithTwaBalance
 } from "./getUserTWAXrdBalance";
+import { BigNumber } from "bignumber.js";
 
 import { z } from "zod";
 import { InvalidInputError } from "../../common/errors";
@@ -49,11 +50,11 @@ export const calculateMultiplier = (q: number,
 };
 
 const applyMultiplierToUsers = (
-    users: Array<{ userId: string; totalTWABalance: number; cumulativeTWABalance: number, weekId: string }>,
-    totalTwaBalanceSum: number
+    users: Array<{ userId: string; totalTWABalance: string; cumulativeTWABalance: string, weekId: string }>,
+    totalTwaBalanceSum: string
 ) => {
     return users.map((user) => {
-        const q = user.cumulativeTWABalance / totalTwaBalanceSum;
+        const q = new BigNumber(user.cumulativeTWABalance).dividedBy(totalTwaBalanceSum).toNumber();
         return {
             ...user,
             multiplier: calculateMultiplier(q).toString(),
@@ -64,13 +65,13 @@ const applyMultiplierToUsers = (
 
 // Calculate cumulativeTwaBalance for each user
 const calculateCumulativeTwaBalances = (users: UsersWithTwaBalance[], weekId: string) => {
-    let cumulative = 0;
+    let cumulative = new BigNumber(0);
     return users.map(user => {
-        cumulative += user.totalTWABalance;
+        cumulative = cumulative.plus(user.totalTWABalance);
         return {
             userId: user.userId,
-            totalTWABalance: user.totalTWABalance,
-            cumulativeTWABalance: cumulative,
+            totalTWABalance: user.totalTWABalance.toString(),
+            cumulativeTWABalance: cumulative.toString(),
             weekId: weekId,
         };
     });
@@ -102,7 +103,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
         const getUserTWAXrdBalanceService = yield* GetUserTWAXrdBalanceService;
         const getWeekByIdService = yield* GetWeekByIdService;
         const upsertUserTwaWithMultiplier = yield* UpsertUserTwaWithMultiplierService;
-
+        yield* Effect.log("Calculating season points multiplier");
         return (input) =>
             Effect.gen(function* () {
                 const parsedInput = seasonPointsMultiplierJobSchema.safeParse(input);
@@ -193,18 +194,18 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
                     }
                 }
 
-                allUserTwaBalances.sort((a: UsersWithTwaBalance, b: UsersWithTwaBalance) => a.totalTWABalance - b.totalTWABalance);
-                const filteredUserTwaBalances = allUserTwaBalances.filter((u: UsersWithTwaBalance) => u.totalTWABalance >= 10000);
+                allUserTwaBalances.sort((a: UsersWithTwaBalance, b: UsersWithTwaBalance) => a.totalTWABalance.comparedTo(b.totalTWABalance) || 0);
+                const filteredUserTwaBalances = allUserTwaBalances.filter((u: UsersWithTwaBalance) => u.totalTWABalance.gte(10000));
                 const userTwaBalancesWithCumulative = calculateCumulativeTwaBalances(filteredUserTwaBalances, week.id);
 
                 const totalTwaBalanceSum = userTwaBalancesWithCumulative.length > 0
-                    ? userTwaBalancesWithCumulative.at(-1)?.cumulativeTWABalance ?? 0
-                    : 0;
+                    ? userTwaBalancesWithCumulative.at(-1)?.cumulativeTWABalance ?? "0"
+                    : "0";
 
                 const userTwaWithMultiplier = applyMultiplierToUsers(userTwaBalancesWithCumulative, totalTwaBalanceSum);
 
                 yield* upsertUserTwaWithMultiplier(userTwaWithMultiplier);
-
+                yield* Effect.log("Season points multiplier calculated");
             });
     })
 )

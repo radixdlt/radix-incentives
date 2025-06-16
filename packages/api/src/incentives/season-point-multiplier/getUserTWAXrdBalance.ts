@@ -10,6 +10,7 @@ import {
 } from "../week/getWeekById";
 import { accounts } from "db/consultation";
 import { lte } from "drizzle-orm";
+import { BigNumber } from "bignumber.js";
 
 export const GetUserTWAXrdBalanceInputSchema = z.object({
   weekId: z.string(),
@@ -33,7 +34,7 @@ export type GetUserTWAXrdBalanceDependency =
 
 export type UsersWithTwaBalance = {
   userId: string;
-  totalTWABalance: number;
+  totalTWABalance: BigNumber;
 };
 
 export class GetUserTWAXrdBalanceService extends Context.Tag(
@@ -77,7 +78,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
               activities ? Object.entries(activities).map(([activityId, twaBalance]) => ({
                 accountAddress: address,
                 activityId,
-                twaBalance: (twaBalance as any).toNumber(), 
+                twaBalance: twaBalance, 
                 weekId: week.id,
               })) : []
             )
@@ -110,11 +111,12 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
         }
 
         // items is an array of { accountAddress, activityId, twaBalance, weekId }
-        const userTwaMap = new Map<string, number>();
+        const userTwaMap = new Map<string, BigNumber>();
         for (const item of items) {
           const userId = addressToUserId.get(item.accountAddress);
           if (!userId) continue;
-          userTwaMap.set(userId, (userTwaMap.get(userId) ?? 0) + item.twaBalance);
+          const currentBalance = userTwaMap.get(userId) ?? new BigNumber(0);
+          userTwaMap.set(userId, currentBalance.plus(item.twaBalance));
         }
         
         const userTwaBalances = Array.from(userTwaMap.entries()).map(([userId, totalTWABalance]) => ({ userId, totalTWABalance }));
