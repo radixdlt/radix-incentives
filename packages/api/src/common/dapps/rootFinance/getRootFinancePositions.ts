@@ -1,38 +1,38 @@
-import { Context, Effect, Layer } from 'effect';
+import { Context, Effect, Layer } from "effect";
 
-import type { GatewayApiClientService } from '../../gateway/gatewayApiClient';
+import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 
-import type { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
-import type { GetLedgerStateService } from '../../gateway/getLedgerState';
-import type { EntityNotFoundError, GatewayError } from '../../gateway/errors';
+import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
+import type { GetLedgerStateService } from "../../gateway/getLedgerState";
+import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
   type GetNonFungibleBalanceServiceDependencies,
   type InvalidInputError,
-} from '../../gateway/getNonFungibleBalance';
-import { RootFinance } from './constants';
+} from "../../gateway/getNonFungibleBalance";
+import { RootFinance } from "./constants";
 
-import { CollaterizedDebtPositionData, LendingPoolState } from './schema';
-import type { SborError } from 'sbor-ez-mode';
-import type { GetEntityDetailsError } from '../../gateway/getEntityDetails';
-import type { AtLedgerState } from '../../gateway/schemas';
-import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
-import type { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
-import type { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
-import { BigNumber } from 'bignumber.js';
+import { CollaterizedDebtPositionData, LendingPoolState } from "./schema";
+import type { SborError } from "sbor-ez-mode";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
+import type { AtLedgerState } from "../../gateway/schemas";
+import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
+import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
+import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
+import { BigNumber } from "bignumber.js";
 
 export class ParseSborError {
-  readonly _tag = 'ParseSborError';
+  readonly _tag = "ParseSborError";
   constructor(readonly error: SborError) {}
 }
 
 export class InvalidRootReceiptItemError extends Error {
-  readonly _tag = 'InvalidRootReceiptItemError';
+  readonly _tag = "InvalidRootReceiptItemError";
 }
 
 export class FailedToParseLendingPoolStateError {
-  readonly _tag = 'FailedToParseLendingPoolStateError';
+  readonly _tag = "FailedToParseLendingPoolStateError";
   constructor(readonly error: unknown) {}
 }
 
@@ -77,11 +77,11 @@ export type GetRootFinancePositionsServiceDependencies =
   | KeyValueStoreKeysService;
 
 export class GetRootFinancePositionsService extends Context.Tag(
-  'GetRootFinancePositionsService',
+  "GetRootFinancePositionsService"
 )<
   GetRootFinancePositionsService,
   (
-    input: GetRootFinancePositionsServiceInput,
+    input: GetRootFinancePositionsServiceInput
   ) => Effect.Effect<
     GetRootFinancePositionsServiceOutput,
     GetRootFinancePositionsServiceError,
@@ -113,7 +113,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
           Effect.catchTags({
             EntityNotFoundError: () => {
               console.log(
-                'Root Finance pool state KVS not found - using empty entries',
+                "Root Finance pool state KVS not found - using empty entries"
               );
               return Effect.succeed({
                 entries: [],
@@ -121,8 +121,8 @@ export const GetRootFinancePositionsLive = Layer.effect(
             },
             GatewayError: (error) => {
               console.error(
-                'Gateway error querying Root Finance pool state KVS:',
-                error,
+                "Gateway error querying Root Finance pool state KVS:",
+                error
               );
               return Effect.succeed({
                 entries: [],
@@ -131,13 +131,13 @@ export const GetRootFinancePositionsLive = Layer.effect(
           }),
           Effect.catchAll((error) => {
             console.error(
-              'Unexpected error querying Root Finance pool state KVS:',
-              error,
+              "Unexpected error querying Root Finance pool state KVS:",
+              error
             );
             return Effect.succeed({
               entries: [],
             });
-          }),
+          })
         );
 
         // Create maps for conversion ratios: pool units -> real amounts
@@ -149,14 +149,14 @@ export const GetRootFinancePositionsLive = Layer.effect(
 
         for (const item of poolStatesKvs.entries) {
           const poolState = LendingPoolState.safeParse(
-            item.value.programmatic_json,
+            item.value.programmatic_json
           );
 
           if (poolState.isOk()) {
             // Extract resource address from the key
             const resourceAddress =
-              item.key.programmatic_json?.kind === 'Reference' &&
-              item.key.programmatic_json?.type_name === 'ResourceAddress'
+              item.key.programmatic_json?.kind === "Reference" &&
+              item.key.programmatic_json?.type_name === "ResourceAddress"
                 ? item.key.programmatic_json.value
                 : undefined;
             const state = poolState.value;
@@ -171,7 +171,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
               new BigNumber(state.total_deposit_unit).gt(0)
             ) {
               const collateralRatio = new BigNumber(state.total_deposit).div(
-                new BigNumber(state.total_deposit_unit),
+                new BigNumber(state.total_deposit_unit)
               );
               collateralConversionRatios.set(resourceAddress, collateralRatio);
             }
@@ -182,13 +182,13 @@ export const GetRootFinancePositionsLive = Layer.effect(
               new BigNumber(state.total_loan_unit).gt(0)
             ) {
               const loanRatio = new BigNumber(state.total_loan).div(
-                new BigNumber(state.total_loan_unit),
+                new BigNumber(state.total_loan_unit)
               );
               loanConversionRatios.set(resourceAddress, loanRatio);
             }
           } else {
             yield* Effect.fail(
-              new FailedToParseLendingPoolStateError(poolState.error),
+              new FailedToParseLendingPoolStateError(poolState.error)
             );
           }
         }
@@ -201,14 +201,14 @@ export const GetRootFinancePositionsLive = Layer.effect(
               options: {
                 non_fungible_include_nfids: true,
               },
-            }).pipe(Effect.withSpan('getNonFungibleBalanceService'));
+            }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
 
         for (const account of result.items) {
           const collaterizedDebtPositionList: CollaterizedDebtPosition[] = [];
 
           const rootReceipts = account.nonFungibleResources.filter(
             (resource) =>
-              resource.resourceAddress === RootFinance.receiptResourceAddress,
+              resource.resourceAddress === RootFinance.receiptResourceAddress
           );
 
           for (const rootReceipt of rootReceipts) {
@@ -241,7 +241,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
                 if (conversionRatio && unitAmount) {
                   try {
                     const realAmount = new BigNumber(unitAmount).multipliedBy(
-                      conversionRatio,
+                      conversionRatio
                     );
                     collaterals[resourceAddress] = realAmount.toString();
                   } catch (error) {
@@ -265,7 +265,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
                 if (conversionRatio && unitAmount) {
                   try {
                     const realAmount = new BigNumber(unitAmount).multipliedBy(
-                      conversionRatio,
+                      conversionRatio
                     );
                     loans[resourceAddress] = realAmount.toString();
                   } catch (error) {
@@ -291,7 +291,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
 
           accountCollateralMap.set(
             account.address,
-            collaterizedDebtPositionList,
+            collaterizedDebtPositionList
           );
         }
 
@@ -299,7 +299,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
           ([accountAddress, value]) => ({
             accountAddress,
             collaterizedDebtPositions: value,
-          }),
+          })
         );
 
         return {
@@ -307,5 +307,5 @@ export const GetRootFinancePositionsLive = Layer.effect(
         };
       });
     };
-  }),
+  })
 );
