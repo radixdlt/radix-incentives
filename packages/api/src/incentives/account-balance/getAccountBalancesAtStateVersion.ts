@@ -55,6 +55,7 @@ import {
   GetRootFinancePositionsService,
   type InvalidRootReceiptItemError,
   type ParseSborError,
+  type FailedToParseLendingPoolStateError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import {
   type InvalidStateInputError,
@@ -136,6 +137,16 @@ export type AccountBalance = {
   caviarninePositions: CaviarNinePosition;
 };
 
+export type GetAccountBalancesAtStateVersionServiceError =
+  | GatewayError
+  | EntityNotFoundError
+  | GetEntityDetailsError
+  | ParseSborError
+  | InvalidRootReceiptItemError
+  | FailedToParseLendingPoolStateError
+  | InvalidInputError
+  | InvalidStateInputError;
+
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
 )<
@@ -166,7 +177,8 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
     | EntityNotFoundError
     | InvalidInputError
     | InvalidComponentStateError
-    | FailedToParseLiquidityClaimsError,
+    | FailedToParseLiquidityClaimsError
+    | GetAccountBalancesAtStateVersionServiceError,
     | GetFungibleBalanceService
     | GetLsulpService
     | GetUserStakingPositionsService
