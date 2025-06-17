@@ -34,12 +34,14 @@ import type {
   GetRootFinancePositionsService,
   InvalidRootReceiptItemError,
   FailedToParseLendingPoolStateError,
+  FailedToParsePoolStatesKeyError,
+  MissingConversionRatioError,
+  ParseSborError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import type {
   FailedToParseLendingPoolSchemaError,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import type { ParseSborError } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import type {
   FailedToParseComponentStateError,
   GetShapeLiquidityAssetsService,
@@ -97,6 +99,9 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | FailedToParseLendingPoolSchemaError
     | ParseSborError
     | InvalidRootReceiptItemError
+    | FailedToParseLendingPoolStateError
+    | FailedToParsePoolStatesKeyError
+    | MissingConversionRatioError
     | InvalidStateInputError
     | FailedToParseComponentStateError
     | GatewayError
@@ -105,8 +110,7 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | InvalidComponentStateError
     | FailedToParseLiquidityClaimsError
     | DbError
-    | SnapshotError
-    | FailedToParseLendingPoolStateError,
+    | SnapshotError,
     | GetFungibleBalanceService
     | GetLsulpService
     | GetUserStakingPositionsService
