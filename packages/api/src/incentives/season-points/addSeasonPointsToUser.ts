@@ -58,7 +58,7 @@ export const AddSeasonPointsToUserLive = Layer.effect(
                       userId: item.userId,
                       seasonId: item.seasonId,
                       weekId: item.weekId,
-                      points: item.points.toNumber(),
+                      points: item.points.decimalPlaces(0).toNumber(),
                     }))
                   )
                   .onConflictDoUpdate({
