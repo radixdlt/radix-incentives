@@ -45,6 +45,14 @@ export class FailedToParsePoolStatesKeyError {
   constructor(readonly error: SborError) {}
 }
 
+export class MissingConversionRatioError {
+  readonly _tag = "MissingConversionRatioError";
+  constructor(
+    readonly resourceAddress: string,
+    readonly positionType: "collateral" | "loan"
+  ) {}
+}
+
 export type GetRootFinancePositionsServiceInput = {
   accountAddresses: string[];
   nonFungibleBalance?: GetNonFungibleBalanceOutput;
@@ -75,7 +83,8 @@ export type GetRootFinancePositionsServiceError =
   | ParseSborError
   | InvalidRootReceiptItemError
   | FailedToParseLendingPoolStateError
-  | FailedToParsePoolStatesKeyError;
+  | FailedToParsePoolStatesKeyError
+  | MissingConversionRatioError;
 
 export type GetRootFinancePositionsServiceDependencies =
   | GetNonFungibleBalanceServiceDependencies
@@ -225,17 +234,25 @@ export const GetRootFinancePositionsLive = Layer.effect(
                 resourceAddress,
                 unitAmount,
               ] of collaterizedDebtPosition.collaterals.entries()) {
+                if (!unitAmount) {
+                  continue; // Skip empty amounts
+                }
+
                 const conversionRatio =
                   collateralConversionRatios.get(resourceAddress);
-                if (conversionRatio && unitAmount) {
-                  const realAmount = new BigNumber(unitAmount).multipliedBy(
-                    conversionRatio
+                if (!conversionRatio) {
+                  return yield* Effect.fail(
+                    new MissingConversionRatioError(
+                      resourceAddress,
+                      "collateral"
+                    )
                   );
-                  collaterals[resourceAddress] = realAmount.toString();
-                } else {
-                  // If no conversion ratio found, use the original unit amount
-                  collaterals[resourceAddress] = unitAmount;
                 }
+
+                const realAmount = new BigNumber(unitAmount).multipliedBy(
+                  conversionRatio
+                );
+                collaterals[resourceAddress] = realAmount.toString();
               }
 
               // Convert pool units to real amounts for loans
@@ -244,17 +261,22 @@ export const GetRootFinancePositionsLive = Layer.effect(
                 resourceAddress,
                 unitAmount,
               ] of collaterizedDebtPosition.loans.entries()) {
+                if (!unitAmount) {
+                  continue; // Skip empty amounts
+                }
+
                 const conversionRatio =
                   loanConversionRatios.get(resourceAddress);
-                if (conversionRatio && unitAmount) {
-                  const realAmount = new BigNumber(unitAmount).multipliedBy(
-                    conversionRatio
+                if (!conversionRatio) {
+                  return yield* Effect.fail(
+                    new MissingConversionRatioError(resourceAddress, "loan")
                   );
-                  loans[resourceAddress] = realAmount.toString();
-                } else {
-                  // If no conversion ratio found, use the original unit amount
-                  loans[resourceAddress] = unitAmount;
                 }
+
+                const realAmount = new BigNumber(unitAmount).multipliedBy(
+                  conversionRatio
+                );
+                loans[resourceAddress] = realAmount.toString();
               }
 
               collaterizedDebtPositionList.push({
