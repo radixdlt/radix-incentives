@@ -54,6 +54,8 @@ import { GetAccountsIntersectionLive } from "./account/getAccountsIntersection";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { Resource } from "@opentelemetry/resources";
+import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
 import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
@@ -454,7 +456,9 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
-  resource: { serviceName: "api" },
+  resource: new Resource({
+    [SemanticResourceAttributes.SERVICE_NAME]: "api",
+  }),
   spanProcessor: new BatchSpanProcessor(
     new OTLPTraceExporter({
       url: `${appConfig.otlpBaseUrl}/v1/traces`,
