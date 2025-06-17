@@ -8,7 +8,10 @@ type QueueType =
   | "event"
   | "snapshot-date-range"
   | "calculate-activity-points"
-  | "calculate-season-points";
+  | "calculate-season-points"
+  | "calculate-season-points-multiplier";
+
+type PromptAnswer = string | number | boolean;
 
 interface QueueConfig {
   name: string;
@@ -18,8 +21,8 @@ interface QueueConfig {
     name: string;
     type: string;
     message: string;
-    validate?: (input: any) => boolean | string;
-    default?: any;
+    validate?: (input: PromptAnswer) => boolean | string;
+    default?: PromptAnswer;
   }>;
 }
 
@@ -38,7 +41,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           'Enter events as JSON array (e.g., [{"transactionId": "txid_...", "eventIndex": 0}]):',
         validate: (input) => {
           try {
-            const parsed = JSON.parse(input);
+            const parsed = JSON.parse(input as string);
             if (!Array.isArray(parsed)) {
               return "Input must be an array";
             }
@@ -70,7 +73,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           "Enter start timestamp (ISO format, e.g., 2024-01-01T00:00:00.000Z):",
         validate: (input) => {
           try {
-            new Date(input).toISOString();
+            new Date(input as string).toISOString();
             return true;
           } catch (e) {
             return "Invalid timestamp format. Use ISO format like 2024-01-01T00:00:00.000Z";
@@ -84,7 +87,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           "Enter end timestamp (ISO format, e.g., 2024-01-02T00:00:00.000Z):",
         validate: (input) => {
           try {
-            new Date(input).toISOString();
+            new Date(input as string).toISOString();
             return true;
           } catch (e) {
             return "Invalid timestamp format. Use ISO format like 2024-01-01T00:00:00.000Z";
@@ -96,8 +99,10 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: "input",
         message: "Enter addresses (comma-separated, optional):",
         validate: (input) => {
-          if (!input.trim()) return true; // Optional field
-          const addresses = input.split(",").map((addr: string) => addr.trim());
+          if (!(input as string).trim()) return true; // Optional field
+          const addresses = (input as string)
+            .split(",")
+            .map((addr: string) => addr.trim());
           for (const addr of addresses) {
             if (!addr.startsWith("account_rdx")) {
               return 'All addresses must start with "account_rdx"';
@@ -111,7 +116,8 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: "number",
         message: "Enter interval in hours (default: 1):",
         default: 1,
-        validate: (input) => input > 0 || "Interval must be greater than 0",
+        validate: (input) =>
+          (input as number) > 0 || "Interval must be greater than 0",
       },
     ],
   },
@@ -127,7 +133,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         validate: (input) => {
           const uuidRegex =
             /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input) || "Invalid UUID format";
+          return uuidRegex.test(input as string) || "Invalid UUID format";
         },
       },
       {
@@ -135,8 +141,10 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: "input",
         message: "Enter addresses (comma-separated, optional):",
         validate: (input) => {
-          if (!input.trim()) return true; // Optional field
-          const addresses = input.split(",").map((addr: string) => addr.trim());
+          if (!(input as string).trim()) return true; // Optional field
+          const addresses = (input as string)
+            .split(",")
+            .map((addr: string) => addr.trim());
           for (const addr of addresses) {
             if (!addr.startsWith("account_rdx")) {
               return 'All addresses must start with "account_rdx"';
@@ -159,7 +167,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         validate: (input) => {
           const uuidRegex =
             /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input) || "Invalid UUID format";
+          return uuidRegex.test(input as string) || "Invalid UUID format";
         },
       },
       {
@@ -169,7 +177,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         validate: (input) => {
           const uuidRegex =
             /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input) || "Invalid UUID format";
+          return uuidRegex.test(input as string) || "Invalid UUID format";
         },
       },
       {
@@ -180,22 +188,60 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       },
     ],
   },
+  "calculate-season-points-multiplier": {
+    name: "Calculate Season Points Multiplier Queue",
+    endpoint: "/queues/calculate-season-points-multiplier/add",
+    description: "Calculate season points multiplier for a specific week",
+    promptFields: [
+      {
+        name: "weekId",
+        type: "input",
+        message: "Enter week ID (UUID):",
+        validate: (input) => {
+          const uuidRegex =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          return uuidRegex.test(input as string) || "Invalid UUID format";
+        },
+      },
+      {
+        name: "userIds",
+        type: "input",
+        message: "Enter user IDs (comma-separated, optional):",
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          const userIds = (input as string)
+            .split(",")
+            .map((id: string) => id.trim());
+          const uuidRegex =
+            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+          for (const id of userIds) {
+            if (!uuidRegex.test(id)) {
+              return "All user IDs must be valid UUIDs";
+            }
+          }
+          return true;
+        },
+      },
+    ],
+  },
 };
+
+type QueuePayload = Record<string, unknown>;
 
 const buildPayload = (
   queueType: QueueType,
-  answers: Record<string, any>
-): any => {
+  answers: Record<string, PromptAnswer>
+): QueuePayload => {
   switch (queueType) {
     case "event":
-      return JSON.parse(answers.events);
+      return JSON.parse(answers.events as string);
 
     case "snapshot-date-range":
       return {
         fromTimestamp: answers.fromTimestamp,
         toTimestamp: answers.toTimestamp,
         ...(answers.addresses && {
-          addresses: answers.addresses
+          addresses: (answers.addresses as string)
             .split(",")
             .map((addr: string) => addr.trim()),
         }),
@@ -206,7 +252,7 @@ const buildPayload = (
       return {
         weekId: answers.weekId,
         ...(answers.addresses && {
-          addresses: answers.addresses
+          addresses: (answers.addresses as string)
             .split(",")
             .map((addr: string) => addr.trim()),
         }),
@@ -219,6 +265,16 @@ const buildPayload = (
         force: answers.force,
       };
 
+    case "calculate-season-points-multiplier":
+      return {
+        weekId: answers.weekId,
+        ...(answers.userIds && {
+          userIds: (answers.userIds as string)
+            .split(",")
+            .map((id: string) => id.trim()),
+        }),
+      };
+
     default:
       throw new Error(`Unknown queue type: ${queueType}`);
   }
@@ -226,7 +282,7 @@ const buildPayload = (
 
 const sendToQueue = async (
   queueType: QueueType,
-  payload: any
+  payload: QueuePayload
 ): Promise<void> => {
   const config = queueConfigs[queueType];
   const url = `${SERVER_URL}${config.endpoint}`;
@@ -305,7 +361,7 @@ const main = async (): Promise<void> => {
     ]);
 
     if (again) {
-      console.log("\n" + "=".repeat(50));
+      console.log(`\n${"=".repeat(50)}`);
       await main();
     }
   } catch (error) {
