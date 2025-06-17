@@ -201,3 +201,6 @@ export const LendingPoolState = s.struct({
   pool_utilization: s.decimal(),
   total_reserved_amount: s.decimal(),
 });
+
+// Schema for safely parsing pool states key-value store keys
+export const PoolStatesKeyValueStoreKeySchema = s.tuple([s.address()]);
