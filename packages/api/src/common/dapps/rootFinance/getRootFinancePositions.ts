@@ -124,7 +124,6 @@ export const GetRootFinancePositionsLive = Layer.effect(
                 'Gateway error querying Root Finance pool state KVS:',
                 error,
               );
-              // Return empty entries for now to continue the test
               return Effect.succeed({
                 entries: [],
               });
@@ -135,7 +134,6 @@ export const GetRootFinancePositionsLive = Layer.effect(
               'Unexpected error querying Root Finance pool state KVS:',
               error,
             );
-            // Return empty entries for now to continue the test
             return Effect.succeed({
               entries: [],
             });
@@ -157,7 +155,8 @@ export const GetRootFinancePositionsLive = Layer.effect(
           if (poolState.isOk()) {
             // Extract resource address from the key
             const resourceAddress =
-              item.key.programmatic_json?.kind === 'String'
+              item.key.programmatic_json?.kind === 'Reference' &&
+              item.key.programmatic_json?.type_name === 'ResourceAddress'
                 ? item.key.programmatic_json.value
                 : undefined;
             const state = poolState.value;
