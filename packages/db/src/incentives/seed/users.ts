@@ -116,12 +116,24 @@ const [lendingActivityResult, liquidityActivityResult] = await db
       category: "holding",
       rules: {},
     },
+    {
+      id: "common",
+      name: "Common",
+      type: "active",
+      rewardType: "points",
+      category: "none",
+      rules: {},
+    },
   ])
   .returning()
   .onConflictDoUpdate({
     target: [activities.id],
     set: {
       name: sql`excluded.name`,
+      category: sql`excluded.category`,
+      type: sql`excluded.type`,
+      rewardType: sql`excluded.reward_type`,
+      rules: sql`excluded.rules`,
     },
   });
 
