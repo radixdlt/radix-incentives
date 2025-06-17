@@ -227,7 +227,10 @@ const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
 
 const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive)
+  Layer.provide(entityNonFungiblesPageServiceLive),
+  Layer.provide(getKeyValueStoreServiceLive),
+  Layer.provide(keyValueStoreDataServiceLive),
+  Layer.provide(keyValueStoreKeysServiceLive)
 );
 
 const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
