@@ -54,9 +54,7 @@ import { GetAccountsIntersectionLive } from "./account/getAccountsIntersection";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import type { Resource } from "@opentelemetry/resources";
-import { Resource as ResourceImpl } from "@opentelemetry/resources";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
@@ -82,7 +80,7 @@ import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXr
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
 import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeasonPointMultiplier";
 
-import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
+import { AggregateLendingPositionsLive } from "./account-balance/aggregateLendingPositions";
 const appConfig = createConfig(); 
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
@@ -301,14 +299,14 @@ const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
   Layer.provide(getUsdValueLive)
 );
 
-const aggregateWeftFinancePositionsLive =
-  AggregateWeftFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+const aggregateLendingPositionsLive =
+  AggregateLendingPositionsLive.pipe(Layer.provide(getUsdValueLive));
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(aggregateCaviarninePositionsLive),
   Layer.provide(xrdBalanceLive),
-  Layer.provide(aggregateWeftFinancePositionsLive)
+  Layer.provide(aggregateLendingPositionsLive)
 );
 
 const c9Layers = Layer.mergeAll(
@@ -457,9 +455,7 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
-  resource: new ResourceImpl({
-    [SemanticResourceAttributes.SERVICE_NAME]: "api",
-  }),
+  resource: { serviceName: "api" },
   spanProcessor: new BatchSpanProcessor(
     new OTLPTraceExporter({
       url: `${appConfig.otlpBaseUrl}/v1/traces`,
@@ -517,7 +513,7 @@ const snapshotProgram = (input: SnapshotInput) => {
       getNftResourceManagersLive,
       getNonFungibleIdsLive,
       xrdBalanceLive,
-      aggregateWeftFinancePositionsLive
+      aggregateLendingPositionsLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 

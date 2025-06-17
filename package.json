@@ -35,6 +35,6 @@
     "node": ">=18"
   },
   "dependencies": {
-    "@opentelemetry/resources": "^2.0.1"
+    "@opentelemetry/auto-instrumentations-node": "^0.60.1"
   }
 }
