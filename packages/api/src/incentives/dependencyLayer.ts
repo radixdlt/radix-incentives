@@ -471,6 +471,7 @@ const NodeSdkLive = NodeSdk.layer(() => ({
       url: `${appConfig.otlpBaseUrl}/v1/traces`,
     })
   ),
+  instrumentations: [getNodeAutoInstrumentations()],
 }));
 
 const snapshotProgram = (input: SnapshotInput) => {
