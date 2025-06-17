@@ -203,4 +203,4 @@ export const LendingPoolState = s.struct({
 });
 
 // Schema for safely parsing pool states key-value store keys
-export const PoolStatesKeyValueStoreKeySchema = s.tuple([s.address()]);
+export const PoolStatesKeyValueStoreKeySchema = s.address();

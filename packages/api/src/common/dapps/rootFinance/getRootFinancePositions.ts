@@ -156,7 +156,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
             );
 
             if (keyParseResult.isOk()) {
-              const [resourceAddress] = keyParseResult.value;
+              const resourceAddress = keyParseResult.value;
               const state = poolState.value;
 
               // For collaterals: multiply by total_deposit / total_deposit_unit
