@@ -18,9 +18,9 @@ import BigNumber from "bignumber.js";
 import { createUserBands } from "./createUserBands";
 import { supplyPercentileTrim } from "./supplyPercentileTrim";
 import { distributeSeasonPoints } from "./distributePoints";
-import { ApplyMultiplierService } from "../multiplier/applyMultiplier";
 import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
 import { UpdateWeekStatusService } from "../week/updateWeekStatus";
+import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
 
 export const calculateSeasonPointsInputSchema = z.object({
   seasonId: z.string(),
@@ -59,7 +59,8 @@ export type CalculateSeasonPointsDependency =
   | DbClientService
   | GetSeasonByIdService
   | GetWeekByIdService
-  | GetUserActivityPointsService;
+  | GetUserActivityPointsService
+  | GetSeasonPointMultiplierService;
 
 export class CalculateSeasonPointsService extends Context.Tag(
   "CalculateSeasonPointsService"
@@ -81,9 +82,9 @@ export const CalculateSeasonPointsLive = Layer.effect(
     const getWeekById = yield* GetWeekByIdService;
     const getActivitiesByWeekId = yield* GetActivitiesByWeekIdService;
     const getUserActivityPoints = yield* GetUserActivityPointsService;
-    const applyMultiplier = yield* ApplyMultiplierService;
     const addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
     const updateWeekStatus = yield* UpdateWeekStatusService;
+    const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -133,6 +134,10 @@ export const CalculateSeasonPointsLive = Layer.effect(
         // TODO: get values from db
         const minimumPoints = 10080;
         const lowerBoundsPercentage = 0.1;
+        const seasonPointMultipliers = yield* getSeasonPointMultiplier({
+          weekId: input.weekId,
+        });
+    
 
         const seasonPoints = yield* Effect.forEach(
           activeActivities,
@@ -195,17 +200,20 @@ export const CalculateSeasonPointsLive = Layer.effect(
           return acc;
         }, {});
 
-        const seasonPointsWithMultiplier = yield* applyMultiplier(
-          Object.entries(seasonPointsAggregated).map(
-            ([userId, seasonPoints]) => ({
-              userId,
-              seasonPoints,
-            })
-          )
-        );
+
+        const seasonPointsMultiplied = Object.entries(seasonPointsAggregated).map(([userId, seasonPoints]) => {
+          const multiplier = seasonPointMultipliers.find(
+            (item) => item.userId === userId
+          )?.multiplier ?? new BigNumber(1);
+          return {
+            userId,
+            seasonPoints: seasonPoints.multipliedBy(multiplier),
+          };
+        });
+
 
         yield* addSeasonPointsToUser(
-          seasonPointsWithMultiplier.map((item) => ({
+          seasonPointsMultiplied.map((item) => ({
             userId: item.userId,
             seasonId: input.seasonId,
             weekId: input.weekId,

@@ -41,7 +41,7 @@ export class CalculateActivityPointsService extends Context.Tag(
     CalculateActivityPointsError,
     CalculateActivityPointsDependency
   >
->() {}
+>() { }
 
 export const CalculateActivityPointsLive = Layer.effect(
   CalculateActivityPointsService,
@@ -60,7 +60,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           endDate: week.endDate,
           addresses: input.addresses,
         }).pipe(
-          Effect.flatMap((items) => calculateTWA({ items, week })),
+          Effect.flatMap((items) => calculateTWA({ items, week, calculationType: "USDValueDurationMultiplied" })),
           // flatten the items to a list of account activity points
           Effect.map((items) =>
             Object.entries(items).flatMap(([address, activities]) =>

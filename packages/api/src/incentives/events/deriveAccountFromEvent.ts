@@ -16,6 +16,10 @@ import {
   type GetAddressByNonFungibleServiceError,
 } from "../../common/gateway/getAddressByNonFungible";
 import { GetAccountsIntersectionService } from "../account/getAccountsIntersection";
+import type { CommonEmittableEvents } from "./event-matchers/commonEventMatcher";
+import type { WeftFinanceEmittableEvents } from "./event-matchers/weftFinanceEventMatcher";
+import { WeftFinance } from "../../common/dapps/weftFinance/constants";
+import type { AtLedgerState } from "../../common";
 
 export class InvalidEventError {
   _tag = "InvalidEventError";
@@ -69,16 +73,47 @@ export const DeriveAccountFromEventLive = Layer.effect(
 
         const accountAddresses = yield* Effect.forEach(events, (event) => {
           return Effect.gen(function* () {
-            if (event.dApp === "Caviarnine") {
-              const eventData = event.eventData as CaviarnineEmittableEvents;
+            const getRegisteredAccountAddressFromNonFungible = (
+              resourceAddress: string,
+              nonFungibleId: string,
+              at_ledger_state: AtLedgerState
+            ) =>
+              Effect.gen(function* () {
+                const result = yield* getAddressByNonFungibleService({
+                  resourceAddress,
+                  nonFungibleId,
+                  at_ledger_state,
+                });
 
-              const at_ledger_state = {
-                timestamp: event.timestamp,
-              };
+                if (!result.address.startsWith("account_")) {
+                  return null;
+                }
+
+                const registeredAccounts =
+                  yield* getAccountsIntersectionService({
+                    addresses: [result.address],
+                  });
+
+                // account is not registered in incentives program
+                if (registeredAccounts.length === 0) {
+                  return null;
+                }
+
+                return {
+                  address: result.address,
+                  activityId: event.activityId,
+                  timestamp: event.timestamp.toISOString(),
+                };
+              });
+
+            if (event.activityId === "common") {
+              const eventData = event.eventData as CommonEmittableEvents;
 
               if (
                 eventData.type === "WithdrawNonFungibleEvent" ||
-                eventData.type === "DepositNonFungibleEvent"
+                eventData.type === "DepositNonFungibleEvent" ||
+                eventData.type === "WithdrawFungibleEvent" ||
+                eventData.type === "DepositFungibleEvent"
               ) {
                 const registeredAccounts =
                   yield* getAccountsIntersectionService({
@@ -99,6 +134,14 @@ export const DeriveAccountFromEventLive = Layer.effect(
                   timestamp: event.timestamp.toISOString(),
                 };
               }
+            }
+
+            if (event.dApp === "Caviarnine") {
+              const eventData = event.eventData as CaviarnineEmittableEvents;
+
+              const at_ledger_state = {
+                timestamp: event.timestamp,
+              };
 
               const nonFungibleId = eventData.data.liquidity_receipt_id;
               const pool = shapeLiquidityComponentSet.get(event.globalEmitter);
@@ -111,33 +154,46 @@ export const DeriveAccountFromEventLive = Layer.effect(
                 );
               }
 
-              const result = yield* getAddressByNonFungibleService({
-                resourceAddress: pool.liquidity_receipt,
+              return yield* getRegisteredAccountAddressFromNonFungible(
+                pool.liquidity_receipt,
                 nonFungibleId,
-                at_ledger_state,
-              });
-
-              // NFT was not held by an account, e.g. ignition component
-              // txid_rdx1h92lf9sn36x3msjke5patuqkeu6y36pd6zl8kr30cle4d64ggpnsddafk4
-              if (!result.address.startsWith("account_")) {
-                return null;
-              }
-
-              const registeredAccounts = yield* getAccountsIntersectionService({
-                addresses: [result.address],
-              });
-
-              // account is not registered in incentives program
-              if (registeredAccounts.length === 0) {
-                return null;
-              }
-
-              return {
-                address: result.address,
-                activityId: event.activityId,
-                timestamp: event.timestamp.toISOString(),
-              };
+                at_ledger_state
+              );
             }
+
+            if (event.dApp === "WeftFinance") {
+              yield* Effect.log("WeftFinance event", event.eventData);
+
+              const eventData = (event.eventData as WeftFinanceEmittableEvents)
+                .data[0];
+              let nonFungibleId: string;
+
+              if ("cdp_id" in eventData) {
+                nonFungibleId = eventData.cdp_id;
+              } else if (
+                "nft_id" in eventData &&
+                typeof eventData.nft_id === "string"
+              ) {
+                nonFungibleId = eventData.nft_id;
+              } else {
+                return yield* Effect.fail(
+                  new InvalidEventError(
+                    `${event.dApp}.${event.eventData.type} is not handled`
+                  )
+                );
+              }
+
+              const at_ledger_state = {
+                timestamp: event.timestamp,
+              };
+
+              return yield* getRegisteredAccountAddressFromNonFungible(
+                WeftFinance.v2.WeftyV2.resourceAddress,
+                nonFungibleId,
+                at_ledger_state
+              );
+            }
+
             return yield* Effect.fail(
               new InvalidEventError(`${event.dApp} is not handled`)
             );

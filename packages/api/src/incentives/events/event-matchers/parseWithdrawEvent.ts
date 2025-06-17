@@ -1,5 +1,8 @@
 import type { TransformedEvent } from "../../transaction-stream";
-import { WithdrawNonFungibleEventSchema } from "./schemas";
+import {
+  WithdrawFungibleEventSchema,
+  WithdrawNonFungibleEventSchema,
+} from "./schemas";
 
 export const parseWithdrawEvent = (
   input: TransformedEvent,
@@ -8,12 +11,12 @@ export const parseWithdrawEvent = (
   }
 ) => {
   if (input?.event.name === "WithdrawEvent") {
-    const result = WithdrawNonFungibleEventSchema.safeParse(
+    const nonFungibleResult = WithdrawNonFungibleEventSchema.safeParse(
       input?.event.payload
     );
 
-    if (result.isOk()) {
-      const [resourceAddress, nftIds] = result.value.value;
+    if (nonFungibleResult.isOk()) {
+      const [resourceAddress, nftIds] = nonFungibleResult.value.value;
 
       if (options.isWhiteListedResourceAddress(resourceAddress)) {
         return {
@@ -26,6 +29,31 @@ export const parseWithdrawEvent = (
             data: {
               resourceAddress,
               nftIds,
+              accountAddress: input.emitter.globalEmitter,
+            },
+          },
+        };
+      }
+    }
+
+    const fungibleResult = WithdrawFungibleEventSchema.safeParse(
+      input?.event.payload
+    );
+
+    if (fungibleResult.isOk()) {
+      const [resourceAddress, amount] = fungibleResult.value.value;
+
+      if (options.isWhiteListedResourceAddress(resourceAddress)) {
+        return {
+          globalEmitter: input.emitter.globalEmitter,
+          packageAddress: input.package.address,
+          blueprint: input.package.blueprint,
+          eventName: input.event.name,
+          eventData: {
+            type: "WithdrawFungibleEvent",
+            data: {
+              resourceAddress,
+              amount,
               accountAddress: input.emitter.globalEmitter,
             },
           },

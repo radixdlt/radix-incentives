@@ -36,6 +36,27 @@
       "when": 1749823595596,
       "tag": "0004_spotty_revanche",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1749824024357,
+      "tag": "0005_demonic_silver_samurai",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1750075839374,
+      "tag": "0006_organic_inhumans",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1750088556659,
+      "tag": "0007_chunky_kate_bishop",
+      "breakpoints": true
     }
   ]
 }

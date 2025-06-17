@@ -23,8 +23,8 @@ export type AppConfig = {
 const expectedOrigin =
   process.env.VERCEL_ENV === "production"
     ? "https://radix-incentives-dashboard.vercel.app"
-    : process.env.VERCEL_BRANCH_URL
-      ? `https://${process.env.VERCEL_BRANCH_URL}`
+    : process.env.APP_URL
+      ? process.env.APP_URL
       : "http://localhost:3000";
 
 export const defaultAppConfig: AppConfig = {
@@ -45,6 +45,12 @@ export const defaultAppConfig: AppConfig = {
     process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
   otlpBaseUrl: process.env.OTLP_BASE_URL ?? "http://127.0.0.1:4318",
 };
+
+console.log("rolaConfig", {
+  expectedOrigin: defaultAppConfig.expectedOrigin,
+  dAppDefinitionAddress: defaultAppConfig.dAppDefinitionAddress,
+  networkId: defaultAppConfig.networkId,
+});
 
 export type CreateAppConfigInput = Partial<AppConfig>;
 

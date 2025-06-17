@@ -8,6 +8,7 @@ import { AddEventsToDbService } from "../events/queries/addEventToDb";
 import { AddTransactionsToDbService } from "./addTransactionsToDb";
 import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
 import { AddToEventQueueService } from "../events/addToEventQueue";
+import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -52,8 +53,14 @@ export const transactionStreamLoop = () =>
         const caviarnineEvents =
           yield* caviarnineEventMatcher(uniqueTransactions);
 
+        const commonEvents = yield* commonEventMatcher(uniqueTransactions);
+
         // concat all captured events
-        const allCapturedEvents = [...caviarnineEvents];
+        const allCapturedEvents = [
+          ...caviarnineEvents,
+          ...weftFinanceEvents,
+          ...commonEvents,
+        ];
 
         // store all captured events to db
         if (allCapturedEvents.length > 0) {

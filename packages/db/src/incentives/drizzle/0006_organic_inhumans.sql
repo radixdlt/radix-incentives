@@ -1,0 +1,2 @@
+ALTER TABLE "season_points_multiplier" ALTER COLUMN "cumulative_twa_balance" SET DATA TYPE numeric(18, 2);--> statement-breakpoint
+ALTER TABLE "season_points_multiplier" ALTER COLUMN "total_twa_balance" SET DATA TYPE numeric(18, 2);
