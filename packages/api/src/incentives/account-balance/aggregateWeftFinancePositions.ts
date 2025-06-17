@@ -9,36 +9,33 @@ import {
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 
-export type AggregateLendingPositionsInput = {
+export type AggregateWeftFinancePositionsInput = {
   accountBalance: AccountBalance;
   timestamp: Date;
 };
 
-export type AggregateLendingPositionsOutput = {
+export type AggregateWeftFinancePositionsOutput = {
   timestamp: Date;
   address: string;
   activityId: string;
   usdValue: BigNumber;
-  data: Partial<{
-    weftxUSDC: string;
-  }>;
 };
 
-export class AggregateLendingPositionsService extends Context.Tag(
-  "AggregateLendingPositionsService"
+export class AggregateWeftFinancePositionsService extends Context.Tag(
+  "AggregateWeftFinancePositionsService"
 )<
-  AggregateLendingPositionsService,
+  AggregateWeftFinancePositionsService,
   (
-    input: AggregateLendingPositionsInput
+    input: AggregateWeftFinancePositionsInput
   ) => Effect.Effect<
-    AggregateLendingPositionsOutput[],
+    AggregateWeftFinancePositionsOutput[],
     InvalidResourceAddressError | PriceServiceApiError,
     GetUsdValueService
   >
 >() {}
 
-export const AggregateLendingPositionsLive = Layer.effect(
-  AggregateLendingPositionsService,
+export const AggregateWeftFinancePositionsLive = Layer.effect(
+  AggregateWeftFinancePositionsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
     return (input) =>
@@ -55,7 +52,6 @@ export const AggregateLendingPositionsLive = Layer.effect(
               address: input.accountBalance.address,
               activityId: "lending",
               usdValue: new BigNumber(0),
-              data: {},
             },
           ];
         }
@@ -82,9 +78,6 @@ export const AggregateLendingPositionsLive = Layer.effect(
             address: input.accountBalance.address,
             activityId: "lending",
             usdValue: xUSDCValue,
-            data: {
-              weftxUSDC: xUSDC.toString(),
-            },
           },
         ];
       });

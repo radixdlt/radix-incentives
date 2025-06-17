@@ -16,9 +16,9 @@ import {
   XrdBalanceService,
 } from "./aggregateXrdBalance";
 import {
-  type AggregateLendingPositionsOutput,
-  AggregateLendingPositionsService,
-} from "./aggregateLendingPositions";
+  type AggregateWeftFinancePositionsOutput,
+  AggregateWeftFinancePositionsService,
+} from "./aggregateWeftFinancePositions";
 
 type AggregateAccountBalanceInput = {
   accountBalances: AccountBalance[];
@@ -28,13 +28,13 @@ type AggregateAccountBalanceInput = {
 export type AggregateAccountBalanceOutput =
   | AggregateCaviarninePositionsOutput
   | XrdBalanceOutput
-  | AggregateLendingPositionsOutput;
+  | AggregateWeftFinancePositionsOutput;
 
 export type AggregateAccountBalanceServiceDependency =
   | AggregateCaviarninePositionsService
   | XrdBalanceService
   | GetUsdValueService
-  | AggregateLendingPositionsService;
+  | AggregateWeftFinancePositionsService;
 
 export type AggregateAccountBalanceError =
   | InvalidResourceAddressError
@@ -59,8 +59,8 @@ export const AggregateAccountBalanceLive = Layer.effect(
     const aggregateCaviarninePositionsService =
       yield* AggregateCaviarninePositionsService;
     const xrdBalanceService = yield* XrdBalanceService;
-    const aggregateLendingPositionsService =
-      yield* AggregateLendingPositionsService;
+    const aggregateWeftFinancePositionsService =
+      yield* AggregateWeftFinancePositionsService;
     return (input) =>
       Effect.gen(function* () {
         const caviarninePositions = yield* Effect.forEach(
@@ -91,16 +91,16 @@ export const AggregateAccountBalanceLive = Layer.effect(
           }
         ).pipe(Effect.map((items) => items.flat()));
 
-        const lendingPositions = yield* Effect.forEach(
+        const weftFinancePositions = yield* Effect.forEach(
           input.accountBalances,
           (accountBalance) => {
             return Effect.gen(function* () {
-              const lendingPositions =
-                yield* aggregateLendingPositionsService({
+              const weftFinancePositions =
+                yield* aggregateWeftFinancePositionsService({
                   accountBalance,
                   timestamp: input.timestamp,
                 });
-              return [...lendingPositions];
+              return [...weftFinancePositions];
             });
           }
         ).pipe(Effect.map((items) => items.flat()));
@@ -110,7 +110,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
         return [
           ...caviarninePositions,
           ...xrdBalanceResult,
-          ...lendingPositions,
+          ...weftFinancePositions,
         ];
       });
   })
