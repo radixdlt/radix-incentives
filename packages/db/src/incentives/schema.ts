@@ -13,6 +13,7 @@ import {
   decimal,
   pgEnum,
   integer,
+  bigint,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -347,7 +348,7 @@ export const accountActivityPoints = createTable(
     activityId: text("activity_id")
       .notNull()
       .references(() => activities.id, { onDelete: "cascade" }),
-    activityPoints: integer("activity_points").notNull(),
+    activityPoints: bigint("activity_points", { mode: "number" }).notNull(),
   },
   (table) => ({
     pk: primaryKey({
@@ -403,8 +404,14 @@ export const seasonPointsMultiplier = createTable(
       .notNull()
       .references(() => weeks.id, { onDelete: "cascade" }),
     multiplier: decimal("multiplier", { precision: 18, scale: 2 }).notNull(),
-    cumulativeTWABalance: decimal("cumulative_twa_balance", { precision: 18, scale: 2 }).notNull(),
-    totalTWABalance: decimal("total_twa_balance", { precision: 18, scale: 2 }).notNull(),
+    cumulativeTWABalance: decimal("cumulative_twa_balance", {
+      precision: 18,
+      scale: 2,
+    }).notNull(),
+    totalTWABalance: decimal("total_twa_balance", {
+      precision: 18,
+      scale: 2,
+    }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.weekId] }),
@@ -427,4 +434,6 @@ export type AccountActivityPoints = InferSelectModel<
   typeof accountActivityPoints
 >;
 export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
-export type SeasonPointsMultiplier = InferSelectModel<typeof seasonPointsMultiplier>;
+export type SeasonPointsMultiplier = InferSelectModel<
+  typeof seasonPointsMultiplier
+>;

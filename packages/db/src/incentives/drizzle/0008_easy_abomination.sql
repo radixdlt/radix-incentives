@@ -1,0 +1,1 @@
+ALTER TABLE "account_activity_points" ALTER COLUMN "activity_points" SET DATA TYPE bigint;
