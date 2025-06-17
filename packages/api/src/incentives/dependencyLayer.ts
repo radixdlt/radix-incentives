@@ -80,7 +80,10 @@ import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upser
 import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeasonPointMultiplier";
 
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
-const appConfig = createConfig(); 
+import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
+import { CombineActivityResultsLive } from "./account-balance/combineActivityResults";
+const appConfig = createConfig();
+
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
 const dbClientLive = createDbClientLive(db);
@@ -301,11 +304,18 @@ const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
 const aggregateWeftFinancePositionsLive =
   AggregateWeftFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
 
+const aggregateRootFinancePositionsLive =
+  AggregateRootFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+
+const combineActivityResultsLive = CombineActivityResultsLive;
+
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(aggregateCaviarninePositionsLive),
   Layer.provide(xrdBalanceLive),
-  Layer.provide(aggregateWeftFinancePositionsLive)
+  Layer.provide(aggregateWeftFinancePositionsLive),
+  Layer.provide(aggregateRootFinancePositionsLive),
+  Layer.provide(combineActivityResultsLive)
 );
 
 const c9Layers = Layer.mergeAll(
@@ -512,7 +522,9 @@ const snapshotProgram = (input: SnapshotInput) => {
       getNftResourceManagersLive,
       getNonFungibleIdsLive,
       xrdBalanceLive,
-      aggregateWeftFinancePositionsLive
+      aggregateWeftFinancePositionsLive,
+      aggregateRootFinancePositionsLive,
+      combineActivityResultsLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 

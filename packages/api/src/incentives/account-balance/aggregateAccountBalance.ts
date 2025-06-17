@@ -19,6 +19,14 @@ import {
   type AggregateWeftFinancePositionsOutput,
   AggregateWeftFinancePositionsService,
 } from "./aggregateWeftFinancePositions";
+import {
+  type AggregateRootFinancePositionsOutput,
+  AggregateRootFinancePositionsService,
+} from "./aggregateRootFinancePositions";
+import {
+  CombineActivityResultsService,
+  type CombinedActivityResult,
+} from "./combineActivityResults";
 
 type AggregateAccountBalanceInput = {
   accountBalances: AccountBalance[];
@@ -28,13 +36,17 @@ type AggregateAccountBalanceInput = {
 export type AggregateAccountBalanceOutput =
   | AggregateCaviarninePositionsOutput
   | XrdBalanceOutput
-  | AggregateWeftFinancePositionsOutput;
+  | AggregateWeftFinancePositionsOutput
+  | AggregateRootFinancePositionsOutput
+  | CombinedActivityResult;
 
 export type AggregateAccountBalanceServiceDependency =
   | AggregateCaviarninePositionsService
   | XrdBalanceService
   | GetUsdValueService
-  | AggregateWeftFinancePositionsService;
+  | AggregateWeftFinancePositionsService
+  | AggregateRootFinancePositionsService
+  | CombineActivityResultsService;
 
 export type AggregateAccountBalanceError =
   | InvalidResourceAddressError
@@ -61,6 +73,9 @@ export const AggregateAccountBalanceLive = Layer.effect(
     const xrdBalanceService = yield* XrdBalanceService;
     const aggregateWeftFinancePositionsService =
       yield* AggregateWeftFinancePositionsService;
+    const aggregateRootFinancePositionsService =
+      yield* AggregateRootFinancePositionsService;
+    const combineActivityResultsService = yield* CombineActivityResultsService;
     return (input) =>
       Effect.gen(function* () {
         const caviarninePositions = yield* Effect.forEach(
@@ -105,13 +120,36 @@ export const AggregateAccountBalanceLive = Layer.effect(
           }
         ).pipe(Effect.map((items) => items.flat()));
 
-        yield* Effect.log("account balances aggregated");
+        const rootFinancePositions = yield* Effect.forEach(
+          input.accountBalances,
+          (accountBalance) => {
+            return Effect.gen(function* () {
+              const rootFinancePositions =
+                yield* aggregateRootFinancePositionsService({
+                  accountBalance,
+                  timestamp: input.timestamp,
+                });
+              return [...rootFinancePositions];
+            });
+          }
+        ).pipe(Effect.map((items) => items.flat()));
 
-        return [
+        // Combine all results
+        const allResults = [
           ...caviarninePositions,
           ...xrdBalanceResult,
           ...weftFinancePositions,
+          ...rootFinancePositions,
         ];
+
+        // Use activity-specific combination logic
+        const combinedResults = yield* combineActivityResultsService({
+          results: allResults,
+        });
+
+        yield* Effect.log("account balances aggregated");
+
+        return combinedResults;
       });
   })
 );
