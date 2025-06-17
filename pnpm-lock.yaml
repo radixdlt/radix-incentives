@@ -181,6 +181,10 @@ catalogs:
 importers:
 
   .:
+    dependencies:
+      '@opentelemetry/resources':
+        specifier: ^2.0.1
+        version: 2.0.1(@opentelemetry/api@1.9.0)
     devDependencies:
       '@biomejs/biome':
         specifier: 1.9.4
