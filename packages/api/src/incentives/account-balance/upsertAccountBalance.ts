@@ -11,7 +11,7 @@ type UpsertAccountBalanceInput = {
   address: string;
   usdValue: BigNumber;
   activityId: string;
-  data?: Record<string, string>;
+  data?: Record<string, any>;
 }[];
 
 export class UpsertAccountBalancesService extends Context.Tag(

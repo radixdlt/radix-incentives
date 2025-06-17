@@ -9,6 +9,11 @@ import {
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 
+type WeftLendingData = {
+  protocol: "weft";
+  xUSDC?: string;
+};
+
 export type AggregateWeftFinancePositionsInput = {
   accountBalance: AccountBalance;
   timestamp: Date;
@@ -19,6 +24,7 @@ export type AggregateWeftFinancePositionsOutput = {
   address: string;
   activityId: string;
   usdValue: BigNumber;
+  data: WeftLendingData;
 };
 
 export class AggregateWeftFinancePositionsService extends Context.Tag(
@@ -42,16 +48,14 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
       Effect.gen(function* () {
         const accountBalance = input.accountBalance;
 
-        if (
-          accountBalance.weftFinancePositions.length === 0 &&
-          accountBalance.rootFinancePositions.length === 0
-        ) {
+        if (accountBalance.weftFinancePositions.length === 0) {
           return [
             {
               timestamp: input.timestamp,
               address: input.accountBalance.address,
               activityId: "lending",
               usdValue: new BigNumber(0),
+              data: { protocol: "weft" } as WeftLendingData,
             },
           ];
         }
@@ -78,6 +82,7 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
             address: input.accountBalance.address,
             activityId: "lending",
             usdValue: xUSDCValue,
+            data: { protocol: "weft", xUSDC: xUSDC.toString() } as WeftLendingData,
           },
         ];
       });
