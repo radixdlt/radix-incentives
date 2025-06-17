@@ -33,6 +33,7 @@ import type {
 import type {
   GetRootFinancePositionsService,
   InvalidRootReceiptItemError,
+  FailedToParseLendingPoolStateError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import type {
   FailedToParseLendingPoolSchemaError,
@@ -104,7 +105,8 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | InvalidComponentStateError
     | FailedToParseLiquidityClaimsError
     | DbError
-    | SnapshotError,
+    | SnapshotError
+    | FailedToParseLendingPoolStateError,
     | GetFungibleBalanceService
     | GetLsulpService
     | GetUserStakingPositionsService

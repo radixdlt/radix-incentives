@@ -82,7 +82,6 @@ import type {
 import type { GetNftResourceManagersServiceDependencies } from "../../common/gateway/getNftResourceManagers";
 import BigNumber from "bignumber.js";
 import { RootFinance } from "../../common/dapps/rootFinance/constants";
-import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 
 type Lsu = {
   resourceAddress: string;
