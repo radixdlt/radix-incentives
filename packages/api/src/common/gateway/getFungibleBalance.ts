@@ -40,6 +40,16 @@ export type GetFungibleBalanceOutput = {
   details?: StateEntityDetailsResponseItemDetails;
 }[];
 
+export type GetFungibleBalanceServiceError =
+  | EntityNotFoundError
+  | InvalidInputError
+  | GatewayError;
+
+export type GetFungibleBalanceServiceDependencies =
+  | GatewayApiClientService
+  | EntityFungiblesPageService
+  | GetLedgerStateService;
+
 export class GetFungibleBalanceService extends Context.Tag(
   "GetFungibleBalanceService"
 )<
@@ -48,8 +58,8 @@ export class GetFungibleBalanceService extends Context.Tag(
     input: StateEntityDetailsInput
   ) => Effect.Effect<
     GetFungibleBalanceOutput,
-    EntityNotFoundError | InvalidInputError | GatewayError,
-    GatewayApiClientService | EntityFungiblesPageService | GetLedgerStateService
+    GetFungibleBalanceServiceError,
+    GetFungibleBalanceServiceDependencies
   >
 >() {}
 
