@@ -124,6 +124,14 @@ const [lendingActivityResult, liquidityActivityResult] = await db
       category: "none",
       rules: {},
     },
+    {
+      id: "transactionFeesPaid",
+      name: "Transaction fees paid",
+      type: "active",
+      rewardType: "points",
+      category: "network",
+      rules: {},
+    },
   ])
   .returning()
   .onConflictDoUpdate({
