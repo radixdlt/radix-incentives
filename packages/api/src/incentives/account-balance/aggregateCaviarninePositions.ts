@@ -16,10 +16,7 @@ type C9XrdUsdcLp = {
   yTokenWithinPriceBounds: string;
 };
 
-// biome
-type NoData = {
-  type: "no_data";
-};
+type NoData = Record<string, never>;
 
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalance;
@@ -62,9 +59,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               address: input.accountBalance.address,
               activityId: "provideLiquidityToDex",
               usdValue: new BigNumber(0),
-              data: {
-                type: "no_data",
-              },
+              data: {},
             },
           ];
         }
@@ -85,25 +80,18 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0) }
           );
 
-        const xTokenUSDValue = yield* getUsdValueService({
-          amount: totalXToken,
-          resourceAddress: xToken.resourceAddress,
-          timestamp: input.timestamp,
-        });
-
         const yTokenUSDValue = yield* getUsdValueService({
           amount: totalYToken,
           resourceAddress: yToken.resourceAddress,
           timestamp: input.timestamp,
         });
 
-
         return [
           {
             timestamp: input.timestamp,
             address: input.accountBalance.address,
             activityId: "provideLiquidityToDex",
-            usdValue: xTokenUSDValue.plus(yTokenUSDValue),
+            usdValue: yTokenUSDValue,
             data: {
               type: "c9_xrd_usdc_lp",
               xTokenResourceAddress: xToken.resourceAddress,
