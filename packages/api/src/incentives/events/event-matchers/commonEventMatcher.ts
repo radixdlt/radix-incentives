@@ -6,6 +6,8 @@ import { type CapturedEvent, createEventMatcher } from "./createEventMatcher";
 import { parseWithdrawEvent } from "./parseWithdrawEvent";
 import { parseDepositEvent } from "./parseDepositEvent";
 import { WeftFinance } from "../../../common/dapps/weftFinance/constants";
+import { Assets } from "../../../common/assets/constants";
+import { RootFinance } from "../../../common/dapps/rootFinance/constants";
 
 export type CommonEmittableEvents =
   | {
@@ -48,6 +50,10 @@ const isWhiteListedResourceAddress = (resourceAddress: string) =>
     [
       CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC.liquidity_receipt,
       WeftFinance.v2.w2xUSDC.resourceAddress,
+      WeftFinance.v2.w2XRD.resourceAddress,
+      Assets.Fungible.XRD,
+      CaviarNineConstants.LSULP.resourceAddress,
+      RootFinance.receiptResourceAddress,
     ] as string[]
   ).includes(resourceAddress);
 
