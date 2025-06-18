@@ -418,6 +418,26 @@ export const seasonPointsMultiplier = createTable(
   })
 );
 
+export const transactionFees = createTable(
+  "transaction_fees",
+  {
+    transactionId: text("transaction_id").notNull(),
+    accountAddress: varchar("account_address", { length: 255 })
+      .notNull()
+      .references(() => accounts.address, { onDelete: "cascade" }),
+    fee: decimal("fee", { precision: 18, scale: 2 }).notNull(),
+    timestamp: timestamp("timestamp", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.timestamp, table.accountAddress, table.transactionId],
+    }),
+  })
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
@@ -437,3 +457,4 @@ export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
 export type SeasonPointsMultiplier = InferSelectModel<
   typeof seasonPointsMultiplier
 >;
+export type TransactionFee = InferSelectModel<typeof transactionFees>;

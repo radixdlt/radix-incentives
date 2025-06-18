@@ -9,6 +9,7 @@ import { AddTransactionsToDbService } from "./addTransactionsToDb";
 import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
 import { AddToEventQueueService } from "../events/addToEventQueue";
 import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
+import { AddTransactionFeeService } from "../transaction-fee/addTransactionFee";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -18,6 +19,7 @@ export const transactionStreamLoop = () =>
     const addEventsToDbService = yield* AddEventsToDbService;
     const addTransactionsToDbService = yield* AddTransactionsToDbService;
     const addToEventQueueService = yield* AddToEventQueueService;
+    const addTransactionFeeService = yield* AddTransactionFeeService;
 
     while (true) {
       const nextStateVersion = yield* stateVersionManager.getStateVersion();
@@ -28,7 +30,7 @@ export const transactionStreamLoop = () =>
         );
 
       // transactions which registered accounts are involved in
-      const { filteredTransactions, stateVersion } =
+      const { filteredTransactions, stateVersion, registeredFeePayers } =
         yield* transactionStreamService(nextStateVersion).pipe(
           Effect.flatMap(filterTransactionsService)
         );
@@ -36,10 +38,9 @@ export const transactionStreamLoop = () =>
       if (filteredTransactions.length > 0) {
         // remove duplicate transactions using Map for O(n) performance
         const transactionMap = new Map(
-          filteredTransactions.map((transaction) => [
-            transaction.transactionId,
-            transaction,
-          ])
+          filteredTransactions
+            .filter((tx) => tx.status === "CommittedSuccess")
+            .map((transaction) => [transaction.transactionId, transaction])
         );
         const uniqueTransactions = Array.from(transactionMap.values());
 
@@ -84,6 +85,10 @@ export const transactionStreamLoop = () =>
             }))
           );
         }
+      }
+
+      if (registeredFeePayers.length > 0) {
+        yield* addTransactionFeeService(registeredFeePayers);
       }
 
       // updates state version and continue loop
