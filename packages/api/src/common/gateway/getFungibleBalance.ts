@@ -7,7 +7,10 @@ import {
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
 import { EntityNotFoundError, GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
-import type { StateEntityDetailsResponseItemDetails } from "@radixdlt/babylon-gateway-api-sdk";
+import type {
+  EntityMetadataCollection,
+  StateEntityDetailsResponseItemDetails,
+} from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
 
@@ -38,6 +41,7 @@ export type GetFungibleBalanceOutput = {
     lastUpdatedStateVersion: number;
   }[];
   details?: StateEntityDetailsResponseItemDetails;
+  metadata: EntityMetadataCollection;
 }[];
 
 export type GetFungibleBalanceServiceError =
@@ -147,6 +151,7 @@ export const GetFungibleBalanceLive = Layer.effect(
                       address: result.address,
                       fungibleResources,
                       details: result.details,
+                      metadata: result.metadata,
                     };
                   });
                 }),

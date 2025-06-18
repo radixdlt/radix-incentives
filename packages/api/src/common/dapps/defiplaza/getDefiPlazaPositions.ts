@@ -19,16 +19,11 @@ import type {
   GetEntityDetailsService,
 } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
-import {
-  type GetDefiPlazaPoolUnitsError,
-  type GetDefiPlazaPoolUnitsOutput,
-  GetDefiPlazaPoolUnitsService,
-} from "./getDefiPlazaPoolUnits";
 
-export class FailedToParseLendingPoolSchemaError {
-  readonly _tag = "FailedToParseLendingPoolSchemaError";
-  constructor(readonly lendingPool: unknown) {}
-}
+import {
+  type GetResourcePoolOutput,
+  GetResourcePoolUnitsService,
+} from "../../resource-pool/getResourcePoolUnits";
 
 export class InvalidPoolResourceError extends Error {
   readonly _tag = "InvalidPoolResourceError";
@@ -39,14 +34,9 @@ export class InvalidPoolResourceError extends Error {
   }
 }
 
-type AssetBalance = {
-  resourceAddress: ResourceAddress;
-  amount: BigNumber;
-};
-
 type DefiPlazaPosition = {
-  baseAsset: AssetBalance;
-  quoteAsset: AssetBalance;
+  lpResourceAddress: string;
+  position: { resourceAddress: string; amount: BigNumber }[];
 };
 
 export type GetDefiPlazaPositionsOutput = {
@@ -60,7 +50,7 @@ export type GetDefiPlazaPositionsDependencies =
   | GetEntityDetailsService
   | EntityFungiblesPageService
   | GetLedgerStateService
-  | GetDefiPlazaPoolUnitsService;
+  | GetResourcePoolUnitsService;
 
 export type GetDefiPlazaPositionsError =
   | GetEntityDetailsError
@@ -68,9 +58,7 @@ export type GetDefiPlazaPositionsError =
   | InvalidInputError
   | GatewayError
   | InvalidComponentStateError
-  | FailedToParseLendingPoolSchemaError
-  | InvalidPoolResourceError
-  | GetDefiPlazaPoolUnitsError;
+  | InvalidPoolResourceError;
 
 export class GetDefiPlazaPositionsService extends Context.Tag(
   "GetDefiPlazaPositionsService"
@@ -88,13 +76,13 @@ export class GetDefiPlazaPositionsService extends Context.Tag(
 >() {}
 
 type AccountAddress = string;
-type ResourceAddress = string;
 
 export const GetDefiPlazaPositionsLive = Layer.effect(
   GetDefiPlazaPositionsService,
   Effect.gen(function* () {
     const getFungibleBalanceService = yield* GetFungibleBalanceService;
-    const getDefiPlazaPoolUnitsService = yield* GetDefiPlazaPoolUnitsService;
+
+    const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -102,6 +90,11 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
           AccountAddress,
           DefiPlazaPosition[]
         >();
+
+        const pools = yield* getResourcePoolUnitsService({
+          addresses: [DefiPlaza.xUSDCPool.poolAddress],
+          at_ledger_state: input.at_ledger_state,
+        });
 
         for (const accountAddress of input.accountAddresses) {
           accountBalancesMap.set(accountAddress, []);
@@ -114,12 +107,7 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
             at_ledger_state: input.at_ledger_state,
           }));
 
-        const pools = yield* getDefiPlazaPoolUnitsService({
-          items: [DefiPlaza.xUSDCPool],
-          at_ledger_state: input.at_ledger_state,
-        });
-
-        const poolMap = new Map<string, GetDefiPlazaPoolUnitsOutput[number]>(
+        const poolMap = new Map<string, GetResourcePoolOutput[number]>(
           pools.map((pool) => [pool.lpResourceAddress, pool])
         );
 
@@ -139,18 +127,14 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
 
             const items = accountBalancesMap.get(accountAddress) ?? [];
 
+            const position = pool.poolResources.map((i) => ({
+              resourceAddress: i.resourceAddress,
+              amount: i.poolUnitValue.multipliedBy(amount),
+            }));
+
             accountBalancesMap.set(accountAddress, [
               ...items,
-              {
-                baseAsset: {
-                  resourceAddress: pool.baseResourceAddress,
-                  amount: pool.basePerPoolUnit.multipliedBy(amount),
-                },
-                quoteAsset: {
-                  resourceAddress: pool.quoteResourceAddress,
-                  amount: pool.quotePerPoolUnit.multipliedBy(amount),
-                },
-              },
+              { lpResourceAddress: pool.lpResourceAddress, position },
             ]);
           }
         }

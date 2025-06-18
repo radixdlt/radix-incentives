@@ -10,7 +10,7 @@ import {
   GetDefiPlazaPositionsService,
 } from "./getDefiPlazaPositions";
 import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
-import { GetDefiPlazaPoolUnitsLive } from "./getDefiPlazaPoolUnits";
+import { GetResourcePoolUnitsLive } from "../../resource-pool/getResourcePoolUnits";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
@@ -33,7 +33,7 @@ const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
   Layer.provide(getLedgerStateLive)
 );
 
-const getDefiPlazaPoolUnitsServiceLive = GetDefiPlazaPoolUnitsLive.pipe(
+const getResourcePoolUnitsServiceLive = GetResourcePoolUnitsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
@@ -43,12 +43,13 @@ const getDefiPlazaPoolUnitsServiceLive = GetDefiPlazaPoolUnitsLive.pipe(
 const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
   Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(getDefiPlazaPoolUnitsServiceLive),
+
+  Layer.provide(getResourcePoolUnitsServiceLive),
   Layer.provide(entityFungiblesPageServiceLive)
 );
 
 describe("GetDefiPlazaPositionsService", () => {
-  it("should get weft finance positions", async () => {
+  it("should get defi plaza positions", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getDefiPlazaPositions = yield* GetDefiPlazaPositionsService;
@@ -69,7 +70,7 @@ describe("GetDefiPlazaPositionsService", () => {
         getLedgerStateLive,
         getEntityDetailsServiceLive,
         getFungibleBalanceLive,
-        getDefiPlazaPoolUnitsServiceLive,
+        getResourcePoolUnitsServiceLive,
         entityFungiblesPageServiceLive
       )
     );
@@ -81,16 +82,20 @@ describe("GetDefiPlazaPositionsService", () => {
         "account_rdx12x2a5dft0gszufcce98ersqvsd8qr5kzku968jd50n8w4qyl9awecr",
       items: [
         {
-          baseAsset: {
-            resourceAddress:
-              "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
-            amount: "7.20196425754516467120635574699603023544",
-          },
-          quoteAsset: {
-            resourceAddress:
-              "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-            amount: "678.18721659673193757154871619238609567803",
-          },
+          lpResourceAddress:
+            "resource_rdx1tkdws0nvfwjnn2q62x4gqgelyt4t5z7cn58pwvrtf4zrxtdw2sem8x",
+          position: [
+            {
+              resourceAddress:
+                "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
+              amount: "7.20196425754516467120635574699603023544",
+            },
+            {
+              resourceAddress:
+                "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+              amount: "678.18721659673193757154871619238609567803",
+            },
+          ],
         },
       ],
     });
