@@ -7,7 +7,10 @@ import {
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
 import { EntityNotFoundError, GatewayError } from "./errors";
 import type { GetLedgerStateService } from "./getLedgerState";
-import type { StateEntityDetailsResponseItemDetails } from "@radixdlt/babylon-gateway-api-sdk";
+import type {
+  EntityMetadataCollection,
+  StateEntityDetailsResponseItemDetails,
+} from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
 
@@ -38,7 +41,18 @@ export type GetFungibleBalanceOutput = {
     lastUpdatedStateVersion: number;
   }[];
   details?: StateEntityDetailsResponseItemDetails;
+  metadata: EntityMetadataCollection;
 }[];
+
+export type GetFungibleBalanceServiceError =
+  | EntityNotFoundError
+  | InvalidInputError
+  | GatewayError;
+
+export type GetFungibleBalanceServiceDependencies =
+  | GatewayApiClientService
+  | EntityFungiblesPageService
+  | GetLedgerStateService;
 
 export class GetFungibleBalanceService extends Context.Tag(
   "GetFungibleBalanceService"
@@ -48,8 +62,8 @@ export class GetFungibleBalanceService extends Context.Tag(
     input: StateEntityDetailsInput
   ) => Effect.Effect<
     GetFungibleBalanceOutput,
-    EntityNotFoundError | InvalidInputError | GatewayError,
-    GatewayApiClientService | EntityFungiblesPageService | GetLedgerStateService
+    GetFungibleBalanceServiceError,
+    GetFungibleBalanceServiceDependencies
   >
 >() {}
 
@@ -137,6 +151,7 @@ export const GetFungibleBalanceLive = Layer.effect(
                       address: result.address,
                       fungibleResources,
                       details: result.details,
+                      metadata: result.metadata,
                     };
                   });
                 }),
