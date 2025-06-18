@@ -39,6 +39,12 @@ export const CDPUpdatedEvent = s.struct({
   event_type: CDPUpdatedEvenType,
 });
 
+export type CDPUpdatedEvent = s.infer<typeof CDPUpdatedEvent>;
+
+export type CDPLiquidableEvent = s.infer<typeof CDPLiquidableEvent>;
+
+export type LendingPoolUpdatedEvent = s.infer<typeof LendingPoolUpdatedEvent>;
+
 export const MarketConfig = s.struct({
   max_cdp_position: s.number(),
   max_liquidable_value: s.decimal(),
