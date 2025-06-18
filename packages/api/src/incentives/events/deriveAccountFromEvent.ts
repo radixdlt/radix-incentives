@@ -18,7 +18,9 @@ import {
 import { GetAccountsIntersectionService } from "../account/getAccountsIntersection";
 import type { CommonEmittableEvents } from "./event-matchers/commonEventMatcher";
 import type { WeftFinanceEmittableEvents } from "./event-matchers/weftFinanceEventMatcher";
+import type { RootFinanceEmittableEvents } from "./event-matchers/rootFinanceEventMatcher";
 import { WeftFinance } from "../../common/dapps/weftFinance/constants";
+import { RootFinance } from "../../common/dapps/rootFinance/constants";
 import type { AtLedgerState } from "../../common";
 
 export class InvalidEventError {
@@ -191,6 +193,32 @@ export const DeriveAccountFromEventLive = Layer.effect(
                 WeftFinance.v2.WeftyV2.resourceAddress,
                 nonFungibleId,
                 at_ledger_state
+              );
+            }
+
+            if (event.dApp === "RootFinance") {
+              yield* Effect.log("RootFinance event", event.eventData);
+
+              const eventData = event.eventData as RootFinanceEmittableEvents;
+              
+              if (eventData.type === "CDPUpdatedEvent") {
+                const nonFungibleId = eventData.data.cdp_id;
+
+                const at_ledger_state = {
+                  timestamp: event.timestamp,
+                };
+
+                return yield* getRegisteredAccountAddressFromNonFungible(
+                  RootFinance.receiptResourceAddress,
+                  nonFungibleId,
+                  at_ledger_state
+                );
+              }
+
+              return yield* Effect.fail(
+                new InvalidEventError(
+                  `${event.dApp}.${event.eventData.type} is not handled`
+                )
               );
             }
 

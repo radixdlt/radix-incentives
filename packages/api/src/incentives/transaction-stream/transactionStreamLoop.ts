@@ -3,6 +3,7 @@ import { TransactionStreamService } from "./transactionStream";
 
 import { StateVersionManagerService } from "./stateVersionManager";
 import { weftFinanceEventMatcher } from "../events/event-matchers/weftFinanceEventMatcher";
+import { rootFinanceEventMatcher } from "../events/event-matchers/rootFinanceEventMatcher";
 import { FilterTransactionsService } from "./filterTransactions";
 import { AddEventsToDbService } from "../events/queries/addEventToDb";
 import { AddTransactionsToDbService } from "./addTransactionsToDb";
@@ -50,6 +51,9 @@ export const transactionStreamLoop = () =>
         const weftFinanceEvents =
           yield* weftFinanceEventMatcher(uniqueTransactions);
 
+        const rootFinanceEvents =
+          yield* rootFinanceEventMatcher(uniqueTransactions);
+
         const caviarnineEvents =
           yield* caviarnineEventMatcher(uniqueTransactions);
 
@@ -59,6 +63,7 @@ export const transactionStreamLoop = () =>
         const allCapturedEvents = [
           ...caviarnineEvents,
           ...weftFinanceEvents,
+          ...rootFinanceEvents,
           ...commonEvents,
         ];
 
