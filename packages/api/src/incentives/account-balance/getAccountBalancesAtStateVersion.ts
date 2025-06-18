@@ -55,6 +55,9 @@ import {
   GetRootFinancePositionsService,
   type InvalidRootReceiptItemError,
   type ParseSborError,
+  type FailedToParseLendingPoolStateError,
+  type FailedToParsePoolStatesKeyError,
+  type MissingConversionRatioError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import {
   type InvalidStateInputError,
@@ -81,7 +84,6 @@ import type {
 import type { GetNftResourceManagersServiceDependencies } from "../../common/gateway/getNftResourceManagers";
 import BigNumber from "bignumber.js";
 import { RootFinance } from "../../common/dapps/rootFinance/constants";
-import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 
 type Lsu = {
   resourceAddress: string;
@@ -136,6 +138,29 @@ export type AccountBalance = {
   caviarninePositions: CaviarNinePosition;
 };
 
+export type GetAccountBalancesAtStateVersionServiceError =
+  | GetAllValidatorsError
+  | GetEntityDetailsError
+  | LsulpNotFoundError
+  | InvalidEntityAddressError
+  | InvalidResourceError
+  | InvalidNativeResourceKindError
+  | InvalidAmountError
+  | EntityDetailsNotFoundError
+  | FailedToParseLendingPoolSchemaError
+  | ParseSborError
+  | InvalidRootReceiptItemError
+  | FailedToParseLendingPoolStateError
+  | FailedToParsePoolStatesKeyError
+  | MissingConversionRatioError
+  | InvalidStateInputError
+  | FailedToParseComponentStateError
+  | GatewayError
+  | EntityNotFoundError
+  | InvalidInputError
+  | InvalidComponentStateError
+  | FailedToParseLiquidityClaimsError;
+
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
 )<
@@ -149,24 +174,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
       items: AccountBalance[];
       ledgerState: LedgerState;
     },
-    | GetAllValidatorsError
-    | GetEntityDetailsError
-    | LsulpNotFoundError
-    | InvalidEntityAddressError
-    | InvalidResourceError
-    | InvalidNativeResourceKindError
-    | InvalidAmountError
-    | EntityDetailsNotFoundError
-    | FailedToParseLendingPoolSchemaError
-    | ParseSborError
-    | InvalidRootReceiptItemError
-    | InvalidStateInputError
-    | FailedToParseComponentStateError
-    | GatewayError
-    | EntityNotFoundError
-    | InvalidInputError
-    | InvalidComponentStateError
-    | FailedToParseLiquidityClaimsError,
+    GetAccountBalancesAtStateVersionServiceError,
     | GetFungibleBalanceService
     | GetLsulpService
     | GetUserStakingPositionsService

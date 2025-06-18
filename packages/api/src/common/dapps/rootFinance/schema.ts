@@ -123,3 +123,84 @@ export const CDPLiquidable = s.struct({
 export const CDPLiquidableEvent = s.struct({
   cdps: s.array(CDPLiquidable),
 });
+
+export const LendingPoolState = s.struct({
+  pool: s.address(),
+  collaterals: s.internalAddress(),
+  reserve: s.internalAddress(),
+  pool_res_address: s.address(),
+  price: s.decimal(),
+  price_updated_at: s.number(),
+  interest_rate: s.decimal(),
+  interest_updated_at: s.number(),
+  total_loan: s.decimal(),
+  total_deposit: s.decimal(),
+  total_loan_unit: s.decimal(),
+  total_deposit_unit: s.decimal(),
+  price_feed_comp: s.address(),
+  interest_strategy: s.struct({
+    break_points: s.struct({
+      r0: s.decimal(),
+      r1: s.decimal(),
+      r2: s.decimal(),
+    }),
+  }),
+  liquidation_threshold: s.struct({
+    identical_resource: s.option(s.decimal()),
+    identical_asset_type: s.option(s.decimal()),
+    resource: s.map({ key: s.address(), value: s.decimal() }),
+    asset_type: s.map({ key: s.number(), value: s.decimal() }),
+    default_value: s.decimal(),
+  }),
+  pool_config: s.struct({
+    protocol_interest_fee_rate: s.decimal(),
+    protocol_flashloan_fee_rate: s.decimal(),
+    protocol_liquidation_fee_rate: s.decimal(),
+    flashloan_fee_rate: s.decimal(),
+    asset_type: s.number(),
+    liquidation_bonus_rate: s.decimal(),
+    loan_close_factor: s.decimal(),
+    deposit_limit: s.option(s.decimal()),
+    borrow_limit: s.option(s.decimal()),
+    utilization_limit: s.option(s.decimal()),
+    interest_update_period: s.number(),
+    price_update_period: s.number(),
+    price_expiration_period: s.number(),
+    optimal_usage: s.decimal(),
+  }),
+  operating_status: s.struct({
+    is_contribute_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+    is_redeem_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+    is_deposit_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+    is_withdraw_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+    is_borrow_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+    is_repay_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+    is_liquidate_enabled: s.struct({
+      enabled: s.bool(),
+      set_by_admin: s.bool(),
+    }),
+  }),
+  pool_utilization: s.decimal(),
+  total_reserved_amount: s.decimal(),
+});
+
+// Schema for safely parsing pool states key-value store keys
+export const PoolStatesKeyValueStoreKeySchema = s.address();

@@ -13,10 +13,18 @@ import {
 } from "../../gateway/getNonFungibleBalance";
 import { RootFinance } from "./constants";
 
-import { CollaterizedDebtPositionData } from "./schema";
+import {
+  CollaterizedDebtPositionData,
+  LendingPoolState,
+  PoolStatesKeyValueStoreKeySchema,
+} from "./schema";
 import type { SborError } from "sbor-ez-mode";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
+import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
+import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
+import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
+import { BigNumber } from "bignumber.js";
 
 export class ParseSborError {
   readonly _tag = "ParseSborError";
@@ -25,6 +33,24 @@ export class ParseSborError {
 
 export class InvalidRootReceiptItemError extends Error {
   readonly _tag = "InvalidRootReceiptItemError";
+}
+
+export class FailedToParseLendingPoolStateError {
+  readonly _tag = "FailedToParseLendingPoolStateError";
+  constructor(readonly error: unknown) {}
+}
+
+export class FailedToParsePoolStatesKeyError {
+  readonly _tag = "FailedToParsePoolStatesKeyError";
+  constructor(readonly error: SborError) {}
+}
+
+export class MissingConversionRatioError {
+  readonly _tag = "MissingConversionRatioError";
+  constructor(
+    readonly resourceAddress: string,
+    readonly positionType: "collateral" | "loan"
+  ) {}
 }
 
 export type GetRootFinancePositionsServiceInput = {
@@ -55,13 +81,19 @@ export type GetRootFinancePositionsServiceError =
   | InvalidInputError
   | GatewayError
   | ParseSborError
-  | InvalidRootReceiptItemError;
+  | InvalidRootReceiptItemError
+  | FailedToParseLendingPoolStateError
+  | FailedToParsePoolStatesKeyError
+  | MissingConversionRatioError;
 
 export type GetRootFinancePositionsServiceDependencies =
   | GetNonFungibleBalanceServiceDependencies
   | GatewayApiClientService
   | EntityFungiblesPageService
-  | GetLedgerStateService;
+  | GetLedgerStateService
+  | GetKeyValueStoreService
+  | KeyValueStoreDataService
+  | KeyValueStoreKeysService;
 
 export class GetRootFinancePositionsService extends Context.Tag(
   "GetRootFinancePositionsService"
@@ -84,6 +116,7 @@ export const GetRootFinancePositionsLive = Layer.effect(
   GetRootFinancePositionsService,
   Effect.gen(function* () {
     const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
+    const getKeyValueStoreService = yield* GetKeyValueStoreService;
 
     const accountCollateralMap = new Map<
       AccountAddress,
@@ -92,6 +125,72 @@ export const GetRootFinancePositionsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
+        const poolStatesKvs = yield* getKeyValueStoreService({
+          address: RootFinance.poolStateKvs,
+          at_ledger_state: input.at_ledger_state,
+        }).pipe(
+          Effect.catchTags({
+            EntityNotFoundError: () =>
+              Effect.succeed({
+                entries: [],
+              }),
+          })
+        );
+
+        // Create maps for conversion ratios: pool units -> real amounts
+        const collateralConversionRatios = new Map<
+          ResourceAddress,
+          BigNumber
+        >();
+        const loanConversionRatios = new Map<ResourceAddress, BigNumber>();
+
+        for (const item of poolStatesKvs.entries) {
+          const poolState = LendingPoolState.safeParse(
+            item.value.programmatic_json
+          );
+
+          if (poolState.isOk()) {
+            // Extract resource address from the key using SBOR EZ Mode
+            const keyParseResult = PoolStatesKeyValueStoreKeySchema.safeParse(
+              item.key.programmatic_json
+            );
+
+            if (keyParseResult.isOk()) {
+              const resourceAddress = keyParseResult.value;
+              const state = poolState.value;
+
+              // For collaterals: multiply by total_deposit / total_deposit_unit
+              const totalDepositUnit = new BigNumber(state.total_deposit_unit);
+              if (state.total_deposit_unit && totalDepositUnit.gt(0)) {
+                const collateralRatio = new BigNumber(state.total_deposit).div(
+                  totalDepositUnit
+                );
+                collateralConversionRatios.set(
+                  resourceAddress,
+                  collateralRatio
+                );
+              }
+
+              // For loans: multiply by total_loan / total_loan_unit
+              const totalLoanUnit = new BigNumber(state.total_loan_unit);
+              if (state.total_loan_unit && totalLoanUnit.gt(0)) {
+                const loanRatio = new BigNumber(state.total_loan).div(
+                  totalLoanUnit
+                );
+                loanConversionRatios.set(resourceAddress, loanRatio);
+              }
+            } else {
+              yield* Effect.fail(
+                new FailedToParsePoolStatesKeyError(keyParseResult.error)
+              );
+            }
+          } else {
+            yield* Effect.fail(
+              new FailedToParseLendingPoolStateError(poolState.error)
+            );
+          }
+        }
+
         const result = input.nonFungibleBalance
           ? input.nonFungibleBalance
           : yield* getNonFungibleBalanceService({
@@ -129,13 +228,56 @@ export const GetRootFinancePositionsLive = Layer.effect(
 
               const collaterizedDebtPosition = parsed.value;
 
-              const collaterals = Object.fromEntries(
-                collaterizedDebtPosition.collaterals.entries()
-              ) as Record<ResourceAddress, Value>;
+              // Convert pool units to real amounts for collaterals
+              const collaterals: Record<ResourceAddress, Value> = {};
+              for (const [
+                resourceAddress,
+                unitAmount,
+              ] of collaterizedDebtPosition.collaterals.entries()) {
+                if (!unitAmount) {
+                  continue; // Skip empty amounts
+                }
 
-              const loans = Object.fromEntries(
-                collaterizedDebtPosition.loans.entries()
-              ) as Record<ResourceAddress, Value>;
+                const conversionRatio =
+                  collateralConversionRatios.get(resourceAddress);
+                if (!conversionRatio) {
+                  return yield* Effect.fail(
+                    new MissingConversionRatioError(
+                      resourceAddress,
+                      "collateral"
+                    )
+                  );
+                }
+
+                const realAmount = new BigNumber(unitAmount).multipliedBy(
+                  conversionRatio
+                );
+                collaterals[resourceAddress] = realAmount.toString();
+              }
+
+              // Convert pool units to real amounts for loans
+              const loans: Record<ResourceAddress, Value> = {};
+              for (const [
+                resourceAddress,
+                unitAmount,
+              ] of collaterizedDebtPosition.loans.entries()) {
+                if (!unitAmount) {
+                  continue; // Skip empty amounts
+                }
+
+                const conversionRatio =
+                  loanConversionRatios.get(resourceAddress);
+                if (!conversionRatio) {
+                  return yield* Effect.fail(
+                    new MissingConversionRatioError(resourceAddress, "loan")
+                  );
+                }
+
+                const realAmount = new BigNumber(unitAmount).multipliedBy(
+                  conversionRatio
+                );
+                loans[resourceAddress] = realAmount.toString();
+              }
 
               collaterizedDebtPositionList.push({
                 nft: {

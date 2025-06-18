@@ -74,7 +74,10 @@ import { GetUserActivityPointsLive } from "./user/getUserActivityPoints";
 import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
-import { SeasonPointsMultiplierWorkerLive, SeasonPointsMultiplierWorkerService } from "./season-point-multiplier/seasonPointsMultiplierWorker";
+import {
+  SeasonPointsMultiplierWorkerLive,
+  SeasonPointsMultiplierWorkerService,
+} from "./season-point-multiplier/seasonPointsMultiplierWorker";
 import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
 import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeasonPointMultiplier";
@@ -227,7 +230,10 @@ const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
 
 const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive)
+  Layer.provide(entityNonFungiblesPageServiceLive),
+  Layer.provide(getKeyValueStoreServiceLive),
+  Layer.provide(keyValueStoreDataServiceLive),
+  Layer.provide(keyValueStoreKeysServiceLive)
 );
 
 const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
@@ -460,7 +466,7 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(calculateSPMultiplierLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(upsertUserTwaWithMultiplierLive),
+  Layer.provide(upsertUserTwaWithMultiplierLive)
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
@@ -615,10 +621,14 @@ const calculateSeasonPoints = (input: { seasonId: string; weekId: string }) => {
   return Effect.runPromiseExit(program);
 };
 
-const calculateSPMultiplier = (input: { weekId: string; userIds?: string[] }) => {
+const calculateSPMultiplier = (input: {
+  weekId: string;
+  userIds?: string[];
+}) => {
   const program = Effect.provide(
     Effect.gen(function* () {
-      const calculateSPMultiplierWorkerService = yield* SeasonPointsMultiplierWorkerService;
+      const calculateSPMultiplierWorkerService =
+        yield* SeasonPointsMultiplierWorkerService;
 
       return yield* calculateSPMultiplierWorkerService(input);
     }),
@@ -629,7 +639,7 @@ const calculateSPMultiplier = (input: { weekId: string; userIds?: string[] }) =>
       seasonPointsMultiplierWorkerLive,
       getWeekAccountBalancesLive,
       getAccountAddressesLive,
-      upsertUserTwaWithMultiplierLive,
+      upsertUserTwaWithMultiplierLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 
