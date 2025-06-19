@@ -17,6 +17,7 @@ import {
   GetAccountBalancesAtStateVersionLive,
   GetAccountBalancesAtStateVersionService,
 } from "./getAccountBalancesAtStateVersion";
+import { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
 import { GetUserStakingPositionsLive } from "../../common/staking/getUserStakingPositions";
 import { GetLsulpLive } from "../../common/dapps/caviarnine/getLsulp";
 import { GetLsulpValueLive } from "../../common/dapps/caviarnine/getLsulpValue";
@@ -31,6 +32,8 @@ import { GetRootFinancePositionsLive } from "../../common/dapps/rootFinance/getR
 import { GetQuantaSwapBinMapLive } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import { GetDefiPlazaPositionsLive } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
+import { GetResourcePoolUnitsLive } from "../../common/resource-pool/getResourcePoolUnits";
 import { GetNftResourceManagersLive } from "../../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../../common/gateway/getNonFungibleIds";
 
@@ -113,13 +116,6 @@ const getLsulpLive = GetLsulpLive.pipe(
   Layer.provide(getLedgerStateLive)
 );
 
-const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
-);
-
 const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
@@ -175,7 +171,10 @@ const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
 
 const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive)
+  Layer.provide(entityNonFungiblesPageServiceLive),
+  Layer.provide(getKeyValueStoreServiceLive),
+  Layer.provide(keyValueStoreDataServiceLive),
+  Layer.provide(keyValueStoreKeysServiceLive)
 );
 
 const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
@@ -231,8 +230,22 @@ const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive)
 );
 
-const getAccountBalancesAtStateVersionLive =
-  GetAccountBalancesAtStateVersionLive.pipe(
+const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getEntityDetailsServiceLive),
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(entityFungiblesPageServiceLive)
+);
+
+const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getEntityDetailsServiceLive),
+  Layer.provide(getResourcePoolUnitsLive),
+  Layer.provide(entityFungiblesPageServiceLive)
+);
+
+const getAccountBalancesAtStateVersionLive = (() => {
+  const part1 = GetAccountBalancesAtStateVersionLive.pipe(
     Layer.provide(stateEntityDetailsLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive),
@@ -250,9 +263,13 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getShapeLiquidityAssetsLive),
     Layer.provide(getShapeLiquidityClaimsLive),
     Layer.provide(getQuantaSwapBinMapLive),
-    Layer.provide(getNftResourceManagersLive),
-    Layer.provide(getNonFungibleIdsLive)
+    Layer.provide(getDefiPlazaPositionsLive),
+    Layer.provide(getResourcePoolUnitsLive),
+    Layer.provide(getNftResourceManagersLive)
   );
+
+  return part1.pipe(Layer.provide(getNonFungibleIdsLive));
+})();
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "api" },
@@ -273,46 +290,56 @@ describe("getAccountBalancesAtStateVersion", () => {
       Effect.gen(function* () {
         const getAccountBalancesAtStateVersionService =
           yield* GetAccountBalancesAtStateVersionService;
+        const getAllValidatorsService = yield* GetAllValidatorsService;
+
+        const validators = yield* getAllValidatorsService();
 
         return yield* getAccountBalancesAtStateVersionService({
           addresses: addresses,
           at_ledger_state: {
             timestamp: new Date("2025-06-05T08:00:00.000Z"),
           },
+          validators: validators,
         }).pipe(Effect.withSpan("getAccountBalancesAtStateVersionService"));
       }),
-      Layer.mergeAll(
-        getAccountBalancesAtStateVersionLive,
-        gatewayApiClientLive,
-        stateEntityDetailsLive,
-        entityFungiblesPageServiceLive,
-        entityNonFungibleDataServiceLive,
-        getNonFungibleBalanceLive,
-        getAllValidatorsServiceLive,
-        getUserStakingPositionsLive,
-        getLsulpLive,
-        getLsulpValueLive,
-        convertLsuToXrdLive,
-        getEntityDetailsServiceLive,
-        getWeftFinancePositionsLive,
-        getKeyValueStoreServiceLive,
-        keyValueStoreDataServiceLive,
-        keyValueStoreKeysServiceLive,
-        getRootFinancePositionLive,
-        getShapeLiquidityAssetsLive,
-        getLedgerStateLive,
-        getEntityDetailsLive,
-        entityNonFungibleDataLive,
-        entityNonFungiblesPageServiceLive,
-        getKeyValueStoreLive,
-        getKeyValueStoreKeysLive,
-        keyValueStoreDataLive,
-        getComponentStateLive,
-        getQuantaSwapBinMapLive,
-        getShapeLiquidityClaimsLive,
-        getNftResourceManagersLive,
-        getNonFungibleIdsLive
-      )
+      (() => {
+        const coreLayer = Layer.mergeAll(
+          getAccountBalancesAtStateVersionLive,
+          gatewayApiClientLive,
+          stateEntityDetailsLive,
+          entityFungiblesPageServiceLive,
+          entityNonFungibleDataServiceLive,
+          getNonFungibleBalanceLive,
+          getAllValidatorsServiceLive,
+          getUserStakingPositionsLive,
+          getLsulpLive,
+          getLsulpValueLive,
+          convertLsuToXrdLive,
+          getEntityDetailsServiceLive,
+          getWeftFinancePositionsLive,
+          getKeyValueStoreServiceLive,
+          keyValueStoreDataServiceLive,
+          keyValueStoreKeysServiceLive,
+          getRootFinancePositionLive,
+          getShapeLiquidityAssetsLive,
+          getLedgerStateLive,
+          getEntityDetailsLive
+        );
+
+        const additionalLayer = Layer.mergeAll(
+          entityNonFungibleDataLive,
+          entityNonFungiblesPageServiceLive,
+          getComponentStateLive,
+          getQuantaSwapBinMapLive,
+          getShapeLiquidityClaimsLive,
+          getDefiPlazaPositionsLive,
+          getResourcePoolUnitsLive,
+          getNftResourceManagersLive,
+          getNonFungibleIdsLive
+        );
+
+        return Layer.mergeAll(coreLayer, additionalLayer);
+      })()
     );
 
     const result = await Effect.runPromise(

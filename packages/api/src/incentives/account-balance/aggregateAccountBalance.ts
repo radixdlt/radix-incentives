@@ -9,6 +9,7 @@ import type {
 import {
   type AggregateCaviarninePositionsOutput,
   AggregateCaviarninePositionsService,
+  type UnknownCaviarnineTokenError,
 } from "./aggregateCaviarninePositions";
 
 import {
@@ -24,6 +25,12 @@ import {
   AggregateRootFinancePositionsService,
 } from "./aggregateRootFinancePositions";
 import {
+  type AggregateDefiPlazaPositionsOutput,
+  AggregateDefiPlazaPositionsService,
+  type UnknownDefiPlazaTokenError,
+  type InvalidDefiPlazaPositionError,
+} from "./aggregateDefiPlazaPositions";
+import {
   CombineActivityResultsService,
   type CombinedActivityResult,
 } from "./combineActivityResults";
@@ -38,6 +45,7 @@ export type AggregateAccountBalanceOutput =
   | XrdBalanceOutput
   | AggregateWeftFinancePositionsOutput
   | AggregateRootFinancePositionsOutput
+  | AggregateDefiPlazaPositionsOutput
   | CombinedActivityResult;
 
 export type AggregateAccountBalanceServiceDependency =
@@ -46,11 +54,15 @@ export type AggregateAccountBalanceServiceDependency =
   | GetUsdValueService
   | AggregateWeftFinancePositionsService
   | AggregateRootFinancePositionsService
+  | AggregateDefiPlazaPositionsService
   | CombineActivityResultsService;
 
 export type AggregateAccountBalanceError =
   | InvalidResourceAddressError
-  | PriceServiceApiError;
+  | PriceServiceApiError
+  | UnknownCaviarnineTokenError
+  | UnknownDefiPlazaTokenError
+  | InvalidDefiPlazaPositionError;
 
 export class AggregateAccountBalanceService extends Context.Tag(
   "AggregateAccountBalanceService"
@@ -75,6 +87,8 @@ export const AggregateAccountBalanceLive = Layer.effect(
       yield* AggregateWeftFinancePositionsService;
     const aggregateRootFinancePositionsService =
       yield* AggregateRootFinancePositionsService;
+    const aggregateDefiPlazaPositionsService =
+      yield* AggregateDefiPlazaPositionsService;
     const combineActivityResultsService = yield* CombineActivityResultsService;
     return (input) =>
       Effect.gen(function* () {
@@ -134,12 +148,27 @@ export const AggregateAccountBalanceLive = Layer.effect(
           }
         ).pipe(Effect.map((items) => items.flat()));
 
+        const defiPlazaPositions = yield* Effect.forEach(
+          input.accountBalances,
+          (accountBalance) => {
+            return Effect.gen(function* () {
+              const defiPlazaPositions =
+                yield* aggregateDefiPlazaPositionsService({
+                  accountBalance,
+                  timestamp: input.timestamp,
+                });
+              return [...defiPlazaPositions];
+            });
+          }
+        ).pipe(Effect.map((items) => items.flat()));
+
         // Combine all results
         const allResults = [
           ...caviarninePositions,
           ...xrdBalanceResult,
           ...weftFinancePositions,
           ...rootFinancePositions,
+          ...defiPlazaPositions,
         ];
 
         // Use activity-specific combination logic

@@ -27,6 +27,8 @@ import { GetRootFinancePositionsLive } from "../common/dapps/rootFinance/getRoot
 import { GetQuantaSwapBinMapLive } from "../common/dapps/caviarnine/getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShapeLiquidityAssets";
+import { GetDefiPlazaPositionsLive } from "../common/dapps/defiplaza/getDefiPlazaPositions";
+import { GetResourcePoolUnitsLive } from "../common/resource-pool/getResourcePoolUnits";
 import {
   SnapshotService,
   SnapshotLive,
@@ -84,6 +86,7 @@ import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeaso
 
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
+import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
 import { CombineActivityResultsLive } from "./account-balance/combineActivityResults";
 const appConfig = createConfig();
 
@@ -164,13 +167,6 @@ const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
 const getLsulpLive = GetLsulpLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(stateEntityDetailsLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
-);
-
-const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
 );
@@ -313,6 +309,24 @@ const aggregateWeftFinancePositionsLive =
 const aggregateRootFinancePositionsLive =
   AggregateRootFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
 
+const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getEntityDetailsServiceLive),
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(entityFungiblesPageServiceLive)
+);
+
+const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getEntityDetailsServiceLive),
+  Layer.provide(getResourcePoolUnitsLive),
+  Layer.provide(entityFungiblesPageServiceLive)
+);
+
+const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
+  Layer.provide(getUsdValueLive)
+);
+
 const combineActivityResultsLive = CombineActivityResultsLive;
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
@@ -321,6 +335,7 @@ const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(xrdBalanceLive),
   Layer.provide(aggregateWeftFinancePositionsLive),
   Layer.provide(aggregateRootFinancePositionsLive),
+  Layer.provide(aggregateDefiPlazaPositionsLive),
   Layer.provide(combineActivityResultsLive)
 );
 
@@ -330,8 +345,8 @@ const c9Layers = Layer.mergeAll(
   getQuantaSwapBinMapLive
 );
 
-const getAccountBalancesAtStateVersionLive =
-  GetAccountBalancesAtStateVersionLive.pipe(
+const getAccountBalancesAtStateVersionLive = (() => {
+  const part1 = GetAccountBalancesAtStateVersionLive.pipe(
     Layer.provide(stateEntityDetailsLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive),
@@ -347,12 +362,18 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getWeftFinancePositionsLive),
     Layer.provide(getRootFinancePositionLive),
     Layer.provide(c9Layers),
+    Layer.provide(getDefiPlazaPositionsLive),
+    Layer.provide(getResourcePoolUnitsLive),
     Layer.provide(getAccountAddressesLive),
     Layer.provide(upsertAccountBalancesLive),
-    Layer.provide(updateSnapshotLive),
+    Layer.provide(updateSnapshotLive)
+  );
+
+  return part1.pipe(
     Layer.provide(getNftResourceManagersLive),
     Layer.provide(getNonFungibleIdsLive)
   );
+})();
 
 const snapshotLive = SnapshotLive.pipe(
   Layer.provide(gatewayApiClientLive),
@@ -530,6 +551,9 @@ const snapshotProgram = (input: SnapshotInput) => {
       xrdBalanceLive,
       aggregateWeftFinancePositionsLive,
       aggregateRootFinancePositionsLive,
+      aggregateDefiPlazaPositionsLive,
+      getDefiPlazaPositionsLive,
+      getResourcePoolUnitsLive,
       combineActivityResultsLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
