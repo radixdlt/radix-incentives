@@ -130,16 +130,16 @@ export const GetResourcePoolUnitsLive = Layer.effect(
                 {},
                 input.at_ledger_state
               ).pipe(
-                Effect.flatMap(([response]) => {
-                  if (response.details?.type !== "FungibleResource") {
+                Effect.flatMap((responses) => {
+                  if (responses[0]?.details?.type !== "FungibleResource") {
                     return Effect.fail(
                       new InvalidPoolResourceError(
-                        `${response.address} is not a fungible resource`
+                        `${responses[0]?.address ?? poolUnit} is not a fungible resource`
                       )
                     );
                   }
                   return Effect.succeed(
-                    new BigNumber(response.details.total_supply)
+                    new BigNumber(responses[0].details.total_supply)
                   );
                 })
               );

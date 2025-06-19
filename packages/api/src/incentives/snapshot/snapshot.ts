@@ -53,6 +53,7 @@ import type {
   FailedToParseLiquidityClaimsError,
   GetShapeLiquidityClaimsService,
 } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
+import type { GetDefiPlazaPositionsError } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
 import type { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
 import type { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
 import type { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
@@ -62,6 +63,10 @@ import type { KeyValueStoreDataService } from "../../common/gateway/keyValueStor
 import type { KeyValueStoreKeysService } from "../../common/gateway/keyValueStoreKeys";
 import type { EntityNonFungibleDataService } from "../../common/gateway/entityNonFungiblesData";
 import type { GetQuantaSwapBinMapService } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
+import type { GetDefiPlazaPositionsService } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
+import type { GetResourcePoolUnitsService } from "../../common/resource-pool/getResourcePoolUnits";
+import type { UnknownCaviarnineTokenError } from "../account-balance/aggregateCaviarninePositions";
+import type { UnknownDefiPlazaTokenError } from "../account-balance/aggregateDefiPlazaPositions";
 import type { DbClientService, DbError } from "../db/dbClient";
 import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
@@ -109,6 +114,9 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | InvalidInputError
     | InvalidComponentStateError
     | FailedToParseLiquidityClaimsError
+    | GetDefiPlazaPositionsError
+    | UnknownCaviarnineTokenError
+    | UnknownDefiPlazaTokenError
     | DbError
     | SnapshotError,
     | GetFungibleBalanceService
@@ -133,6 +141,8 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | GetComponentStateService
     | GetQuantaSwapBinMapService
     | GetShapeLiquidityClaimsService
+    | GetDefiPlazaPositionsService
+    | GetResourcePoolUnitsService
     | CreateSnapshotService
     | UpdateSnapshotService
     | DbClientService
