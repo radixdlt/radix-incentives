@@ -83,47 +83,43 @@ export const transformTransactions = (
 ) =>
   transactions
     .map((transaction) => {
-      if (transaction.receipt?.detailed_events) {
-        const events = transaction.receipt?.detailed_events
-          .map(transformEvent)
-          .filter((event) => event !== undefined);
+      // biome-ignore lint/style/noNonNullAssertion: <explanation>
+      const balanceChanges = transaction.balance_changes!;
 
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-        const balanceChanges = transaction.balance_changes!;
+      const entityAddressSet = new Set<string>();
+      const feeBalanceChangesMap = new Map<string, Bignumber>();
 
-        const entityAddressSet = new Set<string>();
-        const balanceChangesMap = new Map<string, Bignumber>();
+      for (const item of balanceChanges.fungible_fee_balance_changes) {
+        if (item.entity_address.startsWith("account_")) {
+          entityAddressSet.add(item.entity_address);
+          const amountBN =
+            feeBalanceChangesMap.get(item.entity_address) ?? new Bignumber(0);
 
-        for (const item of [
-          ...balanceChanges.fungible_balance_changes,
-          ...balanceChanges.fungible_fee_balance_changes,
-        ]) {
-          if (item.entity_address.startsWith("account_")) {
-            entityAddressSet.add(item.entity_address);
-            const amountBN =
-              balanceChangesMap.get(item.resource_address) ?? new Bignumber(0);
-
-            balanceChangesMap.set(
-              item.resource_address,
-              amountBN.plus(item.balance_change)
-            );
-          }
-        }
-
-        if (events.length) {
-          return {
-            // biome-ignore lint/style/noNonNullAssertion:
-            transactionId: transaction.intent_hash!,
-            round_timestamp: transaction.round_timestamp,
-            events,
-            message: transaction.message as TransactionMessage | undefined,
-            balanceChanges,
-            entityAddresses: entityAddressSet,
-            balanceChangesMap,
-            stateVersion: transaction.state_version,
-          };
+          feeBalanceChangesMap.set(
+            item.entity_address,
+            amountBN.plus(item.balance_change)
+          );
         }
       }
+
+      const events = (transaction.receipt?.detailed_events ?? [])
+        .map(transformEvent)
+        .filter((event) => event !== undefined);
+
+      return {
+        // biome-ignore lint/style/noNonNullAssertion:
+        transactionId: transaction.intent_hash!,
+        round_timestamp: transaction.round_timestamp,
+        events,
+        message: transaction.message as TransactionMessage | undefined,
+        balanceChanges,
+        entityAddresses: entityAddressSet,
+        feeBalanceChanges: Object.fromEntries(
+          Array.from(feeBalanceChangesMap.entries())
+        ),
+        stateVersion: transaction.state_version,
+        status: transaction.transaction_status,
+      };
     })
     .filter((t) => t !== undefined);
 

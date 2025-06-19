@@ -64,6 +64,20 @@
       "when": 1750152749060,
       "tag": "0008_easy_abomination",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1750250861355,
+      "tag": "0009_brave_roulette",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1750254148979,
+      "tag": "0010_wide_colonel_america",
+      "breakpoints": true
     }
   ]
 }

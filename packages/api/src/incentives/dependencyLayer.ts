@@ -85,6 +85,7 @@ import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeaso
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
 import { CombineActivityResultsLive } from "./account-balance/combineActivityResults";
+import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -408,11 +409,16 @@ const getWeekAccountBalancesLive = GetWeekAccountBalancesLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const getTransactionFeesPaginatedLive = GetTransactionFeesPaginatedLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(getWeekAccountBalancesLive)
+  Layer.provide(getWeekAccountBalancesLive),
+  Layer.provide(getTransactionFeesPaginatedLive)
 );
 
 const calculateActivityPointsWorkerLive =
@@ -420,7 +426,8 @@ const calculateActivityPointsWorkerLive =
     Layer.provide(dbClientLive),
     Layer.provide(calculateActivityPointsLive),
     Layer.provide(getWeekByIdLive),
-    Layer.provide(getWeekAccountBalancesLive)
+    Layer.provide(getWeekAccountBalancesLive),
+    Layer.provide(getTransactionFeesPaginatedLive)
   );
 
 const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
