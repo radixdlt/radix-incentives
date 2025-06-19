@@ -56,19 +56,27 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
           });
 
         let offset = 0;
-        const accounts: GetTransactionFeesServiceOutput = [];
+        const accounts = new Map<string, BigNumber>();
 
         while (true) {
           const data = yield* getData(offset);
           if (data.length === 0) break;
           for (const r of data) {
             const fee = new BigNumber(r.totalFee ?? 0);
-            accounts.push({ accountAddress: r.accountAddress, fee });
+            const existingFee = accounts.get(r.accountAddress);
+            if (existingFee) {
+              accounts.set(r.accountAddress, existingFee.plus(fee));
+            } else {
+              accounts.set(r.accountAddress, fee);
+            }
           }
           offset += 1000;
         }
 
-        return accounts;
+        return Array.from(accounts.entries()).map(([accountAddress, fee]) => ({
+          accountAddress,
+          fee,
+        }));
       });
     };
   })
