@@ -339,41 +339,50 @@ const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(combineActivityResultsLive)
 );
 
-const c9Layers = Layer.mergeAll(
+const gatewayLive = Layer.mergeAll(
+  gatewayApiClientLive,
+  stateEntityDetailsLive,
+  entityFungiblesPageServiceLive,
+  getLedgerStateLive,
+  entityNonFungiblesPageServiceLive,
+  entityNonFungibleDataServiceLive,
+  getNonFungibleBalanceLive,
+  getNftResourceManagersLive,
+  getNonFungibleIdsLive,
+  getEntityDetailsServiceLive,
+  getResourcePoolUnitsLive
+);
+
+const stakingLive = Layer.mergeAll(
+  getUserStakingPositionsLive,
+  getLsulpLive,
+  convertLsuToXrdLive,
+  getLsulpValueLive,
+  getAllValidatorsServiceLive
+);
+
+const dappsLive = Layer.mergeAll(
+  getWeftFinancePositionsLive,
+  getRootFinancePositionLive,
+  getDefiPlazaPositionsLive,
   getShapeLiquidityAssetsLive,
   getShapeLiquidityClaimsLive,
   getQuantaSwapBinMapLive
 );
 
-const getAccountBalancesAtStateVersionLive = (() => {
-  const part1 = GetAccountBalancesAtStateVersionLive.pipe(
-    Layer.provide(stateEntityDetailsLive),
-    Layer.provide(entityFungiblesPageServiceLive),
-    Layer.provide(getLedgerStateLive),
-    Layer.provide(entityNonFungiblesPageServiceLive),
-    Layer.provide(entityNonFungibleDataServiceLive),
-    Layer.provide(getNonFungibleBalanceLive),
-    Layer.provide(getAllValidatorsServiceLive),
-    Layer.provide(getUserStakingPositionsLive),
-    Layer.provide(getLsulpLive),
-    Layer.provide(convertLsuToXrdLive),
-    Layer.provide(getLsulpValueLive),
-    Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(getWeftFinancePositionsLive),
-    Layer.provide(getRootFinancePositionLive),
-    Layer.provide(c9Layers),
-    Layer.provide(getDefiPlazaPositionsLive),
-    Layer.provide(getResourcePoolUnitsLive),
-    Layer.provide(getAccountAddressesLive),
-    Layer.provide(upsertAccountBalancesLive),
-    Layer.provide(updateSnapshotLive)
-  );
+const accountBalanceLive = Layer.mergeAll(
+  getAccountAddressesLive,
+  upsertAccountBalancesLive,
+  updateSnapshotLive
+);
 
-  return part1.pipe(
-    Layer.provide(getNftResourceManagersLive),
-    Layer.provide(getNonFungibleIdsLive)
+const getAccountBalancesAtStateVersionLive =
+  GetAccountBalancesAtStateVersionLive.pipe(
+    Layer.provide(gatewayLive),
+    Layer.provide(stakingLive),
+    Layer.provide(dappsLive),
+    Layer.provide(accountBalanceLive)
   );
-})();
 
 const snapshotLive = SnapshotLive.pipe(
   Layer.provide(gatewayApiClientLive),

@@ -244,32 +244,42 @@ const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
   Layer.provide(entityFungiblesPageServiceLive)
 );
 
-const getAccountBalancesAtStateVersionLive = (() => {
-  const part1 = GetAccountBalancesAtStateVersionLive.pipe(
-    Layer.provide(stateEntityDetailsLive),
-    Layer.provide(entityFungiblesPageServiceLive),
-    Layer.provide(getLedgerStateLive),
-    Layer.provide(entityNonFungiblesPageServiceLive),
-    Layer.provide(entityNonFungibleDataServiceLive),
-    Layer.provide(getNonFungibleBalanceLive),
-    Layer.provide(getAllValidatorsServiceLive),
-    Layer.provide(getUserStakingPositionsLive),
-    Layer.provide(getLsulpLive),
-    Layer.provide(convertLsuToXrdLive),
-    Layer.provide(getLsulpValueLive),
-    Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(getWeftFinancePositionsLive),
-    Layer.provide(getRootFinancePositionLive),
-    Layer.provide(getShapeLiquidityAssetsLive),
-    Layer.provide(getShapeLiquidityClaimsLive),
-    Layer.provide(getQuantaSwapBinMapLive),
-    Layer.provide(getDefiPlazaPositionsLive),
-    Layer.provide(getResourcePoolUnitsLive),
-    Layer.provide(getNftResourceManagersLive)
-  );
+const testGatewayLive = Layer.mergeAll(
+  stateEntityDetailsLive,
+  entityFungiblesPageServiceLive,
+  getLedgerStateLive,
+  entityNonFungiblesPageServiceLive,
+  entityNonFungibleDataServiceLive,
+  getNonFungibleBalanceLive,
+  getNftResourceManagersLive,
+  getNonFungibleIdsLive,
+  getEntityDetailsServiceLive,
+  getResourcePoolUnitsLive
+);
 
-  return part1.pipe(Layer.provide(getNonFungibleIdsLive));
-})();
+const testStakingLive = Layer.mergeAll(
+  getUserStakingPositionsLive,
+  getLsulpLive,
+  convertLsuToXrdLive,
+  getLsulpValueLive,
+  getAllValidatorsServiceLive
+);
+
+const testDappLive = Layer.mergeAll(
+  getWeftFinancePositionsLive,
+  getRootFinancePositionLive,
+  getShapeLiquidityAssetsLive,
+  getShapeLiquidityClaimsLive,
+  getQuantaSwapBinMapLive,
+  getDefiPlazaPositionsLive
+);
+
+const getAccountBalancesAtStateVersionLive =
+  GetAccountBalancesAtStateVersionLive.pipe(
+    Layer.provide(testGatewayLive),
+    Layer.provide(testStakingLive),
+    Layer.provide(testDappLive)
+  );
 
 const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "api" },
