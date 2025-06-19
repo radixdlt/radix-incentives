@@ -103,7 +103,7 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             {
               timestamp: input.timestamp,
               address: input.accountBalance.address,
-              activityId: "provideLiquidityToDex_defiplaza",
+              activityId: "provideLiquidityToDex",
               usdValue: new BigNumber(0),
               data: {},
             },
