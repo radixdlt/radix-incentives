@@ -97,6 +97,7 @@ export const CalculateActivityPointsLive = Layer.effect(
         const transactionFees = yield* getTransactionFees({
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
+          addresses: input.addresses,
         }).pipe(
           Effect.map((items) =>
             items.map(({ accountAddress, fee }) => ({
@@ -112,10 +113,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           yield* Effect.log(
             `adding ${transactionFees.length} transaction fees calculations`
           );
-          yield* Effect.forEach(
-            chunker(transactionFees, 10_000),
-            upsertAccountActivityPoints
-          );
+          yield* upsertAccountActivityPoints(transactionFees);
         }
       });
     };

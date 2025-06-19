@@ -2,13 +2,14 @@ import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
 import { transactionFees } from "db/incentives";
-import { and, gte, lt, sum } from "drizzle-orm";
+import { and, gte, inArray, lt, sum } from "drizzle-orm";
 import BigNumber from "bignumber.js";
 
 export type GetTransactionFeesServiceInput = {
   endTimestamp: Date;
   startTimestamp: Date;
   limit?: number;
+  addresses?: string[];
 };
 
 export type GetTransactionFeesServiceOutput = {
@@ -33,6 +34,17 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
     return (input) => {
       const limit = input.limit ?? 10_000;
 
+      const andConditions = [
+        gte(transactionFees.timestamp, input.startTimestamp),
+        lt(transactionFees.timestamp, input.endTimestamp),
+      ];
+
+      if (input.addresses) {
+        andConditions.push(
+          inArray(transactionFees.accountAddress, input.addresses)
+        );
+      }
+
       return Effect.gen(function* () {
         const getData = (offset: number) =>
           Effect.tryPromise({
@@ -43,12 +55,7 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
                   totalFee: sum(transactionFees.fee),
                 })
                 .from(transactionFees)
-                .where(
-                  and(
-                    gte(transactionFees.timestamp, input.startTimestamp),
-                    lt(transactionFees.timestamp, input.endTimestamp)
-                  )
-                )
+                .where(and(...andConditions))
                 .groupBy(transactionFees.accountAddress)
                 .limit(limit)
                 .offset(offset),
