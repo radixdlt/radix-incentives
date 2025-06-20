@@ -317,12 +317,10 @@ export const accountBalances = createTable(
     pk: primaryKey({
       columns: [table.accountAddress, table.timestamp, table.activityId],
     }),
-    // Index for conflict resolution speed during upserts
-    conflictIdx: index("idx_account_balances_conflict").on(
-      table.accountAddress,
-      table.timestamp,
-      table.activityId
-    ),
+    // Note: Indexes will be created per partition, not on the main table
+    timestampIdx: index("idx_account_balances_timestamp").on(table.timestamp),
+    activityIdx: index("idx_account_balances_activity").on(table.activityId),
+    accountIdx: index("idx_account_balances_account").on(table.accountAddress),
   })
 );
 
@@ -332,6 +330,85 @@ export const accountBalancesRelations = relations(
     activity: one(activities, {
       fields: [accountBalances.activityId],
       references: [activities.id],
+    }),
+  })
+);
+
+// Partition management utilities - these will be used in migrations
+export const accountBalancesPartitionSQL = {
+  // Create the main partitioned table
+  createPartitionedTable: `
+    CREATE TABLE IF NOT EXISTS account_balances (
+      timestamp TIMESTAMPTZ NOT NULL,
+      account_address VARCHAR(255) NOT NULL,
+      usd_value DECIMAL(18,2) NOT NULL,
+      activity_id TEXT NOT NULL,
+      data JSONB NOT NULL,
+      PRIMARY KEY (account_address, timestamp, activity_id)
+    ) PARTITION BY RANGE (timestamp);
+  `,
+
+  // Create a weekly partition with sub-partitioning by activity_id
+  createWeeklyPartition: (weekStart: string, weekEnd: string) => `
+    CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')} 
+    PARTITION OF account_balances 
+    FOR VALUES FROM ('${weekStart}') TO ('${weekEnd}')
+    PARTITION BY LIST (activity_id);
+  `,
+
+  // Create activity sub-partitions within a week
+  createActivityPartition: (weekStart: string, activityIds: string[]) => `
+    CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')}_${activityIds[0].replace(/[^a-zA-Z0-9]/g, '_')}
+    PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
+    FOR VALUES IN (${activityIds.map(id => `'${id}'`).join(', ')});
+  `,
+
+  // Create indexes on partition
+  createPartitionIndexes: (tableName: string) => `
+    CREATE INDEX IF NOT EXISTS ${tableName}_timestamp_idx ON ${tableName} (timestamp);
+    CREATE INDEX IF NOT EXISTS ${tableName}_activity_idx ON ${tableName} (activity_id);
+    CREATE INDEX IF NOT EXISTS ${tableName}_account_idx ON ${tableName} (account_address);
+    CREATE INDEX IF NOT EXISTS ${tableName}_compound_idx ON ${tableName} (account_address, timestamp);
+  `,
+
+  // Drop old partitions (for data retention)
+  dropPartition: (weekStart: string) => `
+    DROP TABLE IF EXISTS account_balances_${weekStart.replace(/-/g, '_')} CASCADE;
+  `,
+
+  // Get partition information
+  getPartitionInfo: `
+    SELECT 
+      schemaname,
+      tablename,
+      pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
+    FROM pg_tables 
+    WHERE tablename LIKE 'account_balances_%'
+    ORDER BY tablename;
+  `,
+};
+
+// Alternative approach for high-frequency data: Time-series optimized table
+export const accountBalancesTimeseries = createTable(
+  "account_balances_ts",
+  {
+    timestamp: timestamp("timestamp", {
+      mode: "date", 
+      withTimezone: true,
+    }).notNull(),
+    accountAddress: varchar("account_address", { length: 255 }).notNull(),
+    activityId: text("activity_id").notNull(),
+    usdValue: decimal("usd_value", { precision: 18, scale: 2 }).notNull(),
+    data: jsonb("data").notNull(),
+    // Add a week_id for easier partitioning and queries
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+  },
+  (table) => ({
+    // Composite primary key optimized for time-series access patterns
+    pk: primaryKey({
+      columns: [table.weekId, table.activityId, table.accountAddress, table.timestamp],
     }),
   })
 );
