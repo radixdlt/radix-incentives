@@ -59,6 +59,13 @@ releases:
         primary:
           persistence:
             enabled: false
+          resources:
+            requests:
+              cpu: "1"
+              memory: 2Gi
+            limits:
+              cpu: "1"
+              memory: "2Gi"
 
   - name: redis
     chart: bitnami/redis
