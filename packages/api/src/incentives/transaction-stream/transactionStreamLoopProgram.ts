@@ -31,6 +31,7 @@ import { AddTransactionsToDbLive } from "./addTransactionsToDb";
 import { GetActivitiesLive } from "../activity/getActivities";
 import { AddToEventQueueLive } from "../events/addToEventQueue";
 import { EventQueueClientLive } from "../events/eventQueueClient";
+import { AddTransactionFeeLive } from "../transaction-fee/addTransactionFee";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -193,6 +194,10 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(eventQueueClientLive)
   );
 
+  const addTransactionFeeLive = AddTransactionFeeLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
   const transactionStream = Effect.provide(
     transactionStreamLoop(),
     Layer.mergeAll(
@@ -208,7 +213,8 @@ export const runTransactionStreamLoop = async () => {
       addTransactionsToDbLive,
       configLive,
       addToEventQueueLive,
-      eventQueueClientLive
+      eventQueueClientLive,
+      addTransactionFeeLive
     )
   );
 

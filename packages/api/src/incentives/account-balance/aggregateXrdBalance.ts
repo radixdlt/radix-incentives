@@ -23,6 +23,7 @@ type XrdBalance = {
   weftFinanceXrd: string;
   weftFinanceLsulp: string;
   caviarNineXrd: string;
+  defiPlazaXrd: string;
 };
 
 // biome
@@ -129,14 +130,36 @@ export const XrdBalanceLive = Layer.effect(
         const caviarNine =
           input.accountBalance.caviarninePositions.xrdUsdc.reduce(
             (acc, item) => {
-              acc.xrd = acc.xrd
-                .plus(item.xToken.withinPriceBounds)
-                .plus(item.xToken.outsidePriceBounds);
+              // Only count XRD tokens from either xToken or yToken
+              if (item.xToken.resourceAddress === Assets.Fungible.XRD) {
+                acc.xrd = acc.xrd
+                  .plus(item.xToken.withinPriceBounds)
+                  .plus(item.xToken.outsidePriceBounds);
+              }
+              if (item.yToken.resourceAddress === Assets.Fungible.XRD) {
+                acc.xrd = acc.xrd
+                  .plus(item.yToken.withinPriceBounds)
+                  .plus(item.yToken.outsidePriceBounds);
+              }
 
               return acc;
             },
             { xrd: new BigNumber(0) }
           );
+
+        const defiPlaza = input.accountBalance.defiPlazaPositions.items.reduce(
+          (acc, lpPosition) => {
+            // Find XRD positions in DefiPlaza LP
+            const xrdPosition = lpPosition.position.find(
+              (pos) => pos.resourceAddress === Assets.Fungible.XRD
+            );
+            if (xrdPosition) {
+              acc.xrd = acc.xrd.plus(xrdPosition.amount);
+            }
+            return acc;
+          },
+          { xrd: new BigNumber(0) }
+        );
 
         const xrdPrice = yield* getUsdValueService({
           timestamp: input.timestamp,
@@ -156,6 +179,7 @@ export const XrdBalanceLive = Layer.effect(
           weftFinanceXrd: weftFinanceLending.xrd.toString(),
           weftFinanceLsulp: weftFinanceLending.lsulp.toString(),
           caviarNineXrd: caviarNine.xrd.toString(),
+          defiPlazaXrd: defiPlaza.xrd.toString(),
         };
 
         const usdValue = yield* getUsdValueService({
@@ -177,7 +201,8 @@ export const XrdBalanceLive = Layer.effect(
                 input.accountBalance.lsulp.lsulpValue
               )
             )
-            .plus(caviarNine.xrd),
+            .plus(caviarNine.xrd)
+            .plus(defiPlaza.xrd),
         });
 
         return [

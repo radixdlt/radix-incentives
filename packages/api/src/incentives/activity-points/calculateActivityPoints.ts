@@ -9,6 +9,8 @@ import {
   GetWeekByIdService,
   type WeekNotFoundError,
 } from "../week/getWeekById";
+import { GetTransactionFeesService } from "../transaction-fee/getTransactionFees";
+import { chunker } from "../../common";
 
 export const calculateActivityPointsInputSchema = z.object({
   weekId: z.string(),
@@ -41,7 +43,7 @@ export class CalculateActivityPointsService extends Context.Tag(
     CalculateActivityPointsError,
     CalculateActivityPointsDependency
   >
->() { }
+>() {}
 
 export const CalculateActivityPointsLive = Layer.effect(
   CalculateActivityPointsService,
@@ -50,17 +52,24 @@ export const CalculateActivityPointsLive = Layer.effect(
       yield* UpsertAccountActivityPointsService;
     const getWeekAccountBalances = yield* GetWeekAccountBalancesService;
     const getWeekById = yield* GetWeekByIdService;
+    const getTransactionFees = yield* GetTransactionFeesService;
 
     return (input) => {
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
 
-        const items = yield* getWeekAccountBalances({
+        const weekAccountBalances = yield* getWeekAccountBalances({
           startDate: week.startDate,
           endDate: week.endDate,
           addresses: input.addresses,
         }).pipe(
-          Effect.flatMap((items) => calculateTWA({ items, week, calculationType: "USDValueDurationMultiplied" })),
+          Effect.flatMap((items) =>
+            calculateTWA({
+              items,
+              week,
+              calculationType: "USDValueDurationMultiplied",
+            })
+          ),
           // flatten the items to a list of account activity points
           Effect.map((items) =>
             Object.entries(items).flatMap(([address, activities]) =>
@@ -78,11 +87,33 @@ export const CalculateActivityPointsLive = Layer.effect(
           )
         );
 
-        if (items.length > 0) {
+        if (weekAccountBalances.length > 0) {
           yield* Effect.log(
-            `adding ${items.length} activity points calculations`
+            `adding ${weekAccountBalances.length} activity points calculations`
           );
-          yield* upsertAccountActivityPoints(items);
+          yield* upsertAccountActivityPoints(weekAccountBalances);
+        }
+
+        const transactionFees = yield* getTransactionFees({
+          endTimestamp: week.endDate,
+          startTimestamp: week.startDate,
+          addresses: input.addresses,
+        }).pipe(
+          Effect.map((items) =>
+            items.map(({ accountAddress, fee }) => ({
+              weekId: week.id,
+              accountAddress,
+              activityId: "transactionFeesPaid",
+              activityPoints: fee.decimalPlaces(0).toNumber(),
+            }))
+          )
+        );
+
+        if (transactionFees.length > 0) {
+          yield* Effect.log(
+            `adding ${transactionFees.length} transaction fees calculations`
+          );
+          yield* upsertAccountActivityPoints(transactionFees);
         }
       });
     };

@@ -77,6 +77,12 @@ import type {
   FailedToParseLiquidityClaimsError,
   GetShapeLiquidityClaimsService,
 } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
+import {
+  type GetDefiPlazaPositionsOutput,
+  GetDefiPlazaPositionsService,
+  type GetDefiPlazaPositionsError,
+} from "../../common/dapps/defiplaza/getDefiPlazaPositions";
+import type { GetResourcePoolUnitsService } from "../../common/resource-pool/getResourcePoolUnits";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
@@ -126,6 +132,8 @@ type CaviarNinePosition = {
   xrdUsdc: ShapeLiquidityAsset[];
 };
 
+type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
+
 export type AccountBalance = {
   address: string;
   staked: Lsu[];
@@ -136,6 +144,7 @@ export type AccountBalance = {
   weftFinancePositions: WeftFinancePosition;
   rootFinancePositions: RootFinancePosition[];
   caviarninePositions: CaviarNinePosition;
+  defiPlazaPositions: DefiPlazaPosition;
 };
 
 export type GetAccountBalancesAtStateVersionServiceError =
@@ -159,7 +168,8 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | EntityNotFoundError
   | InvalidInputError
   | InvalidComponentStateError
-  | FailedToParseLiquidityClaimsError;
+  | FailedToParseLiquidityClaimsError
+  | GetDefiPlazaPositionsError;
 
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
@@ -198,6 +208,8 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
     | GetQuantaSwapBinMapService
     | GetShapeLiquidityClaimsService
     | GetNftResourceManagersServiceDependencies
+    | GetDefiPlazaPositionsService
+    | GetResourcePoolUnitsService
   >
 >() {}
 
@@ -218,6 +230,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
     const getLedgerStateService = yield* GetLedgerStateService;
     const getShapeLiquidityAssetsService =
       yield* GetShapeLiquidityAssetsService;
+    const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -261,7 +274,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC;
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, xrd usdc shape liquidity assets, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, xrd usdc shape liquidity assets, defi plaza positions, lsulp value"
         );
         const [
           userStakingPositions,
@@ -269,6 +282,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allWeftFinancePositions,
           allRootFinancePositions,
           xrdUsdcShapeLiquidityAssets,
+          allDefiPlazaPositions,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -305,6 +319,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
             }).pipe(
               Effect.withSpan("C9Pool_XRD_xUSDC_getShapeLiquidityAssetsService")
             ),
+            getDefiPlazaPositionsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getDefiPlazaPositionsService")),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -391,6 +410,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   (item) => item.address === address
                 )?.items ?? [];
 
+              const accountDefiPlazaPositions: DefiPlazaPosition =
+                allDefiPlazaPositions.find(
+                  (item) => item.address === address
+                ) ?? { address, items: [] };
+
               return {
                 address,
                 staked,
@@ -403,6 +427,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 caviarninePositions: {
                   xrdUsdc: accountXRD_xUSDC_ShapeLiquidityAssets,
                 },
+                defiPlazaPositions: accountDefiPlazaPositions,
               } satisfies AccountBalance;
             })
         );

@@ -7,6 +7,21 @@ import { DbClientService, DbError } from "../db/dbClient";
 import { inArray } from "drizzle-orm";
 import { type Account, accounts } from "db/incentives";
 import type { CommittedTransactionInfo } from "@radixdlt/babylon-gateway-api-sdk";
+import Bignumber from "bignumber.js";
+
+export type RegisteredFeePayer = {
+  txId: string;
+  accountAddress: string;
+  fee: Bignumber;
+  timestamp: Date;
+};
+
+export type FilterTransactionsServiceOutput = {
+  registeredAccounts: Account[];
+  filteredTransactions: TransformedTransaction[];
+  registeredFeePayers: RegisteredFeePayer[];
+  stateVersion: number;
+};
 
 export class FilterTransactionsService extends Context.Tag(
   "FilterTransactionsService"
@@ -15,15 +30,7 @@ export class FilterTransactionsService extends Context.Tag(
   (input: {
     transactions: CommittedTransactionInfo[];
     stateVersion: number;
-  }) => Effect.Effect<
-    {
-      registeredAccounts: Account[];
-      filteredTransactions: TransformedTransaction[];
-      stateVersion: number;
-    },
-    DbError,
-    DbClientService
-  >
+  }) => Effect.Effect<FilterTransactionsServiceOutput, DbError, DbClientService>
 >() {}
 
 type AccountAddress = string;
@@ -67,6 +74,7 @@ export const FilterTransactionsLive = Layer.effect(
         });
 
         const filteredTransactions: TransformedTransaction[] = [];
+        const allRegisteredFeePayers: RegisteredFeePayer[] = [];
 
         for (const registeredAccount of registeredAccounts) {
           const transactionIdSet = addressTransactionMap.get(
@@ -78,6 +86,20 @@ export const FilterTransactionsLive = Layer.effect(
             transactionIdSet.has(transaction.transactionId)
           );
 
+          const registeredFeePayers = transactions
+            .map((tx) => ({
+              txId: tx.transactionId,
+              accountAddress: registeredAccount.address,
+              fee: (
+                tx.feeBalanceChanges[registeredAccount.address] ??
+                new Bignumber(0)
+              ).multipliedBy(-1),
+              timestamp: new Date(tx.round_timestamp),
+            }))
+            .filter((feePayer) => feePayer.fee.gt(0));
+
+          allRegisteredFeePayers.push(...registeredFeePayers);
+
           if (transaction) {
             filteredTransactions.push(transaction);
           }
@@ -87,6 +109,7 @@ export const FilterTransactionsLive = Layer.effect(
           registeredAccounts,
           filteredTransactions,
           stateVersion: input.stateVersion,
+          registeredFeePayers: allRegisteredFeePayers,
         };
       });
     };

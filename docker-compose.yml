@@ -51,7 +51,7 @@ services:
   taskforce-connector:
     build: https://github.com/taskforcesh/taskforce-connector.git#master
     environment:
-      TASKFORCE_CONNECTION: "local taskforce provisioner"
+      TASKFORCE_CONNECTION: ${TASKFORCE_CONNECTION:-"local taskforce provisioner"}
       TASKFORCE_TEAM: ${TASKFORCE_TEAM:-Radix}
       TASKFORCE_TOKEN: ${TASKFORCE_TOKEN}
       REDIS_HOST: redis
