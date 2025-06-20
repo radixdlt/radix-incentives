@@ -12,8 +12,10 @@ type C9XrdUsdcLp = {
   type: "c9_xrd_usdc_lp";
   xTokenResourceAddress: string;
   xTokenWithinPriceBounds: string;
+  xTokenOutsidePriceBounds: string;
   yTokenResourceAddress: string;
   yTokenWithinPriceBounds: string;
+  yTokenOutsidePriceBounds: string;
 };
 
 type NoData = Record<string, never>;
@@ -96,8 +98,10 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               type: "c9_xrd_usdc_lp",
               xTokenResourceAddress: xToken.resourceAddress,
               xTokenWithinPriceBounds: totalXToken.toString(),
+              xTokenOutsidePriceBounds: xToken.outsidePriceBounds.toString(),
               yTokenResourceAddress: yToken.resourceAddress,
               yTokenWithinPriceBounds: totalYToken.toString(),
+              yTokenOutsidePriceBounds: yToken.outsidePriceBounds.toString(),
             },
           },
         ];

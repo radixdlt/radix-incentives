@@ -1,4 +1,4 @@
-import { accountsData } from "./data/accounts30KData";
+import { accountsData } from "./data/accountsWeftV2xUsdcHoldersData"
 import {
   accounts,
   activities,
@@ -78,11 +78,11 @@ const [weekResult] = await db
   .insert(weeks)
   .values([
     {
-      startDate: new Date("2025-06-02:00:00:00Z"),
-      endDate: new Date("2025-06-09:00:00:00Z"),
+      startDate: new Date("2025-06-12:00:00:00Z"),
+      endDate: new Date("2025-06-19:00:00:00Z"),
       seasonId: SEASON_ID,
       id: WEEK_ID,
-    },
+    }
   ])
   .returning()
   .onConflictDoNothing();
