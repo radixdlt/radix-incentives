@@ -358,11 +358,22 @@ export const accountBalancesPartitionSQL = {
   `,
 
   // Create activity sub-partitions within a week
-  createActivityPartition: (weekStart: string, activityIds: string[]) => `
-    CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')}_${activityIds[0].replace(/[^a-zA-Z0-9]/g, '_')}
-    PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
-    FOR VALUES IN (${activityIds.map(id => `'${id}'`).join(', ')});
-  `,
+  createActivityPartition: (weekStart: string, activityIds: string[]) => {
+    if (!activityIds || activityIds.length === 0) {
+      throw new Error('activityIds array cannot be empty when creating activity partition');
+    }
+    
+    const firstActivityId = activityIds[0];
+    if (!firstActivityId) {
+      throw new Error('First activity ID cannot be undefined');
+    }
+    
+    return `
+      CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')}_${firstActivityId.replace(/[^a-zA-Z0-9]/g, '_')}
+      PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
+      FOR VALUES IN (${activityIds.map(id => `'${id}'`).join(', ')});
+    `;
+  },
 
   // Create indexes on partition
   createPartitionIndexes: (tableName: string) => `
