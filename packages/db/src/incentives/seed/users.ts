@@ -1,4 +1,5 @@
 import { accountsData } from "./data/accountsWeftV2xUsdcHoldersData"
+import activitiesData from "./data/100activities.json"
 import {
   accounts,
   activities,
@@ -6,6 +7,7 @@ import {
   seasons,
   users,
   weeks,
+  type Activity,
 } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
@@ -89,42 +91,9 @@ const [weekResult] = await db
 
 console.log("Week seeded", weekResult);
 
-const [lendingActivityResult, liquidityActivityResult] = await db
+const activitiesResults = await db
   .insert(activities)
-  .values([
-    {
-      id: "lending",
-      name: "Use a lending market",
-      type: "active",
-      rewardType: "points",
-      category: "lending",
-      rules: {},
-    },
-    {
-      id: "provideLiquidityToDex",
-      name: "Provide liquidity to a DEX",
-      type: "active",
-      rewardType: "points",
-      category: "liquidity",
-      rules: {},
-    },
-    {
-      id: "maintainXrdBalance",
-      name: "Maintain XRD balance",
-      type: "active",
-      rewardType: "points",
-      category: "holding",
-      rules: {},
-    },
-    {
-      id: "common",
-      name: "Common",
-      type: "active",
-      rewardType: "points",
-      category: "none",
-      rules: {},
-    },
-  ])
+  .values(activitiesData as Array<Omit<Activity, "description">>)
   .returning()
   .onConflictDoUpdate({
     target: [activities.id],
@@ -137,22 +106,27 @@ const [lendingActivityResult, liquidityActivityResult] = await db
     },
   });
 
-console.log("Activities seeded", [
-  lendingActivityResult,
-  liquidityActivityResult,
-]);
+console.log("Activities seeded", activitiesResults);
 
-const [activityWeekResult] = await db
+// Find specific activities by ID for activityWeeks
+const lendingActivity = activitiesResults.find(a => a.id === "lending");
+const liquidityActivity = activitiesResults.find(a => a.id === "provideLiquidityToDex");
+
+if (!lendingActivity || !liquidityActivity) {
+  throw new Error("Required activities not found in results");
+}
+
+const activityWeekResults = await db
   .insert(activityWeeks)
   .values([
     {
-      activityId: lendingActivityResult.id,
+      activityId: lendingActivity.id,
       weekId: WEEK_ID,
       pointsPool: 500_000,
       status: "active",
     },
     {
-      activityId: liquidityActivityResult.id,
+      activityId: liquidityActivity.id,
       weekId: WEEK_ID,
       pointsPool: 1_000_000,
       status: "active",
@@ -161,7 +135,7 @@ const [activityWeekResult] = await db
   .returning()
   .onConflictDoNothing();
 
-console.log("ActivityWeeks seeded", activityWeekResult);
+console.log("ActivityWeeks seeded", activityWeekResults);
 
 console.log("Users and accounts successfully seeded");
 

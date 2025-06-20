@@ -1,0 +1,802 @@
+[
+  {
+    "id": "lending",
+    "name": "Use a lending market",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "provideLiquidityToDex",
+    "name": "Provide liquidity to a DEX",
+    "type": "active",
+    "rewardType": "points",
+    "category": "liquidity",
+    "rules": {}
+  },
+  {
+    "id": "maintainXrdBalance",
+    "name": "Maintain XRD balance",
+    "type": "active",
+    "rewardType": "points",
+    "category": "holding",
+    "rules": {}
+  },
+  {
+    "id": "common",
+    "name": "Common",
+    "type": "active",
+    "rewardType": "points",
+    "category": "none",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_xrd_xusdc",
+    "name": "Trade on C9 XRD-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_floop_xrd",
+    "name": "Trade on C9 FLOOP-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_xwbtc_xrd",
+    "name": "Trade on C9 xWBTC-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_xeth_xrd",
+    "name": "Trade on C9 xETH-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_xusdt_xrd",
+    "name": "Trade on C9 xUSDT-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_xusdt_xusdc",
+    "name": "Trade on C9 xUSDT-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_dfp2_xrd",
+    "name": "Trade on C9 DFP2-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_early_xrd",
+    "name": "Trade on C9 EARLY-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_caviar_xrd",
+    "name": "Trade on C9 CAVIAR-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_srg_xrd",
+    "name": "Trade on C9 SRG-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_radit_xrd",
+    "name": "Trade on C9 RADIT-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_fusd_xusdc",
+    "name": "Trade on C9 FUSD-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_stab_xusdc",
+    "name": "Trade on C9 STAB-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_c9_popey_xrd",
+    "name": "Trade on C9 POPEY-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_xrd_xusdc",
+    "name": "Trade on DefiPlaza XRD-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_floop_xrd",
+    "name": "Trade on DefiPlaza FLOOP-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_xwbtc_xrd",
+    "name": "Trade on DefiPlaza xWBTC-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_xeth_xrd",
+    "name": "Trade on DefiPlaza xETH-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_xusdt_xrd",
+    "name": "Trade on DefiPlaza xUSDT-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_xusdt_xusdc",
+    "name": "Trade on DefiPlaza xUSDT-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_dfp2_xrd",
+    "name": "Trade on DefiPlaza DFP2-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_early_xrd",
+    "name": "Trade on DefiPlaza EARLY-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_caviar_xrd",
+    "name": "Trade on DefiPlaza CAVIAR-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_srg_xrd",
+    "name": "Trade on DefiPlaza SRG-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_radit_xrd",
+    "name": "Trade on DefiPlaza RADIT-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_fusd_xusdc",
+    "name": "Trade on DefiPlaza FUSD-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_stab_xusdc",
+    "name": "Trade on DefiPlaza STAB-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_defiPlaza_popey_xrd",
+    "name": "Trade on DefiPlaza POPEY-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_xrd_xusdc",
+    "name": "Trade on OCI XRD-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_floop_xrd",
+    "name": "Trade on OCI FLOOP-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_xwbtc_xrd",
+    "name": "Trade on OCI xWBTC-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_xeth_xrd",
+    "name": "Trade on OCI xETH-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_xusdt_xrd",
+    "name": "Trade on OCI xUSDT-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_xusdt_xusdc",
+    "name": "Trade on OCI xUSDT-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_dfp2_xrd",
+    "name": "Trade on OCI DFP2-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_early_xrd",
+    "name": "Trade on OCI EARLY-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_caviar_xrd",
+    "name": "Trade on OCI CAVIAR-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_srg_xrd",
+    "name": "Trade on OCI SRG-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_radit_xrd",
+    "name": "Trade on OCI RADIT-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_fusd_xusdc",
+    "name": "Trade on OCI FUSD-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_stab_xusdc",
+    "name": "Trade on OCI STAB-xUSDC pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "dex_oci_popey_xrd",
+    "name": "Trade on OCI POPEY-XRD pool",
+    "type": "active",
+    "rewardType": "points",
+    "category": "trading",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_xrd",
+    "name": "Lend XRD on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_xusdc",
+    "name": "Lend xUSDC on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_floop",
+    "name": "Lend FLOOP on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_xwbtc",
+    "name": "Lend xWBTC on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_xeth",
+    "name": "Lend xETH on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_xusdt",
+    "name": "Lend xUSDT on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_dfp2",
+    "name": "Lend DFP2 on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_fusd",
+    "name": "Lend FUSD on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_stab",
+    "name": "Lend STAB on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_xrd",
+    "name": "Lend XRD on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_xusdc",
+    "name": "Lend xUSDC on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_floop",
+    "name": "Lend FLOOP on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_xwbtc",
+    "name": "Lend xWBTC on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_xeth",
+    "name": "Lend xETH on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_xusdt",
+    "name": "Lend xUSDT on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_dfp2",
+    "name": "Lend DFP2 on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_fusd",
+    "name": "Lend FUSD on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_stab",
+    "name": "Lend STAB on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_xrd",
+    "name": "Lend XRD on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_xusdc",
+    "name": "Lend xUSDC on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_floop",
+    "name": "Lend FLOOP on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_xwbtc",
+    "name": "Lend xWBTC on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_xeth",
+    "name": "Lend xETH on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_xusdt",
+    "name": "Lend xUSDT on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_dfp2",
+    "name": "Lend DFP2 on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_fusd",
+    "name": "Lend FUSD on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_stab",
+    "name": "Lend STAB on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_popey",
+    "name": "Lend POPEY on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_lsulp",
+    "name": "Lend LSULP on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_dph",
+    "name": "Lend DPH on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_gift",
+    "name": "Lend GIFT on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_hug",
+    "name": "Lend HUG on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_weft",
+    "name": "Lend WEFT on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_gab",
+    "name": "Lend GAB on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_dan",
+    "name": "Lend DAN on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_root_jit",
+    "name": "Lend JIT on Root",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_popey",
+    "name": "Lend POPEY on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_lsulp",
+    "name": "Lend LSULP on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_dph",
+    "name": "Lend DPH on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_gift",
+    "name": "Lend GIFT on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_hug",
+    "name": "Lend HUG on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_weft",
+    "name": "Lend WEFT on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_gab",
+    "name": "Lend GAB on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_dan",
+    "name": "Lend DAN on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_weft_jit",
+    "name": "Lend JIT on Weft",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_popey",
+    "name": "Lend POPEY on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_lsulp",
+    "name": "Lend LSULP on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_dph",
+    "name": "Lend DPH on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_gift",
+    "name": "Lend GIFT on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_hug",
+    "name": "Lend HUG on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_weft",
+    "name": "Lend WEFT on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_gab",
+    "name": "Lend GAB on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_dan",
+    "name": "Lend DAN on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  },
+  {
+    "id": "lending_surge_jit",
+    "name": "Lend JIT on Surge",
+    "type": "active",
+    "rewardType": "points",
+    "category": "lending",
+    "rules": {}
+  }
+] 

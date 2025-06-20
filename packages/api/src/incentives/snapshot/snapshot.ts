@@ -69,8 +69,13 @@ import type { GetUsdValueService } from "../token-price/getUsdValue";
 import {
   AggregateAccountBalanceService,
   type AggregateAccountBalanceServiceDependency,
+  type AggregateAccountBalanceOutput,
 } from "../account-balance/aggregateAccountBalance";
 import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
+import BigNumber from "bignumber.js";
+
+// Import all activities from 100activities.json
+import allActivities from "../../../../db/src/incentives/seed/data/100activities.json";
 
 export class SnapshotError {
   _tag = "SnapshotError";
@@ -241,7 +246,66 @@ export const SnapshotLive = Layer.effect(
 
         const aggregatedAccountBalance = aggregateAccountBalanceResult.right;
 
-        const groupedByActivityId = aggregatedAccountBalance.reduce(
+        // Get existing activity IDs from aggregated results
+        const existingActivityIds = new Set(
+          aggregatedAccountBalance.map((item) => item.activityId)
+        );
+
+        // Get all activity IDs from 100activities.json
+        const allActivityIds = allActivities.map((activity) => activity.id);
+
+        // Find missing activity IDs
+        const missingActivityIds = allActivityIds.filter(
+          (activityId) => !existingActivityIds.has(activityId)
+        );
+
+        // Check if dummy data generation is enabled via environment variable
+        const enableDummyData = process.env.ENABLE_DUMMY_ACTIVITY_DATA === 'true';
+        
+        let expandedAggregatedAccountBalance = aggregatedAccountBalance;
+
+        if (enableDummyData && missingActivityIds.length > 0) {
+          yield* Effect.log("Adding dummy data for missing activities", {
+            missingActivityIds: missingActivityIds.length,
+            existingActivityIds: existingActivityIds.size,
+          });
+
+          // Create dummy data for missing activities for each account
+          const dummyData: AggregateAccountBalanceOutput[] = [];
+          
+          for (const address of accountAddresses) {
+            for (const activityId of missingActivityIds) {
+              const dummyEntry: AggregateAccountBalanceOutput = {
+                timestamp: input.timestamp,
+                address: address,
+                activityId: activityId,
+                usdValue: new BigNumber(0),
+                data: {
+                  type: "no_data",
+                },
+              };
+              dummyData.push(dummyEntry);
+            }
+          }
+
+          yield* Effect.log("Created dummy entries", {
+            dummyEntriesCount: dummyData.length,
+            accountsCount: accountAddresses.length,
+            missingActivitiesCount: missingActivityIds.length,
+          });
+
+          // Combine real data with dummy data
+          expandedAggregatedAccountBalance = [
+            ...aggregatedAccountBalance,
+            ...dummyData,
+          ];
+        } else if (enableDummyData) {
+          yield* Effect.log("Dummy data generation enabled but no missing activities found");
+        } else {
+          yield* Effect.log("Dummy data generation disabled via environment variable");
+        }
+
+        const groupedByActivityId = expandedAggregatedAccountBalance.reduce(
           (acc, item) => {
             acc[item.activityId] = (acc[item.activityId] || 0) + 1;
             return acc;
@@ -251,7 +315,7 @@ export const SnapshotLive = Layer.effect(
 
         yield* Effect.log("updating account balances", groupedByActivityId);
 
-        yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
+        yield* upsertAccountBalances(expandedAggregatedAccountBalance).pipe(
           Effect.withSpan("upsertAccountBalances")
         );
 
