@@ -37,4 +37,4 @@ COPY --from=installer /app/apps/ apps
 COPY --from=installer /app/packages/ packages
 COPY --from=installer /app/node_modules/ node_modules
 
-CMD node --max-old-space-size=5120 apps/workers/dist/index.js
+CMD node --max-old-space-size=8192 apps/workers/dist/index.js
