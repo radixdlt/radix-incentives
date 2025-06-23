@@ -91,6 +91,7 @@ export type SnapshotInput = {
   addresses?: string[];
   timestamp: Date;
   batchSize?: number;
+  jobId?: string;
 };
 
 /**
@@ -193,6 +194,7 @@ export const SnapshotLive = Layer.effect(
           timestamp: input.timestamp,
           addresses: input.addresses,
           batchSize: input.batchSize,
+          jobId: input.jobId,
         });
 
         if (!input.timestamp)
@@ -201,7 +203,7 @@ export const SnapshotLive = Layer.effect(
         // Get batch size from input or environment variable, default to 1000
         const batchSize = 
           input.batchSize ?? 
-          Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? "40000", 10);
+          Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? "30000", 10);
 
         const lederState = yield* getLedgerState({
           at_ledger_state: {
