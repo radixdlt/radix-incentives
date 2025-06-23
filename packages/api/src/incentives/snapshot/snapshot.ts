@@ -243,6 +243,11 @@ export const SnapshotLive = Layer.effect(
         for (let batchIndex = 0; batchIndex < accountBatches.length; batchIndex++) {
           const batch = accountBatches[batchIndex];
           
+          if (!batch) {
+            yield* Effect.fail(new SnapshotError(`Batch ${batchIndex} is undefined`));
+            return;
+          }
+          
           yield* Effect.log("processing batch", {
             batchIndex: batchIndex + 1,
             totalBatches: accountBatches.length,
