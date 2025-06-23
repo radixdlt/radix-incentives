@@ -259,7 +259,10 @@ export const SnapshotLive = Layer.effect(
             progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
           });
 
-          yield* Effect.log("getting account balances for batch");
+          yield* Effect.log("getting account balances for batch", {
+            jobId: input.jobId,
+            batchIndex: batchIndex + 1
+          });
 
           const [accountBalancesResult] = yield* Effect.all(
             [
@@ -285,7 +288,12 @@ export const SnapshotLive = Layer.effect(
 
           const accountBalances = accountBalancesResult.right;
 
-          yield* Effect.log("aggregating account balances and converting into USD for batch");
+          yield* Effect.log("aggregating account balances and converting into USD for batch",
+            {
+              jobId: input.jobId,
+              batchIndex: batchIndex + 1
+            }
+          );
 
           const [aggregateAccountBalanceResult] = yield* Effect.all(
             [
@@ -374,6 +382,7 @@ export const SnapshotLive = Layer.effect(
             batchIndex: batchIndex + 1,
             batchResults: groupedByActivityId,
             batchEntriesCount: batchAggregatedAccountBalance.length,
+            jobId: input.jobId,
           });
 
           // Upsert results for this batch immediately
@@ -392,6 +401,7 @@ export const SnapshotLive = Layer.effect(
             progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
             batchEntriesProcessed: batchAggregatedAccountBalance.length,
             totalEntriesProcessed: totalProcessedEntries,
+            jobId: input.jobId,
           });
 
           // Clear batch data from memory to reduce memory usage
@@ -402,6 +412,7 @@ export const SnapshotLive = Layer.effect(
           totalAccountsProcessed: processedAccounts,
           totalBatchesProcessed: accountBatches.length,
           totalEntriesProcessed: totalProcessedEntries,
+          jobId: input.jobId,
         });
 
         yield* Effect.log("updating snapshot");
