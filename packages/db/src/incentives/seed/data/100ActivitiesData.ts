@@ -1,6 +1,6 @@
 import { ActivityCategoryKey } from "../../types";
 
-export const hundredActivitiesData = [
+export const activitiesData = [
   // === LENDING ACTIVITIES (50 total) ===
   // Root lending activities (25 tokens)
   {
