@@ -8,10 +8,8 @@ const BATCH_SIZE = Number.parseInt(process.env.INSERT_BATCH_SIZE || "5000"); // 
 
 type UpsertAccountBalanceInput = {
   timestamp: Date;
-  address: string;
-  usdValue: BigNumber;
-  activityId: string;
-  data?: Record<string, any>;
+  accountAddress: string;
+  data?: unknown;
 }[];
 
 export class UpsertAccountBalancesService extends Context.Tag(
@@ -36,30 +34,18 @@ export const UpsertAccountBalancesLive = Layer.effect(
               await db
                 .insert(accountBalances)
                 .values(
-                  items.map(
-                    ({
-                      timestamp,
-                      address: accountAddress,
-                      usdValue,
-                      activityId,
-                      data = {},
-                    }) => ({
-                      timestamp,
-                      accountAddress,
-                      activityId,
-                      data,
-                      usdValue: usdValue.toString(),
-                    })
-                  )
+                  items.map(({ timestamp, accountAddress, data = {} }) => ({
+                    timestamp,
+                    accountAddress,
+                    data,
+                  }))
                 )
                 .onConflictDoUpdate({
                   target: [
                     accountBalances.accountAddress,
                     accountBalances.timestamp,
-                    accountBalances.activityId,
                   ],
                   set: {
-                    usdValue: sql`excluded.usd_value`,
                     data: sql`excluded.data`,
                   },
                 });

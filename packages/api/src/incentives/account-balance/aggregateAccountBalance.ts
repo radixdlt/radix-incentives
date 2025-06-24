@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
+import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import type {
   GetUsdValueService,
@@ -7,46 +7,26 @@ import type {
   PriceServiceApiError,
 } from "../token-price/getUsdValue";
 import {
-  type AggregateCaviarninePositionsOutput,
   AggregateCaviarninePositionsService,
   type UnknownCaviarnineTokenError,
 } from "./aggregateCaviarninePositions";
 
+import { XrdBalanceService } from "./aggregateXrdBalance";
+import { AggregateWeftFinancePositionsService } from "./aggregateWeftFinancePositions";
+import { AggregateRootFinancePositionsService } from "./aggregateRootFinancePositions";
 import {
-  type XrdBalanceOutput,
-  XrdBalanceService,
-} from "./aggregateXrdBalance";
-import {
-  type AggregateWeftFinancePositionsOutput,
-  AggregateWeftFinancePositionsService,
-} from "./aggregateWeftFinancePositions";
-import {
-  type AggregateRootFinancePositionsOutput,
-  AggregateRootFinancePositionsService,
-} from "./aggregateRootFinancePositions";
-import {
-  type AggregateDefiPlazaPositionsOutput,
   AggregateDefiPlazaPositionsService,
   type UnknownDefiPlazaTokenError,
   type InvalidDefiPlazaPositionError,
 } from "./aggregateDefiPlazaPositions";
-import {
-  CombineActivityResultsService,
-  type CombinedActivityResult,
-} from "./combineActivityResults";
+import type { AccountBalance } from "db/incentives";
 
 type AggregateAccountBalanceInput = {
-  accountBalances: AccountBalance[];
+  accountBalances: AccountBalanceFromSnapshot[];
   timestamp: Date;
 };
 
-export type AggregateAccountBalanceOutput =
-  | AggregateCaviarninePositionsOutput
-  | XrdBalanceOutput
-  | AggregateWeftFinancePositionsOutput
-  | AggregateRootFinancePositionsOutput
-  | AggregateDefiPlazaPositionsOutput
-  | CombinedActivityResult;
+export type AggregateAccountBalanceOutput = AccountBalance;
 
 export type AggregateAccountBalanceServiceDependency =
   | AggregateCaviarninePositionsService
@@ -54,8 +34,7 @@ export type AggregateAccountBalanceServiceDependency =
   | GetUsdValueService
   | AggregateWeftFinancePositionsService
   | AggregateRootFinancePositionsService
-  | AggregateDefiPlazaPositionsService
-  | CombineActivityResultsService;
+  | AggregateDefiPlazaPositionsService;
 
 export type AggregateAccountBalanceError =
   | InvalidResourceAddressError
@@ -71,7 +50,7 @@ export class AggregateAccountBalanceService extends Context.Tag(
   (
     input: AggregateAccountBalanceInput
   ) => Effect.Effect<
-    AggregateAccountBalanceOutput[],
+    AccountBalance[],
     AggregateAccountBalanceError,
     AggregateAccountBalanceServiceDependency
   >
@@ -89,10 +68,10 @@ export const AggregateAccountBalanceLive = Layer.effect(
       yield* AggregateRootFinancePositionsService;
     const aggregateDefiPlazaPositionsService =
       yield* AggregateDefiPlazaPositionsService;
-    const combineActivityResultsService = yield* CombineActivityResultsService;
+
     return (input) =>
       Effect.gen(function* () {
-        const caviarninePositions = yield* Effect.forEach(
+        return yield* Effect.forEach(
           input.accountBalances,
           (accountBalance) => {
             return Effect.gen(function* () {
@@ -101,84 +80,40 @@ export const AggregateAccountBalanceLive = Layer.effect(
                   accountBalance,
                   timestamp: input.timestamp,
                 });
-
-              return [...caviarninePositions];
-            });
-          }
-        ).pipe(Effect.map((items) => items.flat()));
-
-        const xrdBalanceResult = yield* Effect.forEach(
-          input.accountBalances,
-          (accountBalance) => {
-            return Effect.gen(function* () {
               const xrdBalance = yield* xrdBalanceService({
                 accountBalance,
                 timestamp: input.timestamp,
               });
-              return [...xrdBalance];
-            });
-          }
-        ).pipe(Effect.map((items) => items.flat()));
-
-        const weftFinancePositions = yield* Effect.forEach(
-          input.accountBalances,
-          (accountBalance) => {
-            return Effect.gen(function* () {
               const weftFinancePositions =
                 yield* aggregateWeftFinancePositionsService({
                   accountBalance,
                   timestamp: input.timestamp,
                 });
-              return [...weftFinancePositions];
-            });
-          }
-        ).pipe(Effect.map((items) => items.flat()));
-
-        const rootFinancePositions = yield* Effect.forEach(
-          input.accountBalances,
-          (accountBalance) => {
-            return Effect.gen(function* () {
               const rootFinancePositions =
                 yield* aggregateRootFinancePositionsService({
                   accountBalance,
                   timestamp: input.timestamp,
                 });
-              return [...rootFinancePositions];
-            });
-          }
-        ).pipe(Effect.map((items) => items.flat()));
-
-        const defiPlazaPositions = yield* Effect.forEach(
-          input.accountBalances,
-          (accountBalance) => {
-            return Effect.gen(function* () {
               const defiPlazaPositions =
                 yield* aggregateDefiPlazaPositionsService({
                   accountBalance,
                   timestamp: input.timestamp,
                 });
-              return [...defiPlazaPositions];
+
+              return {
+                timestamp: input.timestamp,
+                accountAddress: accountBalance.address,
+                data: [
+                  ...caviarninePositions,
+                  ...xrdBalance,
+                  ...weftFinancePositions,
+                  ...rootFinancePositions,
+                  ...defiPlazaPositions,
+                ],
+              };
             });
           }
-        ).pipe(Effect.map((items) => items.flat()));
-
-        // Combine all results
-        const allResults = [
-          ...caviarninePositions,
-          ...xrdBalanceResult,
-          ...weftFinancePositions,
-          ...rootFinancePositions,
-          ...defiPlazaPositions,
-        ];
-
-        // Use activity-specific combination logic
-        const combinedResults = yield* combineActivityResultsService({
-          results: allResults,
-        });
-
-        yield* Effect.log("account balances aggregated");
-
-        return combinedResults;
+        );
       });
   })
 );

@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
+import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import {
   GetUsdValueService,
@@ -8,24 +8,14 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
-
-type RootLendingData = {
-  protocol: "root";
-  xUSDC?: string;
-};
+import type { AccountBalanceData } from "db/incentives";
 
 export type AggregateRootFinancePositionsInput = {
-  accountBalance: AccountBalance;
+  accountBalance: AccountBalanceFromSnapshot;
   timestamp: Date;
 };
 
-export type AggregateRootFinancePositionsOutput = {
-  timestamp: Date;
-  address: string;
-  activityId: string;
-  usdValue: BigNumber;
-  data: RootLendingData;
-};
+export type AggregateRootFinancePositionsOutput = AccountBalanceData;
 
 export class AggregateRootFinancePositionsService extends Context.Tag(
   "AggregateRootFinancePositionsService"
@@ -51,12 +41,9 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
         if (accountBalance.rootFinancePositions.length === 0) {
           return [
             {
-              timestamp: input.timestamp,
-              address: input.accountBalance.address,
-              activityId: "lending",
-              usdValue: new BigNumber(0),
-              data: { protocol: "root" } as RootLendingData,
-            },
+              activityId: "root_lend_xusdc",
+              usdValue: new BigNumber(0).toString(),
+            } satisfies AccountBalanceData,
           ];
         }
 
@@ -67,7 +54,11 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
             for (const [resourceAddress, amount] of Object.entries(
               position.collaterals
             )) {
-              if (resourceAddress === Assets.Fungible.xUSDC && amount != null && amount !== "") {
+              if (
+                resourceAddress === Assets.Fungible.xUSDC &&
+                amount != null &&
+                amount !== ""
+              ) {
                 try {
                   const amountBN = new BigNumber(amount);
                   if (amountBN.isFinite() && !amountBN.isNaN()) {
@@ -75,7 +66,9 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
                   }
                 } catch (error) {
                   // Skip invalid amounts silently or log if needed
-                  console.warn(`Invalid Root Finance collateral amount: ${amount}`);
+                  console.warn(
+                    `Invalid Root Finance collateral amount: ${amount}`
+                  );
                 }
               }
             }
@@ -92,11 +85,11 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
 
         return [
           {
-            timestamp: input.timestamp,
-            address: input.accountBalance.address,
-            activityId: "lending",
-            usdValue: xUSDCValue,
-            data: { protocol: "root", xUSDC: xUSDC.toString() } as RootLendingData,
+            activityId: "root_lend_xusdc",
+            usdValue: xUSDCValue.toString(),
+            metadata: {
+              xUSDC: xUSDC.toString(),
+            },
           },
         ];
       });

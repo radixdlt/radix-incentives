@@ -153,52 +153,9 @@ export default function ActivitySettingsPage() {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            <Badge variant="secondary" className="flex items-center gap-1">
-              {getTypeIcon(activity.type)}
-              {activity.type.charAt(0).toUpperCase() + activity.type.slice(1)}
-            </Badge>
-            <Badge variant="outline" className="flex items-center gap-1">
-              {getRewardIcon(activity.rewardType)}
-              {activity.rewardType.charAt(0).toUpperCase() +
-                activity.rewardType.slice(1)}
-            </Badge>
             <Badge variant="outline">{activity.category}</Badge>
           </div>
         </CardHeader>
-
-        <CardContent className="space-y-6">
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-              <Target className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  Activity Type
-                </p>
-                <p className="text-sm font-medium">{activity.type}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-              <Star className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  Reward Type
-                </p>
-                <p className="text-sm font-medium">{activity.rewardType}</p>
-              </div>
-            </div>
-
-            <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50">
-              <Trophy className="h-4 w-4 text-muted-foreground" />
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">
-                  Category
-                </p>
-                <p className="text-sm font-medium">{activity.category}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
       </Card>
 
       {/* Activity Weeks Table */}

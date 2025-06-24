@@ -21,7 +21,6 @@ export type CapturedEvent<U> = {
   transactionId: string;
   stateVersion: number;
   timestamp: Date;
-  activityId: string;
 };
 
 export type ParseEventDataOutput<
@@ -69,7 +68,6 @@ export const createEventMatcher =
     metadata: {
       dApp: string;
       category: string;
-      activityId: string;
     },
     matcherFn: (
       event: TransformedEvent
@@ -92,7 +90,6 @@ export const createEventMatcher =
               return {
                 dApp: metadata.dApp,
                 category: metadata.category,
-                activityId: metadata.activityId,
                 transactionId: transaction.transactionId,
                 stateVersion: transaction.stateVersion,
                 timestamp: new Date(transaction.round_timestamp),

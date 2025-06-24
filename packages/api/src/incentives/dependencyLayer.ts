@@ -87,7 +87,6 @@ import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeaso
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
 import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
-import { CombineActivityResultsLive } from "./account-balance/combineActivityResults";
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 const appConfig = createConfig();
 
@@ -328,16 +327,13 @@ const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(getUsdValueLive)
 );
 
-const combineActivityResultsLive = CombineActivityResultsLive;
-
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(aggregateCaviarninePositionsLive),
   Layer.provide(xrdBalanceLive),
   Layer.provide(aggregateWeftFinancePositionsLive),
   Layer.provide(aggregateRootFinancePositionsLive),
-  Layer.provide(aggregateDefiPlazaPositionsLive),
-  Layer.provide(combineActivityResultsLive)
+  Layer.provide(aggregateDefiPlazaPositionsLive)
 );
 
 const gatewayLive = Layer.mergeAll(
@@ -570,7 +566,7 @@ const snapshotProgram = (input: SnapshotInput) => {
       aggregateDefiPlazaPositionsLive,
       getDefiPlazaPositionsLive,
       getResourcePoolUnitsLive,
-      combineActivityResultsLive
+      aggregateAccountBalanceLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 

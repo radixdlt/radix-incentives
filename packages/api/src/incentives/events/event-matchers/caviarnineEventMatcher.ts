@@ -57,7 +57,6 @@ export const caviarnineEventMatcher = createEventMatcher(
   {
     dApp: "Caviarnine",
     category: "DEX",
-    activityId: "provideLiquidityToDex",
   },
   caviarnineEventMatcherFn
 );

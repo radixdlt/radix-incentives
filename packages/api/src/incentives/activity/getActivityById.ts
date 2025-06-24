@@ -7,6 +7,7 @@ import {
   type Week,
   type Activity,
   type ActivityWeek,
+  type ActivityId,
 } from "db/incentives";
 import { eq } from "drizzle-orm";
 
@@ -63,7 +64,13 @@ export const GetActivityByIdLive = Layer.effect(
           catch: (error) => new DbError(error),
         });
 
-        return { activity: activityResult, activityWeeks: activityWeeksResult };
+        return {
+          activity: activityResult as Activity,
+          activityWeeks: activityWeeksResult.map((week) => ({
+            ...week,
+            activityId: week.activityId as ActivityId,
+          })),
+        };
       });
   })
 );

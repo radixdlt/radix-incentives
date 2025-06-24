@@ -69,8 +69,7 @@ function ManageActivitiesPage() {
                   className="cursor-pointer hover:bg-muted/50"
                 >
                   <TableCell className="font-medium">{activity.name}</TableCell>
-                  <TableCell>{activity.type}</TableCell>
-                  <TableCell>{activity.rewardType}</TableCell>
+                  <TableCell>{activity.category}</TableCell>
                 </TableRow>
               ))
             ) : (
