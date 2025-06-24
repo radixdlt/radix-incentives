@@ -10,7 +10,6 @@ import {
   type WeekNotFoundError,
 } from "../week/getWeekById";
 import { GetTransactionFeesService } from "../transaction-fee/getTransactionFees";
-import { chunker } from "../../common";
 
 export const calculateActivityPointsInputSchema = z.object({
   weekId: z.string(),
@@ -63,6 +62,15 @@ export const CalculateActivityPointsLive = Layer.effect(
           endDate: week.endDate,
           addresses: input.addresses,
         }).pipe(
+          // filter out maintain xrd balance activities
+          Effect.map((items) =>
+            items.map((item) => ({
+              ...item,
+              activities: item.activities.filter(
+                (activity) => !activity.activityId.includes("hold_")
+              ),
+            }))
+          ),
           Effect.flatMap((items) =>
             calculateTWA({
               items,

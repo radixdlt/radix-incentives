@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
+import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import {
   GetUsdValueService,
@@ -8,24 +8,14 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
-
-type WeftLendingData = {
-  protocol: "weft";
-  xUSDC?: string;
-};
+import type { AccountBalanceData } from "db/incentives";
 
 export type AggregateWeftFinancePositionsInput = {
-  accountBalance: AccountBalance;
+  accountBalance: AccountBalanceFromSnapshot;
   timestamp: Date;
 };
 
-export type AggregateWeftFinancePositionsOutput = {
-  timestamp: Date;
-  address: string;
-  activityId: string;
-  usdValue: BigNumber;
-  data: WeftLendingData;
-};
+export type AggregateWeftFinancePositionsOutput = AccountBalanceData;
 
 export class AggregateWeftFinancePositionsService extends Context.Tag(
   "AggregateWeftFinancePositionsService"
@@ -51,12 +41,9 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
         if (accountBalance.weftFinancePositions.length === 0) {
           return [
             {
-              timestamp: input.timestamp,
-              address: input.accountBalance.address,
-              activityId: "lending",
-              usdValue: new BigNumber(0),
-              data: { protocol: "weft" } as WeftLendingData,
-            },
+              activityId: "weft_lend_xusdc",
+              usdValue: new BigNumber(0).toString(),
+            } satisfies AccountBalanceData,
           ];
         }
 
@@ -78,11 +65,11 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
 
         return [
           {
-            timestamp: input.timestamp,
-            address: input.accountBalance.address,
-            activityId: "lending",
-            usdValue: xUSDCValue,
-            data: { protocol: "weft", xUSDC: xUSDC.toString() } as WeftLendingData,
+            activityId: "weft_lend_xusdc",
+            usdValue: xUSDCValue.toString(),
+            metadata: {
+              xUSDC: xUSDC.toString(),
+            },
           },
         ];
       });

@@ -52,7 +52,6 @@ export class DeriveAccountFromEventService extends Context.Tag(
   (input: DeriveAccountFromEventInput) => Effect.Effect<
     {
       address: string;
-      activityId: string;
       timestamp: string;
     }[],
     DeriveAccountFromEventServiceError,
@@ -103,12 +102,11 @@ export const DeriveAccountFromEventLive = Layer.effect(
 
                 return {
                   address: result.address,
-                  activityId: event.activityId,
                   timestamp: event.timestamp.toISOString(),
                 };
               });
 
-            if (event.activityId === "common") {
+            if (event.dApp === "Common") {
               const eventData = event.eventData as CommonEmittableEvents;
 
               if (
@@ -132,7 +130,6 @@ export const DeriveAccountFromEventLive = Layer.effect(
 
                 return {
                   address: eventData.data.accountAddress,
-                  activityId: event.activityId,
                   timestamp: event.timestamp.toISOString(),
                 };
               }
@@ -200,7 +197,7 @@ export const DeriveAccountFromEventLive = Layer.effect(
               yield* Effect.log("RootFinance event", event.eventData);
 
               const eventData = event.eventData as RootFinanceEmittableEvents;
-              
+
               if (eventData.type === "CDPUpdatedEvent") {
                 const nonFungibleId = eventData.data.cdp_id;
 

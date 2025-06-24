@@ -5,7 +5,7 @@ import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { createDbClientLive, DbClientService, DbError } from "../db/dbClient";
-import { accounts, db } from "db/incentives";
+import { accounts, db, weeks } from "db/incentives";
 import {
   CalculateActivityPointsLive,
   CalculateActivityPointsService,
@@ -13,6 +13,7 @@ import {
 import { UpsertAccountActivityPointsLive } from "./upsertAccountActivityPoints";
 import { GetWeekAccountBalancesLive } from "./getWeekAccountBalances";
 import { GetWeekByIdLive } from "../week/getWeekById";
+import { GetTransactionFeesPaginatedLive } from "../transaction-fee/getTransactionFees";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -35,29 +36,36 @@ const getWeekAccountBalancesLive = GetWeekAccountBalancesLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const getTransactionFeesLive = GetTransactionFeesPaginatedLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
 
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekAccountBalancesLive),
-  Layer.provide(getWeekByIdLive)
+  Layer.provide(getWeekByIdLive),
+  Layer.provide(getTransactionFeesLive)
 );
 
 describe("calculateActivityPoints", () => {
   it("should calculate activity points", async () => {
+    const week = await db.select().from(weeks).limit(1);
+
     const program = Effect.gen(function* () {
       const db = yield* DbClientService;
       const calculateActivityPointsService =
         yield* CalculateActivityPointsService;
 
       const accountsResult = yield* Effect.tryPromise({
-        try: () => db.select().from(accounts),
+        try: () => db.select().from(accounts).limit(100),
         catch: (error) => new DbError(error),
       });
 
       const result = yield* calculateActivityPointsService({
-        weekId: "f3a55278-9ac9-4593-a19f-12a3d884dba2",
+        weekId: week[0].id,
         addresses: accountsResult.map((a) => a.address),
       });
 

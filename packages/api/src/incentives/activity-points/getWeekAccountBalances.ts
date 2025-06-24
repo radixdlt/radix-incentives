@@ -1,28 +1,32 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
-import { accountBalances } from "db/incentives";
-import { and, gte, inArray, lt, eq } from "drizzle-orm";
+import {
+  type AccountBalance,
+  type AccountBalanceData,
+  accountBalances as accountBalancesTable,
+} from "db/incentives";
+import { and, gte, inArray, lt } from "drizzle-orm";
 
-type AccountBalance = {
-  accountAddress: string;
-  timestamp: Date;
-  usdValue: string;
-  activityId: string;
-};
 type AccountAddress = string;
 type ActivityId = string;
+
+type AccountBalanceWithData = Omit<AccountBalance, "data"> & {
+  data: AccountBalanceData[];
+};
 
 export type GetWeekAccountBalancesInput = {
   startDate: Date;
   endDate: Date;
   addresses: string[];
-  activityId?: string;
 };
 
-export type GetWeekAccountBalancesOutput = Record<
-  AccountAddress,
-  Record<ActivityId, AccountBalance[]>
->;
+export type GetWeekAccountBalancesOutput = {
+  accountAddress: AccountAddress;
+  activities: {
+    activityId: ActivityId;
+    items: (AccountBalanceData & { timestamp: Date })[];
+  }[];
+}[];
 
 export class GetWeekAccountBalancesService extends Context.Tag(
   "GetWeekAccountBalancesService"
@@ -31,7 +35,7 @@ export class GetWeekAccountBalancesService extends Context.Tag(
   (
     input: GetWeekAccountBalancesInput
   ) => Effect.Effect<GetWeekAccountBalancesOutput, DbError, DbClientService>
->() { }
+>() {}
 
 export const GetWeekAccountBalancesLive = Layer.effect(
   GetWeekAccountBalancesService,
@@ -41,40 +45,65 @@ export const GetWeekAccountBalancesLive = Layer.effect(
     return (input) =>
       Effect.gen(function* () {
         const whereClauses = [
-          inArray(accountBalances.accountAddress, input.addresses),
-          gte(accountBalances.timestamp, input.startDate),
-          lt(accountBalances.timestamp, input.endDate),
+          inArray(accountBalancesTable.accountAddress, input.addresses),
+          gte(accountBalancesTable.timestamp, input.startDate),
+          lt(accountBalancesTable.timestamp, input.endDate),
         ];
-        if (input.activityId) {
-          whereClauses.push(eq(accountBalances.activityId, input.activityId));
-        }
+
         const result = yield* Effect.tryPromise({
           try: () =>
             db
-              .select({
-                accountAddress: accountBalances.accountAddress,
-                timestamp: accountBalances.timestamp,
-                usdValue: accountBalances.usdValue,
-                activityId: accountBalances.activityId,
-              })
-              .from(accountBalances)
+              .select()
+              .from(accountBalancesTable)
               .where(and(...whereClauses)),
           catch: (error) => new DbError(error),
         });
 
-        const grouped = result.reduce<GetWeekAccountBalancesOutput>(
+        const accountBalances = result as AccountBalanceWithData[];
+
+        const grouped = accountBalances.reduce<GetWeekAccountBalancesOutput>(
           (acc, curr) => {
-            const accountAddressRecord = acc[curr.accountAddress] || {};
-            const activity = accountAddressRecord[curr.activityId] || [];
-            activity.push(curr);
-            accountAddressRecord[curr.activityId] = activity;
-            acc[curr.accountAddress] = {
-              ...accountAddressRecord,
-              [curr.activityId]: activity,
-            };
+            const accountAddress = curr.accountAddress;
+            const timestamp = curr.timestamp;
+
+            // Find existing account or create new one
+            let accountRecord = acc.find(
+              (item) => item.accountAddress === accountAddress
+            );
+            if (!accountRecord) {
+              accountRecord = {
+                accountAddress,
+                activities: [],
+              };
+              acc.push(accountRecord);
+            }
+
+            // Process each activity data item
+            for (const dataItem of curr.data) {
+              const activityId = dataItem.activityId;
+
+              // Find existing activity or create new one
+              let activityRecord = accountRecord.activities.find(
+                (activity) => activity.activityId === activityId
+              );
+              if (!activityRecord) {
+                activityRecord = {
+                  activityId,
+                  items: [],
+                };
+                accountRecord.activities.push(activityRecord);
+              }
+
+              // Add the data item with timestamp
+              activityRecord.items.push({
+                ...dataItem,
+                timestamp,
+              });
+            }
+
             return acc;
           },
-          {}
+          []
         );
 
         return grouped;

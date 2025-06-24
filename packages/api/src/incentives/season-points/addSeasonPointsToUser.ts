@@ -1,5 +1,5 @@
 import { Context, Layer, Effect } from "effect";
-import BigNumber from "bignumber.js";
+import type BigNumber from "bignumber.js";
 import { DbClientService, DbError } from "../db/dbClient";
 import { chunker } from "../../common";
 import { userSeasonPoints } from "db/incentives";

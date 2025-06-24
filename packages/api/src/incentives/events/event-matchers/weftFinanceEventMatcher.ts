@@ -109,7 +109,6 @@ export const weftFinanceEventMatcher = createEventMatcher(
   {
     dApp: "WeftFinance",
     category: "Lending",
-    activityId: "lending",
   },
   weftFinanceEventMatcherFn
 );
