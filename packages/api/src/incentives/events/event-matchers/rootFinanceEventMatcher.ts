@@ -1,13 +1,13 @@
 import { Effect } from "effect";
 import type { TransformedEvent } from "../../transaction-stream/transformEvent";
 import { RootFinance } from "../../../common/dapps/rootFinance/constants";
-import { 
-  CDPUpdatedEvent, 
+import {
+  CDPUpdatedEvent,
   CDPLiquidableEvent,
   LendingPoolUpdatedEvent,
   type CDPUpdatedEvent as CDPUpdatedEventType,
   type CDPLiquidableEvent as CDPLiquidableEventType,
-  type LendingPoolUpdatedEvent as LendingPoolUpdatedEventType 
+  type LendingPoolUpdatedEvent as LendingPoolUpdatedEventType,
 } from "../../../common/dapps/rootFinance/schema";
 import {
   parseEventData,
@@ -18,9 +18,13 @@ import {
 export type RootFinanceEmittableEvents =
   | { readonly type: "CDPUpdatedEvent"; data: CDPUpdatedEventType }
   | { readonly type: "CDPLiquidableEvent"; data: CDPLiquidableEventType }
-  | { readonly type: "LendingPoolUpdatedEvent"; data: LendingPoolUpdatedEventType };
+  | {
+      readonly type: "LendingPoolUpdatedEvent";
+      data: LendingPoolUpdatedEventType;
+    };
 
-export type CapturedRootFinanceEvent = CapturedEvent<RootFinanceEmittableEvents>;
+export type CapturedRootFinanceEvent =
+  CapturedEvent<RootFinanceEmittableEvents>;
 
 export const rootFinanceEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
@@ -53,7 +57,6 @@ export const rootFinanceEventMatcher = createEventMatcher(
   {
     dApp: "RootFinance",
     category: "Lending",
-    activityId: "lending",
   },
   rootFinanceEventMatcherFn
 );

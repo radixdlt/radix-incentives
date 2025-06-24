@@ -251,21 +251,11 @@ export const SnapshotLive = Layer.effect(
 
         const aggregatedAccountBalance = aggregateAccountBalanceResult.right;
 
-        const groupedByActivityId = aggregatedAccountBalance.reduce(
-          (acc, item) => {
-            acc[item.activityId] = (acc[item.activityId] || 0) + 1;
-            return acc;
-          },
-          {} as Record<string, number>
-        );
-
-        yield* Effect.log("updating account balances", groupedByActivityId);
-
         yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
           Effect.withSpan("upsertAccountBalances")
         );
 
-        yield* Effect.log("updating snapshot");
+        yield* Effect.log("aggregating account balances completed");
 
         yield* updateSnapshot({
           id: snapshotId,

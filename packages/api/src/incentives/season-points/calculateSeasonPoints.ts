@@ -21,6 +21,7 @@ import { distributeSeasonPoints } from "./distributePoints";
 import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
 import { UpdateWeekStatusService } from "../week/updateWeekStatus";
 import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
+import { ActivityCategoryKey } from "db/incentives";
 
 export const calculateSeasonPointsInputSchema = z.object({
   seasonId: z.string(),
@@ -123,6 +124,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
 
         const activities = yield* getActivitiesByWeekId({
           weekId: input.weekId,
+          excludeCategories: [ActivityCategoryKey.maintainXrdBalance],
         });
 
         yield* Effect.log("activities", activities);
@@ -137,7 +139,6 @@ export const CalculateSeasonPointsLive = Layer.effect(
         const seasonPointMultipliers = yield* getSeasonPointMultiplier({
           weekId: input.weekId,
         });
-    
 
         const seasonPoints = yield* Effect.forEach(
           activeActivities,
@@ -200,17 +201,17 @@ export const CalculateSeasonPointsLive = Layer.effect(
           return acc;
         }, {});
 
-
-        const seasonPointsMultiplied = Object.entries(seasonPointsAggregated).map(([userId, seasonPoints]) => {
-          const multiplier = seasonPointMultipliers.find(
-            (item) => item.userId === userId
-          )?.multiplier ?? new BigNumber(1);
+        const seasonPointsMultiplied = Object.entries(
+          seasonPointsAggregated
+        ).map(([userId, seasonPoints]) => {
+          const multiplier =
+            seasonPointMultipliers.find((item) => item.userId === userId)
+              ?.multiplier ?? new BigNumber(1);
           return {
             userId,
             seasonPoints: seasonPoints.multipliedBy(multiplier),
           };
         });
-
 
         yield* addSeasonPointsToUser(
           seasonPointsMultiplied.map((item) => ({

@@ -27,13 +27,18 @@ export const calculateTWA = ({
       Record<ActivityId, BigNumber>
     > = {};
 
-    for (const accountAddress in grouped) {
+    // Iterate over the array of account records
+    for (const accountRecord of grouped) {
+      const { accountAddress, activities } = accountRecord;
       resultWithTwa[accountAddress] = {};
 
-      for (const activityId in grouped[accountAddress]) {
-        const itemsSortedByTimestamp = grouped?.[accountAddress]?.[
-          activityId
-        ]?.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime());
+      // Iterate over activities for this account
+      for (const activityRecord of activities) {
+        const { activityId, items } = activityRecord;
+
+        const itemsSortedByTimestamp = items.sort(
+          (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+        );
 
         if (!itemsSortedByTimestamp || itemsSortedByTimestamp.length === 0)
           continue;
@@ -89,9 +94,12 @@ export const calculateTWA = ({
         );
 
         // Calculate result based on calculation type
-        resultWithTwa[accountAddress][activityId] = calculationType === "USDValue"
-          ? timeWeightedAverageUsdValue.decimalPlaces(2)
-          : timeWeightedAverageUsdValue.multipliedBy(totalDurationInMinutes).decimalPlaces(0);
+        resultWithTwa[accountAddress][activityId] =
+          calculationType === "USDValue"
+            ? timeWeightedAverageUsdValue.decimalPlaces(2)
+            : timeWeightedAverageUsdValue
+                .multipliedBy(totalDurationInMinutes)
+                .decimalPlaces(0);
       }
     }
 

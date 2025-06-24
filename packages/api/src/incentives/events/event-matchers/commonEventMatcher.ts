@@ -79,7 +79,6 @@ export const commonEventMatcher = createEventMatcher(
   {
     dApp: "Common",
     category: "none",
-    activityId: "common",
   },
   withdrawDepositEventMatcherFn
 );

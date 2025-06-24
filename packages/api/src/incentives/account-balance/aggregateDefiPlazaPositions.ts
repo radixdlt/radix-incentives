@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
+import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import {
   GetUsdValueService,
@@ -8,6 +8,7 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
+import type { AccountBalanceData } from "db/incentives";
 
 export class UnknownDefiPlazaTokenError {
   readonly _tag = "UnknownDefiPlazaTokenError";
@@ -44,34 +45,12 @@ const getTokenName = (
   }
 };
 
-type DefiPlazaLpPosition = {
-  type: "defiplaza_lp";
-  lpResourceAddress: string;
-  tokenPair: string; // "xUSDC_XRD", "xUSDT_XRD"
-  nonXrdToken: {
-    resourceAddress: string;
-    amount: string;
-  };
-  xrdToken: {
-    resourceAddress: string;
-    amount: string;
-  };
-};
-
-type NoData = Record<string, never>;
-
 export type AggregateDefiPlazaPositionsInput = {
-  accountBalance: AccountBalance;
+  accountBalance: AccountBalanceFromSnapshot;
   timestamp: Date;
 };
 
-export type AggregateDefiPlazaPositionsOutput = {
-  timestamp: Date;
-  address: string;
-  activityId: string;
-  usdValue: BigNumber;
-  data: DefiPlazaLpPosition | NoData;
-};
+export type AggregateDefiPlazaPositionsOutput = AccountBalanceData;
 
 export class AggregateDefiPlazaPositionsService extends Context.Tag(
   "AggregateDefiPlazaPositionsService"
@@ -101,11 +80,8 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
         if (defiPlazaPositions.length === 0) {
           return [
             {
-              timestamp: input.timestamp,
-              address: input.accountBalance.address,
-              activityId: "provideLiquidityToDex",
-              usdValue: new BigNumber(0),
-              data: {},
+              activityId: "defiPlaza_lp_xrd-xusdc",
+              usdValue: new BigNumber(0).toString(),
             },
           ];
         }
@@ -146,12 +122,9 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           });
 
           results.push({
-            timestamp: input.timestamp,
-            address: input.accountBalance.address,
-            activityId: "provideLiquidityToDex",
-            usdValue: nonXrdUsdValue,
-            data: {
-              type: "defiplaza_lp",
+            activityId: "defiPlaza_lp_xrd-xusdc",
+            usdValue: nonXrdUsdValue.toString(),
+            metadata: {
               lpResourceAddress: lpPosition.lpResourceAddress,
               tokenPair,
               nonXrdToken: {

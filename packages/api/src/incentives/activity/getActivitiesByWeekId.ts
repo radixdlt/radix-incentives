@@ -1,8 +1,14 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
-import { activityWeeks, type ActivityWeek } from "db/incentives";
-import { eq } from "drizzle-orm";
+import {
+  activities,
+  type ActivityCategoryKey,
+  activityWeeks,
+  type ActivityWeek,
+  type ActivityId,
+} from "db/incentives";
+import { and, eq, inArray, notInArray } from "drizzle-orm";
 
 export class NotFoundError {
   readonly _tag = "NotFoundError";
@@ -17,6 +23,8 @@ export class GetActivitiesByWeekIdService extends Context.Tag(
   GetActivitiesByWeekIdService,
   (input: {
     weekId: string;
+    excludeCategories?: ActivityCategoryKey[];
+    includeCategories?: ActivityCategoryKey[];
   }) => Effect.Effect<
     ActivityWeek[],
     GetActivitiesByWeekIdError,
@@ -36,7 +44,21 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
             db
               .select()
               .from(activityWeeks)
-              .where(eq(activityWeeks.weekId, input.weekId)),
+              .innerJoin(
+                activities,
+                eq(activityWeeks.activityId, activities.id)
+              )
+              .where(
+                and(
+                  eq(activityWeeks.weekId, input.weekId),
+                  ...(input.excludeCategories
+                    ? [notInArray(activities.category, input.excludeCategories)]
+                    : []),
+                  ...(input.includeCategories
+                    ? [inArray(activities.category, input.includeCategories)]
+                    : [])
+                )
+              ),
           catch: (error) => new DbError(error),
         });
 
@@ -46,7 +68,11 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
           );
         }
 
-        return result;
+        // Transform the result to match the expected ActivityWeek format
+        return result.map((row) => ({
+          ...row.activity_week,
+          activityId: row.activity_week.activityId as ActivityId,
+        }));
       });
   })
 );

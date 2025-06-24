@@ -1,5 +1,5 @@
 import { Effect, Layer } from "effect";
-import type { AccountBalance } from "./getAccountBalancesAtStateVersion";
+import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import { Assets } from "../../common/assets/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
@@ -10,39 +10,14 @@ import {
   type PriceServiceApiError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-
-type XrdBalance = {
-  type: "maintainXrdBalance";
-  xrd: string;
-  stakedXrd: string;
-  unstakedXrd: string;
-  lsulp: string;
-  xrdPrice: string;
-  rootFinanceXrd: string;
-  rootFinanceLsulp: string;
-  weftFinanceXrd: string;
-  weftFinanceLsulp: string;
-  caviarNineXrd: string;
-  defiPlazaXrd: string;
-};
-
-// biome
-type NoData = {
-  type: "no_data";
-};
+import type { AccountBalanceData } from "db/incentives";
 
 export type XrdBalanceInput = {
-  accountBalance: AccountBalance;
+  accountBalance: AccountBalanceFromSnapshot;
   timestamp: Date;
 };
 
-export type XrdBalanceOutput = {
-  timestamp: Date;
-  address: string;
-  activityId: string;
-  usdValue: BigNumber;
-  data: XrdBalance | NoData;
-};
+export type XrdBalanceOutput = AccountBalanceData;
 
 export class XrdBalanceService extends Context.Tag("XrdBalanceService")<
   XrdBalanceService,
@@ -61,22 +36,53 @@ export const XrdBalanceLive = Layer.effect(
     const getUsdValueService = yield* GetUsdValueService;
     return (input) =>
       Effect.gen(function* () {
+        const output: AccountBalanceData[] = [];
+
+        const xrdToUsdValue = (amount: BigNumber) =>
+          getUsdValueService({
+            amount,
+            resourceAddress: Assets.Fungible.XRD,
+            timestamp: input.timestamp,
+          }).pipe(Effect.map((usdValue) => usdValue.toString()));
+
         const xrd =
           input.accountBalance.fungibleTokenBalances.find(
             (resource) => resource.resourceAddress === Assets.Fungible.XRD
           )?.amount ?? new BigNumber(0);
 
+        output.push({
+          activityId: "hold_xrd",
+          usdValue: yield* xrdToUsdValue(xrd),
+        });
+
         const stakedXrd = input.accountBalance.staked.reduce(
           (acc, item) => acc.plus(item.xrdAmount),
           new BigNumber(0)
         );
+
+        output.push({
+          activityId: "hold_stakedXrd",
+          usdValue: yield* xrdToUsdValue(stakedXrd),
+        });
+
         const unstakedXrd = input.accountBalance.unstaked.reduce(
           (acc, item) => acc.plus(item.amount),
           new BigNumber(0)
         );
+
+        output.push({
+          activityId: "hold_unstakedXrd",
+          usdValue: yield* xrdToUsdValue(unstakedXrd),
+        });
+
         const lsulp = input.accountBalance.lsulp.amount.multipliedBy(
           input.accountBalance.lsulp.lsulpValue
         );
+
+        output.push({
+          activityId: "hold_lsulp",
+          usdValue: yield* xrdToUsdValue(lsulp),
+        });
 
         const rootFinanceLending =
           input.accountBalance.rootFinancePositions.reduce(
@@ -106,6 +112,16 @@ export const XrdBalanceLive = Layer.effect(
             { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
           ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
 
+        output.push({
+          activityId: "root_hold_xrd",
+          usdValue: yield* xrdToUsdValue(rootFinanceLending.xrd),
+        });
+
+        output.push({
+          activityId: "root_hold_lsulp",
+          usdValue: yield* xrdToUsdValue(rootFinanceLending.lsulp),
+        });
+
         const weftFinanceLending =
           input.accountBalance.weftFinancePositions.reduce(
             (acc, position) => {
@@ -127,6 +143,16 @@ export const XrdBalanceLive = Layer.effect(
             { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
           ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
 
+        output.push({
+          activityId: "weft_hold_xrd",
+          usdValue: yield* xrdToUsdValue(weftFinanceLending.xrd),
+        });
+
+        output.push({
+          activityId: "weft_hold_lsulp",
+          usdValue: yield* xrdToUsdValue(weftFinanceLending.lsulp),
+        });
+
         const caviarNine =
           input.accountBalance.caviarninePositions.xrdUsdc.reduce(
             (acc, item) => {
@@ -147,6 +173,11 @@ export const XrdBalanceLive = Layer.effect(
             { xrd: new BigNumber(0) }
           );
 
+        output.push({
+          activityId: "c9_hold_xrd-xusdc",
+          usdValue: yield* xrdToUsdValue(caviarNine.xrd),
+        });
+
         const defiPlaza = input.accountBalance.defiPlazaPositions.items.reduce(
           (acc, lpPosition) => {
             // Find XRD positions in DefiPlaza LP
@@ -161,59 +192,12 @@ export const XrdBalanceLive = Layer.effect(
           { xrd: new BigNumber(0) }
         );
 
-        const xrdPrice = yield* getUsdValueService({
-          timestamp: input.timestamp,
-          resourceAddress: Assets.Fungible.XRD,
-          amount: new BigNumber(1),
+        output.push({
+          activityId: "defiPlaza_hold_xrd-xusdc",
+          usdValue: yield* xrdToUsdValue(defiPlaza.xrd),
         });
 
-        const data: XrdBalance = {
-          type: "maintainXrdBalance",
-          xrd: xrd.toString(),
-          stakedXrd: stakedXrd.toString(),
-          unstakedXrd: unstakedXrd.toString(),
-          xrdPrice: xrdPrice.toString(),
-          lsulp: lsulp.toString(),
-          rootFinanceXrd: rootFinanceLending.xrd.toString(),
-          rootFinanceLsulp: rootFinanceLending.lsulp.toString(),
-          weftFinanceXrd: weftFinanceLending.xrd.toString(),
-          weftFinanceLsulp: weftFinanceLending.lsulp.toString(),
-          caviarNineXrd: caviarNine.xrd.toString(),
-          defiPlazaXrd: defiPlaza.xrd.toString(),
-        };
-
-        const usdValue = yield* getUsdValueService({
-          timestamp: input.timestamp,
-          resourceAddress: Assets.Fungible.XRD,
-          amount: xrd
-            .plus(stakedXrd)
-            .plus(unstakedXrd)
-            .plus(lsulp)
-            .plus(rootFinanceLending.xrd)
-            .plus(
-              rootFinanceLending.lsulp.multipliedBy(
-                input.accountBalance.lsulp.lsulpValue
-              )
-            )
-            .plus(weftFinanceLending.xrd)
-            .plus(
-              weftFinanceLending.lsulp.multipliedBy(
-                input.accountBalance.lsulp.lsulpValue
-              )
-            )
-            .plus(caviarNine.xrd)
-            .plus(defiPlaza.xrd),
-        });
-
-        return [
-          {
-            timestamp: input.timestamp,
-            address: input.accountBalance.address,
-            activityId: "maintainXrdBalance",
-            usdValue: usdValue,
-            data,
-          },
-        ];
+        return output;
       });
   })
 );

@@ -15,6 +15,7 @@ import {
   integer,
   bigint,
 } from "drizzle-orm/pg-core";
+import type { ActivityId, ActivityCategoryKey } from "./types";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -32,7 +33,12 @@ export const challenge = createTable("challenge", {
         .map((b) => b.toString(16).padStart(2, "0"))
         .join("")
     ),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
+  createdAt: timestamp("created_at", {
+    mode: "date",
+    withTimezone: true,
+  })
+    .notNull()
+    .defaultNow(),
 });
 
 export const users = createTable("user", {
@@ -63,8 +69,8 @@ export const sessions = createTable("session", {
     .references(() => users.id, { onDelete: "cascade" })
     .$defaultFn(() => crypto.randomUUID()),
   expiresAt: timestamp("expires_at", {
-    withTimezone: true,
     mode: "date",
+    withTimezone: true,
   }).notNull(),
 });
 
@@ -116,21 +122,6 @@ export const weekStatusEnum = pgEnum("week_status", [
   "active",
   "completed",
 ]);
-export const activityTypeEnum = pgEnum("activity_type", ["passive", "active"]);
-export const rewardTypeEnum = pgEnum("reward_type", ["points", "multiplier"]);
-export const activityCategoryEnum = pgEnum("activity_category", [
-  "holding",
-  "trading",
-  "liquidity",
-  "lending",
-  "borrowing",
-  "nft",
-  "token",
-  "dapp_usage",
-  "network",
-  "none",
-  // Add other categories as needed
-]);
 export const activityWeekStatusEnum = pgEnum("activity_week_status", [
   "active",
   "inactive",
@@ -177,20 +168,28 @@ export const weeksRelations = relations(weeks, ({ one, many }) => ({
   activityWeeks: many(activityWeeks),
 }));
 
+export const activityCategories = createTable("activity_categories", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  description: text("description"),
+});
+
 // Activity Table
 export const activities = createTable("activity", {
   id: text("id").primaryKey(),
-  name: varchar("name", { length: 255 }).notNull(),
+  name: text("name"),
   description: text("description"),
-  type: activityTypeEnum("type").notNull(),
-  category: activityCategoryEnum("category").notNull(),
-  rewardType: rewardTypeEnum("reward_type").notNull(),
-  rules: jsonb("rules"),
+  category: text("category")
+    .notNull()
+    .references(() => activityCategories.id, { onDelete: "cascade" }),
 });
 
-export const activitiesRelations = relations(activities, ({ many }) => ({
+export const activitiesRelations = relations(activities, ({ many, one }) => ({
   activityWeeks: many(activityWeeks),
-  events: many(events),
+  activityCategories: one(activityCategories, {
+    fields: [activities.category],
+    references: [activityCategories.id],
+  }),
 }));
 
 // ActivityWeek Junction Table
@@ -241,9 +240,6 @@ export const transactionsRelations = relations(transactions, ({ many }) => ({
 export const events = createTable(
   "event",
   {
-    activityId: text("activity_id")
-      .notNull()
-      .references(() => activities.id, { onDelete: "cascade" }),
     transactionId: text("transaction_id")
       .notNull()
       .references(() => transactions.transactionId),
@@ -266,10 +262,6 @@ export const events = createTable(
 );
 
 export const eventsRelations = relations(events, ({ one }) => ({
-  activity: one(activities, {
-    fields: [events.activityId],
-    references: [activities.id],
-  }),
   transaction: one(transactions, {
     fields: [events.transactionId],
     references: [transactions.transactionId],
@@ -308,32 +300,17 @@ export const accountBalances = createTable(
     accountAddress: varchar("account_address", { length: 255 })
       .notNull()
       .references(() => accounts.address, { onDelete: "cascade" }),
-    usdValue: decimal("usd_value", { precision: 18, scale: 2 }).notNull(),
-    activityId: text("activity_id")
-      .notNull()
-      .references(() => activities.id, { onDelete: "cascade" }),
     data: jsonb("data").notNull(),
   },
   (table) => ({
     pk: primaryKey({
-      columns: [table.accountAddress, table.timestamp, table.activityId],
+      columns: [table.accountAddress, table.timestamp],
     }),
     // Index for conflict resolution speed during upserts
     conflictIdx: index("idx_account_balances_conflict").on(
       table.accountAddress,
-      table.timestamp,
-      table.activityId
+      table.timestamp
     ),
-  })
-);
-
-export const accountBalancesRelations = relations(
-  accountBalances,
-  ({ one }) => ({
-    activity: one(activities, {
-      fields: [accountBalances.activityId],
-      references: [activities.id],
-    }),
   })
 );
 
@@ -445,15 +422,36 @@ export type Session = InferSelectModel<typeof sessions>;
 export type Account = InferSelectModel<typeof accounts>;
 export type Season = InferSelectModel<typeof seasons>;
 export type Week = InferSelectModel<typeof weeks>;
-export type Activity = InferSelectModel<typeof activities>;
-export type ActivityWeek = InferSelectModel<typeof activityWeeks>;
+export type ActivityCategory = Omit<
+  InferSelectModel<typeof activityCategories>,
+  "id"
+> & {
+  id: ActivityCategoryKey;
+};
+export type Activity = Omit<
+  InferSelectModel<typeof activities>,
+  "category" | "id"
+> & {
+  id: ActivityId;
+  category: ActivityCategoryKey;
+};
+export type ActivityWeek = Omit<
+  InferSelectModel<typeof activityWeeks>,
+  "activityId"
+> & {
+  activityId: ActivityId;
+};
 export type Transaction = InferSelectModel<typeof transactions>;
 export type Event = InferSelectModel<typeof events>;
 export type Snapshot = InferSelectModel<typeof snapshots>;
 export type AccountBalance = InferSelectModel<typeof accountBalances>;
-export type AccountActivityPoints = InferSelectModel<
-  typeof accountActivityPoints
->;
+
+export type AccountActivityPoints = Omit<
+  InferSelectModel<typeof accountActivityPoints>,
+  "activityId"
+> & {
+  activityId: ActivityId;
+};
 export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
 export type SeasonPointsMultiplier = InferSelectModel<
   typeof seasonPointsMultiplier

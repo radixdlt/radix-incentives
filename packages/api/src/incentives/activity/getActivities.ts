@@ -17,6 +17,6 @@ export const GetActivitiesLive = Layer.effect(
       Effect.tryPromise({
         try: () => db.select().from(activities),
         catch: (error) => new DbError(error),
-      });
+      }).pipe(Effect.map((activities) => activities as Activity[]));
   })
 );

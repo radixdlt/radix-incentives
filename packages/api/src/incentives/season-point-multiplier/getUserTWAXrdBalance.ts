@@ -29,8 +29,7 @@ export type GetUserTWAXrdBalanceError =
 export type GetUserTWAXrdBalanceDependency =
   | DbClientService
   | GetWeekByIdService
-  | GetWeekAccountBalancesService
-
+  | GetWeekAccountBalancesService;
 
 export type UsersWithTwaBalance = {
   userId: string;
@@ -50,8 +49,6 @@ export class GetUserTWAXrdBalanceService extends Context.Tag(
   >
 >() {}
 
-
-
 export const GetUserTWAXrdBalanceLive = Layer.effect(
   GetUserTWAXrdBalanceService,
   Effect.gen(function* () {
@@ -61,30 +58,45 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
     return (input) => {
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
-        
-        const items =  yield* getWeekAccountBalances({
+
+        const items = yield* getWeekAccountBalances({
           startDate: week.startDate,
           endDate: week.endDate,
           addresses: input.addresses,
-          activityId: "maintainXrdBalance",
         }).pipe(
+          // filter out non-hold activities
+          Effect.map((items) =>
+            items.map((item) => ({
+              ...item,
+              activities: item.activities.filter((activity) =>
+                activity.activityId.includes("hold_")
+              ),
+            }))
+          ),
           Effect.flatMap((items) => {
-            const twa = calculateTWA({ items, week , calculationType: "USDValue"});
+            const twa = calculateTWA({
+              items,
+              week,
+              calculationType: "USDValue",
+            });
             return twa;
           }),
-          Effect.map((items) =>
-          {
-            const resultItems = Object.entries(items).flatMap(([address, activities]) =>
-              activities ? Object.entries(activities).map(([activityId, twaBalance]) => ({
-                accountAddress: address,
-                activityId,
-                twaBalance: twaBalance, 
-                weekId: week.id,
-              })) : []
-            )
+          Effect.map((items) => {
+            const resultItems = Object.entries(items).flatMap(
+              ([address, activities]) =>
+                activities
+                  ? Object.entries(activities).map(
+                      ([activityId, twaBalance]) => ({
+                        accountAddress: address,
+                        activityId,
+                        twaBalance: twaBalance,
+                        weekId: week.id,
+                      })
+                    )
+                  : []
+            );
             return resultItems;
-          }
-          )
+          })
         );
 
         const getAccountsWithUserId = (createdAt: Date) => {
@@ -92,10 +104,16 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
             const dbClient = yield* DbClientService;
             return yield* Effect.tryPromise({
               try: () => {
-                return dbClient.select({ address: accounts.address, userId: accounts.userId })
-                .from(accounts)
-                .where(lte(accounts.createdAt, createdAt))
-                .then(res => res.map(r => ({ address: r.address, userId: r.userId })));
+                return dbClient
+                  .select({
+                    address: accounts.address,
+                    userId: accounts.userId,
+                  })
+                  .from(accounts)
+                  .where(lte(accounts.createdAt, createdAt))
+                  .then((res) =>
+                    res.map((r) => ({ address: r.address, userId: r.userId }))
+                  );
               },
               catch: (error) => new DbError(error),
             });
@@ -118,11 +136,12 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
           const currentBalance = userTwaMap.get(userId) ?? new BigNumber(0);
           userTwaMap.set(userId, currentBalance.plus(item.twaBalance));
         }
-        
-        const userTwaBalances = Array.from(userTwaMap.entries()).map(([userId, totalTWABalance]) => ({ userId, totalTWABalance }));
+
+        const userTwaBalances = Array.from(userTwaMap.entries()).map(
+          ([userId, totalTWABalance]) => ({ userId, totalTWABalance })
+        );
         // userTwaBalances: Array<{ userId: string, totalTwaBalance: number }>
         return userTwaBalances;
-
       });
     };
   })
