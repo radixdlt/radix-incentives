@@ -79,8 +79,8 @@ import {
 import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
 import BigNumber from "bignumber.js";
 
-// Import all activities from 100activities.json
-import allActivities from "../../../../db/src/incentives/seed/data/100activities.json";
+// Import all activities from 100activities data
+import { hundredActivitiesData } from "../../../../db/src/incentives/seed/data/100ActivitiesData";
 
 export class SnapshotError {
   _tag = "SnapshotError";
@@ -238,7 +238,7 @@ export const SnapshotLive = Layer.effect(
         let totalProcessedEntries = 0;
 
         // Get activity IDs for dummy data generation (do this once)
-        const allActivityIds = allActivities.map((activity) => activity.id);
+        const allActivityIds = hundredActivitiesData.map((activity) => activity.id);
         const enableDummyData = process.env.ENABLE_DUMMY_ACTIVITY_DATA === 'true';
 
         // Process each batch sequentially
@@ -322,12 +322,14 @@ export const SnapshotLive = Layer.effect(
           if (enableDummyData) {
             // Get existing activity IDs from this batch's aggregated results
             const existingActivityIds = new Set(
-              batchAggregatedAccountBalance.map((item) => item.activityId)
+              batchAggregatedAccountBalance.flatMap((item) => 
+                Array.isArray(item.data) ? item.data.map((d: { activityId: string }) => d.activityId) : []
+              )
             );
 
             // Find missing activity IDs for this batch
             const missingActivityIds = allActivityIds.filter(
-              (activityId) => !existingActivityIds.has(activityId)
+              (activityId: string) => !existingActivityIds.has(activityId)
             );
 
             if (missingActivityIds.length > 0) {
@@ -347,12 +349,14 @@ export const SnapshotLive = Layer.effect(
                 for (const activityId of missingActivityIds) {
                   const dummyEntry: AggregateAccountBalanceOutput = {
                     timestamp: input.timestamp,
-                    address: address,
-                    activityId: activityId,
-                    usdValue: new BigNumber(0),
-                    data: {
-                      type: "no_data",
-                    },
+                    accountAddress: address,
+                    data: [{
+                      activityId: activityId,
+                      usdValue: "0",
+                      metadata: {
+                        type: "no_data",
+                      },
+                    }],
                   };
                   dummyData.push(dummyEntry);
                 }
