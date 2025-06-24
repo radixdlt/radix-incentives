@@ -1,6 +1,5 @@
 import type { NodePgDatabase } from "drizzle-orm/node-postgres";
 import { sql } from "drizzle-orm";
-import { accountBalancesPartitionSQL } from "./schema";
 
 export type PartitionManager = {
   createWeeklyPartitions: (weekStart: Date, weekEnd: Date, activityGroups: string[][]) => Promise<void>;
@@ -8,6 +7,86 @@ export type PartitionManager = {
   getPartitionInfo: () => Promise<Array<{ tablename: string; size: string }>>;
   ensurePartitionExists: (timestamp: Date, activityId: string) => Promise<string>;
   optimizePartitions: () => Promise<void>;
+};
+
+export const accountBalancesTimeseriesPartitionSQL = {
+
+  // Create the main partitioned table
+  createPartitionedTable: `
+    CREATE TABLE IF NOT EXISTS account_balances_timeseries (
+      timestamp TIMESTAMPTZ NOT NULL,
+      account_address VARCHAR(255) NOT NULL,
+      usd_value DECIMAL(18,2) NOT NULL,
+      activity_id TEXT NOT NULL,
+      data JSONB NOT NULL,
+      PRIMARY KEY (account_address, timestamp, activity_id)
+    ) PARTITION BY RANGE (timestamp);
+  `,
+};
+
+// Partition management utilities - these will be used in migrations
+export const accountBalancesPartitionSQL = {
+  // Create the main partitioned table
+  createPartitionedTable: `
+    CREATE TABLE IF NOT EXISTS account_balances (
+      timestamp TIMESTAMPTZ NOT NULL,
+      account_address VARCHAR(255) NOT NULL,
+      usd_value DECIMAL(18,2) NOT NULL,
+      activity_id TEXT NOT NULL,
+      data JSONB NOT NULL,
+      PRIMARY KEY (account_address, timestamp, activity_id)
+    ) PARTITION BY RANGE (timestamp);
+  `,
+
+  // Create a weekly partition with sub-partitioning by activity_id
+  createWeeklyPartition: (weekStart: string, weekEnd: string) => `
+    CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')} 
+    PARTITION OF account_balances 
+    FOR VALUES FROM ('${weekStart}') TO ('${weekEnd}')
+    PARTITION BY LIST (activity_id);
+  `,
+
+  // Create activity sub-partitions within a week
+  createActivityPartition: (weekStart: string, activityIds: string[]) => {
+    if (!activityIds || activityIds.length === 0) {
+      throw new Error('activityIds array cannot be empty when creating activity partition');
+    }
+    
+    const firstActivityId = activityIds[0];
+    if (!firstActivityId) {
+      throw new Error('First activity ID cannot be undefined');
+    }
+    
+    return `
+      CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')}_${firstActivityId.replace(/[^a-zA-Z0-9]/g, '_')}
+      PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
+      FOR VALUES IN (${activityIds.map(id => `'${id}'`).join(', ')});
+    `;
+  },
+
+  // Create indexes on partition
+  createPartitionIndexes: (tableName: string) => `
+    CREATE INDEX IF NOT EXISTS ${tableName}_timestamp_idx ON ${tableName} (timestamp);
+    CREATE INDEX IF NOT EXISTS ${tableName}_activity_idx ON ${tableName} (activity_id);
+    CREATE INDEX IF NOT EXISTS ${tableName}_account_idx ON ${tableName} (account_address);
+    CREATE INDEX IF NOT EXISTS ${tableName}_compound_idx ON ${tableName} (account_address, timestamp);
+  `,
+
+  // Drop old partitions (for data retention)
+  dropPartition: (weekStart: string) => `
+    DROP TABLE IF EXISTS account_balances_${weekStart.replace(/-/g, '_')} CASCADE;
+  `,
+
+  // Get partition information
+  getPartitionInfo: `
+    SELECT 
+      schemaname,
+      tablename,
+      pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) as size
+    FROM pg_tables 
+    WHERE tablename LIKE 'account_balances_%'
+    ORDER BY tablename;
+  `,
 };
 
 /**
