@@ -80,7 +80,7 @@ import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
 import BigNumber from "bignumber.js";
 
 // Import all activities from 100activities data
-import { hundredActivitiesData } from "../../../../db/src/incentives/seed/data/100ActivitiesData";
+import { activitiesData } from "../../../../db/src/incentives/seed/data/100ActivitiesData";
 
 export class SnapshotError {
   _tag = "SnapshotError";
@@ -238,7 +238,7 @@ export const SnapshotLive = Layer.effect(
         let totalProcessedEntries = 0;
 
         // Get activity IDs for dummy data generation (do this once)
-        const allActivityIds = hundredActivitiesData.map((activity) => activity.id);
+        const allActivityIds = activitiesData.map((activity: { id: string }) => activity.id);
         const enableDummyData = process.env.ENABLE_DUMMY_ACTIVITY_DATA === 'true';
 
         // Process each batch sequentially
@@ -346,20 +346,19 @@ export const SnapshotLive = Layer.effect(
               const dummyData: AggregateAccountBalanceOutput[] = [];
 
               for (const address of batch) {
-                for (const activityId of missingActivityIds) {
-                  const dummyEntry: AggregateAccountBalanceOutput = {
-                    timestamp: input.timestamp,
-                    accountAddress: address,
-                    data: [{
-                      activityId: activityId,
-                      usdValue: "0",
-                      metadata: {
-                        type: "no_data",
-                      },
-                    }],
-                  };
-                  dummyData.push(dummyEntry);
-                }
+                // Create all missing activities for this account in one entry
+                const dummyEntry: AggregateAccountBalanceOutput = {
+                  timestamp: input.timestamp,
+                  accountAddress: address,
+                  data: missingActivityIds.map((activityId: string) => ({
+                    activityId: activityId,
+                    usdValue: "0",
+                    metadata: {
+                      type: "no_data",
+                    },
+                  })),
+                };
+                dummyData.push(dummyEntry);
               }
 
               yield* Effect.log(`Created dummy entries for batch ${batchIndex + 1} 
