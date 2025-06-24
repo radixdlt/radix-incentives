@@ -98,10 +98,12 @@ export const FilterTransactionsLive = Layer.effect(
             }))
             .filter((feePayer) => feePayer.fee.gt(0));
 
-          const highestFeePayer = registeredFeePayers?.reduce(
-            (max, current) => (current.fee.gt(max.fee) ? current : max),
-            registeredFeePayers[0]
-          )?.accountAddress;
+          const highestFeePayer = registeredFeePayers[0]
+            ? registeredFeePayers?.reduce(
+                (max, current) => (current.fee.gt(max.fee) ? current : max),
+                registeredFeePayers[0]
+              )?.accountAddress
+            : undefined;
 
           allRegisteredFeePayers.push(...registeredFeePayers);
 

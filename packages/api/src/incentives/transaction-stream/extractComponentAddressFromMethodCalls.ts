@@ -5,5 +5,5 @@ export const extractComponentAddressFromMethodCalls = (
 
   return [
     ...new Set(Array.from(manifest.matchAll(regex), (match) => match[1])),
-  ];
+  ].filter((item): item is string => !!item);
 };

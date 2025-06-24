@@ -61,6 +61,10 @@ const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
     name: "Paid transaction fees",
   },
   {
+    id: ActivityCategoryKey.componentCalls,
+    name: "Component calls",
+  },
+  {
     id: ActivityCategoryKey.common,
     name: "Common activities",
   },
@@ -104,6 +108,10 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
   {
     id: "txFees",
     category: ActivityCategoryKey.transactionFees,
+  },
+  {
+    id: "componentCalls",
+    category: ActivityCategoryKey.componentCalls,
   },
 
   // Season multiplier Hodl XRD activities for native assets
