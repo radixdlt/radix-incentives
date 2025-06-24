@@ -308,7 +308,6 @@ export const accountBalances = createTable(
     }),
     // Note: Indexes will be created per partition, not on the main table
     timestampIdx: index("idx_account_balances_timestamp").on(table.timestamp),
-    activityIdx: index("idx_account_balances_activity").on(table.activityId),
     accountIdx: index("idx_account_balances_account").on(table.accountAddress),
   })
 );
