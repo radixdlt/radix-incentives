@@ -89,6 +89,7 @@ import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRo
 import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
+import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -441,13 +442,18 @@ const getComponentCallsPaginatedLive = GetComponentCallsPaginatedLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const getTradingVolumeLive = GetTradingVolumeLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekByIdLive),
   Layer.provide(getWeekAccountBalancesLive),
   Layer.provide(getTransactionFeesPaginatedLive),
-  Layer.provide(getComponentCallsPaginatedLive)
+  Layer.provide(getComponentCallsPaginatedLive),
+  Layer.provide(getTradingVolumeLive)
 );
 
 const calculateActivityPointsWorkerLive =
