@@ -33,6 +33,10 @@ import { AddToEventQueueLive } from "../events/addToEventQueue";
 import { EventQueueClientLive } from "../events/eventQueueClient";
 import { AddTransactionFeeLive } from "../transaction-fee/addTransactionFee";
 import { AddComponentCallsLive } from "../component/addComponentCalls";
+import { ProcessSwapEventTradingVolumeLive } from "../trading-volume/processSwapEventTradingVolume";
+import { GetUsdValueLive } from "../token-price/getUsdValue";
+import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
+import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -204,6 +208,21 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(dbClientLive)
   );
 
+  const addTradingVolumeLive = AddTradingVolumeLive.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const filterTradingEventsLive = FilterTradingEventsLive.pipe(
+    Layer.provide(GetUsdValueLive),
+    Layer.provide(dbClientLive)
+  );
+
+  const processSwapEventTradingVolumeLive =
+    ProcessSwapEventTradingVolumeLive.pipe(
+      Layer.provide(filterTradingEventsLive),
+      Layer.provide(addTradingVolumeLive)
+    );
+
   const transactionStream = Effect.provide(
     transactionStreamLoop(),
     Layer.mergeAll(
@@ -221,7 +240,8 @@ export const runTransactionStreamLoop = async () => {
       addToEventQueueLive,
       eventQueueClientLive,
       addTransactionFeeLive,
-      addComponentCallsLive
+      addComponentCallsLive,
+      processSwapEventTradingVolumeLive
     )
   );
 

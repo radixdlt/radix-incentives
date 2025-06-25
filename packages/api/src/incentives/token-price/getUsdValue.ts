@@ -18,14 +18,13 @@ export class PriceServiceApiError {
   constructor(readonly message: string) {}
 }
 
+export type GetUsdValueServiceError =
+  | InvalidResourceAddressError
+  | PriceServiceApiError;
+
 export class GetUsdValueService extends Context.Tag("GetUsdValueService")<
   GetUsdValueService,
-  (
-    input: GetUsdValueInput
-  ) => Effect.Effect<
-    BigNumber,
-    InvalidResourceAddressError | PriceServiceApiError
-  >
+  (input: GetUsdValueInput) => Effect.Effect<BigNumber, GetUsdValueServiceError>
 >() {}
 
 const TOKEN_PRICE_SERVICE_URL =

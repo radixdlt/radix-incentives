@@ -19,7 +19,7 @@ export class GetEventsFromDbService extends Context.Tag(
       transactionId: string;
       eventIndex: number;
     }[]
-  ) => Effect.Effect<GetEventsFromDbOutput, DbError, DbClientService>
+  ) => Effect.Effect<GetEventsFromDbOutput, DbError>
 >() {}
 
 export const GetEventsFromDbLive = Layer.effect(
