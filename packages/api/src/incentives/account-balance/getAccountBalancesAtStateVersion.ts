@@ -352,13 +352,44 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           Effect.withSpan("convertLsuToXrdService")
         );
 
+        // Create lookup maps for O(1) access instead of O(n) find operations
+        const stakingPositionsMap = new Map(
+          userStakingPositions.items.map((item) => [item.address, item])
+        );
+        
+        const lsulpMap = new Map(
+          lsulpResults.map((item) => [item.address, item.lsulp])
+        );
+        
+        const fungibleBalanceMap = new Map(
+          fungibleBalanceResults.map((item) => [item.address, item.fungibleResources])
+        );
+        
+        const nonFungibleBalanceMap = new Map(
+          nonFungibleBalanceResults.items.map((item) => [item.address, item.nonFungibleResources])
+        );
+        
+        const weftFinanceMap = new Map(
+          allWeftFinancePositions.map((item) => [item.address, item.lending])
+        );
+        
+        const rootFinanceMap = new Map(
+          allRootFinancePositions.items.map((item) => [item.accountAddress, item.collaterizedDebtPositions])
+        );
+        
+        const shapeLiquidityMap = new Map(
+          xrdUsdcShapeLiquidityAssets.map((item) => [item.address, item.items])
+        );
+        
+        const defiPlazaMap = new Map(
+          allDefiPlazaPositions.map((item) => [item.address, item])
+        );
+
         const accountBalances = yield* Effect.forEach(
           input.addresses,
           (address) =>
             Effect.gen(function* () {
-              const accountStakingPositions = userStakingPositions.items.find(
-                (item) => item.address === address
-              );
+              const accountStakingPositions = stakingPositionsMap.get(address);
 
               const staked: Lsu[] =
                 accountStakingPositions?.staked.map((item) => ({
@@ -376,9 +407,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   amount: item.amount,
                 })) ?? [];
 
-              const lsulpPosition = lsulpResults.find(
-                (item) => item.address === address
-              )?.lsulp;
+              const lsulpPosition = lsulpMap.get(address);
               const lsulp: Lsulp = {
                 resourceAddress:
                   lsulpPosition?.resourceAddress ??
@@ -388,32 +417,22 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               };
 
               const fungibleTokenBalances: FungibleTokenBalance[] =
-                fungibleBalanceResults.find((item) => item.address === address)
-                  ?.fungibleResources ?? [];
+                fungibleBalanceMap.get(address) ?? [];
 
               const nonFungibleTokenBalances: NonFungibleTokenBalance[] =
-                nonFungibleBalanceResults.items.find(
-                  (item) => item.address === address
-                )?.nonFungibleResources ?? [];
+                nonFungibleBalanceMap.get(address) ?? [];
 
               const weftFinancePositions: WeftFinancePosition =
-                allWeftFinancePositions.find((item) => item.address === address)
-                  ?.lending ?? [];
+                weftFinanceMap.get(address) ?? [];
 
               const rootFinancePositions: RootFinancePosition[] =
-                allRootFinancePositions.items.find(
-                  (item) => item.accountAddress === address
-                )?.collaterizedDebtPositions ?? [];
+                rootFinanceMap.get(address) ?? [];
 
               const accountXRD_xUSDC_ShapeLiquidityAssets: ShapeLiquidityAsset[] =
-                xrdUsdcShapeLiquidityAssets.find(
-                  (item) => item.address === address
-                )?.items ?? [];
+                shapeLiquidityMap.get(address) ?? [];
 
               const accountDefiPlazaPositions: DefiPlazaPosition =
-                allDefiPlazaPositions.find(
-                  (item) => item.address === address
-                ) ?? { address, items: [] };
+                defiPlazaMap.get(address) ?? { address, items: [] };
 
               return {
                 address,
