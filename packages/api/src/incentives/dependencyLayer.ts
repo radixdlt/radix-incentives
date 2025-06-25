@@ -414,9 +414,6 @@ const getAccountsIntersectionLive = GetAccountsIntersectionLive.pipe(
 );
 
 const deriveAccountFromEventLive = DeriveAccountFromEventLive.pipe(
-  Layer.provide(dbClientLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(getNonFungibleLocationLive),
   Layer.provide(getEventsFromDbLive),
   Layer.provide(getAddressByNonFungibleLive),
   Layer.provide(getAccountsIntersectionLive)
@@ -606,6 +603,7 @@ const deriveAccountFromEvent = (input: DeriveAccountFromEventInput) => {
       dbClientLive,
       gatewayApiClientLive,
       getAccountsIntersectionLive,
+      getUsdValueLive,
       deriveAccountFromEventLive
     )
   );

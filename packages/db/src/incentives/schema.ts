@@ -435,6 +435,25 @@ export const componentCalls = createTable(
   })
 );
 
+export const tradingVolume = createTable(
+  "trading_volume",
+  {
+    accountAddress: varchar("account_address", { length: 255 })
+      .notNull()
+      .references(() => accounts.address, { onDelete: "cascade" }),
+    timestamp: timestamp("timestamp", {
+      mode: "date",
+      withTimezone: true,
+    }).notNull(),
+    data: jsonb("data").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.timestamp, table.accountAddress],
+    }),
+  })
+);
+
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
@@ -475,5 +494,6 @@ export type UserSeasonPoints = InferSelectModel<typeof userSeasonPoints>;
 export type SeasonPointsMultiplier = InferSelectModel<
   typeof seasonPointsMultiplier
 >;
+export type TradingVolume = InferSelectModel<typeof tradingVolume>;
 export type TransactionFee = InferSelectModel<typeof transactionFees>;
 export type ComponentCall = InferSelectModel<typeof componentCalls>;

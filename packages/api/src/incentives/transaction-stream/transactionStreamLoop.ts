@@ -12,6 +12,9 @@ import { AddToEventQueueService } from "../events/addToEventQueue";
 import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
 import { AddTransactionFeeService } from "../transaction-fee/addTransactionFee";
 import { AddComponentCallsService } from "../component/addComponentCalls";
+import { ProcessSwapEventTradingVolumeService } from "../trading-volume/processSwapEventTradingVolume";
+import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
+import type { EmittableEvent } from "../events/event-matchers/types";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -23,6 +26,8 @@ export const transactionStreamLoop = () =>
     const addToEventQueueService = yield* AddToEventQueueService;
     const addTransactionFeeService = yield* AddTransactionFeeService;
     const addComponentCallsService = yield* AddComponentCallsService;
+    const processSwapEventTradingVolumeService =
+      yield* ProcessSwapEventTradingVolumeService;
 
     while (true) {
       const nextStateVersion = yield* stateVersionManager.getStateVersion();
@@ -68,14 +73,27 @@ export const transactionStreamLoop = () =>
           ...weftFinanceEvents,
           ...rootFinanceEvents,
           ...commonEvents,
-        ];
+        ] as CapturedEvent<EmittableEvent>[];
 
-        // store all captured events to db
-        if (allCapturedEvents.length > 0) {
-          yield* addEventsToDbService(allCapturedEvents);
+        const highestFeePayerMap = new Map<string, string>();
+
+        for (const transaction of uniqueTransactions) {
+          if (transaction.highestFeePayer) {
+            highestFeePayerMap.set(
+              transaction.transactionId,
+              transaction.highestFeePayer
+            );
+          }
         }
 
+        yield* processSwapEventTradingVolumeService({
+          events: allCapturedEvents,
+          highestFeePayerMap,
+        });
+
         if (allCapturedEvents.length > 0) {
+          yield* addEventsToDbService(allCapturedEvents);
+
           yield* Effect.log(
             "adding events to event queue",
             allCapturedEvents.map((item) => ({

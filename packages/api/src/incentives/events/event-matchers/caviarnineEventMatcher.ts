@@ -4,6 +4,7 @@ import { CaviarNineConstants } from "../../../common/dapps/caviarnine/constants"
 import {
   AddLiquidityEvent,
   RemoveLiquidityEvent,
+  SwapEvent,
 } from "../../../common/dapps/caviarnine/schemas";
 import {
   parseEventData,
@@ -11,17 +12,26 @@ import {
   createEventMatcher,
 } from "./createEventMatcher";
 
+export type CaviarnineSwapEvent = {
+  readonly type: "SwapEvent";
+  data: SwapEvent;
+};
+
 export type CaviarnineEmittableEvents =
   | { readonly type: "AddLiquidityEvent"; data: AddLiquidityEvent }
-  | { readonly type: "RemoveLiquidityEvent"; data: RemoveLiquidityEvent };
+  | { readonly type: "RemoveLiquidityEvent"; data: RemoveLiquidityEvent }
+  | {
+      readonly type: "SwapEvent";
+      data: SwapEvent;
+    };
 
 export type CapturedCaviarnineEvent = CapturedEvent<CaviarnineEmittableEvents>;
 
 const isWhiteListedComponent = (componentAddress: string) =>
   (
-    [
-      CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC.componentAddress,
-    ] as string[]
+    Object.values(CaviarNineConstants.shapeLiquidityPools).map(
+      (pool) => pool.componentAddress
+    ) as string[]
   ).includes(componentAddress);
 
 export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
@@ -34,13 +44,14 @@ export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
         return yield* parseEventData(input, AddLiquidityEvent);
       case "RemoveLiquidityEvent":
         return yield* parseEventData(input, RemoveLiquidityEvent);
+      case "SwapEvent":
+        return yield* parseEventData(input, SwapEvent);
       // ignore these events
       case "WithdrawEvent":
       case "DepositEvent":
       case "ProtocolFeeEvent":
       case "ValuationEvent":
       case "LiquidityFeeEvent":
-      case "SwapEvent":
       case "BurnLiquidityReceiptEvent":
       case "MintLiquidityReceiptEvent":
         return yield* Effect.succeed(null);

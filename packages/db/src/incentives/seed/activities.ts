@@ -53,6 +53,10 @@ const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
     name: "Provide stables liquidity to a DEX",
   },
   {
+    id: ActivityCategoryKey.tradingVolume,
+    name: "Trading volume",
+  },
+  {
     id: ActivityCategoryKey.lendingStables,
     name: "Lend stables",
   },
@@ -84,7 +88,7 @@ const activityCategoryResults = await db
 console.log("Activity categories seeded", activityCategoryResults);
 
 const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
-  // DEX activities
+  // DEX LP activities
   {
     id: "c9_lp_xrd-xusdc",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
@@ -92,6 +96,16 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
   {
     id: "defiPlaza_lp_xrd-xusdc",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+
+  // DEX trading activities
+  {
+    id: "c9_trade_xrd-xusdc",
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: "defiPlaza_trade_xrd-xusdc",
+    category: ActivityCategoryKey.tradingVolume,
   },
 
   // Lending activities

@@ -7,6 +7,7 @@ export const ActivityCategoryKey = {
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",
   common: "common",
+  tradingVolume: "tradingVolume",
 } as const;
 
 export type ActivityCategoryKey = keyof typeof ActivityCategoryKey;
