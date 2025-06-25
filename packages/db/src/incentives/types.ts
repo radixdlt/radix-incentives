@@ -89,4 +89,8 @@ export const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }
     id: ActivityCategoryKey.common,
     name: "Common activities",
   },
+  {
+    id: ActivityCategoryKey.componentCalls,
+    name: "Component calls",
+  },
 ];

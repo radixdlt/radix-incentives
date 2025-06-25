@@ -72,6 +72,10 @@ export const activitiesData =  [
       id: "weft_hold_lsulp",
       category: ActivityCategoryKey.maintainXrdBalance,
     },
+    {
+      id: "componentCalls",
+      category: ActivityCategoryKey.componentCalls,
+    },
   
     // Common activities, such as withdrawals and deposits
     {
