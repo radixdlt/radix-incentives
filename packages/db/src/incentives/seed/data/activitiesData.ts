@@ -82,4 +82,14 @@ export const activitiesData =  [
       id: "common",
       category: ActivityCategoryKey.common,
     },
+      // DEX trading activities
+    {
+      id: "c9_trade_xrd-xusdc",
+      category: ActivityCategoryKey.tradingVolume,
+    },
+    {
+      id: "defiPlaza_trade_xrd-xusdc",
+      category: ActivityCategoryKey.tradingVolume,
+    },
+
   ]

@@ -77,7 +77,7 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
               accounts.set(r.accountAddress, fee);
             }
           }
-          offset += 1000;
+          offset += limit;
         }
 
         return Array.from(accounts.entries()).map(([accountAddress, fee]) => ({

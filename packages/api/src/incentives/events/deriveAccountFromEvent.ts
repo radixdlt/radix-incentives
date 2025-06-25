@@ -7,8 +7,6 @@ import type {
 import { GetEventsFromDbService } from "./queries/getEventsFromDb";
 import type { DbClientService, DbError } from "../db/dbClient";
 import type { GetNonFungibleLocationService } from "../../common/gateway/getNonFungibleLocation";
-import type { CaviarnineEmittableEvents } from "./event-matchers/caviarnineEventMatcher";
-import { shapeLiquidityComponentSet } from "../../common/dapps/caviarnine/constants";
 import type { GatewayError } from "../../common/gateway/errors";
 import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
 import {
@@ -22,6 +20,11 @@ import type { RootFinanceEmittableEvents } from "./event-matchers/rootFinanceEve
 import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 import { RootFinance } from "../../common/dapps/rootFinance/constants";
 import type { AtLedgerState } from "../../common";
+import type {
+  InvalidResourceAddressError,
+  PriceServiceApiError,
+} from "../token-price/getUsdValue";
+import type { GetUsdValueService } from "../token-price/getUsdValue";
 
 export class InvalidEventError {
   _tag = "InvalidEventError";
@@ -36,14 +39,17 @@ export type DeriveAccountFromEventServiceDependencies =
   | DbClientService
   | GetNonFungibleLocationService
   | GatewayApiClientService
-  | GetAccountsIntersectionService;
+  | GetAccountsIntersectionService
+  | GetUsdValueService;
 
 export type DeriveAccountFromEventServiceError =
   | EventQueueClientServiceError
   | DbError
   | GatewayError
   | GetAddressByNonFungibleServiceError
-  | InvalidEventError;
+  | InvalidEventError
+  | InvalidResourceAddressError
+  | PriceServiceApiError;
 
 export class DeriveAccountFromEventService extends Context.Tag(
   "DeriveAccountFromEventService"
@@ -97,6 +103,9 @@ export const DeriveAccountFromEventLive = Layer.effect(
 
                 // account is not registered in incentives program
                 if (registeredAccounts.length === 0) {
+                  yield* Effect.log(
+                    `Skipping ${result.address}, not registered in incentives program`
+                  );
                   return null;
                 }
 
@@ -135,31 +144,12 @@ export const DeriveAccountFromEventLive = Layer.effect(
               }
             }
 
+            // Handled by withdraw/deposit events
             if (event.dApp === "Caviarnine") {
-              const eventData = event.eventData as CaviarnineEmittableEvents;
-
-              const at_ledger_state = {
-                timestamp: event.timestamp,
-              };
-
-              const nonFungibleId = eventData.data.liquidity_receipt_id;
-              const pool = shapeLiquidityComponentSet.get(event.globalEmitter);
-
-              if (!pool) {
-                return yield* Effect.fail(
-                  new InvalidEventError(
-                    `${event.globalEmitter} is not a whitelisted c9 pool address`
-                  )
-                );
-              }
-
-              return yield* getRegisteredAccountAddressFromNonFungible(
-                pool.liquidity_receipt,
-                nonFungibleId,
-                at_ledger_state
-              );
+              return null;
             }
 
+            // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === "WeftFinance") {
               yield* Effect.log("WeftFinance event", event.eventData);
 
@@ -193,6 +183,7 @@ export const DeriveAccountFromEventLive = Layer.effect(
               );
             }
 
+            // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === "RootFinance") {
               yield* Effect.log("RootFinance event", event.eventData);
 
@@ -225,7 +216,10 @@ export const DeriveAccountFromEventLive = Layer.effect(
           });
         });
 
-        return accountAddresses.filter((address) => address !== null);
+        return accountAddresses.filter(
+          (address): address is { address: string; timestamp: string } =>
+            address !== null
+        );
       });
   })
 );

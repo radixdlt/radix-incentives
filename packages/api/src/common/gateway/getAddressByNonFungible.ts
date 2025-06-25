@@ -29,8 +29,7 @@ export class GetAddressByNonFungibleService extends Context.Tag(
     input: GetAddressByNonFungibleServiceInput
   ) => Effect.Effect<
     GetAddressByNonFungibleServiceOutput,
-    GetAddressByNonFungibleServiceError,
-    GatewayApiClientService
+    GetAddressByNonFungibleServiceError
   >
 >() {}
 

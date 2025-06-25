@@ -12,11 +12,7 @@ export class GetNonFungibleLocationService extends Context.Tag(
     resourceAddress: string;
     nonFungibleIds: string[];
     at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<
-    StateNonFungibleLocationResponse,
-    GatewayError,
-    GatewayApiClientService
-  >
+  }) => Effect.Effect<StateNonFungibleLocationResponse, GatewayError>
 >() {}
 
 export const GetNonFungibleLocationLive = Layer.effect(

@@ -77,7 +77,7 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
               accounts.set(r.accountAddress, calls);
             }
           }
-          offset += 1000;
+          offset += limit;
         }
 
         return Array.from(accounts.entries()).map(

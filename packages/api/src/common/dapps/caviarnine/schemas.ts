@@ -79,3 +79,4 @@ export const MintLiquidityReceiptEvent = s.struct({
 
 export type AddLiquidityEvent = s.infer<typeof AddLiquidityEvent>;
 export type RemoveLiquidityEvent = s.infer<typeof RemoveLiquidityEvent>;
+export type SwapEvent = s.infer<typeof SwapEvent>;

@@ -7,6 +7,7 @@ export const ActivityCategoryKey = {
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",
   common: "common",
+  tradingVolume: "tradingVolume",
 } as const;
 
 export type ActivityCategoryKey = keyof typeof ActivityCategoryKey;
@@ -92,5 +93,9 @@ export const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }
   {
     id: ActivityCategoryKey.componentCalls,
     name: "Component calls",
+  },
+  {
+    id: ActivityCategoryKey.tradingVolume,
+    name: "Trading volume",
   },
 ];

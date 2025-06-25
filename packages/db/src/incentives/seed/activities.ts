@@ -58,7 +58,10 @@ const activityCategoryResults = await db
 
 console.log("Activity categories seeded", activityCategoryResults);
 
-const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = activitiesData as { id: ActivityId; category: ActivityCategoryKey }[];
+const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = activitiesData.map(activity => ({
+  id: activity.id as ActivityId,
+  category: activity.category
+}));
 
 const activityResults = await db
   .insert(activities)
