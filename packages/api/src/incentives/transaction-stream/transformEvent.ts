@@ -6,6 +6,7 @@ import type {
   ProgrammaticScryptoSborValue,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import Bignumber from "bignumber.js";
+import { extractComponentAddressFromMethodCalls } from "./extractComponentAddressFromMethodCalls";
 
 export type TransformedEvent = {
   package: {
@@ -74,7 +75,9 @@ export const transformEvent = (
 
 export type TransformedTransaction = ReturnType<
   typeof transformTransactions
->[0];
+>[0] & {
+  highestFeePayer?: string;
+};
 
 export type TransformTransactionsOutput = TransformedTransaction[];
 
@@ -106,6 +109,10 @@ export const transformTransactions = (
         .map(transformEvent)
         .filter((event) => event !== undefined);
 
+      const componentAddresses = extractComponentAddressFromMethodCalls(
+        transaction?.manifest_instructions ?? ""
+      );
+
       return {
         // biome-ignore lint/style/noNonNullAssertion:
         transactionId: transaction.intent_hash!,
@@ -119,6 +126,8 @@ export const transformTransactions = (
         ),
         stateVersion: transaction.state_version,
         status: transaction.transaction_status,
+        manifest: transaction.manifest_instructions,
+        componentAddresses,
       };
     })
     .filter((t) => t !== undefined);

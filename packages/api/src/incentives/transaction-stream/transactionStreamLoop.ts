@@ -11,6 +11,7 @@ import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEvent
 import { AddToEventQueueService } from "../events/addToEventQueue";
 import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
 import { AddTransactionFeeService } from "../transaction-fee/addTransactionFee";
+import { AddComponentCallsService } from "../component/addComponentCalls";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -21,6 +22,7 @@ export const transactionStreamLoop = () =>
     const addTransactionsToDbService = yield* AddTransactionsToDbService;
     const addToEventQueueService = yield* AddToEventQueueService;
     const addTransactionFeeService = yield* AddTransactionFeeService;
+    const addComponentCallsService = yield* AddComponentCallsService;
 
     while (true) {
       const nextStateVersion = yield* stateVersionManager.getStateVersion();
@@ -89,6 +91,26 @@ export const transactionStreamLoop = () =>
               eventIndex: event.eventIndex,
             }))
           );
+        }
+
+        const componentCalls = uniqueTransactions
+          .map((tx) => ({
+            accountAddress: tx.highestFeePayer,
+            calls: tx.componentAddresses.length,
+            timestamp: new Date(tx.round_timestamp),
+          }))
+          .filter(
+            (
+              item
+            ): item is {
+              accountAddress: string;
+              calls: number;
+              timestamp: Date;
+            } => item.accountAddress !== undefined && item.calls > 0
+          );
+
+        if (componentCalls.length > 0) {
+          yield* addComponentCallsService(componentCalls);
         }
       }
 

@@ -5,6 +5,7 @@ export const ActivityCategoryKey = {
   provideStablesLiquidityToDex: "provideStablesLiquidityToDex",
   lendingStables: "lendingStables",
   transactionFees: "transactionFees",
+  componentCalls: "componentCalls",
   common: "common",
 } as const;
 
@@ -32,7 +33,7 @@ export type MaintainXrdBalanceActivityId =
   | `${LendingDApp}_${MaintainXrdBalanceAction}_${Asset}`
   | `${MaintainXrdBalanceAction}_${MaintainXrdBalanceAssets}`;
 
-export type NetworkAction = "txFees";
+export type NetworkAction = "txFees" | "componentCalls";
 export type NetworkActivityId = `${NetworkAction}`;
 
 export type CommonAction = "common";
