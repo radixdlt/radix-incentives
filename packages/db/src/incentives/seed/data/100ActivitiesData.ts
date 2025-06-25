@@ -396,6 +396,11 @@ export const activitiesData = [
     category: ActivityCategoryKey.maintainXrdBalance,
   },
 
+  {
+    id: "componentCalls",
+    category: ActivityCategoryKey.componentCalls,
+  },
+
   // Additional XRD-adjacent holdings
   {
     id: "c9_hold_dfp2-xrd",
@@ -423,14 +428,14 @@ export const activitiesData = [
   // Additional network activities
   {
     id: "c9_trade_xrd-xusdc",
-    category: ActivityCategoryKey.transactionFees,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
     id: "defiPlaza_trade_xrd-xusdc",
-    category: ActivityCategoryKey.transactionFees,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
     id: "oci_trade_xrd-xusdc",
-    category: ActivityCategoryKey.transactionFees,
+    category: ActivityCategoryKey.tradingVolume,
   },
 ] as const;
