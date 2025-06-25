@@ -11,6 +11,7 @@ import {
 } from "../week/getWeekById";
 import { GetTransactionFeesService } from "../transaction-fee/getTransactionFees";
 import { GetComponentCallsService } from "../component/getComponentCalls";
+import { GetTradingVolumeService } from "../trading-volume/getTradingVolume";
 
 export const calculateActivityPointsInputSchema = z.object({
   weekId: z.string(),
@@ -54,6 +55,7 @@ export const CalculateActivityPointsLive = Layer.effect(
     const getWeekById = yield* GetWeekByIdService;
     const getTransactionFees = yield* GetTransactionFeesService;
     const getComponentCalls = yield* GetComponentCallsService;
+    const getTradingVolume = yield* GetTradingVolumeService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -142,6 +144,26 @@ export const CalculateActivityPointsLive = Layer.effect(
               accountAddress,
               activityId: "componentCalls",
               activityPoints: calls.decimalPlaces(0).toNumber(),
+            }))
+          );
+        }
+
+        const tradingVolume = yield* getTradingVolume({
+          endTimestamp: week.endDate,
+          startTimestamp: week.startDate,
+          addresses: input.addresses,
+        });
+
+        if (tradingVolume.length > 0) {
+          yield* Effect.log(
+            `adding ${tradingVolume.length} trading volume calculations`
+          );
+          yield* upsertAccountActivityPoints(
+            tradingVolume.map(({ accountAddress, activityId, usdValue }) => ({
+              weekId: week.id,
+              accountAddress,
+              activityId,
+              activityPoints: usdValue.decimalPlaces(0).toNumber(),
             }))
           );
         }
