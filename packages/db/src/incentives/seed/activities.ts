@@ -8,7 +8,7 @@ import {
 import { db } from "../client";
 import { sql } from "drizzle-orm";
 import { activityCategoriesToSeed, type ActivityCategoryKey, type ActivityId } from "../types";
-import { activitiesData } from "./data/activitiesData";
+import { activitiesData } from "./data/100ActivitiesData";
 
 const WEEK_ID = "6b209cf9-5932-487e-bf75-9d6f7d2330dd";
 const SEASON_ID = "036031e3-8bfb-4d2f-b653-f05c76f07704";
