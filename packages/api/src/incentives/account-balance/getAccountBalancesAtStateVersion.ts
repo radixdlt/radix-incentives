@@ -430,7 +430,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 defiPlazaPositions: accountDefiPlazaPositions,
               } satisfies AccountBalance;
             })
-        );
+        ).pipe(Effect.withSpan("PositionsToAccountBalance"));
 
         yield* Effect.log("account balances fetched");
 
