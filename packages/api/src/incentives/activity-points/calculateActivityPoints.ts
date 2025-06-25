@@ -10,6 +10,7 @@ import {
   type WeekNotFoundError,
 } from "../week/getWeekById";
 import { GetTransactionFeesService } from "../transaction-fee/getTransactionFees";
+import { GetComponentCallsService } from "../component/getComponentCalls";
 
 export const calculateActivityPointsInputSchema = z.object({
   weekId: z.string(),
@@ -52,6 +53,7 @@ export const CalculateActivityPointsLive = Layer.effect(
     const getWeekAccountBalances = yield* GetWeekAccountBalancesService;
     const getWeekById = yield* GetWeekByIdService;
     const getTransactionFees = yield* GetTransactionFeesService;
+    const getComponentCalls = yield* GetComponentCallsService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -111,7 +113,7 @@ export const CalculateActivityPointsLive = Layer.effect(
             items.map(({ accountAddress, fee }) => ({
               weekId: week.id,
               accountAddress,
-              activityId: "transactionFeesPaid",
+              activityId: "txFees",
               activityPoints: fee.decimalPlaces(0).toNumber(),
             }))
           )
@@ -123,6 +125,30 @@ export const CalculateActivityPointsLive = Layer.effect(
           );
           yield* upsertAccountActivityPoints(transactionFees);
         }
+
+        const componentCalls = yield* getComponentCalls({
+          endTimestamp: week.endDate,
+          startTimestamp: week.startDate,
+          addresses: input.addresses,
+        });
+
+        if (componentCalls.length > 0) {
+          yield* Effect.log(
+            `adding ${componentCalls.length} component calls calculations`
+          );
+          yield* upsertAccountActivityPoints(
+            componentCalls.map(({ accountAddress, calls }) => ({
+              weekId: week.id,
+              accountAddress,
+              activityId: "componentCalls",
+              activityPoints: calls.decimalPlaces(0).toNumber(),
+            }))
+          );
+        }
+
+        yield* Effect.log(
+          `activity points calculations completed for week ${week.id}`
+        );
       });
     };
   })

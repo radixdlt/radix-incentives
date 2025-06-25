@@ -32,6 +32,7 @@ import { GetActivitiesLive } from "../activity/getActivities";
 import { AddToEventQueueLive } from "../events/addToEventQueue";
 import { EventQueueClientLive } from "../events/eventQueueClient";
 import { AddTransactionFeeLive } from "../transaction-fee/addTransactionFee";
+import { AddComponentCallsLive } from "../component/addComponentCalls";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -87,6 +88,10 @@ export const runTransactionStreamLoop = async () => {
   const getStateVersionLive = GetStateVersionLive.pipe(
     Layer.provide(redisClientLive),
     Layer.provide(configLive)
+  );
+
+  const addComponentCallsLive = AddComponentCallsLive.pipe(
+    Layer.provide(dbClientLive)
   );
 
   const currentLedgerState = await Effect.runPromise(
@@ -176,6 +181,7 @@ export const runTransactionStreamLoop = async () => {
     optIns: {
       detailed_events: true,
       balance_changes: true,
+      manifest_instructions: true,
     },
     startStateVersion: 1,
   });
@@ -214,7 +220,8 @@ export const runTransactionStreamLoop = async () => {
       configLive,
       addToEventQueueLive,
       eventQueueClientLive,
-      addTransactionFeeLive
+      addTransactionFeeLive,
+      addComponentCallsLive
     )
   );
 

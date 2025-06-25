@@ -1,0 +1,56 @@
+export const manifest = `CALL_METHOD
+    Address("account_rdx1680ldd0sgl547sp05eqdpt3x8wvq004qeh7rk54t65t7yxn87ukunn")
+    "lock_fee"
+    Decimal("19.9")
+;
+CALL_METHOD
+    Address("account_rdx1680ldd0sgl547sp05eqdpt3x8wvq004qeh7rk54t65t7yxn87ukunn")
+    "withdraw"
+    Address("resource_rdx1t4tjx4g3qzd98nayqxm7qdpj0a0u8ns6a0jrchq49dyfevgh6u0gj3")
+    Decimal("12.348366986185015")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1t4tjx4g3qzd98nayqxm7qdpj0a0u8ns6a0jrchq49dyfevgh6u0gj3")
+    Bucket("bucket1")
+;
+CALL_METHOD
+    Address("account_rdx1680ldd0sgl547sp05eqdpt3x8wvq004qeh7rk54t65t7yxn87ukunn")
+    "create_proof_of_amount"
+    Address("resource_rdx1thwmsjqatucsmx7zszh9xhltk7tzgruk09lrs79wcdyrmlrm5xcxs4")
+    Decimal("1")
+;
+CALL_METHOD
+    Address("component_rdx1cqsr24wactz2jru76kjq5j2mmfarnurwekl77zw23k800unm0l907u")
+    "swap"
+    Bucket("bucket1")
+    Address("resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75")
+;
+TAKE_ALL_FROM_WORKTOP
+    Address("resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75")
+    Bucket("bucket2")
+;
+CALL_METHOD
+    Address("component_rdx1cqddgx9vvkhc6dlp7gng5quh7guueqw326v5f0xr8kgjp7jzr9fy8n")
+    "swap"
+    Tuple(
+        Array<Tuple>(
+            Tuple(
+                Enum<0u8>(),
+                Bucket("bucket2")
+            )
+        ),
+        Tuple(
+            Address("resource_rdx1tkk83magp3gjyxrpskfsqwkg4g949rmcjee4tu2xmw93ltw2cz94sq"),
+            Enum<0u8>()
+        )
+    )
+;
+ASSERT_WORKTOP_CONTAINS
+    Address("resource_rdx1tkk83magp3gjyxrpskfsqwkg4g949rmcjee4tu2xmw93ltw2cz94sq")
+    Decimal("1006.7800235579023")
+;
+CALL_METHOD
+    Address("account_rdx1680ldd0sgl547sp05eqdpt3x8wvq004qeh7rk54t65t7yxn87ukunn")
+    "deposit_batch"
+    Expression("ENTIRE_WORKTOP")
+;`;
