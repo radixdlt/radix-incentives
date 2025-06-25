@@ -37,6 +37,7 @@ import { ProcessSwapEventTradingVolumeLive } from "../trading-volume/processSwap
 import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
 import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
+import { TokenNameServiceLive } from "../../common/token-name/getTokenName";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -212,8 +213,14 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(dbClientLive)
   );
 
+  const tokenNameServiceLive = TokenNameServiceLive;
+
+  const getUsdValueLive = GetUsdValueLive.pipe(
+    Layer.provide(tokenNameServiceLive)
+  );
+
   const filterTradingEventsLive = FilterTradingEventsLive.pipe(
-    Layer.provide(GetUsdValueLive),
+    Layer.provide(getUsdValueLive),
     Layer.provide(dbClientLive)
   );
 

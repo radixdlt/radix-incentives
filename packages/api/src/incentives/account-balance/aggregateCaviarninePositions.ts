@@ -3,39 +3,15 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import {
   GetUsdValueService,
-  type InvalidResourceAddressError,
-  type PriceServiceApiError,
+  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
-import type { AccountBalanceData } from "db/incentives";
-
-export class UnknownCaviarnineTokenError {
-  readonly _tag = "UnknownCaviarnineTokenError";
-  constructor(readonly resourceAddress: string) {}
-}
-
-// Helper function to get token name from resource address
-// TODO: Abstract this to service if this is the approach we want to take
-// Maybe we can do this smarter
-const getTokenName = (
-  resourceAddress: string
-): Effect.Effect<string, UnknownCaviarnineTokenError, never> => {
-  switch (resourceAddress) {
-    case Assets.Fungible.XRD:
-      return Effect.succeed("XRD");
-    case Assets.Fungible.xUSDC:
-      return Effect.succeed("xUSDC");
-    case Assets.Fungible.xUSDT:
-      return Effect.succeed("xUSDT");
-    case Assets.Fungible.xETH:
-      return Effect.succeed("xETH");
-    case Assets.Fungible.wxBTC:
-      return Effect.succeed("wxBTC");
-    default:
-      return Effect.fail(new UnknownCaviarnineTokenError(resourceAddress));
-  }
-};
+import type { AccountBalanceData, ActivityId } from "db/incentives";
+import {
+  TokenNameService,
+  type UnknownTokenError,
+} from "../../common/token-name/getTokenName";
 
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -52,10 +28,8 @@ export class AggregateCaviarninePositionsService extends Context.Tag(
     input: AggregateCaviarninePositionsInput
   ) => Effect.Effect<
     AggregateCaviarninePositionsOutput[],
-    | InvalidResourceAddressError
-    | PriceServiceApiError
-    | UnknownCaviarnineTokenError,
-    GetUsdValueService
+    GetUsdValueServiceError | UnknownTokenError,
+    GetUsdValueService | TokenNameService
   >
 >() {}
 
@@ -63,85 +37,91 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
   AggregateCaviarninePositionsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
+    const tokenNameService = yield* TokenNameService;
     return (input) =>
       Effect.gen(function* () {
-        const xrdUsdc = input.accountBalance.caviarninePositions.xrdUsdc[0];
+        const results: AccountBalanceData[] = [];
 
-        if (!xrdUsdc) {
-          return [
-            {
-              activityId: "c9_lp_xrd-xusdc",
-              usdValue: new BigNumber(0).toString(),
-            } satisfies AccountBalanceData,
-          ];
-        }
+        // Process each pool in the CaviarNine positions
+        for (const [_poolKey, poolAssets] of Object.entries(
+          input.accountBalance.caviarninePositions
+        )) {
+          const firstAsset = poolAssets[0];
 
-        const { xToken, yToken } = xrdUsdc;
+          if (!firstAsset || poolAssets.length === 0) {
+            continue;
+          }
 
-        // Determine which tokens are XRD and which are not
-        const isXTokenXrd = xToken.resourceAddress === Assets.Fungible.XRD;
-        const isYTokenXrd = yToken.resourceAddress === Assets.Fungible.XRD;
+          const { xToken, yToken } = firstAsset;
 
-        // Get token names for the pair
-        const xTokenName = yield* getTokenName(xToken.resourceAddress);
-        const yTokenName = yield* getTokenName(yToken.resourceAddress);
-        const tokenPair = `${xTokenName}_${yTokenName}`;
+          // Determine which tokens are XRD and which are not
+          const isXTokenXrd = xToken.resourceAddress === Assets.Fungible.XRD;
+          const isYTokenXrd = yToken.resourceAddress === Assets.Fungible.XRD;
 
-        const totals = input.accountBalance.caviarninePositions.xrdUsdc.reduce(
-          (acc, item) => {
-            acc.totalXToken = acc.totalXToken.plus(
-              item.xToken.withinPriceBounds
-            );
-            acc.totalYToken = acc.totalYToken.plus(
-              item.yToken.withinPriceBounds
-            );
-            return acc;
-          },
-          { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0) }
-        );
+          // Get token names for the pair
+          const xTokenName = yield* tokenNameService(xToken.resourceAddress);
+          const yTokenName = yield* tokenNameService(yToken.resourceAddress);
+          const tokenPair = `${xTokenName}_${yTokenName}`;
 
-        // Calculate USD value of all non-XRD tokens
-        let totalNonXrdUsdValue = new BigNumber(0);
+          const totals = poolAssets.reduce(
+            (acc, item) => {
+              acc.totalXToken = acc.totalXToken.plus(
+                item.xToken.withinPriceBounds
+              );
+              acc.totalYToken = acc.totalYToken.plus(
+                item.yToken.withinPriceBounds
+              );
+              return acc;
+            },
+            { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0) }
+          );
 
-        // Add xToken value if it's not XRD
-        if (!isXTokenXrd && totals.totalXToken.gt(0)) {
-          const xTokenUsdValue = yield* getUsdValueService({
-            amount: totals.totalXToken,
-            resourceAddress: xToken.resourceAddress,
-            timestamp: input.timestamp,
-          });
-          totalNonXrdUsdValue = totalNonXrdUsdValue.plus(xTokenUsdValue);
-        }
+          // Calculate USD value of all non-XRD tokens
+          let totalNonXrdUsdValue = new BigNumber(0);
 
-        // Add yToken value if it's not XRD
-        if (!isYTokenXrd && totals.totalYToken.gt(0)) {
-          const yTokenUsdValue = yield* getUsdValueService({
-            amount: totals.totalYToken,
-            resourceAddress: yToken.resourceAddress,
-            timestamp: input.timestamp,
-          });
-          totalNonXrdUsdValue = totalNonXrdUsdValue.plus(yTokenUsdValue);
-        }
+          // Add xToken value if it's not XRD
+          if (!isXTokenXrd && totals.totalXToken.gt(0)) {
+            const xTokenUsdValue = yield* getUsdValueService({
+              amount: totals.totalXToken,
+              resourceAddress: xToken.resourceAddress,
+              timestamp: input.timestamp,
+            });
+            totalNonXrdUsdValue = totalNonXrdUsdValue.plus(xTokenUsdValue);
+          }
 
-        return [
-          {
-            activityId: "c9_lp_xrd-xusdc",
+          // Add yToken value if it's not XRD
+          if (!isYTokenXrd && totals.totalYToken.gt(0)) {
+            const yTokenUsdValue = yield* getUsdValueService({
+              amount: totals.totalYToken,
+              resourceAddress: yToken.resourceAddress,
+              timestamp: input.timestamp,
+            });
+            totalNonXrdUsdValue = totalNonXrdUsdValue.plus(yTokenUsdValue);
+          }
+
+          // Generate activity ID based on token pair - cast to ActivityId since we know it's valid
+          const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
+
+          results.push({
+            activityId,
             usdValue: totalNonXrdUsdValue.toString(),
             metadata: {
               tokenPair,
-              xToken: {
+              baseToken: {
                 resourceAddress: xToken.resourceAddress,
                 amount: totals.totalXToken.toString(),
                 isXrd: isXTokenXrd,
               },
-              yToken: {
+              quoteToken: {
                 resourceAddress: yToken.resourceAddress,
                 amount: totals.totalYToken.toString(),
                 isXrd: isYTokenXrd,
               },
             },
-          },
-        ];
+          });
+        }
+
+        return results;
       });
   })
 );

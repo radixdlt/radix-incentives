@@ -1,6 +1,9 @@
 import { Context, Effect, Layer, Cache, Duration } from "effect";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
+import {
+  TokenNameService,
+  type UnknownTokenError,
+} from "../../common/token-name/getTokenName";
 
 export type GetUsdValueInput = {
   amount: BigNumber;
@@ -20,7 +23,8 @@ export class PriceServiceApiError {
 
 export type GetUsdValueServiceError =
   | InvalidResourceAddressError
-  | PriceServiceApiError;
+  | PriceServiceApiError
+  | UnknownTokenError;
 
 export class GetUsdValueService extends Context.Tag("GetUsdValueService")<
   GetUsdValueService,
@@ -85,6 +89,7 @@ const fetchTokenPriceFromAPI = (
 export const GetUsdValueLive = Layer.effect(
   GetUsdValueService,
   Effect.gen(function* () {
+    const tokenNameService = yield* TokenNameService;
     // Create a cache with 5 minutes TTL and max 1000 entries
     const priceCache = yield* Cache.make({
       capacity: 1000,
@@ -100,10 +105,12 @@ export const GetUsdValueLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const isXUSDC = Assets.Fungible.xUSDC === input.resourceAddress;
-        const isXRD = Assets.Fungible.XRD === input.resourceAddress;
+        // Validate that the token is supported by attempting to get its name from TokenNameService
+        const tokenNameResult = yield* tokenNameService(
+          input.resourceAddress
+        ).pipe(Effect.either);
 
-        if (!isXUSDC && !isXRD) {
+        if (tokenNameResult._tag === "Left") {
           return yield* Effect.fail(
             new InvalidResourceAddressError(
               `Invalid resource address: ${input.resourceAddress}`

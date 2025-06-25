@@ -3,22 +3,21 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import type {
   GetUsdValueService,
-  InvalidResourceAddressError,
-  PriceServiceApiError,
+  GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
-import {
-  AggregateCaviarninePositionsService,
-  type UnknownCaviarnineTokenError,
-} from "./aggregateCaviarninePositions";
+import { AggregateCaviarninePositionsService } from "./aggregateCaviarninePositions";
 
 import { XrdBalanceService } from "./aggregateXrdBalance";
 import { AggregateWeftFinancePositionsService } from "./aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsService } from "./aggregateRootFinancePositions";
 import {
   AggregateDefiPlazaPositionsService,
-  type UnknownDefiPlazaTokenError,
   type InvalidDefiPlazaPositionError,
 } from "./aggregateDefiPlazaPositions";
+import type {
+  UnknownTokenError,
+  TokenNameService,
+} from "../../common/token-name/getTokenName";
 import type { AccountBalance } from "db/incentives";
 
 type AggregateAccountBalanceInput = {
@@ -34,13 +33,12 @@ export type AggregateAccountBalanceServiceDependency =
   | GetUsdValueService
   | AggregateWeftFinancePositionsService
   | AggregateRootFinancePositionsService
-  | AggregateDefiPlazaPositionsService;
+  | AggregateDefiPlazaPositionsService
+  | TokenNameService;
 
 export type AggregateAccountBalanceError =
-  | InvalidResourceAddressError
-  | PriceServiceApiError
-  | UnknownCaviarnineTokenError
-  | UnknownDefiPlazaTokenError
+  | GetUsdValueServiceError
+  | UnknownTokenError
   | InvalidDefiPlazaPositionError;
 
 export class AggregateAccountBalanceService extends Context.Tag(
