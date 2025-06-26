@@ -90,6 +90,11 @@ import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefi
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
 import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
+import {
+  type EventWorkerInput,
+  EventWorkerLive,
+  EventWorkerService,
+} from "./events/eventWorker";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -595,6 +600,24 @@ const getLedgerState = (input: GetLedgerStateInput) => {
   return Effect.runPromiseExit(program);
 };
 
+const eventWorkerLive = EventWorkerLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(deriveAccountFromEventLive)
+);
+
+const eventWorkerHandler = (input: EventWorkerInput) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const eventWorkerService = yield* EventWorkerService;
+
+      return yield* eventWorkerService(input);
+    }),
+    Layer.mergeAll(dbClientLive, eventWorkerLive)
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
 const deriveAccountFromEvent = (input: DeriveAccountFromEventInput) => {
   const program = Effect.provide(
     Effect.gen(function* () {
@@ -699,4 +722,5 @@ export const dependencyLayer = {
   calculateActivityPoints,
   calculateSeasonPoints,
   calculateSPMultiplier,
+  eventWorkerHandler,
 };

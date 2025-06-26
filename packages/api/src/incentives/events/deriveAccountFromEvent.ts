@@ -24,7 +24,6 @@ import type {
   InvalidResourceAddressError,
   PriceServiceApiError,
 } from "../token-price/getUsdValue";
-import type { GetUsdValueService } from "../token-price/getUsdValue";
 
 export class InvalidEventError {
   _tag = "InvalidEventError";
@@ -32,15 +31,6 @@ export class InvalidEventError {
 }
 
 export type DeriveAccountFromEventInput = EventQueueClientInput;
-
-export type DeriveAccountFromEventServiceDependencies =
-  | DeriveAccountFromEventService
-  | GetEventsFromDbService
-  | DbClientService
-  | GetNonFungibleLocationService
-  | GatewayApiClientService
-  | GetAccountsIntersectionService
-  | GetUsdValueService;
 
 export type DeriveAccountFromEventServiceError =
   | EventQueueClientServiceError
@@ -57,11 +47,11 @@ export class DeriveAccountFromEventService extends Context.Tag(
   DeriveAccountFromEventService,
   (input: DeriveAccountFromEventInput) => Effect.Effect<
     {
-      address: string;
+      address?: string;
       timestamp: string;
+      transactionId: string;
     }[],
-    DeriveAccountFromEventServiceError,
-    DeriveAccountFromEventServiceDependencies
+    DeriveAccountFromEventServiceError
   >
 >() {}
 
@@ -134,24 +124,34 @@ export const DeriveAccountFromEventLive = Layer.effect(
                   yield* Effect.log(
                     `Skipping ${eventData.data.accountAddress}, not registered in incentives program`
                   );
-                  return null;
+                  return {
+                    timestamp: event.timestamp.toISOString(),
+                    transactionId: event.transactionId,
+                  };
                 }
 
                 return {
                   address: eventData.data.accountAddress,
                   timestamp: event.timestamp.toISOString(),
+                  transactionId: event.transactionId,
                 };
               }
             }
 
             // Handled by withdraw/deposit events
             if (event.dApp === "Caviarnine") {
-              return null;
+              return {
+                timestamp: event.timestamp.toISOString(),
+                transactionId: event.transactionId,
+              };
             }
 
             // Handled by swap/add/remove liquidity events
             if (event.dApp === "DefiPlaza") {
-              return null;
+              return {
+                timestamp: event.timestamp.toISOString(),
+                transactionId: event.transactionId,
+              };
             }
 
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
@@ -181,11 +181,24 @@ export const DeriveAccountFromEventLive = Layer.effect(
                 timestamp: event.timestamp,
               };
 
-              return yield* getRegisteredAccountAddressFromNonFungible(
+              const result = yield* getRegisteredAccountAddressFromNonFungible(
                 WeftFinance.v2.WeftyV2.resourceAddress,
                 nonFungibleId,
                 at_ledger_state
               );
+
+              if (result === null) {
+                return {
+                  timestamp: event.timestamp.toISOString(),
+                  transactionId: event.transactionId,
+                };
+              }
+
+              return {
+                address: result.address,
+                timestamp: event.timestamp.toISOString(),
+                transactionId: event.transactionId,
+              };
             }
 
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
@@ -201,11 +214,25 @@ export const DeriveAccountFromEventLive = Layer.effect(
                   timestamp: event.timestamp,
                 };
 
-                return yield* getRegisteredAccountAddressFromNonFungible(
-                  RootFinance.receiptResourceAddress,
-                  nonFungibleId,
-                  at_ledger_state
-                );
+                const result =
+                  yield* getRegisteredAccountAddressFromNonFungible(
+                    RootFinance.receiptResourceAddress,
+                    nonFungibleId,
+                    at_ledger_state
+                  );
+
+                if (result === null) {
+                  return {
+                    timestamp: event.timestamp.toISOString(),
+                    transactionId: event.transactionId,
+                  };
+                }
+
+                return {
+                  address: result.address,
+                  timestamp: event.timestamp.toISOString(),
+                  transactionId: event.transactionId,
+                };
               }
 
               return yield* Effect.fail(
@@ -221,10 +248,7 @@ export const DeriveAccountFromEventLive = Layer.effect(
           });
         });
 
-        return accountAddresses.filter(
-          (address): address is { address: string; timestamp: string } =>
-            address !== null
-        );
+        return accountAddresses;
       });
   })
 );

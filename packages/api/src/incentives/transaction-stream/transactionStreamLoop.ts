@@ -6,7 +6,6 @@ import { weftFinanceEventMatcher } from "../events/event-matchers/weftFinanceEve
 import { rootFinanceEventMatcher } from "../events/event-matchers/rootFinanceEventMatcher";
 import { FilterTransactionsService } from "./filterTransactions";
 import { AddEventsToDbService } from "../events/queries/addEventToDb";
-import { AddTransactionsToDbService } from "./addTransactionsToDb";
 import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
 import { AddToEventQueueService } from "../events/addToEventQueue";
 import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
@@ -23,7 +22,6 @@ export const transactionStreamLoop = () =>
     const stateVersionManager = yield* StateVersionManagerService;
     const filterTransactionsService = yield* FilterTransactionsService;
     const addEventsToDbService = yield* AddEventsToDbService;
-    const addTransactionsToDbService = yield* AddTransactionsToDbService;
     const addToEventQueueService = yield* AddToEventQueueService;
     const addTransactionFeeService = yield* AddTransactionFeeService;
     const addComponentCallsService = yield* AddComponentCallsService;
@@ -52,9 +50,6 @@ export const transactionStreamLoop = () =>
             .map((transaction) => [transaction.transactionId, transaction])
         );
         const uniqueTransactions = Array.from(transactionMap.values());
-
-        // stores transactions which registered accounts are involved in
-        yield* addTransactionsToDbService(uniqueTransactions);
 
         // get all weft finance events from transactions data
         const weftFinanceEvents =

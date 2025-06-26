@@ -27,7 +27,6 @@ import { createDbClientLive } from "../db/dbClient";
 import { db } from "db/incentives";
 import { FilterTransactionsLive } from "./filterTransactions";
 import { AddEventsToDbLive } from "../events/queries/addEventToDb";
-import { AddTransactionsToDbLive } from "./addTransactionsToDb";
 import { GetActivitiesLive } from "../activity/getActivities";
 import { AddToEventQueueLive } from "../events/addToEventQueue";
 import { EventQueueClientLive } from "../events/eventQueueClient";
@@ -84,10 +83,6 @@ export const runTransactionStreamLoop = async () => {
   );
 
   const addEventsLive = AddEventsToDbLive.pipe(Layer.provide(dbClientLive));
-
-  const addTransactionsToDbLive = AddTransactionsToDbLive.pipe(
-    Layer.provide(dbClientLive)
-  );
 
   const getStateVersionLive = GetStateVersionLive.pipe(
     Layer.provide(redisClientLive),
@@ -235,7 +230,6 @@ export const runTransactionStreamLoop = async () => {
       filterTransactionsLive,
       getActivitiesLive,
       addEventsLive,
-      addTransactionsToDbLive,
       configLive,
       addToEventQueueLive,
       eventQueueClientLive,
