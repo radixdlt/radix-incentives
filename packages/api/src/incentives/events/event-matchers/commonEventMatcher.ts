@@ -8,6 +8,7 @@ import { parseDepositEvent } from "./parseDepositEvent";
 import { WeftFinance } from "../../../common/dapps/weftFinance/constants";
 import { Assets } from "../../../common/assets/constants";
 import { RootFinance } from "../../../common/dapps/rootFinance/constants";
+import { DefiPlaza } from "../../../common/dapps/defiplaza/constants";
 
 export type CommonEmittableEvents =
   | {
@@ -54,6 +55,7 @@ const isWhiteListedResourceAddress = (resourceAddress: string) =>
       Assets.Fungible.XRD,
       CaviarNineConstants.LSULP.resourceAddress,
       RootFinance.receiptResourceAddress,
+      DefiPlaza.xUSDCPool.lpResourceAddress,
     ] as string[]
   ).includes(resourceAddress);
 

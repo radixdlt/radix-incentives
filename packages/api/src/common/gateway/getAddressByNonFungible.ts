@@ -1,5 +1,4 @@
 import { Context, Effect, Layer } from "effect";
-import type { GatewayApiClientService } from "./gatewayApiClient";
 import { EntityNotFoundError, type GatewayError } from "./errors";
 import type { AtLedgerState, InvalidStateInputError } from "./schemas";
 import { GetNonFungibleLocationService } from "./getNonFungibleLocation";

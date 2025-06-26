@@ -223,26 +223,11 @@ export const activityWeeksRelations = relations(activityWeeks, ({ one }) => ({
   week: one(weeks, { fields: [activityWeeks.weekId], references: [weeks.id] }),
 }));
 
-// Transaction Table
-export const transactions = createTable("transaction", {
-  transactionId: text("transaction_id").primaryKey(),
-  timestamp: timestamp("timestamp", {
-    mode: "date",
-    withTimezone: true,
-  }).notNull(),
-});
-
-export const transactionsRelations = relations(transactions, ({ many }) => ({
-  events: many(events),
-}));
-
 // UserActivity Table
 export const events = createTable(
   "event",
   {
-    transactionId: text("transaction_id")
-      .notNull()
-      .references(() => transactions.transactionId),
+    transactionId: text("transaction_id").notNull(),
     eventIndex: integer("event_index").notNull(),
     dApp: text("dApp").notNull(),
     stateVersion: integer("state_version").notNull(),
@@ -260,13 +245,6 @@ export const events = createTable(
     pk: primaryKey({ columns: [table.transactionId, table.eventIndex] }),
   })
 );
-
-export const eventsRelations = relations(events, ({ one }) => ({
-  transaction: one(transactions, {
-    fields: [events.transactionId],
-    references: [transactions.transactionId],
-  }),
-}));
 
 export const snapshotStatusEnum = pgEnum("snapshot_status", [
   "not_started",
@@ -479,7 +457,7 @@ export type ActivityWeek = Omit<
 > & {
   activityId: ActivityId;
 };
-export type Transaction = InferSelectModel<typeof transactions>;
+
 export type Event = InferSelectModel<typeof events>;
 export type Snapshot = InferSelectModel<typeof snapshots>;
 export type AccountBalance = InferSelectModel<typeof accountBalances>;

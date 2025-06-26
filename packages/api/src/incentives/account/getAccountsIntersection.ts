@@ -11,7 +11,7 @@ export class GetAccountsIntersectionService extends Context.Tag(
   "GetAccountsIntersectionService"
 )<
   GetAccountsIntersectionService,
-  (input: GetAccountsInput) => Effect.Effect<string[], DbError, DbClientService>
+  (input: GetAccountsInput) => Effect.Effect<string[], DbError>
 >() {}
 
 export const GetAccountsIntersectionLive = Layer.effect(
