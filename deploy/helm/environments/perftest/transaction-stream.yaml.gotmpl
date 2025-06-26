@@ -9,6 +9,7 @@ params:
   GATEWAY_URL: "https://mainnet.radixdlt.com"
   OTLP_BASE_URL: "http://opentelemetry-collector.monitoring:4318"
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
+  TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
 
 secrets:
   - external_secret_name: transaction-stream-postgres-url
@@ -16,6 +17,12 @@ secrets:
     aws_secret_name: "rdx-works-main-dev/eks/incentives/perftest/postgres"
     aws_secret_key: "database-url"
     secret_key: "database-url"
+  - external_secret_name: transaction-stream-token-price-service-key
+    env_variable: "TOKEN_PRICE_SERVICE_API_KEY"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "token_price_service_key"
+    secret_key: "token_price_service_key"
+
 
 ingress:
   enabled: false

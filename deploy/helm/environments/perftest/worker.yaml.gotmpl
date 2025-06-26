@@ -12,6 +12,7 @@ params:
   OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
+  NODE_MAX_OLD_SPACE_SIZE : "3072" 
 
   
 secrets:
@@ -38,8 +39,9 @@ autoscaling:
 
 resources:
   requests:
-    cpu: 50m
-    memory: 512Mi
+    cpu: 2
+    memory: 3Gi
+
 
 affinity:
   podAntiAffinity:

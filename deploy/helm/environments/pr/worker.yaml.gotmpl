@@ -13,7 +13,7 @@ params:
   INSERT_BATCH_SIZE: "4000"
   TOKEN_PRICE_SERVICE_URL : "https://token-price-service.radixdlt.com/price/historicalPrice"
   #https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c
-  NODE_MAX_OLD_SPACE_SIZE : "3072" 
+  #NODE_MAX_OLD_SPACE_SIZE : "3072" 
 
 secrets:
   - external_secret_name: workers-token-price-service-key
@@ -30,5 +30,5 @@ autoscaling:
 
 resources:
   requests:
-    cpu: 2
-    memory: 3Gi
+    cpu: 50m
+    memory: 512Mi
