@@ -12,7 +12,15 @@ export const ActivityCategoryKey = {
 
 export type ActivityCategoryKey = keyof typeof ActivityCategoryKey;
 
-export type Asset = "xrd" | "xusdc" | "lsulp" | "stakedXrd" | "unstakedXrd";
+export type Asset =
+  | "xrd"
+  | "xeth"
+  | "xusdc"
+  | "xusdt"
+  | "xwbtc"
+  | "lsulp"
+  | "stakedXrd"
+  | "unstakedXrd";
 export type AssetPair = `${Asset}-${Asset}`;
 
 export type DexDApp = "c9" | "defiPlaza" | "oci";

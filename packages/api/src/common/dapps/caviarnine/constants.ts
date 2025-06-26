@@ -41,6 +41,24 @@ export const CaviarNineConstants = {
       liquidity_receipt:
         "resource_rdx1ntzhjg985wgpkhda9f9q05xqdj8xuggfw0j5u3zxudk2csv82d0089",
     },
+    xETH_XRD: {
+      name: "xETH/XRD",
+      componentAddress:
+        "component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82",
+      token_x: Assets.Fungible.xETH,
+      token_y: Assets.Fungible.XRD,
+      liquidity_receipt:
+        "resource_rdx1nthy5lna9l0tgtfxzxcrn6hmle0uymrutqwnlcj8tuujpz3s62wlc5",
+    },
+    XRD_xUSDT: {
+      name: "XRD/xUSDT",
+      componentAddress:
+        "component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5",
+      token_x: Assets.Fungible.XRD,
+      token_y: Assets.Fungible.xUSDT,
+      liquidity_receipt:
+        "resource_rdx1nft63kjp38agw0z8nnwkyjhcgpzwjer84945h5z8yr663fgukjyp3l",
+    },
   },
 } as const;
 
