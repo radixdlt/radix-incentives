@@ -114,7 +114,7 @@ export const transactionStreamLoop = () =>
         const componentCalls = uniqueTransactions
           .map((tx) => ({
             accountAddress: tx.highestFeePayer,
-            calls: tx.componentAddresses.length,
+            componentAddresses: tx.componentAddresses,
             timestamp: new Date(tx.round_timestamp),
           }))
           .filter(
@@ -122,9 +122,11 @@ export const transactionStreamLoop = () =>
               item
             ): item is {
               accountAddress: string;
-              calls: number;
+              componentAddresses: string[];
               timestamp: Date;
-            } => item.accountAddress !== undefined && item.calls > 0
+            } =>
+              item.accountAddress !== undefined &&
+              item.componentAddresses.length > 0
           );
 
         if (componentCalls.length > 0) {
