@@ -47,10 +47,8 @@ BEGIN
     CREATE TABLE %I (
       timestamp TIMESTAMPTZ NOT NULL,
       account_address VARCHAR(255) NOT NULL,
-      usd_value DECIMAL(18,2) NOT NULL,
-      activity_id TEXT NOT NULL,
       data JSONB NOT NULL,
-      PRIMARY KEY (account_address, timestamp, activity_id)
+      PRIMARY KEY (account_address, timestamp)
     )', consolidated_table_name);
   
   RAISE NOTICE 'Created consolidated table %', consolidated_table_name;
@@ -77,8 +75,6 @@ BEGIN
   
   -- Step 4: Create indexes on consolidated table
   EXECUTE format('CREATE INDEX %I_timestamp_idx ON %I (timestamp)', 
-    consolidated_table_name, consolidated_table_name);
-  EXECUTE format('CREATE INDEX %I_activity_idx ON %I (activity_id)', 
     consolidated_table_name, consolidated_table_name);
   EXECUTE format('CREATE INDEX %I_account_idx ON %I (account_address)', 
     consolidated_table_name, consolidated_table_name);

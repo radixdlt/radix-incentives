@@ -11,21 +11,6 @@ export type PartitionManager = {
   getConsolidationStatus: () => Promise<Array<{ week_key: string; partition_type: string; partition_count: number }>>;
 };
 
-export const accountBalancesTimeseriesPartitionSQL = {
-
-  // Create the main partitioned table
-  createPartitionedTable: `
-    CREATE TABLE IF NOT EXISTS account_balances_timeseries (
-      timestamp TIMESTAMPTZ NOT NULL,
-      account_address VARCHAR(255) NOT NULL,
-      usd_value DECIMAL(18,2) NOT NULL,
-      activity_id TEXT NOT NULL,
-      data JSONB NOT NULL,
-      PRIMARY KEY (account_address, timestamp, activity_id)
-    ) PARTITION BY RANGE (timestamp);
-  `,
-};
-
 // Partition management utilities - these will be used in migrations
 export const accountBalancesPartitionSQL = {
   // Create the main partitioned table with range partitioning by timestamp
@@ -33,10 +18,8 @@ export const accountBalancesPartitionSQL = {
     CREATE TABLE IF NOT EXISTS account_balances (
       timestamp TIMESTAMPTZ NOT NULL,
       account_address VARCHAR(255) NOT NULL,
-      usd_value DECIMAL(18,2) NOT NULL,
-      activity_id TEXT NOT NULL,
       data JSONB NOT NULL,
-      PRIMARY KEY (account_address, timestamp, activity_id)
+      PRIMARY KEY (account_address, timestamp)
     ) PARTITION BY RANGE (timestamp);
   `,
 
@@ -54,24 +37,6 @@ export const accountBalancesPartitionSQL = {
     PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
     FOR VALUES WITH (modulus ${modulus}, remainder ${hashNumber});
   `,
-
-  // Create activity sub-partitions within a week (deprecated - keeping for backward compatibility)
-  createActivityPartition: (weekStart: string, activityIds: string[]) => {
-    if (!activityIds || activityIds.length === 0) {
-      throw new Error('activityIds array cannot be empty when creating activity partition');
-    }
-    
-    const firstActivityId = activityIds[0];
-    if (!firstActivityId) {
-      throw new Error('First activity ID cannot be undefined');
-    }
-    
-    return `
-      CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')}_${firstActivityId.replace(/[^a-zA-Z0-9]/g, '_')}
-      PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
-      FOR VALUES IN (${activityIds.map(id => `'${id}'`).join(', ')});
-    `;
-  },
 
   // Create indexes on partition
   createPartitionIndexes: (tableName: string) => `

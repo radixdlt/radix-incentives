@@ -1,3 +1,4 @@
+-- Custom SQL migration file, put you code below! --
 -- Migration to implement composite partitioning on account_balances table
 -- Range partitioning by timestamp + Hash partitioning by account_address
 
@@ -12,10 +13,8 @@ DROP TABLE IF EXISTS account_balances CASCADE;
 CREATE TABLE account_balances (
   timestamp TIMESTAMPTZ NOT NULL,
   account_address VARCHAR(255) NOT NULL,
-  usd_value DECIMAL(18,2) NOT NULL,
-  activity_id TEXT NOT NULL,
   data JSONB NOT NULL,
-  PRIMARY KEY (account_address, timestamp, activity_id)
+  PRIMARY KEY (account_address, timestamp)
 ) PARTITION BY RANGE (timestamp);
 
 -- Step 4: Create foreign key constraints (these will be inherited by partitions)
@@ -64,12 +63,6 @@ BEGIN
     );
     
     EXECUTE format('
-      CREATE INDEX account_balances_%s_hash_%s_activity_idx 
-      ON account_balances_%s_hash_%s (activity_id)',
-      week_key, i, week_key, i
-    );
-    
-    EXECUTE format('
       CREATE INDEX account_balances_%s_hash_%s_account_idx 
       ON account_balances_%s_hash_%s (account_address)',
       week_key, i, week_key, i
@@ -81,11 +74,7 @@ BEGIN
       week_key, i, week_key, i
     );
     
-    EXECUTE format('
-      CREATE INDEX account_balances_%s_hash_%s_activity_account_idx 
-      ON account_balances_%s_hash_%s (activity_id, account_address)',
-      week_key, i, week_key, i
-    );
+
   END LOOP;
   
   RAISE NOTICE 'Created partitioned table with week % and 4 hash partitions', week_key;
@@ -93,15 +82,30 @@ END $$;
 
 -- Step 6: Restore data from backup (if any exists)
 DO $$
+DECLARE
+  backup_row_count INTEGER;
 BEGIN
-  IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_name = 'account_balances_backup') THEN
-    INSERT INTO account_balances 
-    SELECT * FROM account_balances_backup;
+  -- Check if backup table exists and has data
+  SELECT COUNT(*) INTO backup_row_count
+  FROM information_schema.tables 
+  WHERE table_name = 'account_balances_backup';
+  
+  IF backup_row_count > 0 THEN
+    -- Check if backup table has data
+    EXECUTE 'SELECT COUNT(*) FROM account_balances_backup' INTO backup_row_count;
+    
+    IF backup_row_count > 0 THEN
+      RAISE NOTICE 'Found % rows in backup table, restoring data...', backup_row_count;
+      INSERT INTO account_balances 
+      SELECT * FROM account_balances_backup;
+      RAISE NOTICE 'Successfully restored % rows from backup', backup_row_count;
+    ELSE
+      RAISE NOTICE 'Backup table exists but is empty - no data to restore';
+    END IF;
     
     -- Drop backup table after successful restoration
     DROP TABLE account_balances_backup;
-    
-    RAISE NOTICE 'Data restored from backup and backup table dropped';
+    RAISE NOTICE 'Dropped backup table after successful restoration';
   ELSE
     RAISE NOTICE 'No backup data found to restore';
   END IF;
