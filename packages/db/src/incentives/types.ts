@@ -3,6 +3,7 @@ import { z } from "zod";
 export const ActivityCategoryKey = {
   maintainXrdBalance: "maintainXrdBalance",
   provideStablesLiquidityToDex: "provideStablesLiquidityToDex",
+  provideBlueChipLiquidityToDex: "provideBlueChipLiquidityToDex",
   lendingStables: "lendingStables",
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",
