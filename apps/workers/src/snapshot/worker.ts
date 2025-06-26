@@ -7,7 +7,8 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
   const result = await dependencyLayer.snapshot({
     addresses: input.data.addresses,
     timestamp: new Date(input.data.timestamp),
-    jobId: input.id
+    jobId: input.id,
+    addDummyData: input.data.addDummyData
   });
 
   if (Exit.isFailure(result)) {
