@@ -11,9 +11,7 @@ export const CaviarNineConstants = {
       "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
   },
   shapeLiquidityPools: {
-    // TODO: Think about where to add this pool, because we don't want to count LSULP liquidity towards USD value I assume.
-    // Probably only used for `aggregateXrdBalance` then?
-    /*LSULP_XRD: {
+    LSULP_XRD: {
       name: "LSULP/XRD",
       componentAddress:
         "component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas",
@@ -22,7 +20,7 @@ export const CaviarNineConstants = {
       token_y: Assets.Fungible.XRD,
       liquidity_receipt:
         "resource_rdx1ntrysy2sncpj6t6shjlgsfr55dns9290e2zsy67fwwrp6mywsrrgsc",
-    },*/
+    },
     xwBTC_XRD: {
       name: "xwBTC/XRD",
       componentAddress:

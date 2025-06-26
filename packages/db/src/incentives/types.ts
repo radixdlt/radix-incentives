@@ -4,6 +4,7 @@ export const ActivityCategoryKey = {
   maintainXrdBalance: "maintainXrdBalance",
   provideStablesLiquidityToDex: "provideStablesLiquidityToDex",
   provideBlueChipLiquidityToDex: "provideBlueChipLiquidityToDex",
+  provideNativeLiquidityToDex: "provideNativeLiquidityToDex",
   lendingStables: "lendingStables",
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",

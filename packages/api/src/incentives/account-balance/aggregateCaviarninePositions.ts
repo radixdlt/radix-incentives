@@ -7,6 +7,7 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
+import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
 import {
   TokenNameService,
@@ -55,9 +56,13 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
 
           const { xToken, yToken } = firstAsset;
 
-          // Determine which tokens are XRD and which are not
-          const isXTokenXrd = xToken.resourceAddress === Assets.Fungible.XRD;
-          const isYTokenXrd = yToken.resourceAddress === Assets.Fungible.XRD;
+          // Determine which tokens are XRD derivatives (XRD or LSULP)
+          const isXTokenXrdDerivative = 
+            xToken.resourceAddress === Assets.Fungible.XRD || 
+            xToken.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
+          const isYTokenXrdDerivative = 
+            yToken.resourceAddress === Assets.Fungible.XRD || 
+            yToken.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
 
           // Get token names for the pair
           const xTokenName = yield* tokenNameService(xToken.resourceAddress);
@@ -77,27 +82,27 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0) }
           );
 
-          // Calculate USD value of all non-XRD tokens
-          let totalNonXrdUsdValue = new BigNumber(0);
+          // Calculate USD value of all non-XRD derivative tokens
+          let totalNonXrdDerivativeUsdValue = new BigNumber(0);
 
-          // Add xToken value if it's not XRD
-          if (!isXTokenXrd && totals.totalXToken.gt(0)) {
+          // Add xToken value if it's not an XRD derivative
+          if (!isXTokenXrdDerivative && totals.totalXToken.gt(0)) {
             const xTokenUsdValue = yield* getUsdValueService({
               amount: totals.totalXToken,
               resourceAddress: xToken.resourceAddress,
               timestamp: input.timestamp,
             });
-            totalNonXrdUsdValue = totalNonXrdUsdValue.plus(xTokenUsdValue);
+            totalNonXrdDerivativeUsdValue = totalNonXrdDerivativeUsdValue.plus(xTokenUsdValue);
           }
 
-          // Add yToken value if it's not XRD
-          if (!isYTokenXrd && totals.totalYToken.gt(0)) {
+          // Add yToken value if it's not an XRD derivative
+          if (!isYTokenXrdDerivative && totals.totalYToken.gt(0)) {
             const yTokenUsdValue = yield* getUsdValueService({
               amount: totals.totalYToken,
               resourceAddress: yToken.resourceAddress,
               timestamp: input.timestamp,
             });
-            totalNonXrdUsdValue = totalNonXrdUsdValue.plus(yTokenUsdValue);
+            totalNonXrdDerivativeUsdValue = totalNonXrdDerivativeUsdValue.plus(yTokenUsdValue);
           }
 
           // Generate activity ID based on token pair - cast to ActivityId since we know it's valid
@@ -106,18 +111,18 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
 
           results.push({
             activityId,
-            usdValue: totalNonXrdUsdValue.toString(),
+            usdValue: totalNonXrdDerivativeUsdValue.toString(),
             metadata: {
               tokenPair,
               baseToken: {
                 resourceAddress: xToken.resourceAddress,
                 amount: totals.totalXToken.toString(),
-                isXrd: isXTokenXrd,
+                isXrdOrDerivative: isXTokenXrdDerivative,
               },
               quoteToken: {
                 resourceAddress: yToken.resourceAddress,
                 amount: totals.totalYToken.toString(),
-                isXrd: isYTokenXrd,
+                isXrdOrDerivative: isYTokenXrdDerivative,
               },
             },
           });

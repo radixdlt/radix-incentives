@@ -8,6 +8,7 @@ import {
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
+import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
 import {
   TokenNameService,
@@ -100,15 +101,19 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           const token1Name = yield* tokenNameService(position1.resourceAddress);
           const token2Name = yield* tokenNameService(position2.resourceAddress);
 
-          // Determine which token is XRD (if any)
-          const isToken1Xrd = position1.resourceAddress === Assets.Fungible.XRD;
-          const isToken2Xrd = position2.resourceAddress === Assets.Fungible.XRD;
+          // Determine which tokens are XRD derivatives (XRD or LSULP)
+          const isToken1XrdDerivative = 
+            position1.resourceAddress === Assets.Fungible.XRD ||
+            position1.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
+          const isToken2XrdDerivative = 
+            position2.resourceAddress === Assets.Fungible.XRD ||
+            position2.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
 
-          // Calculate USD value of all non-XRD tokens
+          // Calculate USD value of all non-XRD derivative tokens
           let totalUsdValue = new BigNumber(0);
 
-          // Add token1 value if it's not XRD
-          if (!isToken1Xrd) {
+          // Add token1 value if it's not an XRD derivative
+          if (!isToken1XrdDerivative) {
             const token1UsdValue = yield* getUsdValueService({
               amount: new BigNumber(position1.amount),
               resourceAddress: position1.resourceAddress,
@@ -117,8 +122,8 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             totalUsdValue = totalUsdValue.plus(token1UsdValue);
           }
 
-          // Add token2 value if it's not XRD
-          if (!isToken2Xrd) {
+          // Add token2 value if it's not an XRD derivative
+          if (!isToken2XrdDerivative) {
             const token2UsdValue = yield* getUsdValueService({
               amount: new BigNumber(position2.amount),
               resourceAddress: position2.resourceAddress,
@@ -166,10 +171,12 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
                 baseToken: {
                   resourceAddress: position1.resourceAddress,
                   amount: position1.amount.toString(),
+                  isXrdOrDerivative: isToken1XrdDerivative,
                 },
                 quoteToken: {
                   resourceAddress: position2.resourceAddress,
                   amount: position2.amount.toString(),
+                  isXrdOrDerivative: isToken2XrdDerivative,
                 },
               },
             });
