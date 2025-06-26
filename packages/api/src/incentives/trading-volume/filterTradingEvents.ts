@@ -13,7 +13,11 @@ import {
 } from "../token-price/getUsdValue";
 import BigNumber from "bignumber.js";
 import type { ActivityId } from "db/incentives";
-import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
+import {
+  DefiPlaza,
+  defiPlazaComponentSet,
+} from "../../common/dapps/defiplaza/constants";
+import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
 
 export type TradingEvent = CaviarnineSwapEvent;
 
@@ -31,7 +35,7 @@ const poolToActivityIdMap: Map<string, ActivityId> = new Map([
     CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC.componentAddress,
     "c9_trade_xrd-xusdc",
   ],
-  [DefiPlaza.xUSDCPool.poolAddress, "defiPlaza_trade_xrd-xusdc"],
+  [DefiPlaza.xUSDCPool.componentAddress, "defiPlaza_trade_xrd-xusdc"],
 ]);
 
 export type FilterTradingEventsServiceError = GetUsdValueServiceError;
@@ -83,6 +87,55 @@ export const FilterTradingEventsLive = Layer.effect(
                 // Y token was input, X token was output
                 inputToken = pool.token_y;
                 inputAmount = amountChangeY.abs();
+              }
+
+              if (inputToken) {
+                const usdValue = yield* getUsdValueService({
+                  amount: inputAmount,
+                  resourceAddress: inputToken,
+                  timestamp: swapEvent.timestamp,
+                });
+
+                tradingEvents.push({
+                  transactionId: swapEvent.transactionId,
+                  timestamp: swapEvent.timestamp,
+                  inputToken,
+                  inputAmount,
+                  usdValue,
+                  activityId,
+                });
+              }
+            }
+          }
+
+          if (
+            event.dApp === "DefiPlaza" &&
+            event.eventData.type === "SwapEvent"
+          ) {
+            const swapEvent = event as CapturedEvent<DefiPlazaSwapEvent>;
+
+            const pool = defiPlazaComponentSet.get(swapEvent.globalEmitter);
+            const activityId = poolToActivityIdMap.get(swapEvent.globalEmitter);
+
+            if (pool && activityId) {
+              const swapData = swapEvent.eventData.data;
+              const baseAmount = new BigNumber(swapData.base_amount);
+              const quoteAmount = new BigNumber(swapData.quote_amount);
+
+              let inputToken: string | undefined;
+              let inputAmount = new BigNumber(0);
+
+              // Determine which token was the input (has negative change) and which was output (positive change)
+              if (baseAmount.isNegative() && quoteAmount.isPositive()) {
+                // base token was input, quote token was output
+                inputToken = pool.baseResourceAddress;
+                inputAmount = baseAmount.abs();
+              }
+
+              if (quoteAmount.isNegative() && baseAmount.isPositive()) {
+                // quote token was input, base token was output
+                inputToken = pool.quoteResourceAddress;
+                inputAmount = quoteAmount.abs();
               }
 
               if (inputToken) {

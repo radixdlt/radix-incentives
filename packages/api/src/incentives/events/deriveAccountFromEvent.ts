@@ -149,6 +149,11 @@ export const DeriveAccountFromEventLive = Layer.effect(
               return null;
             }
 
+            // Handled by swap/add/remove liquidity events
+            if (event.dApp === "DefiPlaza") {
+              return null;
+            }
+
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === "WeftFinance") {
               yield* Effect.log("WeftFinance event", event.eventData);

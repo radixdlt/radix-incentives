@@ -9,6 +9,8 @@ export const DefiPlaza = {
       "resource_rdx1tkdws0nvfwjnn2q62x4gqgelyt4t5z7cn58pwvrtf4zrxtdw2sem8x",
     baseResourceAddress: Assets.Fungible.xUSDC,
     quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      "component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g",
   },
   xUSDTPool: {
     type: "component",
@@ -18,5 +20,11 @@ export const DefiPlaza = {
       "resource_rdx1thnmcry6e02x6ja73llm8z6pkrurvrsudgez4ammsp24r0v20rllxt",
     baseResourceAddress: Assets.Fungible.xUSDT,
     quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress: "",
   },
 } as const;
+
+export const defiPlazaComponentSet = new Map<
+  string,
+  (typeof DefiPlaza)[keyof typeof DefiPlaza]
+>(Object.values(DefiPlaza).map((pool) => [pool.componentAddress, pool]));

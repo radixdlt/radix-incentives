@@ -15,6 +15,7 @@ import { AddComponentCallsService } from "../component/addComponentCalls";
 import { ProcessSwapEventTradingVolumeService } from "../trading-volume/processSwapEventTradingVolume";
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
 import type { EmittableEvent } from "../events/event-matchers/types";
+import { defiPlazaEventMatcher } from "../events/event-matchers/defiPlazaEventMatcher";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -65,11 +66,15 @@ export const transactionStreamLoop = () =>
         const caviarnineEvents =
           yield* caviarnineEventMatcher(uniqueTransactions);
 
+        const defiPlazaEvents =
+          yield* defiPlazaEventMatcher(uniqueTransactions);
+
         const commonEvents = yield* commonEventMatcher(uniqueTransactions);
 
         // concat all captured events
         const allCapturedEvents = [
           ...caviarnineEvents,
+          ...defiPlazaEvents,
           ...weftFinanceEvents,
           ...rootFinanceEvents,
           ...commonEvents,
