@@ -40,14 +40,15 @@ export const generateDummySnapshotData = (input: GenerateDummyDataInput) =>
       return batchAggregatedAccountBalance;
     }
 
-    yield* Effect.log(`Adding dummy data for missing activities in batch ${batchIndex + 1} 
-      for job ${jobId} with ${batch.length} accounts processed 
-      and ${batchAggregatedAccountBalance.length} entries processed
-      missingActivityIds: ${missingActivityIds.length}
-      existingActivityIds: ${existingActivityIds.size}
-      batchAccounts: ${batch.length}
-      timestamp: ${timestamp}
-    `);
+    yield* Effect.log("Adding dummy data for missing activities in batch", JSON.stringify({
+        batchIndex: batchIndex + 1,
+        jobId: jobId,
+        batchAccountsCount: batch.length,
+        missingActivitiesCount: missingActivityIds.length,
+        existingActivityIds: existingActivityIds.size,
+        batchAccounts: batch.length,
+        timestamp: timestamp,
+    }));
 
     // Create a map of existing entries by account address for fast lookup
     const existingEntriesMap = new Map<string, AggregateAccountBalanceOutput>();
