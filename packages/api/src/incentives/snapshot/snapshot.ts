@@ -236,7 +236,6 @@ export const SnapshotLive = Layer.effect(
         let processedAccounts = 0;
         let totalProcessedEntries = 0;
 
-        // Get activity IDs for dummy data generation (do this once)
         const enableDummyData = input.addDummyData ?? true;
 
         // Process each batch sequentially
