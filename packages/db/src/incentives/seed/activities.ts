@@ -57,16 +57,20 @@ const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
     name: "Provide blue chip liquidity to a DEX",
   },
   {
-    id: ActivityCategoryKey.provideNativeLiquidityToDex,
-    name: "Provide native liquidity to a DEX",
-  },
-  {
     id: ActivityCategoryKey.tradingVolume,
     name: "Trading volume",
   },
   {
     id: ActivityCategoryKey.lendingStables,
     name: "Lend stables",
+  },
+  {
+    id: ActivityCategoryKey.lendingBlueChips,
+    name: "Lend blue chips",
+  },
+  {
+    id: ActivityCategoryKey.lendingNative,
+    name: "Lend native assets",
   },
   {
     id: ActivityCategoryKey.transactionFees,
@@ -132,12 +136,6 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
 
-  // DEX native LP activities
-  {
-    id: "c9_lp_lsulp-xrd",
-    category: ActivityCategoryKey.provideNativeLiquidityToDex,
-  },
-
   // DEX trading activities
   {
     id: "c9_trade_xrd-xusdc",
@@ -148,7 +146,7 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
     category: ActivityCategoryKey.tradingVolume,
   },
 
-  // Lending activities
+  // Lending activities - Stables
   {
     id: "root_lend_xusdc",
     category: ActivityCategoryKey.lendingStables,
@@ -156,6 +154,46 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
   {
     id: "weft_lend_xusdc",
     category: ActivityCategoryKey.lendingStables,
+  },
+  {
+    id: "root_lend_xusdt",
+    category: ActivityCategoryKey.lendingStables,
+  },
+  {
+    id: "weft_lend_xusdt",
+    category: ActivityCategoryKey.lendingStables,
+  },
+
+  // Lending activities - Blue Chips
+  {
+    id: "root_lend_xwbtc",
+    category: ActivityCategoryKey.lendingBlueChips,
+  },
+  {
+    id: "weft_lend_xwbtc",
+    category: ActivityCategoryKey.lendingBlueChips,
+  },
+  {
+    id: "root_lend_xeth",
+    category: ActivityCategoryKey.lendingBlueChips,
+  },
+  {
+    id: "weft_lend_xeth",
+    category: ActivityCategoryKey.lendingBlueChips,
+  },
+
+  // Lending activities - Native Assets
+  {
+    id: "root_lend_xrd",
+    category: ActivityCategoryKey.lendingNative,
+  },
+  {
+    id: "weft_lend_xrd",
+    category: ActivityCategoryKey.lendingNative,
+  },
+  {
+    id: "root_lend_lsulp",
+    category: ActivityCategoryKey.lendingNative,
   },
 
   // Network activities
@@ -217,10 +255,6 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
   },
   {
     id: "defiPlaza_hold_xeth-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "c9_hold_lsulp-xrd",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
 

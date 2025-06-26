@@ -7,6 +7,7 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
+import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import type { AccountBalanceData } from "db/incentives";
 
 export type AggregateRootFinancePositionsInput = {
@@ -37,60 +38,81 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
       Effect.gen(function* () {
         const accountBalance = input.accountBalance;
 
+        // Define supported assets and their activity IDs
+        const supportedAssets = {
+          // Stables
+          [Assets.Fungible.xUSDC]: "root_lend_xusdc",
+          [Assets.Fungible.xUSDT]: "root_lend_xusdt",
+          // Blue chips
+          [Assets.Fungible.wxBTC]: "root_lend_xwbtc",
+          [Assets.Fungible.xETH]: "root_lend_xeth",
+          // Native assets
+          [Assets.Fungible.XRD]: "root_lend_xrd",
+          [CaviarNineConstants.LSULP.resourceAddress]: "root_lend_lsulp",
+        } as const;
+
         if (accountBalance.rootFinancePositions.length === 0) {
-          return [
-            {
-              activityId: "root_lend_xusdc",
-              usdValue: new BigNumber(0).toString(),
-            } satisfies AccountBalanceData,
-          ];
+          // Return zero entries for all supported assets
+          return Object.entries(supportedAssets).map(([_, activityId]) => ({
+            activityId,
+            usdValue: new BigNumber(0).toString(),
+          } satisfies AccountBalanceData));
         }
 
         // Aggregate collateral amounts across all Root Finance positions
-        const { xUSDC } = accountBalance.rootFinancePositions.reduce(
+        const aggregatedAmounts = accountBalance.rootFinancePositions.reduce(
           (acc, position) => {
             // Process collaterals (the lent/deposited assets)
             for (const [resourceAddress, amount] of Object.entries(
               position.collaterals
             )) {
               if (
-                resourceAddress === Assets.Fungible.xUSDC &&
+                resourceAddress in supportedAssets &&
                 amount != null &&
                 amount !== ""
               ) {
                 try {
                   const amountBN = new BigNumber(amount);
                   if (amountBN.isFinite() && !amountBN.isNaN()) {
-                    acc.xUSDC = acc.xUSDC.plus(amountBN);
+                    if (!acc[resourceAddress]) {
+                      acc[resourceAddress] = new BigNumber(0);
+                    }
+                    acc[resourceAddress] = acc[resourceAddress].plus(amountBN);
                   }
                 } catch (error) {
-                  // Skip invalid amounts silently or log if needed
                   console.warn(
-                    `Invalid Root Finance collateral amount: ${amount}`
+                    `Invalid Root Finance collateral amount: ${amount} for ${resourceAddress}`
                   );
                 }
               }
             }
             return acc;
           },
-          { xUSDC: new BigNumber(0) }
+          {} as Record<string, BigNumber>
         );
 
-        const xUSDCValue = yield* getUsdValueService({
-          amount: xUSDC,
-          resourceAddress: Assets.Fungible.xUSDC,
-          timestamp: input.timestamp,
-        });
+        // Calculate USD values for each asset
+        const results: AccountBalanceData[] = [];
+        
+        for (const [resourceAddress, activityId] of Object.entries(supportedAssets)) {
+          const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
+          
+          const usdValue = yield* getUsdValueService({
+            amount,
+            resourceAddress,
+            timestamp: input.timestamp,
+          });
 
-        return [
-          {
-            activityId: "root_lend_xusdc",
-            usdValue: xUSDCValue.toString(),
+          results.push({
+            activityId,
+            usdValue: usdValue.toString(),
             metadata: {
-              xUSDC: xUSDC.toString(),
+              [resourceAddress]: amount.toString(),
             },
-          },
-        ];
+          });
+        }
+
+        return results;
       });
   })
 );
