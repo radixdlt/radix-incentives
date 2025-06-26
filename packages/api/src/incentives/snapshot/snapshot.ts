@@ -74,13 +74,11 @@ import type { GetUsdValueService } from "../token-price/getUsdValue";
 import {
   AggregateAccountBalanceService,
   type AggregateAccountBalanceServiceDependency,
-  type AggregateAccountBalanceOutput,
 } from "../account-balance/aggregateAccountBalance";
 import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
-import BigNumber from "bignumber.js";
+import { generateDummySnapshotData } from "./generateDummySnapshotData";
 
 // Import all activities from 100activities data
-import { activitiesData } from "../../../../db/src/incentives/seed/data/100ActivitiesData";
 
 export class SnapshotError {
   _tag = "SnapshotError";
@@ -190,12 +188,12 @@ export const SnapshotLive = Layer.effect(
 
     return (input) =>
       Effect.gen(function* () {
-        yield* Effect.log("running snapshot", {
+        yield* Effect.log("running snapshot", JSON.stringify({
           timestamp: input.timestamp,
           addresses: input.addresses,
           batchSize: input.batchSize,
           jobId: input.jobId,
-        });
+        }));
 
         if (!input.timestamp)
           return yield* Effect.fail(new SnapshotError("Timestamp is required"));
@@ -217,11 +215,11 @@ export const SnapshotLive = Layer.effect(
             createdAt: input.timestamp,
           }));
 
-        yield* Effect.log("processing accounts in batches", {
+        yield* Effect.log("processing accounts in batches", JSON.stringify({
           totalAccounts: accountAddresses.length,
           batchSize,
           totalBatches: Math.ceil(accountAddresses.length / batchSize),
-        });
+        }));
 
         const { id: snapshotId } = yield* createSnapshot({
           timestamp: input.timestamp,
@@ -238,7 +236,6 @@ export const SnapshotLive = Layer.effect(
         let totalProcessedEntries = 0;
 
         // Get activity IDs for dummy data generation (do this once)
-        const allActivityIds = activitiesData.map((activity: { id: string }) => activity.id);
         const enableDummyData = process.env.ENABLE_DUMMY_ACTIVITY_DATA === 'true';
 
         // Process each batch sequentially
@@ -250,17 +247,23 @@ export const SnapshotLive = Layer.effect(
             return;
           }
 
-          yield* Effect.log("processing batch", {
+          yield* Effect.log("processing batch", JSON.stringify({
             batchIndex: batchIndex + 1,
             totalBatches: accountBatches.length,
             batchSize: batch.length,
             processedAccounts,
             totalAccounts: accountAddresses.length,
             progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          });
+          }));
 
-          yield* Effect.log(`getting account balances for batch ${batchIndex + 1} 
-            for job ${input.jobId} with ${batch.length} accounts processed`);
+          yield* Effect.log("getting account balances for batch", JSON.stringify({
+            batchIndex: batchIndex + 1,
+            totalBatches: accountBatches.length,
+            batchSize: batch.length,
+            processedAccounts,
+            totalAccounts: accountAddresses.length,
+            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+          }));
 
           const [accountBalancesResult] = yield* Effect.all(
             [
@@ -286,15 +289,14 @@ export const SnapshotLive = Layer.effect(
 
           const accountBalances = accountBalancesResult.right;
 
-          yield* Effect.log(`aggregating account balances and converting into USD for batch ${batchIndex + 1} 
-            for job ${input.jobId} with ${batch.length} accounts processed
-            for timestamp ${input.timestamp}
-            `,
-            {
-              jobId: input.jobId,
-              batchIndex: batchIndex + 1
-            }
-          );
+          yield* Effect.log("aggregating account balances and converting into USD for batch", JSON.stringify({
+            batchIndex: batchIndex + 1,
+            totalBatches: accountBatches.length,
+            batchSize: batch.length,
+            processedAccounts,
+            totalAccounts: accountAddresses.length,
+            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+          }));
 
           const [aggregateAccountBalanceResult] = yield* Effect.all(
             [
@@ -318,72 +320,23 @@ export const SnapshotLive = Layer.effect(
 
           let batchAggregatedAccountBalance = aggregateAccountBalanceResult.right;
 
-          // Handle dummy data generation for this batch
           if (enableDummyData) {
-            // Get existing activity IDs from this batch's aggregated results
-            const existingActivityIds = new Set(
-              batchAggregatedAccountBalance.flatMap((item) => 
-                Array.isArray(item.data) ? item.data.map((d: { activityId: string }) => d.activityId) : []
-              )
-            );
-
-            // Find missing activity IDs for this batch
-            const missingActivityIds = allActivityIds.filter(
-              (activityId: string) => !existingActivityIds.has(activityId)
-            );
-
-            if (missingActivityIds.length > 0) {
-              yield* Effect.log(`Adding dummy data for missing activities in batch ${batchIndex + 1} 
-                for job ${input.jobId} with ${batch.length} accounts processed 
-                and ${batchAggregatedAccountBalance.length} entries processed
-                missingActivityIds: ${missingActivityIds.length}
-                existingActivityIds: ${existingActivityIds.size}
-                batchAccounts: ${batch.length}
-                timestamp: ${input.timestamp}
-                `);
-
-              // Create dummy data for missing activities for each account in this batch
-              const dummyData: AggregateAccountBalanceOutput[] = [];
-
-              for (const address of batch) {
-                // Create all missing activities for this account in one entry
-                const dummyEntry: AggregateAccountBalanceOutput = {
-                  timestamp: input.timestamp,
-                  accountAddress: address,
-                  data: missingActivityIds.map((activityId: string) => ({
-                    activityId: activityId,
-                    usdValue: "0",
-                    metadata: {
-                      type: "no_data",
-                    },
-                  })),
-                };
-                dummyData.push(dummyEntry);
-              }
-
-              yield* Effect.log(`Created dummy entries for batch ${batchIndex + 1} 
-                for job ${input.jobId} with ${batch.length} accounts processed 
-                and ${batchAggregatedAccountBalance.length} entries processed
-                dummyEntriesCount: ${dummyData.length}
-                batchAccountsCount: ${batch.length}
-                missingActivitiesCount: ${missingActivityIds.length}
-                timestamp: ${input.timestamp}
-                `);
-
-              // Combine real data with dummy data for this batch
-              batchAggregatedAccountBalance = [
-                ...batchAggregatedAccountBalance,
-                ...dummyData,
-              ];
-            }
+            batchAggregatedAccountBalance = yield* generateDummySnapshotData({
+              batchAggregatedAccountBalance,
+              batch,
+              jobInput: input,
+              batchIndex: batchIndex,
+            });
           }
 
-
-          yield* Effect.log(`upserting account balances for batch ${batchIndex + 1} 
-            for job ${input.jobId} with ${batch.length} accounts processed 
-            and ${batchAggregatedAccountBalance.length} entries processed
-            timestamp: ${input.timestamp}
-            `);
+          yield* Effect.log("upserting account balances for batch", JSON.stringify({
+            batchIndex: batchIndex + 1,
+            totalBatches: accountBatches.length,
+            batchSize: batch.length,
+            processedAccounts,
+            totalAccounts: accountAddresses.length,
+            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+          }));
 
           // Upsert results for this batch immediately
           yield* upsertAccountBalances(batchAggregatedAccountBalance).pipe(
@@ -394,28 +347,30 @@ export const SnapshotLive = Layer.effect(
           processedAccounts += batch.length;
           totalProcessedEntries += batchAggregatedAccountBalance.length;
 
-          yield* Effect.log(`completed batch ${batchIndex + 1} 
-            for job ${input.jobId} with ${batch.length} accounts processed 
-            and ${batchAggregatedAccountBalance.length} entries processed
-            progress: ${Math.round((processedAccounts / accountAddresses.length) * 100)}%
-            batchEntriesProcessed: ${batchAggregatedAccountBalance.length}
-            totalEntriesProcessed: ${totalProcessedEntries}
-            timestamp: ${input.timestamp}
-            `);
+          yield* Effect.log("completed batch", JSON.stringify({
+            batchIndex: batchIndex + 1,
+            totalBatches: accountBatches.length,
+            batchSize: batch.length,
+            processedAccounts,
+            totalAccounts: accountAddresses.length,
+            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+          }));
 
           // Clear batch data from memory to reduce memory usage
           batchAggregatedAccountBalance = [];
         }
 
-        yield* Effect.log(`all batches completed for job 
-          ${input.jobId} with ${processedAccounts} accounts processed 
-          and ${totalProcessedEntries} entries processed
-          timestamp: ${input.timestamp}
-          `);
+        yield* Effect.log("all batches completed for job", JSON.stringify({
+          totalBatches: accountBatches.length,
+          processedAccounts,
+          totalAccounts: accountAddresses.length,
+          progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+        }));
 
-        yield* Effect.log(`updating snapshot for job ${input.jobId}
-          timestamp: ${input.timestamp}
-          `);
+        yield* Effect.log("updating snapshot for job", JSON.stringify({
+          jobId: input.jobId,
+          timestamp: input.timestamp,
+        }));
 
         yield* updateSnapshot({
           id: snapshotId,
