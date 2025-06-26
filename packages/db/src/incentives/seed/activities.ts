@@ -7,7 +7,8 @@ import {
 } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
-import { ActivityCategoryKey, type ActivityId } from "../types";
+import { activityCategoriesToSeed, type ActivityCategoryKey, type ActivityId } from "../types";
+import { activitiesData } from "./data/100ActivitiesData";
 
 const WEEK_ID = "6b209cf9-5932-487e-bf75-9d6f7d2330dd";
 const SEASON_ID = "036031e3-8bfb-4d2f-b653-f05c76f07704";
@@ -43,44 +44,6 @@ const [weekResult] = await db
 
 console.log("Week seeded", weekResult);
 
-const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
-  {
-    id: ActivityCategoryKey.maintainXrdBalance,
-    name: "Maintain XRD balance",
-  },
-  {
-    id: ActivityCategoryKey.provideStablesLiquidityToDex,
-    name: "Provide stables liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-    name: "Provide blue chip liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.provideNativeLiquidityToDex,
-    name: "Provide native liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.tradingVolume,
-    name: "Trading volume",
-  },
-  {
-    id: ActivityCategoryKey.lendingStables,
-    name: "Lend stables",
-  },
-  {
-    id: ActivityCategoryKey.transactionFees,
-    name: "Paid transaction fees",
-  },
-  {
-    id: ActivityCategoryKey.componentCalls,
-    name: "Component calls",
-  },
-  {
-    id: ActivityCategoryKey.common,
-    name: "Common activities",
-  },
-];
 
 const activityCategoryResults = await db
   .insert(activityCategories)
@@ -95,159 +58,10 @@ const activityCategoryResults = await db
 
 console.log("Activity categories seeded", activityCategoryResults);
 
-const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
-  // DEX stable LP activities
-  {
-    id: "c9_lp_xrd-xusdc",
-    category: ActivityCategoryKey.provideStablesLiquidityToDex,
-  },
-  {
-    id: "defiPlaza_lp_xrd-xusdc",
-    category: ActivityCategoryKey.provideStablesLiquidityToDex,
-  },
-  {
-    id: "c9_lp_xrd-xusdt",
-    category: ActivityCategoryKey.provideStablesLiquidityToDex,
-  },
-  {
-    id: "defiPlaza_lp_xrd-xusdt",
-    category: ActivityCategoryKey.provideStablesLiquidityToDex,
-  },
-
-  // DEX blue chip LP activities
-  {
-    id: "c9_lp_xrd-xeth",
-    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-  },
-  {
-    id: "c9_lp_xrd-xwbtc",
-    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-  },
-  {
-    id: "defiPlaza_lp_xrd-xeth",
-    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-  },
-  {
-    id: "defiPlaza_lp_xrd-xwbtc",
-    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-  },
-
-  // DEX native LP activities
-  {
-    id: "c9_lp_lsulp-xrd",
-    category: ActivityCategoryKey.provideNativeLiquidityToDex,
-  },
-
-  // DEX trading activities
-  {
-    id: "c9_trade_xrd-xusdc",
-    category: ActivityCategoryKey.tradingVolume,
-  },
-  {
-    id: "defiPlaza_trade_xrd-xusdc",
-    category: ActivityCategoryKey.tradingVolume,
-  },
-
-  // Lending activities
-  {
-    id: "root_lend_xusdc",
-    category: ActivityCategoryKey.lendingStables,
-  },
-  {
-    id: "weft_lend_xusdc",
-    category: ActivityCategoryKey.lendingStables,
-  },
-
-  // Network activities
-  {
-    id: "txFees",
-    category: ActivityCategoryKey.transactionFees,
-  },
-  {
-    id: "componentCalls",
-    category: ActivityCategoryKey.componentCalls,
-  },
-
-  // Season multiplier Hodl XRD activities for native assets
-  {
-    id: "hold_xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "hold_stakedXrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "hold_unstakedXrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "hold_lsulp",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-
-  // Season multiplier Hodl XRD activities through DEX LP positions
-  {
-    id: "c9_hold_xrd-xusdc",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "c9_hold_xrd-xwbtc",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "c9_hold_xrd-xusdt",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "c9_hold_xeth-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "defiPlaza_hold_xrd-xusdc",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "defiPlaza_hold_xrd-xusdt",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "defiPlaza_hold_xrd-xwbtc",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "defiPlaza_hold_xeth-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "c9_hold_lsulp-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-
-  // Season multiplier Hodl activities XRD activities through lending positions
-  {
-    id: "root_hold_xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "root_hold_lsulp",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "weft_hold_xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-  {
-    id: "weft_hold_lsulp",
-    category: ActivityCategoryKey.maintainXrdBalance,
-  },
-
-  // Common activities, such as withdrawals and deposits
-  {
-    id: "common",
-    category: ActivityCategoryKey.common,
-  },
-];
+const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = activitiesData.map(activity => ({
+  id: activity.id as ActivityId,
+  category: activity.category
+}));
 
 const activityResults = await db
   .insert(activities)

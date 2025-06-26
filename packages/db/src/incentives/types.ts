@@ -14,15 +14,15 @@ export const ActivityCategoryKey = {
 
 export type ActivityCategoryKey = keyof typeof ActivityCategoryKey;
 
-export type Asset =
-  | "xrd"
-  | "xeth"
-  | "xusdc"
-  | "xusdt"
-  | "xwbtc"
-  | "lsulp"
-  | "stakedXrd"
-  | "unstakedXrd";
+const testTokens = ["floop", "dfp2", "early", "caviar",
+  "weft", "xUsdt", "root", "stab", "fusd", "popey", "radit", "dan", "hug",
+  "surge", "sUsd", "delphi", "astrl", "ilis", "oci", "mox", "foton", "fomo",];
+const tokens = ["xrd","xeth", "xusdc","xusdt","xwbtc", "lsulp", "stakedXrd", "unstakedXrd",];
+
+const allTokens = [...new Set([...testTokens, ...tokens]
+  .filter(token => token !== "stakedXrd" && token !== "unstakedXrd"))];
+export type Asset = typeof allTokens[number];
+
 export type AssetPair = `${Asset}-${Asset}`;
 
 export type DexDApp = "c9" | "defiPlaza" | "oci";
@@ -69,3 +69,43 @@ export type AccountBalanceData = Omit<
 > & {
   activityId: ActivityId;
 };
+
+
+export const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
+  {
+    id: ActivityCategoryKey.maintainXrdBalance,
+    name: "Maintain XRD balance",
+  },
+  {
+    id: ActivityCategoryKey.provideStablesLiquidityToDex,
+    name: "Provide stables liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+    name: "Provide blue chip liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideNativeLiquidityToDex,
+    name: "Provide native liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.lendingStables,
+    name: "Lend stables",
+  },
+  {
+    id: ActivityCategoryKey.transactionFees,
+    name: "Paid transaction fees",
+  },
+  {
+    id: ActivityCategoryKey.common,
+    name: "Common activities",
+  },
+  {
+    id: ActivityCategoryKey.componentCalls,
+    name: "Component calls",
+  },
+  {
+    id: ActivityCategoryKey.tradingVolume,
+    name: "Trading volume",
+  },
+];

@@ -8,11 +8,12 @@ params:
   REDIS_PASSWORD: ""
   GATEWAY_URL: {{ .StateValues.ci.gateway_url }}
   # Uncomment to enable tracing
-  # OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
-  # OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
+  OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
+  OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   INSERT_BATCH_SIZE: "4000"
   TOKEN_PRICE_SERVICE_URL : "https://token-price-service.radixdlt.com/price/historicalPrice"
-
+  #https://medium.com/@vuongtran/how-to-solve-process-out-of-memory-in-node-js-5f0de8f8464c
+  NODE_MAX_OLD_SPACE_SIZE : "3072" 
 
 secrets:
   - external_secret_name: workers-token-price-service-key
@@ -29,5 +30,5 @@ autoscaling:
 
 resources:
   requests:
-    cpu: 1
-    memory: 1Gi
+    cpu: 2
+    memory: 3Gi

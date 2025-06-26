@@ -37,4 +37,4 @@ COPY --from=installer /app/apps/ apps
 COPY --from=installer /app/packages/ packages
 COPY --from=installer /app/node_modules/ node_modules
 
-CMD node apps/workers/dist/index.js
+CMD sh -c 'if [ -n "$NODE_MAX_OLD_SPACE_SIZE" ]; then node --max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE apps/workers/dist/index.js; else node apps/workers/dist/index.js; fi'

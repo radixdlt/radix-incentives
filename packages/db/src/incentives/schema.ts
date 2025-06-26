@@ -284,11 +284,9 @@ export const accountBalances = createTable(
     pk: primaryKey({
       columns: [table.accountAddress, table.timestamp],
     }),
-    // Index for conflict resolution speed during upserts
-    conflictIdx: index("idx_account_balances_conflict").on(
-      table.accountAddress,
-      table.timestamp
-    ),
+    // Note: Indexes will be created per partition, not on the main table
+    timestampIdx: index("idx_account_balances_timestamp").on(table.timestamp),
+    accountIdx: index("idx_account_balances_account").on(table.accountAddress),
   })
 );
 
