@@ -397,10 +397,10 @@ export const transactionFees = createTable(
 export const componentCalls = createTable(
   "component_calls",
   {
-    accountAddress: varchar("account_address", { length: 255 })
+    userId: uuid("user_id")
       .notNull()
-      .references(() => accounts.address, { onDelete: "cascade" }),
-    calls: integer("calls").notNull(),
+      .references(() => users.id, { onDelete: "cascade" }),
+    data: jsonb("data").notNull(),
     timestamp: timestamp("timestamp", {
       mode: "date",
       withTimezone: true,
@@ -408,7 +408,7 @@ export const componentCalls = createTable(
   },
   (table) => ({
     pk: primaryKey({
-      columns: [table.accountAddress, table.timestamp],
+      columns: [table.userId, table.timestamp],
     }),
   })
 );

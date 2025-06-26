@@ -32,7 +32,7 @@ export class CalculateActivityPointsWorkerService extends Context.Tag(
     CalculateActivityPointsError | InvalidInputError,
     CalculateActivityPointsDependency
   >
->() { }
+>() {}
 
 export const CalculateActivityPointsWorkerLive = Layer.effect(
   CalculateActivityPointsWorkerService,
@@ -122,6 +122,10 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
 
           offset += accountsLimitPerPage;
         }
+
+        yield* Effect.log(
+          `activity points calculations completed for week ${week.id}`
+        );
       });
   })
 );

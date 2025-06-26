@@ -13,6 +13,7 @@
   "dependencies": {
     "@aws-sdk/client-sqs": "catalog:",
     "@bull-board/api": "catalog:",
+    "@date-fns/utc": "catalog:",
     "@effect/opentelemetry": "^0.47.0",
     "@noble/hashes": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
@@ -30,6 +31,7 @@
     "@trpc/server": "catalog:",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",
+    "date-fns": "catalog:",
     "db": "workspace:*",
     "decimal.js": "^10.5.0",
     "drizzle-orm": "catalog:",
@@ -48,9 +50,9 @@
   "devDependencies": {
     "@effect/vitest": "^0.20.10",
     "@types/aws-lambda": "catalog:",
+    "@types/make-fetch-happen": "catalog:",
     "tsup": "catalog:",
-    "vitest": "catalog:",
-    "@types/make-fetch-happen": "catalog:"
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "restricted"

@@ -96,6 +96,7 @@ import {
   EventWorkerLive,
   EventWorkerService,
 } from "./events/eventWorker";
+import { GetAccountAddressByUserIdLive } from "./account/getAccountAddressByUserId";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -453,8 +454,13 @@ const getTransactionFeesPaginatedLive = GetTransactionFeesPaginatedLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const getComponentCallsPaginatedLive = GetComponentCallsPaginatedLive.pipe(
+const getAccountAddressByUserIdLive = GetAccountAddressByUserIdLive.pipe(
   Layer.provide(dbClientLive)
+);
+
+const getComponentCallsPaginatedLive = GetComponentCallsPaginatedLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(getAccountAddressByUserIdLive)
 );
 
 const getTradingVolumeLive = GetTradingVolumeLive.pipe(

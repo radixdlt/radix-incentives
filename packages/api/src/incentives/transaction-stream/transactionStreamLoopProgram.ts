@@ -37,6 +37,7 @@ import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
 import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
 import { TokenNameServiceLive } from "../../common/token-name/getTokenName";
+import { GetUserIdByAccountAddressLive } from "../user/getUserIdByAccountAddress";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -90,8 +91,13 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(configLive)
   );
 
-  const addComponentCallsLive = AddComponentCallsLive.pipe(
+  const getAccountAddressByUserIdLive = GetUserIdByAccountAddressLive.pipe(
     Layer.provide(dbClientLive)
+  );
+
+  const addComponentCallsLive = AddComponentCallsLive.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(getAccountAddressByUserIdLive)
   );
 
   const currentLedgerState = await Effect.runPromise(

@@ -2,8 +2,9 @@ import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
 import { componentCalls } from "db/incentives";
-import { and, gte, inArray, lt, sum } from "drizzle-orm";
-import BigNumber from "bignumber.js";
+import { and, gte, lt } from "drizzle-orm";
+
+import { GetAccountAddressByUserIdService } from "../account/getAccountAddressByUserId";
 
 export type GetComponentCallsServiceInput = {
   endTimestamp: Date;
@@ -12,9 +13,12 @@ export type GetComponentCallsServiceInput = {
   addresses?: string[];
 };
 
+type UserId = string;
+type ComponentAddress = string;
+
 export type GetComponentCallsServiceOutput = {
+  componentCalls: number;
   accountAddress: string;
-  calls: BigNumber;
 }[];
 
 export class GetComponentCallsService extends Context.Tag(
@@ -23,69 +27,66 @@ export class GetComponentCallsService extends Context.Tag(
   GetComponentCallsService,
   (
     input: GetComponentCallsServiceInput
-  ) => Effect.Effect<GetComponentCallsServiceOutput, DbError, DbClientService>
+  ) => Effect.Effect<GetComponentCallsServiceOutput, DbError>
 >() {}
 
 export const GetComponentCallsPaginatedLive = Layer.effect(
   GetComponentCallsService,
   Effect.gen(function* () {
     const db = yield* DbClientService;
+    const getAccountAddressByUserId = yield* GetAccountAddressByUserIdService;
 
     return (input) => {
-      const limit = input.limit ?? 10_000;
-
-      const andConditions = [
-        gte(componentCalls.timestamp, input.startTimestamp),
-        lt(componentCalls.timestamp, input.endTimestamp),
-      ];
-
-      if (input.addresses) {
-        andConditions.push(
-          inArray(componentCalls.accountAddress, input.addresses)
-        );
-      }
-
       return Effect.gen(function* () {
-        const getData = (offset: number) =>
-          Effect.tryPromise({
-            try: () =>
-              db
-                .select({
-                  accountAddress: componentCalls.accountAddress,
-                  calls: sum(componentCalls.calls),
-                })
-                .from(componentCalls)
-                .where(and(...andConditions))
-                .groupBy(componentCalls.accountAddress)
-                .limit(limit)
-                .offset(offset),
-            catch: (error) => new DbError(error),
-          });
-
-        let offset = 0;
-        const accounts = new Map<string, BigNumber>();
-
-        while (true) {
-          const data = yield* getData(offset);
-          if (data.length === 0) break;
-          for (const r of data) {
-            const calls = new BigNumber(r.calls ?? 0);
-            const existingCalls = accounts.get(r.accountAddress);
-            if (existingCalls) {
-              accounts.set(r.accountAddress, existingCalls.plus(calls));
-            } else {
-              accounts.set(r.accountAddress, calls);
-            }
-          }
-          offset += limit;
-        }
-
-        return Array.from(accounts.entries()).map(
-          ([accountAddress, calls]) => ({
-            accountAddress,
-            calls,
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select({
+                userId: componentCalls.userId,
+                data: componentCalls.data,
+              })
+              .from(componentCalls)
+              .where(
+                and(
+                  gte(componentCalls.timestamp, input.startTimestamp),
+                  lt(componentCalls.timestamp, input.endTimestamp)
+                )
+              ),
+          catch: (error) => new DbError(error),
+        }).pipe(
+          Effect.map((items) => {
+            return items.reduce<{ userId: UserId; componentCalls: number }[]>(
+              (acc, curr) => {
+                const componentCalls = curr.data as ComponentAddress[];
+                acc.push({
+                  userId: curr.userId,
+                  componentCalls: componentCalls.length,
+                });
+                return acc;
+              },
+              []
+            );
           })
         );
+
+        const userIdAccountAddressMap = yield* getAccountAddressByUserId(
+          result.map((item) => item.userId)
+        );
+
+        return result
+          .map((item) => {
+            const accountAddresses = userIdAccountAddressMap.get(item.userId);
+            if (!accountAddresses) return null;
+
+            const accountAddress = Array.from(accountAddresses)[0];
+            if (!accountAddress) return null;
+
+            return {
+              componentCalls: item.componentCalls,
+              accountAddress,
+            };
+          })
+          .filter((item): item is NonNullable<typeof item> => item !== null);
       });
     };
   })
