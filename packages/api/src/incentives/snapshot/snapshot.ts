@@ -90,6 +90,7 @@ export type SnapshotInput = {
   timestamp: Date;
   batchSize?: number;
   jobId?: string;
+  addDummyData?: boolean;
 };
 
 /**
@@ -236,7 +237,7 @@ export const SnapshotLive = Layer.effect(
         let totalProcessedEntries = 0;
 
         // Get activity IDs for dummy data generation (do this once)
-        const enableDummyData = process.env.ENABLE_DUMMY_ACTIVITY_DATA === 'true';
+        const enableDummyData = input.addDummyData ?? true;
 
         // Process each batch sequentially
         for (let batchIndex = 0; batchIndex < accountBatches.length; batchIndex++) {
