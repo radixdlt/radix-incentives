@@ -11,9 +11,9 @@ import { InvalidInputError } from "../../common/errors";
 import { chunker } from "../../common";
 import { accounts, users } from "db/incentives";
 import { inArray, lte, eq } from "drizzle-orm";
-import { type GetWeekByIdError, GetWeekByIdService, WeekNotFoundError } from "../week/getWeekById";
+import { type GetWeekByIdError, GetWeekByIdService, type WeekNotFoundError } from "../week/getWeekById";
 import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplier";
-import { GetWeekAccountBalancesService } from "../activity-points/getWeekAccountBalances";
+import type { GetWeekAccountBalancesService } from "../activity-points/getWeekAccountBalances";
 
 export const seasonPointsMultiplierJobSchema = z.object({
     weekId: z.string(),
@@ -41,9 +41,11 @@ export const calculateMultiplier = (q: number,
 
     if (q < QLowerCap) {
         return 0.5;
-    } else if (q < QUpperCap && q >= QLowerCap) {
+    }
+    if (q < QUpperCap && q >= QLowerCap) {
         return 0.5 + (2.5 / (1 + Math.exp(-K * (q - Q0))));
-    } else if (q >= QUpperCap) {
+    } 
+    if (q >= QUpperCap) {
         return 3.0;
     }
     return 0;
