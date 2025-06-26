@@ -31,24 +31,19 @@ export const UpsertAccountBalancesLive = Layer.effect(
         const makeRequest = (items: UpsertAccountBalanceInput) =>
           Effect.tryPromise({
             try: async () => {
-              await db
-                .insert(accountBalances)
-                .values(
-                  items.map(({ timestamp, accountAddress, data = {} }) => ({
-                    timestamp,
-                    accountAddress,
-                    data,
-                  }))
-                )
-                .onConflictDoUpdate({
-                  target: [
-                    accountBalances.accountAddress,
-                    accountBalances.timestamp,
-                  ],
-                  set: {
-                    data: sql`excluded.data`,
-                  },
-                });
+              // Create the VALUES array for sql template
+              const values = items.map(({ timestamp, accountAddress, data = {} }) => 
+                sql`(${timestamp}, ${accountAddress}, ${data})`
+              );
+
+              const query = sql`
+                INSERT INTO account_balances (timestamp, account_address, data)
+                VALUES ${sql.join(values, sql`, `)}
+                ON CONFLICT (account_address, timestamp)
+                DO UPDATE SET data = EXCLUDED.data
+              `;
+
+              await db.execute(query);
             },
             catch: (error) => new DbError(error),
           }).pipe(Effect.withSpan("upsertAccountBalancesBatch"));
