@@ -40,14 +40,11 @@ export const UpsertAccountBalancesLive = Layer.effect(
                     data,
                   }))
                 )
-                .onConflictDoUpdate({
+                .onConflictDoNothing({
                   target: [
                     accountBalances.accountAddress,
                     accountBalances.timestamp,
-                  ],
-                  set: {
-                    data: sql`excluded.data`,
-                  },
+                  ]
                 });
             },
             catch: (error) => new DbError(error),
