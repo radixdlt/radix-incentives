@@ -33,7 +33,7 @@ export const UpsertAccountBalancesLive = Layer.effect(
             try: async () => {
               // Create the VALUES array for sql template
               const values = items.map(({ timestamp, accountAddress, data = {} }) => 
-                sql`(${timestamp}, ${accountAddress}, ${data})`
+                sql`(${timestamp}, ${accountAddress}, ${JSON.stringify(data)}::jsonb)`
               );
 
               const query = sql`
