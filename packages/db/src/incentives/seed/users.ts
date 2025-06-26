@@ -1,4 +1,4 @@
-import { accountsData } from "./data/accounts250KData";
+import { accountsData } from "./data/accounts30KData";
 import { accounts, users } from "../schema";
 import { db } from "../client";
 

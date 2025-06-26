@@ -234,7 +234,7 @@ export const SnapshotLive = Layer.effect(
         let processedAccounts = 0;
         let totalProcessedEntries = 0;
 
-        const enableDummyData = input.addDummyData ?? true;
+        const enableDummyData = input.addDummyData ?? false;
 
         // Process each batch sequentially
         for (let batchIndex = 0; batchIndex < accountBatches.length; batchIndex++) {
@@ -244,15 +244,6 @@ export const SnapshotLive = Layer.effect(
             yield* Effect.fail(new SnapshotError(`Batch ${batchIndex} is undefined`));
             return;
           }
-
-          yield* Effect.log("processing batch", JSON.stringify({
-            batchIndex: batchIndex + 1,
-            totalBatches: accountBatches.length,
-            batchSize: batch.length,
-            processedAccounts,
-            totalAccounts: accountAddresses.length,
-            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          }));
 
           yield* Effect.log("getting account balances for batch", JSON.stringify({
             batchIndex: batchIndex + 1,
