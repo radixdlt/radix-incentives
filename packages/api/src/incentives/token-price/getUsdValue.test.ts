@@ -2,9 +2,8 @@ import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Effect, Layer } from "effect";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
-import { GetUsdValueLive, GetUsdValueService, InvalidResourceAddressError, PriceServiceApiError } from "./getUsdValue";
-
-
+import { GetUsdValueLive, GetUsdValueService } from "./getUsdValue";
+import { TokenNameServiceLive } from "../../common/token-name/getTokenName";
 
 describe("GetUsdValueService", () => {
   const mockFetch = vi.fn();
@@ -21,34 +20,34 @@ describe("GetUsdValueService", () => {
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        prices: {
-          [Assets.Fungible.xUSDC]: { usd_price: expectedPrice }
-        }
-      })
+      json: () =>
+        Promise.resolve({
+          prices: {
+            [Assets.Fungible.xUSDC]: { usd_price: expectedPrice },
+          },
+        }),
     });
 
-    const program = Effect.gen(function* () {
-      const getUsdValue = yield* GetUsdValueService;
-      return yield* getUsdValue({
-        amount,
-        resourceAddress: Assets.Fungible.xUSDC,
-        timestamp
-      });
-    });
-
-    const result = await Effect.runPromise(
-      program.pipe(
-        Effect.provide(GetUsdValueLive)
-      )
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getUsdValue = yield* GetUsdValueService;
+        return yield* getUsdValue({
+          amount,
+          resourceAddress: Assets.Fungible.xUSDC,
+          timestamp,
+        });
+      }),
+      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
     );
+
+    const result = await Effect.runPromise(program);
 
     expect(result.toString()).toBe("100");
     expect(mockFetch).toHaveBeenCalledWith(
       "https://token-price-service.radixdlt.com/price/historicalPrice",
       expect.objectContaining({
         method: "POST",
-        body: expect.stringContaining(Assets.Fungible.xUSDC)
+        body: expect.stringContaining(Assets.Fungible.xUSDC),
       })
     );
   });
@@ -60,27 +59,27 @@ describe("GetUsdValueService", () => {
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        prices: {
-          [Assets.Fungible.XRD]: { usd_price: expectedPrice }
-        }
-      })
+      json: () =>
+        Promise.resolve({
+          prices: {
+            [Assets.Fungible.XRD]: { usd_price: expectedPrice },
+          },
+        }),
     });
 
-    const program = Effect.gen(function* () {
-      const getUsdValue = yield* GetUsdValueService;
-      return yield* getUsdValue({
-        amount,
-        resourceAddress: Assets.Fungible.XRD,
-        timestamp
-      });
-    });
-
-    const result = await Effect.runPromise(
-      program.pipe(
-        Effect.provide(GetUsdValueLive)
-      )
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getUsdValue = yield* GetUsdValueService;
+        return yield* getUsdValue({
+          amount,
+          resourceAddress: Assets.Fungible.XRD,
+          timestamp,
+        });
+      }),
+      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
     );
+
+    const result = await Effect.runPromise(program);
 
     expect(result.toString()).toBe("1");
   });
@@ -90,23 +89,23 @@ describe("GetUsdValueService", () => {
     const timestamp = new Date("2024-01-01");
     const invalidAddress = "invalid_address";
 
-    const program = Effect.gen(function* () {
-      const getUsdValue = yield* GetUsdValueService;
-      return yield* getUsdValue({
-        amount,
-        resourceAddress: invalidAddress,
-        timestamp
-      });
-    });
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getUsdValue = yield* GetUsdValueService;
+        return yield* getUsdValue({
+          amount,
+          resourceAddress: invalidAddress,
+          timestamp,
+        });
+      }),
+      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+    );
 
-    await expect(
-      Effect.runPromise(
-        program.pipe(
-          Effect.provide(GetUsdValueLive)
-        )
-      )
-    ).rejects.toMatchObject({
-        message: expect.stringContaining("Invalid resource address: invalid_address")    });
+    await expect(Effect.runPromise(program)).rejects.toMatchObject({
+      message: expect.stringContaining(
+        "Invalid resource address: invalid_address"
+      ),
+    });
   });
 
   it("should fail with ApiError when API call fails", async () => {
@@ -115,23 +114,20 @@ describe("GetUsdValueService", () => {
 
     mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
-    const program = Effect.gen(function* () {
-      const getUsdValue = yield* GetUsdValueService;
-      return yield* getUsdValue({
-        amount,
-        resourceAddress: Assets.Fungible.XRD,
-        timestamp
-      });
-    });
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getUsdValue = yield* GetUsdValueService;
+        return yield* getUsdValue({
+          amount,
+          resourceAddress: Assets.Fungible.XRD,
+          timestamp,
+        });
+      }),
+      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+    );
 
-    await expect(
-      Effect.runPromise(
-        program.pipe(
-          Effect.provide(GetUsdValueLive)
-        )
-      )
-    ).rejects.toMatchObject({
-      message: expect.stringContaining("Failed to get USD value")
+    await expect(Effect.runPromise(program)).rejects.toMatchObject({
+      message: expect.stringContaining("Failed to get USD value"),
     });
   });
 
@@ -141,28 +137,26 @@ describe("GetUsdValueService", () => {
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
-      json: () => Promise.resolve({
-        prices: {} // Missing price data
-      })
+      json: () =>
+        Promise.resolve({
+          prices: {}, // Missing price data
+        }),
     });
 
-    const program = Effect.gen(function* () {
-      const getUsdValue = yield* GetUsdValueService;
-      return yield* getUsdValue({
-        amount,
-        resourceAddress: Assets.Fungible.XRD,
-        timestamp
-      });
-    });
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getUsdValue = yield* GetUsdValueService;
+        return yield* getUsdValue({
+          amount,
+          resourceAddress: Assets.Fungible.XRD,
+          timestamp,
+        });
+      }),
+      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+    );
 
-    await expect(
-      Effect.runPromise(
-        program.pipe(
-          Effect.provide(GetUsdValueLive)
-        )
-      )
-    ).rejects.toMatchObject({
-      message: expect.stringContaining("Failed to get USD value")
+    await expect(Effect.runPromise(program)).rejects.toMatchObject({
+      message: expect.stringContaining("Failed to get USD value"),
     });
   });
-}); 
+});

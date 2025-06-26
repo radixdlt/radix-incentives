@@ -65,8 +65,7 @@ import type { EntityNonFungibleDataService } from "../../common/gateway/entityNo
 import type { GetQuantaSwapBinMapService } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import type { GetDefiPlazaPositionsService } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
 import type { GetResourcePoolUnitsService } from "../../common/resource-pool/getResourcePoolUnits";
-import type { UnknownCaviarnineTokenError } from "../account-balance/aggregateCaviarninePositions";
-import type { UnknownDefiPlazaTokenError } from "../account-balance/aggregateDefiPlazaPositions";
+import type { UnknownTokenError } from "../../common/token-name/getTokenName";
 import type { DbClientService, DbError } from "../db/dbClient";
 import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
@@ -132,8 +131,7 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | InvalidComponentStateError
     | FailedToParseLiquidityClaimsError
     | GetDefiPlazaPositionsError
-    | UnknownCaviarnineTokenError
-    | UnknownDefiPlazaTokenError
+    | UnknownTokenError
     | DbError
     | SnapshotError,
     | GetFungibleBalanceService
@@ -309,12 +307,14 @@ export const SnapshotLive = Layer.effect(
           );
 
           if (Either.isLeft(aggregateAccountBalanceResult)) {
+            const error = aggregateAccountBalanceResult.left;
+            yield* Effect.logError("Account balance aggregation failed", error);
             yield* updateSnapshot({
               id: snapshotId,
               status: "failed",
             });
             return yield* Effect.fail(
-              new SnapshotError(`Failed to convert account balances for batch ${batchIndex + 1}`)
+              new SnapshotError(`Failed to convert account balances for batch ${batchIndex + 1}: ${error}`)
             );
           }
 

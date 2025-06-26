@@ -139,11 +139,11 @@ export const CalculateActivityPointsLive = Layer.effect(
             `adding ${componentCalls.length} component calls calculations`
           );
           yield* upsertAccountActivityPoints(
-            componentCalls.map(({ accountAddress, calls }) => ({
+            componentCalls.map(({ accountAddress, componentCalls }) => ({
               weekId: week.id,
               accountAddress,
               activityId: "componentCalls",
-              activityPoints: calls.decimalPlaces(0).toNumber(),
+              activityPoints: componentCalls,
             }))
           );
         }
@@ -167,10 +167,6 @@ export const CalculateActivityPointsLive = Layer.effect(
             }))
           );
         }
-
-        yield* Effect.log(
-          `activity points calculations completed for week ${week.id}`
-        );
       });
     };
   })

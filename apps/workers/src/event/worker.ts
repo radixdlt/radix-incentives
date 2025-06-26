@@ -6,8 +6,12 @@ import { Exit } from "effect";
 import { snapshotQueue } from "../snapshot/queue";
 
 export const eventQueueWorker = async (job: Job<EventQueueJob>) => {
-  console.log("eventQueueWorker", job.data);
-  const result = await dependencyLayer.deriveAccountFromEvent(job.data);
+  const result = await dependencyLayer.eventWorkerHandler({
+    items: job.data,
+    addToSnapshotQueue: async (input) => {
+      await snapshotQueue.queue.add("snapshot", input);
+    },
+  });
 
   if (Exit.isFailure(result)) {
     console.error(
@@ -15,13 +19,5 @@ export const eventQueueWorker = async (job: Job<EventQueueJob>) => {
       JSON.stringify(result.cause, null, 2)
     );
     throw result.cause;
-  }
-
-  for (const accountAddress of result.value) {
-    console.log("adding snapshot", accountAddress);
-    await snapshotQueue.queue.add("snapshot", {
-      timestamp: accountAddress.timestamp,
-      addresses: [accountAddress.address],
-    });
   }
 };

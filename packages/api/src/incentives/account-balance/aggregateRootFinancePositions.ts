@@ -3,8 +3,7 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import {
   GetUsdValueService,
-  type InvalidResourceAddressError,
-  type PriceServiceApiError,
+  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
@@ -25,7 +24,7 @@ export class AggregateRootFinancePositionsService extends Context.Tag(
     input: AggregateRootFinancePositionsInput
   ) => Effect.Effect<
     AggregateRootFinancePositionsOutput[],
-    InvalidResourceAddressError | PriceServiceApiError,
+    GetUsdValueServiceError,
     GetUsdValueService
   >
 >() {}

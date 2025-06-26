@@ -3,6 +3,8 @@ import { z } from "zod";
 export const ActivityCategoryKey = {
   maintainXrdBalance: "maintainXrdBalance",
   provideStablesLiquidityToDex: "provideStablesLiquidityToDex",
+  provideBlueChipLiquidityToDex: "provideBlueChipLiquidityToDex",
+  provideNativeLiquidityToDex: "provideNativeLiquidityToDex",
   lendingStables: "lendingStables",
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",
@@ -15,7 +17,7 @@ export type ActivityCategoryKey = keyof typeof ActivityCategoryKey;
 const testTokens = ["floop", "dfp2", "early", "caviar",
   "weft", "xUsdt", "root", "stab", "fusd", "popey", "radit", "dan", "hug",
   "surge", "sUsd", "delphi", "astrl", "ilis", "oci", "mox", "foton", "fomo",];
-const tokens = ["xrd", "xusdc", "lsulp", "stakedXrd", "unstakedXrd",];
+const tokens = ["xrd","xeth", "xusdc","xusdt","xwbtc", "lsulp", "stakedXrd", "unstakedXrd",];
 
 const allTokens = [...new Set([...testTokens, ...tokens]
   .filter(token => token !== "stakedXrd" && token !== "unstakedXrd"))];
@@ -77,6 +79,14 @@ export const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }
   {
     id: ActivityCategoryKey.provideStablesLiquidityToDex,
     name: "Provide stables liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+    name: "Provide blue chip liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideNativeLiquidityToDex,
+    name: "Provide native liquidity to a DEX",
   },
   {
     id: ActivityCategoryKey.lendingStables,

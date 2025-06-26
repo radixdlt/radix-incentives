@@ -129,7 +129,7 @@ type WeftFinancePosition = GetWeftFinancePositionsOutput["lending"];
 type RootFinancePosition = CollaterizedDebtPosition;
 
 type CaviarNinePosition = {
-  xrdUsdc: ShapeLiquidityAsset[];
+  [key: string]: ShapeLiquidityAsset[];
 };
 
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
@@ -254,8 +254,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 addresses: input.addresses,
                 at_ledger_state: atLedgerState,
                 resourceAddresses: [
-                  CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC
-                    .liquidity_receipt,
+                  ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
+                    (pool) => pool.liquidity_receipt
+                  ),
                   RootFinance.receiptResourceAddress,
                   ...input.validators.map(
                     (validator) => validator.claimNftResourceAddress
@@ -270,18 +271,17 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
             { concurrency: "unbounded" }
           );
 
-        const C9Pool_XRD_xUSDC =
-          CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC;
+        const allCaviarNinePools = Object.values(CaviarNineConstants.shapeLiquidityPools);
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, xrd usdc shape liquidity assets, defi plaza positions, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, lsulp value"
         );
         const [
           userStakingPositions,
           lsulpResults,
           allWeftFinancePositions,
           allRootFinancePositions,
-          xrdUsdcShapeLiquidityAssets,
+          allCaviarNineShapeLiquidityAssets,
           allDefiPlazaPositions,
           lsulpValue,
         ] = yield* Effect.all(
@@ -307,17 +307,23 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               at_ledger_state: atLedgerState,
               nonFungibleBalance: nonFungibleBalanceResults,
             }).pipe(Effect.withSpan("getRootFinancePositionsService")),
-            getShapeLiquidityAssetsService({
-              addresses: input.addresses,
-              at_ledger_state: atLedgerState,
-              componentAddress: C9Pool_XRD_xUSDC.componentAddress,
-              priceBounds: {
-                lower: 0.7,
-                upper: 1.3,
-              },
-              nonFungibleBalance: nonFungibleBalanceResults,
-            }).pipe(
-              Effect.withSpan("C9Pool_XRD_xUSDC_getShapeLiquidityAssetsService")
+            Effect.all(
+              allCaviarNinePools.map((pool) =>
+                getShapeLiquidityAssetsService({
+                  addresses: input.addresses,
+                  at_ledger_state: atLedgerState,
+                  componentAddress: pool.componentAddress,
+                  priceBounds: {
+                    lower: 0.7,
+                    upper: 1.3,
+                  },
+                  nonFungibleBalance: nonFungibleBalanceResults,
+                }).pipe(
+                  Effect.withSpan(`CaviarNine_${pool.name.replace('/', '_')}_getShapeLiquidityAssetsService`),
+                  Effect.map((result) => ({ pool, result }))
+                )
+              ),
+              { concurrency: "unbounded" }
             ),
             getDefiPlazaPositionsService({
               accountAddresses: input.addresses,
@@ -377,10 +383,6 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allRootFinancePositions.items.map((item) => [item.accountAddress, item.collaterizedDebtPositions])
         );
         
-        const shapeLiquidityMap = new Map(
-          xrdUsdcShapeLiquidityAssets.map((item) => [item.address, item.items])
-        );
-        
         const defiPlazaMap = new Map(
           allDefiPlazaPositions.map((item) => [item.address, item])
         );
@@ -428,11 +430,17 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               const rootFinancePositions: RootFinancePosition[] =
                 rootFinanceMap.get(address) ?? [];
 
-              const accountXRD_xUSDC_ShapeLiquidityAssets: ShapeLiquidityAsset[] =
-                shapeLiquidityMap.get(address) ?? [];
-
               const accountDefiPlazaPositions: DefiPlazaPosition =
                 defiPlazaMap.get(address) ?? { address, items: [] };
+
+              const caviarninePositions: CaviarNinePosition = {};
+              for (const poolData of allCaviarNineShapeLiquidityAssets) {
+                const poolKey = poolData.pool.name.toLowerCase().replace('/', '');
+                const accountPoolAssets = poolData.result.find(
+                  (item) => item.address === address
+                )?.items ?? [];
+                caviarninePositions[poolKey] = accountPoolAssets;
+              }
 
               return {
                 address,
@@ -443,9 +451,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 nonFungibleTokenBalances,
                 weftFinancePositions,
                 rootFinancePositions,
-                caviarninePositions: {
-                  xrdUsdc: accountXRD_xUSDC_ShapeLiquidityAssets,
-                },
+                caviarninePositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
               } satisfies AccountBalance;
             })

@@ -1,0 +1,8 @@
+alertmanager:
+  env: "perftest"
+  nameOverride: "incentives-amcfg"
+  slackConfig:
+    channel: "feed--alerts-incentives-perftest"
+  secrets:
+    region: eu-west-2
+    name: "rdx-works-main-dev/eks/incentives/perftest/alertmanager-integration-keys"

@@ -1,5 +1,6 @@
 environments:
   dev: {}
+  perftest: {}
   pr: {}
 ---
 helmDefaults:

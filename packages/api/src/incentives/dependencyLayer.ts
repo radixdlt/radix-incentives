@@ -87,9 +87,16 @@ import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeaso
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
 import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
+import { TokenNameServiceLive } from "../common/token-name/getTokenName";
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
 import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
+import {
+  type EventWorkerInput,
+  EventWorkerLive,
+  EventWorkerService,
+} from "./events/eventWorker";
+import { GetAccountAddressByUserIdLive } from "./account/getAccountAddressByUserId";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -298,11 +305,19 @@ const upsertAccountBalancesLive = UpsertAccountBalancesLive.pipe(
 const createSnapshotLive = CreateSnapshotLive.pipe(Layer.provide(dbClientLive));
 const updateSnapshotLive = UpdateSnapshotLive.pipe(Layer.provide(dbClientLive));
 
-const getUsdValueLive = GetUsdValueLive.pipe(Layer.provide(dbClientLive));
-const xrdBalanceLive = XrdBalanceLive.pipe(Layer.provide(getUsdValueLive));
+const tokenNameServiceLive = TokenNameServiceLive;
+
+const getUsdValueLive = GetUsdValueLive.pipe(
+  Layer.provide(tokenNameServiceLive)
+);
+const xrdBalanceLive = XrdBalanceLive.pipe(
+  Layer.provide(getUsdValueLive),
+  Layer.provide(tokenNameServiceLive)
+);
 
 const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
-  Layer.provide(getUsdValueLive)
+  Layer.provide(getUsdValueLive),
+  Layer.provide(tokenNameServiceLive)
 );
 
 const aggregateWeftFinancePositionsLive =
@@ -326,7 +341,8 @@ const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
 );
 
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
-  Layer.provide(getUsdValueLive)
+  Layer.provide(getUsdValueLive),
+  Layer.provide(tokenNameServiceLive)
 );
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
@@ -438,8 +454,13 @@ const getTransactionFeesPaginatedLive = GetTransactionFeesPaginatedLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const getComponentCallsPaginatedLive = GetComponentCallsPaginatedLive.pipe(
+const getAccountAddressByUserIdLive = GetAccountAddressByUserIdLive.pipe(
   Layer.provide(dbClientLive)
+);
+
+const getComponentCallsPaginatedLive = GetComponentCallsPaginatedLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(getAccountAddressByUserIdLive)
 );
 
 const getTradingVolumeLive = GetTradingVolumeLive.pipe(
@@ -575,7 +596,8 @@ const snapshotProgram = (input: SnapshotInput) => {
       aggregateDefiPlazaPositionsLive,
       getDefiPlazaPositionsLive,
       getResourcePoolUnitsLive,
-      aggregateAccountBalanceLive
+      aggregateAccountBalanceLive,
+      tokenNameServiceLive
     )
   ).pipe(Effect.provide(NodeSdkLive));
 
@@ -590,6 +612,24 @@ const getLedgerState = (input: GetLedgerStateInput) => {
       return yield* getLedgerStateService(input);
     }),
     Layer.mergeAll(getLedgerStateLive, gatewayApiClientLive)
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
+const eventWorkerLive = EventWorkerLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(deriveAccountFromEventLive)
+);
+
+const eventWorkerHandler = (input: EventWorkerInput) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const eventWorkerService = yield* EventWorkerService;
+
+      return yield* eventWorkerService(input);
+    }),
+    Layer.mergeAll(dbClientLive, eventWorkerLive)
   );
 
   return Effect.runPromiseExit(program);
@@ -699,4 +739,5 @@ export const dependencyLayer = {
   calculateActivityPoints,
   calculateSeasonPoints,
   calculateSPMultiplier,
+  eventWorkerHandler,
 };

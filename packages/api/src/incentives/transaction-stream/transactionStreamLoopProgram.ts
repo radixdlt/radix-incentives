@@ -27,7 +27,6 @@ import { createDbClientLive } from "../db/dbClient";
 import { db } from "db/incentives";
 import { FilterTransactionsLive } from "./filterTransactions";
 import { AddEventsToDbLive } from "../events/queries/addEventToDb";
-import { AddTransactionsToDbLive } from "./addTransactionsToDb";
 import { GetActivitiesLive } from "../activity/getActivities";
 import { AddToEventQueueLive } from "../events/addToEventQueue";
 import { EventQueueClientLive } from "../events/eventQueueClient";
@@ -37,6 +36,8 @@ import { ProcessSwapEventTradingVolumeLive } from "../trading-volume/processSwap
 import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
 import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
+import { TokenNameServiceLive } from "../../common/token-name/getTokenName";
+import { GetUserIdByAccountAddressLive } from "../user/getUserIdByAccountAddress";
 
 export const runTransactionStreamLoop = async () => {
   const REDIS_HOST = process.env.REDIS_HOST;
@@ -85,17 +86,18 @@ export const runTransactionStreamLoop = async () => {
 
   const addEventsLive = AddEventsToDbLive.pipe(Layer.provide(dbClientLive));
 
-  const addTransactionsToDbLive = AddTransactionsToDbLive.pipe(
-    Layer.provide(dbClientLive)
-  );
-
   const getStateVersionLive = GetStateVersionLive.pipe(
     Layer.provide(redisClientLive),
     Layer.provide(configLive)
   );
 
-  const addComponentCallsLive = AddComponentCallsLive.pipe(
+  const getAccountAddressByUserIdLive = GetUserIdByAccountAddressLive.pipe(
     Layer.provide(dbClientLive)
+  );
+
+  const addComponentCallsLive = AddComponentCallsLive.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(getAccountAddressByUserIdLive)
   );
 
   const currentLedgerState = await Effect.runPromise(
@@ -212,8 +214,14 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(dbClientLive)
   );
 
+  const tokenNameServiceLive = TokenNameServiceLive;
+
+  const getUsdValueLive = GetUsdValueLive.pipe(
+    Layer.provide(tokenNameServiceLive)
+  );
+
   const filterTradingEventsLive = FilterTradingEventsLive.pipe(
-    Layer.provide(GetUsdValueLive),
+    Layer.provide(getUsdValueLive),
     Layer.provide(dbClientLive)
   );
 
@@ -235,7 +243,6 @@ export const runTransactionStreamLoop = async () => {
       filterTransactionsLive,
       getActivitiesLive,
       addEventsLive,
-      addTransactionsToDbLive,
       configLive,
       addToEventQueueLive,
       eventQueueClientLive,

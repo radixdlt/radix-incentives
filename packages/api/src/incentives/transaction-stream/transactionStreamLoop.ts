@@ -6,7 +6,6 @@ import { weftFinanceEventMatcher } from "../events/event-matchers/weftFinanceEve
 import { rootFinanceEventMatcher } from "../events/event-matchers/rootFinanceEventMatcher";
 import { FilterTransactionsService } from "./filterTransactions";
 import { AddEventsToDbService } from "../events/queries/addEventToDb";
-import { AddTransactionsToDbService } from "./addTransactionsToDb";
 import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
 import { AddToEventQueueService } from "../events/addToEventQueue";
 import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
@@ -15,6 +14,7 @@ import { AddComponentCallsService } from "../component/addComponentCalls";
 import { ProcessSwapEventTradingVolumeService } from "../trading-volume/processSwapEventTradingVolume";
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
 import type { EmittableEvent } from "../events/event-matchers/types";
+import { defiPlazaEventMatcher } from "../events/event-matchers/defiPlazaEventMatcher";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -22,7 +22,6 @@ export const transactionStreamLoop = () =>
     const stateVersionManager = yield* StateVersionManagerService;
     const filterTransactionsService = yield* FilterTransactionsService;
     const addEventsToDbService = yield* AddEventsToDbService;
-    const addTransactionsToDbService = yield* AddTransactionsToDbService;
     const addToEventQueueService = yield* AddToEventQueueService;
     const addTransactionFeeService = yield* AddTransactionFeeService;
     const addComponentCallsService = yield* AddComponentCallsService;
@@ -52,9 +51,6 @@ export const transactionStreamLoop = () =>
         );
         const uniqueTransactions = Array.from(transactionMap.values());
 
-        // stores transactions which registered accounts are involved in
-        yield* addTransactionsToDbService(uniqueTransactions);
-
         // get all weft finance events from transactions data
         const weftFinanceEvents =
           yield* weftFinanceEventMatcher(uniqueTransactions);
@@ -65,11 +61,15 @@ export const transactionStreamLoop = () =>
         const caviarnineEvents =
           yield* caviarnineEventMatcher(uniqueTransactions);
 
+        const defiPlazaEvents =
+          yield* defiPlazaEventMatcher(uniqueTransactions);
+
         const commonEvents = yield* commonEventMatcher(uniqueTransactions);
 
         // concat all captured events
         const allCapturedEvents = [
           ...caviarnineEvents,
+          ...defiPlazaEvents,
           ...weftFinanceEvents,
           ...rootFinanceEvents,
           ...commonEvents,
@@ -114,7 +114,7 @@ export const transactionStreamLoop = () =>
         const componentCalls = uniqueTransactions
           .map((tx) => ({
             accountAddress: tx.highestFeePayer,
-            calls: tx.componentAddresses.length,
+            componentAddresses: tx.componentAddresses,
             timestamp: new Date(tx.round_timestamp),
           }))
           .filter(
@@ -122,9 +122,11 @@ export const transactionStreamLoop = () =>
               item
             ): item is {
               accountAddress: string;
-              calls: number;
+              componentAddresses: string[];
               timestamp: Date;
-            } => item.accountAddress !== undefined && item.calls > 0
+            } =>
+              item.accountAddress !== undefined &&
+              item.componentAddresses.length > 0
           );
 
         if (componentCalls.length > 0) {
