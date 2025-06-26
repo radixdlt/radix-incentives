@@ -41,6 +41,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
     return (input) =>
       Effect.gen(function* () {
         const results: AccountBalanceData[] = [];
+        const processedPools = new Set<string>();
 
         // Process each pool in the CaviarNine positions
         for (const [_poolKey, poolAssets] of Object.entries(
@@ -101,6 +102,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
 
           // Generate activity ID based on token pair - cast to ActivityId since we know it's valid
           const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
+          processedPools.add(activityId);
 
           results.push({
             activityId,
@@ -119,6 +121,20 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               },
             },
           });
+        }
+
+        // Add zero entries for pools with no positions
+        for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
+          const xTokenName = yield* tokenNameService(pool.token_x);
+          const yTokenName = yield* tokenNameService(pool.token_y);
+          const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
+          
+          if (!processedPools.has(activityId)) {
+            results.push({
+              activityId,
+              usdValue: "0",
+            });
+          }
         }
 
         return results;
