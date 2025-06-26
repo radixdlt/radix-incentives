@@ -3,14 +3,416 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import { Assets } from "../../common/assets/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
+import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
+import {
+  TokenNameService,
+  type UnknownTokenError,
+} from "../../common/token-name/getTokenName";
 
 import {
   GetUsdValueService,
-  type InvalidResourceAddressError,
-  type PriceServiceApiError,
+  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import type { AccountBalanceData } from "db/incentives";
+import type { AccountBalanceData, ActivityId } from "db/incentives";
+
+// Helper function to check if a resource address is XRD or LSULP
+const isXrdOrLsulp = (resourceAddress: string): boolean => {
+  return (
+    resourceAddress === Assets.Fungible.XRD ||
+    resourceAddress === CaviarNineConstants.LSULP.resourceAddress
+  );
+};
+
+// Helper function to convert LSULP amount to XRD equivalent
+const convertLsulpToXrd = (
+  amount: BigNumber,
+  lsulpValue: BigNumber
+): BigNumber => {
+  return amount.multipliedBy(lsulpValue);
+};
+
+// Helper function to convert amount to XRD equivalent if it's LSULP
+const toXrdEquivalent = (
+  amount: BigNumber,
+  resourceAddress: string,
+  lsulpValue: BigNumber
+): BigNumber => {
+  if (resourceAddress === CaviarNineConstants.LSULP.resourceAddress) {
+    return convertLsulpToXrd(amount, lsulpValue);
+  }
+  return amount;
+};
+
+type XrdValueConverter = (
+  amount: BigNumber
+) => Effect.Effect<string, GetUsdValueServiceError, GetUsdValueService>;
+
+// Extract basic XRD holdings processing
+const processBasicXrdHoldings = (
+  accountBalance: AccountBalanceFromSnapshot,
+  xrdToUsd: XrdValueConverter
+) =>
+  Effect.gen(function* () {
+    const output: AccountBalanceData[] = [];
+
+    // Direct XRD holdings
+    const xrd =
+      accountBalance.fungibleTokenBalances.find(
+        (resource) => resource.resourceAddress === Assets.Fungible.XRD
+      )?.amount ?? new BigNumber(0);
+
+    output.push({
+      activityId: "hold_xrd",
+      usdValue: yield* xrdToUsd(xrd),
+    });
+
+    // Staked XRD
+    const stakedXrd = accountBalance.staked.reduce(
+      (acc, item) => acc.plus(item.xrdAmount),
+      new BigNumber(0)
+    );
+
+    output.push({
+      activityId: "hold_stakedXrd",
+      usdValue: yield* xrdToUsd(stakedXrd),
+    });
+
+    // Unstaked XRD
+    const unstakedXrd = accountBalance.unstaked.reduce(
+      (acc, item) => acc.plus(item.amount),
+      new BigNumber(0)
+    );
+
+    output.push({
+      activityId: "hold_unstakedXrd",
+      usdValue: yield* xrdToUsd(unstakedXrd),
+    });
+
+    // LSULP (converted to XRD equivalent)
+    const lsulpXrdEquivalent = convertLsulpToXrd(
+      accountBalance.lsulp.amount,
+      accountBalance.lsulp.lsulpValue
+    );
+
+    output.push({
+      activityId: "hold_lsulp",
+      usdValue: yield* xrdToUsd(lsulpXrdEquivalent),
+    });
+
+    return output;
+  });
+
+// Extract lending protocol processing
+const processLendingProtocols = (
+  accountBalance: AccountBalanceFromSnapshot,
+  xrdToUsd: XrdValueConverter
+) =>
+  Effect.gen(function* () {
+    const output: AccountBalanceData[] = [];
+
+    // Root Finance lending
+    const rootFinanceLending = accountBalance.rootFinancePositions.reduce(
+      (acc, position) => {
+        // Check XRD collaterals
+        if (position.collaterals?.[Assets.Fungible.XRD]) {
+          acc.xrd = acc.xrd.plus(
+            position.collaterals[Assets.Fungible.XRD] ?? 0
+          );
+        }
+
+        // Check LSULP collaterals and convert to XRD equivalent
+        const lsulpCollateral =
+          position.collaterals?.[CaviarNineConstants.LSULP.resourceAddress];
+        if (lsulpCollateral) {
+          const lsulpXrdEquivalent = convertLsulpToXrd(
+            new BigNumber(lsulpCollateral),
+            accountBalance.lsulp.lsulpValue
+          );
+          acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
+        }
+
+        return acc;
+      },
+      { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+    ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
+
+    output.push(
+      {
+        activityId: "root_hold_xrd",
+        usdValue: yield* xrdToUsd(rootFinanceLending.xrd),
+      },
+      {
+        activityId: "root_hold_lsulp",
+        usdValue: yield* xrdToUsd(rootFinanceLending.lsulp),
+      }
+    );
+
+    // Weft Finance lending
+    const weftFinanceLending = accountBalance.weftFinancePositions.reduce(
+      (acc, position) => {
+        if (position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD) {
+          acc.xrd = acc.xrd.plus(position.unwrappedAsset.amount);
+        }
+
+        if (
+          position.unwrappedAsset.resourceAddress ===
+          CaviarNineConstants.LSULP.resourceAddress
+        ) {
+          const lsulpXrdEquivalent = convertLsulpToXrd(
+            position.unwrappedAsset.amount,
+            accountBalance.lsulp.lsulpValue
+          );
+          acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
+        }
+
+        return acc;
+      },
+      { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+    ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
+
+    output.push(
+      {
+        activityId: "weft_hold_xrd",
+        usdValue: yield* xrdToUsd(weftFinanceLending.xrd),
+      },
+      {
+        activityId: "weft_hold_lsulp",
+        usdValue: yield* xrdToUsd(weftFinanceLending.lsulp),
+      }
+    );
+
+    return output;
+  });
+
+// Extract CaviarNine pool processing
+const processCaviarNinePools = (
+  accountBalance: AccountBalanceFromSnapshot,
+  xrdToUsd: XrdValueConverter,
+  tokenNameService: (
+    address: string
+  ) => Effect.Effect<string, UnknownTokenError, never>
+) =>
+  Effect.gen(function* () {
+    const output: AccountBalanceData[] = [];
+    const caviarNineByPool = new Map<ActivityId, BigNumber>();
+
+    // Process existing positions
+    for (const [_poolKey, poolAssets] of Object.entries(
+      accountBalance.caviarninePositions
+    )) {
+      const poolXrdDerivatives = poolAssets.reduce((currentXrd, item) => {
+        let newXrd = currentXrd;
+
+        // Process xToken
+        if (isXrdOrLsulp(item.xToken.resourceAddress)) {
+          const tokenAmount = new BigNumber(item.xToken.withinPriceBounds).plus(
+            new BigNumber(item.xToken.outsidePriceBounds)
+          );
+          const xrdEquivalent = toXrdEquivalent(
+            tokenAmount,
+            item.xToken.resourceAddress,
+            accountBalance.lsulp.lsulpValue
+          );
+          newXrd = newXrd.plus(xrdEquivalent);
+        }
+
+        // Process yToken
+        if (isXrdOrLsulp(item.yToken.resourceAddress)) {
+          const tokenAmount = new BigNumber(item.yToken.withinPriceBounds).plus(
+            new BigNumber(item.yToken.outsidePriceBounds)
+          );
+          const xrdEquivalent = toXrdEquivalent(
+            tokenAmount,
+            item.yToken.resourceAddress,
+            accountBalance.lsulp.lsulpValue
+          );
+          newXrd = newXrd.plus(xrdEquivalent);
+        }
+
+        return newXrd;
+      }, new BigNumber(0));
+
+      if (poolAssets.length > 0) {
+        const firstAsset = poolAssets[0];
+        if (firstAsset) {
+          const { xToken, yToken } = firstAsset;
+          const isXTokenXrdDerivative = isXrdOrLsulp(xToken.resourceAddress);
+          const isYTokenXrdDerivative = isXrdOrLsulp(yToken.resourceAddress);
+
+          if (isXTokenXrdDerivative || isYTokenXrdDerivative) {
+            const nonXrdDerivativeToken = isXTokenXrdDerivative
+              ? yToken
+              : xToken;
+            const xrdDerivativeToken = isXTokenXrdDerivative ? xToken : yToken;
+
+            const nonXrdDerivativeTokenName = yield* tokenNameService(
+              nonXrdDerivativeToken.resourceAddress
+            );
+            const xrdDerivativeTokenName = yield* tokenNameService(
+              xrdDerivativeToken.resourceAddress
+            );
+            const activityId =
+              `c9_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
+
+            const currentAmount =
+              caviarNineByPool.get(activityId) ?? new BigNumber(0);
+            caviarNineByPool.set(
+              activityId,
+              currentAmount.plus(poolXrdDerivatives)
+            );
+          }
+        }
+      }
+    }
+
+    // Add results for pools with positions
+    for (const [activityId, xrdAmount] of caviarNineByPool.entries()) {
+      output.push({
+        activityId,
+        usdValue: yield* xrdToUsd(xrdAmount),
+      });
+    }
+
+    // Add zero entries for pools without positions
+    for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
+      const isToken1XrdDerivative = isXrdOrLsulp(pool.token_x);
+      const isToken2XrdDerivative = isXrdOrLsulp(pool.token_y);
+
+      if (isToken1XrdDerivative || isToken2XrdDerivative) {
+        const nonXrdDerivativeTokenAddress = isToken1XrdDerivative
+          ? pool.token_y
+          : pool.token_x;
+        const xrdDerivativeTokenAddress = isToken1XrdDerivative
+          ? pool.token_x
+          : pool.token_y;
+
+        const nonXrdDerivativeTokenName = yield* tokenNameService(
+          nonXrdDerivativeTokenAddress
+        );
+        const xrdDerivativeTokenName = yield* tokenNameService(
+          xrdDerivativeTokenAddress
+        );
+        const activityId =
+          `c9_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
+
+        if (!caviarNineByPool.has(activityId)) {
+          output.push({
+            activityId,
+            usdValue: yield* xrdToUsd(new BigNumber(0)),
+          });
+        }
+      }
+    }
+
+    return output;
+  });
+
+// Extract DefiPlaza pool processing
+const processDefiPlazaPools = (
+  accountBalance: AccountBalanceFromSnapshot,
+  xrdToUsd: XrdValueConverter,
+  tokenNameService: (
+    address: string
+  ) => Effect.Effect<string, UnknownTokenError, never>
+) =>
+  Effect.gen(function* () {
+    const output: AccountBalanceData[] = [];
+    const defiPlazaByPool = new Map<ActivityId, BigNumber>();
+
+    // Process existing positions
+    for (const lpPosition of accountBalance.defiPlazaPositions.items) {
+      const xrdDerivativePosition = lpPosition.position.find((pos) =>
+        isXrdOrLsulp(pos.resourceAddress)
+      );
+      const nonXrdDerivativePosition = lpPosition.position.find(
+        (pos) => !isXrdOrLsulp(pos.resourceAddress)
+      );
+
+      if (xrdDerivativePosition && nonXrdDerivativePosition) {
+        const pool = Object.values(DefiPlaza).find(
+          (p) => p.lpResourceAddress === lpPosition.lpResourceAddress
+        );
+
+        if (
+          pool &&
+          (isXrdOrLsulp(pool.baseResourceAddress) ||
+            isXrdOrLsulp(pool.quoteResourceAddress))
+        ) {
+          const isBaseXrdDerivative = isXrdOrLsulp(pool.baseResourceAddress);
+          const nonXrdDerivativeTokenAddress = isBaseXrdDerivative
+            ? pool.quoteResourceAddress
+            : pool.baseResourceAddress;
+          const xrdDerivativeTokenAddress = isBaseXrdDerivative
+            ? pool.baseResourceAddress
+            : pool.quoteResourceAddress;
+
+          const nonXrdDerivativeTokenName = yield* tokenNameService(
+            nonXrdDerivativeTokenAddress
+          );
+          const xrdDerivativeTokenName = yield* tokenNameService(
+            xrdDerivativeTokenAddress
+          );
+          const activityId =
+            `defiPlaza_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
+
+          const currentAmount =
+            defiPlazaByPool.get(activityId) ?? new BigNumber(0);
+          const xrdDerivativeAmount = toXrdEquivalent(
+            xrdDerivativePosition.amount,
+            xrdDerivativePosition.resourceAddress,
+            accountBalance.lsulp.lsulpValue
+          );
+
+          defiPlazaByPool.set(
+            activityId,
+            currentAmount.plus(xrdDerivativeAmount)
+          );
+        }
+      }
+    }
+
+    // Add results for pools with positions
+    for (const [activityId, xrdAmount] of defiPlazaByPool.entries()) {
+      output.push({
+        activityId,
+        usdValue: yield* xrdToUsd(xrdAmount),
+      });
+    }
+
+    // Add zero entries for pools without positions
+    for (const pool of Object.values(DefiPlaza)) {
+      const isBaseXrdDerivative = isXrdOrLsulp(pool.baseResourceAddress);
+      const isQuoteXrdDerivative = isXrdOrLsulp(pool.quoteResourceAddress);
+
+      if (isBaseXrdDerivative || isQuoteXrdDerivative) {
+        const nonXrdDerivativeTokenAddress = isBaseXrdDerivative
+          ? pool.quoteResourceAddress
+          : pool.baseResourceAddress;
+        const xrdDerivativeTokenAddress = isBaseXrdDerivative
+          ? pool.baseResourceAddress
+          : pool.quoteResourceAddress;
+
+        const nonXrdDerivativeTokenName = yield* tokenNameService(
+          nonXrdDerivativeTokenAddress
+        );
+        const xrdDerivativeTokenName = yield* tokenNameService(
+          xrdDerivativeTokenAddress
+        );
+        const activityId =
+          `defiPlaza_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
+
+        if (!defiPlazaByPool.has(activityId)) {
+          output.push({
+            activityId,
+            usdValue: yield* xrdToUsd(new BigNumber(0)),
+          });
+        }
+      }
+    }
+
+    return output;
+  });
 
 export type XrdBalanceInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -25,8 +427,8 @@ export class XrdBalanceService extends Context.Tag("XrdBalanceService")<
     input: XrdBalanceInput
   ) => Effect.Effect<
     XrdBalanceOutput[],
-    InvalidResourceAddressError | PriceServiceApiError,
-    GetUsdValueService
+    GetUsdValueServiceError | UnknownTokenError,
+    GetUsdValueService | TokenNameService
   >
 >() {}
 
@@ -34,170 +436,46 @@ export const XrdBalanceLive = Layer.effect(
   XrdBalanceService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
+    const tokenNameService = yield* TokenNameService;
+
     return (input) =>
       Effect.gen(function* () {
-        const output: AccountBalanceData[] = [];
-
-        const xrdToUsdValue = (amount: BigNumber) =>
+        // Create reusable XRD to USD converter
+        const xrdToUsd = (amount: BigNumber) =>
           getUsdValueService({
             amount,
             resourceAddress: Assets.Fungible.XRD,
             timestamp: input.timestamp,
           }).pipe(Effect.map((usdValue) => usdValue.toString()));
 
-        const xrd =
-          input.accountBalance.fungibleTokenBalances.find(
-            (resource) => resource.resourceAddress === Assets.Fungible.XRD
-          )?.amount ?? new BigNumber(0);
+        // Process all different types of XRD holdings in parallel
+        const [
+          basicHoldings,
+          lendingHoldings,
+          caviarNineHoldings,
+          defiPlazaHoldings,
+        ] = yield* Effect.all([
+          processBasicXrdHoldings(input.accountBalance, xrdToUsd),
+          processLendingProtocols(input.accountBalance, xrdToUsd),
+          processCaviarNinePools(
+            input.accountBalance,
+            xrdToUsd,
+            tokenNameService
+          ),
+          processDefiPlazaPools(
+            input.accountBalance,
+            xrdToUsd,
+            tokenNameService
+          ),
+        ]);
 
-        output.push({
-          activityId: "hold_xrd",
-          usdValue: yield* xrdToUsdValue(xrd),
-        });
-
-        const stakedXrd = input.accountBalance.staked.reduce(
-          (acc, item) => acc.plus(item.xrdAmount),
-          new BigNumber(0)
-        );
-
-        output.push({
-          activityId: "hold_stakedXrd",
-          usdValue: yield* xrdToUsdValue(stakedXrd),
-        });
-
-        const unstakedXrd = input.accountBalance.unstaked.reduce(
-          (acc, item) => acc.plus(item.amount),
-          new BigNumber(0)
-        );
-
-        output.push({
-          activityId: "hold_unstakedXrd",
-          usdValue: yield* xrdToUsdValue(unstakedXrd),
-        });
-
-        const lsulp = input.accountBalance.lsulp.amount.multipliedBy(
-          input.accountBalance.lsulp.lsulpValue
-        );
-
-        output.push({
-          activityId: "hold_lsulp",
-          usdValue: yield* xrdToUsdValue(lsulp),
-        });
-
-        const rootFinanceLending =
-          input.accountBalance.rootFinancePositions.reduce(
-            (acc, position) => {
-              // Check XRD collaterals
-              if (position.collaterals?.[Assets.Fungible.XRD]) {
-                acc.xrd = acc.xrd.plus(
-                  position.collaterals[Assets.Fungible.XRD] ?? 0
-                );
-              }
-
-              // Check LSULP collaterals
-              if (
-                position.collaterals?.[
-                  CaviarNineConstants.LSULP.resourceAddress
-                ]
-              ) {
-                acc.lsulp = acc.lsulp.plus(
-                  position.collaterals[
-                    CaviarNineConstants.LSULP.resourceAddress
-                  ] ?? 0
-                );
-              }
-
-              return acc;
-            },
-            { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
-          ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
-
-        output.push({
-          activityId: "root_hold_xrd",
-          usdValue: yield* xrdToUsdValue(rootFinanceLending.xrd),
-        });
-
-        output.push({
-          activityId: "root_hold_lsulp",
-          usdValue: yield* xrdToUsdValue(rootFinanceLending.lsulp),
-        });
-
-        const weftFinanceLending =
-          input.accountBalance.weftFinancePositions.reduce(
-            (acc, position) => {
-              if (
-                position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD
-              ) {
-                acc.xrd = acc.xrd.plus(position.unwrappedAsset.amount);
-              }
-
-              if (
-                position.unwrappedAsset.resourceAddress ===
-                CaviarNineConstants.LSULP.resourceAddress
-              ) {
-                acc.lsulp = acc.lsulp.plus(position.unwrappedAsset.amount);
-              }
-
-              return acc;
-            },
-            { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
-          ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
-
-        output.push({
-          activityId: "weft_hold_xrd",
-          usdValue: yield* xrdToUsdValue(weftFinanceLending.xrd),
-        });
-
-        output.push({
-          activityId: "weft_hold_lsulp",
-          usdValue: yield* xrdToUsdValue(weftFinanceLending.lsulp),
-        });
-
-        const caviarNine =
-          input.accountBalance.caviarninePositions.xrdUsdc.reduce(
-            (acc, item) => {
-              // Only count XRD tokens from either xToken or yToken
-              if (item.xToken.resourceAddress === Assets.Fungible.XRD) {
-                acc.xrd = acc.xrd
-                  .plus(item.xToken.withinPriceBounds)
-                  .plus(item.xToken.outsidePriceBounds);
-              }
-              if (item.yToken.resourceAddress === Assets.Fungible.XRD) {
-                acc.xrd = acc.xrd
-                  .plus(item.yToken.withinPriceBounds)
-                  .plus(item.yToken.outsidePriceBounds);
-              }
-
-              return acc;
-            },
-            { xrd: new BigNumber(0) }
-          );
-
-        output.push({
-          activityId: "c9_hold_xrd-xusdc",
-          usdValue: yield* xrdToUsdValue(caviarNine.xrd),
-        });
-
-        const defiPlaza = input.accountBalance.defiPlazaPositions.items.reduce(
-          (acc, lpPosition) => {
-            // Find XRD positions in DefiPlaza LP
-            const xrdPosition = lpPosition.position.find(
-              (pos) => pos.resourceAddress === Assets.Fungible.XRD
-            );
-            if (xrdPosition) {
-              acc.xrd = acc.xrd.plus(xrdPosition.amount);
-            }
-            return acc;
-          },
-          { xrd: new BigNumber(0) }
-        );
-
-        output.push({
-          activityId: "defiPlaza_hold_xrd-xusdc",
-          usdValue: yield* xrdToUsdValue(defiPlaza.xrd),
-        });
-
-        return output;
+        // Combine all results
+        return [
+          ...basicHoldings,
+          ...lendingHoldings,
+          ...caviarNineHoldings,
+          ...defiPlazaHoldings,
+        ];
       });
   })
 );

@@ -92,7 +92,7 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
         >();
 
         const pools = yield* getResourcePoolUnitsService({
-          addresses: [DefiPlaza.xUSDCPool.poolAddress],
+          addresses: Object.values(DefiPlaza).map(pool => pool.poolAddress),
           at_ledger_state: input.at_ledger_state,
         });
 

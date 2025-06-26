@@ -53,6 +53,14 @@ const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
     name: "Provide stables liquidity to a DEX",
   },
   {
+    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+    name: "Provide blue chip liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideNativeLiquidityToDex,
+    name: "Provide native liquidity to a DEX",
+  },
+  {
     id: ActivityCategoryKey.tradingVolume,
     name: "Trading volume",
   },
@@ -88,7 +96,7 @@ const activityCategoryResults = await db
 console.log("Activity categories seeded", activityCategoryResults);
 
 const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
-  // DEX LP activities
+  // DEX stable LP activities
   {
     id: "c9_lp_xrd-xusdc",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
@@ -96,6 +104,38 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
   {
     id: "defiPlaza_lp_xrd-xusdc",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "c9_lp_xrd-xusdt",
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xrd-xusdt",
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+
+  // DEX blue chip LP activities
+  {
+    id: "c9_lp_xrd-xeth",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "c9_lp_xrd-xwbtc",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xrd-xeth",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xrd-xwbtc",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+
+  // DEX native LP activities
+  {
+    id: "c9_lp_lsulp-xrd",
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
 
   // DEX trading activities
@@ -152,7 +192,35 @@ const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] = [
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
+    id: "c9_hold_xrd-xwbtc",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_xrd-xusdt",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_xeth-xrd",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
     id: "defiPlaza_hold_xrd-xusdc",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xrd-xusdt",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xrd-xwbtc",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xeth-xrd",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_lsulp-xrd",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
 
