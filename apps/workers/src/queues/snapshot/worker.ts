@@ -8,7 +8,7 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
     addresses: input.data.addresses,
     timestamp: new Date(input.data.timestamp),
     jobId: input.id,
-    addDummyData: input.data.addDummyData
+    addDummyData: input.data.addDummyData,
   });
 
   if (Exit.isFailure(result)) {
@@ -20,10 +20,18 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
     }
 
     if (result.cause._tag === "Die") {
-      // @ts-ignore
-      const enhancedError = new Error(result.cause.defect.message);
-      // @ts-ignore
-      enhancedError.stack = result.cause.defect.stack as string;
+      const enhancedError = new Error("unhandled error");
+
+      if (
+        result.cause.defect !== null &&
+        typeof result.cause.defect === "object" &&
+        "stack" in result.cause.defect
+      ) {
+        enhancedError.stack = `${result.cause.defect.stack}`;
+      } else {
+        enhancedError.stack = JSON.stringify(result.cause.defect, null, 2);
+      }
+
       enhancedError.cause = "unhandled error";
       throw enhancedError;
     }
