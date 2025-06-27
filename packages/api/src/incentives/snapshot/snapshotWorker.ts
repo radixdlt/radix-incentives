@@ -1,26 +1,68 @@
 import { Context, Layer, Effect } from "effect";
+import { DbClientService, DbError } from "../db/dbClient";
+import { and, gt, lte } from "drizzle-orm";
 
-import { SnapshotService } from "./snapshot";
+import { SnapshotService, type SnapshotServiceError } from "./snapshot";
 
-export type SnapshotWorkerInput = any;
-export type SnapshotWorkerOutput = any;
-export type SnapshotWorkerError = any;
+import { z } from "zod";
+import { weeks } from "db/incentives";
+import { CalculateActivityPointsService } from "../activity-points/calculateActivityPoints";
+
+export const snapshotJobSchema = z.object({
+  addresses: z.array(z.string()).optional(),
+  timestamp: z.date(),
+  addDummyData: z.boolean().optional(),
+  jobId: z.string(),
+  batchSize: z.number().optional(),
+});
+
+export type SnapshotWorkerInput = z.infer<typeof snapshotJobSchema>;
+
+export type SnapshotWorkerError = SnapshotServiceError | DbError;
 
 export class SnapshotWorkerService extends Context.Tag("SnapshotWorkerService")<
   SnapshotWorkerService,
-  (
-    input: SnapshotWorkerInput
-  ) => Effect.Effect<SnapshotWorkerOutput, SnapshotWorkerError>
+  (input: SnapshotWorkerInput) => Effect.Effect<void, SnapshotWorkerError>
 >() {}
 
 export const SnapshotWorkerLive = Layer.effect(
   SnapshotWorkerService,
   Effect.gen(function* () {
     const snapshotService = yield* SnapshotService;
+    const db = yield* DbClientService;
+    const calculateActivityPoints = yield* CalculateActivityPointsService;
 
     return (input) => {
       return Effect.gen(function* () {
-        const snapshot = yield* snapshotService(input);
+        yield* Effect.log("Snapshot started", input);
+
+        yield* snapshotService(input);
+
+        // If addresses are provided, skip activity points calculation
+        if (input.addresses) {
+          return;
+        }
+
+        const maybeWeek = yield* Effect.tryPromise({
+          try: () =>
+            db.query.weeks.findFirst({
+              where: and(
+                lte(weeks.startDate, input.timestamp),
+                gt(weeks.endDate, input.timestamp)
+              ),
+            }),
+          catch: (error) => new DbError(error),
+        });
+
+        if (!maybeWeek) {
+          yield* Effect.log(
+            "No week found, skipping activity points calculation"
+          );
+          return;
+        }
+
+        yield* Effect.log("Calculating activity points for week", maybeWeek.id);
+        yield* calculateActivityPoints({ weekId: maybeWeek.id, addresses: [] });
       });
     };
   })

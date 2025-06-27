@@ -1,13 +1,15 @@
 import { dependencyLayer } from "api/incentives";
-import type { SnapshotJob } from "./schemas";
+
 import type { Job } from "bullmq";
 import { Exit } from "effect";
+import type { SnapshotJob } from "./schemas";
 
 export const snapshotWorker = async (input: Job<SnapshotJob>) => {
-  const result = await dependencyLayer.snapshot({
+  const result = await dependencyLayer.snapshotWorker({
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    jobId: input.id!,
     addresses: input.data.addresses,
     timestamp: new Date(input.data.timestamp),
-    jobId: input.id,
     addDummyData: input.data.addDummyData,
   });
 

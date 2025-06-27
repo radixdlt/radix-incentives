@@ -67,38 +67,36 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
   return chunks;
 };
 
+export type SnapshotServiceError =
+  | GetAllValidatorsError
+  | GetEntityDetailsError
+  | LsulpNotFoundError
+  | InvalidEntityAddressError
+  | InvalidResourceError
+  | InvalidNativeResourceKindError
+  | InvalidAmountError
+  | EntityDetailsNotFoundError
+  | FailedToParseLendingPoolSchemaError
+  | ParseSborError
+  | InvalidRootReceiptItemError
+  | FailedToParseLendingPoolStateError
+  | FailedToParsePoolStatesKeyError
+  | MissingConversionRatioError
+  | InvalidStateInputError
+  | FailedToParseComponentStateError
+  | GatewayError
+  | EntityNotFoundError
+  | InvalidInputError
+  | InvalidComponentStateError
+  | FailedToParseLiquidityClaimsError
+  | GetDefiPlazaPositionsError
+  | UnknownTokenError
+  | DbError
+  | SnapshotError;
+
 export class SnapshotService extends Context.Tag("SnapshotService")<
   SnapshotService,
-  (
-    input: SnapshotInput
-  ) => Effect.Effect<
-    void,
-    | GetAllValidatorsError
-    | GetEntityDetailsError
-    | LsulpNotFoundError
-    | InvalidEntityAddressError
-    | InvalidResourceError
-    | InvalidNativeResourceKindError
-    | InvalidAmountError
-    | EntityDetailsNotFoundError
-    | FailedToParseLendingPoolSchemaError
-    | ParseSborError
-    | InvalidRootReceiptItemError
-    | FailedToParseLendingPoolStateError
-    | FailedToParsePoolStatesKeyError
-    | MissingConversionRatioError
-    | InvalidStateInputError
-    | FailedToParseComponentStateError
-    | GatewayError
-    | EntityNotFoundError
-    | InvalidInputError
-    | InvalidComponentStateError
-    | FailedToParseLiquidityClaimsError
-    | GetDefiPlazaPositionsError
-    | UnknownTokenError
-    | DbError
-    | SnapshotError
-  >
+  (input: SnapshotInput) => Effect.Effect<void, SnapshotServiceError>
 >() {}
 
 export const SnapshotLive = Layer.effect(
