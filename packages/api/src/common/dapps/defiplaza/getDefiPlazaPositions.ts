@@ -1,5 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
+import BigNumber from "bignumber.js";
 
 import {
   type GetFungibleBalanceOutput,
@@ -141,12 +142,14 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
             ) => {
               const map = new Map<string, BigNumber>();
               for (const r of resourcesA) {
-                map.set(r.resourceAddress, r.amount);
+                map.set(r.resourceAddress, r.amount ?? new BigNumber(0));
               }
               for (const r of resourcesB) {
-                const prev =
-                  map.get(r.resourceAddress) ?? r.amount.constructor(0);
-                map.set(r.resourceAddress, prev.plus(r.amount));
+                const prev = map.get(r.resourceAddress) ?? new BigNumber(0);
+                map.set(
+                  r.resourceAddress,
+                  prev.plus(r.amount ?? new BigNumber(0))
+                );
               }
               return Array.from(map.entries()).map(
                 ([resourceAddress, amount]) => ({ resourceAddress, amount })
@@ -169,20 +172,18 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
                   }))
                 : [];
 
-            let position = sumResourceAmounts(basePosition, quotePosition);
+            const position = sumResourceAmounts(basePosition, quotePosition);
 
-            // If user holds neither LP, return both resource addresses with amount 0
-            if (!baseLp && !quoteLp) {
-              // Use a BigNumber instance from totalSupply or fallback to 0
-              const zero =
-                basePool?.totalSupply?.constructor(0) ??
-                quotePool?.totalSupply?.constructor(0) ??
-                0;
-              position = [
-                { resourceAddress: pool.baseResourceAddress, amount: zero },
-                { resourceAddress: pool.quoteResourceAddress, amount: zero },
-              ];
-            }
+            // Ensure both base and quote resources are present in the position array
+            const ensureResource = (resourceAddress: string) => {
+              if (
+                !position.some((p) => p.resourceAddress === resourceAddress)
+              ) {
+                position.push({ resourceAddress, amount: new BigNumber(0) });
+              }
+            };
+            ensureResource(pool.baseResourceAddress);
+            ensureResource(pool.quoteResourceAddress);
 
             // Use baseLpResourceAddress as the pool key for output (as before)
             const items = accountBalancesMap.get(accountBalance.address) ?? [];
