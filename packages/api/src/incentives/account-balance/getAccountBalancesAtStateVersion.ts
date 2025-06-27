@@ -62,6 +62,12 @@ import {
   GetDefiPlazaPositionsService,
   type GetDefiPlazaPositionsError,
 } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
+import {
+  type GetHyperstakePositionsOutput,
+  GetHyperstakePositionsService,
+  type GetHyperstakePositionsError,
+  type GetHyperstakePositionsDependencies,
+} from "../../common/dapps/caviarnine/getHyperstakePositions";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
@@ -112,6 +118,8 @@ type CaviarNinePosition = {
 
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
 
+type HyperstakePosition = GetHyperstakePositionsOutput[number];
+
 export type AccountBalance = {
   address: string;
   staked: Lsu[];
@@ -123,6 +131,7 @@ export type AccountBalance = {
   rootFinancePositions: RootFinancePosition[];
   caviarninePositions: CaviarNinePosition;
   defiPlazaPositions: DefiPlazaPosition;
+  hyperstakePositions: HyperstakePosition;
 };
 
 export type GetAccountBalancesAtStateVersionServiceError =
@@ -147,7 +156,23 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | InvalidInputError
   | InvalidComponentStateError
   | FailedToParseLiquidityClaimsError
-  | GetDefiPlazaPositionsError;
+  | GetDefiPlazaPositionsError
+  | GetHyperstakePositionsError;
+
+export type GetAccountBalancesAtStateVersionServiceDependencies =
+  | GetFungibleBalanceService
+  | GetNonFungibleBalanceService
+  | GetUserStakingPositionsService
+  | GetLsulpService
+  | GetLsulpValueService
+  | ConvertLsuToXrdService
+  | GetWeftFinancePositionsService
+  | GetRootFinancePositionsService
+  | GetLedgerStateService
+  | GetShapeLiquidityAssetsService
+  | GetDefiPlazaPositionsService
+  | GetHyperstakePositionsService
+  | GetHyperstakePositionsDependencies;
 
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
@@ -162,7 +187,8 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
       items: AccountBalance[];
       ledgerState: LedgerState;
     },
-    GetAccountBalancesAtStateVersionServiceError
+    GetAccountBalancesAtStateVersionServiceError,
+    GetAccountBalancesAtStateVersionServiceDependencies
   >
 >() {}
 
@@ -184,6 +210,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
     const getShapeLiquidityAssetsService =
       yield* GetShapeLiquidityAssetsService;
     const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
+    const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -229,7 +256,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         );
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, hyperstake positions, lsulp value"
         );
         const [
           userStakingPositions,
@@ -238,6 +265,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allRootFinancePositions,
           allCaviarNineShapeLiquidityAssets,
           allDefiPlazaPositions,
+          allHyperstakePositions,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -287,6 +315,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getDefiPlazaPositionsService")),
+            getHyperstakePositionsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getHyperstakePositionsService")),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -353,6 +386,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allDefiPlazaPositions.map((item) => [item.address, item])
         );
 
+        const hyperstakeMap = new Map(
+          allHyperstakePositions.map((item) => [item.address, item])
+        );
+
         const accountBalances = yield* Effect.forEach(
           input.addresses,
           (address) =>
@@ -399,6 +436,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               const accountDefiPlazaPositions: DefiPlazaPosition =
                 defiPlazaMap.get(address) ?? { address, items: [] };
 
+              const accountHyperstakePositions: HyperstakePosition =
+                hyperstakeMap.get(address) ?? { address, items: [] };
+
               const caviarninePositions: CaviarNinePosition = {};
               for (const poolData of allCaviarNineShapeLiquidityAssets) {
                 const poolKey = poolData.pool.name
@@ -421,6 +461,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 rootFinancePositions,
                 caviarninePositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
+                hyperstakePositions: accountHyperstakePositions,
               } satisfies AccountBalance;
             })
         ).pipe(Effect.withSpan("PositionsToAccountBalance"));

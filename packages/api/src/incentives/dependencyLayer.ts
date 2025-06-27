@@ -28,6 +28,7 @@ import { GetQuantaSwapBinMapLive } from "../common/dapps/caviarnine/getQuantaSwa
 import { GetShapeLiquidityClaimsLive } from "../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShapeLiquidityAssets";
 import { GetDefiPlazaPositionsLive } from "../common/dapps/defiplaza/getDefiPlazaPositions";
+import { GetHyperstakePositionsLive } from "../common/dapps/caviarnine/getHyperstakePositions";
 import { GetResourcePoolUnitsLive } from "../common/resource-pool/getResourcePoolUnits";
 import {
   SnapshotService,
@@ -282,6 +283,11 @@ const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
   Layer.provide(getResourcePoolUnitsLive)
 );
 
+const getHyperstakePositionsLive = GetHyperstakePositionsLive.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getResourcePoolUnitsLive)
+);
+
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(tokenNameServiceLive)
@@ -322,6 +328,7 @@ const dappsLive = Layer.mergeAll(
   getWeftFinancePositionsLive,
   getRootFinancePositionLive,
   getDefiPlazaPositionsLive,
+  getHyperstakePositionsLive,
   getShapeLiquidityAssetsLive,
   getShapeLiquidityClaimsLive,
   getQuantaSwapBinMapLive

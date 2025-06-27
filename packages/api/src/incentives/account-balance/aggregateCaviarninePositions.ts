@@ -68,7 +68,6 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           // Get token names for the pair
           const xTokenName = yield* tokenNameService(xToken.resourceAddress);
           const yTokenName = yield* tokenNameService(yToken.resourceAddress);
-          const tokenPair = `${xTokenName}_${yTokenName}`;
 
           const totals = poolAssets.reduce(
             (acc, item) => {
@@ -116,7 +115,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             activityId,
             usdValue: totalNonXrdDerivativeUsdValue.toString(),
             metadata: {
-              tokenPair,
+              tokenPair: `${xTokenName}_${yTokenName}`,
               baseToken: {
                 resourceAddress: xToken.resourceAddress,
                 amount: totals.totalXToken.toString(),
@@ -131,6 +130,47 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           });
         }
 
+        // Process Hyperstake positions (simple pool - LSULP/XRD)
+        let totalLsulpAmount = new BigNumber(0);
+        let totalXrdAmount = new BigNumber(0);
+
+        for (const hyperstakeItem of input.accountBalance.hyperstakePositions
+          .items) {
+          for (const position of hyperstakeItem.position) {
+            if (
+              position.resourceAddress ===
+              CaviarNineConstants.LSULP.resourceAddress
+            ) {
+              totalLsulpAmount = totalLsulpAmount.plus(position.amount);
+            } else if (position.resourceAddress === Assets.Fungible.XRD) {
+              totalXrdAmount = totalXrdAmount.plus(position.amount);
+            }
+          }
+        }
+
+        // Hyperstake is LSULP/XRD pool, both are XRD derivatives, so USD value is 0
+        // But we track the amounts for XRD holding calculations
+        const hyperstakeActivityId = "c9_lp_hyperstake" as ActivityId;
+        processedPools.add(hyperstakeActivityId);
+
+        results.push({
+          activityId: hyperstakeActivityId,
+          usdValue: "0", // XRD derivatives don't count towards USD value
+          metadata: {
+            tokenPair: "lsulp_xrd",
+            baseToken: {
+              resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
+              amount: totalLsulpAmount.toString(),
+              isXrdOrDerivative: true,
+            },
+            quoteToken: {
+              resourceAddress: Assets.Fungible.XRD,
+              amount: totalXrdAmount.toString(),
+              isXrdOrDerivative: true,
+            },
+          },
+        });
+
         // Add zero entries for pools with no positions
         for (const pool of Object.values(
           CaviarNineConstants.shapeLiquidityPools
@@ -140,11 +180,55 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
 
           if (!processedPools.has(activityId)) {
+            // Determine which tokens are XRD derivatives
+            const isXTokenXrdDerivative =
+              pool.token_x === Assets.Fungible.XRD ||
+              pool.token_x === CaviarNineConstants.LSULP.resourceAddress;
+            const isYTokenXrdDerivative =
+              pool.token_y === (Assets.Fungible.XRD as string) ||
+              pool.token_y ===
+                (CaviarNineConstants.LSULP.resourceAddress as string);
+
             results.push({
               activityId,
               usdValue: "0",
+              metadata: {
+                tokenPair: `${xTokenName}_${yTokenName}`,
+                baseToken: {
+                  resourceAddress: pool.token_x,
+                  amount: "0",
+                  isXrdOrDerivative: isXTokenXrdDerivative,
+                },
+                quoteToken: {
+                  resourceAddress: pool.token_y,
+                  amount: "0",
+                  isXrdOrDerivative: isYTokenXrdDerivative,
+                },
+              },
             });
           }
+        }
+
+        // Add zero entry for Hyperstake if not processed
+        const hyperstakeActivityIdCheck = "c9_lp_hyperstake" as ActivityId;
+        if (!processedPools.has(hyperstakeActivityIdCheck)) {
+          results.push({
+            activityId: hyperstakeActivityIdCheck,
+            usdValue: "0",
+            metadata: {
+              tokenPair: "lsulp_xrd",
+              baseToken: {
+                resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
+                amount: "0",
+                isXrdOrDerivative: true,
+              },
+              quoteToken: {
+                resourceAddress: Assets.Fungible.XRD,
+                amount: "0",
+                isXrdOrDerivative: true,
+              },
+            },
+          });
         }
 
         return results;
