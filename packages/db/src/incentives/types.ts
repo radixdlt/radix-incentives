@@ -6,6 +6,8 @@ export const ActivityCategoryKey = {
   provideBlueChipLiquidityToDex: "provideBlueChipLiquidityToDex",
   provideNativeLiquidityToDex: "provideNativeLiquidityToDex",
   lendingStables: "lendingStables",
+  lendingBlueChips: "lendingBlueChips",
+  lendingNative: "lendingNative",
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",
   common: "common",

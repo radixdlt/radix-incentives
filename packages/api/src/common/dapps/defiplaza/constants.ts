@@ -27,18 +27,18 @@ export const DefiPlaza = {
     poolAddress:
       "pool_rdx1ckt7dhmt5gr9vdsgz3p62fm88pm7f69kzzqw2268f3negvgns2xkpa",
     lpResourceAddress:
-      "resource_rdx1thnmcry6e02x6ja73llm8z6pkrurvrsudgez4ammsp24r0v20rllxt",
+      "resource_rdx1t5k00sp4jejklp8cx6nw7ecvhz7z07mfexgmdyflgqpflfvzv8v7wd",
     baseResourceAddress: Assets.Fungible.xETH,
     quoteResourceAddress: Assets.Fungible.XRD,
     componentAddress:
       "component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars",
   },
-  xwBTC_XRD: {
+  xwBTCPool: {
     type: "component",
     poolAddress:
       "pool_rdx1c5xlqz5uc62fzlsyl2f3ql6lx8upc75tdpe4f8cmys83lpqrrul976",
     lpResourceAddress:
-      "resource_rdx1thnmcry6e02x6ja73llm8z6pkrurvrsudgez4ammsp24r0v20rllxt",
+      "resource_rdx1t4x7f34hec2jxtay6cvxvcq3skmkg9pwtr98m4dm7qfrvnaddlavgv",
     baseResourceAddress: Assets.Fungible.wxBTC,
     quoteResourceAddress: Assets.Fungible.XRD,
     componentAddress:

@@ -44,7 +44,6 @@ const [weekResult] = await db
 
 console.log("Week seeded", weekResult);
 
-
 const activityCategoryResults = await db
   .insert(activityCategories)
   .values(activityCategoriesToSeed)
