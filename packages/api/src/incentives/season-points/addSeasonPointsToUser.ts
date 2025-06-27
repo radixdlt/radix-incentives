@@ -19,7 +19,6 @@ export type AddSeasonPointsToUserOutput = {
   points: BigNumber;
 }[];
 
-export type AddSeasonPointsToUserServiceDependencies = DbClientService;
 export type AddSeasonPointsToUserServiceError = DbError;
 
 export class AddSeasonPointsToUserService extends Context.Tag(
@@ -28,11 +27,7 @@ export class AddSeasonPointsToUserService extends Context.Tag(
   AddSeasonPointsToUserService,
   (
     input: AddSeasonPointsToUserInput
-  ) => Effect.Effect<
-    void,
-    AddSeasonPointsToUserServiceError,
-    AddSeasonPointsToUserServiceDependencies
-  >
+  ) => Effect.Effect<void, AddSeasonPointsToUserServiceError>
 >() {}
 
 export const AddSeasonPointsToUserLive = Layer.effect(

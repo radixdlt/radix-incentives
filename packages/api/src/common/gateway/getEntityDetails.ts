@@ -31,7 +31,7 @@ export class GetEntityDetailsService extends Context.Tag(
     input: GetEntityDetailsInput,
     options: GetEntityDetailsOptions,
     at_ledger_state: AtLedgerState
-  ) => Effect.Effect<GetEntityDetailsResult, GetEntityDetailsError, never>
+  ) => Effect.Effect<GetEntityDetailsResult, GetEntityDetailsError>
 >() {}
 
 export const GetEntityDetailsServiceLive = Layer.effect(

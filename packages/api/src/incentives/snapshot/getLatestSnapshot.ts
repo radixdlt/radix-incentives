@@ -13,7 +13,7 @@ export class GetLatestSnapshotService extends Context.Tag(
   GetLatestSnapshotService,
   (
     input: GetLatestSnapshotInput
-  ) => Effect.Effect<Snapshot | undefined, DbError, DbClientService>
+  ) => Effect.Effect<Snapshot | undefined, DbError>
 >() {}
 
 export const GetLatestSnapshotLive = Layer.effect(

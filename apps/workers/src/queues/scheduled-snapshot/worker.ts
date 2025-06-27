@@ -1,4 +1,4 @@
-import { getHourStartInUTC } from "../helpers/getHourStartInUTC";
+import { getHourStartInUTC } from "../../helpers/getHourStartInUTC";
 import { snapshotQueue } from "../snapshot/queue";
 
 export const scheduledSnapshotWorker = async () => {

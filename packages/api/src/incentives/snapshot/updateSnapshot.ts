@@ -11,7 +11,7 @@ export type UpdateSnapshotInput = {
 
 export class UpdateSnapshotService extends Context.Tag("UpdateSnapshotService")<
   UpdateSnapshotService,
-  (input: UpdateSnapshotInput) => Effect.Effect<void, DbError, DbClientService>
+  (input: UpdateSnapshotInput) => Effect.Effect<void, DbError>
 >() {}
 
 export const UpdateSnapshotLive = Layer.effect(

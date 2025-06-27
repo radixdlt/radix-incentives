@@ -21,7 +21,7 @@ export class GetUsersPaginatedService extends Context.Tag(
   (input: {
     page: number;
     limit: number;
-  }) => Effect.Effect<GetUsersPaginatedResponse, DbError, DbClientService>
+  }) => Effect.Effect<GetUsersPaginatedResponse, DbError>
 >() {}
 
 export const GetUsersPaginatedLive = Layer.effect(

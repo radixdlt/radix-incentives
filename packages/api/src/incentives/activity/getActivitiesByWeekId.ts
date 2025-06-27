@@ -25,11 +25,7 @@ export class GetActivitiesByWeekIdService extends Context.Tag(
     weekId: string;
     excludeCategories?: ActivityCategoryKey[];
     includeCategories?: ActivityCategoryKey[];
-  }) => Effect.Effect<
-    ActivityWeek[],
-    GetActivitiesByWeekIdError,
-    DbClientService
-  >
+  }) => Effect.Effect<ActivityWeek[], GetActivitiesByWeekIdError>
 >() {}
 
 export const GetActivitiesByWeekIdLive = Layer.effect(

@@ -5,7 +5,6 @@ import { type Week, weeks } from "db/incentives";
 import { eq } from "drizzle-orm";
 
 export type UpdateWeekStatusError = DbError;
-export type UpdateWeekStatusServiceDependency = DbClientService;
 
 export class UpdateWeekStatusService extends Context.Tag(
   "UpdateWeekStatusService"
@@ -14,11 +13,7 @@ export class UpdateWeekStatusService extends Context.Tag(
   (input: {
     id: string;
     status: Week["status"];
-  }) => Effect.Effect<
-    void,
-    UpdateWeekStatusError,
-    UpdateWeekStatusServiceDependency
-  >
+  }) => Effect.Effect<void, UpdateWeekStatusError>
 >() {}
 
 export const UpdateWeekStatusLive = Layer.effect(

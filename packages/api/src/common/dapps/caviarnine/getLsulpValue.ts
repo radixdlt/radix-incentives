@@ -1,14 +1,10 @@
 import { Context, Effect, Layer } from "effect";
 import {
   type InvalidInputError,
-  type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from "../../gateway/getFungibleBalance";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 
-import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import { BigNumber } from "bignumber.js";
 import type {
   ProgrammaticScryptoSborValue,
@@ -41,8 +37,7 @@ export class GetLsulpValueService extends Context.Tag("GetLsulpValueService")<
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
-    | InvalidEntityAddressError,
-    GetLedgerStateService | GatewayApiClientService | EntityFungiblesPageService
+    | InvalidEntityAddressError
   >
 >() {}
 

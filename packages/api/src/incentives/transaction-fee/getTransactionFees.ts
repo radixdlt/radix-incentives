@@ -23,7 +23,7 @@ export class GetTransactionFeesService extends Context.Tag(
   GetTransactionFeesService,
   (
     input: GetTransactionFeesServiceInput
-  ) => Effect.Effect<GetTransactionFeesServiceOutput, DbError, DbClientService>
+  ) => Effect.Effect<GetTransactionFeesServiceOutput, DbError>
 >() {}
 
 export const GetTransactionFeesPaginatedLive = Layer.effect(

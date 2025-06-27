@@ -1,11 +1,12 @@
-import { createQueue } from "../queue/createQueue";
-import { redisClient } from "../redis";
+import { createQueue } from "../createQueue";
+import { redisClient } from "../../redis";
 import { snapshotWorker } from "./worker";
 import type { SnapshotJob } from "./schemas";
 import { Effect } from "effect";
+import { QueueName } from "../types";
 
 export const snapshotQueue = createQueue<SnapshotJob, void>({
-  name: "snapshot",
+  name: QueueName.snapshot,
   redisClient,
   worker: snapshotWorker,
   onError: async (job, error) => {
@@ -24,11 +25,11 @@ export const snapshotQueue = createQueue<SnapshotJob, void>({
   },
   workerOptions: {
     connection: redisClient,
-    stalledInterval: 180000, 
+    stalledInterval: 180000,
     maxStalledCount: 2, // Allow 2 stalls before marking as failed
     lockDuration: 300000, // Lock jobs for 5 minutes
-    concurrency: 1 // Process one job at a time to prevent overload
-  }
+    concurrency: 1, // Process one job at a time to prevent overload
+  },
 });
 
 // Configure queue options
@@ -37,7 +38,7 @@ Object.assign(snapshotQueue.queue.defaultJobOptions, {
   removeOnFail: { count: 10000 }, // Keep last 10000 failed jobs
   attempts: 3,
   backoff: {
-    type: 'exponential',
-    delay: 1000
-  }
+    type: "exponential",
+    delay: 1000,
+  },
 });

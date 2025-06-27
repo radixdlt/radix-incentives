@@ -38,8 +38,7 @@ export class AggregateDefiPlazaPositionsService extends Context.Tag(
     input: AggregateDefiPlazaPositionsInput
   ) => Effect.Effect<
     AggregateDefiPlazaPositionsOutput[],
-    GetUsdValueServiceError | UnknownTokenError | InvalidDefiPlazaPositionError,
-    GetUsdValueService | TokenNameService
+    GetUsdValueServiceError | UnknownTokenError | InvalidDefiPlazaPositionError
   >
 >() {}
 
@@ -102,12 +101,14 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           const token2Name = yield* tokenNameService(position2.resourceAddress);
 
           // Determine which tokens are XRD derivatives (XRD or LSULP)
-          const isToken1XrdDerivative = 
+          const isToken1XrdDerivative =
             position1.resourceAddress === Assets.Fungible.XRD ||
-            position1.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
-          const isToken2XrdDerivative = 
+            position1.resourceAddress ===
+              CaviarNineConstants.LSULP.resourceAddress;
+          const isToken2XrdDerivative =
             position2.resourceAddress === Assets.Fungible.XRD ||
-            position2.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
+            position2.resourceAddress ===
+              CaviarNineConstants.LSULP.resourceAddress;
 
           // Calculate USD value of all non-XRD derivative tokens
           let totalUsdValue = new BigNumber(0);

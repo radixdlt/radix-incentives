@@ -8,7 +8,6 @@ import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-  type GetNonFungibleBalanceServiceDependencies,
   type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
 import { RootFinance } from "./constants";
@@ -86,15 +85,6 @@ export type GetRootFinancePositionsServiceError =
   | FailedToParsePoolStatesKeyError
   | MissingConversionRatioError;
 
-export type GetRootFinancePositionsServiceDependencies =
-  | GetNonFungibleBalanceServiceDependencies
-  | GatewayApiClientService
-  | EntityFungiblesPageService
-  | GetLedgerStateService
-  | GetKeyValueStoreService
-  | KeyValueStoreDataService
-  | KeyValueStoreKeysService;
-
 export class GetRootFinancePositionsService extends Context.Tag(
   "GetRootFinancePositionsService"
 )<
@@ -103,8 +93,7 @@ export class GetRootFinancePositionsService extends Context.Tag(
     input: GetRootFinancePositionsServiceInput
   ) => Effect.Effect<
     GetRootFinancePositionsServiceOutput,
-    GetRootFinancePositionsServiceError,
-    GetRootFinancePositionsServiceDependencies
+    GetRootFinancePositionsServiceError
   >
 >() {}
 

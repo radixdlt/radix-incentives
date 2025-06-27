@@ -19,11 +19,7 @@ export class EntityNonFungiblesPageService extends Context.Tag(
     input: Omit<EntityNonFungiblesPageParams, "at_ledger_state"> & {
       at_ledger_state: AtLedgerState;
     }
-  ) => Effect.Effect<
-    StateEntityNonFungiblesPageResponse,
-    GatewayError,
-    GatewayApiClientService
-  >
+  ) => Effect.Effect<StateEntityNonFungiblesPageResponse, GatewayError>
 >() {}
 
 export const EntityNonFungiblesPageLive = Layer.effect(

@@ -29,8 +29,7 @@ export class AggregateCaviarninePositionsService extends Context.Tag(
     input: AggregateCaviarninePositionsInput
   ) => Effect.Effect<
     AggregateCaviarninePositionsOutput[],
-    GetUsdValueServiceError | UnknownTokenError,
-    GetUsdValueService | TokenNameService
+    GetUsdValueServiceError | UnknownTokenError
   >
 >() {}
 
@@ -57,12 +56,14 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           const { xToken, yToken } = firstAsset;
 
           // Determine which tokens are XRD derivatives (XRD or LSULP)
-          const isXTokenXrdDerivative = 
-            xToken.resourceAddress === Assets.Fungible.XRD || 
-            xToken.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
-          const isYTokenXrdDerivative = 
-            yToken.resourceAddress === Assets.Fungible.XRD || 
-            yToken.resourceAddress === CaviarNineConstants.LSULP.resourceAddress;
+          const isXTokenXrdDerivative =
+            xToken.resourceAddress === Assets.Fungible.XRD ||
+            xToken.resourceAddress ===
+              CaviarNineConstants.LSULP.resourceAddress;
+          const isYTokenXrdDerivative =
+            yToken.resourceAddress === Assets.Fungible.XRD ||
+            yToken.resourceAddress ===
+              CaviarNineConstants.LSULP.resourceAddress;
 
           // Get token names for the pair
           const xTokenName = yield* tokenNameService(xToken.resourceAddress);
@@ -92,7 +93,8 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               resourceAddress: xToken.resourceAddress,
               timestamp: input.timestamp,
             });
-            totalNonXrdDerivativeUsdValue = totalNonXrdDerivativeUsdValue.plus(xTokenUsdValue);
+            totalNonXrdDerivativeUsdValue =
+              totalNonXrdDerivativeUsdValue.plus(xTokenUsdValue);
           }
 
           // Add yToken value if it's not an XRD derivative
@@ -102,7 +104,8 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               resourceAddress: yToken.resourceAddress,
               timestamp: input.timestamp,
             });
-            totalNonXrdDerivativeUsdValue = totalNonXrdDerivativeUsdValue.plus(yTokenUsdValue);
+            totalNonXrdDerivativeUsdValue =
+              totalNonXrdDerivativeUsdValue.plus(yTokenUsdValue);
           }
 
           // Generate activity ID based on token pair - cast to ActivityId since we know it's valid
@@ -129,11 +132,13 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
         }
 
         // Add zero entries for pools with no positions
-        for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
+        for (const pool of Object.values(
+          CaviarNineConstants.shapeLiquidityPools
+        )) {
           const xTokenName = yield* tokenNameService(pool.token_x);
           const yTokenName = yield* tokenNameService(pool.token_y);
           const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
-          
+
           if (!processedPools.has(activityId)) {
             results.push({
               activityId,

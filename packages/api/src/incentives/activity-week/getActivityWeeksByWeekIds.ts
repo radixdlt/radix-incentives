@@ -9,7 +9,6 @@ import {
 import { inArray } from "drizzle-orm";
 
 export type GetActivityWeeksError = DbError;
-export type GetActivityWeeksServiceDependency = DbClientService;
 
 export class GetActivityWeeksByWeekIdsService extends Context.Tag(
   "GetActivityWeeksByWeekIdsService"
@@ -17,11 +16,7 @@ export class GetActivityWeeksByWeekIdsService extends Context.Tag(
   GetActivityWeeksByWeekIdsService,
   (input: {
     ids: string[];
-  }) => Effect.Effect<
-    ActivityWeek[],
-    GetActivityWeeksError,
-    GetActivityWeeksServiceDependency
-  >
+  }) => Effect.Effect<ActivityWeek[], GetActivityWeeksError>
 >() {}
 
 export const GetActivityWeeksByWeekIdsLive = Layer.effect(

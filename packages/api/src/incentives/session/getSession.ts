@@ -13,8 +13,7 @@ export class GetSessionService extends Context.Tag("GetSessionService")<
     sessionId: string
   ) => Effect.Effect<
     { session: Session; user: User },
-    DbError | SessionNotFoundError,
-    DbClientService
+    DbError | SessionNotFoundError
   >
 >() {}
 

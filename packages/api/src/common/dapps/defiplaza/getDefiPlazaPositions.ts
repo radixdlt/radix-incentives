@@ -44,14 +44,6 @@ export type GetDefiPlazaPositionsOutput = {
   items: DefiPlazaPosition[];
 }[];
 
-export type GetDefiPlazaPositionsDependencies =
-  | GetFungibleBalanceService
-  | GatewayApiClientService
-  | GetEntityDetailsService
-  | EntityFungiblesPageService
-  | GetLedgerStateService
-  | GetResourcePoolUnitsService;
-
 export type GetDefiPlazaPositionsError =
   | GetEntityDetailsError
   | EntityNotFoundError
@@ -68,11 +60,7 @@ export class GetDefiPlazaPositionsService extends Context.Tag(
     accountAddresses: string[];
     at_ledger_state: AtLedgerState;
     fungibleBalance?: GetFungibleBalanceOutput;
-  }) => Effect.Effect<
-    GetDefiPlazaPositionsOutput,
-    GetDefiPlazaPositionsError,
-    GetDefiPlazaPositionsDependencies
-  >
+  }) => Effect.Effect<GetDefiPlazaPositionsOutput, GetDefiPlazaPositionsError>
 >() {}
 
 type AccountAddress = string;
@@ -92,7 +80,7 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
         >();
 
         const pools = yield* getResourcePoolUnitsService({
-          addresses: Object.values(DefiPlaza).map(pool => pool.poolAddress),
+          addresses: Object.values(DefiPlaza).map((pool) => pool.poolAddress),
           at_ledger_state: input.at_ledger_state,
         });
 

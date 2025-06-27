@@ -13,7 +13,7 @@ export class GetLedgerStateService extends Context.Tag("GetLedgerStateService")<
   GetLedgerStateService,
   (input: {
     at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<LedgerState, GatewayError, GatewayApiClientService>
+  }) => Effect.Effect<LedgerState, GatewayError>
 >() {}
 
 export const GetLedgerStateLive = Layer.effect(

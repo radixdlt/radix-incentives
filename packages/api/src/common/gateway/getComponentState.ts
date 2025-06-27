@@ -47,8 +47,7 @@ export class GetComponentStateService extends Context.Tag(
     | EntityNotFoundError
     | InvalidInputError
     | GatewayError
-    | InvalidComponentStateError,
-    GatewayApiClientService | GetLedgerStateService
+    | InvalidComponentStateError
   >
 >() {}
 

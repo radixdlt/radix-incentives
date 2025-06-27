@@ -24,7 +24,7 @@ export class GetSeasonPointMultiplierService extends Context.Tag(
   GetSeasonPointMultiplierService,
   (
     input: GetSeasonPointMultiplierInput
-  ) => Effect.Effect<GetSeasonPointMultiplierOutput[], DbError, DbClientService>
+  ) => Effect.Effect<GetSeasonPointMultiplierOutput[], DbError>
 >() {}
 
 export const GetSeasonPointMultiplierLive = Layer.effect(
@@ -36,10 +36,14 @@ export const GetSeasonPointMultiplierLive = Layer.effect(
       Effect.gen(function* () {
         const result = yield* Effect.tryPromise({
           try: () => {
-            const whereConditions = [eq(seasonPointsMultiplier.weekId, input.weekId)];
-            
+            const whereConditions = [
+              eq(seasonPointsMultiplier.weekId, input.weekId),
+            ];
+
             if (input.userIds && input.userIds.length > 0) {
-              whereConditions.push(inArray(seasonPointsMultiplier.userId, input.userIds));
+              whereConditions.push(
+                inArray(seasonPointsMultiplier.userId, input.userIds)
+              );
             }
 
             return db

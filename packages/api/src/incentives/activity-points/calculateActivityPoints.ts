@@ -27,23 +27,13 @@ export type CalculateActivityPointsError =
   | WeekNotFoundError
   | GetWeekByIdError;
 
-export type CalculateActivityPointsDependency =
-  | DbClientService
-  | UpsertAccountActivityPointsService
-  | GetWeekByIdService
-  | GetWeekAccountBalancesService;
-
 export class CalculateActivityPointsService extends Context.Tag(
   "CalculateActivityPointsService"
 )<
   CalculateActivityPointsService,
   (
     input: CalculateActivityPointsInput
-  ) => Effect.Effect<
-    void,
-    CalculateActivityPointsError,
-    CalculateActivityPointsDependency
-  >
+  ) => Effect.Effect<void, CalculateActivityPointsError>
 >() {}
 
 export const CalculateActivityPointsLive = Layer.effect(

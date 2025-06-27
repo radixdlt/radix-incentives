@@ -6,10 +6,7 @@ import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api
 import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
 
 import type { AtLedgerState } from "./schemas";
-import {
-  GetNftResourceManagersService,
-  type GetNftResourceManagersServiceDependencies,
-} from "./getNftResourceManagers";
+import { GetNftResourceManagersService } from "./getNftResourceManagers";
 
 export class InvalidInputError {
   readonly _tag = "InvalidInputError";
@@ -44,11 +41,6 @@ type GetNonFungibleBalanceInput = {
   options?: StateEntityDetailsOptionsParams;
 };
 
-export type GetNonFungibleBalanceServiceDependencies =
-  | GetNftResourceManagersServiceDependencies
-  | GetNftResourceManagersServiceDependencies
-  | GetNonFungibleBalanceService;
-
 export type GetNonFungibleBalanceServiceError =
   | EntityNotFoundError
   | InvalidInputError
@@ -62,8 +54,7 @@ export class GetNonFungibleBalanceService extends Context.Tag(
     input: GetNonFungibleBalanceInput
   ) => Effect.Effect<
     GetNonFungibleBalanceOutput,
-    GetNonFungibleBalanceServiceError,
-    GetNonFungibleBalanceServiceDependencies
+    GetNonFungibleBalanceServiceError
   >
 >() {}
 
@@ -117,7 +108,6 @@ export const GetNonFungibleBalanceLive = Layer.effect(
 
                         return {
                           resourceAddress: resourceManager.resourceAddress,
-
                           items,
                         };
                       })

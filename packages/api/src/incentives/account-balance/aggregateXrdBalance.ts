@@ -46,7 +46,7 @@ const toXrdEquivalent = (
 
 type XrdValueConverter = (
   amount: BigNumber
-) => Effect.Effect<string, GetUsdValueServiceError, GetUsdValueService>;
+) => Effect.Effect<string, GetUsdValueServiceError>;
 
 // Extract basic XRD holdings processing
 const processBasicXrdHoldings = (
@@ -191,7 +191,7 @@ const processCaviarNinePools = (
   xrdToUsd: XrdValueConverter,
   tokenNameService: (
     address: string
-  ) => Effect.Effect<string, UnknownTokenError, never>
+  ) => Effect.Effect<string, UnknownTokenError>
 ) =>
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
@@ -314,7 +314,7 @@ const processDefiPlazaPools = (
   xrdToUsd: XrdValueConverter,
   tokenNameService: (
     address: string
-  ) => Effect.Effect<string, UnknownTokenError, never>
+  ) => Effect.Effect<string, UnknownTokenError>
 ) =>
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
@@ -427,8 +427,7 @@ export class XrdBalanceService extends Context.Tag("XrdBalanceService")<
     input: XrdBalanceInput
   ) => Effect.Effect<
     XrdBalanceOutput[],
-    GetUsdValueServiceError | UnknownTokenError,
-    GetUsdValueService | TokenNameService
+    GetUsdValueServiceError | UnknownTokenError
   >
 >() {}
 

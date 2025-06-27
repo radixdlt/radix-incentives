@@ -26,11 +26,6 @@ export type GetUserTWAXrdBalanceError =
   | WeekNotFoundError
   | GetWeekByIdError;
 
-export type GetUserTWAXrdBalanceDependency =
-  | DbClientService
-  | GetWeekByIdService
-  | GetWeekAccountBalancesService;
-
 export type UsersWithTwaBalance = {
   userId: string;
   totalTWABalance: BigNumber;
@@ -42,11 +37,7 @@ export class GetUserTWAXrdBalanceService extends Context.Tag(
   GetUserTWAXrdBalanceService,
   (
     input: GetUserTWAXrdBalanceInput
-  ) => Effect.Effect<
-    UsersWithTwaBalance[],
-    GetUserTWAXrdBalanceError,
-    GetUserTWAXrdBalanceDependency
-  >
+  ) => Effect.Effect<UsersWithTwaBalance[], GetUserTWAXrdBalanceError>
 >() {}
 
 export const GetUserTWAXrdBalanceLive = Layer.effect(
@@ -54,6 +45,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
   Effect.gen(function* () {
     const getWeekById = yield* GetWeekByIdService;
     const getWeekAccountBalances = yield* GetWeekAccountBalancesService;
+    const dbClient = yield* DbClientService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -101,10 +93,9 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
 
         const getAccountsWithUserId = (createdAt: Date) => {
           return Effect.gen(function* () {
-            const dbClient = yield* DbClientService;
             return yield* Effect.tryPromise({
-              try: () => {
-                return dbClient
+              try: () =>
+                dbClient
                   .select({
                     address: accounts.address,
                     userId: accounts.userId,
@@ -113,8 +104,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
                   .where(lte(accounts.createdAt, createdAt))
                   .then((res) =>
                     res.map((r) => ({ address: r.address, userId: r.userId }))
-                  );
-              },
+                  ),
               catch: (error) => new DbError(error),
             });
           });
