@@ -8,9 +8,7 @@ export class VerifyChallengeService extends Context.Tag(
   "VerifyChallengeService"
 )<
   VerifyChallengeService,
-  (
-    input: string
-  ) => Effect.Effect<boolean, DbError, DbClientService | AppConfigService>
+  (input: string) => Effect.Effect<boolean, DbError>
 >() {}
 
 export const VerifyChallengeLive = Layer.effect(

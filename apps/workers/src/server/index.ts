@@ -3,20 +3,21 @@ import { serve } from "@hono/node-server";
 import { HonoAdapter } from "@bull-board/hono";
 import { createBullBoard } from "@bull-board/api";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { snapshotQueue } from "../snapshot/queue";
-import { scheduledSnapshotQueue } from "../scheduled-snapshot/queue";
+
 import { showRoutes } from "hono/dev";
-import { eventQueue } from "../event/queue";
-import { eventQueueJobSchema } from "../event/schemas";
 import { BullMQAdapter } from "@bull-board/api/dist/src/queueAdapters/bullMQ.js";
-import { snapshotDateRangeQueue } from "../snapshot-date-range/queue";
-import { snapshotDateRangeJobSchema } from "../snapshot-date-range/schemas";
-import { calculateActivityPointsQueue } from "../calculate-activity-points/queue";
-import { calculateActivityPointsJobSchema } from "../calculate-activity-points/schemas";
-import { calculateSeasonPointsJobSchema } from "../calculate-season-points/schemas";
-import { calculateSeasonPointsQueue } from "../calculate-season-points/queue";
-import { seasonPointsMultiplierJobSchema } from "../calculate-season-points-multiplier/schemas";
-import { seasonPointsMultiplierQueue } from "../calculate-season-points-multiplier/queue";
+import { snapshotQueue } from "../queues/snapshot/queue";
+import { scheduledSnapshotQueue } from "../queues/scheduled-snapshot/queue";
+import { eventQueue } from "../queues/event/queue";
+import { snapshotDateRangeQueue } from "../queues/snapshot-date-range/queue";
+import { calculateActivityPointsQueue } from "../queues/calculate-activity-points/queue";
+import { eventQueueJobSchema } from "../queues/event/schemas";
+import { snapshotDateRangeJobSchema } from "../queues/snapshot-date-range/schemas";
+import { calculateActivityPointsJobSchema } from "../queues/calculate-activity-points/schemas";
+import { calculateSeasonPointsJobSchema } from "../queues/calculate-season-points/schemas";
+import { seasonPointsMultiplierJobSchema } from "../queues/calculate-season-points-multiplier/schemas";
+import { calculateSeasonPointsQueue } from "../queues/calculate-season-points/queue";
+import { seasonPointsMultiplierQueue } from "../queues/calculate-season-points-multiplier/queue";
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -41,8 +42,8 @@ metricsApp.get("/metrics", async (c) => {
       scheduledSnapshotQueueMetrics,
       eventQueueMetrics,
       snapshotDateRangeQueueMetrics,
-      calculateActivityPointsQueueMetrics
-    ].join('\n')
+      calculateActivityPointsQueueMetrics,
+    ].join("\n")
   );
 });
 
@@ -107,7 +108,9 @@ app.post("/queues/calculate-season-points-multiplier/add", async (c) => {
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
-const metricsPort = process.env.METRICS_PORT ? Number.parseInt(process.env.METRICS_PORT) : 9210;
+const metricsPort = process.env.METRICS_PORT
+  ? Number.parseInt(process.env.METRICS_PORT)
+  : 9210;
 
 console.log(`🚀 Starting server on port ${port}`);
 console.log(`📍 Server will be available at: http://localhost:${port}`);
@@ -149,7 +152,9 @@ serve(
     port: metricsPort,
   },
   () => {
-    console.log(`✅ Metrics server running on http://localhost:${metricsPort}/metrics`);
+    console.log(
+      `✅ Metrics server running on http://localhost:${metricsPort}/metrics`
+    );
   }
 );
 

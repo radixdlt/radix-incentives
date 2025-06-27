@@ -1,11 +1,8 @@
 import { Context, Effect, Layer } from "effect";
 
 import type { AtLedgerState } from "../../gateway/schemas";
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
-import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
 import s from "sbor-ez-mode";
 
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
@@ -40,10 +37,7 @@ export class GetQuantaSwapBinMapService extends Context.Tag(
     | FailedToParseComponentStateError
     | GatewayError
     | EntityNotFoundError
-    | InvalidComponentStateError,
-    | GatewayApiClientService
-    | KeyValueStoreDataService
-    | KeyValueStoreKeysService
+    | InvalidComponentStateError
   >
 >() {}
 

@@ -34,7 +34,7 @@ export class GetWeekAccountBalancesService extends Context.Tag(
   GetWeekAccountBalancesService,
   (
     input: GetWeekAccountBalancesInput
-  ) => Effect.Effect<GetWeekAccountBalancesOutput, DbError, DbClientService>
+  ) => Effect.Effect<GetWeekAccountBalancesOutput, DbError>
 >() {}
 
 export const GetWeekAccountBalancesLive = Layer.effect(

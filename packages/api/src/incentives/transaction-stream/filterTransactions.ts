@@ -30,7 +30,7 @@ export class FilterTransactionsService extends Context.Tag(
   (input: {
     transactions: CommittedTransactionInfo[];
     stateVersion: number;
-  }) => Effect.Effect<FilterTransactionsServiceOutput, DbError, DbClientService>
+  }) => Effect.Effect<FilterTransactionsServiceOutput, DbError>
 >() {}
 
 type AccountAddress = string;

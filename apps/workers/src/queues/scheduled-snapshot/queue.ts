@@ -1,9 +1,10 @@
-import { createQueue } from "../queue/createQueue";
-import { redisClient } from "../redis";
+import { createQueue } from "../createQueue";
+import { redisClient } from "../../redis";
 import { scheduledSnapshotWorker } from "./worker";
+import { QueueName } from "../types";
 
 export const scheduledSnapshotQueue = createQueue({
-  name: "scheduledSnapshot",
+  name: QueueName.scheduledSnapshot,
   redisClient,
   worker: scheduledSnapshotWorker,
   onError: async (_, error) => {

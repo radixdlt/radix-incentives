@@ -60,11 +60,7 @@ export class GetFungibleBalanceService extends Context.Tag(
   GetFungibleBalanceService,
   (
     input: StateEntityDetailsInput
-  ) => Effect.Effect<
-    GetFungibleBalanceOutput,
-    GetFungibleBalanceServiceError,
-    GetFungibleBalanceServiceDependencies
-  >
+  ) => Effect.Effect<GetFungibleBalanceOutput, GetFungibleBalanceServiceError>
 >() {}
 
 export const GetFungibleBalanceLive = Layer.effect(
@@ -111,8 +107,10 @@ export const GetFungibleBalanceLive = Layer.effect(
                       result.fungible_resources?.items ?? [];
 
                     let nextCursor = result.fungible_resources?.next_cursor;
+                    const totalCount =
+                      result.fungible_resources?.total_count ?? 0;
 
-                    while (nextCursor) {
+                    while (nextCursor && totalCount > 0) {
                       const result = yield* entityFungiblesPageService({
                         address,
                         aggregation_level: aggregationLevel,

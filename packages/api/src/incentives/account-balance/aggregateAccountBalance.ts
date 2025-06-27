@@ -1,10 +1,7 @@
 import { Effect, Layer } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
-import type {
-  GetUsdValueService,
-  GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import type { GetUsdValueServiceError } from "../token-price/getUsdValue";
 import { AggregateCaviarninePositionsService } from "./aggregateCaviarninePositions";
 
 import { XrdBalanceService } from "./aggregateXrdBalance";
@@ -14,10 +11,7 @@ import {
   AggregateDefiPlazaPositionsService,
   type InvalidDefiPlazaPositionError,
 } from "./aggregateDefiPlazaPositions";
-import type {
-  UnknownTokenError,
-  TokenNameService,
-} from "../../common/token-name/getTokenName";
+import type { UnknownTokenError } from "../../common/token-name/getTokenName";
 import type { AccountBalance } from "db/incentives";
 
 type AggregateAccountBalanceInput = {
@@ -26,15 +20,6 @@ type AggregateAccountBalanceInput = {
 };
 
 export type AggregateAccountBalanceOutput = AccountBalance;
-
-export type AggregateAccountBalanceServiceDependency =
-  | AggregateCaviarninePositionsService
-  | XrdBalanceService
-  | GetUsdValueService
-  | AggregateWeftFinancePositionsService
-  | AggregateRootFinancePositionsService
-  | AggregateDefiPlazaPositionsService
-  | TokenNameService;
 
 export type AggregateAccountBalanceError =
   | GetUsdValueServiceError
@@ -47,11 +32,7 @@ export class AggregateAccountBalanceService extends Context.Tag(
   AggregateAccountBalanceService,
   (
     input: AggregateAccountBalanceInput
-  ) => Effect.Effect<
-    AccountBalance[],
-    AggregateAccountBalanceError,
-    AggregateAccountBalanceServiceDependency
-  >
+  ) => Effect.Effect<AccountBalance[], AggregateAccountBalanceError>
 >() {}
 
 export const AggregateAccountBalanceLive = Layer.effect(

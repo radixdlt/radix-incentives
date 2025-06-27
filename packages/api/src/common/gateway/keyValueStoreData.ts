@@ -20,11 +20,7 @@ export class KeyValueStoreDataService extends Context.Tag(
     input: Omit<KeyValueStoreDataParams, "at_ledger_state"> & {
       at_ledger_state: AtLedgerState;
     }
-  ) => Effect.Effect<
-    StateKeyValueStoreDataResponse,
-    GatewayError,
-    GatewayApiClientService
-  >
+  ) => Effect.Effect<StateKeyValueStoreDataResponse, GatewayError>
 >() {}
 
 export const KeyValueStoreDataLive = Layer.effect(

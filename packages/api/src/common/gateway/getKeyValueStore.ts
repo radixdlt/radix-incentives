@@ -16,10 +16,7 @@ export class GetKeyValueStoreService extends Context.Tag(
     at_ledger_state: AtLedgerState;
   }) => Effect.Effect<
     StateKeyValueStoreDataResponse,
-    GatewayError | EntityNotFoundError,
-    | KeyValueStoreKeysService
-    | KeyValueStoreDataService
-    | GatewayApiClientService
+    GatewayError | EntityNotFoundError
   >
 >() {}
 

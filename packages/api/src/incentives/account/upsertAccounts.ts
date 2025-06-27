@@ -10,9 +10,7 @@ type UpsertAccountInput = {
 
 export class UpsertAccountsService extends Context.Tag("UpsertAccountsService")<
   UpsertAccountsService,
-  (
-    input: UpsertAccountInput
-  ) => Effect.Effect<Account[], DbError, DbClientService>
+  (input: UpsertAccountInput) => Effect.Effect<Account[], DbError>
 >() {}
 
 export const UpsertAccountsLive = Layer.effect(

@@ -22,9 +22,7 @@ export class StateVersionManagerService extends Context.Tag(
   StateVersionManagerService,
   {
     getStateVersion: () => Effect.Effect<number | undefined, never, never>;
-    setStateVersion: (
-      version: number
-    ) => Effect.Effect<void, UnknownException, never>;
+    setStateVersion: (version: number) => Effect.Effect<void, UnknownException>;
   }
 >() {}
 

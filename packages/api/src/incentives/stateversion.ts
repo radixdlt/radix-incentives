@@ -20,7 +20,7 @@ export const setStateVersion = (
 
 export class SetStateVersionService extends Context.Tag("SetStateVersion")<
   SetStateVersionService,
-  (value: number) => Effect.Effect<void, UnknownException, never>
+  (value: number) => Effect.Effect<void, UnknownException>
 >() {}
 
 export const SetStateVersionLive = Layer.effect(

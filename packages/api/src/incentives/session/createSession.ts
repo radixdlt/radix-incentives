@@ -7,10 +7,7 @@ import { sha256 } from "@oslojs/crypto/sha2";
 
 export class CreateSessionService extends Context.Tag("CreateSessionService")<
   CreateSessionService,
-  (input: {
-    token: string;
-    userId: string;
-  }) => Effect.Effect<Session, DbError, DbClientService | AppConfigService>
+  (input: { token: string; userId: string }) => Effect.Effect<Session, DbError>
 >() {}
 
 export const CreateSessionLive = Layer.effect(

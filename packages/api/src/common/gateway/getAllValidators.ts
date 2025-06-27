@@ -24,11 +24,7 @@ export class GetAllValidatorsService extends Context.Tag(
   "GetAllValidatorsService"
 )<
   GetAllValidatorsService,
-  () => Effect.Effect<
-    Validator[],
-    GetAllValidatorsError,
-    GatewayApiClientService
-  >
+  () => Effect.Effect<Validator[], GetAllValidatorsError>
 >() {}
 
 export const GetAllValidatorsLive = Layer.effect(

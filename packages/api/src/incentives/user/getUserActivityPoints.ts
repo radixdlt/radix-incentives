@@ -22,8 +22,7 @@ export class GetUserActivityPointsService extends Context.Tag(
     minPoints: number;
   }) => Effect.Effect<
     { userId: string; points: BigNumber }[],
-    GetUserActivityPointsError,
-    DbClientService
+    GetUserActivityPointsError
   >
 >() {}
 

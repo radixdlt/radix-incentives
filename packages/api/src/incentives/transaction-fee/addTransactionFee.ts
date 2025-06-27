@@ -15,9 +15,7 @@ export class AddTransactionFeeService extends Context.Tag(
   "AddTransactionFeeService"
 )<
   AddTransactionFeeService,
-  (
-    input: AddTransactionFeeServiceInput
-  ) => Effect.Effect<void, DbError, DbClientService>
+  (input: AddTransactionFeeServiceInput) => Effect.Effect<void, DbError>
 >() {}
 
 export const AddTransactionFeeLive = Layer.effect(

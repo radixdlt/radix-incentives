@@ -21,8 +21,7 @@ export class KeyValueStoreKeysService extends Context.Tag(
     }
   ) => Effect.Effect<
     StateKeyValueStoreKeysResponse,
-    GatewayError | EntityNotFoundError,
-    GatewayApiClientService
+    GatewayError | EntityNotFoundError
   >
 >() {}
 

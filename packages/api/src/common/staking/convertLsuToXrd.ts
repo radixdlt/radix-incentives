@@ -43,8 +43,7 @@ export class ConvertLsuToXrdService extends Context.Tag(
     | InvalidNativeResourceKindError
     | InvalidAmountError
     | GetEntityDetailsError
-    | EntityDetailsNotFoundError,
-    GetEntityDetailsService | GetLedgerStateService
+    | EntityDetailsNotFoundError
   >
 >() {}
 

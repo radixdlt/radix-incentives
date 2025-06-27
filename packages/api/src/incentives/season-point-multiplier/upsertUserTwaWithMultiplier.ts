@@ -9,7 +9,7 @@ export class UpsertUserTwaWithMultiplierService extends Context.Tag(
   UpsertUserTwaWithMultiplierService,
   (
     input: (typeof seasonPointsMultiplier.$inferInsert)[]
-  ) => Effect.Effect<void, DbError, DbClientService>
+  ) => Effect.Effect<void, DbError>
 >() {}
 
 export const UpsertUserTwaWithMultiplierLive = Layer.effect(
@@ -38,4 +38,4 @@ export const UpsertUserTwaWithMultiplierLive = Layer.effect(
         });
       });
   })
-); 
+);

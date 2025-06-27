@@ -6,10 +6,6 @@ import {
 } from "../../gateway/getFungibleBalance";
 import { CaviarNineConstants } from "./constants";
 import { BigNumber } from "bignumber.js";
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-
-import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
@@ -33,11 +29,7 @@ export class GetLsulpService extends Context.Tag("GetLsulpService")<
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
-    | GatewayError,
-    | GetLedgerStateService
-    | GatewayApiClientService
-    | EntityFungiblesPageService
-    | GetLedgerStateService
+    | GatewayError
   >
 >() {}
 
