@@ -129,14 +129,10 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
           for (const pool of Object.values(DefiPlaza)) {
             const baseLp = userLpBalances.get(pool.baseLpResourceAddress);
             const quoteLp = userLpBalances.get(pool.quoteLpResourceAddress);
-            if (!baseLp && !quoteLp) continue; // User holds neither LP
 
             // Get pool data for both LPs
             const basePool = poolMap.get(pool.baseLpResourceAddress);
             const quotePool = poolMap.get(pool.quoteLpResourceAddress);
-
-            // Only proceed if at least one pool exists
-            if (!basePool && !quotePool) continue;
 
             // Helper to sum resources
             const sumResourceAmounts = (
@@ -173,8 +169,20 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
                   }))
                 : [];
 
-            // Sum base and quote positions
-            const position = sumResourceAmounts(basePosition, quotePosition);
+            let position = sumResourceAmounts(basePosition, quotePosition);
+
+            // If user holds neither LP, return both resource addresses with amount 0
+            if (!baseLp && !quoteLp) {
+              // Use a BigNumber instance from totalSupply or fallback to 0
+              const zero =
+                basePool?.totalSupply?.constructor(0) ??
+                quotePool?.totalSupply?.constructor(0) ??
+                0;
+              position = [
+                { resourceAddress: pool.baseResourceAddress, amount: zero },
+                { resourceAddress: pool.quoteResourceAddress, amount: zero },
+              ];
+            }
 
             // Use baseLpResourceAddress as the pool key for output (as before)
             const items = accountBalancesMap.get(accountBalance.address) ?? [];
