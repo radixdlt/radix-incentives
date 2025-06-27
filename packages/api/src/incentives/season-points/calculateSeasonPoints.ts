@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import type { DbClientService, DbError } from "../db/dbClient";
+import type { DbError } from "../db/dbClient";
 import { z, type ZodError } from "zod";
 import {
   type GetSeasonByIdError,
@@ -56,24 +56,13 @@ export type CalculateSeasonPointsError =
   | GetActivitiesByWeekIdError
   | GetUserActivityPointsError;
 
-export type CalculateSeasonPointsDependency =
-  | DbClientService
-  | GetSeasonByIdService
-  | GetWeekByIdService
-  | GetUserActivityPointsService
-  | GetSeasonPointMultiplierService;
-
 export class CalculateSeasonPointsService extends Context.Tag(
   "CalculateSeasonPointsService"
 )<
   CalculateSeasonPointsService,
   (
     input: CalculateSeasonPointsInput
-  ) => Effect.Effect<
-    void,
-    CalculateSeasonPointsError,
-    CalculateSeasonPointsDependency
-  >
+  ) => Effect.Effect<void, CalculateSeasonPointsError>
 >() {}
 
 export const CalculateSeasonPointsLive = Layer.effect(

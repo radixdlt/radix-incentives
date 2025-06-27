@@ -103,9 +103,7 @@ const appConfigServiceLive = createAppConfigLive(appConfig);
 
 const dbClientLive = createDbClientLive(db);
 
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(gatewayApiClientLive)
@@ -124,10 +122,8 @@ const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
 );
 
 const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(entityFungiblesPageServiceLive)
 );
 
 const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
@@ -139,65 +135,40 @@ const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
 );
 
 const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(getLedgerStateLive),
-  Layer.provide(entityNonFungibleDataServiceLive)
+  Layer.provide(gatewayApiClientLive)
 );
 
 const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive),
-  Layer.provide(entityNonFungibleDataServiceLive),
   Layer.provide(getNonFungibleIdsLive)
 );
 
 const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getLedgerStateLive),
   Layer.provide(getNftResourceManagersLive)
 );
 
 const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(stateEntityDetailsLive),
+  Layer.provide(getAllValidatorsServiceLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive),
-  Layer.provide(entityNonFungiblesPageServiceLive),
-  Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(getAllValidatorsServiceLive)
+  Layer.provide(getNonFungibleBalanceLive)
 );
 
 const getLsulpLive = GetLsulpLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(stateEntityDetailsLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(entityFungiblesPageServiceLive)
 );
 
 const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(getEntityDetailsServiceLive)
 );
 
 const getLsulpValueLive = GetLsulpValueLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(stateEntityDetailsLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(entityFungiblesPageServiceLive)
 );
 
 const getComponentStateServiceLive = GetComponentStateLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(appConfigServiceLive)
+  Layer.provide(getEntityDetailsServiceLive)
 );
 
 const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
@@ -209,36 +180,24 @@ const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
 );
 
 const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-
   Layer.provide(keyValueStoreDataServiceLive),
   Layer.provide(keyValueStoreKeysServiceLive)
 );
 
 const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(entityFungiblesPageServiceLive)
 );
 
 const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
-  Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive),
-  Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getFungibleBalanceLive),
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(getComponentStateServiceLive),
-  Layer.provide(getKeyValueStoreServiceLive)
+  Layer.provide(getKeyValueStoreServiceLive),
+  Layer.provide(getComponentStateServiceLive)
 );
 
 const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive),
-  Layer.provide(getKeyValueStoreServiceLive),
-  Layer.provide(keyValueStoreDataServiceLive),
-  Layer.provide(keyValueStoreKeysServiceLive)
+  Layer.provide(getKeyValueStoreServiceLive)
 );
 
 const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
@@ -250,7 +209,6 @@ const getKeyValueStoreKeysLive = KeyValueStoreKeysLive.pipe(
 );
 
 const getKeyValueStoreLive = GetKeyValueStoreLive.pipe(
-  Layer.provide(gatewayApiClientLive),
   Layer.provide(keyValueStoreDataLive),
   Layer.provide(getKeyValueStoreKeysLive)
 );
@@ -264,30 +222,18 @@ const entityNonFungibleDataLive = EntityNonFungibleDataLive.pipe(
 );
 
 const getComponentStateLive = GetComponentStateLive.pipe(
-  Layer.provide(gatewayApiClientLive),
   Layer.provide(getEntityDetailsLive)
 );
 
 const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(getLedgerStateLive),
-  Layer.provide(getEntityDetailsLive),
-  Layer.provide(getKeyValueStoreLive),
-  Layer.provide(getComponentStateLive)
+  Layer.provide(getKeyValueStoreLive)
 );
 
 const getShapeLiquidityClaimsLive = GetShapeLiquidityClaimsLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(getEntityDetailsLive),
   Layer.provide(entityNonFungibleDataLive)
 );
 
 const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(getLedgerStateLive),
-  Layer.provide(getEntityDetailsLive),
-  Layer.provide(entityNonFungibleDataLive),
-  Layer.provide(getKeyValueStoreLive),
   Layer.provide(getComponentStateLive),
   Layer.provide(getQuantaSwapBinMapLive),
   Layer.provide(getShapeLiquidityClaimsLive),
@@ -328,16 +274,12 @@ const aggregateRootFinancePositionsLive =
 
 const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive)
+  Layer.provide(getEntityDetailsServiceLive)
 );
 
 const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(getResourcePoolUnitsLive),
-  Layer.provide(entityFungiblesPageServiceLive)
+  Layer.provide(getResourcePoolUnitsLive)
 );
 
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
@@ -346,7 +288,6 @@ const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
 );
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
-  Layer.provide(getUsdValueLive),
   Layer.provide(aggregateCaviarninePositionsLive),
   Layer.provide(xrdBalanceLive),
   Layer.provide(aggregateWeftFinancePositionsLive),
@@ -365,7 +306,8 @@ const gatewayLive = Layer.mergeAll(
   getNftResourceManagersLive,
   getNonFungibleIdsLive,
   getEntityDetailsServiceLive,
-  getResourcePoolUnitsLive
+  getResourcePoolUnitsLive,
+  getFungibleBalanceLive
 );
 
 const stakingLive = Layer.mergeAll(
@@ -396,18 +338,16 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(gatewayLive),
     Layer.provide(stakingLive),
     Layer.provide(dappsLive),
-    Layer.provide(accountBalanceLive)
+    Layer.provide(getFungibleBalanceLive)
   );
 
 const snapshotLive = SnapshotLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getAccountBalancesAtStateVersionLive),
-  Layer.provide(upsertAccountBalancesLive),
-  Layer.provide(updateSnapshotLive),
+  Layer.provide(accountBalanceLive),
   Layer.provide(createSnapshotLive),
   Layer.provide(getLedgerStateLive),
   Layer.provide(dbClientLive),
-  Layer.provide(getAccountAddressesLive),
   Layer.provide(getUsdValueLive),
   Layer.provide(aggregateAccountBalanceLive),
   Layer.provide(getAllValidatorsServiceLive)
@@ -548,57 +488,7 @@ const snapshotProgram = (input: SnapshotInput) => {
 
       return yield* snapshotService(input).pipe(Effect.withSpan("snapshot"));
     }),
-    Layer.mergeAll(
-      getAccountBalancesAtStateVersionLive,
-      gatewayApiClientLive,
-      stateEntityDetailsLive,
-      entityFungiblesPageServiceLive,
-      entityNonFungibleDataServiceLive,
-      getNonFungibleBalanceLive,
-      getAllValidatorsServiceLive,
-      getUserStakingPositionsLive,
-      getLsulpLive,
-      getLsulpValueLive,
-      convertLsuToXrdLive,
-      getEntityDetailsServiceLive,
-      getWeftFinancePositionsLive,
-      getKeyValueStoreServiceLive,
-      keyValueStoreDataServiceLive,
-      keyValueStoreKeysServiceLive,
-      getRootFinancePositionLive,
-      getShapeLiquidityAssetsLive,
-      getLedgerStateLive,
-      getEntityDetailsLive,
-      entityNonFungibleDataLive,
-      entityNonFungiblesPageServiceLive,
-      getKeyValueStoreLive,
-      getKeyValueStoreKeysLive,
-      keyValueStoreDataLive,
-      getComponentStateLive,
-      getQuantaSwapBinMapLive,
-      getShapeLiquidityClaimsLive,
-      snapshotLive,
-      getLedgerStateLive,
-      getAccountBalancesAtStateVersionLive,
-      getAccountAddressesLive,
-      dbClientLive,
-      upsertAccountBalancesLive,
-      updateSnapshotLive,
-      createSnapshotLive,
-      getUsdValueLive,
-      aggregateCaviarninePositionsLive,
-      aggregateAccountBalanceLive,
-      getNftResourceManagersLive,
-      getNonFungibleIdsLive,
-      xrdBalanceLive,
-      aggregateWeftFinancePositionsLive,
-      aggregateRootFinancePositionsLive,
-      aggregateDefiPlazaPositionsLive,
-      getDefiPlazaPositionsLive,
-      getResourcePoolUnitsLive,
-      aggregateAccountBalanceLive,
-      tokenNameServiceLive
-    )
+    Layer.mergeAll(snapshotLive)
   ).pipe(Effect.provide(NodeSdkLive));
 
   return Effect.runPromiseExit(program);
@@ -611,7 +501,7 @@ const getLedgerState = (input: GetLedgerStateInput) => {
 
       return yield* getLedgerStateService(input);
     }),
-    Layer.mergeAll(getLedgerStateLive, gatewayApiClientLive)
+    getLedgerStateLive
   );
 
   return Effect.runPromiseExit(program);
@@ -629,7 +519,7 @@ const eventWorkerHandler = (input: EventWorkerInput) => {
 
       return yield* eventWorkerService(input);
     }),
-    Layer.mergeAll(dbClientLive, eventWorkerLive)
+    eventWorkerLive
   );
 
   return Effect.runPromiseExit(program);
@@ -643,15 +533,7 @@ const deriveAccountFromEvent = (input: DeriveAccountFromEventInput) => {
 
       return yield* deriveAccountFromEventService(input);
     }),
-    Layer.mergeAll(
-      getNonFungibleLocationLive,
-      getEventsFromDbLive,
-      dbClientLive,
-      gatewayApiClientLive,
-      getAccountsIntersectionLive,
-      getUsdValueLive,
-      deriveAccountFromEventLive
-    )
+    deriveAccountFromEventLive
   );
 
   return Effect.runPromiseExit(program);
@@ -671,14 +553,7 @@ const calculateActivityPoints = (input: {
         addresses: input.addresses,
       });
     }),
-    Layer.mergeAll(
-      dbClientLive,
-      getWeekByIdLive,
-      calculateActivityPointsLive,
-      upsertAccountActivityPointsLive,
-      getWeekAccountBalancesLive,
-      calculateActivityPointsWorkerLive
-    )
+    calculateActivityPointsWorkerLive
   );
 
   return Effect.runPromiseExit(program);
@@ -691,17 +566,7 @@ const calculateSeasonPoints = (input: { seasonId: string; weekId: string }) => {
 
       return yield* calculateSeasonPointsService(input);
     }),
-    Layer.mergeAll(
-      dbClientLive,
-      calculateSeasonPointsLive,
-      getWeekByIdLive,
-      getSeasonByIdLive,
-      getActivitiesByWeekIdLive,
-      getUserActivityPointsLive,
-      addSeasonPointsToUserLive,
-      updateWeekStatusLive,
-      getSeasonPointMultiplierLive
-    )
+    calculateSeasonPointsLive
   );
 
   return Effect.runPromiseExit(program);
@@ -718,15 +583,7 @@ const calculateSPMultiplier = (input: {
 
       return yield* calculateSPMultiplierWorkerService(input);
     }),
-    Layer.mergeAll(
-      dbClientLive,
-      getWeekByIdLive,
-      calculateSPMultiplierLive,
-      seasonPointsMultiplierWorkerLive,
-      getWeekAccountBalancesLive,
-      getAccountAddressesLive,
-      upsertUserTwaWithMultiplierLive
-    )
+    seasonPointsMultiplierWorkerLive
   ).pipe(Effect.provide(NodeSdkLive));
 
   return Effect.runPromiseExit(program);

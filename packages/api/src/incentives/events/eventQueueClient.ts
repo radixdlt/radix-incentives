@@ -33,7 +33,7 @@ export class EventQueueClientService extends Context.Tag(
   EventQueueClientService,
   (
     input: EventQueueClientInput
-  ) => Effect.Effect<void, EventQueueClientServiceError, never>
+  ) => Effect.Effect<void, EventQueueClientServiceError>
 >() {}
 
 export const EventQueueClientLive = Layer.effect(

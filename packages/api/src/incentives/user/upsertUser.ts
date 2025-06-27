@@ -4,10 +4,7 @@ import { type User, user } from "db/incentives";
 
 export class UpsertUserService extends Context.Tag("UpsertUserService")<
   UpsertUserService,
-  (input: {
-    address: string;
-    label: string;
-  }) => Effect.Effect<User, DbError, DbClientService>
+  (input: { address: string; label: string }) => Effect.Effect<User, DbError>
 >() {}
 
 export const UpsertUserLive = Layer.effect(

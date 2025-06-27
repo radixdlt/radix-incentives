@@ -10,11 +10,7 @@ export class GetResourceHoldersService extends Context.Tag(
   (input: {
     resourceAddress: string;
     cursor?: string;
-  }) => Effect.Effect<
-    ResourceHoldersResponse,
-    GatewayError,
-    GatewayApiClientService
-  >
+  }) => Effect.Effect<ResourceHoldersResponse, GatewayError>
 >() {}
 
 export const GetResourceHoldersLive = Layer.effect(

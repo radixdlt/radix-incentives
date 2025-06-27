@@ -23,8 +23,7 @@ import {
 } from "../../gateway/getComponentState";
 import { LendingPoolSchema, SingleResourcePool } from "./schemas";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
-import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
+
 import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
@@ -65,15 +64,7 @@ export class GetWeftFinancePositionsService extends Context.Tag(
     | InvalidInputError
     | GatewayError
     | InvalidComponentStateError
-    | FailedToParseLendingPoolSchemaError,
-    | GetNonFungibleBalanceService
-    | GatewayApiClientService
-    | EntityFungiblesPageService
-    | GetLedgerStateService
-    | EntityNonFungiblesPageService
-    | GetKeyValueStoreService
-    | KeyValueStoreDataService
-    | KeyValueStoreKeysService
+    | FailedToParseLendingPoolSchemaError
   >
 >() {}
 

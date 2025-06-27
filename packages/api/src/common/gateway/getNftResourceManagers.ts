@@ -5,7 +5,6 @@ import {
 } from "./gatewayApiClient";
 
 import { type EntityNotFoundError, GatewayError } from "./errors";
-import type { GetLedgerStateService } from "./getLedgerState";
 import type {
   NonFungibleResourcesCollectionItemVaultAggregated,
   StateEntityDetailsResponseItem,
@@ -44,12 +43,6 @@ export type GetNftResourceManagersServiceError =
   | InvalidInputError
   | GatewayError;
 
-export type GetNftResourceManagersServiceDependencies =
-  | GatewayApiClientService
-  | EntityNonFungiblesPageService
-  | GetLedgerStateService
-  | GetNonFungibleIdsService;
-
 export class GetNftResourceManagersService extends Context.Tag(
   "GetNftResourceManagersService"
 )<
@@ -58,8 +51,7 @@ export class GetNftResourceManagersService extends Context.Tag(
     input: GetNftResourceManagersInput
   ) => Effect.Effect<
     GetNftResourceManagersOutput,
-    GetNftResourceManagersServiceError,
-    GetNftResourceManagersServiceDependencies
+    GetNftResourceManagersServiceError
   >
 >() {}
 
@@ -131,8 +123,9 @@ export const GetNftResourceManagersLive = Layer.effect(
               const address = item.address;
 
               let next_cursor = item.non_fungible_resources?.next_cursor;
+              const totalCount = item.non_fungible_resources?.total_count ?? 0;
 
-              while (next_cursor) {
+              while (next_cursor && totalCount > 0) {
                 const entityNonFungiblesPageResult =
                   yield* entityNonFungiblesPageService({
                     address,
@@ -186,8 +179,10 @@ export const GetNftResourceManagersLive = Layer.effect(
                         return Effect.gen(function* () {
                           const vaults = [...resourceManager.vaults.items];
                           let next_cursor = resourceManager.vaults.next_cursor;
+                          const totalCount =
+                            resourceManager.vaults.total_count ?? 0;
 
-                          while (next_cursor) {
+                          while (next_cursor && totalCount > 0) {
                             const vaultsPage =
                               yield* getNonFungibleResourceVaultPage({
                                 address: resourceManagerResult.address,
@@ -211,7 +206,10 @@ export const GetNftResourceManagersLive = Layer.effect(
                               Effect.gen(function* () {
                                 const nftIds = vault?.items || [];
 
-                                if (vault.next_cursor) {
+                                if (
+                                  vault.next_cursor &&
+                                  vault.total_count > 0
+                                ) {
                                   const { ids } =
                                     yield* getNonFungibleIdsService({
                                       vaultAddress: vault.vault_address,

@@ -3,21 +3,12 @@ import { CreateSnapshotService } from "./createSnapshot";
 import { UpdateSnapshotService } from "./updateSnapshot";
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 import type { InvalidStateInputError } from "../../common";
-import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
 import type {
   EntityNotFoundError,
   GatewayError,
 } from "../../common/gateway/errors";
 import { GetAccountBalancesAtStateVersionService } from "../account-balance/getAccountBalancesAtStateVersion";
-import type { GetComponentStateService } from "../../common/gateway/getComponentState";
-import type { GetEntityDetailsService } from "../../common/gateway/getEntityDetails";
-import type { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
-import type { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
 import { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
-import type {
-  GetNonFungibleBalanceService,
-  GetNonFungibleBalanceServiceDependencies,
-} from "../../common/gateway/getNonFungibleBalance";
 import type { GetAllValidatorsError } from "../../common/gateway/getAllValidators";
 import type {
   EntityDetailsNotFoundError,
@@ -31,57 +22,30 @@ import type {
   LsulpNotFoundError,
 } from "../../common/dapps/caviarnine/getLsulpValue";
 import type {
-  GetRootFinancePositionsService,
   InvalidRootReceiptItemError,
   FailedToParseLendingPoolStateError,
   FailedToParsePoolStatesKeyError,
   MissingConversionRatioError,
   ParseSborError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
-import type {
-  FailedToParseLendingPoolSchemaError,
-  GetWeftFinancePositionsService,
-} from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import type {
-  FailedToParseComponentStateError,
-  GetShapeLiquidityAssetsService,
-} from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import type { FailedToParseLendingPoolSchemaError } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
 import type { InvalidInputError } from "../../common/gateway/getNonFungibleBalance";
-import type { GetKeyValueStoreService } from "../../common/gateway/getKeyValueStore";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
-import type {
-  FailedToParseLiquidityClaimsError,
-  GetShapeLiquidityClaimsService,
-} from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
+import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
 import type { GetDefiPlazaPositionsError } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
-import type { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
-import type { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
-import type { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
-import type { EntityFungiblesPageService } from "../../common/gateway/entityFungiblesPage";
-import type { EntityNonFungiblesPageService } from "../../common/gateway/entityNonFungiblesPage";
-import type { KeyValueStoreDataService } from "../../common/gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../../common/gateway/keyValueStoreKeys";
-import type { EntityNonFungibleDataService } from "../../common/gateway/entityNonFungiblesData";
-import type { GetQuantaSwapBinMapService } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
-import type { GetDefiPlazaPositionsService } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
-import type { GetResourcePoolUnitsService } from "../../common/resource-pool/getResourcePoolUnits";
 import type { UnknownTokenError } from "../../common/token-name/getTokenName";
-import type { DbClientService, DbError } from "../db/dbClient";
+import type { DbError } from "../db/dbClient";
 import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
-import type { GetUsdValueService } from "../token-price/getUsdValue";
-import {
-  AggregateAccountBalanceService,
-  type AggregateAccountBalanceServiceDependency,
-} from "../account-balance/aggregateAccountBalance";
-import type { XrdBalanceService } from "../account-balance/aggregateXrdBalance";
+import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
 import { generateDummySnapshotData } from "./generateDummySnapshotData";
 
 // Import all activities from 100activities data
 
 export class SnapshotError {
   _tag = "SnapshotError";
-  constructor(public readonly message: string) { }
+  constructor(public readonly message: string) {}
 }
 
 export type SnapshotInput = {
@@ -133,43 +97,9 @@ export class SnapshotService extends Context.Tag("SnapshotService")<
     | GetDefiPlazaPositionsError
     | UnknownTokenError
     | DbError
-    | SnapshotError,
-    | GetFungibleBalanceService
-    | GetLsulpService
-    | GetUserStakingPositionsService
-    | GatewayApiClientService
-    | EntityFungiblesPageService
-    | GetLedgerStateService
-    | GetNonFungibleBalanceService
-    | GetAllValidatorsService
-    | EntityNonFungiblesPageService
-    | GetLsulpValueService
-    | ConvertLsuToXrdService
-    | GetEntityDetailsService
-    | GetWeftFinancePositionsService
-    | GetKeyValueStoreService
-    | KeyValueStoreDataService
-    | KeyValueStoreKeysService
-    | GetRootFinancePositionsService
-    | GetShapeLiquidityAssetsService
-    | EntityNonFungibleDataService
-    | GetComponentStateService
-    | GetQuantaSwapBinMapService
-    | GetShapeLiquidityClaimsService
-    | GetDefiPlazaPositionsService
-    | GetResourcePoolUnitsService
-    | CreateSnapshotService
-    | UpdateSnapshotService
-    | DbClientService
-    | GetAccountAddressesService
-    | UpsertAccountBalancesService
-    | GetUsdValueService
-    | AggregateAccountBalanceService
-    | GetNonFungibleBalanceServiceDependencies
-    | XrdBalanceService
-    | AggregateAccountBalanceServiceDependency
+    | SnapshotError
   >
->() { }
+>() {}
 
 export const SnapshotLive = Layer.effect(
   SnapshotService,
@@ -187,12 +117,15 @@ export const SnapshotLive = Layer.effect(
 
     return (input) =>
       Effect.gen(function* () {
-        yield* Effect.log("running snapshot", JSON.stringify({
-          timestamp: input.timestamp,
-          addresses: input.addresses,
-          batchSize: input.batchSize,
-          jobId: input.jobId,
-        }));
+        yield* Effect.log(
+          "running snapshot",
+          JSON.stringify({
+            timestamp: input.timestamp,
+            addresses: input.addresses,
+            batchSize: input.batchSize,
+            jobId: input.jobId,
+          })
+        );
 
         if (!input.timestamp)
           return yield* Effect.fail(new SnapshotError("Timestamp is required"));
@@ -214,11 +147,14 @@ export const SnapshotLive = Layer.effect(
             createdAt: input.timestamp,
           }));
 
-        yield* Effect.log("processing accounts in batches", JSON.stringify({
-          totalAccounts: accountAddresses.length,
-          batchSize,
-          totalBatches: Math.ceil(accountAddresses.length / batchSize),
-        }));
+        yield* Effect.log(
+          "processing accounts in batches",
+          JSON.stringify({
+            totalAccounts: accountAddresses.length,
+            batchSize,
+            totalBatches: Math.ceil(accountAddresses.length / batchSize),
+          })
+        );
 
         const { id: snapshotId } = yield* createSnapshot({
           timestamp: input.timestamp,
@@ -237,22 +173,31 @@ export const SnapshotLive = Layer.effect(
         const enableDummyData = input.addDummyData ?? false;
 
         // Process each batch sequentially
-        for (let batchIndex = 0; batchIndex < accountBatches.length; batchIndex++) {
+        for (
+          let batchIndex = 0;
+          batchIndex < accountBatches.length;
+          batchIndex++
+        ) {
           const batch = accountBatches[batchIndex];
 
           if (!batch) {
-            yield* Effect.fail(new SnapshotError(`Batch ${batchIndex} is undefined`));
+            yield* Effect.fail(
+              new SnapshotError(`Batch ${batchIndex} is undefined`)
+            );
             return;
           }
 
-          yield* Effect.log("getting account balances for batch", JSON.stringify({
-            batchIndex: batchIndex + 1,
-            totalBatches: accountBatches.length,
-            batchSize: batch.length,
-            processedAccounts,
-            totalAccounts: accountAddresses.length,
-            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          }));
+          yield* Effect.log(
+            "getting account balances for batch",
+            JSON.stringify({
+              batchIndex: batchIndex + 1,
+              totalBatches: accountBatches.length,
+              batchSize: batch.length,
+              processedAccounts,
+              totalAccounts: accountAddresses.length,
+              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+            })
+          );
 
           const [accountBalancesResult] = yield* Effect.all(
             [
@@ -262,7 +207,11 @@ export const SnapshotLive = Layer.effect(
                   state_version: lederState.state_version,
                 },
                 validators: validators,
-              }).pipe(Effect.withSpan(`getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`)),
+              }).pipe(
+                Effect.withSpan(
+                  `getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`
+                )
+              ),
             ],
             { mode: "either" }
           );
@@ -278,21 +227,28 @@ export const SnapshotLive = Layer.effect(
 
           const accountBalances = accountBalancesResult.right;
 
-          yield* Effect.log("aggregating account balances and converting into USD for batch", JSON.stringify({
-            batchIndex: batchIndex + 1,
-            totalBatches: accountBatches.length,
-            batchSize: batch.length,
-            processedAccounts,
-            totalAccounts: accountAddresses.length,
-            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          }));
+          yield* Effect.log(
+            "aggregating account balances and converting into USD for batch",
+            JSON.stringify({
+              batchIndex: batchIndex + 1,
+              totalBatches: accountBatches.length,
+              batchSize: batch.length,
+              processedAccounts,
+              totalAccounts: accountAddresses.length,
+              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+            })
+          );
 
           const [aggregateAccountBalanceResult] = yield* Effect.all(
             [
               aggregateAccountBalanceService({
                 accountBalances: accountBalances.items,
                 timestamp: input.timestamp,
-              }).pipe(Effect.withSpan(`aggregateAccountBalance_batch_${batchIndex + 1}`)),
+              }).pipe(
+                Effect.withSpan(
+                  `aggregateAccountBalance_batch_${batchIndex + 1}`
+                )
+              ),
             ],
             { mode: "either" }
           );
@@ -305,11 +261,14 @@ export const SnapshotLive = Layer.effect(
               status: "failed",
             });
             return yield* Effect.fail(
-              new SnapshotError(`Failed to convert account balances for batch ${batchIndex + 1}: ${error}`)
+              new SnapshotError(
+                `Failed to convert account balances for batch ${batchIndex + 1}: ${error}`
+              )
             );
           }
 
-          let batchAggregatedAccountBalance = aggregateAccountBalanceResult.right;
+          let batchAggregatedAccountBalance =
+            aggregateAccountBalanceResult.right;
 
           if (enableDummyData) {
             batchAggregatedAccountBalance = yield* generateDummySnapshotData({
@@ -320,14 +279,17 @@ export const SnapshotLive = Layer.effect(
             });
           }
 
-          yield* Effect.log("upserting account balances for batch", JSON.stringify({
-            batchIndex: batchIndex + 1,
-            totalBatches: accountBatches.length,
-            batchSize: batch.length,
-            processedAccounts,
-            totalAccounts: accountAddresses.length,
-            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          }));
+          yield* Effect.log(
+            "upserting account balances for batch",
+            JSON.stringify({
+              batchIndex: batchIndex + 1,
+              totalBatches: accountBatches.length,
+              batchSize: batch.length,
+              processedAccounts,
+              totalAccounts: accountAddresses.length,
+              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+            })
+          );
 
           // Upsert results for this batch immediately
           yield* upsertAccountBalances(batchAggregatedAccountBalance).pipe(
@@ -338,30 +300,39 @@ export const SnapshotLive = Layer.effect(
           processedAccounts += batch.length;
           totalProcessedEntries += batchAggregatedAccountBalance.length;
 
-          yield* Effect.log("completed batch", JSON.stringify({
-            batchIndex: batchIndex + 1,
-            totalBatches: accountBatches.length,
-            batchSize: batch.length,
-            processedAccounts,
-            totalAccounts: accountAddresses.length,
-            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          }));
+          yield* Effect.log(
+            "completed batch",
+            JSON.stringify({
+              batchIndex: batchIndex + 1,
+              totalBatches: accountBatches.length,
+              batchSize: batch.length,
+              processedAccounts,
+              totalAccounts: accountAddresses.length,
+              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+            })
+          );
 
           // Clear batch data from memory to reduce memory usage
           batchAggregatedAccountBalance = [];
         }
 
-        yield* Effect.log("all batches completed for job", JSON.stringify({
-          totalBatches: accountBatches.length,
-          processedAccounts,
-          totalAccounts: accountAddresses.length,
-          progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-        }));
+        yield* Effect.log(
+          "all batches completed for job",
+          JSON.stringify({
+            totalBatches: accountBatches.length,
+            processedAccounts,
+            totalAccounts: accountAddresses.length,
+            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
+          })
+        );
 
-        yield* Effect.log("updating snapshot for job", JSON.stringify({
-          jobId: input.jobId,
-          timestamp: input.timestamp,
-        }));
+        yield* Effect.log(
+          "updating snapshot for job",
+          JSON.stringify({
+            jobId: input.jobId,
+            timestamp: input.timestamp,
+          })
+        );
 
         yield* updateSnapshot({
           id: snapshotId,

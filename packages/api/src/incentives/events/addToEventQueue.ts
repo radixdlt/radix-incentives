@@ -14,11 +14,7 @@ export class AddToEventQueueService extends Context.Tag(
   AddToEventQueueService,
   (
     input: AddToEventQueueInput
-  ) => Effect.Effect<
-    void,
-    EventQueueClientServiceError,
-    EventQueueClientService
-  >
+  ) => Effect.Effect<void, EventQueueClientServiceError>
 >() {}
 
 export const AddToEventQueueLive = Layer.effect(

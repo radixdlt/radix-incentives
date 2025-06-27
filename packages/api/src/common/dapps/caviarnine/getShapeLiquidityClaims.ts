@@ -37,8 +37,7 @@ export class GetShapeLiquidityClaimsService extends Context.Tag(
     }[],
     | FailedToParseLiquidityClaimsError
     | GatewayError
-    | InvalidComponentStateError,
-    EntityNonFungibleDataService | GatewayApiClientService
+    | InvalidComponentStateError
   >
 >() {}
 

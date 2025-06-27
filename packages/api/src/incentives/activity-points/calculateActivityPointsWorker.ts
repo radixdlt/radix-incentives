@@ -2,7 +2,6 @@ import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import {
   CalculateActivityPointsService,
-  type CalculateActivityPointsDependency,
   type CalculateActivityPointsError,
 } from "./calculateActivityPoints";
 import { z } from "zod";
@@ -27,11 +26,7 @@ export class CalculateActivityPointsWorkerService extends Context.Tag(
   CalculateActivityPointsWorkerService,
   (
     input: CalculateActivityPointsJob
-  ) => Effect.Effect<
-    void,
-    CalculateActivityPointsError | InvalidInputError,
-    CalculateActivityPointsDependency
-  >
+  ) => Effect.Effect<void, CalculateActivityPointsError | InvalidInputError>
 >() {}
 
 export const CalculateActivityPointsWorkerLive = Layer.effect(

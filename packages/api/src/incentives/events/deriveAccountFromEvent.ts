@@ -5,10 +5,8 @@ import type {
   EventQueueClientServiceError,
 } from "./eventQueueClient";
 import { GetEventsFromDbService } from "./queries/getEventsFromDb";
-import type { DbClientService, DbError } from "../db/dbClient";
-import type { GetNonFungibleLocationService } from "../../common/gateway/getNonFungibleLocation";
+import type { DbError } from "../db/dbClient";
 import type { GatewayError } from "../../common/gateway/errors";
-import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
 import {
   GetAddressByNonFungibleService,
   type GetAddressByNonFungibleServiceError,

@@ -11,9 +11,7 @@ export class GetAccountsByAddressService extends Context.Tag(
   "GetAccountsByAddressService"
 )<
   GetAccountsByAddressService,
-  (
-    input: GetAccountsByAddressInput
-  ) => Effect.Effect<Account[], DbError, DbClientService>
+  (input: GetAccountsByAddressInput) => Effect.Effect<Account[], DbError>
 >() {}
 
 export const GetAccountsByAddressLive = Layer.effect(

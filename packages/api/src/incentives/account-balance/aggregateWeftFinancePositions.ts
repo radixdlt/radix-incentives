@@ -24,8 +24,7 @@ export class AggregateWeftFinancePositionsService extends Context.Tag(
     input: AggregateWeftFinancePositionsInput
   ) => Effect.Effect<
     AggregateWeftFinancePositionsOutput[],
-    GetUsdValueServiceError,
-    GetUsdValueService
+    GetUsdValueServiceError
   >
 >() {}
 
@@ -52,22 +51,27 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
 
         if (accountBalance.weftFinancePositions.length === 0) {
           // Return zero entries for all supported assets
-          return Object.entries(supportedAssets).map(([_, activityId]) => ({
-            activityId,
-            usdValue: new BigNumber(0).toString(),
-          } satisfies AccountBalanceData));
+          return Object.entries(supportedAssets).map(
+            ([_, activityId]) =>
+              ({
+                activityId,
+                usdValue: new BigNumber(0).toString(),
+              }) satisfies AccountBalanceData
+          );
         }
 
         // Aggregate amounts across all Weft Finance positions
         const aggregatedAmounts = accountBalance.weftFinancePositions.reduce(
           (acc, item) => {
             const resourceAddress = item.unwrappedAsset.resourceAddress;
-            
+
             if (resourceAddress in supportedAssets) {
               if (!acc[resourceAddress]) {
                 acc[resourceAddress] = new BigNumber(0);
               }
-              acc[resourceAddress] = acc[resourceAddress].plus(item.unwrappedAsset.amount);
+              acc[resourceAddress] = acc[resourceAddress].plus(
+                item.unwrappedAsset.amount
+              );
             }
             return acc;
           },
@@ -76,10 +80,12 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
 
         // Calculate USD values for each asset
         const results: AccountBalanceData[] = [];
-        
-        for (const [resourceAddress, activityId] of Object.entries(supportedAssets)) {
+
+        for (const [resourceAddress, activityId] of Object.entries(
+          supportedAssets
+        )) {
           const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
-          
+
           const usdValue = yield* getUsdValueService({
             amount,
             resourceAddress,

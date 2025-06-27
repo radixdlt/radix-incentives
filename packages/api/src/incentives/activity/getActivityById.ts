@@ -27,8 +27,7 @@ export class GetActivityByIdService extends Context.Tag(
       activity: Activity;
       activityWeeks: (ActivityWeek & { week: Week })[];
     },
-    GetActivityByIdError,
-    DbClientService
+    GetActivityByIdError
   >
 >() {}
 

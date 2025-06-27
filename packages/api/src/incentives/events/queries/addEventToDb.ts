@@ -6,7 +6,7 @@ import SuperJSON from "superjson";
 
 export class AddEventsToDbService extends Context.Tag("AddEventsToDbService")<
   AddEventsToDbService,
-  (input: Event[]) => Effect.Effect<Event[], DbError, DbClientService>
+  (input: Event[]) => Effect.Effect<Event[], DbError>
 >() {}
 
 export const AddEventsToDbLive = Layer.effect(

@@ -1,16 +1,14 @@
-import { createQueue } from "../queue/createQueue";
-import { redisClient } from "../redis";
-import { calculateActivityPointsWorker } from "./worker";
-import type { CalculateActivityPointsJob } from "./schemas";
+import { createQueue } from "../createQueue";
+import { redisClient } from "../../redis";
+import { orchestratorWorker } from "./worker";
+import type { OrchestratorJob } from "./schemas";
 import { Effect } from "effect";
+import { QueueName } from "../types";
 
-export const calculateActivityPointsQueue = createQueue<
-  CalculateActivityPointsJob,
-  void
->({
-  name: "calculateActivityPoints",
+export const orchestratorQueue = createQueue<OrchestratorJob, void>({
+  name: QueueName.orchestrator,
   redisClient,
-  worker: calculateActivityPointsWorker,
+  worker: orchestratorWorker,
   onError: async (job, error) => {
     Effect.runSync(
       Effect.gen(function* () {

@@ -7,7 +7,6 @@ import {
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-  type GetNonFungibleBalanceServiceDependencies,
 } from "../gateway/getNonFungibleBalance";
 import {
   type GetAllValidatorsError,
@@ -17,10 +16,7 @@ import {
 import { claimNftSchema } from "./schema";
 import { BigNumber } from "bignumber.js";
 import type { EntityNotFoundError, GatewayError } from "../gateway/errors";
-import type { GetLedgerStateService } from "../gateway/getLedgerState";
 
-import type { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
-import type { GatewayApiClientService } from "../gateway/gatewayApiClient";
 import type { GetEntityDetailsError } from "../gateway/getEntityDetails";
 import type { AtLedgerState } from "../gateway/schemas";
 
@@ -53,14 +49,7 @@ export class GetUserStakingPositionsService extends Context.Tag(
     | GetEntityDetailsError
     | EntityNotFoundError
     | InvalidInputError
-    | GatewayError,
-    | GetNonFungibleBalanceService
-    | GetAllValidatorsService
-    | GetFungibleBalanceService
-    | GetLedgerStateService
-    | EntityFungiblesPageService
-    | GetNonFungibleBalanceServiceDependencies
-    | GatewayApiClientService
+    | GatewayError
   >
 >() {}
 

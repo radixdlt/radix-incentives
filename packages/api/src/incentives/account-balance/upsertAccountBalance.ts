@@ -16,9 +16,7 @@ export class UpsertAccountBalancesService extends Context.Tag(
   "UpsertAccountBalancesService"
 )<
   UpsertAccountBalancesService,
-  (
-    input: UpsertAccountBalanceInput
-  ) => Effect.Effect<void, DbError, DbClientService>
+  (input: UpsertAccountBalanceInput) => Effect.Effect<void, DbError>
 >() {}
 
 export const UpsertAccountBalancesLive = Layer.effect(

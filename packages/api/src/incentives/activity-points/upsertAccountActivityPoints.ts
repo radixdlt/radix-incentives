@@ -11,7 +11,7 @@ export class UpsertAccountActivityPointsService extends Context.Tag(
   UpsertAccountActivityPointsService,
   (
     input: (typeof accountActivityPoints.$inferInsert)[]
-  ) => Effect.Effect<void, DbError, DbClientService>
+  ) => Effect.Effect<void, DbError>
 >() {}
 
 export const UpsertAccountActivityPointsLive = Layer.effect(

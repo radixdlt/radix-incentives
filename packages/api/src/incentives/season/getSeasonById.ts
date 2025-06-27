@@ -16,11 +16,7 @@ export class GetSeasonByIdService extends Context.Tag("GetSeasonByIdService")<
   (input: {
     id: string;
     includeWeeks?: boolean;
-  }) => Effect.Effect<
-    Season & { weeks?: Week[] },
-    GetSeasonByIdError,
-    DbClientService
-  >
+  }) => Effect.Effect<Season & { weeks?: Week[] }, GetSeasonByIdError>
 >() {}
 
 export const GetSeasonByIdLive = Layer.effect(

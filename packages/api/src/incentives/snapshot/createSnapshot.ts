@@ -10,9 +10,7 @@ export type CreateSnapshotInput = {
 
 export class CreateSnapshotService extends Context.Tag("CreateSnapshotService")<
   CreateSnapshotService,
-  (
-    input: CreateSnapshotInput
-  ) => Effect.Effect<Snapshot, DbError, DbClientService>
+  (input: CreateSnapshotInput) => Effect.Effect<Snapshot, DbError>
 >() {}
 
 export const CreateSnapshotLive = Layer.effect(

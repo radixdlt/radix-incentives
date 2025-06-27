@@ -5,7 +5,7 @@ import { activities, type Activity } from "db/incentives";
 
 export class GetActivitiesService extends Context.Tag("GetActivitiesService")<
   GetActivitiesService,
-  () => Effect.Effect<Activity[], DbError, DbClientService>
+  () => Effect.Effect<Activity[], DbError>
 >() {}
 
 export const GetActivitiesLive = Layer.effect(

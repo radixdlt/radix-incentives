@@ -7,7 +7,7 @@ export class InvalidateAllSessionsService extends Context.Tag(
   "InvalidateAllSessionsService"
 )<
   InvalidateAllSessionsService,
-  (userId: string) => Effect.Effect<void, DbError, DbClientService>
+  (userId: string) => Effect.Effect<void, DbError>
 >() {}
 
 export const invalidateAllSessionsLive = Layer.effect(

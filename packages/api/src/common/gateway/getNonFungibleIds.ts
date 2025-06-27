@@ -21,11 +21,7 @@ export class GetNonFungibleIdsService extends Context.Tag(
   GetNonFungibleIdsService,
   (
     input: GetNonFungibleIdsInput
-  ) => Effect.Effect<
-    GetNonFungibleIdsOutput,
-    GatewayError,
-    GatewayApiClientService
-  >
+  ) => Effect.Effect<GetNonFungibleIdsOutput, GatewayError>
 >() {}
 
 export const GetNonFungibleIdsLive = Layer.effect(
@@ -56,10 +52,11 @@ export const GetNonFungibleIdsLive = Layer.effect(
         const result = yield* makeRequest(input.cursor);
 
         let next_cursor = result.next_cursor;
+        const totalCount = result.total_count ?? 0;
 
         const ids: string[] = [...result.items];
 
-        while (next_cursor) {
+        while (next_cursor && totalCount > 0) {
           const result = yield* makeRequest(next_cursor);
           ids.push(...result.items);
           next_cursor = result.next_cursor;

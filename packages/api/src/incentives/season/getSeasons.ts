@@ -7,7 +7,7 @@ export type GetSeasonsError = DbError;
 
 export class GetSeasonsService extends Context.Tag("GetSeasonsService")<
   GetSeasonsService,
-  () => Effect.Effect<Season[], GetSeasonsError, DbClientService>
+  () => Effect.Effect<Season[], GetSeasonsError>
 >() {}
 
 export const GetSeasonsLive = Layer.effect(

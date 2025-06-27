@@ -1,14 +1,15 @@
-import { createQueue } from "../queue/createQueue";
-import { redisClient } from "../redis";
+import { createQueue } from "../createQueue";
+import { redisClient } from "../../redis";
 import { calculateSeasonPointsWorker } from "./worker";
 import type { CalculateSeasonPointsJob } from "./schemas";
 import { Effect } from "effect";
+import { QueueName } from "../types";
 
 export const calculateSeasonPointsQueue = createQueue<
   CalculateSeasonPointsJob,
   void
 >({
-  name: "calculateSeasonPoints",
+  name: QueueName.calculateSeasonPoints,
   redisClient,
   worker: calculateSeasonPointsWorker,
   onError: async (job, error) => {

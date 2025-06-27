@@ -25,8 +25,7 @@ export class AggregateRootFinancePositionsService extends Context.Tag(
     input: AggregateRootFinancePositionsInput
   ) => Effect.Effect<
     AggregateRootFinancePositionsOutput[],
-    GetUsdValueServiceError,
-    GetUsdValueService
+    GetUsdValueServiceError
   >
 >() {}
 
@@ -53,10 +52,13 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
 
         if (accountBalance.rootFinancePositions.length === 0) {
           // Return zero entries for all supported assets
-          return Object.entries(supportedAssets).map(([_, activityId]) => ({
-            activityId,
-            usdValue: new BigNumber(0).toString(),
-          } satisfies AccountBalanceData));
+          return Object.entries(supportedAssets).map(
+            ([_, activityId]) =>
+              ({
+                activityId,
+                usdValue: new BigNumber(0).toString(),
+              }) satisfies AccountBalanceData
+          );
         }
 
         // Aggregate collateral amounts across all Root Finance positions
@@ -93,10 +95,12 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
 
         // Calculate USD values for each asset
         const results: AccountBalanceData[] = [];
-        
-        for (const [resourceAddress, activityId] of Object.entries(supportedAssets)) {
+
+        for (const [resourceAddress, activityId] of Object.entries(
+          supportedAssets
+        )) {
           const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
-          
+
           const usdValue = yield* getUsdValueService({
             amount,
             resourceAddress,

@@ -43,22 +43,13 @@ export type GetResourcePoolError =
   | GetEntityDetailsError
   | GetFungibleBalanceServiceError;
 
-export type GetResourcePoolDependencies =
-  | GetFungibleBalanceService
-  | GetEntityDetailsService
-  | GetFungibleBalanceServiceDependencies;
-
 export class GetResourcePoolUnitsService extends Context.Tag(
   "GetResourcePoolUnitsService"
 )<
   GetResourcePoolUnitsService,
   (
     input: GetResourcePoolInput
-  ) => Effect.Effect<
-    GetResourcePoolOutput,
-    GetResourcePoolError,
-    GetResourcePoolDependencies
-  >
+  ) => Effect.Effect<GetResourcePoolOutput, GetResourcePoolError>
 >() {}
 
 export const GetResourcePoolUnitsLive = Layer.effect(

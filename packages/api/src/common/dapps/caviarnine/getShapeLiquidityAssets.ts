@@ -19,7 +19,6 @@ import {
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-  type GetNonFungibleBalanceServiceDependencies,
   type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
 import type { GetLedgerStateService } from "../../gateway/getLedgerState";
@@ -79,19 +78,7 @@ export class GetShapeLiquidityAssetsService extends Context.Tag(
     | GetEntityDetailsError
     | InvalidInputError
     | InvalidComponentStateError
-    | FailedToParseLiquidityClaimsError,
-    | GetEntityDetailsService
-    | EntityNonFungibleDataService
-    | GatewayApiClientService
-    | KeyValueStoreDataService
-    | KeyValueStoreKeysService
-    | GetComponentStateService
-    | GetLedgerStateService
-    | GetQuantaSwapBinMapService
-    | GetShapeLiquidityClaimsService
-    | GetNonFungibleBalanceService
-    | EntityNonFungiblesPageService
-    | GetNonFungibleBalanceServiceDependencies
+    | FailedToParseLiquidityClaimsError
   >
 >() {}
 

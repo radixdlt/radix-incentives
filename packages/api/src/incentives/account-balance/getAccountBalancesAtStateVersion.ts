@@ -6,17 +6,13 @@ import {
 
 import { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
 import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
-import type { GatewayApiClientService } from "../../common/gateway/gatewayApiClient";
 
-import type { EntityFungiblesPageService } from "../../common/gateway/entityFungiblesPage";
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 import { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
 import type {
   GetAllValidatorsError,
-  GetAllValidatorsService,
   Validator,
 } from "../../common/gateway/getAllValidators";
-import type { EntityNonFungiblesPageService } from "../../common/gateway/entityNonFungiblesPage";
 import type {
   EntityNotFoundError,
   GatewayError,
@@ -33,22 +29,13 @@ import {
   type InvalidNativeResourceKindError,
   type InvalidResourceError,
 } from "../../common/staking/convertLsuToXrd";
-import type {
-  GetEntityDetailsError,
-  GetEntityDetailsService,
-} from "../../common/gateway/getEntityDetails";
+import type { GetEntityDetailsError } from "../../common/gateway/getEntityDetails";
 import {
   type FailedToParseLendingPoolSchemaError,
   type GetWeftFinancePositionsOutput,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import type {
-  GetComponentStateService,
-  InvalidComponentStateError,
-} from "../../common/gateway/getComponentState";
-import type { GetKeyValueStoreService } from "../../common/gateway/getKeyValueStore";
-import type { KeyValueStoreDataService } from "../../common/gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../../common/gateway/keyValueStoreKeys";
+import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import {
   type CollaterizedDebtPosition,
@@ -68,26 +55,17 @@ import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
 } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
-import type { EntityNonFungibleDataService } from "../../common/gateway/entityNonFungiblesData";
-import type {
-  FailedToParseComponentStateError,
-  GetQuantaSwapBinMapService,
-} from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
-import type {
-  FailedToParseLiquidityClaimsError,
-  GetShapeLiquidityClaimsService,
-} from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
+import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
+import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
 import {
   type GetDefiPlazaPositionsOutput,
   GetDefiPlazaPositionsService,
   type GetDefiPlazaPositionsError,
 } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
-import type { GetResourcePoolUnitsService } from "../../common/resource-pool/getResourcePoolUnits";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
 } from "@radixdlt/babylon-gateway-api-sdk";
-import type { GetNftResourceManagersServiceDependencies } from "../../common/gateway/getNftResourceManagers";
 import BigNumber from "bignumber.js";
 import { RootFinance } from "../../common/dapps/rootFinance/constants";
 
@@ -184,32 +162,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
       items: AccountBalance[];
       ledgerState: LedgerState;
     },
-    GetAccountBalancesAtStateVersionServiceError,
-    | GetFungibleBalanceService
-    | GetLsulpService
-    | GetUserStakingPositionsService
-    | GatewayApiClientService
-    | EntityFungiblesPageService
-    | GetLedgerStateService
-    | GetNonFungibleBalanceService
-    | GetAllValidatorsService
-    | EntityNonFungiblesPageService
-    | GetLsulpValueService
-    | ConvertLsuToXrdService
-    | GetEntityDetailsService
-    | GetWeftFinancePositionsService
-    | GetKeyValueStoreService
-    | KeyValueStoreDataService
-    | KeyValueStoreKeysService
-    | GetRootFinancePositionsService
-    | GetShapeLiquidityAssetsService
-    | EntityNonFungibleDataService
-    | GetComponentStateService
-    | GetQuantaSwapBinMapService
-    | GetShapeLiquidityClaimsService
-    | GetNftResourceManagersServiceDependencies
-    | GetDefiPlazaPositionsService
-    | GetResourcePoolUnitsService
+    GetAccountBalancesAtStateVersionServiceError
   >
 >() {}
 
@@ -271,7 +224,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
             { concurrency: "unbounded" }
           );
 
-        const allCaviarNinePools = Object.values(CaviarNineConstants.shapeLiquidityPools);
+        const allCaviarNinePools = Object.values(
+          CaviarNineConstants.shapeLiquidityPools
+        );
 
         yield* Effect.log(
           "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, lsulp value"
@@ -319,7 +274,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   },
                   nonFungibleBalance: nonFungibleBalanceResults,
                 }).pipe(
-                  Effect.withSpan(`CaviarNine_${pool.name.replace('/', '_')}_getShapeLiquidityAssetsService`),
+                  Effect.withSpan(
+                    `CaviarNine_${pool.name.replace("/", "_")}_getShapeLiquidityAssetsService`
+                  ),
                   Effect.map((result) => ({ pool, result }))
                 )
               ),
@@ -331,7 +288,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getDefiPlazaPositionsService")),
             getLsulpValueService({
-          at_ledger_state: atLedgerState,
+              at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
           ],
           { concurrency: "unbounded" }
@@ -362,27 +319,36 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         const stakingPositionsMap = new Map(
           userStakingPositions.items.map((item) => [item.address, item])
         );
-        
+
         const lsulpMap = new Map(
           lsulpResults.map((item) => [item.address, item.lsulp])
         );
-        
+
         const fungibleBalanceMap = new Map(
-          fungibleBalanceResults.map((item) => [item.address, item.fungibleResources])
+          fungibleBalanceResults.map((item) => [
+            item.address,
+            item.fungibleResources,
+          ])
         );
-        
+
         const nonFungibleBalanceMap = new Map(
-          nonFungibleBalanceResults.items.map((item) => [item.address, item.nonFungibleResources])
+          nonFungibleBalanceResults.items.map((item) => [
+            item.address,
+            item.nonFungibleResources,
+          ])
         );
-        
+
         const weftFinanceMap = new Map(
           allWeftFinancePositions.map((item) => [item.address, item.lending])
         );
-        
+
         const rootFinanceMap = new Map(
-          allRootFinancePositions.items.map((item) => [item.accountAddress, item.collaterizedDebtPositions])
+          allRootFinancePositions.items.map((item) => [
+            item.accountAddress,
+            item.collaterizedDebtPositions,
+          ])
         );
-        
+
         const defiPlazaMap = new Map(
           allDefiPlazaPositions.map((item) => [item.address, item])
         );
@@ -435,10 +401,12 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
 
               const caviarninePositions: CaviarNinePosition = {};
               for (const poolData of allCaviarNineShapeLiquidityAssets) {
-                const poolKey = poolData.pool.name.toLowerCase().replace('/', '');
-                const accountPoolAssets = poolData.result.find(
-                  (item) => item.address === address
-                )?.items ?? [];
+                const poolKey = poolData.pool.name
+                  .toLowerCase()
+                  .replace("/", "");
+                const accountPoolAssets =
+                  poolData.result.find((item) => item.address === address)
+                    ?.items ?? [];
                 caviarninePositions[poolKey] = accountPoolAssets;
               }
 
