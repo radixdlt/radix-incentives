@@ -434,7 +434,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 caviarNineHyperstakePositions.get(address) ?? { address, items: [] };
 
               const caviarninePositions: CaviarNinePosition = {};
+              
               for (const [poolKey, addressToAssetsMap] of caviarNineShapeLiquidityPositions) {
+
                 const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
                 caviarninePositions[poolKey] = accountPoolAssets;
               }

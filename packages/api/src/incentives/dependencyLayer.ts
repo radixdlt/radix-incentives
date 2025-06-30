@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Logger } from "effect";
 import { GatewayApiClientLive } from "../common/gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../common/gateway/getEntityDetails";
 
@@ -30,11 +30,7 @@ import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShape
 import { GetDefiPlazaPositionsLive } from "../common/dapps/defiplaza/getDefiPlazaPositions";
 import { GetHyperstakePositionsLive } from "../common/dapps/caviarnine/getHyperstakePositions";
 import { GetResourcePoolUnitsLive } from "../common/resource-pool/getResourcePoolUnits";
-import {
-  SnapshotService,
-  SnapshotLive,
-  type SnapshotInput,
-} from "./snapshot/snapshot";
+import { SnapshotLive } from "./snapshot/snapshot";
 import { GetAccountAddressesLive } from "./account/getAccounts";
 import { UpsertAccountBalancesLive } from "./account-balance/upsertAccountBalance";
 import { CreateSnapshotLive } from "./snapshot/createSnapshot";
@@ -98,6 +94,11 @@ import {
   EventWorkerService,
 } from "./events/eventWorker";
 import { GetAccountAddressByUserIdLive } from "./account/getAccountAddressByUserId";
+import {
+  type SnapshotWorkerInput,
+  SnapshotWorkerLive,
+  SnapshotWorkerService,
+} from "./snapshot/snapshotWorker";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -488,15 +489,27 @@ const NodeSdkLive = NodeSdk.layer(() => ({
   ),
 }));
 
-const snapshotProgram = (input: SnapshotInput) => {
+const snapshotWorkerLive = SnapshotWorkerLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(snapshotLive),
+  Layer.provide(calculateActivityPointsLive)
+);
+
+const snapshotWorker = (input: SnapshotWorkerInput) => {
   const program = Effect.provide(
     Effect.gen(function* () {
-      const snapshotService = yield* SnapshotService;
+      const snapshotService = yield* SnapshotWorkerService;
 
-      return yield* snapshotService(input).pipe(Effect.withSpan("snapshot"));
+      const baseEffect = snapshotService(input).pipe(
+        Effect.withSpan("snapshot")
+      );
+
+      return yield* process.env.PRETTY_LOGGING === "true"
+        ? baseEffect.pipe(Effect.provide(Logger.pretty))
+        : baseEffect;
     }),
-    Layer.mergeAll(snapshotLive)
-  ).pipe(Effect.provide(NodeSdkLive));
+    snapshotWorkerLive
+  );
 
   return Effect.runPromiseExit(program);
 };
@@ -597,7 +610,7 @@ const calculateSPMultiplier = (input: {
 };
 
 export const dependencyLayer = {
-  snapshot: snapshotProgram,
+  snapshotWorker,
   getLedgerState,
   deriveAccountFromEvent,
   calculateActivityPoints,

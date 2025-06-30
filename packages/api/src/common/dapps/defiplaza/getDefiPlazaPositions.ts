@@ -1,10 +1,6 @@
 import { Context, Effect, Layer } from "effect";
-
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-
-import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
+import BigNumber from "bignumber.js";
 
 import {
   type GetFungibleBalanceOutput,
@@ -14,10 +10,7 @@ import {
 
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 import { DefiPlaza } from "./constants";
-import type {
-  GetEntityDetailsError,
-  GetEntityDetailsService,
-} from "../../gateway/getEntityDetails";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 import {
@@ -79,10 +72,35 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
           DefiPlazaPosition[]
         >();
 
+        // Gather all pool addresses (base and quote) and LP resource addresses
+        const allPoolAddresses = Object.values(DefiPlaza).flatMap((pool) => [
+          pool.basePoolAddress,
+          pool.quotePoolAddress,
+        ]);
+        const allLpResourceAddresses = Object.values(DefiPlaza).flatMap(
+          (pool) => [pool.baseLpResourceAddress, pool.quoteLpResourceAddress]
+        );
+
+        // Fetch pool data for all pools (base and quote)
         const pools = yield* getResourcePoolUnitsService({
-          addresses: Object.values(DefiPlaza).map((pool) => pool.poolAddress),
+          addresses: allPoolAddresses,
           at_ledger_state: input.at_ledger_state,
         });
+
+        // Map LP resource address to pool data
+        const poolMap = new Map<string, GetResourcePoolOutput[number]>();
+        for (const pool of pools) {
+          poolMap.set(pool.lpResourceAddress, pool);
+        }
+
+        // Map pool key (baseLpResourceAddress) to pool config
+        const poolConfigMap = new Map<
+          string,
+          (typeof DefiPlaza)[keyof typeof DefiPlaza]
+        >();
+        for (const pool of Object.values(DefiPlaza)) {
+          poolConfigMap.set(pool.baseLpResourceAddress, pool);
+        }
 
         for (const accountAddress of input.accountAddresses) {
           accountBalancesMap.set(accountAddress, []);
@@ -95,34 +113,83 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
             at_ledger_state: input.at_ledger_state,
           }));
 
-        const poolMap = new Map<string, GetResourcePoolOutput[number]>(
-          pools.map((pool) => [pool.lpResourceAddress, pool])
-        );
-
         for (const accountBalance of accountBalances) {
           const fungibleResources = accountBalance.fungibleResources;
-          const defiplazaFungibleResources = fungibleResources.filter((item) =>
-            poolMap.has(item.resourceAddress)
-          );
-          const accountAddress = accountBalance.address;
+          const userLpBalances = new Map<string, { amount: BigNumber }>();
+          for (const item of fungibleResources) {
+            if (
+              (allLpResourceAddresses as string[]).includes(
+                item.resourceAddress
+              )
+            ) {
+              userLpBalances.set(item.resourceAddress, { amount: item.amount });
+            }
+          }
 
-          for (const {
-            resourceAddress,
-            amount,
-          } of defiplazaFungibleResources) {
-            // biome-ignore lint/style/noNonNullAssertion: only defiplaza lp resources at this point
-            const pool = poolMap.get(resourceAddress)!;
+          // For each pool, aggregate both base and quote LPs
+          for (const pool of Object.values(DefiPlaza)) {
+            const baseLp = userLpBalances.get(pool.baseLpResourceAddress);
+            const quoteLp = userLpBalances.get(pool.quoteLpResourceAddress);
 
-            const items = accountBalancesMap.get(accountAddress) ?? [];
+            // Get pool data for both LPs
+            const basePool = poolMap.get(pool.baseLpResourceAddress);
+            const quotePool = poolMap.get(pool.quoteLpResourceAddress);
 
-            const position = pool.poolResources.map((i) => ({
-              resourceAddress: i.resourceAddress,
-              amount: i.poolUnitValue.multipliedBy(amount),
-            }));
+            // Helper to sum resources
+            const sumResourceAmounts = (
+              resourcesA: { resourceAddress: string; amount: BigNumber }[] = [],
+              resourcesB: { resourceAddress: string; amount: BigNumber }[] = []
+            ) => {
+              const map = new Map<string, BigNumber>();
+              for (const r of resourcesA) {
+                map.set(r.resourceAddress, r.amount ?? new BigNumber(0));
+              }
+              for (const r of resourcesB) {
+                const prev = map.get(r.resourceAddress) ?? new BigNumber(0);
+                map.set(
+                  r.resourceAddress,
+                  prev.plus(r.amount ?? new BigNumber(0))
+                );
+              }
+              return Array.from(map.entries()).map(
+                ([resourceAddress, amount]) => ({ resourceAddress, amount })
+              );
+            };
 
-            accountBalancesMap.set(accountAddress, [
+            // Calculate underlying resources for each LP
+            const basePosition =
+              baseLp && basePool
+                ? basePool.poolResources.map((i) => ({
+                    resourceAddress: i.resourceAddress,
+                    amount: i.poolUnitValue.multipliedBy(baseLp.amount),
+                  }))
+                : [];
+            const quotePosition =
+              quoteLp && quotePool
+                ? quotePool.poolResources.map((i) => ({
+                    resourceAddress: i.resourceAddress,
+                    amount: i.poolUnitValue.multipliedBy(quoteLp.amount),
+                  }))
+                : [];
+
+            const position = sumResourceAmounts(basePosition, quotePosition);
+
+            // Ensure both base and quote resources are present in the position array
+            const ensureResource = (resourceAddress: string) => {
+              if (
+                !position.some((p) => p.resourceAddress === resourceAddress)
+              ) {
+                position.push({ resourceAddress, amount: new BigNumber(0) });
+              }
+            };
+            ensureResource(pool.baseResourceAddress);
+            ensureResource(pool.quoteResourceAddress);
+
+            // Use baseLpResourceAddress as the pool key for output (as before)
+            const items = accountBalancesMap.get(accountBalance.address) ?? [];
+            accountBalancesMap.set(accountBalance.address, [
               ...items,
-              { lpResourceAddress: pool.lpResourceAddress, position },
+              { lpResourceAddress: pool.baseLpResourceAddress, position },
             ]);
           }
         }

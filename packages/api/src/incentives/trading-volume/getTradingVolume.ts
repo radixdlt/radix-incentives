@@ -3,7 +3,7 @@ import { DbClientService, DbError } from "../db/dbClient";
 
 import type { ActivityId } from "db/incentives";
 import { tradingVolume } from "db/incentives";
-import { gte, inArray, lt, and } from "drizzle-orm";
+import { inArray, and, between } from "drizzle-orm";
 import BigNumber from "bignumber.js";
 
 export type GetTradingVolumeServiceInput = {
@@ -40,8 +40,11 @@ export const GetTradingVolumeLive = Layer.effect(
         const limit = input.limit ?? 10_000;
 
         const andConditions = [
-          gte(tradingVolume.timestamp, input.startTimestamp),
-          lt(tradingVolume.timestamp, input.endTimestamp),
+          between(
+            tradingVolume.timestamp,
+            input.startTimestamp,
+            input.endTimestamp
+          ),
         ];
 
         if (input.addresses) {

@@ -3,10 +3,14 @@ import { Assets } from "../../assets/constants";
 export const DefiPlaza = {
   xUSDCPool: {
     type: "component",
-    poolAddress:
+    basePoolAddress:
       "pool_rdx1c5z06xda4gjykyhupj4fjszdfhsye7h3mcsgwe5cvuz2vemwn7yjax",
-    lpResourceAddress:
+    baseLpResourceAddress:
       "resource_rdx1tkdws0nvfwjnn2q62x4gqgelyt4t5z7cn58pwvrtf4zrxtdw2sem8x",
+    quotePoolAddress:
+      "pool_rdx1ch62axcl22gnmhe5ajtwraukrxstxxqlq5c6p9n2y5qv0pgyqnhfry",
+    quoteLpResourceAddress:
+      "resource_rdx1t5gr3wsf7jq28fvnpyfg4rwfkewynv67nnqjna9h5f7mwjuwcwegcj",
     baseResourceAddress: Assets.Fungible.xUSDC,
     quoteResourceAddress: Assets.Fungible.XRD,
     componentAddress:
@@ -14,20 +18,28 @@ export const DefiPlaza = {
   },
   xUSDTPool: {
     type: "component",
-    poolAddress:
+    basePoolAddress:
       "pool_rdx1c5pvssdmlgjh78anllzszh7alal666ayv8h6at3xmxmmpueqf7at4q",
-    lpResourceAddress:
+    baseLpResourceAddress:
       "resource_rdx1thnmcry6e02x6ja73llm8z6pkrurvrsudgez4ammsp24r0v20rllxt",
+    quotePoolAddress:
+      "pool_rdx1c4scl7k67czs4e29skz0njvcmx4epmrjk4nkrkvsmt93rug7jcnagf",
+    quoteLpResourceAddress:
+      "resource_rdx1t5swt0y0u6sdzycg02flamm3e6qljjgvpxeg5p5tw6jl7ssel0x369",
     baseResourceAddress: Assets.Fungible.xUSDT,
     quoteResourceAddress: Assets.Fungible.XRD,
     componentAddress: "",
   },
   xETHPool: {
     type: "component",
-    poolAddress:
+    basePoolAddress:
       "pool_rdx1ckt7dhmt5gr9vdsgz3p62fm88pm7f69kzzqw2268f3negvgns2xkpa",
-    lpResourceAddress:
+    baseLpResourceAddress:
       "resource_rdx1t5k00sp4jejklp8cx6nw7ecvhz7z07mfexgmdyflgqpflfvzv8v7wd",
+    quotePoolAddress:
+      "pool_rdx1c5glrayedmn0utd44pqs8a3x52dw9aklq2g5f9ewxjxtm7xvjmussa",
+    quoteLpResourceAddress:
+      "resource_rdx1thhth6tseavhurrgae898k9sht29f3yckzr6szct6zgheqdhxkus0t",
     baseResourceAddress: Assets.Fungible.xETH,
     quoteResourceAddress: Assets.Fungible.XRD,
     componentAddress:
@@ -35,10 +47,14 @@ export const DefiPlaza = {
   },
   xwBTCPool: {
     type: "component",
-    poolAddress:
+    basePoolAddress:
       "pool_rdx1c5xlqz5uc62fzlsyl2f3ql6lx8upc75tdpe4f8cmys83lpqrrul976",
-    lpResourceAddress:
+    baseLpResourceAddress:
       "resource_rdx1t4x7f34hec2jxtay6cvxvcq3skmkg9pwtr98m4dm7qfrvnaddlavgv",
+    quotePoolAddress:
+      "pool_rdx1cht7hqhcnj2la96cygema5l32xwz26luunr9umlszy3s9gr78ppdzv",
+    quoteLpResourceAddress:
+      "resource_rdx1th6ftl6twglqfz2s8ref2vr5nfccaeq2878p4996uq5duszkjhp2gl",
     baseResourceAddress: Assets.Fungible.wxBTC,
     quoteResourceAddress: Assets.Fungible.XRD,
     componentAddress:
