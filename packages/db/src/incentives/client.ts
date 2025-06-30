@@ -37,8 +37,10 @@ let dbConnection: PostgresJsDatabase<typeof schema>;
 
 if (readDb) {
   dbConnection = withReplicas(primaryDb, [readDb]);
+  console.log("Using read replicas as well");
 } else {
   dbConnection = primaryDb;
+  console.log("Using primary database");
 }
 
 export type Db = typeof dbConnection;
