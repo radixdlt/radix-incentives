@@ -23,6 +23,7 @@ import {
   type GetResourcePoolOutput,
   GetResourcePoolUnitsService,
   type GetResourcePoolError,
+  InvalidPoolResourceError,
 } from "../../resource-pool/getResourcePoolUnits";
 
 type HyperstakePosition = {
@@ -120,7 +121,11 @@ export const GetHyperstakePositionsLive = Layer.effect(
             const pool = poolMap.get(resourceAddress);
 
             if (!pool) {
-              continue;
+              return yield* Effect.fail(
+                new InvalidPoolResourceError(
+                  `Hyperstake pool details not found for LP token: ${resourceAddress}`
+                )
+              );
             }
 
             const items = accountBalancesMap.get(accountAddress) ?? [];

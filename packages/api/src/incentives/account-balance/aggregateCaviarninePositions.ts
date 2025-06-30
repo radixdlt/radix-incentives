@@ -171,7 +171,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           },
         });
 
-        // Add zero entries for pools with no positions
+        // Add zero entries for shape liquidity pools with no positions
         for (const pool of Object.values(
           CaviarNineConstants.shapeLiquidityPools
         )) {
