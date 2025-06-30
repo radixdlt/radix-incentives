@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Logger } from "effect";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 import { createAppConfigLive } from "../config/appConfig";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -14,6 +14,9 @@ import { UpsertAccountActivityPointsLive } from "./upsertAccountActivityPoints";
 import { GetWeekAccountBalancesLive } from "./getWeekAccountBalances";
 import { GetWeekByIdLive } from "../week/getWeekById";
 import { GetTransactionFeesPaginatedLive } from "../transaction-fee/getTransactionFees";
+import { GetComponentCallsPaginatedLive } from "../component/getComponentCalls";
+import { GetTradingVolumeLive } from "../trading-volume/getTradingVolume";
+import { GetAccountAddressByUserIdLive } from "../account/getAccountAddressByUserId";
 
 const appConfigServiceLive = createAppConfigLive();
 
@@ -42,12 +45,27 @@ const getTransactionFeesLive = GetTransactionFeesPaginatedLive.pipe(
 
 const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
 
+const getComponentCallsLive = GetComponentCallsPaginatedLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const getTradingVolumeLive = GetTradingVolumeLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const getAccountAddressByUserIdLive = GetAccountAddressByUserIdLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekAccountBalancesLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(getTransactionFeesLive)
+  Layer.provide(getTransactionFeesLive),
+  Layer.provide(getComponentCallsLive),
+  Layer.provide(getTradingVolumeLive),
+  Layer.provide(getAccountAddressByUserIdLive)
 );
 
 describe("calculateActivityPoints", () => {
@@ -59,17 +77,25 @@ describe("calculateActivityPoints", () => {
       const calculateActivityPointsService =
         yield* CalculateActivityPointsService;
 
-      const accountsResult = yield* Effect.tryPromise({
-        try: () => db.select().from(accounts).limit(100),
-        catch: (error) => new DbError(error),
-      });
+      let offset = 0;
 
-      const result = yield* calculateActivityPointsService({
-        weekId: week[0].id,
-        addresses: accountsResult.map((a) => a.address),
-      });
+      while (true) {
+        const accountsResult = yield* Effect.tryPromise({
+          try: () => db.select().from(accounts).limit(10000).offset(offset),
+          catch: (error) => new DbError(error),
+        });
 
-      return result;
+        offset += 10000;
+
+        if (accountsResult.length === 0) {
+          break;
+        }
+
+        yield* calculateActivityPointsService({
+          weekId: week[0].id,
+          addresses: accountsResult.map((a) => a.address),
+        });
+      }
     }).pipe(
       Effect.catchAll((err) => {
         console.log(JSON.stringify(err, null, 2));
@@ -80,16 +106,10 @@ describe("calculateActivityPoints", () => {
     const result = await Effect.runPromise(
       Effect.provide(
         program,
-        Layer.mergeAll(
-          dbClientLive,
-          calculateActivityPointsLive,
-          upsertAccountActivityPointsLive,
-          getWeekAccountBalancesLive,
-          getWeekByIdLive
-        )
-      )
+        Layer.mergeAll(dbClientLive, calculateActivityPointsLive)
+      ).pipe(Effect.provide(Logger.pretty))
     );
 
     console.log(JSON.stringify(result, null, 2));
-  });
+  }, 30_000);
 });

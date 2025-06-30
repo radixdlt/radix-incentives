@@ -1,13 +1,16 @@
 import { dependencyLayer } from "api/incentives";
-import type { SnapshotJob } from "./schemas";
+
 import type { Job } from "bullmq";
 import { Exit } from "effect";
+import type { SnapshotJob } from "./schemas";
+import { calculateActivityPointsQueue } from "../calculate-activity-points/queue";
 
 export const snapshotWorker = async (input: Job<SnapshotJob>) => {
-  const result = await dependencyLayer.snapshot({
+  const result = await dependencyLayer.snapshotWorker({
+    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+    jobId: input.id!,
     addresses: input.data.addresses,
     timestamp: new Date(input.data.timestamp),
-    jobId: input.id,
     addDummyData: input.data.addDummyData,
   });
 
@@ -37,5 +40,11 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
     }
 
     throw new Error(JSON.stringify(result.cause, null, 2));
+  }
+
+  if (result.value?.weekId) {
+    await calculateActivityPointsQueue.queue.add("calculateActivityPoints", {
+      weekId: result.value.weekId,
+    });
   }
 };

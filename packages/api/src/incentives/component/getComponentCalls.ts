@@ -2,7 +2,7 @@ import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
 import { componentCalls } from "db/incentives";
-import { and, gte, lt } from "drizzle-orm";
+import { and, between } from "drizzle-orm";
 
 import { GetAccountAddressByUserIdService } from "../account/getAccountAddressByUserId";
 
@@ -48,8 +48,11 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
               .from(componentCalls)
               .where(
                 and(
-                  gte(componentCalls.timestamp, input.startTimestamp),
-                  lt(componentCalls.timestamp, input.endTimestamp)
+                  between(
+                    componentCalls.timestamp,
+                    input.startTimestamp,
+                    input.endTimestamp
+                  )
                 )
               ),
           catch: (error) => new DbError(error),

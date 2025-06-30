@@ -5,7 +5,7 @@ import {
   type AccountBalanceData,
   accountBalances as accountBalancesTable,
 } from "db/incentives";
-import { and, gte, inArray, lt } from "drizzle-orm";
+import { and, between, inArray } from "drizzle-orm";
 
 type AccountAddress = string;
 type ActivityId = string;
@@ -46,8 +46,11 @@ export const GetWeekAccountBalancesLive = Layer.effect(
       Effect.gen(function* () {
         const whereClauses = [
           inArray(accountBalancesTable.accountAddress, input.addresses),
-          gte(accountBalancesTable.timestamp, input.startDate),
-          lt(accountBalancesTable.timestamp, input.endDate),
+          between(
+            accountBalancesTable.timestamp,
+            input.startDate,
+            input.endDate
+          ),
         ];
 
         const result = yield* Effect.tryPromise({
@@ -58,6 +61,8 @@ export const GetWeekAccountBalancesLive = Layer.effect(
               .where(and(...whereClauses)),
           catch: (error) => new DbError(error),
         });
+
+        yield* Effect.log(`found ${result.length} account balances`);
 
         const accountBalances = result as AccountBalanceWithData[];
 

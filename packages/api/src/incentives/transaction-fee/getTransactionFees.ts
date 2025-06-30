@@ -2,7 +2,7 @@ import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
 import { transactionFees } from "db/incentives";
-import { and, gte, inArray, lt, sum } from "drizzle-orm";
+import { and, between, inArray, sum } from "drizzle-orm";
 import BigNumber from "bignumber.js";
 
 export type GetTransactionFeesServiceInput = {
@@ -35,8 +35,11 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
       const limit = input.limit ?? 10_000;
 
       const andConditions = [
-        gte(transactionFees.timestamp, input.startTimestamp),
-        lt(transactionFees.timestamp, input.endTimestamp),
+        between(
+          transactionFees.timestamp,
+          input.startTimestamp,
+          input.endTimestamp
+        ),
       ];
 
       if (input.addresses) {
