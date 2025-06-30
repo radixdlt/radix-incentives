@@ -55,7 +55,8 @@ const isWhiteListedResourceAddress = (resourceAddress: string) =>
       Assets.Fungible.XRD,
       CaviarNineConstants.LSULP.resourceAddress,
       RootFinance.receiptResourceAddress,
-      DefiPlaza.xUSDCPool.lpResourceAddress,
+      DefiPlaza.xUSDCPool.baseLpResourceAddress,
+      DefiPlaza.xUSDCPool.quoteLpResourceAddress,
     ] as string[]
   ).includes(resourceAddress);
 

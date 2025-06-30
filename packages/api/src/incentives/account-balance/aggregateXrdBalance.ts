@@ -331,7 +331,7 @@ const processDefiPlazaPools = (
 
       if (xrdDerivativePosition && nonXrdDerivativePosition) {
         const pool = Object.values(DefiPlaza).find(
-          (p) => p.lpResourceAddress === lpPosition.lpResourceAddress
+          (p) => p.baseLpResourceAddress === lpPosition.lpResourceAddress
         );
 
         if (
