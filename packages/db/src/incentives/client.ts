@@ -33,12 +33,13 @@ const conn = globalForDb.conn ?? postgres(DATABASE_URL);
 if (NODE_ENV !== "production") globalForDb.conn = conn;
 
 const primaryDb = drizzle(conn, { schema });
-let db: PostgresJsDatabase<typeof schema>;
+let dbConnection: PostgresJsDatabase<typeof schema>;
 
 if (readDb) {
-  db = withReplicas(primaryDb, [readDb]);
+  dbConnection = withReplicas(primaryDb, [readDb]);
 } else {
-  db = primaryDb;
+  dbConnection = primaryDb;
 }
 
-export type Db = typeof db;
+export type Db = typeof dbConnection;
+export const db = dbConnection;
