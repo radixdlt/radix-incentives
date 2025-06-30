@@ -62,6 +62,11 @@ import {
   GetDefiPlazaPositionsService,
   type GetDefiPlazaPositionsError,
 } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
+import {
+  type GetHyperstakePositionsOutput,
+  GetHyperstakePositionsService,
+  type GetHyperstakePositionsError,
+} from "../../common/dapps/caviarnine/getHyperstakePositions";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
@@ -112,6 +117,8 @@ type CaviarNinePosition = {
 
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
 
+type HyperstakePosition = GetHyperstakePositionsOutput[number];
+
 export type AccountBalance = {
   address: string;
   staked: Lsu[];
@@ -123,6 +130,7 @@ export type AccountBalance = {
   rootFinancePositions: RootFinancePosition[];
   caviarninePositions: CaviarNinePosition;
   defiPlazaPositions: DefiPlazaPosition;
+  hyperstakePositions: HyperstakePosition;
 };
 
 export type GetAccountBalancesAtStateVersionServiceError =
@@ -147,7 +155,8 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | InvalidInputError
   | InvalidComponentStateError
   | FailedToParseLiquidityClaimsError
-  | GetDefiPlazaPositionsError;
+  | GetDefiPlazaPositionsError
+  | GetHyperstakePositionsError;
 
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
@@ -184,6 +193,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
     const getShapeLiquidityAssetsService =
       yield* GetShapeLiquidityAssetsService;
     const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
+    const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -229,7 +239,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         );
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, hyperstake positions, lsulp value"
         );
         const [
           userStakingPositions,
@@ -238,6 +248,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allRootFinancePositions,
           allCaviarNineShapeLiquidityAssets,
           allDefiPlazaPositions,
+          allHyperstakePositions,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -287,6 +298,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getDefiPlazaPositionsService")),
+            getHyperstakePositionsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getHyperstakePositionsService")),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -353,10 +369,14 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allDefiPlazaPositions.map((item) => [item.address, item])
         );
 
+        const caviarNineHyperstakePositions = new Map(
+          allHyperstakePositions.map((item) => [item.address, item])
+        );
+
         // Create lookup maps for CaviarNine shape liquidity assets for O(1) access
-        const caviarNineShapeLiquidityMaps = new Map(
+        const caviarNineShapeLiquidityPositions = new Map(
           allCaviarNineShapeLiquidityAssets.map((poolData) => {
-            const poolKey = poolData.pool.name.toLowerCase().replace("/", "");
+            const poolKey = poolData.pool.componentAddress;
             const addressToAssetsMap = new Map(
               poolData.result.map((item) => [item.address, item.items])
             );
@@ -410,8 +430,13 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               const accountDefiPlazaPositions: DefiPlazaPosition =
                 defiPlazaMap.get(address) ?? { address, items: [] };
 
+              const accountHyperstakePositions: HyperstakePosition =
+                caviarNineHyperstakePositions.get(address) ?? { address, items: [] };
+
               const caviarninePositions: CaviarNinePosition = {};
-              for (const [poolKey, addressToAssetsMap] of caviarNineShapeLiquidityMaps) {
+              
+              for (const [poolKey, addressToAssetsMap] of caviarNineShapeLiquidityPositions) {
+
                 const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
                 caviarninePositions[poolKey] = accountPoolAssets;
               }
@@ -427,6 +452,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 rootFinancePositions,
                 caviarninePositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
+                hyperstakePositions: accountHyperstakePositions,
               } satisfies AccountBalance;
             })
         ).pipe(Effect.withSpan("PositionsToAccountBalance"));

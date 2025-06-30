@@ -51,6 +51,10 @@ export const activitiesData = [
     id: "c9_lp_lsulp-xrd",
     category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
+  {
+    id: "c9_lp_hyperstake",
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
 
   // Lending activities
   {
@@ -203,6 +207,10 @@ export const activitiesData = [
   },
   {
     id: "c9_hold_lsulp-xrd",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_hyperstake",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
 ];

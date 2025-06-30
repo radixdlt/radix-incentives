@@ -266,7 +266,35 @@ const processCaviarNinePools = (
       }
     }
 
-    // Add results for pools with positions
+    // Process Hyperstake positions (LSULP/XRD pool)
+    if (accountBalance.hyperstakePositions.items.length > 0) {
+      let totalHyperstakeXrdDerivatives = new BigNumber(0);
+
+      for (const hyperstakeItem of accountBalance.hyperstakePositions.items) {
+        for (const position of hyperstakeItem.position) {
+          // Convert both LSULP and XRD to XRD equivalent for tracking
+          const xrdEquivalent = toXrdEquivalent(
+            position.amount,
+            position.resourceAddress,
+            accountBalance.lsulp.lsulpValue
+          );
+
+          totalHyperstakeXrdDerivatives =
+            totalHyperstakeXrdDerivatives.plus(xrdEquivalent);
+        }
+      }
+
+      const hyperstakeActivityId = "c9_hold_hyperstake" as ActivityId;
+      caviarNineByPool.set(hyperstakeActivityId, totalHyperstakeXrdDerivatives);
+    }
+
+    // Add zero entry for Hyperstake if not processed
+    const hyperstakeActivityId = "c9_hold_hyperstake" as ActivityId;
+    if (!caviarNineByPool.has(hyperstakeActivityId)) {
+      caviarNineByPool.set(hyperstakeActivityId, new BigNumber(0));
+    }
+
+    // Add results for pools with positions (including hyperstake)
     for (const [activityId, xrdAmount] of caviarNineByPool.entries()) {
       output.push({
         activityId,
