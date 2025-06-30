@@ -27,6 +27,7 @@ export const snapshotDateRangeWorker = async (
       data: {
         timestamp: date.toISOString(),
         addresses: input.data.addresses,
+        addDummyData: true,
       },
     }))
   );
