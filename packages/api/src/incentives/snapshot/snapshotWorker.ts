@@ -6,7 +6,6 @@ import { SnapshotService, type SnapshotServiceError } from "./snapshot";
 
 import { z } from "zod";
 import { weeks } from "db/incentives";
-import { CalculateActivityPointsService } from "../activity-points/calculateActivityPoints";
 
 export const snapshotJobSchema = z.object({
   addresses: z.array(z.string()).optional(),
@@ -22,7 +21,9 @@ export type SnapshotWorkerError = SnapshotServiceError | DbError;
 
 export class SnapshotWorkerService extends Context.Tag("SnapshotWorkerService")<
   SnapshotWorkerService,
-  (input: SnapshotWorkerInput) => Effect.Effect<void, SnapshotWorkerError>
+  (
+    input: SnapshotWorkerInput
+  ) => Effect.Effect<{ weekId: string } | undefined, SnapshotWorkerError>
 >() {}
 
 export const SnapshotWorkerLive = Layer.effect(
@@ -30,7 +31,6 @@ export const SnapshotWorkerLive = Layer.effect(
   Effect.gen(function* () {
     const snapshotService = yield* SnapshotService;
     const db = yield* DbClientService;
-    const calculateActivityPoints = yield* CalculateActivityPointsService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -61,8 +61,7 @@ export const SnapshotWorkerLive = Layer.effect(
           return;
         }
 
-        yield* Effect.log("Calculating activity points for week", maybeWeek.id);
-        yield* calculateActivityPoints({ weekId: maybeWeek.id, addresses: [] });
+        return { weekId: maybeWeek.id };
       });
     };
   })

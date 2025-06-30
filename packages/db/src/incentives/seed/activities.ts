@@ -21,8 +21,8 @@ const [seasonResult] = await db
   .insert(seasons)
   .values([
     {
-      startDate: new Date("2025-05-01:00:00:00Z"),
-      endDate: new Date("2025-06-30:23:59:59Z"),
+      startDate: new Date("2025-06-01:00:00:00Z"),
+      endDate: new Date("2025-07-30:23:59:59Z"),
       name: "Season 1",
       status: "active",
       id: SEASON_ID,
@@ -38,7 +38,7 @@ const [weekResult] = await db
   .values([
     {
       startDate: new Date("2025-06-02:00:00:00Z"),
-      endDate: new Date("2025-06-09:00:00:00Z"),
+      endDate: new Date("2025-06-08:23:59:59Z"),
       seasonId: SEASON_ID,
       id: WEEK_ID,
     },

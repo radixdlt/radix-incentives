@@ -4,7 +4,7 @@ import { startOfISOWeek, endOfISOWeek } from "date-fns";
 import { utc } from "@date-fns/utc";
 
 import { componentCalls } from "db/incentives";
-import { inArray, sql, gte, lt, and } from "drizzle-orm";
+import { inArray, sql, and, between } from "drizzle-orm";
 import { GetUserIdByAccountAddressService } from "../user/getUserIdByAccountAddress";
 
 export type AddComponentCallsServiceInput = {
@@ -97,8 +97,11 @@ export const AddComponentCallsLive = Layer.effect(
                 .where(
                   and(
                     inArray(componentCalls.userId, userIds),
-                    gte(componentCalls.timestamp, weekGroup.startDate),
-                    lt(componentCalls.timestamp, weekGroup.endDate)
+                    between(
+                      componentCalls.timestamp,
+                      weekGroup.startDate,
+                      weekGroup.endDate
+                    )
                   )
                 ),
             catch: (error) => new DbError(error),
