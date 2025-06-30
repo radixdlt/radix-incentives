@@ -84,10 +84,10 @@ import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeaso
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
 import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
-import { TokenNameServiceLive } from "../common/token-name/getTokenName";
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
 import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
+import { AddressValidationServiceLive } from "../common/address-validation/addressValidation";
 import {
   type EventWorkerInput,
   EventWorkerLive,
@@ -253,19 +253,19 @@ const upsertAccountBalancesLive = UpsertAccountBalancesLive.pipe(
 const createSnapshotLive = CreateSnapshotLive.pipe(Layer.provide(dbClientLive));
 const updateSnapshotLive = UpdateSnapshotLive.pipe(Layer.provide(dbClientLive));
 
-const tokenNameServiceLive = TokenNameServiceLive;
+const addressValidationServiceLive = AddressValidationServiceLive;
 
 const getUsdValueLive = GetUsdValueLive.pipe(
-  Layer.provide(tokenNameServiceLive)
+  Layer.provide(addressValidationServiceLive)
 );
 const xrdBalanceLive = XrdBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
-  Layer.provide(tokenNameServiceLive)
+  Layer.provide(addressValidationServiceLive)
 );
 
 const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
   Layer.provide(getUsdValueLive),
-  Layer.provide(tokenNameServiceLive)
+  Layer.provide(addressValidationServiceLive)
 );
 
 const aggregateWeftFinancePositionsLive =
@@ -291,7 +291,7 @@ const getHyperstakePositionsLive = GetHyperstakePositionsLive.pipe(
 
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(getUsdValueLive),
-  Layer.provide(tokenNameServiceLive)
+  Layer.provide(addressValidationServiceLive)
 );
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(

@@ -5,9 +5,9 @@ import { Assets } from "../../common/assets/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
 import {
-  TokenNameService,
+  AddressValidationService,
   type UnknownTokenError,
-} from "../../common/token-name/getTokenName";
+} from "../../common/address-validation/addressValidation";
 
 import {
   GetUsdValueService,
@@ -189,9 +189,11 @@ const processLendingProtocols = (
 const processCaviarNinePools = (
   accountBalance: AccountBalanceFromSnapshot,
   xrdToUsd: XrdValueConverter,
-  tokenNameService: (
-    address: string
-  ) => Effect.Effect<string, UnknownTokenError>
+  addressValidationService: {
+    getTokenName: (
+      address: string
+    ) => Effect.Effect<string, UnknownTokenError>
+  }
 ) =>
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
@@ -246,10 +248,10 @@ const processCaviarNinePools = (
               : xToken;
             const xrdDerivativeToken = isXTokenXrdDerivative ? xToken : yToken;
 
-            const nonXrdDerivativeTokenName = yield* tokenNameService(
+            const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
               nonXrdDerivativeToken.resourceAddress
             );
-            const xrdDerivativeTokenName = yield* tokenNameService(
+            const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
               xrdDerivativeToken.resourceAddress
             );
             const activityId =
@@ -315,10 +317,10 @@ const processCaviarNinePools = (
           ? pool.token_x
           : pool.token_y;
 
-        const nonXrdDerivativeTokenName = yield* tokenNameService(
+        const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
           nonXrdDerivativeTokenAddress
         );
-        const xrdDerivativeTokenName = yield* tokenNameService(
+        const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
           xrdDerivativeTokenAddress
         );
         const activityId =
@@ -340,9 +342,11 @@ const processCaviarNinePools = (
 const processDefiPlazaPools = (
   accountBalance: AccountBalanceFromSnapshot,
   xrdToUsd: XrdValueConverter,
-  tokenNameService: (
-    address: string
-  ) => Effect.Effect<string, UnknownTokenError>
+  addressValidationService: {
+    getTokenName: (
+      address: string
+    ) => Effect.Effect<string, UnknownTokenError>
+  }
 ) =>
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
@@ -375,10 +379,10 @@ const processDefiPlazaPools = (
             ? pool.baseResourceAddress
             : pool.quoteResourceAddress;
 
-          const nonXrdDerivativeTokenName = yield* tokenNameService(
+          const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
             nonXrdDerivativeTokenAddress
           );
-          const xrdDerivativeTokenName = yield* tokenNameService(
+          const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
             xrdDerivativeTokenAddress
           );
           const activityId =
@@ -421,10 +425,10 @@ const processDefiPlazaPools = (
           ? pool.baseResourceAddress
           : pool.quoteResourceAddress;
 
-        const nonXrdDerivativeTokenName = yield* tokenNameService(
+        const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
           nonXrdDerivativeTokenAddress
         );
-        const xrdDerivativeTokenName = yield* tokenNameService(
+        const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
           xrdDerivativeTokenAddress
         );
         const activityId =
@@ -463,7 +467,7 @@ export const XrdBalanceLive = Layer.effect(
   XrdBalanceService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
-    const tokenNameService = yield* TokenNameService;
+    const addressValidationService = yield* AddressValidationService;
 
     return (input) =>
       Effect.gen(function* () {
@@ -487,12 +491,12 @@ export const XrdBalanceLive = Layer.effect(
           processCaviarNinePools(
             input.accountBalance,
             xrdToUsd,
-            tokenNameService
+            addressValidationService
           ),
           processDefiPlazaPools(
             input.accountBalance,
             xrdToUsd,
-            tokenNameService
+            addressValidationService
           ),
         ]);
 

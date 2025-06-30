@@ -1,8 +1,5 @@
 import { Context, Effect, Layer } from "effect";
 
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 
 import {
@@ -13,10 +10,7 @@ import {
 
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 import { CaviarNineConstants } from "./constants";
-import type {
-  GetEntityDetailsError,
-  GetEntityDetailsService,
-} from "../../gateway/getEntityDetails";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 import {
@@ -52,10 +46,7 @@ export class GetHyperstakePositionsService extends Context.Tag(
     accountAddresses: string[];
     at_ledger_state: AtLedgerState;
     fungibleBalance?: GetFungibleBalanceOutput;
-  }) => Effect.Effect<
-    GetHyperstakePositionsOutput,
-    GetHyperstakePositionsError
-  >
+  }) => Effect.Effect<GetHyperstakePositionsOutput, GetHyperstakePositionsError>
 >() {}
 
 type AccountAddress = string;

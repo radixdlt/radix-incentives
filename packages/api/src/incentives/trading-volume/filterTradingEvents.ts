@@ -3,21 +3,17 @@ import { Context, Effect, Layer } from "effect";
 import type { EmittableEvent } from "../events/event-matchers/types";
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
 import type { CaviarnineSwapEvent } from "../events/event-matchers/caviarnineEventMatcher";
-import {
-  CaviarNineConstants,
-  shapeLiquidityComponentSet,
-} from "../../common/dapps/caviarnine/constants";
+import { shapeLiquidityComponentSet } from "../../common/dapps/caviarnine/constants";
 import {
   GetUsdValueService,
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import BigNumber from "bignumber.js";
 import type { ActivityId } from "db/incentives";
-import {
-  DefiPlaza,
-  defiPlazaComponentSet,
-} from "../../common/dapps/defiplaza/constants";
+import { defiPlazaComponentSet } from "../../common/dapps/defiplaza/constants";
 import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
+import type { HLPEmittableEvents } from "../events/event-matchers/hlpEventMatcher";
+import { AddressValidationService } from "../../common/address-validation/addressValidation";
 
 export type TradingEvent = CaviarnineSwapEvent;
 
@@ -29,14 +25,6 @@ export type TradingEventWithTokens = {
   inputAmount: BigNumber;
   usdValue: BigNumber;
 };
-
-const poolToActivityIdMap: Map<string, ActivityId> = new Map([
-  [
-    CaviarNineConstants.shapeLiquidityPools.XRD_xUSDC.componentAddress,
-    "c9_trade_xrd-xusdc",
-  ],
-  [DefiPlaza.xUSDCPool.componentAddress, "defiPlaza_trade_xrd-xusdc"],
-]);
 
 export type FilterTradingEventsServiceError = GetUsdValueServiceError;
 
@@ -53,6 +41,7 @@ export const FilterTradingEventsLive = Layer.effect(
   FilterTradingEventsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
+    const addressValidationService = yield* AddressValidationService;
     return (input) => {
       return Effect.gen(function* () {
         const tradingEvents: TradingEventWithTokens[] = [];
@@ -66,7 +55,10 @@ export const FilterTradingEventsLive = Layer.effect(
             const pool = shapeLiquidityComponentSet.get(
               swapEvent.globalEmitter
             );
-            const activityId = poolToActivityIdMap.get(swapEvent.globalEmitter);
+            const activityId =
+              addressValidationService.getTradingActivityIdForPool(
+                swapEvent.globalEmitter
+              );
 
             if (pool && activityId) {
               const swapData = swapEvent.eventData.data;
@@ -115,7 +107,10 @@ export const FilterTradingEventsLive = Layer.effect(
             const swapEvent = event as CapturedEvent<DefiPlazaSwapEvent>;
 
             const pool = defiPlazaComponentSet.get(swapEvent.globalEmitter);
-            const activityId = poolToActivityIdMap.get(swapEvent.globalEmitter);
+            const activityId =
+              addressValidationService.getTradingActivityIdForPool(
+                swapEvent.globalEmitter
+              );
 
             if (pool && activityId) {
               const swapData = swapEvent.eventData.data;
@@ -154,6 +149,35 @@ export const FilterTradingEventsLive = Layer.effect(
                   activityId,
                 });
               }
+            }
+          }
+
+          if (event.dApp === "HLP" && event.eventData.type === "SwapEvent") {
+            const swapEvent = event as CapturedEvent<HLPEmittableEvents>;
+            const activityId =
+              addressValidationService.getTradingActivityIdForPool(
+                swapEvent.globalEmitter
+              );
+
+            if (activityId) {
+              const swapData = swapEvent.eventData.data;
+              const inputAmount = new BigNumber(swapData.input_amount);
+              const inputToken = swapData.input_resource;
+
+              const usdValue = yield* getUsdValueService({
+                amount: inputAmount,
+                resourceAddress: inputToken,
+                timestamp: swapEvent.timestamp,
+              });
+
+              tradingEvents.push({
+                transactionId: swapEvent.transactionId,
+                timestamp: swapEvent.timestamp,
+                inputToken,
+                inputAmount,
+                usdValue,
+                activityId,
+              });
             }
           }
         }

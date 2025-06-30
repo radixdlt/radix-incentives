@@ -3,7 +3,7 @@ import { Effect, Layer } from "effect";
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 import { GetUsdValueLive, GetUsdValueService } from "./getUsdValue";
-import { TokenNameServiceLive } from "../../common/token-name/getTokenName";
+import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
 
 describe("GetUsdValueService", () => {
   const mockFetch = vi.fn();
@@ -37,7 +37,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
     );
 
     const result = await Effect.runPromise(program);
@@ -76,7 +76,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
     );
 
     const result = await Effect.runPromise(program);
@@ -98,7 +98,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
     );
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
@@ -123,7 +123,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
     );
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
@@ -152,7 +152,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, TokenNameServiceLive)
+      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
     );
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({

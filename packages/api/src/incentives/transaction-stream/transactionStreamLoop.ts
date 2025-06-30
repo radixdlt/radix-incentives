@@ -7,6 +7,7 @@ import { rootFinanceEventMatcher } from "../events/event-matchers/rootFinanceEve
 import { FilterTransactionsService } from "./filterTransactions";
 import { AddEventsToDbService } from "../events/queries/addEventToDb";
 import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
+import { hlpEventMatcher } from "../events/event-matchers/hlpEventMatcher";
 import { AddToEventQueueService } from "../events/addToEventQueue";
 import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
 import { AddTransactionFeeService } from "../transaction-fee/addTransactionFee";
@@ -61,6 +62,8 @@ export const transactionStreamLoop = () =>
         const caviarnineEvents =
           yield* caviarnineEventMatcher(uniqueTransactions);
 
+        const hlpEvents = yield* hlpEventMatcher(uniqueTransactions);
+
         const defiPlazaEvents =
           yield* defiPlazaEventMatcher(uniqueTransactions);
 
@@ -69,6 +72,7 @@ export const transactionStreamLoop = () =>
         // concat all captured events
         const allCapturedEvents = [
           ...caviarnineEvents,
+          ...hlpEvents,
           ...defiPlazaEvents,
           ...weftFinanceEvents,
           ...rootFinanceEvents,

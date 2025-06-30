@@ -16,20 +16,58 @@ export const ActivityCategoryKey = {
 
 export type ActivityCategoryKey = keyof typeof ActivityCategoryKey;
 
-const testTokens = ["floop", "dfp2", "early", "caviar",
-  "weft", "xUsdt", "root", "stab", "fusd", "popey", "radit", "dan", "hug",
-  "surge", "sUsd", "delphi", "astrl", "ilis", "oci", "mox", "foton", "fomo",];
-const tokens = ["xrd","xeth", "xusdc","xusdt","xwbtc", "lsulp", "stakedXrd", "unstakedXrd",];
+const testTokens = [
+  "floop",
+  "dfp2",
+  "early",
+  "caviar",
+  "weft",
+  "xUsdt",
+  "root",
+  "stab",
+  "fusd",
+  "popey",
+  "radit",
+  "dan",
+  "hug",
+  "surge",
+  "sUsd",
+  "delphi",
+  "astrl",
+  "ilis",
+  "oci",
+  "mox",
+  "foton",
+  "fomo",
+];
+const tokens = [
+  "xrd",
+  "xeth",
+  "xusdc",
+  "xusdt",
+  "xwbtc",
+  "lsulp",
+  "stakedXrd",
+  "unstakedXrd",
+];
 
-const allTokens = [...new Set([...testTokens, ...tokens]
-  .filter(token => token !== "stakedXrd" && token !== "unstakedXrd"))];
-export type Asset = typeof allTokens[number];
+const allTokens = [
+  ...new Set(
+    [...testTokens, ...tokens].filter(
+      (token) => token !== "stakedXrd" && token !== "unstakedXrd"
+    )
+  ),
+];
+export type Asset = (typeof allTokens)[number];
 
 export type AssetPair = `${Asset}-${Asset}`;
+export type SpecialCase = "hyperstake";
 
 export type DexDApp = "c9" | "defiPlaza" | "oci";
 export type DexAction = "lp" | "trade";
-export type DexActivityId = `${DexDApp}_${DexAction}_${AssetPair}`;
+export type DexActivityId =
+  | `${DexDApp}_${DexAction}_${AssetPair}`
+  | `${DexDApp}_${DexAction}_${SpecialCase}`;
 
 export type LendingDApp = "root" | "weft";
 export type LendingAction = "lend";
@@ -72,8 +110,10 @@ export type AccountBalanceData = Omit<
   activityId: ActivityId;
 };
 
-
-export const activityCategoriesToSeed: { id: ActivityCategoryKey; name: string }[] = [
+export const activityCategoriesToSeed: {
+  id: ActivityCategoryKey;
+  name: string;
+}[] = [
   {
     id: ActivityCategoryKey.maintainXrdBalance,
     name: "Maintain XRD balance",

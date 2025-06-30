@@ -1,9 +1,9 @@
 import { Context, Effect, Layer, Cache, Duration } from "effect";
 import { BigNumber } from "bignumber.js";
 import {
-  TokenNameService,
+  AddressValidationService,
   type UnknownTokenError,
-} from "../../common/token-name/getTokenName";
+} from "../../common/address-validation/addressValidation";
 
 export type GetUsdValueInput = {
   amount: BigNumber;
@@ -89,7 +89,7 @@ const fetchTokenPriceFromAPI = (
 export const GetUsdValueLive = Layer.effect(
   GetUsdValueService,
   Effect.gen(function* () {
-    const tokenNameService = yield* TokenNameService;
+    const addressValidationService = yield* AddressValidationService;
     // Create a cache with 5 minutes TTL and max 1000 entries
     const priceCache = yield* Cache.make({
       capacity: 1000,
@@ -105,8 +105,8 @@ export const GetUsdValueLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        // Validate that the token is supported by attempting to get its name from TokenNameService
-        const tokenNameResult = yield* tokenNameService(
+        // Validate that the token is supported by attempting to get its name from AddressValidationService
+        const tokenNameResult = yield* addressValidationService.getTokenName(
           input.resourceAddress
         ).pipe(Effect.either);
 

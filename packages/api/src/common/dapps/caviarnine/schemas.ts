@@ -53,6 +53,20 @@ export const SwapEvent = s.struct({
   price_after: s.decimal(),
 });
 
+// HLP (Hyperstake Liquidity Pool) has a different SwapEvent structure
+export const HLPSwapEvent = s.struct({
+  input_resource: s.address(),
+  output_resource: s.address(),
+  input_amount: s.decimal(),
+  output_amount: s.decimal(),
+  input_reserve: s.decimal(),
+  output_reserve: s.decimal(),
+  oracle_price: s.decimal(),
+  liquidity_fee: s.decimal(),
+  protocol_fee: s.decimal(),
+  treasury_fee: s.decimal(),
+});
+
 export const RemoveLiquidityEvent = s.struct({
   liquidity_receipt_id: s.nonFungibleLocalId(),
   amount_change_x: s.decimal(),
@@ -80,3 +94,4 @@ export const MintLiquidityReceiptEvent = s.struct({
 export type AddLiquidityEvent = s.infer<typeof AddLiquidityEvent>;
 export type RemoveLiquidityEvent = s.infer<typeof RemoveLiquidityEvent>;
 export type SwapEvent = s.infer<typeof SwapEvent>;
+export type HLPSwapEvent = s.infer<typeof HLPSwapEvent>;

@@ -10,7 +10,7 @@ import {
   type CapturedEvent,
   createEventMatcher,
 } from "./createEventMatcher";
-import { DefiPlaza } from "../../../common/dapps/defiplaza/constants";
+import { isDefiPlazaPoolComponent } from "../../../common/address-validation/addressValidation";
 
 export type DefiPlazaSwapEvent = {
   readonly type: "SwapEvent";
@@ -24,14 +24,9 @@ export type DefiPlazaEmittableEvents =
 
 export type CapturedDefiPlazaEvent = CapturedEvent<DefiPlazaEmittableEvents>;
 
-const isWhiteListedComponent = (componentAddress: string) =>
-  ([DefiPlaza.xUSDCPool.componentAddress] as string[]).includes(
-    componentAddress
-  );
-
 export const defiPlazaEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
-    if (!isWhiteListedComponent(input.emitter.globalEmitter))
+    if (!isDefiPlazaPoolComponent(input.emitter.globalEmitter))
       return yield* Effect.succeed(null);
 
     switch (input?.event.name) {
