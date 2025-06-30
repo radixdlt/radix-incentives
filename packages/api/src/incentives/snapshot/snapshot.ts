@@ -67,7 +67,7 @@ const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
   return chunks;
 };
 
-export type SnapshotServiceError = 
+export type SnapshotServiceError =
   | GetAllValidatorsError
   | GetEntityDetailsError
   | LsulpNotFoundError

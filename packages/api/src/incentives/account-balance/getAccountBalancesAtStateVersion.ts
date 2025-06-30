@@ -369,8 +369,19 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allDefiPlazaPositions.map((item) => [item.address, item])
         );
 
-        const hyperstakeMap = new Map(
+        const caviarNineHyperstakePositions = new Map(
           allHyperstakePositions.map((item) => [item.address, item])
+        );
+
+        // Create lookup maps for CaviarNine shape liquidity assets for O(1) access
+        const caviarNineShapeLiquidityPositions = new Map(
+          allCaviarNineShapeLiquidityAssets.map((poolData) => {
+            const poolKey = poolData.pool.componentAddress;
+            const addressToAssetsMap = new Map(
+              poolData.result.map((item) => [item.address, item.items])
+            );
+            return [poolKey, addressToAssetsMap];
+          })
         );
 
         const accountBalances = yield* Effect.forEach(
@@ -420,16 +431,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 defiPlazaMap.get(address) ?? { address, items: [] };
 
               const accountHyperstakePositions: HyperstakePosition =
-                hyperstakeMap.get(address) ?? { address, items: [] };
+                caviarNineHyperstakePositions.get(address) ?? { address, items: [] };
 
               const caviarninePositions: CaviarNinePosition = {};
-              for (const poolData of allCaviarNineShapeLiquidityAssets) {
-                const poolKey = poolData.pool.name
-                  .toLowerCase()
-                  .replace("/", "");
-                const accountPoolAssets =
-                  poolData.result.find((item) => item.address === address)
-                    ?.items ?? [];
+              for (const [poolKey, addressToAssetsMap] of caviarNineShapeLiquidityPositions) {
+                const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
                 caviarninePositions[poolKey] = accountPoolAssets;
               }
 
