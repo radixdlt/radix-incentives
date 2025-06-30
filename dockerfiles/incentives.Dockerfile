@@ -28,16 +28,7 @@ RUN pnpm install
 
 # Copy source code and build
 COPY --from=builder /app/out/full/ .
-
-RUN --mount=type=secret,id=TURBO_TOKEN,required=false \
-  if [ -f /run/secrets/TURBO_TOKEN ]; then \
-    export TURBO_TOKEN=$(cat /run/secrets/TURBO_TOKEN) && \
-    export TURBO_TEAM=radixdlt; \
-    echo "TURBO_TOKEN provided."; \
-  else \
-    echo "TURBO_TOKEN not provided."; \
-  fi; \
-  pnpm turbo run build --filter=incentives...
+RUN pnpm turbo run build --filter=incentives...
 
 # Production image
 FROM base AS runner
