@@ -10,6 +10,17 @@ export const CaviarNineConstants = {
     resourceAddress:
       "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
   },
+  HLP: {
+    resourceAddress:
+      "resource_rdx1th0f0khh9g8hwa0qtxsarmq8y7yeekjnh4n74494d5zf4k5vw8qv6m",
+    poolAddress:
+      "pool_rdx1chmckjpr0ks5lk6h7mqvmrw56wt4w6tsuy6n2jhd8fhr8vc5en5e90",
+    componentAddress:
+      "component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf", //don't need to derive user's value, but important to check for SwapEvents!
+    token_x:
+      "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+    token_y: Assets.Fungible.XRD,
+  },
   shapeLiquidityPools: {
     LSULP_XRD: {
       name: "LSULP/XRD",
