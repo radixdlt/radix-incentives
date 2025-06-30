@@ -1,13 +1,24 @@
-import { drizzle } from "drizzle-orm/postgres-js";
+import { drizzle, type PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 
 import * as schema from "./schema";
+import { withReplicas } from "drizzle-orm/pg-core";
 
 const DATABASE_URL = process.env.DATABASE_URL;
+const DATABASE_READ_URL = process.env.DATABASE_READ_URL;
 const NODE_ENV = process.env.NODE_ENV;
 
 if (!DATABASE_URL) {
   throw new Error("DATABASE_URL is not set");
+}
+
+let readConn: postgres.Sql;
+let readDb: PostgresJsDatabase<typeof schema> | undefined;
+if (DATABASE_READ_URL) {
+  readConn = postgres(DATABASE_READ_URL);
+  readDb = drizzle(readConn, { schema });
+} else {
+  readDb = undefined;
 }
 
 /**
@@ -21,5 +32,13 @@ const globalForDb = globalThis as unknown as {
 const conn = globalForDb.conn ?? postgres(DATABASE_URL);
 if (NODE_ENV !== "production") globalForDb.conn = conn;
 
+const primaryDb = drizzle(conn, { schema });
+let db: PostgresJsDatabase<typeof schema>;
+
+if (readDb) {
+  db = withReplicas(primaryDb, [readDb]);
+} else {
+  db = primaryDb;
+}
+
 export type Db = typeof db;
-export const db = drizzle(conn, { schema });
