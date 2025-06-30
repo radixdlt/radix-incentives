@@ -36,14 +36,6 @@ export type GetHyperstakePositionsOutput = {
   items: HyperstakePosition[];
 }[];
 
-export type GetHyperstakePositionsDependencies =
-  | GetFungibleBalanceService
-  | GatewayApiClientService
-  | GetEntityDetailsService
-  | EntityFungiblesPageService
-  | GetLedgerStateService
-  | GetResourcePoolUnitsService;
-
 export type GetHyperstakePositionsError =
   | GetEntityDetailsError
   | EntityNotFoundError
@@ -62,8 +54,7 @@ export class GetHyperstakePositionsService extends Context.Tag(
     fungibleBalance?: GetFungibleBalanceOutput;
   }) => Effect.Effect<
     GetHyperstakePositionsOutput,
-    GetHyperstakePositionsError,
-    GetHyperstakePositionsDependencies
+    GetHyperstakePositionsError
   >
 >() {}
 

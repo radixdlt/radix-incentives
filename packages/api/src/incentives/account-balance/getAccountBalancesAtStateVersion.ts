@@ -66,7 +66,6 @@ import {
   type GetHyperstakePositionsOutput,
   GetHyperstakePositionsService,
   type GetHyperstakePositionsError,
-  type GetHyperstakePositionsDependencies,
 } from "../../common/dapps/caviarnine/getHyperstakePositions";
 import type {
   LedgerState,
@@ -159,21 +158,6 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | GetDefiPlazaPositionsError
   | GetHyperstakePositionsError;
 
-export type GetAccountBalancesAtStateVersionServiceDependencies =
-  | GetFungibleBalanceService
-  | GetNonFungibleBalanceService
-  | GetUserStakingPositionsService
-  | GetLsulpService
-  | GetLsulpValueService
-  | ConvertLsuToXrdService
-  | GetWeftFinancePositionsService
-  | GetRootFinancePositionsService
-  | GetLedgerStateService
-  | GetShapeLiquidityAssetsService
-  | GetDefiPlazaPositionsService
-  | GetHyperstakePositionsService
-  | GetHyperstakePositionsDependencies;
-
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
 )<
@@ -187,8 +171,7 @@ export class GetAccountBalancesAtStateVersionService extends Context.Tag(
       items: AccountBalance[];
       ledgerState: LedgerState;
     },
-    GetAccountBalancesAtStateVersionServiceError,
-    GetAccountBalancesAtStateVersionServiceDependencies
+    GetAccountBalancesAtStateVersionServiceError
   >
 >() {}
 
