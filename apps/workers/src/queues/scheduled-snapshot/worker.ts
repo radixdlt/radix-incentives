@@ -1,4 +1,5 @@
 import { getHourStartInUTC } from "../../helpers/getHourStartInUTC";
+import { SnapshotPriority } from "../snapshot/constants";
 import { snapshotQueue } from "../snapshot/queue";
 
 export const scheduledSnapshotWorker = async () => {
@@ -7,6 +8,8 @@ export const scheduledSnapshotWorker = async () => {
     {
       timestamp: getHourStartInUTC().toISOString(),
     },
-    {}
+    {
+      priority: SnapshotPriority.Scheduled,
+    }
   );
 };
