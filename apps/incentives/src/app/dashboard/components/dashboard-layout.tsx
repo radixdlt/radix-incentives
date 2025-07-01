@@ -20,13 +20,13 @@ import { Logo } from '~/components/Logo';
 
 const navItems = [
   // TODO: Implement these
-  // {
-  //   label: 'Dashboard',
-  //   href: '/dashboard',
-  //   icon: (
-  //     <Home className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-  //   ),
-  // },
+  {
+    label: 'Dashboard',
+    href: '/dashboard',
+    icon: (
+      <Home className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+    ),
+  },
   // {
   //   label: 'Activity',
   //   href: '/dashboard/activity',
@@ -73,10 +73,6 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 }) => {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
-
-  if (pathname === '/dashboard') {
-    return redirect('/dashboard/accounts');
-  }
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">

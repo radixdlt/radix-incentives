@@ -13,6 +13,7 @@ import { userRouter } from "../user/userRouter";
 export const appRouter = createTRPCRouter({
   auth: authRouter,
   account: accountRouter,
+  user: userRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
