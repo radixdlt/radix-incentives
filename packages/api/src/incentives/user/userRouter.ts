@@ -1,6 +1,7 @@
 import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
+import { Exit } from "effect";
 
 export const userRouter = createTRPCRouter({
   getUsersPaginated: publicProcedure
@@ -18,4 +19,18 @@ export const userRouter = createTRPCRouter({
 
       return result.value;
     }),
+
+  getUserStats: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ctx.dependencyLayer.getUserStats({
+      userId: ctx.session.user.id,
+    });
+
+    return Exit.match(result, {
+      onSuccess: (value) => value,
+      onFailure: (error) => {
+        console.error(error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      },
+    });
+  }),
 });

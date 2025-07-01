@@ -1,5 +1,9 @@
 import type { Db, Week } from "db/incentives";
-import { type AppConfig, createAppConfigLive } from "../config/appConfig";
+import {
+  type AppConfig,
+  createAppConfigLive,
+  createConfig,
+} from "../config/appConfig";
 import { createDbClientLive } from "../db/dbClient";
 import { Effect, Layer } from "effect";
 import { RolaServiceLive } from "../rola/rola";
@@ -52,6 +56,10 @@ import {
   UpdateWeekStatusLive,
   UpdateWeekStatusService,
 } from "../week/updateWeekStatus";
+import { UserStatsService } from "../user/user";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { NodeSdk } from "@effect/opentelemetry";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -62,7 +70,9 @@ export type CreateDependencyLayerInput = {
 
 export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const dbClientLive = createDbClientLive(input.dbClient);
-  const appConfigLive = createAppConfigLive(input.appConfig);
+
+  const appConfig = createConfig(input.appConfig);
+  const appConfigLive = createAppConfigLive(appConfig);
 
   const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
 
@@ -123,6 +133,15 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
     Layer.provide(dbClientLive)
   );
+
+  const NodeSdkLive = NodeSdk.layer(() => ({
+    resource: { serviceName: "api" },
+    spanProcessor: new BatchSpanProcessor(
+      new OTLPTraceExporter({
+        url: `${appConfig.otlpBaseUrl}/v1/traces`,
+      })
+    ),
+  }));
 
   const createChallenge = () =>
     Effect.runPromiseExit(
@@ -292,6 +311,23 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const userStatsLive = UserStatsService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getUserStats = (input: { userId: string }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const userStatsService = yield* UserStatsService;
+
+        return yield* userStatsService.getUserStats(input);
+      }),
+      userStatsLive
+    ).pipe(Effect.provide(NodeSdkLive));
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -306,5 +342,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getActivityWeeksByWeekIds,
     getUsersPaginated,
     updateWeekStatus,
+    getUserStats,
   };
 };

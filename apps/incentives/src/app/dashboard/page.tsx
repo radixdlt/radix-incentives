@@ -1,175 +1,118 @@
-import { cn } from "~/lib/utils";
-import { MoveUpRight, Award, Zap } from "lucide-react";
-import { Card } from "~/components/ui/card";
+'use client';
+
+import { MoveUpRight, Award, Zap, Wallet } from 'lucide-react';
+import {
+  MetricCard,
+  ActivityBreakdown,
+  RecentActivity,
+} from '~/components/dashboard';
+import { api } from '~/trpc/react';
+import { ConnectedState } from './components/ConnectedState';
+import { EmptyState } from '~/components/ui/empty-state';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
 
 export default function DashboardPage() {
+  const persona = usePersona();
+  const rdt = useDappToolkit();
+
+  const accounts = api.account.getAccounts.useQuery(undefined, {
+    refetchOnMount: true,
+    enabled: !!persona,
+    retry: false,
+  });
+
+  const userStats = api.user.getUserStats.useQuery(undefined, {
+    refetchOnMount: true,
+    enabled: accounts.isSuccess && accounts.data?.length > 0,
+    retry: false,
+  });
+
+  if (accounts.isLoading || userStats.isLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="text-2xl">Loading...</div>
+      </div>
+    );
+  }
+
+  if (accounts.isError || userStats.isError) {
+    return (
+      <div className="flex justify-center items-center h-96">
+        <div className="text-2xl text-red-500">Error loading data.</div>
+      </div>
+    );
+  }
+
+  if (accounts.data?.length === 0) {
+    return (
+      <div className="space-y-6">
+        <EmptyState
+          title={`<a class=" text-lg hover:underline" href="/dashboard/accounts">No connected accounts</a>`}
+          description="Please register an account to see your stats."
+          icon={Wallet}
+          className="max-w-full"
+        />
+      </div>
+    );
+  }
+
+  const latestWeekActivities =
+    userStats.data?.activityPoints?.slice(-1)[0]?.activities ?? [];
+  const latestWeeklyPoints = latestWeekActivities.reduce(
+    (acc, activity) => acc + activity.points,
+    0,
+  );
+
+  const totalSeasonPoints = userStats.data?.seasonPoints ?? 0;
+
+  const activityBreakdownData = latestWeekActivities
+    .map((activity) => ({
+      name: activity.activityId, // TODO: Map activityId to a display name
+      points: activity.points,
+      percentage: 0,
+    }))
+    .sort((a, b) => b.points - a.points);
+
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <Card className="overflow-hidden">
-        <div className="p-6 flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">This Week</span>
-            <span className="text-xs text-muted-foreground">
-              Week 12 / Season 1
-            </span>
-          </div>
-          <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold tracking-tight">12,500</span>
-            <MoveUpRight className="h-4 w-4 text-green-500 mb-1" />
-            <span className="text-xs text-green-500 mb-1">+8.2%</span>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Points earned this week
-          </div>
-        </div>
-      </Card>
+      <MetricCard
+        title="Current Week"
+        value={latestWeeklyPoints.toLocaleString()}
+        icon={MoveUpRight}
+        description="Activity Points earned this week"
+        iconColor="text-green-500"
+      />
 
-      <Card className="overflow-hidden">
-        <div className="p-6 flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Season Total</span>
-            <span className="text-xs text-muted-foreground">Season 1</span>
-          </div>
-          <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold tracking-tight">87,200</span>
-            <MoveUpRight className="h-4 w-4 text-green-500 mb-1" />
-            <span className="text-xs text-green-500 mb-1">+12.5%</span>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Total points this season
-          </div>
-        </div>
-      </Card>
+      <MetricCard
+        title="Current Season"
+        value={totalSeasonPoints.toLocaleString()}
+        icon={MoveUpRight}
+        description="Points earned this season"
+        iconColor="text-green-500"
+      />
 
-      <Card className="overflow-hidden">
-        <div className="p-6 flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Multiplier</span>
-            <span className="text-xs text-muted-foreground">
-              Based on holdings
-            </span>
-          </div>
-          <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold tracking-tight">1.5x</span>
-            <Zap className="h-4 w-4 text-amber-500 mb-1" />
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Current points multiplier
-          </div>
-        </div>
-      </Card>
+      <MetricCard
+        title="Multiplier"
+        subtitle="Based on holdings"
+        value={userStats.data?.multiplier?.value ?? '0'}
+        icon={Zap}
+        description="Current points multiplier"
+        iconColor="text-amber-500"
+      />
 
-      <Card className="overflow-hidden">
-        <div className="p-6 flex flex-col space-y-4">
-          <div className="flex items-center justify-between">
-            <span className="text-sm font-medium">Rank</span>
-            <span className="text-xs text-muted-foreground">Global</span>
-          </div>
-          <div className="flex items-end gap-2">
-            <span className="text-3xl font-bold tracking-tight">#342</span>
-            <Award className="h-4 w-4 text-blue-500 mb-1" />
-            <span className="text-xs text-blue-500 mb-1">Top 5%</span>
-          </div>
-          <div className="text-xs text-muted-foreground">
-            Global leaderboard position
-          </div>
-        </div>
-      </Card>
+      <MetricCard
+        title="Weekly Ranking"
+        subtitle="Global"
+        value={
+          userStats.data?.multiplier?.weeklyRanking.toLocaleString() ?? 'n/a'
+        }
+        icon={Award}
+        description="Global leaderboard position"
+        iconColor="text-blue-500"
+      />
 
-      <div className="md:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
-          <h3 className="text-lg font-medium">Activity Breakdown</h3>
-          <div className="mt-4 space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="text-sm">DEX Trading</span>
-              <span className="text-sm font-medium">4,200 pts</span>
-            </div>
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "35%" }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Liquidity Provision</span>
-              <span className="text-sm font-medium">3,800 pts</span>
-            </div>
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "32%" }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Lending</span>
-              <span className="text-sm font-medium">2,500 pts</span>
-            </div>
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "21%" }}
-              />
-            </div>
-
-            <div className="flex items-center justify-between">
-              <span className="text-sm">Staking</span>
-              <span className="text-sm font-medium">1,500 pts</span>
-            </div>
-            <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
-              <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "12%" }}
-              />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="md:col-span-2 rounded-lg border bg-card text-card-foreground shadow-sm">
-        <div className="p-6">
-          <h3 className="text-lg font-medium">Recent Activity</h3>
-          <div className="mt-4 space-y-4">
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-medium">DEX Trading</div>
-                <div className="text-sm text-muted-foreground">xUSDC → XRD</div>
-              </div>
-              <div className="text-right">
-                <div>+250 pts</div>
-                <div className="text-sm text-muted-foreground">2 hours ago</div>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-medium">Liquidity Provision</div>
-                <div className="text-sm text-muted-foreground">
-                  XRD-xUSDC LP
-                </div>
-              </div>
-              <div className="text-right">
-                <div>+180 pts</div>
-                <div className="text-sm text-muted-foreground">5 hours ago</div>
-              </div>
-            </div>
-
-            <div className="flex justify-between items-start">
-              <div>
-                <div className="font-medium">Lending</div>
-                <div className="text-sm text-muted-foreground">
-                  Supplied XRD
-                </div>
-              </div>
-              <div className="text-right">
-                <div>+120 pts</div>
-                <div className="text-sm text-muted-foreground">1 day ago</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ActivityBreakdown activities={activityBreakdownData} />
     </div>
   );
 }

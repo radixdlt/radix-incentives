@@ -100,6 +100,7 @@ import {
   SnapshotWorkerService,
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
+import { UserStatsService } from "./user/user";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -617,6 +618,23 @@ const calculateSPMultiplier = (input: {
   return Effect.runPromiseExit(program);
 };
 
+const userStatsLive = UserStatsService.Default.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const getUserStats = (input: { userId: string }) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const userStatsService = yield* UserStatsService;
+
+      return yield* userStatsService.getUserStats(input);
+    }),
+    userStatsLive
+  ).pipe(Effect.provide(NodeSdkLive));
+
+  return Effect.runPromiseExit(program);
+};
+
 export const dependencyLayer = {
   snapshotWorker,
   getLedgerState,
@@ -625,4 +643,5 @@ export const dependencyLayer = {
   calculateSeasonPoints,
   calculateSPMultiplier,
   eventWorkerHandler,
+  getUserStats,
 };
