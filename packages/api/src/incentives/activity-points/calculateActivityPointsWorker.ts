@@ -94,10 +94,11 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
         }
 
         let offset = 0;
-        const accountsLimitPerPage = process.env.Activity_Points_Worker_Accounts_Limit ? Number.parseInt(process.env.Activity_Points_Worker_Accounts_Limit, 10) : 5000;
+        const accountsLimitPerPage = process.env.ACTIVITY_POINTS_WORKER_ACCOUNTS_LIMIT ? Number.parseInt(process.env.ACTIVITY_POINTS_WORKER_ACCOUNTS_LIMIT, 10) : 5000;
         let shouldContinue = true;
 
         while (shouldContinue) {
+          yield* Effect.log(`fetching accounts from ${offset} to ${offset + accountsLimitPerPage}`)
           const items = yield* getPaginatedAccountAddresses({
             weekId: parsedInput.data.weekId,
             offset,
@@ -116,6 +117,9 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
           });
 
           offset += accountsLimitPerPage;
+        const progress = ((offset + accountsLimitPerPage) / (offset + items.length)) * 100;
+        yield* Effect.log(`Progress: ${progress.toFixed(2)}% of accounts processed.`);
+        
         }
 
         yield* Effect.log(

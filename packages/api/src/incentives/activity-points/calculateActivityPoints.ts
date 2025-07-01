@@ -57,6 +57,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           addresses: input.addresses,
         }).pipe(
           // filter out maintain xrd balance activities
+          Effect.tap(() => Effect.log("Filtering out hold_ activities")),
           Effect.map((items) =>
             items.map((item) => ({
               ...item,
@@ -65,6 +66,7 @@ export const CalculateActivityPointsLive = Layer.effect(
               ),
             }))
           ),
+          Effect.tap(() => Effect.log("Calculating TWA")),
           Effect.flatMap((items) =>
             calculateTWA({
               items,
@@ -72,6 +74,7 @@ export const CalculateActivityPointsLive = Layer.effect(
               calculationType: "USDValueDurationMultiplied",
             })
           ),
+          Effect.tap(() => Effect.log("Flattening items")),
           // flatten the items to a list of account activity points
           Effect.map((items) =>
             Object.entries(items).flatMap(([address, activities]) =>
