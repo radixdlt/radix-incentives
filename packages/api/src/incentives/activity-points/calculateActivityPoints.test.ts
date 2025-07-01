@@ -1,6 +1,4 @@
 import { Effect, Layer, Logger } from "effect";
-import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
-import { createAppConfigLive } from "../config/appConfig";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
@@ -11,18 +9,13 @@ import {
   CalculateActivityPointsService,
 } from "./calculateActivityPoints";
 import { UpsertAccountActivityPointsLive } from "./upsertAccountActivityPoints";
-import { GetWeekAccountBalancesLive } from "./getWeekAccountBalances";
+
 import { GetWeekByIdLive } from "../week/getWeekById";
 import { GetTransactionFeesPaginatedLive } from "../transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "../component/getComponentCalls";
 import { GetTradingVolumeLive } from "../trading-volume/getTradingVolume";
 import { GetAccountAddressByUserIdLive } from "../account/getAccountAddressByUserId";
-
-const appConfigServiceLive = createAppConfigLive();
-
-const gatewayApiClientLive = GatewayApiClientLive.pipe(
-  Layer.provide(appConfigServiceLive)
-);
+import { AccountBalanceService } from "../account-balance/accountBalance";
 
 const dbClientLive = createDbClientLive(db);
 
@@ -35,7 +28,7 @@ const upsertAccountActivityPointsLive = UpsertAccountActivityPointsLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const getWeekAccountBalancesLive = GetWeekAccountBalancesLive.pipe(
+const accountBalanceServiceLive = AccountBalanceService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
@@ -60,7 +53,7 @@ const getAccountAddressByUserIdLive = GetAccountAddressByUserIdLive.pipe(
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
-  Layer.provide(getWeekAccountBalancesLive),
+  Layer.provide(accountBalanceServiceLive),
   Layer.provide(getWeekByIdLive),
   Layer.provide(getTransactionFeesLive),
   Layer.provide(getComponentCallsLive),
@@ -106,7 +99,7 @@ describe("calculateActivityPoints", () => {
     const result = await Effect.runPromise(
       Effect.provide(
         program,
-        Layer.mergeAll(dbClientLive, calculateActivityPointsLive)
+        Layer.merge(calculateActivityPointsLive, dbClientLive)
       ).pipe(Effect.provide(Logger.pretty))
     );
 

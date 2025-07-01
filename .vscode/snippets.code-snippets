@@ -1,0 +1,20 @@
+{
+  "Create Effect Service": {
+    "prefix": "eservice",
+    "body": [
+      "import { Effect } from \"effect\";",
+      "",
+      "class ${1:ServiceName}Service extends Effect.Service<${1:ServiceName}Service>()(\"${1:ServiceName}Service\", {",
+      "  effect: Effect.gen(function* () {",
+      "    return {",
+      "      ${2:methodName}: Effect.fn(function* () {",
+      "        ${3:// Implementation goes here}",
+      "        return;",
+      "      }),",
+      "    };",
+      "  }),",
+      "}) {}"
+    ],
+    "description": "Creates an Effect service using Effect.Service pattern"
+  }
+}

@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { z } from "zod";
-import { GetWeekAccountBalancesService } from "../activity-points/getWeekAccountBalances";
+import { AccountBalanceService } from "../account-balance/accountBalance";
 import { calculateTWA } from "../activity-points/calculateTWA";
 import {
   type GetWeekByIdError,
@@ -44,52 +44,46 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
   GetUserTWAXrdBalanceService,
   Effect.gen(function* () {
     const getWeekById = yield* GetWeekByIdService;
-    const getWeekAccountBalances = yield* GetWeekAccountBalancesService;
+    const accountBalanceService = yield* AccountBalanceService;
     const dbClient = yield* DbClientService;
 
     return (input) => {
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
 
-        const items = yield* getWeekAccountBalances({
-          startDate: week.startDate,
-          endDate: week.endDate,
-          addresses: input.addresses,
-        }).pipe(
-          // filter out non-hold activities
-          Effect.map((items) =>
-            items.map((item) => ({
-              ...item,
-              activities: item.activities.filter((activity) =>
-                activity.activityId.includes("hold_")
-              ),
-            }))
-          ),
-          Effect.flatMap((items) => {
-            const twa = calculateTWA({
-              items,
-              week,
-              calculationType: "USDValue",
-            });
-            return twa;
-          }),
-          Effect.map((items) => {
-            const resultItems = Object.entries(items).flatMap(
-              ([address, activities]) =>
-                activities
-                  ? Object.entries(activities).map(
-                      ([activityId, twaBalance]) => ({
-                        accountAddress: address,
-                        activityId,
-                        twaBalance: twaBalance,
-                        weekId: week.id,
-                      })
-                    )
-                  : []
-            );
-            return resultItems;
+        const items = yield* accountBalanceService
+          .byAddressesAndDateRange({
+            startDate: week.startDate,
+            endDate: week.endDate,
+            addresses: input.addresses,
+            filterFn: (activityId) => activityId.includes("hold_"),
           })
-        );
+          .pipe(
+            Effect.flatMap((items) => {
+              const twa = calculateTWA({
+                items,
+                week,
+                calculationType: "USDValue",
+              });
+              return twa;
+            }),
+            Effect.map((items) => {
+              const resultItems = Object.entries(items).flatMap(
+                ([address, activities]) =>
+                  activities
+                    ? Object.entries(activities).map(
+                        ([activityId, twaBalance]) => ({
+                          accountAddress: address,
+                          activityId,
+                          twaBalance: twaBalance,
+                          weekId: week.id,
+                        })
+                      )
+                    : []
+              );
+              return resultItems;
+            })
+          );
 
         const getAccountsWithUserId = (createdAt: Date) => {
           return Effect.gen(function* () {

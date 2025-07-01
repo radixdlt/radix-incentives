@@ -5,6 +5,7 @@ import {
   type SnapshotDateRangeJob,
 } from "./schemas";
 import { getDatesBetweenIntervals } from "api/common";
+import { SnapshotPriority } from "../snapshot/constants";
 
 export const snapshotDateRangeWorker = async (
   input: Job<SnapshotDateRangeJob>
@@ -21,14 +22,17 @@ export const snapshotDateRangeWorker = async (
     }
   );
 
-  await snapshotQueue.queue.addBulk(
-    dates.map((date) => ({
-      name: "manual-snapshot",
-      data: {
+  for (const date of dates) {
+    await snapshotQueue.queue.add(
+      "manualSnapshot",
+      {
         timestamp: date.toISOString(),
         addresses: input.data.addresses,
         addDummyData: true,
       },
-    }))
-  );
+      {
+        priority: SnapshotPriority.Scheduled,
+      }
+    );
+  }
 };

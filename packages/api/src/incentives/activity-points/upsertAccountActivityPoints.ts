@@ -41,7 +41,7 @@ export const UpsertAccountActivityPointsLive = Layer.effect(
               catch: (error) => new DbError(error),
             });
           });
-        });
+        }).pipe(Effect.withSpan("upsertAccountActivityPoints"));
       });
   })
 );
