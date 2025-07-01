@@ -159,7 +159,8 @@ const caviarNineComponents = new Set([
     (p) => p.componentAddress
   ),
   // LSULP component
-  CaviarNineConstants.LSULP.component,
+  // TODO: think about uncommenting this if we ever need it, but we don't need to watch events from the LSULP pool for now
+  //CaviarNineConstants.LSULP.component,
 ] as string[]);
 
 const defiPlazaComponents = new Set(
