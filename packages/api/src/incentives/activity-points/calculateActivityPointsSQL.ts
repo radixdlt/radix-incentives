@@ -52,8 +52,8 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
                   (activity.value->>'usdValue')::decimal AS usd_value
                 FROM account_balances ab
                 CROSS JOIN jsonb_each(ab.data) AS activity
-                WHERE ab.timestamp >= ${input.startDate}
-                  AND ab.timestamp <= ${input.endDate}
+                WHERE ab.timestamp >= ${input.startDate.toISOString()}
+                  AND ab.timestamp <= ${input.endDate.toISOString()}
                   AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
                   AND activity.key NOT LIKE '%hold_%'
                   AND (activity.value->>'usdValue')::decimal > 0
@@ -70,7 +70,7 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
                       PARTITION BY account_address, activity_id 
                       ORDER BY timestamp
                     ),
-                    ${input.endDate}::timestamp with time zone
+                    ${input.endDate.toISOString()}::timestamp with time zone
                   ) AS next_timestamp
                 FROM expanded_activities
               ),
