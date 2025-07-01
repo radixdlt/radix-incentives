@@ -29,7 +29,7 @@ export class CalculateActivityPointsSQLService extends Context.Tag(
   (
     input: CalculateActivityPointsSQLInput
   ) => Effect.Effect<CalculateActivityPointsSQLOutput, DbError>
->() {}
+>() { }
 
 const MAX_ADDRESSES_PER_BATCH = 1500; // Keep well below PostgreSQL's 1664 limit
 
@@ -38,14 +38,15 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
   Effect.gen(function* () {
     const db = yield* DbClientService;
 
+
     return (input) => {
       const executeQuery = (addressBatch: string[]) => {
         return Effect.tryPromise({
           try: async () => {
             // Debug log to ensure this code is being executed
             console.log('Executing SQL query with array-based data structure');
-            const result = await db.execute(sql`
-              SET transaction_read_only = on;
+            const result = await db.transaction(async (tx) => {
+              return await tx.execute(sql`
               WITH expanded_activities AS (
                 -- Expand jsonb array into individual activity rows
                 SELECT 
@@ -121,6 +122,12 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
                 END > 0
               ORDER BY account_address, activity_id;
             `);
+            }
+              ,
+              {
+                accessMode: 'read only'
+              }
+            );
 
             type QueryResult = {
               account_address: string;
@@ -160,12 +167,12 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
         // Process batches in parallel with controlled concurrency
         const maxConcurrency = Number.parseInt(process.env.ACTIVITY_POINTS_SQL_CONCURRENCY || "5", 10);
         const concurrency = Math.min(batches.length, maxConcurrency);
-        
+
         yield* Effect.log(`Using concurrency level: ${concurrency}`);
-        
+
         const allBatchResults = yield* Effect.forEach(
           batches,
-          (addressBatch, index) => 
+          (addressBatch, index) =>
             Effect.gen(function* () {
               yield* Effect.log(`Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`);
               const batchResults = yield* executeQuery(addressBatch);
@@ -179,7 +186,7 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
         const allResults = allBatchResults.flat();
 
         yield* Effect.log(`Completed processing ${input.addresses.length} addresses in ${batches.length} parallel batches. Total results: ${allResults.length}`);
-        
+
         return allResults;
       });
     };
