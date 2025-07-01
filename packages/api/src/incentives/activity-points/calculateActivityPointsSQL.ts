@@ -1,0 +1,137 @@
+import { Context, Effect, Layer } from "effect";
+import { DbClientService, DbError } from "../db/dbClient";
+import { sql } from "drizzle-orm";
+import { z } from "zod";
+
+export const calculateActivityPointsSQLInputSchema = z.object({
+  weekId: z.string(),
+  addresses: z.array(z.string()),
+  startDate: z.date(),
+  endDate: z.date(),
+  calculationType: z.enum(["USDValue", "USDValueDurationMultiplied"]).default("USDValueDurationMultiplied"),
+});
+
+export type CalculateActivityPointsSQLInput = z.infer<
+  typeof calculateActivityPointsSQLInputSchema
+>;
+
+export type CalculateActivityPointsSQLOutput = {
+  accountAddress: string;
+  activityId: string;
+  activityPoints: number;
+  weekId: string;
+}[];
+
+export class CalculateActivityPointsSQLService extends Context.Tag(
+  "CalculateActivityPointsSQLService"
+)<
+  CalculateActivityPointsSQLService,
+  (
+    input: CalculateActivityPointsSQLInput
+  ) => Effect.Effect<CalculateActivityPointsSQLOutput, DbError>
+>() {}
+
+export const CalculateActivityPointsSQLLive = Layer.effect(
+  CalculateActivityPointsSQLService,
+  Effect.gen(function* () {
+    const db = yield* DbClientService;
+
+    return (input) => {
+      return Effect.tryPromise({
+        try: async () => {
+          const result = await db.execute(sql`
+            WITH expanded_activities AS (
+              -- Expand jsonb data into individual activity rows
+              SELECT 
+                ab.timestamp,
+                ab.account_address,
+                activity.key AS activity_id,
+                (activity.value->>'usdValue')::decimal AS usd_value
+              FROM account_balances ab
+              CROSS JOIN jsonb_each(ab.data) AS activity
+              WHERE ab.timestamp >= ${input.startDate}
+                AND ab.timestamp <= ${input.endDate}
+                AND ab.account_address = ANY(${input.addresses})
+                AND activity.key NOT LIKE '%hold_%'
+                AND (activity.value->>'usdValue')::decimal > 0
+            ),
+            activities_with_duration AS (
+              -- Calculate duration to next timestamp using LEAD window function
+              SELECT 
+                account_address,
+                activity_id,
+                timestamp,
+                usd_value,
+                COALESCE(
+                  LEAD(timestamp) OVER (
+                    PARTITION BY account_address, activity_id 
+                    ORDER BY timestamp
+                  ),
+                  ${input.endDate}::timestamp with time zone
+                ) AS next_timestamp
+              FROM expanded_activities
+            ),
+            weighted_calculations AS (
+              -- Calculate weighted values and durations
+              SELECT 
+                account_address,
+                activity_id,
+                EXTRACT(EPOCH FROM (next_timestamp - timestamp)) * 1000 AS duration_ms,
+                usd_value * EXTRACT(EPOCH FROM (next_timestamp - timestamp)) * 1000 AS weighted_value
+              FROM activities_with_duration
+              WHERE next_timestamp > timestamp
+            ),
+            twa_results AS (
+              -- Calculate time-weighted average per account/activity
+              SELECT 
+                account_address,
+                activity_id,
+                SUM(weighted_value) / NULLIF(SUM(duration_ms), 0) AS twa_usd_value,
+                SUM(duration_ms) / (1000.0 * 60.0) AS total_duration_minutes
+              FROM weighted_calculations
+              GROUP BY account_address, activity_id
+              HAVING SUM(duration_ms) > 0
+            )
+            -- Apply calculation type and format results
+            SELECT 
+              account_address,
+              activity_id,
+              ${input.weekId}::uuid AS week_id,
+              CASE 
+                WHEN ${input.calculationType} = 'USDValue' THEN 
+                  ROUND(twa_usd_value, 2)::bigint
+                ELSE 
+                  ROUND(twa_usd_value * total_duration_minutes, 0)::bigint
+              END AS activity_points
+            FROM twa_results
+            WHERE twa_usd_value > 0
+              AND CASE 
+                WHEN ${input.calculationType} = 'USDValue' THEN 
+                  ROUND(twa_usd_value, 2)
+                ELSE 
+                  ROUND(twa_usd_value * total_duration_minutes, 0)
+              END > 0
+            ORDER BY account_address, activity_id;
+          `);
+
+          type QueryResult = {
+            account_address: string;
+            activity_id: string;
+            activity_points: string;
+            week_id: string;
+          };
+
+          const rows = result as unknown as QueryResult[];
+
+          return rows.map((row) => ({
+            accountAddress: row.account_address,
+            activityId: row.activity_id,
+            activityPoints: Number(row.activity_points),
+            weekId: row.week_id,
+          }));
+        },
+        catch: (error) => new DbError(error),
+      });
+    };
+  })
+); 

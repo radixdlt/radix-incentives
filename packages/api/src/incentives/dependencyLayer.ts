@@ -56,6 +56,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
+import { CalculateActivityPointsSQLLive } from "./activity-points/calculateActivityPointsSQL";
 import { UpsertAccountActivityPointsLive } from "./activity-points/upsertAccountActivityPoints";
 import { GetWeekByIdLive } from "./week/getWeekById";
 import { AccountBalanceService } from "./account-balance/accountBalance";
@@ -416,11 +417,15 @@ const getTradingVolumeLive = GetTradingVolumeLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const calculateActivityPointsSQLLive = CalculateActivityPointsSQLLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(accountBalanceServiceLive),
+  Layer.provide(calculateActivityPointsSQLLive),
   Layer.provide(getTransactionFeesPaginatedLive),
   Layer.provide(getComponentCallsPaginatedLive),
   Layer.provide(getTradingVolumeLive)
