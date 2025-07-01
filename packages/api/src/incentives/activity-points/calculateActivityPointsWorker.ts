@@ -77,12 +77,14 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
         let shouldContinue = true;
 
         while (shouldContinue) {
-          const items = yield* accountAddressService.getPaginated({
-            weekId: parsedInput.data.weekId,
-            offset,
-            limit: accountsLimitPerPage,
-            createdAt: week.endDate,
-          });
+          const items = yield* accountAddressService
+            .getPaginated({
+              weekId: parsedInput.data.weekId,
+              offset,
+              limit: accountsLimitPerPage,
+              createdAt: week.endDate,
+            })
+            .pipe(Effect.withSpan("getPaginatedAccounts"));
 
           if (items.length === 0) {
             shouldContinue = false;
@@ -92,7 +94,7 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
           yield* calculateActivityPointsService({
             weekId: parsedInput.data.weekId,
             addresses: items,
-          });
+          }).pipe(Effect.withSpan(`calculateActivityPoints-${offset}`));
 
           offset += accountsLimitPerPage;
         }

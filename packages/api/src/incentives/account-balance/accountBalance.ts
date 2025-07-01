@@ -56,49 +56,51 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
         });
 
       return {
-        byAddressesAndDateRange: Effect.fn(function* (input: {
-          startDate: Date;
-          endDate: Date;
-          addresses: string[];
-          filterFn?: (activityId: string) => boolean;
-        }) {
-          const result = yield* getAccountBalances(input);
-          const filterFn = input.filterFn ?? (() => true);
+        byAddressesAndDateRange: Effect.fn("byAddressesAndDateRange")(
+          function* (input: {
+            startDate: Date;
+            endDate: Date;
+            addresses: string[];
+            filterFn?: (activityId: string) => boolean;
+          }) {
+            const result = yield* getAccountBalances(input);
+            const filterFn = input.filterFn ?? (() => true);
 
-          const groupedByAddress = groupBy(
-            result,
-            (item) => item.accountAddress
-          );
-
-          const output: AccountBalanceGroupedByAddressAndActivityId[] =
-            Object.entries(groupedByAddress).map(
-              ([accountAddress, balances]) => {
-                const flattedDataWithTimestamp = balances.flatMap((balance) =>
-                  balance.data.map((data) => ({
-                    ...data,
-                    timestamp: balance.timestamp,
-                  }))
-                );
-
-                const groupedByActivityId = groupBy(
-                  flattedDataWithTimestamp,
-                  (item) => item.activityId
-                );
-
-                return {
-                  accountAddress,
-                  activities: Object.entries(groupedByActivityId)
-                    .filter(([activityId]) => filterFn(activityId))
-                    .map(([activityId, data]) => ({
-                      activityId: activityId as ActivityId,
-                      items: data,
-                    })),
-                };
-              }
+            const groupedByAddress = groupBy(
+              result,
+              (item) => item.accountAddress
             );
 
-          return output;
-        }),
+            const output: AccountBalanceGroupedByAddressAndActivityId[] =
+              Object.entries(groupedByAddress).map(
+                ([accountAddress, balances]) => {
+                  const flattedDataWithTimestamp = balances.flatMap((balance) =>
+                    balance.data.map((data) => ({
+                      ...data,
+                      timestamp: balance.timestamp,
+                    }))
+                  );
+
+                  const groupedByActivityId = groupBy(
+                    flattedDataWithTimestamp,
+                    (item) => item.activityId
+                  );
+
+                  return {
+                    accountAddress,
+                    activities: Object.entries(groupedByActivityId)
+                      .filter(([activityId]) => filterFn(activityId))
+                      .map(([activityId, data]) => ({
+                        activityId: activityId as ActivityId,
+                        items: data,
+                      })),
+                  };
+                }
+              );
+
+            return output;
+          }
+        ),
       };
     }),
   }

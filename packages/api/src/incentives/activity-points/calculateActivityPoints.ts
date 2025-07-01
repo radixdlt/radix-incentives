@@ -96,6 +96,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           startTimestamp: week.startDate,
           addresses: input.addresses,
         }).pipe(
+          Effect.withSpan("getTransactionFees"),
           Effect.map((items) =>
             items.map(({ accountAddress, fee }) => ({
               weekId: week.id,
@@ -117,7 +118,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
           addresses: input.addresses,
-        });
+        }).pipe(Effect.withSpan("getComponentCalls"));
 
         if (componentCalls.length > 0) {
           yield* Effect.log(
@@ -137,7 +138,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
           addresses: input.addresses,
-        });
+        }).pipe(Effect.withSpan("getTradingVolume"));
 
         if (tradingVolume.length > 0) {
           yield* Effect.log(

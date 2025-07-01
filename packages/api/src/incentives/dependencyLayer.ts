@@ -579,6 +579,9 @@ const calculateActivityPoints = (input: {
       });
     }),
     calculateActivityPointsWorkerLive
+  ).pipe(
+    Effect.withSpan("calculateActivityPoints"),
+    Effect.provide(NodeSdkLive)
   );
 
   return Effect.runPromiseExit(program);
