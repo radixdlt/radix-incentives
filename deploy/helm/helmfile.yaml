@@ -2,6 +2,7 @@ environments:
   dev: {}
   perftest: {}
   pr: {}
+  preview: {}
 ---
 helmDefaults:
   verify: false
