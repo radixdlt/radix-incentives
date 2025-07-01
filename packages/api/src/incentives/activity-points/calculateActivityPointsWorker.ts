@@ -94,7 +94,7 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
         }
 
         let offset = 0;
-        const accountsLimitPerPage = 10_000;
+        const accountsLimitPerPage = process.env.Activity_Points_Worker_Accounts_Limit ? Number.parseInt(process.env.Activity_Points_Worker_Accounts_Limit, 10) : 5000;
         let shouldContinue = true;
 
         while (shouldContinue) {
