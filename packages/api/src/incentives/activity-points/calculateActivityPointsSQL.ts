@@ -146,20 +146,38 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
         return executeQuery(input.addresses);
       }
 
-      // For large arrays, process in batches and combine results
+      // For large arrays, process in batches in parallel and combine results
       return Effect.gen(function* () {
-        const allResults: CalculateActivityPointsSQLOutput = [];
-        
+        // Split addresses into batches
+        const batches: string[][] = [];
         for (let i = 0; i < input.addresses.length; i += MAX_ADDRESSES_PER_BATCH) {
-          const addressBatch = input.addresses.slice(i, i + MAX_ADDRESSES_PER_BATCH);
-          
-          yield* Effect.log(`Processing batch ${Math.floor(i / MAX_ADDRESSES_PER_BATCH) + 1} of ${Math.ceil(input.addresses.length / MAX_ADDRESSES_PER_BATCH)} (${addressBatch.length} addresses)`);
-          
-          const batchResults = yield* executeQuery(addressBatch);
-          allResults.push(...batchResults);
+          batches.push(input.addresses.slice(i, i + MAX_ADDRESSES_PER_BATCH));
         }
 
-        yield* Effect.log(`Completed processing ${input.addresses.length} addresses in ${Math.ceil(input.addresses.length / MAX_ADDRESSES_PER_BATCH)} batches. Total results: ${allResults.length}`);
+        yield* Effect.log(`Processing ${input.addresses.length} addresses in ${batches.length} parallel batches`);
+
+        // Process batches in parallel with controlled concurrency
+        const maxConcurrency = Number.parseInt(process.env.ACTIVITY_POINTS_SQL_CONCURRENCY || "5", 10);
+        const concurrency = Math.min(batches.length, maxConcurrency);
+        
+        yield* Effect.log(`Using concurrency level: ${concurrency}`);
+        
+        const allBatchResults = yield* Effect.forEach(
+          batches,
+          (addressBatch, index) => 
+            Effect.gen(function* () {
+              yield* Effect.log(`Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`);
+              const batchResults = yield* executeQuery(addressBatch);
+              yield* Effect.log(`Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`);
+              return batchResults;
+            }),
+          { concurrency }
+        );
+
+        // Flatten all results
+        const allResults = allBatchResults.flat();
+
+        yield* Effect.log(`Completed processing ${input.addresses.length} addresses in ${batches.length} parallel batches. Total results: ${allResults.length}`);
         
         return allResults;
       });
