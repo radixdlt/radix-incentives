@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { redirect, usePathname } from 'next/navigation';
 import { useState } from 'react';
 import { RadixConnectButton } from './RadixConnectButton';
 import { Sidebar, SidebarBody, SidebarLink } from '~/components/ui/sidebar';
@@ -14,42 +14,52 @@ import {
   Users,
   Settings,
   Vote,
+  HelpCircle,
 } from 'lucide-react';
+import { Logo } from '~/components/Logo';
 
 const navItems = [
-  {
-    label: 'Dashboard',
-    href: '/dashboard',
-    icon: (
-      <Home className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-    ),
-  },
-  {
-    label: 'Activity',
-    href: '/dashboard/activity',
-    icon: (
-      <Activity className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-    ),
-  },
-  {
-    label: 'Multiplier',
-    href: '/dashboard/multiplier',
-    icon: (
-      <DollarSign className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-    ),
-  },
-  {
-    label: 'Leaderboard',
-    href: '/dashboard/leaderboard',
-    icon: (
-      <List className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
-    ),
-  },
+  // TODO: Implement these
+  // {
+  //   label: 'Dashboard',
+  //   href: '/dashboard',
+  //   icon: (
+  //     <Home className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+  //   ),
+  // },
+  // {
+  //   label: 'Activity',
+  //   href: '/dashboard/activity',
+  //   icon: (
+  //     <Activity className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+  //   ),
+  // },
+  // {
+  //   label: 'Multiplier',
+  //   href: '/dashboard/multiplier',
+  //   icon: (
+  //     <DollarSign className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+  //   ),
+  // },
+  // {
+  //   label: 'Leaderboard',
+  //   href: '/dashboard/leaderboard',
+  //   icon: (
+  //     <List className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+  //   ),
+  // },
   {
     label: 'Accounts',
     href: '/dashboard/accounts',
     icon: (
       <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+    ),
+  },
+  {
+    label: 'FAQ',
+    href: '/dashboard/faq',
+    icon: (
+      <HelpCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
 ];
@@ -64,21 +74,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
 
+  if (pathname === '/dashboard') {
+    return redirect('/dashboard/accounts');
+  }
+
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background px-4 md:px-6">
         <div className="flex flex-1 items-center gap-2">
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-semibold text-lg"
-          >
-            <Image
-              src="https://cdn.prod.website-files.com/6053f7fca5bf627283b582c2/6266da2a5acb38c8eacf5938_radix_logo_white.png"
-              alt="Radix Consultation"
-              width={80}
-              height={32}
-            />
-          </Link>
+          <Logo />
         </div>
         <nav className="flex items-center gap-2">
           <RadixConnectButton />
