@@ -60,6 +60,7 @@ export const CalculateActivityPointsLive = Layer.effect(
             filterFn: (activityId) => !activityId.includes("hold_"),
           })
           .pipe(
+            Effect.tap(() => Effect.log("Calculating TWA")),
             Effect.flatMap((items) =>
               calculateTWA({
                 items,
@@ -67,6 +68,7 @@ export const CalculateActivityPointsLive = Layer.effect(
                 calculationType: "USDValueDurationMultiplied",
               })
             ),
+            Effect.tap(() => Effect.log("Flattening items")),
             // flatten the items to a list of account activity points
             Effect.map((items) =>
               Object.entries(items).flatMap(([address, activities]) =>
@@ -78,6 +80,7 @@ export const CalculateActivityPointsLive = Layer.effect(
                 }))
               )
             ),
+            Effect.tap(() => Effect.log("Filtering out entries with 0 activity points")),
             // filter out entries with 0 activity points
             Effect.map((items) =>
               items.filter((entry) => entry.activityPoints > 0)
