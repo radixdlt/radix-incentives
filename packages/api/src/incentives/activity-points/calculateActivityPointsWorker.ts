@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { DbClientService, type DbError } from "../db/dbClient";
 import {
   CalculateActivityPointsService,
   type CalculateActivityPointsError,
@@ -7,9 +7,8 @@ import {
 import { z } from "zod";
 import { InvalidInputError } from "../../common/errors";
 import { chunker } from "../../common";
-import { accounts } from "db/incentives";
-import { lte } from "drizzle-orm";
 import { GetWeekByIdService } from "../week/getWeekById";
+import { AccountAddressService } from "../account/accountAddressService";
 
 export const calculateActivityPointsJobSchema = z.object({
   weekId: z.string(),
@@ -20,22 +19,27 @@ export type CalculateActivityPointsJob = z.infer<
   typeof calculateActivityPointsJobSchema
 >;
 
+export type CalculateActivityPointsWorkerError =
+  | CalculateActivityPointsError
+  | InvalidInputError
+  | DbError;
+
 export class CalculateActivityPointsWorkerService extends Context.Tag(
   "CalculateActivityPointsWorkerService"
 )<
   CalculateActivityPointsWorkerService,
   (
     input: CalculateActivityPointsJob
-  ) => Effect.Effect<void, CalculateActivityPointsError | InvalidInputError>
+  ) => Effect.Effect<void, CalculateActivityPointsWorkerError>
 >() {}
 
 export const CalculateActivityPointsWorkerLive = Layer.effect(
   CalculateActivityPointsWorkerService,
   Effect.gen(function* () {
-    const db = yield* DbClientService;
     const calculateActivityPointsService =
       yield* CalculateActivityPointsService;
     const getWeekByIdService = yield* GetWeekByIdService;
+    const accountAddressService = yield* AccountAddressService;
 
     return (input) =>
       Effect.gen(function* () {
@@ -44,31 +48,6 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
         if (!parsedInput.success) {
           return yield* Effect.fail(new InvalidInputError(parsedInput.error));
         }
-
-        const getPaginatedAccountAddresses = ({
-          offset = 0,
-          limit = 10000,
-          createdAt,
-        }: {
-          weekId: string;
-          offset: number;
-          limit?: number;
-          createdAt: Date;
-        }) =>
-          Effect.tryPromise({
-            try: () =>
-              db
-                .select({ address: accounts.address })
-                .from(accounts)
-                .where(lte(accounts.createdAt, createdAt))
-                .limit(limit)
-                .offset(offset)
-                .then((res) => res.map((r) => r.address)),
-            catch: (error) => {
-              console.error(error);
-              return new DbError(error);
-            },
-          });
 
         const accountAddresses = parsedInput.data.addresses;
 
@@ -98,7 +77,7 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
         let shouldContinue = true;
 
         while (shouldContinue) {
-          const items = yield* getPaginatedAccountAddresses({
+          const items = yield* accountAddressService.getPaginated({
             weekId: parsedInput.data.weekId,
             offset,
             limit: accountsLimitPerPage,

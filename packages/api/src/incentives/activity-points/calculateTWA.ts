@@ -1,6 +1,6 @@
 import { Effect } from "effect";
-import type { GetWeekAccountBalancesOutput } from "./getWeekAccountBalances";
 import BigNumber from "bignumber.js";
+import type { AccountBalanceGroupedByAddressAndActivityId } from "../account-balance/accountBalance";
 
 type AccountAddress = string;
 type ActivityId = string;
@@ -17,7 +17,7 @@ export const calculateTWA = ({
   week,
   calculationType = "USDValueDurationMultiplied",
 }: {
-  items: GetWeekAccountBalancesOutput;
+  items: AccountBalanceGroupedByAddressAndActivityId[];
   week: { endDate: Date };
   calculationType?: TWACalculationType;
 }) =>

@@ -58,7 +58,7 @@ import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
 import { UpsertAccountActivityPointsLive } from "./activity-points/upsertAccountActivityPoints";
 import { GetWeekByIdLive } from "./week/getWeekById";
-import { GetWeekAccountBalancesLive } from "./activity-points/getWeekAccountBalances";
+import { AccountBalanceService } from "./account-balance/accountBalance";
 import {
   CalculateActivityPointsWorkerLive,
   CalculateActivityPointsWorkerService,
@@ -99,6 +99,7 @@ import {
   SnapshotWorkerLive,
   SnapshotWorkerService,
 } from "./snapshot/snapshotWorker";
+import { AccountAddressService } from "./account/accountAddressService";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -394,7 +395,7 @@ const upsertUserTwaWithMultiplierLive = UpsertUserTwaWithMultiplierLive.pipe(
 
 const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
 
-const getWeekAccountBalancesLive = GetWeekAccountBalancesLive.pipe(
+const accountBalanceServiceLive = AccountBalanceService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
@@ -419,10 +420,14 @@ const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(getWeekAccountBalancesLive),
+  Layer.provide(accountBalanceServiceLive),
   Layer.provide(getTransactionFeesPaginatedLive),
   Layer.provide(getComponentCallsPaginatedLive),
   Layer.provide(getTradingVolumeLive)
+);
+
+const accountAddressService = AccountAddressService.Default.pipe(
+  Layer.provide(dbClientLive)
 );
 
 const calculateActivityPointsWorkerLive =
@@ -430,8 +435,8 @@ const calculateActivityPointsWorkerLive =
     Layer.provide(dbClientLive),
     Layer.provide(calculateActivityPointsLive),
     Layer.provide(getWeekByIdLive),
-    Layer.provide(getWeekAccountBalancesLive),
-    Layer.provide(getTransactionFeesPaginatedLive)
+    Layer.provide(getTransactionFeesPaginatedLive),
+    Layer.provide(accountAddressService)
   );
 
 const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
@@ -467,7 +472,6 @@ const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getWeekByIdLive),
   Layer.provide(getSeasonByIdLive),
-  Layer.provide(getWeekAccountBalancesLive),
   Layer.provide(getAccountAddressesLive),
   Layer.provide(upsertUserTwaWithMultiplierLive),
   Layer.provide(getActivitiesByWeekIdLive)
@@ -477,7 +481,8 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(calculateSPMultiplierLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(upsertUserTwaWithMultiplierLive)
+  Layer.provide(upsertUserTwaWithMultiplierLive),
+  Layer.provide(accountBalanceServiceLive)
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({

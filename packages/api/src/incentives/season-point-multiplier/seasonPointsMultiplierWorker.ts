@@ -17,7 +17,6 @@ import {
   type WeekNotFoundError,
 } from "../week/getWeekById";
 import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplier";
-import type { GetWeekAccountBalancesService } from "../activity-points/getWeekAccountBalances";
 
 export const seasonPointsMultiplierJobSchema = z.object({
   weekId: z.string(),
