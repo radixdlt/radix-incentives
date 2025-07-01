@@ -42,21 +42,25 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
       const executeQuery = (addressBatch: string[]) => {
         return Effect.tryPromise({
           try: async () => {
+            // Debug log to ensure this code is being executed
+            console.log('Executing SQL query with array-based data structure');
             const result = await db.execute(sql`
               WITH expanded_activities AS (
-                -- Expand jsonb data into individual activity rows
+                -- Expand jsonb array into individual activity rows
                 SELECT 
                   ab.timestamp,
                   ab.account_address,
-                  activity.key AS activity_id,
-                  (activity.value->>'usdValue')::decimal AS usd_value
+                  activity_item->>'activityId' AS activity_id,
+                  (activity_item->>'usdValue')::decimal AS usd_value
                 FROM account_balances ab
-                CROSS JOIN jsonb_each(ab.data) AS activity
+                CROSS JOIN jsonb_array_elements(ab.data) AS activity_item
                 WHERE ab.timestamp >= ${input.startDate.toISOString()}
                   AND ab.timestamp <= ${input.endDate.toISOString()}
                   AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
-                  AND activity.key NOT LIKE '%hold_%'
-                  AND (activity.value->>'usdValue')::decimal > 0
+                  AND ab.data IS NOT NULL
+                  AND jsonb_typeof(ab.data) = 'array'
+                  AND (activity_item->>'activityId') NOT LIKE '%hold_%'
+                  AND (activity_item->>'usdValue')::decimal > 0
               ),
               activities_with_duration AS (
                 -- Calculate duration to next timestamp using LEAD window function
