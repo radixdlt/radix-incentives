@@ -138,47 +138,120 @@ function getTokenNameSync(resourceAddress: string): string | undefined {
   return tokenNameMap[resourceAddress as keyof typeof tokenNameMap];
 }
 
+// Precompute sets for resource validation at module load
+const validResourceAddresses = new Set([
+  ...extractPropertyValues(Assets, "resourceAddress"),
+  ...Object.values(Assets.Fungible),
+  ...extractPropertyValues(CaviarNineConstants, "resourceAddress"),
+  ...extractPropertyValues(CaviarNineConstants, "liquidity_receipt"),
+  ...extractPropertyValues(DefiPlaza, "baseLpResourceAddress"),
+  ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
+  ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
+  ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
+  ...extractPropertyValues(WeftFinance, "resourceAddress"),
+  ...extractPropertyValues(RootFinance, "resourceAddress"),
+  RootFinance.receiptResourceAddress,
+]);
+
+const caviarNineComponents = new Set([
+  // Shape liquidity pools
+  ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
+    (p) => p.componentAddress
+  ),
+  // LSULP component
+  CaviarNineConstants.LSULP.component,
+] as string[]);
+
+const defiPlazaComponents = new Set(
+  Object.values(DefiPlaza)
+    .map((pool) => pool.componentAddress)
+    .filter((addr) => addr && addr.length > 0) as string[]
+);
+
+const caviarNineResources = new Set([
+  CaviarNineConstants.LSULP.resourceAddress,
+  CaviarNineConstants.HLP.resourceAddress,
+  ...extractPropertyValues(
+    CaviarNineConstants.shapeLiquidityPools,
+    "liquidity_receipt"
+  ),
+  ...extractPropertyValues(
+    CaviarNineConstants.shapeLiquidityPools,
+    "token_x"
+  ),
+  ...extractPropertyValues(
+    CaviarNineConstants.shapeLiquidityPools,
+    "token_y"
+  ),
+  CaviarNineConstants.HLP.token_x,
+  CaviarNineConstants.HLP.token_y,
+]);
+
+const defiPlazaResources = new Set([
+  ...extractPropertyValues(DefiPlaza, "baseLpResourceAddress"),
+  ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
+  ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
+  ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
+]);
+
+const weftResources = new Set(
+  extractPropertyValues(WeftFinance, "resourceAddress")
+);
+
+const rootResources = new Set([
+  RootFinance.receiptResourceAddress,
+  ...extractPropertyValues(RootFinance, "resourceAddress"),
+]);
+
+const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
+
+// Precompute pool trading map at module load
+const poolTradingMap = (() => {
+  const map = new Map<string, ActivityId>();
+  // CaviarNine Shape Liquidity Pools
+  for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
+    const tokenX = getTokenNameSync(pool.token_x);
+    const tokenY = getTokenNameSync(pool.token_y);
+    if (tokenX && tokenY) {
+      const [firstToken, secondToken] = [tokenX, tokenY].sort();
+      const activityId: ActivityId = `c9_trade_${firstToken}-${secondToken}`;
+      map.set(pool.componentAddress, activityId);
+    }
+  }
+  // CaviarNine HLP (Hyperstake Liquidity Pool)
+  const hlpTokenX = getTokenNameSync(CaviarNineConstants.HLP.token_x);
+  const hlpTokenY = getTokenNameSync(CaviarNineConstants.HLP.token_y);
+  if (hlpTokenX && hlpTokenY) {
+    const activityId = "c9_trade_hyperstake" as ActivityId;
+    map.set(CaviarNineConstants.HLP.componentAddress, activityId);
+  }
+  // DefiPlaza Pools
+  for (const [_poolKey, pool] of Object.entries(DefiPlaza)) {
+    if (pool.componentAddress && pool.componentAddress.length > 0) {
+      const baseToken = getTokenNameSync(pool.baseResourceAddress);
+      const quoteToken = getTokenNameSync(pool.quoteResourceAddress);
+      if (baseToken && quoteToken) {
+        const [firstToken, secondToken] = [baseToken, quoteToken].sort();
+        const activityId: ActivityId = `defiPlaza_trade_${firstToken}-${secondToken}`;
+        map.set(pool.componentAddress, activityId);
+      }
+    }
+  }
+  return map;
+})();
+
 // Standalone validation functions (can be used without service injection)
 export const isValidResourceAddress = (resourceAddress: string): boolean => {
-  const validResourceAddresses = new Set([
-    ...extractPropertyValues(Assets, "resourceAddress"),
-    ...Object.values(Assets.Fungible),
-    ...extractPropertyValues(CaviarNineConstants, "resourceAddress"),
-    ...extractPropertyValues(CaviarNineConstants, "liquidity_receipt"),
-    ...extractPropertyValues(DefiPlaza, "baseLpResourceAddress"),
-    ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
-    ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
-    ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
-    ...extractPropertyValues(WeftFinance, "resourceAddress"),
-    ...extractPropertyValues(RootFinance, "resourceAddress"),
-    RootFinance.receiptResourceAddress,
-  ]);
-
   return validResourceAddresses.has(resourceAddress);
 };
 
 export const isCaviarNinePoolComponent = (
   componentAddress: string
 ): boolean => {
-  const caviarNineComponents = new Set([
-    // Shape liquidity pools
-    ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
-      (p) => p.componentAddress
-    ),
-    // LSULP component
-    CaviarNineConstants.LSULP.component,
-  ] as string[]);
-
   return caviarNineComponents.has(componentAddress);
 };
 
 export const isDefiPlazaPoolComponent = (componentAddress: string): boolean => {
-  const defiPlazaComponents = new Set(
-    Object.values(DefiPlaza)
-      .map((pool) => pool.componentAddress)
-      .filter((addr) => addr && addr.length > 0) as string[]
-  );
-
   return defiPlazaComponents.has(componentAddress);
 };
 
@@ -207,52 +280,6 @@ export const isRootFinanceComponent = (
 export const isHlpPoolComponent = (componentAddress: string): boolean => {
   return componentAddress === CaviarNineConstants.HLP.componentAddress;
 };
-
-// Helper function to extract pool information for trading activities
-function extractPoolTradingInfo(): Map<string, ActivityId> {
-  const poolTradingMap = new Map<string, ActivityId>();
-
-  // CaviarNine Shape Liquidity Pools
-  for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
-
-    if (tokenX && tokenY) {
-      // Sort tokens alphabetically for consistent naming
-      const [firstToken, secondToken] = [tokenX, tokenY].sort();
-      const activityId: ActivityId = `c9_trade_${firstToken}-${secondToken}`;
-      poolTradingMap.set(pool.componentAddress, activityId);
-    }
-  }
-
-  // CaviarNine HLP (Hyperstake Liquidity Pool) - Special case
-  // Use dedicated "hyperstake" activity ID instead of generic "lsulp-xrd"
-  const hlpTokenX = getTokenNameSync(CaviarNineConstants.HLP.token_x);
-  const hlpTokenY = getTokenNameSync(CaviarNineConstants.HLP.token_y);
-
-  if (hlpTokenX && hlpTokenY) {
-    // Special case: HLP gets its own dedicated trading activity ID
-    const activityId = "c9_trade_hyperstake" as ActivityId;
-    poolTradingMap.set(CaviarNineConstants.HLP.componentAddress, activityId);
-  }
-
-  // DefiPlaza Pools
-  for (const [_poolKey, pool] of Object.entries(DefiPlaza)) {
-    if (pool.componentAddress && pool.componentAddress.length > 0) {
-      const baseToken = getTokenNameSync(pool.baseResourceAddress);
-      const quoteToken = getTokenNameSync(pool.quoteResourceAddress);
-
-      if (baseToken && quoteToken) {
-        // Sort tokens alphabetically for consistent naming
-        const [firstToken, secondToken] = [baseToken, quoteToken].sort();
-        const activityId: ActivityId = `defiPlaza_trade_${firstToken}-${secondToken}`;
-        poolTradingMap.set(pool.componentAddress, activityId);
-      }
-    }
-  }
-
-  return poolTradingMap;
-}
 
 export const AddressValidationServiceLive = Layer.succeed(
   AddressValidationService,
@@ -313,70 +340,28 @@ export const AddressValidationServiceLive = Layer.succeed(
 
     // dApp-specific resource validation
     isCaviarNineResource: (resourceAddress: string): boolean => {
-      const caviarNineResources = new Set([
-        CaviarNineConstants.LSULP.resourceAddress,
-        CaviarNineConstants.HLP.resourceAddress,
-        ...extractPropertyValues(
-          CaviarNineConstants.shapeLiquidityPools,
-          "liquidity_receipt"
-        ),
-        ...extractPropertyValues(
-          CaviarNineConstants.shapeLiquidityPools,
-          "token_x"
-        ),
-        ...extractPropertyValues(
-          CaviarNineConstants.shapeLiquidityPools,
-          "token_y"
-        ),
-        CaviarNineConstants.HLP.token_x,
-        CaviarNineConstants.HLP.token_y,
-      ]);
-
       return caviarNineResources.has(resourceAddress);
     },
 
     isDefiPlazaResource: (resourceAddress: string): boolean => {
-      const defiPlazaResources = new Set([
-        ...extractPropertyValues(DefiPlaza, "baseLpResourceAddress"),
-        ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
-        ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
-        ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
-      ]);
-
       return defiPlazaResources.has(resourceAddress);
     },
 
     isWeftFinanceResource: (resourceAddress: string): boolean => {
-      const weftResources = new Set(
-        extractPropertyValues(WeftFinance, "resourceAddress")
-      );
-
       return weftResources.has(resourceAddress);
     },
 
     isRootFinanceResource: (resourceAddress: string): boolean => {
-      const rootResources = new Set([
-        RootFinance.receiptResourceAddress,
-        ...extractPropertyValues(RootFinance, "resourceAddress"),
-      ]);
-
       return rootResources.has(resourceAddress);
     },
 
     isBaseAssetResource: (resourceAddress: string): boolean => {
-      const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
-
       return baseAssets.has(resourceAddress);
     },
 
     getTradingActivityIdForPool: (
       componentAddress: string
     ): ActivityId | undefined => {
-      // Automatically generate trading activity IDs for all pools using format:
-      // protocol_trade_tokenx-tokeny (tokens sorted alphabetically)
-      // Special case: HLP uses "c9_trade_hyperstake" instead of "c9_trade_lsulp-xrd"
-      const poolTradingMap = extractPoolTradingInfo();
-
       return poolTradingMap.get(componentAddress);
     },
 
