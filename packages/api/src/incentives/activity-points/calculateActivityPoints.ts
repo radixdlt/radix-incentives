@@ -1,8 +1,8 @@
 import { Context, Effect, Layer } from "effect";
-import type { DbClientService, DbError } from "../db/dbClient";
+import type { DbError } from "../db/dbClient";
 import { z } from "zod";
 import { UpsertAccountActivityPointsService } from "./upsertAccountActivityPoints";
-import { GetWeekAccountBalancesService } from "./getWeekAccountBalances";
+import { AccountBalanceService } from "../account-balance/accountBalance";
 import { calculateTWA } from "./calculateTWA";
 import {
   type GetWeekByIdError,
@@ -41,7 +41,7 @@ export const CalculateActivityPointsLive = Layer.effect(
   Effect.gen(function* () {
     const upsertAccountActivityPoints =
       yield* UpsertAccountActivityPointsService;
-    const getWeekAccountBalances = yield* GetWeekAccountBalancesService;
+    const accountBalanceService = yield* AccountBalanceService;
     const getWeekById = yield* GetWeekByIdService;
     const getTransactionFees = yield* GetTransactionFeesService;
     const getComponentCalls = yield* GetComponentCallsService;
@@ -51,43 +51,38 @@ export const CalculateActivityPointsLive = Layer.effect(
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
 
-        const weekAccountBalances = yield* getWeekAccountBalances({
-          startDate: week.startDate,
-          endDate: week.endDate,
-          addresses: input.addresses,
-        }).pipe(
-          // filter out maintain xrd balance activities
-          Effect.map((items) =>
-            items.map((item) => ({
-              ...item,
-              activities: item.activities.filter(
-                (activity) => !activity.activityId.includes("hold_")
-              ),
-            }))
-          ),
-          Effect.flatMap((items) =>
-            calculateTWA({
-              items,
-              week,
-              calculationType: "USDValueDurationMultiplied",
-            })
-          ),
-          // flatten the items to a list of account activity points
-          Effect.map((items) =>
-            Object.entries(items).flatMap(([address, activities]) =>
-              Object.entries(activities).map(([activityId, points]) => ({
-                accountAddress: address,
-                activityId,
-                activityPoints: points.toNumber(),
-                weekId: week.id,
-              }))
+        const weekAccountBalances = yield* accountBalanceService
+          .byAddressesAndDateRange({
+            startDate: week.startDate,
+            endDate: week.endDate,
+            addresses: input.addresses,
+            // filter out maintain xrd balance activities
+            filterFn: (activityId) => !activityId.includes("hold_"),
+          })
+          .pipe(
+            Effect.flatMap((items) =>
+              calculateTWA({
+                items,
+                week,
+                calculationType: "USDValueDurationMultiplied",
+              })
+            ),
+            // flatten the items to a list of account activity points
+            Effect.map((items) =>
+              Object.entries(items).flatMap(([address, activities]) =>
+                Object.entries(activities).map(([activityId, points]) => ({
+                  accountAddress: address,
+                  activityId,
+                  activityPoints: points.toNumber(),
+                  weekId: week.id,
+                }))
+              )
+            ),
+            // filter out entries with 0 activity points
+            Effect.map((items) =>
+              items.filter((entry) => entry.activityPoints > 0)
             )
-          ),
-          // filter out entries with 0 activity points
-          Effect.map((items) =>
-            items.filter((entry) => entry.activityPoints > 0)
-          )
-        );
+          );
 
         if (weekAccountBalances.length > 0) {
           yield* Effect.log(
@@ -101,6 +96,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           startTimestamp: week.startDate,
           addresses: input.addresses,
         }).pipe(
+          Effect.withSpan("getTransactionFees"),
           Effect.map((items) =>
             items.map(({ accountAddress, fee }) => ({
               weekId: week.id,
@@ -122,7 +118,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
           addresses: input.addresses,
-        });
+        }).pipe(Effect.withSpan("getComponentCalls"));
 
         if (componentCalls.length > 0) {
           yield* Effect.log(
@@ -142,7 +138,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
           addresses: input.addresses,
-        });
+        }).pipe(Effect.withSpan("getTradingVolume"));
 
         if (tradingVolume.length > 0) {
           yield* Effect.log(
