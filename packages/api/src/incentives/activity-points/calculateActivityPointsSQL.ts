@@ -45,6 +45,7 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
             // Debug log to ensure this code is being executed
             console.log('Executing SQL query with array-based data structure');
             const result = await db.execute(sql`
+              SET transaction_read_only = on;
               WITH expanded_activities AS (
                 -- Expand jsonb array into individual activity rows
                 SELECT 
