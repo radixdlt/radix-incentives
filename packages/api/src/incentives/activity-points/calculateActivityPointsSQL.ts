@@ -1,5 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { DbClientService, DbError, DbReadOnlyClientService } from "../db/dbClient";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -36,17 +36,17 @@ const MAX_ADDRESSES_PER_BATCH = 1500; // Keep well below PostgreSQL's 1664 limit
 export const CalculateActivityPointsSQLLive = Layer.effect(
   CalculateActivityPointsSQLService,
   Effect.gen(function* () {
+    const readOnlyDb = yield* DbReadOnlyClientService;
     const db = yield* DbClientService;
 
-
-    return (input) => {
+    return (input): Effect.Effect<CalculateActivityPointsSQLOutput, DbError, never> => {
       const executeQuery = (addressBatch: string[]) => {
         return Effect.tryPromise({
           try: async () => {
             // Debug log to ensure this code is being executed
-            console.log('Executing SQL query with array-based data structure');
-            const result = await db.transaction(async (tx) => {
-              return await tx.execute(sql`
+            console.log('Executing SQL query with read-only database client');
+            const effectiveDb = readOnlyDb || db;
+            const result = await effectiveDb.execute(sql`
               WITH expanded_activities AS (
                 -- Expand jsonb array into individual activity rows
                 SELECT 
@@ -122,12 +122,6 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
                 END > 0
               ORDER BY account_address, activity_id;
             `);
-            }
-              ,
-              {
-                accessMode: 'read only'
-              }
-            );
 
             type QueryResult = {
               account_address: string;

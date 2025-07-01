@@ -35,8 +35,8 @@ import { GetAccountAddressesLive } from "./account/getAccounts";
 import { UpsertAccountBalancesLive } from "./account-balance/upsertAccountBalance";
 import { CreateSnapshotLive } from "./snapshot/createSnapshot";
 import { UpdateSnapshotLive } from "./snapshot/updateSnapshot";
-import { createDbClientLive } from "./db/dbClient";
-import { db } from "db/incentives";
+import { createDbClientLive, createDbReadOnlyClientLive } from "./db/dbClient";
+import { db, readOnlyDb } from "db/incentives";
 import { GetUsdValueLive } from "./token-price/getUsdValue";
 import { AggregateAccountBalanceLive } from "./account-balance/aggregateAccountBalance";
 import { AggregateCaviarninePositionsLive } from "./account-balance/aggregateCaviarninePositions";
@@ -106,6 +106,7 @@ const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
 const dbClientLive = createDbClientLive(db);
+const dbReadOnlyClientLive = createDbReadOnlyClientLive(readOnlyDb);
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
@@ -418,7 +419,8 @@ const getTradingVolumeLive = GetTradingVolumeLive.pipe(
 );
 
 const calculateActivityPointsSQLLive = CalculateActivityPointsSQLLive.pipe(
-  Layer.provide(dbClientLive)
+  Layer.provide(dbClientLive),
+  Layer.provide(dbReadOnlyClientLive)
 );
 
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(

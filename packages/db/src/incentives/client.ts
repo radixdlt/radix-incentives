@@ -44,4 +44,13 @@ if (readDb) {
 }
 
 export type Db = typeof dbConnection;
+export type ReadOnlyDb = typeof readDb;
+
+// Main database connection (with read replicas if available)
 export const db = dbConnection;
+
+// Read-only database connection (undefined if no read replica configured)
+export const readOnlyDb = readDb;
+
+// Primary database connection (always write-capable)
+export const primaryDatabase = primaryDb;
