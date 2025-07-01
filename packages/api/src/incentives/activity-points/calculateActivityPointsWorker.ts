@@ -106,11 +106,13 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
             createdAt: week.endDate,
           });
 
+          yield* Effect.log(`fetched ${items.length} accounts`)
           if (items.length === 0) {
             shouldContinue = false;
             break;
           }
 
+          yield* Effect.log(`calculating activity points for ${items.length} accounts`)
           yield* calculateActivityPointsService({
             weekId: parsedInput.data.weekId,
             addresses: items,
