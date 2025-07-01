@@ -10,9 +10,9 @@ import { Assets } from "../../common/assets/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
 import {
-  TokenNameService,
+  AddressValidationService,
   type UnknownTokenError,
-} from "../../common/token-name/getTokenName";
+} from "../../common/address-validation/addressValidation";
 
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -37,7 +37,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
   AggregateCaviarninePositionsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
-    const tokenNameService = yield* TokenNameService;
+    const addressValidationService = yield* AddressValidationService;
     return (input) =>
       Effect.gen(function* () {
         const results: AccountBalanceData[] = [];
@@ -66,8 +66,8 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               CaviarNineConstants.LSULP.resourceAddress;
 
           // Get token names for the pair
-          const xTokenName = yield* tokenNameService(xToken.resourceAddress);
-          const yTokenName = yield* tokenNameService(yToken.resourceAddress);
+          const xTokenName = yield* addressValidationService.getTokenName(xToken.resourceAddress);
+          const yTokenName = yield* addressValidationService.getTokenName(yToken.resourceAddress);
 
           const totals = poolAssets.reduce(
             (acc, item) => {
@@ -175,8 +175,8 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
         for (const pool of Object.values(
           CaviarNineConstants.shapeLiquidityPools
         )) {
-          const xTokenName = yield* tokenNameService(pool.token_x);
-          const yTokenName = yield* tokenNameService(pool.token_y);
+          const xTokenName = yield* addressValidationService.getTokenName(pool.token_x);
+          const yTokenName = yield* addressValidationService.getTokenName(pool.token_y);
           const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
 
           if (!processedPools.has(activityId)) {

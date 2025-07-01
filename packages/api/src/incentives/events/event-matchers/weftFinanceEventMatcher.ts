@@ -21,6 +21,7 @@ import {
   type CapturedEvent,
   createEventMatcher,
 } from "./createEventMatcher";
+import { isWeftFinanceComponent } from "../../../common/address-validation/addressValidation";
 
 export type WeftFinanceEmittableEvents =
   | { readonly type: "AddCollateralEvent"; data: AddCollateralEvent }
@@ -60,13 +61,7 @@ export type CapturedWeftFinanceEvent =
 
 export const weftFinanceEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
-    const isWeftV2Event =
-      input.emitter.globalEmitter === WeftFinance.v2.WeftyV2.componentAddress;
-
-    const isExpectedPackage =
-      input.package.address === WeftFinance.v2.WeftyV2.packageAddress;
-
-    if (!isWeftV2Event || !isExpectedPackage) {
+    if (!isWeftFinanceComponent(input.emitter.globalEmitter, input.package.address)) {
       return yield* Effect.succeed(null);
     }
 

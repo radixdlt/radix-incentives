@@ -11,9 +11,9 @@ import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
 import {
-  TokenNameService,
+  AddressValidationService,
   type UnknownTokenError,
-} from "../../common/token-name/getTokenName";
+} from "../../common/address-validation/addressValidation";
 
 export class InvalidDefiPlazaPositionError {
   readonly _tag = "InvalidDefiPlazaPositionError";
@@ -46,7 +46,7 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
   AggregateDefiPlazaPositionsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
-    const tokenNameService = yield* TokenNameService;
+    const addressValidationService = yield* AddressValidationService;
     return (input) =>
       Effect.gen(function* () {
         const defiPlazaPositions =
@@ -56,10 +56,10 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           // Return zero entries for all supported pools
           const results: AggregateDefiPlazaPositionsOutput[] = [];
           for (const pool of Object.values(DefiPlaza)) {
-            const baseTokenName = yield* tokenNameService(
+            const baseTokenName = yield* addressValidationService.getTokenName(
               pool.baseResourceAddress
             );
-            const quoteTokenName = yield* tokenNameService(
+            const quoteTokenName = yield* addressValidationService.getTokenName(
               pool.quoteResourceAddress
             );
             const sortedTokenNames = [baseTokenName, quoteTokenName].sort();
@@ -97,8 +97,8 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           }
 
           // Get token names for both positions
-          const token1Name = yield* tokenNameService(position1.resourceAddress);
-          const token2Name = yield* tokenNameService(position2.resourceAddress);
+          const token1Name = yield* addressValidationService.getTokenName(position1.resourceAddress);
+          const token2Name = yield* addressValidationService.getTokenName(position2.resourceAddress);
 
           // Determine which tokens are XRD derivatives (XRD or LSULP)
           const isToken1XrdDerivative =

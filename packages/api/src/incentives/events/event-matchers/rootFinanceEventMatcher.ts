@@ -14,6 +14,7 @@ import {
   type CapturedEvent,
   createEventMatcher,
 } from "./createEventMatcher";
+import { isRootFinanceComponent } from "../../../common/address-validation/addressValidation";
 
 export type RootFinanceEmittableEvents =
   | { readonly type: "CDPUpdatedEvent"; data: CDPUpdatedEventType }
@@ -28,13 +29,12 @@ export type CapturedRootFinanceEvent =
 
 export const rootFinanceEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
-    const isRootFinanceEvent =
-      input.emitter.globalEmitter === RootFinance.componentAddress;
-
-    const isExpectedPackage =
-      input.package.address === RootFinance.packageAddress;
-
-    if (!isRootFinanceEvent || !isExpectedPackage) {
+    if (
+      !isRootFinanceComponent(
+        input.emitter.globalEmitter,
+        input.package.address
+      )
+    ) {
       return yield* Effect.succeed(null);
     }
 

@@ -1,6 +1,5 @@
 import { Effect } from "effect";
 import type { TransformedEvent } from "../../transaction-stream/transformEvent";
-import { CaviarNineConstants } from "../../../common/dapps/caviarnine/constants";
 import {
   AddLiquidityEvent,
   RemoveLiquidityEvent,
@@ -11,6 +10,7 @@ import {
   type CapturedEvent,
   createEventMatcher,
 } from "./createEventMatcher";
+import { isCaviarNinePoolComponent } from "../../../common/address-validation/addressValidation";
 
 export type CaviarnineSwapEvent = {
   readonly type: "SwapEvent";
@@ -27,16 +27,9 @@ export type CaviarnineEmittableEvents =
 
 export type CapturedCaviarnineEvent = CapturedEvent<CaviarnineEmittableEvents>;
 
-const isWhiteListedComponent = (componentAddress: string) =>
-  (
-    Object.values(CaviarNineConstants.shapeLiquidityPools).map(
-      (pool) => pool.componentAddress
-    ) as string[]
-  ).includes(componentAddress);
-
 export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
-    if (!isWhiteListedComponent(input.emitter.globalEmitter))
+    if (!isCaviarNinePoolComponent(input.emitter.globalEmitter))
       return yield* Effect.succeed(null);
 
     switch (input?.event.name) {

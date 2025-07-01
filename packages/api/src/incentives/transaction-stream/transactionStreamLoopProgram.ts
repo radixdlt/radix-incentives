@@ -36,7 +36,7 @@ import { ProcessSwapEventTradingVolumeLive } from "../trading-volume/processSwap
 import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
 import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
-import { TokenNameServiceLive } from "../../common/token-name/getTokenName";
+import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
 import { GetUserIdByAccountAddressLive } from "../user/getUserIdByAccountAddress";
 
 export const runTransactionStreamLoop = async () => {
@@ -214,14 +214,15 @@ export const runTransactionStreamLoop = async () => {
     Layer.provide(dbClientLive)
   );
 
-  const tokenNameServiceLive = TokenNameServiceLive;
+  const addressValidationServiceLive = AddressValidationServiceLive;
 
   const getUsdValueLive = GetUsdValueLive.pipe(
-    Layer.provide(tokenNameServiceLive)
+    Layer.provide(addressValidationServiceLive)
   );
 
   const filterTradingEventsLive = FilterTradingEventsLive.pipe(
     Layer.provide(getUsdValueLive),
+    Layer.provide(addressValidationServiceLive),
     Layer.provide(dbClientLive)
   );
 
