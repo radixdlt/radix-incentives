@@ -195,7 +195,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
         ).map(([userId, seasonPoints]) => {
           const multiplier =
             seasonPointMultipliers.find((item) => item.userId === userId)
-              ?.multiplier ?? new BigNumber(1);
+              ?.multiplier ?? new BigNumber(0);
           return {
             userId,
             seasonPoints: seasonPoints.multipliedBy(multiplier),
