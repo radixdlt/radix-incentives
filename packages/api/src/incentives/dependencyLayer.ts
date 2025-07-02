@@ -35,8 +35,8 @@ import { GetAccountAddressesLive } from "./account/getAccounts";
 import { UpsertAccountBalancesLive } from "./account-balance/upsertAccountBalance";
 import { CreateSnapshotLive } from "./snapshot/createSnapshot";
 import { UpdateSnapshotLive } from "./snapshot/updateSnapshot";
-import { createDbClientLive } from "./db/dbClient";
-import { db } from "db/incentives";
+import { createDbClientLive, createDbReadOnlyClientLive } from "./db/dbClient";
+import { db, readOnlyDb } from "db/incentives";
 import { GetUsdValueLive } from "./token-price/getUsdValue";
 import { AggregateAccountBalanceLive } from "./account-balance/aggregateAccountBalance";
 import { AggregateCaviarninePositionsLive } from "./account-balance/aggregateCaviarninePositions";
@@ -56,6 +56,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
+import { CalculateActivityPointsSQLLive } from "./activity-points/calculateActivityPointsSQL";
 import { UpsertAccountActivityPointsLive } from "./activity-points/upsertAccountActivityPoints";
 import { GetWeekByIdLive } from "./week/getWeekById";
 import { AccountBalanceService } from "./account-balance/accountBalance";
@@ -105,6 +106,7 @@ const appConfig = createConfig();
 const appConfigServiceLive = createAppConfigLive(appConfig);
 
 const dbClientLive = createDbClientLive(db);
+const dbReadOnlyClientLive = createDbReadOnlyClientLive(readOnlyDb);
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
@@ -416,11 +418,16 @@ const getTradingVolumeLive = GetTradingVolumeLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const calculateActivityPointsSQLLive = CalculateActivityPointsSQLLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(dbReadOnlyClientLive)
+);
+
 const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(accountBalanceServiceLive),
+  Layer.provide(calculateActivityPointsSQLLive),
   Layer.provide(getTransactionFeesPaginatedLive),
   Layer.provide(getComponentCallsPaginatedLive),
   Layer.provide(getTradingVolumeLive)
