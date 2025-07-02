@@ -249,10 +249,11 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
         }));
 
 
-
+        yield* Effect.log(`Upserting user TWA with multiplier ${userTwaWithMultiplier.length}`);
         yield* upsertUserTwaWithMultiplier(userTwaWithMultiplier);
         yield* Effect.log("Season points multiplier calculated");
 
+        yield* Effect.log(`Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`);
         yield* upsertUserTwaWithMultiplier(belowThresholdUsersWithDefaults);
       });
   })
