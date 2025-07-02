@@ -16,6 +16,7 @@ import { ProcessSwapEventTradingVolumeService } from "../trading-volume/processS
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
 import type { EmittableEvent } from "../events/event-matchers/types";
 import { defiPlazaEventMatcher } from "../events/event-matchers/defiPlazaEventMatcher";
+import { ociswapEventMatcher } from "../events/event-matchers/ociswapEventMatcher";
 
 export const transactionStreamLoop = () =>
   Effect.gen(function* () {
@@ -67,6 +68,8 @@ export const transactionStreamLoop = () =>
         const defiPlazaEvents =
           yield* defiPlazaEventMatcher(uniqueTransactions);
 
+        const ociswapEvents = yield* ociswapEventMatcher(uniqueTransactions);
+
         const commonEvents = yield* commonEventMatcher(uniqueTransactions);
 
         // concat all captured events
@@ -74,6 +77,7 @@ export const transactionStreamLoop = () =>
           ...caviarnineEvents,
           ...hlpEvents,
           ...defiPlazaEvents,
+          ...ociswapEvents,
           ...weftFinanceEvents,
           ...rootFinanceEvents,
           ...commonEvents,

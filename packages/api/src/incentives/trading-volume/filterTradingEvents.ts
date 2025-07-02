@@ -13,6 +13,8 @@ import type { ActivityId } from "db/incentives";
 import { defiPlazaComponentSet } from "../../common/dapps/defiplaza/constants";
 import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
 import type { HLPEmittableEvents } from "../events/event-matchers/hlpEventMatcher";
+import { ociswapComponentSet } from "../../common/dapps/ociswap/constants";
+import type { OciswapSwapEvent } from "../events/event-matchers/ociswapEventMatcher";
 import { AddressValidationService } from "../../common/address-validation/addressValidation";
 
 export type TradingEvent = CaviarnineSwapEvent;
@@ -163,6 +165,39 @@ export const FilterTradingEventsLive = Layer.effect(
               const swapData = swapEvent.eventData.data;
               const inputAmount = new BigNumber(swapData.input_amount);
               const inputToken = swapData.input_resource;
+
+              const usdValue = yield* getUsdValueService({
+                amount: inputAmount,
+                resourceAddress: inputToken,
+                timestamp: swapEvent.timestamp,
+              });
+
+              tradingEvents.push({
+                transactionId: swapEvent.transactionId,
+                timestamp: swapEvent.timestamp,
+                inputToken,
+                inputAmount,
+                usdValue,
+                activityId,
+              });
+            }
+          }
+
+          if (
+            event.dApp === "Ociswap" &&
+            event.eventData.type === "SwapEvent"
+          ) {
+            const swapEvent = event as CapturedEvent<OciswapSwapEvent>;
+            const pool = ociswapComponentSet.get(swapEvent.globalEmitter);
+            const activityId =
+              addressValidationService.getTradingActivityIdForPool(
+                swapEvent.globalEmitter
+              );
+
+            if (pool && activityId) {
+              const swapData = swapEvent.eventData.data;
+              const inputAmount = new BigNumber(swapData.input_amount);
+              const inputToken = swapData.input_address;
 
               const usdValue = yield* getUsdValueService({
                 amount: inputAmount,

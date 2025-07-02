@@ -152,6 +152,14 @@ export const DeriveAccountFromEventLive = Layer.effect(
               };
             }
 
+            // Handled by swap events
+            if (event.dApp === "Ociswap") {
+              return {
+                timestamp: event.timestamp.toISOString(),
+                transactionId: event.transactionId,
+              };
+            }
+
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === "WeftFinance") {
               yield* Effect.log("WeftFinance event", event.eventData);
