@@ -7,12 +7,12 @@ export {
 } from "./calculateActivityPoints";
 
 export {
-  CalculateActivityPointsSQLService,
-  CalculateActivityPointsSQLLive,
-  calculateActivityPointsSQLInputSchema,
-  type CalculateActivityPointsSQLInput,
-  type CalculateActivityPointsSQLOutput,
-} from "./calculateActivityPointsSQL";
+  CalculateTWASQLService, 
+  CalculateTWASQLLive,
+  calculateTWASQLInputSchema,
+  type CalculateTWASQLInput,
+  type CalculateTWASQLOutput,
+} from "./calculateTWASQL";
 
 export {
   UpsertAccountActivityPointsService,

@@ -3,43 +3,45 @@ import { DbClientService, DbError, DbReadOnlyClientService } from "../db/dbClien
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 
-export const calculateActivityPointsSQLInputSchema = z.object({
+export const calculateTWASQLInputSchema = z.object({
   weekId: z.string(),
   addresses: z.array(z.string()),
   startDate: z.date(),
   endDate: z.date(),
   calculationType: z.enum(["USDValue", "USDValueDurationMultiplied"]).default("USDValueDurationMultiplied"),
+  filterType: z.enum(["exclude_hold", "include_hold"]).default("exclude_hold"),
+  filterZeroValues: z.boolean().default(true),
 });
 
-export type CalculateActivityPointsSQLInput = z.infer<
-  typeof calculateActivityPointsSQLInputSchema
+export type CalculateTWASQLInput = z.infer<
+  typeof calculateTWASQLInputSchema
 >;
 
-export type CalculateActivityPointsSQLOutput = {
+export type CalculateTWASQLOutput = {
   accountAddress: string;
   activityId: string;
   activityPoints: number;
   weekId: string;
 }[];
 
-export class CalculateActivityPointsSQLService extends Context.Tag(
-  "CalculateActivityPointsSQLService"
+export class CalculateTWASQLService extends Context.Tag(
+  "CalculateTWASQLService"
 )<
-  CalculateActivityPointsSQLService,
+  CalculateTWASQLService,
   (
-    input: CalculateActivityPointsSQLInput
-  ) => Effect.Effect<CalculateActivityPointsSQLOutput, DbError>
+    input: CalculateTWASQLInput
+  ) => Effect.Effect<CalculateTWASQLOutput, DbError>
 >() { }
 
 const MAX_ADDRESSES_PER_BATCH = 1500; // Keep well below PostgreSQL's 1664 limit
 
-export const CalculateActivityPointsSQLLive = Layer.effect(
-  CalculateActivityPointsSQLService,
+export const CalculateTWASQLLive = Layer.effect(
+  CalculateTWASQLService,
   Effect.gen(function* () {
     const readOnlyDb = yield* DbReadOnlyClientService;
     const db = yield* DbClientService;
 
-    return (input): Effect.Effect<CalculateActivityPointsSQLOutput, DbError, never> => {
+    return (input) => {
       const executeQuery = (addressBatch: string[]) => {
         return Effect.tryPromise({
           try: async () => {
@@ -61,7 +63,9 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
                   AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
                   AND ab.data IS NOT NULL
                   AND jsonb_typeof(ab.data) = 'array'
-                  AND (activity_item->>'activityId') NOT LIKE '%hold_%'
+                  AND ${input.filterType === "exclude_hold" 
+                    ? sql`(activity_item->>'activityId') NOT LIKE '%hold_%'`
+                    : sql`(activity_item->>'activityId') LIKE '%hold_%'`}
                   AND (activity_item->>'usdValue')::decimal > 0
               ),
               activities_with_duration AS (
@@ -113,13 +117,15 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
                     ROUND(twa_usd_value * total_duration_minutes, 0)::bigint
                 END AS activity_points
               FROM twa_results
-              WHERE twa_usd_value > 0
-                AND CASE 
-                  WHEN ${input.calculationType} = 'USDValue' THEN 
-                    ROUND(twa_usd_value, 2)
-                  ELSE 
-                    ROUND(twa_usd_value * total_duration_minutes, 0)
-                END > 0
+              WHERE ${input.filterZeroValues 
+                ? sql`twa_usd_value > 0
+                  AND CASE 
+                    WHEN ${input.calculationType} = 'USDValue' THEN 
+                      ROUND(twa_usd_value, 2)
+                    ELSE 
+                      ROUND(twa_usd_value * total_duration_minutes, 0)
+                  END > 0`
+                : sql`1=1`}
               ORDER BY account_address, activity_id;
             `);
 
@@ -185,4 +191,4 @@ export const CalculateActivityPointsSQLLive = Layer.effect(
       });
     };
   })
-); 
+);

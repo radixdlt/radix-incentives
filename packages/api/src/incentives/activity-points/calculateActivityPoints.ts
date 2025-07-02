@@ -2,7 +2,7 @@ import { Context, Effect, Layer } from "effect";
 import type { DbError } from "../db/dbClient";
 import { z } from "zod";
 import { UpsertAccountActivityPointsService } from "./upsertAccountActivityPoints";
-import { CalculateActivityPointsSQLService } from "./calculateActivityPointsSQL";
+import { CalculateTWASQLService } from "./calculateTWASQL";
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
@@ -40,7 +40,7 @@ export const CalculateActivityPointsLive = Layer.effect(
   Effect.gen(function* () {
     const upsertAccountActivityPoints =
       yield* UpsertAccountActivityPointsService;
-    const calculateActivityPointsSQL = yield* CalculateActivityPointsSQLService;
+    const calculateTWASQL = yield* CalculateTWASQLService;
     const getWeekById = yield* GetWeekByIdService;
     const getTransactionFees = yield* GetTransactionFeesService;
     const getComponentCalls = yield* GetComponentCallsService;
@@ -51,12 +51,14 @@ export const CalculateActivityPointsLive = Layer.effect(
         const week = yield* getWeekById({ id: input.weekId });
 
         // Use SQL-based calculation instead of loading data into memory
-        const weekAccountBalances = yield* calculateActivityPointsSQL({
+        const weekAccountBalances = yield* calculateTWASQL({
           weekId: input.weekId,
           addresses: input.addresses,
           startDate: week.startDate,
           endDate: week.endDate,
           calculationType: "USDValueDurationMultiplied",
+          filterType: "exclude_hold",
+          filterZeroValues: true,
         }).pipe(
           Effect.tap(() => Effect.log("Calculated activity points using SQL")),
           Effect.tap((items) => Effect.log(`Found ${items.length} activity point entries`))

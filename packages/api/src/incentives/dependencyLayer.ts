@@ -56,7 +56,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
-import { CalculateActivityPointsSQLLive } from "./activity-points/calculateActivityPointsSQL";
+import { CalculateTWASQLLive } from "./activity-points/calculateTWASQL";
 import { UpsertAccountActivityPointsLive } from "./activity-points/upsertAccountActivityPoints";
 import { GetWeekByIdLive } from "./week/getWeekById";
 import { AccountBalanceService } from "./account-balance/accountBalance";
@@ -418,7 +418,7 @@ const getTradingVolumeLive = GetTradingVolumeLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const calculateActivityPointsSQLLive = CalculateActivityPointsSQLLive.pipe(
+const calculateTWASQLLive = CalculateTWASQLLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(dbReadOnlyClientLive)
 );
@@ -427,7 +427,7 @@ const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(upsertAccountActivityPointsLive),
   Layer.provide(getWeekByIdLive),
-  Layer.provide(calculateActivityPointsSQLLive),
+  Layer.provide(calculateTWASQLLive),
   Layer.provide(getTransactionFeesPaginatedLive),
   Layer.provide(getComponentCallsPaginatedLive),
   Layer.provide(getTradingVolumeLive)
@@ -481,7 +481,8 @@ const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
   Layer.provide(getSeasonByIdLive),
   Layer.provide(getAccountAddressesLive),
   Layer.provide(upsertUserTwaWithMultiplierLive),
-  Layer.provide(getActivitiesByWeekIdLive)
+  Layer.provide(getActivitiesByWeekIdLive),
+  Layer.provide(calculateTWASQLLive)
 );
 
 const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
