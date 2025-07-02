@@ -124,6 +124,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
 
         // TODO: get values from db
         const minimumPoints = 10080;
+        const minimumBalance = 10000;
         const lowerBoundsPercentage = 0.1;
         const seasonPointMultipliers = yield* getSeasonPointMultiplier({
           weekId: input.weekId,
@@ -144,6 +145,7 @@ export const CalculateSeasonPointsLive = Layer.effect(
                 weekId: input.weekId,
                 activityId: activity.activityId,
                 minPoints: minimumPoints,
+                minTWABalance: minimumBalance,
               });
 
               yield* Effect.log(
