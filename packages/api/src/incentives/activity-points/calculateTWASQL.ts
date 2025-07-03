@@ -173,9 +173,18 @@ export const CalculateTWASQLLive = Layer.effect(
           batches,
           (addressBatch, index) =>
             Effect.gen(function* () {
+              // Add progressive delay based on concurrent execution slot
+              const concurrentSlot = index % concurrency;
+              if (concurrentSlot > 0) {
+                const delaySeconds = concurrentSlot * 3;
+                yield* Effect.log(`Batch ${index + 1} (slot ${concurrentSlot}): Waiting ${delaySeconds} seconds before starting...`);
+                yield* Effect.sleep(`${delaySeconds} seconds`);
+              }
+              
               yield* Effect.log(`Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`);
               const batchResults = yield* executeQuery(addressBatch);
               yield* Effect.log(`Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`);
+              
               return batchResults;
             }),
           { concurrency }
