@@ -145,7 +145,7 @@ export const CalculateTWASQLLive = Layer.effect(
             }));
           },
           catch: (error) => new DbError(error),
-        });
+        }).pipe(Effect.withSpan("executeQuery_twa"));
       };
 
       // If addresses array is small enough, process in single batch
