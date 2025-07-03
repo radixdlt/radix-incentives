@@ -54,7 +54,7 @@ export class GetOciswapLiquidityAssetsService extends Context.Tag(
     tokenYAddress: string;
     tokenXDivisibility: number;
     tokenYDivisibility: number;
-    priceBounds: {
+    priceBounds?: {
       lower: number;
       upper: number;
     };
@@ -138,12 +138,19 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
             ? poolState.active_tick.value
             : null;
 
-        // Calculate price bounds
+        // Calculate price bounds only if provided
         const currentPrice = currentPriceSqrt.pow(2);
-        const lowerBoundPrice = currentPrice.mul(input.priceBounds.lower);
-        const upperBoundPrice = currentPrice.mul(input.priceBounds.upper);
-        const lowerBoundPriceSqrt = lowerBoundPrice.sqrt();
-        const upperBoundPriceSqrt = upperBoundPrice.sqrt();
+        let lowerBoundPriceSqrt: Decimal | undefined;
+        let upperBoundPriceSqrt: Decimal | undefined;
+
+        if (input.priceBounds) {
+          lowerBoundPriceSqrt = currentPrice
+            .mul(input.priceBounds.lower)
+            .sqrt();
+          upperBoundPriceSqrt = currentPrice
+            .mul(input.priceBounds.upper)
+            .sqrt();
+        }
 
         const nfts = yield* getOciswapLiquidityClaimsService({
           lpResourceAddress: input.lpResourceAddress,
@@ -174,11 +181,6 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
               currentTick >= leftBound &&
               currentTick < rightBound;
 
-            // Check if position overlaps with price bounds
-            const positionOverlapsWithBounds =
-              positionLeftPriceSqrt.lt(upperBoundPriceSqrt) &&
-              positionRightPriceSqrt.gt(lowerBoundPriceSqrt);
-
             // Calculate total amounts (full position)
             const [xTotalAmount, yTotalAmount] = removableAmounts(
               liquidity,
@@ -189,43 +191,49 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
               input.tokenYDivisibility
             );
 
-            if (!positionOverlapsWithBounds) {
-              // Position is completely outside price bounds, return zero bounded amounts
-              return {
-                address,
-                xToken: {
-                  totalAmount: xTotalAmount.toString(),
-                  amountInBounds: "0",
-                  resourceAddress: input.tokenXAddress,
-                },
-                yToken: {
-                  totalAmount: yTotalAmount.toString(),
-                  amountInBounds: "0",
-                  resourceAddress: input.tokenYAddress,
-                },
-                isActive: false,
-              };
+            let xBoundedAmount: Decimal;
+            let yBoundedAmount: Decimal;
+
+            if (!input.priceBounds) {
+              // No price bounds - everything is in bounds
+              xBoundedAmount = xTotalAmount;
+              yBoundedAmount = yTotalAmount;
+            } else {
+              // Check if position overlaps with price bounds
+              const positionOverlapsWithBounds =
+                // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
+                positionLeftPriceSqrt.lt(upperBoundPriceSqrt!) &&
+                // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
+                positionRightPriceSqrt.gt(lowerBoundPriceSqrt!);
+
+              if (!positionOverlapsWithBounds) {
+                // Position is completely outside price bounds
+                xBoundedAmount = new Decimal(0);
+                yBoundedAmount = new Decimal(0);
+              } else {
+                // Calculate effective bounds (intersection of position bounds and price bounds)
+                const effectiveLeftPriceSqrt = Decimal.max(
+                  positionLeftPriceSqrt,
+                  // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
+                  lowerBoundPriceSqrt!
+                );
+                const effectiveRightPriceSqrt = Decimal.min(
+                  positionRightPriceSqrt,
+                  // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
+                  upperBoundPriceSqrt!
+                );
+
+                // Calculate bounded amounts using effective bounds
+                [xBoundedAmount, yBoundedAmount] = removableAmounts(
+                  liquidity,
+                  currentPriceSqrt,
+                  effectiveLeftPriceSqrt,
+                  effectiveRightPriceSqrt,
+                  input.tokenXDivisibility,
+                  input.tokenYDivisibility
+                );
+              }
             }
-
-            // Calculate effective bounds (intersection of position bounds and price bounds)
-            const effectiveLeftPriceSqrt = Decimal.max(
-              positionLeftPriceSqrt,
-              lowerBoundPriceSqrt
-            );
-            const effectiveRightPriceSqrt = Decimal.min(
-              positionRightPriceSqrt,
-              upperBoundPriceSqrt
-            );
-
-            // Calculate bounded amounts using effective bounds
-            const [xBoundedAmount, yBoundedAmount] = removableAmounts(
-              liquidity, // Use full liquidity with effective bounds
-              currentPriceSqrt,
-              effectiveLeftPriceSqrt,
-              effectiveRightPriceSqrt,
-              input.tokenXDivisibility,
-              input.tokenYDivisibility
-            );
 
             return {
               address,

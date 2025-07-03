@@ -11,7 +11,10 @@ import {
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
 import { GetComponentStateLive } from "../../gateway/getComponentState";
-import { GetNonFungibleBalanceLive } from "../../gateway/getNonFungibleBalance";
+import {
+  GetNonFungibleBalanceLive,
+  GetNonFungibleBalanceService,
+} from "../../gateway/getNonFungibleBalance";
 import { GetNftResourceManagersLive } from "../../gateway/getNftResourceManagers";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
@@ -287,6 +290,68 @@ describe("OciSwap Liquidity Assets Test", () => {
     // @ts-ignore - Ignoring type errors to test functionality
     const result = await Effect.runPromise(program);
     console.log("Position details:", result);
+  });
+
+  it("should calculate liquidity assets without price bounds (everything in bounds)", async () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getOciswapLiquidityAssetsService =
+          yield* GetOciswapLiquidityAssetsService;
+
+        // For testing only - in production this comes from getAccountBalancesAtStateVersion
+        const getNonFungibleBalanceService =
+          yield* GetNonFungibleBalanceService;
+        const nonFungibleBalance = yield* getNonFungibleBalanceService({
+          addresses: [TEST_CONFIG.userAddress],
+          at_ledger_state: { state_version: 321803265 },
+        });
+
+        const result = yield* getOciswapLiquidityAssetsService({
+          componentAddress: TEST_CONFIG.componentAddress,
+          addresses: [TEST_CONFIG.userAddress],
+          at_ledger_state: { state_version: 321803265 },
+          nonFungibleBalance,
+          lpResourceAddress: TEST_CONFIG.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.tokenYDivisibility,
+          // No priceBounds - everything should be in bounds
+        });
+
+        console.log("=== NO PRICE BOUNDS TEST (everything in bounds) ===");
+        console.log("Result:", JSON.stringify(result, null, 2));
+
+        // Show comparison clearly
+        if (result.length > 0 && result[0].items.length > 0) {
+          const item = result[0].items[0];
+          console.log("\n--- COMPARISON ---");
+          console.log(`X Token (${item.xToken.resourceAddress}):`);
+          console.log(`  Total: ${item.xToken.totalAmount}`);
+          console.log(`  In bounds: ${item.xToken.amountInBounds}`);
+          console.log(`Y Token (${item.yToken.resourceAddress}):`);
+          console.log(`  Total: ${item.yToken.totalAmount}`);
+          console.log(`  In bounds: ${item.yToken.amountInBounds}`);
+          console.log(`Active: ${item.isActive}`);
+
+          // Verify that total and in bounds are equal when no price bounds
+          console.log("\n--- VALIDATION ---");
+          console.log(
+            `X amounts equal: ${item.xToken.totalAmount === item.xToken.amountInBounds}`
+          );
+          console.log(
+            `Y amounts equal: ${item.yToken.totalAmount === item.yToken.amountInBounds}`
+          );
+        }
+
+        return result;
+      }),
+      TestLive
+    );
+
+    // @ts-ignore - Ignoring type errors to test functionality
+    const result = await Effect.runPromise(program);
+    console.log("No bounds result:", result);
   });
 
   it("should test tick math utilities", async () => {
