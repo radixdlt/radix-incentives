@@ -991,6 +991,9 @@ importers:
 
   tools/queue-helper:
     dependencies:
+      db:
+        specifier: workspace:*
+        version: link:../../packages/db
       inquirer:
         specifier: 'catalog:'
         version: 8.2.6

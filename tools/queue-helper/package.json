@@ -8,10 +8,11 @@
   },
   "dependencies": {
     "tsx": "catalog:",
-    "inquirer": "catalog:"
+    "inquirer": "catalog:",
+    "db": "workspace:*"
   },
   "devDependencies": {
     "@types/inquirer": "catalog:",
     "@types/node": "catalog:"
   }
-} 
+}

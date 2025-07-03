@@ -7,6 +7,7 @@ export const QueueName = {
   orchestrator: "orchestrator",
   snapshot: "snapshot",
   snapshotDateRange: "snapshotDateRange",
+  scheduledCalculations: "scheduledCalculations",
 } as const;
 
 export type QueueName = (typeof QueueName)[keyof typeof QueueName];

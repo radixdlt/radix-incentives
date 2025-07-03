@@ -3,13 +3,15 @@
 import inquirer from "inquirer";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
+import { db } from "db/incentives";
 
 type QueueType =
   | "event"
   | "snapshot-date-range"
   | "calculate-activity-points"
   | "calculate-season-points"
-  | "calculate-season-points-multiplier";
+  | "calculate-season-points-multiplier"
+  | "scheduled-calculations";
 
 type PromptAnswer = string | number | boolean;
 
@@ -23,10 +25,43 @@ interface QueueConfig {
     message: string;
     validate?: (input: PromptAnswer) => boolean | string;
     default?: PromptAnswer;
+    choices?: Array<{ name: string; value: string }>;
   }>;
 }
 
 const SERVER_URL = process.env.WORKERS_SERVER_URL || "http://localhost:3003";
+
+// Function to fetch seasons and weeks from database
+const fetchSeasonsAndWeeks = async () => {
+  try {
+    const seasonsData = await db.query.seasons.findMany({
+      orderBy: (seasons, { desc }) => [desc(seasons.startDate)],
+    });
+
+    const weeksData = await db.query.weeks.findMany({
+      orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
+    });
+
+    return { seasons: seasonsData, weeks: weeksData };
+  } catch (error) {
+    console.error("Failed to fetch data from database:", error);
+    throw error;
+  }
+};
+
+// Function to fetch active week for defaults
+const fetchActiveWeek = async () => {
+  try {
+    const activeWeek = await db.query.weeks.findFirst({
+      where: (weeks, { eq }) => eq(weeks.status, "active"),
+      orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
+    });
+    return activeWeek;
+  } catch (error) {
+    console.error("Failed to fetch active week from database:", error);
+    return null;
+  }
+};
 
 const queueConfigs: Record<QueueType, QueueConfig> = {
   event: {
@@ -114,8 +149,8 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       {
         name: "intervalInHours",
         type: "number",
-        message: "Enter interval in hours (default: 1):",
-        default: 1,
+        message: "Enter interval in hours (default: 24):",
+        default: 24,
         validate: (input) =>
           (input as number) > 0 || "Interval must be greater than 0",
       },
@@ -128,13 +163,8 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
     promptFields: [
       {
         name: "weekId",
-        type: "input",
-        message: "Enter week ID (UUID):",
-        validate: (input) => {
-          const uuidRegex =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input as string) || "Invalid UUID format";
-        },
+        type: "list",
+        message: "Select a week:",
       },
       {
         name: "addresses",
@@ -162,23 +192,13 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
     promptFields: [
       {
         name: "seasonId",
-        type: "input",
-        message: "Enter season ID (UUID):",
-        validate: (input) => {
-          const uuidRegex =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input as string) || "Invalid UUID format";
-        },
+        type: "list",
+        message: "Select a season:",
       },
       {
         name: "weekId",
-        type: "input",
-        message: "Enter week ID (UUID):",
-        validate: (input) => {
-          const uuidRegex =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input as string) || "Invalid UUID format";
-        },
+        type: "list",
+        message: "Select a week:",
       },
       {
         name: "force",
@@ -195,13 +215,8 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
     promptFields: [
       {
         name: "weekId",
-        type: "input",
-        message: "Enter week ID (UUID):",
-        validate: (input) => {
-          const uuidRegex =
-            /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-          return uuidRegex.test(input as string) || "Invalid UUID format";
-        },
+        type: "list",
+        message: "Select a week:",
       },
       {
         name: "userIds",
@@ -221,6 +236,23 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           }
           return true;
         },
+      },
+    ],
+  },
+  "scheduled-calculations": {
+    name: "Scheduled Calculations Queue",
+    endpoint: "/queues/scheduled-calculations/add",
+    description: "Manually trigger the scheduled calculations job.",
+    promptFields: [
+      {
+        name: "seasonId",
+        type: "list",
+        message: "Select a season:",
+      },
+      {
+        name: "weekId",
+        type: "list",
+        message: "Select a week:",
       },
     ],
   },
@@ -273,6 +305,12 @@ const buildPayload = (
             .split(",")
             .map((id: string) => id.trim()),
         }),
+      };
+
+    case "scheduled-calculations":
+      return {
+        seasonId: answers.seasonId,
+        weekId: answers.weekId,
       };
 
     default:
@@ -343,8 +381,87 @@ const main = async (): Promise<void> => {
     console.log(`\n📋 Selected: ${selectedConfig.name}`);
     console.log(`💡 Description: ${selectedConfig.description}\n`);
 
+    let promptFields = selectedConfig.promptFields;
+
+    // Handle queues that require database-driven choices for weekId and/or seasonId
+    const requiresDatabaseChoices = [
+      "scheduled-calculations",
+      "calculate-activity-points",
+      "calculate-season-points",
+      "calculate-season-points-multiplier",
+    ];
+
+    if (requiresDatabaseChoices.includes(queueType)) {
+      console.log("🔍 Fetching seasons and weeks from database...");
+      const { seasons: seasonsData, weeks: weeksData } =
+        await fetchSeasonsAndWeeks();
+
+      const seasonChoices = seasonsData.map((season) => ({
+        name: `${season.name} (${season.status}) - ${season.startDate.toISOString().split("T")[0]} to ${season.endDate.toISOString().split("T")[0]}`,
+        value: season.id,
+      }));
+
+      const weekChoices = weeksData.map((week) => {
+        const season = seasonsData.find((s) => s.id === week.seasonId);
+        return {
+          name: `Week ${week.startDate.toISOString().split("T")[0]} to ${week.endDate.toISOString().split("T")[0]} (${week.status}) - Season: ${season?.name || "Unknown"}`,
+          value: week.id,
+        };
+      });
+
+      // Update prompt fields with database choices
+      promptFields = promptFields.map((field) => {
+        if (field.name === "seasonId" && field.type === "list") {
+          return {
+            ...field,
+            choices: seasonChoices,
+          };
+        }
+        if (field.name === "weekId" && field.type === "list") {
+          return {
+            ...field,
+            choices: weekChoices,
+          };
+        }
+        return field;
+      });
+    }
+
+    // Handle snapshot-date-range queue with active week defaults
+    if (queueType === "snapshot-date-range") {
+      console.log("🔍 Fetching active week for defaults...");
+      const activeWeek = await fetchActiveWeek();
+
+      if (activeWeek) {
+        console.log(
+          `✅ Found active week: ${activeWeek.startDate.toISOString().split("T")[0]} to ${activeWeek.endDate.toISOString().split("T")[0]}`
+        );
+
+        // Update prompt fields with active week defaults
+        promptFields = promptFields.map((field) => {
+          if (field.name === "fromTimestamp") {
+            return {
+              ...field,
+              default: activeWeek.startDate.toISOString(),
+              message: `Enter start timestamp (default: active week start - ${activeWeek.startDate.toISOString()}):`,
+            };
+          }
+          if (field.name === "toTimestamp") {
+            return {
+              ...field,
+              default: activeWeek.endDate.toISOString(),
+              message: `Enter end timestamp (default: active week end - ${activeWeek.endDate.toISOString()}):`,
+            };
+          }
+          return field;
+        });
+      } else {
+        console.log("⚠️  No active week found, using manual input");
+      }
+    }
+
     // Collect input data
-    const answers = await inquirer.prompt(selectedConfig.promptFields);
+    const answers = await inquirer.prompt(promptFields);
 
     // Build and send payload
     const payload = buildPayload(queueType as QueueType, answers);

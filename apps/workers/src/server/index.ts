@@ -18,6 +18,7 @@ import { calculateSeasonPointsJobSchema } from "../queues/calculate-season-point
 import { seasonPointsMultiplierJobSchema } from "../queues/calculate-season-points-multiplier/schemas";
 import { calculateSeasonPointsQueue } from "../queues/calculate-season-points/queue";
 import { seasonPointsMultiplierQueue } from "../queues/calculate-season-points-multiplier/queue";
+import { scheduledCalculationsQueue } from "../queues/scheduled-calculations/queue";
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -36,6 +37,8 @@ metricsApp.get("/metrics", async (c) => {
     await snapshotDateRangeQueue.queue.exportPrometheusMetrics();
   const calculateActivityPointsQueueMetrics =
     await calculateActivityPointsQueue.queue.exportPrometheusMetrics();
+  const scheduledCalculationsQueueMetrics =
+    await scheduledCalculationsQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -43,6 +46,7 @@ metricsApp.get("/metrics", async (c) => {
       eventQueueMetrics,
       snapshotDateRangeQueueMetrics,
       calculateActivityPointsQueueMetrics,
+      scheduledCalculationsQueueMetrics,
     ].join("\n")
   );
 });
@@ -107,6 +111,12 @@ app.post("/queues/calculate-season-points-multiplier/add", async (c) => {
   return c.text("ok");
 });
 
+app.post("/queues/scheduled-calculations/add", async (c) => {
+  const input = await c.req.json();
+  await scheduledCalculationsQueue.queue.add("manual-trigger", input);
+  return c.text("ok");
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
@@ -126,6 +136,7 @@ createBullBoard({
     new BullMQAdapter(calculateActivityPointsQueue.queue),
     new BullMQAdapter(calculateSeasonPointsQueue.queue),
     new BullMQAdapter(seasonPointsMultiplierQueue.queue),
+    new BullMQAdapter(scheduledCalculationsQueue.queue),
   ],
   serverAdapter,
 });

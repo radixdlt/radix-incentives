@@ -1,54 +1,54 @@
-import { ActivityCategoryKey } from "../../types";
+import { ActivityCategoryKey, type Token } from "../../types";
+
+const getPair = (token1: Token, token2: Token) => {
+  // Sort tokens in ascending alphabetical order
+  const [firstToken, secondToken] = [token1, token2].sort((a, b) =>
+    a.localeCompare(b)
+  );
+  return `${firstToken}-${secondToken}`;
+};
 
 export const activitiesData = [
   // DEX activities
   {
-    id: "c9_lp_xrd-xusdc",
+    id: `c9_lp_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_xrd-xusdc",
+    id: `defiPlaza_lp_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
 
   {
-    id: "c9_lp_xrd-xusdt",
+    id: `c9_lp_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_xrd-xusdt",
+    id: `defiPlaza_lp_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
 
   // DEX blue chip LP activities
   {
-    id: "c9_lp_xrd-xeth",
+    id: `c9_lp_${getPair("xrd", "xeth")}`,
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
   {
-    id: "c9_lp_xwbtc-xrd",
+    id: `c9_lp_${getPair("xwbtc", "xrd")}`,
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
   {
-    id: "c9_lp_xeth-xrd",
+    id: `defiPlaza_lp_${getPair("xrd", "xeth")}`,
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_xrd-xeth",
-    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-  },
-  {
-    id: "defiPlaza_lp_xrd-xwbtc",
-    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-  },
-  {
-    id: "defiPlaza_lp_xeth-xrd",
+    id: `defiPlaza_lp_${getPair("xrd", "xwbtc")}`,
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
 
   // DEX native LP activities
   {
-    id: "c9_lp_lsulp-xrd",
+    id: `c9_lp_${getPair("lsulp", "xrd")}`,
     category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
   {
@@ -128,19 +128,43 @@ export const activitiesData = [
 
   // Season multiplier Hodl XRD activities through DEX LP positions
   {
-    id: "c9_hold_xrd-xusdc",
+    id: `c9_hold_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
-    id: "defiPlaza_hold_xrd-xusdc",
+    id: `defiPlaza_hold_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
-    id: "c9_hold_xrd-xeth",
+    id: `c9_hold_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
-    id: "defiPlaza_hold_xrd-xeth",
+    id: `defiPlaza_hold_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `c9_hold_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `defiPlaza_hold_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `c9_hold_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `defiPlaza_hold_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `c9_hold_${getPair("xrd", "lsulp")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_hyperstake",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
 
@@ -173,44 +197,55 @@ export const activitiesData = [
   },
   // DEX trading activities
   {
-    id: "c9_trade_xrd-xusdc",
+    id: `c9_trade_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "defiPlaza_trade_xrd-xusdc",
+    id: `c9_trade_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.tradingVolume,
   },
-
   {
-    id: "c9_hold_xrd-xwbtc",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `c9_trade_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "c9_hold_xrd-xusdt",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `c9_trade_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "c9_hold_xeth-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: "c9_trade_hyperstake",
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "defiPlaza_hold_xrd-xusdt",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `defiPlaza_trade_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "defiPlaza_hold_xrd-xwbtc",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `defiPlaza_trade_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "defiPlaza_hold_xeth-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `defiPlaza_trade_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "c9_hold_lsulp-xrd",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `defiPlaza_trade_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
   {
-    id: "c9_hold_hyperstake",
-    category: ActivityCategoryKey.maintainXrdBalance,
+    id: `oci_trade_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `oci_trade_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `oci_trade_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `oci_trade_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.tradingVolume,
   },
 ];
