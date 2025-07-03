@@ -42,8 +42,8 @@ export const accountRouter = createTRPCRouter({
               });
             case "CheckAccountPersistenceError":
               throw new TRPCError({
-                code: "INTERNAL_SERVER_ERROR",
-                message: "Failed to verify account persistence",
+                code: "BAD_REQUEST",
+                message: "Unable to verify account. Please check the account address and try again.",
               });
           }
         }
