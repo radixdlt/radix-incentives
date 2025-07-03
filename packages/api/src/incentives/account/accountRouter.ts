@@ -38,12 +38,14 @@ export const accountRouter = createTRPCRouter({
             case "VirtualAccountError":
               throw new TRPCError({
                 code: "BAD_REQUEST",
-                message: `Account is virtual and has not been persisted on-ledger. Please use the account in a transaction first to create it on-ledger.`,
+                message:
+                  "Account is virtual and has not been persisted on-ledger. Please use the account in a transaction first to create it on-ledger.",
               });
             case "CheckAccountPersistenceError":
               throw new TRPCError({
                 code: "BAD_REQUEST",
-                message: "Unable to verify account. Please check the account address and try again.",
+                message:
+                  "Unable to verify account. Please check the account address and try again.",
               });
           }
         }

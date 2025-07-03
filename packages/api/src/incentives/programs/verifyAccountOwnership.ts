@@ -5,12 +5,7 @@ import { VerifyChallengeService } from "../challenge/verifyChallenge";
 import { z } from "zod";
 import { UpsertAccountsService } from "../account/upsertAccounts";
 import { GetAccountsByAddressService } from "../account/getAccountsByAddress";
-import { 
-  checkForVirtualAccounts, 
-  CheckAccountPersistenceService,
-  VirtualAccountError,
-  CheckAccountPersistenceError 
-} from "../../common/gateway/checkAccountPersistence";
+import { checkForVirtualAccounts } from "../../common/gateway/checkAccountPersistence";
 
 export class InvalidChallengeError {
   readonly _tag = "InvalidChallengeError";
