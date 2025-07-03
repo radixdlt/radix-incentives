@@ -6,6 +6,7 @@ import { CaviarNineConstants } from "../dapps/caviarnine/constants";
 import { DefiPlaza } from "../dapps/defiplaza/constants";
 import { WeftFinance } from "../dapps/weftFinance/constants";
 import { RootFinance } from "../dapps/rootFinance/constants";
+import { OciswapConstants } from "../dapps/ociswap/constants";
 import { Assets } from "../assets/constants";
 import { tokenNameMap } from "./tokenNameMap";
 
@@ -44,6 +45,7 @@ export class AddressValidationService extends Context.Tag(
     // dApp-specific validation methods (for strict event matching)
     isCaviarNinePoolComponent: (address: string) => boolean;
     isDefiPlazaPoolComponent: (address: string) => boolean;
+    isOciswapPoolComponent: (address: string) => boolean;
     isWeftFinanceComponent: (
       address: string,
       packageAddress?: string
@@ -56,6 +58,7 @@ export class AddressValidationService extends Context.Tag(
     // Resource validation by dApp
     isCaviarNineResource: (address: string) => boolean;
     isDefiPlazaResource: (address: string) => boolean;
+    isOciswapResource: (address: string) => boolean;
     isWeftFinanceResource: (address: string) => boolean;
     isRootFinanceResource: (address: string) => boolean;
     isBaseAssetResource: (address: string) => boolean;
@@ -148,6 +151,9 @@ const validResourceAddresses = new Set([
   ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
   ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
   ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
+  ...extractPropertyValues(OciswapConstants, "lpResourceAddress"),
+  ...extractPropertyValues(OciswapConstants, "token_x"),
+  ...extractPropertyValues(OciswapConstants, "token_y"),
   ...extractPropertyValues(WeftFinance, "resourceAddress"),
   ...extractPropertyValues(RootFinance, "resourceAddress"),
   RootFinance.receiptResourceAddress,
@@ -158,7 +164,6 @@ const caviarNineComponents = new Set([
   ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
     (p) => p.componentAddress
   ),
-  // LSULP component
   // TODO: think about uncommenting this if we ever need it, but we don't need to watch events from the LSULP pool for now
   //CaviarNineConstants.LSULP.component,
 ] as string[]);
@@ -167,6 +172,10 @@ const defiPlazaComponents = new Set(
   Object.values(DefiPlaza)
     .map((pool) => pool.componentAddress)
     .filter((addr) => addr && addr.length > 0) as string[]
+);
+
+const ociswapComponents = new Set(
+  Object.values(OciswapConstants.pools).map((pool) => pool.componentAddress) as string[]
 );
 
 const caviarNineResources = new Set([
@@ -193,6 +202,12 @@ const defiPlazaResources = new Set([
   ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
   ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
   ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
+]);
+
+const ociswapResources = new Set([
+  ...extractPropertyValues(OciswapConstants.pools, "lpResourceAddress"),
+  ...extractPropertyValues(OciswapConstants.pools, "token_x"),
+  ...extractPropertyValues(OciswapConstants.pools, "token_y"),
 ]);
 
 const weftResources = new Set(
@@ -238,6 +253,16 @@ const poolTradingMap = (() => {
       }
     }
   }
+  // Ociswap Pools
+  for (const pool of Object.values(OciswapConstants.pools)) {
+    const tokenX = getTokenNameSync(pool.token_x);
+    const tokenY = getTokenNameSync(pool.token_y);
+    if (tokenX && tokenY) {
+      const [firstToken, secondToken] = [tokenX, tokenY].sort();
+      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      map.set(pool.componentAddress, activityId);
+    }
+  }
   return map;
 })();
 
@@ -254,6 +279,10 @@ export const isCaviarNinePoolComponent = (
 
 export const isDefiPlazaPoolComponent = (componentAddress: string): boolean => {
   return defiPlazaComponents.has(componentAddress);
+};
+
+export const isOciswapPoolComponent = (componentAddress: string): boolean => {
+  return ociswapComponents.has(componentAddress);
 };
 
 export const isWeftFinanceComponent = (
@@ -291,6 +320,7 @@ export const AddressValidationServiceLive = Layer.succeed(
         ...extractPropertyValues(CaviarNineConstants, "componentAddress"),
         ...extractPropertyValues(CaviarNineConstants, "component"),
         ...extractPropertyValues(DefiPlaza, "componentAddress"),
+        ...extractPropertyValues(OciswapConstants.pools, "componentAddress"),
       ]);
 
       return validPoolComponents.has(componentAddress);
@@ -299,6 +329,7 @@ export const AddressValidationServiceLive = Layer.succeed(
     // dApp-specific pool component validation
     isCaviarNinePoolComponent,
     isDefiPlazaPoolComponent,
+    isOciswapPoolComponent,
 
     isValidProtocolComponent: (
       componentAddress: string,
@@ -346,6 +377,10 @@ export const AddressValidationServiceLive = Layer.succeed(
 
     isDefiPlazaResource: (resourceAddress: string): boolean => {
       return defiPlazaResources.has(resourceAddress);
+    },
+
+    isOciswapResource: (resourceAddress: string): boolean => {
+      return ociswapResources.has(resourceAddress);
     },
 
     isWeftFinanceResource: (resourceAddress: string): boolean => {
