@@ -136,37 +136,6 @@ export const DeriveAccountFromEventLive = Layer.effect(
               }
             }
 
-            // Handled by withdraw/deposit events
-            if (event.dApp === "Caviarnine") {
-              return {
-                timestamp: event.timestamp.toISOString(),
-                transactionId: event.transactionId,
-              };
-            }
-
-            // Handled by swap/add/remove liquidity events
-            if (event.dApp === "DefiPlaza") {
-              return {
-                timestamp: event.timestamp.toISOString(),
-                transactionId: event.transactionId,
-              };
-            }
-
-            // Handled by swap events
-            if (event.dApp === "Ociswap") {
-              return {
-                timestamp: event.timestamp.toISOString(),
-                transactionId: event.transactionId,
-              };
-            }
-
-            if (event.dApp === "HLP") {
-              return {
-                timestamp: event.timestamp.toISOString(),
-                transactionId: event.transactionId,
-              };
-            }
-
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === "WeftFinance") {
               yield* Effect.log("WeftFinance event", event.eventData);
@@ -183,11 +152,10 @@ export const DeriveAccountFromEventLive = Layer.effect(
               ) {
                 nonFungibleId = eventData.nft_id;
               } else {
-                return yield* Effect.fail(
-                  new InvalidEventError(
-                    `${event.dApp}.${event.eventData.type} is not handled`
-                  )
-                );
+                return {
+                  timestamp: event.timestamp.toISOString(),
+                  transactionId: event.transactionId,
+                };
               }
 
               const at_ledger_state = {
@@ -248,16 +216,16 @@ export const DeriveAccountFromEventLive = Layer.effect(
                 };
               }
 
-              return yield* Effect.fail(
-                new InvalidEventError(
-                  `${event.dApp}.${event.eventData.type} is not handled`
-                )
-              );
+              return {
+                timestamp: event.timestamp.toISOString(),
+                transactionId: event.transactionId,
+              };
             }
 
-            return yield* Effect.fail(
-              new InvalidEventError(`${event.dApp} is not handled`)
-            );
+            return {
+              timestamp: event.timestamp.toISOString(),
+              transactionId: event.transactionId,
+            };
           });
         });
 
