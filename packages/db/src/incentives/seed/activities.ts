@@ -41,6 +41,7 @@ const [weekResult] = await db
       endDate: new Date("2025-06-29:23:59:59Z"),
       seasonId: SEASON_ID,
       id: WEEK_ID,
+      status: "active",
     },
   ])
   .returning()

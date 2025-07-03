@@ -8,11 +8,12 @@ import {
 import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
-import type { AccountBalanceData, ActivityId } from "db/incentives";
+import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
 } from "../../common/address-validation/addressValidation";
+import { getPair } from "../../common/helpers/getPair";
 
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -66,8 +67,12 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               CaviarNineConstants.LSULP.resourceAddress;
 
           // Get token names for the pair
-          const xTokenName = yield* addressValidationService.getTokenName(xToken.resourceAddress);
-          const yTokenName = yield* addressValidationService.getTokenName(yToken.resourceAddress);
+          const xTokenName = yield* addressValidationService.getTokenName(
+            xToken.resourceAddress
+          );
+          const yTokenName = yield* addressValidationService.getTokenName(
+            yToken.resourceAddress
+          );
 
           const totals = poolAssets.reduce(
             (acc, item) => {
@@ -108,7 +113,11 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           }
 
           // Generate activity ID based on token pair - cast to ActivityId since we know it's valid
-          const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
+          const activityId = `c9_lp_${getPair(
+            xTokenName as Token,
+            yTokenName as Token
+          )}` as ActivityId;
+
           processedPools.add(activityId);
 
           results.push({
@@ -175,9 +184,16 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
         for (const pool of Object.values(
           CaviarNineConstants.shapeLiquidityPools
         )) {
-          const xTokenName = yield* addressValidationService.getTokenName(pool.token_x);
-          const yTokenName = yield* addressValidationService.getTokenName(pool.token_y);
-          const activityId = `c9_lp_${xTokenName}-${yTokenName}` as ActivityId;
+          const xTokenName = yield* addressValidationService.getTokenName(
+            pool.token_x
+          );
+          const yTokenName = yield* addressValidationService.getTokenName(
+            pool.token_y
+          );
+          const activityId = `c9_lp_${getPair(
+            xTokenName as Token,
+            yTokenName as Token
+          )}` as ActivityId;
 
           if (!processedPools.has(activityId)) {
             // Determine which tokens are XRD derivatives

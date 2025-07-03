@@ -27,6 +27,7 @@ export const calculateSeasonPointsInputSchema = z.object({
   seasonId: z.string(),
   weekId: z.string(),
   force: z.boolean().optional(),
+  endOfWeek: z.boolean(),
 });
 
 export type CalculateSeasonPointsInput = z.infer<
@@ -213,10 +214,12 @@ export const CalculateSeasonPointsLive = Layer.effect(
           }))
         );
 
-        yield* updateWeekStatus({
-          id: input.weekId,
-          status: "completed",
-        });
+        if (input.endOfWeek) {
+          yield* updateWeekStatus({
+            id: input.weekId,
+            status: "completed",
+          });
+        }
 
         yield* Effect.log(
           `season points for week ${input.weekId} successfully applied to users`

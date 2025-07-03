@@ -175,7 +175,9 @@ const defiPlazaComponents = new Set(
 );
 
 const ociswapComponents = new Set(
-  Object.values(OciswapConstants.pools).map((pool) => pool.componentAddress) as string[]
+  Object.values(OciswapConstants.pools).map(
+    (pool) => pool.componentAddress
+  ) as string[]
 );
 
 const caviarNineResources = new Set([
@@ -185,14 +187,8 @@ const caviarNineResources = new Set([
     CaviarNineConstants.shapeLiquidityPools,
     "liquidity_receipt"
   ),
-  ...extractPropertyValues(
-    CaviarNineConstants.shapeLiquidityPools,
-    "token_x"
-  ),
-  ...extractPropertyValues(
-    CaviarNineConstants.shapeLiquidityPools,
-    "token_y"
-  ),
+  ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, "token_x"),
+  ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, "token_y"),
   CaviarNineConstants.HLP.token_x,
   CaviarNineConstants.HLP.token_y,
 ]);
@@ -229,7 +225,9 @@ const poolTradingMap = (() => {
     const tokenX = getTokenNameSync(pool.token_x);
     const tokenY = getTokenNameSync(pool.token_y);
     if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort();
+      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
+        a.localeCompare(b)
+      );
       const activityId: ActivityId = `c9_trade_${firstToken}-${secondToken}`;
       map.set(pool.componentAddress, activityId);
     }
@@ -247,7 +245,9 @@ const poolTradingMap = (() => {
       const baseToken = getTokenNameSync(pool.baseResourceAddress);
       const quoteToken = getTokenNameSync(pool.quoteResourceAddress);
       if (baseToken && quoteToken) {
-        const [firstToken, secondToken] = [baseToken, quoteToken].sort();
+        const [firstToken, secondToken] = [baseToken, quoteToken].sort((a, b) =>
+          a.localeCompare(b)
+        );
         const activityId: ActivityId = `defiPlaza_trade_${firstToken}-${secondToken}`;
         map.set(pool.componentAddress, activityId);
       }
@@ -258,7 +258,9 @@ const poolTradingMap = (() => {
     const tokenX = getTokenNameSync(pool.token_x);
     const tokenY = getTokenNameSync(pool.token_y);
     if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort();
+      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
+        a.localeCompare(b)
+      );
       const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
       map.set(pool.componentAddress, activityId);
     }

@@ -40,16 +40,20 @@ const testTokens = [
   "foton",
   "fomo",
 ];
-const tokens = [
-  "xrd",
-  "xeth",
-  "xusdc",
-  "xusdt",
-  "xwbtc",
-  "lsulp",
-  "stakedXrd",
-  "unstakedXrd",
-];
+
+export const TOKENS = {
+  xrd: "xrd",
+  xeth: "xeth",
+  xusdc: "xusdc",
+  xusdt: "xusdt",
+  xwbtc: "xwbtc",
+  lsulp: "lsulp",
+  stakedXrd: "stakedXrd",
+  unstakedXrd: "unstakedXrd",
+} as const;
+export type Token = keyof typeof TOKENS;
+
+const tokens = Object.values(TOKENS) as Token[];
 
 const allTokens = [
   ...new Set(
