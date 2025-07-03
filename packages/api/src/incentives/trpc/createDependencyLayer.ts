@@ -29,6 +29,8 @@ import {
 import { UpsertAccountsLive } from "../account/upsertAccounts";
 import { GetAccountsByAddressLive } from "../account/getAccountsByAddress";
 import { GetSessionLive } from "../session/getSession";
+import { CheckAccountPersistenceServiceLive } from "../../common/gateway/checkAccountPersistence";
+import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 import { getAccountsProgram } from "../programs/getAccounts";
 import { signOutProgram } from "../programs/signOutProgram";
 import {
@@ -73,6 +75,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const appConfig = createConfig(input.appConfig);
   const appConfigLive = createAppConfigLive(appConfig);
+
+  const gatewayApiClientLive = GatewayApiClientLive;
+  
+  const checkAccountPersistenceLive = CheckAccountPersistenceServiceLive.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
 
   const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
 
@@ -190,7 +198,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         verifyRolaProofLive,
         verifyChallengeLive,
         upsertAccountsLive,
-        getAccountsByAddressLive
+        getAccountsByAddressLive,
+        checkAccountPersistenceLive
       )
     );
 

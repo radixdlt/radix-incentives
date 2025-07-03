@@ -5,6 +5,7 @@ import { VerifyChallengeService } from "../challenge/verifyChallenge";
 import { z } from "zod";
 import { UpsertAccountsService } from "../account/upsertAccounts";
 import { GetAccountsByAddressService } from "../account/getAccountsByAddress";
+import { checkForVirtualAccounts } from "../../common/gateway/checkAccountPersistence";
 
 export class InvalidChallengeError {
   readonly _tag = "InvalidChallengeError";
@@ -62,6 +63,9 @@ export const verifyAccountOwnershipProgram = (
     if (!isValidProof) return yield* Effect.fail(new InvalidProofError());
 
     const addresses = input.items.map((item) => item.address);
+
+    // Check if any accounts are virtual (not persisted on-ledger)
+    yield* checkForVirtualAccounts(addresses);
 
     const existingAccounts = yield* getAccountsByAddress({
       addresses,
