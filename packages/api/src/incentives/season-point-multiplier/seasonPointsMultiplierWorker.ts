@@ -213,9 +213,16 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
           (a: UsersWithTwaBalance, b: UsersWithTwaBalance) =>
             a.totalTWABalance.comparedTo(b.totalTWABalance) || 0
         );
+
+        // Split users into two groups: those with balance >= 10000 and those with balance < 10000
         const filteredUserTwaBalances = allUserTwaBalances.filter(
           (u: UsersWithTwaBalance) => u.totalTWABalance.gte(10000)
         );
+        const belowThresholdUsers = allUserTwaBalances.filter(
+          (u: UsersWithTwaBalance) => u.totalTWABalance.lt(10000)
+        );
+
+        // Calculate cumulative balances and multipliers for users >= 10000 balance
         const userTwaBalancesWithCumulative = calculateCumulativeTwaBalances(
           filteredUserTwaBalances,
           week.id
@@ -232,8 +239,22 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
           totalTwaBalanceSum
         );
 
+        // Add users with balance < 10000 with 0.0 multiplier and cumulative balance
+        const belowThresholdUsersWithDefaults = belowThresholdUsers.map((user) => ({
+          userId: user.userId,
+          totalTWABalance: user.totalTWABalance.toString(),
+          cumulativeTWABalance: "0",
+          weekId: week.id,
+          multiplier: "0.0",
+        }));
+
+
+        yield* Effect.log(`Upserting user TWA with multiplier ${userTwaWithMultiplier.length}`);
         yield* upsertUserTwaWithMultiplier(userTwaWithMultiplier);
         yield* Effect.log("Season points multiplier calculated");
+
+        yield* Effect.log(`Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`);
+        yield* upsertUserTwaWithMultiplier(belowThresholdUsersWithDefaults);
       });
   })
 );

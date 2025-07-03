@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
-import { accountActivityPoints, accounts } from "db/incentives";
+import { accountActivityPoints, accounts, seasonPointsMultiplier } from "db/incentives";
 import { and, asc, eq, gte } from "drizzle-orm";
 import BigNumber from "bignumber.js";
 
@@ -20,6 +20,7 @@ export class GetUserActivityPointsService extends Context.Tag(
     weekId: string;
     activityId: string;
     minPoints: number;
+    minTWABalance: number;
   }) => Effect.Effect<
     { userId: string; points: BigNumber }[],
     GetUserActivityPointsError
@@ -46,12 +47,20 @@ export const GetUserActivityPointsLive = Layer.effect(
                 and(
                   eq(accountActivityPoints.weekId, input.weekId),
                   eq(accountActivityPoints.activityId, input.activityId),
-                  gte(accountActivityPoints.activityPoints, input.minPoints)
+                  gte(accountActivityPoints.activityPoints, input.minPoints),
+                  gte(seasonPointsMultiplier.totalTWABalance, input.minTWABalance.toString())
                 )
               )
               .innerJoin(
                 accounts,
                 eq(accounts.address, accountActivityPoints.accountAddress)
+              )
+              .innerJoin(
+                seasonPointsMultiplier,
+                and(
+                  eq(seasonPointsMultiplier.userId, accounts.userId),
+                  eq(seasonPointsMultiplier.weekId, input.weekId)
+                )
               )
               .orderBy(asc(accountActivityPoints.activityPoints)),
           catch: (error) => new DbError(error),

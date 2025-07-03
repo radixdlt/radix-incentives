@@ -1,8 +1,7 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { z } from "zod";
-import { AccountBalanceService } from "../account-balance/accountBalance";
-import { calculateTWA } from "../activity-points/calculateTWA";
+import { CalculateTWASQLService } from "../activity-points/calculateTWASQL";
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
@@ -44,46 +43,26 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
   GetUserTWAXrdBalanceService,
   Effect.gen(function* () {
     const getWeekById = yield* GetWeekByIdService;
-    const accountBalanceService = yield* AccountBalanceService;
+    const calculateTWASQL = yield* CalculateTWASQLService;
     const dbClient = yield* DbClientService;
 
     return (input) => {
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
 
-        const items = yield* accountBalanceService
-          .byAddressesAndDateRange({
-            startDate: week.startDate,
-            endDate: week.endDate,
-            addresses: input.addresses,
-            filterFn: (activityId) => activityId.includes("hold_"),
-          })
-          .pipe(
-            Effect.flatMap((items) => {
-              const twa = calculateTWA({
-                items,
-                week,
-                calculationType: "USDValue",
-              });
-              return twa;
-            }),
-            Effect.map((items) => {
-              const resultItems = Object.entries(items).flatMap(
-                ([address, activities]) =>
-                  activities
-                    ? Object.entries(activities).map(
-                        ([activityId, twaBalance]) => ({
-                          accountAddress: address,
-                          activityId,
-                          twaBalance: twaBalance,
-                          weekId: week.id,
-                        })
-                      )
-                    : []
-              );
-              return resultItems;
-            })
-          );
+        // Use SQL-based calculation for hold activities with USDValue calculation type
+        const items = yield* calculateTWASQL({
+          weekId: input.weekId,
+          addresses: input.addresses,
+          startDate: week.startDate,
+          endDate: week.endDate,
+          calculationType: "USDValue",
+          filterType: "include_hold",
+          filterZeroValues: false,
+        }).pipe(
+          Effect.tap(() => Effect.log("Calculated TWA XRD balance using SQL")),
+          Effect.tap((items) => Effect.log(`Found ${items.length} hold activity entries`))
+        );
 
         const getAccountsWithUserId = (createdAt: Date) => {
           return Effect.gen(function* () {
@@ -103,6 +82,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
             });
           });
         };
+        
         // accountsWithUserId is: Array<{ address: string, userId: string }>
         const accountsWithUserId = yield* getAccountsWithUserId(week.endDate);
 
@@ -112,19 +92,20 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
           addressToUserId.set(address, userId);
         }
 
-        // items is an array of { accountAddress, activityId, twaBalance, weekId }
+        // items now contains { accountAddress, activityId, activityPoints, weekId }
+        // where activityPoints represents the TWA balance for hold activities
         const userTwaMap = new Map<string, BigNumber>();
         for (const item of items) {
           const userId = addressToUserId.get(item.accountAddress);
           if (!userId) continue;
           const currentBalance = userTwaMap.get(userId) ?? new BigNumber(0);
-          userTwaMap.set(userId, currentBalance.plus(item.twaBalance));
+          userTwaMap.set(userId, currentBalance.plus(item.activityPoints));
         }
 
         const userTwaBalances = Array.from(userTwaMap.entries()).map(
           ([userId, totalTWABalance]) => ({ userId, totalTWABalance })
         );
-        // userTwaBalances: Array<{ userId: string, totalTwaBalance: number }>
+        
         return userTwaBalances;
       });
     };
