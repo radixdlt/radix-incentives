@@ -9,11 +9,12 @@ import { BigNumber } from "bignumber.js";
 import { Assets } from "../../common/assets/constants";
 import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
-import type { AccountBalanceData, ActivityId } from "db/incentives";
+import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
 } from "../../common/address-validation/addressValidation";
+import { getPair } from "../../common/helpers/getPair";
 
 export class InvalidDefiPlazaPositionError {
   readonly _tag = "InvalidDefiPlazaPositionError";
@@ -62,10 +63,11 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             const quoteTokenName = yield* addressValidationService.getTokenName(
               pool.quoteResourceAddress
             );
-            const sortedTokenNames = [baseTokenName, quoteTokenName].sort();
             results.push({
-              activityId:
-                `defiPlaza_lp_${sortedTokenNames[0]}-${sortedTokenNames[1]}` as ActivityId,
+              activityId: `defiPlaza_lp_${getPair(
+                baseTokenName as Token,
+                quoteTokenName as Token
+              )}` as ActivityId,
               usdValue: new BigNumber(0).toString(),
             });
           }
@@ -97,8 +99,12 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           }
 
           // Get token names for both positions
-          const token1Name = yield* addressValidationService.getTokenName(position1.resourceAddress);
-          const token2Name = yield* addressValidationService.getTokenName(position2.resourceAddress);
+          const token1Name = yield* addressValidationService.getTokenName(
+            position1.resourceAddress
+          );
+          const token2Name = yield* addressValidationService.getTokenName(
+            position2.resourceAddress
+          );
 
           // Determine which tokens are XRD derivatives (XRD or LSULP)
           const isToken1XrdDerivative =
@@ -134,9 +140,10 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           }
 
           // Generate dynamic activity ID based on token pair (alphabetical order for consistency)
-          const sortedTokenNames = [token1Name, token2Name].sort();
-          const activityId =
-            `defiPlaza_lp_${sortedTokenNames[0]}-${sortedTokenNames[1]}` as ActivityId;
+          const activityId = `defiPlaza_lp_${getPair(
+            token1Name as Token,
+            token2Name as Token
+          )}` as ActivityId;
 
           // Check for duplicate activity IDs and handle aggregation
           if (processedActivityIds.has(activityId)) {

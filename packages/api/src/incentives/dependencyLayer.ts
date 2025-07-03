@@ -102,6 +102,7 @@ import {
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
 import { UserStatsService } from "./user/user";
+import { WeekService } from "./week/week";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -596,12 +597,19 @@ const calculateActivityPoints = (input: {
   return Effect.runPromiseExit(program);
 };
 
-const calculateSeasonPoints = (input: { seasonId: string; weekId: string }) => {
+const calculateSeasonPoints = (input: {
+  seasonId: string;
+  weekId: string;
+  endOfWeek?: boolean;
+}) => {
   const program = Effect.provide(
     Effect.gen(function* () {
       const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
 
-      return yield* calculateSeasonPointsService(input);
+      return yield* calculateSeasonPointsService({
+        ...input,
+        endOfWeek: !!input.endOfWeek,
+      });
     }),
     calculateSeasonPointsLive
   );
@@ -643,6 +651,19 @@ const getUserStats = (input: { userId: string }) => {
   return Effect.runPromiseExit(program);
 };
 
+const getActiveWeek = () => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const getActiveWeekService = yield* WeekService;
+
+      return yield* getActiveWeekService.getActiveWeek();
+    }),
+    WeekService.Default.pipe(Layer.provide(dbClientLive))
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
 export const dependencyLayer = {
   snapshotWorker,
   getLedgerState,
@@ -652,4 +673,5 @@ export const dependencyLayer = {
   calculateSPMultiplier,
   eventWorkerHandler,
   getUserStats,
+  getActiveWeek,
 };
