@@ -66,7 +66,6 @@ export const CalculateTWASQLLive = Layer.effect(
                   AND ${input.filterType === "exclude_hold" 
                     ? sql`(activity_item->>'activityId') NOT LIKE '%hold_%'`
                     : sql`(activity_item->>'activityId') LIKE '%hold_%'`}
-                  AND (activity_item->>'usdValue')::decimal > 0
               ),
               activities_with_duration AS (
                 -- Calculate duration to next timestamp using LEAD window function

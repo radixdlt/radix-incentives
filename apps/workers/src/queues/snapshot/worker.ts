@@ -42,9 +42,9 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
     throw new Error(JSON.stringify(result.cause, null, 2));
   }
 
-  if (result.value?.weekId) {
-    await calculateActivityPointsQueue.queue.add("calculateActivityPoints", {
-      weekId: result.value.weekId,
-    });
-  }
+  // if (result.value?.weekId) {
+  //   await calculateActivityPointsQueue.queue.add("calculateActivityPoints", {
+  //     weekId: result.value.weekId,
+  //   });
+  // }
 };
