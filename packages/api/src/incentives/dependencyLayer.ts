@@ -27,6 +27,8 @@ import { GetRootFinancePositionsLive } from "../common/dapps/rootFinance/getRoot
 import { GetQuantaSwapBinMapLive } from "../common/dapps/caviarnine/getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShapeLiquidityAssets";
+import { GetOciswapLiquidityAssetsLive } from "../common/dapps/ociswap/getOciswapLiquidityAssets";
+import { GetOciswapLiquidityClaimsLive } from "../common/dapps/ociswap/getOciswapLiquidityClaims";
 import { GetDefiPlazaPositionsLive } from "../common/dapps/defiplaza/getDefiPlazaPositions";
 import { GetHyperstakePositionsLive } from "../common/dapps/caviarnine/getHyperstakePositions";
 import { GetResourcePoolUnitsLive } from "../common/resource-pool/getResourcePoolUnits";
@@ -40,6 +42,7 @@ import { db, readOnlyDb } from "db/incentives";
 import { GetUsdValueLive } from "./token-price/getUsdValue";
 import { AggregateAccountBalanceLive } from "./account-balance/aggregateAccountBalance";
 import { AggregateCaviarninePositionsLive } from "./account-balance/aggregateCaviarninePositions";
+import { AggregateOciswapPositionsLive } from "./account-balance/aggregateOciswapPositions";
 import { createAppConfigLive, createConfig } from "./config/appConfig";
 import {
   type DeriveAccountFromEventInput,
@@ -247,6 +250,16 @@ const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive)
 );
 
+const getOciswapLiquidityClaimsLive = GetOciswapLiquidityClaimsLive.pipe(
+  Layer.provide(entityNonFungibleDataLive)
+);
+
+const getOciswapLiquidityAssetsLive = GetOciswapLiquidityAssetsLive.pipe(
+  Layer.provide(getComponentStateLive),
+  Layer.provide(getOciswapLiquidityClaimsLive),
+  Layer.provide(getNonFungibleBalanceLive)
+);
+
 const getAccountAddressesLive = GetAccountAddressesLive.pipe(
   Layer.provide(dbClientLive)
 );
@@ -269,6 +282,11 @@ const xrdBalanceLive = XrdBalanceLive.pipe(
 );
 
 const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
+  Layer.provide(getUsdValueLive),
+  Layer.provide(addressValidationServiceLive)
+);
+
+const aggregateOciswapPositionsLive = AggregateOciswapPositionsLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(addressValidationServiceLive)
 );
@@ -301,6 +319,7 @@ const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
 
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(aggregateCaviarninePositionsLive),
+  Layer.provide(aggregateOciswapPositionsLive),
   Layer.provide(xrdBalanceLive),
   Layer.provide(aggregateWeftFinancePositionsLive),
   Layer.provide(aggregateRootFinancePositionsLive),
@@ -337,7 +356,9 @@ const dappsLive = Layer.mergeAll(
   getHyperstakePositionsLive,
   getShapeLiquidityAssetsLive,
   getShapeLiquidityClaimsLive,
-  getQuantaSwapBinMapLive
+  getQuantaSwapBinMapLive,
+  getOciswapLiquidityAssetsLive,
+  getOciswapLiquidityClaimsLive
 );
 
 const accountBalanceLive = Layer.mergeAll(

@@ -37,6 +37,7 @@ import {
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
+import { OciswapConstants } from "../../common/dapps/ociswap/constants";
 import {
   type CollaterizedDebtPosition,
   GetRootFinancePositionsService,
@@ -55,8 +56,14 @@ import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
 } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import {
+  GetOciswapLiquidityAssetsService,
+  type OciswapLiquidityAsset,
+} from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
 import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
+import type { FailedToParseOciswapComponentStateError } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
+import type { FailedToParseOciswapLiquidityPositionError } from "../../common/dapps/ociswap/getOciswapLiquidityClaims";
 import {
   type GetDefiPlazaPositionsOutput,
   GetDefiPlazaPositionsService,
@@ -115,6 +122,10 @@ type CaviarNinePosition = {
   [key: string]: ShapeLiquidityAsset[];
 };
 
+type OciswapPosition = {
+  [key: string]: OciswapLiquidityAsset[];
+};
+
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
 
 type HyperstakePosition = GetHyperstakePositionsOutput[number];
@@ -129,6 +140,7 @@ export type AccountBalance = {
   weftFinancePositions: WeftFinancePosition;
   rootFinancePositions: RootFinancePosition[];
   caviarninePositions: CaviarNinePosition;
+  ociswapPositions: OciswapPosition;
   defiPlazaPositions: DefiPlazaPosition;
   hyperstakePositions: HyperstakePosition;
 };
@@ -155,6 +167,8 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | InvalidInputError
   | InvalidComponentStateError
   | FailedToParseLiquidityClaimsError
+  | FailedToParseOciswapComponentStateError
+  | FailedToParseOciswapLiquidityPositionError
   | GetDefiPlazaPositionsError
   | GetHyperstakePositionsError;
 
@@ -192,6 +206,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
     const getLedgerStateService = yield* GetLedgerStateService;
     const getShapeLiquidityAssetsService =
       yield* GetShapeLiquidityAssetsService;
+    const getOciswapLiquidityAssetsService =
+      yield* GetOciswapLiquidityAssetsService;
     const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
     const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
     return (input) =>
@@ -220,6 +236,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
                     (pool) => pool.liquidity_receipt
                   ),
+                  ...Object.values(OciswapConstants.pools).map(
+                    (pool) => pool.lpResourceAddress
+                  ),
                   RootFinance.receiptResourceAddress,
                   ...input.validators.map(
                     (validator) => validator.claimNftResourceAddress
@@ -238,8 +257,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           CaviarNineConstants.shapeLiquidityPools
         );
 
+        const allOciswapPools = Object.values(OciswapConstants.pools);
+
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, defi plaza positions, hyperstake positions, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, lsulp value"
         );
         const [
           userStakingPositions,
@@ -247,6 +268,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allWeftFinancePositions,
           allRootFinancePositions,
           allCaviarNineShapeLiquidityAssets,
+          allOciswapLiquidityAssets,
           allDefiPlazaPositions,
           allHyperstakePositions,
           lsulpValue,
@@ -287,6 +309,31 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 }).pipe(
                   Effect.withSpan(
                     `CaviarNine_${pool.name.replace("/", "_")}_getShapeLiquidityAssetsService`
+                  ),
+                  Effect.map((result) => ({ pool, result }))
+                )
+              ),
+              { concurrency: "unbounded" }
+            ),
+            Effect.all(
+              allOciswapPools.map((pool) =>
+                getOciswapLiquidityAssetsService({
+                  componentAddress: pool.componentAddress,
+                  addresses: input.addresses,
+                  at_ledger_state: atLedgerState,
+                  lpResourceAddress: pool.lpResourceAddress,
+                  tokenXAddress: pool.token_x,
+                  tokenYAddress: pool.token_y,
+                  tokenXDivisibility: pool.divisibility_x,
+                  tokenYDivisibility: pool.divisibility_y,
+                  priceBounds: {
+                    lower: 0.7,
+                    upper: 1.3,
+                  },
+                  nonFungibleBalance: nonFungibleBalanceResults,
+                }).pipe(
+                  Effect.withSpan(
+                    `OciSwap_${pool.name.replace("/", "_")}_getOciswapLiquidityAssetsService`
                   ),
                   Effect.map((result) => ({ pool, result }))
                 )
@@ -384,6 +431,17 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           })
         );
 
+        // Create lookup maps for OciSwap liquidity assets for O(1) access
+        const ociswapLiquidityPositions = new Map(
+          allOciswapLiquidityAssets.map((poolData) => {
+            const poolKey = poolData.pool.componentAddress;
+            const addressToAssetsMap = new Map(
+              poolData.result.map((item) => [item.address, item.items])
+            );
+            return [poolKey, addressToAssetsMap];
+          })
+        );
+
         const accountBalances = yield* Effect.forEach(
           input.addresses,
           (address) =>
@@ -431,14 +489,29 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 defiPlazaMap.get(address) ?? { address, items: [] };
 
               const accountHyperstakePositions: HyperstakePosition =
-                caviarNineHyperstakePositions.get(address) ?? { address, items: [] };
+                caviarNineHyperstakePositions.get(address) ?? {
+                  address,
+                  items: [],
+                };
 
               const caviarninePositions: CaviarNinePosition = {};
-              
-              for (const [poolKey, addressToAssetsMap] of caviarNineShapeLiquidityPositions) {
 
+              for (const [
+                poolKey,
+                addressToAssetsMap,
+              ] of caviarNineShapeLiquidityPositions) {
                 const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
                 caviarninePositions[poolKey] = accountPoolAssets;
+              }
+
+              const ociswapPositions: OciswapPosition = {};
+
+              for (const [
+                poolKey,
+                addressToAssetsMap,
+              ] of ociswapLiquidityPositions) {
+                const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
+                ociswapPositions[poolKey] = accountPoolAssets;
               }
 
               return {
@@ -451,6 +524,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 weftFinancePositions,
                 rootFinancePositions,
                 caviarninePositions,
+                ociswapPositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
                 hyperstakePositions: accountHyperstakePositions,
               } satisfies AccountBalance;

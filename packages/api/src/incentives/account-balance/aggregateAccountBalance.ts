@@ -3,6 +3,7 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import type { GetUsdValueServiceError } from "../token-price/getUsdValue";
 import { AggregateCaviarninePositionsService } from "./aggregateCaviarninePositions";
+import { AggregateOciswapPositionsService } from "./aggregateOciswapPositions";
 
 import { XrdBalanceService } from "./aggregateXrdBalance";
 import { AggregateWeftFinancePositionsService } from "./aggregateWeftFinancePositions";
@@ -40,6 +41,8 @@ export const AggregateAccountBalanceLive = Layer.effect(
   Effect.gen(function* () {
     const aggregateCaviarninePositionsService =
       yield* AggregateCaviarninePositionsService;
+    const aggregateOciswapPositionsService =
+      yield* AggregateOciswapPositionsService;
     const xrdBalanceService = yield* XrdBalanceService;
     const aggregateWeftFinancePositionsService =
       yield* AggregateWeftFinancePositionsService;
@@ -59,6 +62,10 @@ export const AggregateAccountBalanceLive = Layer.effect(
                   accountBalance,
                   timestamp: input.timestamp,
                 });
+              const ociswapPositions = yield* aggregateOciswapPositionsService({
+                accountBalance,
+                timestamp: input.timestamp,
+              });
               const xrdBalance = yield* xrdBalanceService({
                 accountBalance,
                 timestamp: input.timestamp,
@@ -84,6 +91,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
                 accountAddress: accountBalance.address,
                 data: [
                   ...caviarninePositions,
+                  ...ociswapPositions,
                   ...xrdBalance,
                   ...weftFinancePositions,
                   ...rootFinancePositions,

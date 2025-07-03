@@ -40,6 +40,7 @@ import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
 import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
 import { generateDummySnapshotData } from "./generateDummySnapshotData";
+import type { GetAccountBalancesAtStateVersionServiceError } from "../account-balance/getAccountBalancesAtStateVersion";
 
 // Import all activities from 100activities data
 
@@ -92,7 +93,8 @@ export type SnapshotServiceError =
   | GetDefiPlazaPositionsError
   | UnknownTokenError
   | DbError
-  | SnapshotError;
+  | SnapshotError
+  | GetAccountBalancesAtStateVersionServiceError;
 
 export class SnapshotService extends Context.Tag("SnapshotService")<
   SnapshotService,
