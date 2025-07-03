@@ -57,7 +57,7 @@ export const CalculateTWASQLLive = Layer.effect(
                   activity_item->>'activityId' AS activity_id,
                   (activity_item->>'usdValue')::decimal AS usd_value
                 FROM account_balances ab
-                CROSS JOIN jsonb_array_elements(ab.data) AS activity_item
+                LATERAL jsonb_array_elements(ab.data) AS activity_item
                 WHERE ab.timestamp >= ${input.startDate.toISOString()}
                   AND ab.timestamp <= ${input.endDate.toISOString()}
                   AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
