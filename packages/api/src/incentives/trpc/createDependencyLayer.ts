@@ -66,6 +66,7 @@ import { NodeSdk } from "@effect/opentelemetry";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
 import { LeaderboardService } from "../leaderboard/leaderboard";
+import { ActivityDataService } from "../activity/activityData";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -451,6 +452,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getActivityData = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityDataService = yield* ActivityDataService;
+        return yield* activityDataService.list();
+      }),
+      ActivityDataService.Default.pipe(Layer.provide(dbClientLive))
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -472,5 +485,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getAvailableSeasons,
     getAvailableWeeks,
     getAvailableActivities,
+    getActivityData,
   };
 };
