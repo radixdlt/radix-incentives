@@ -29,7 +29,13 @@ export default function RootLayout({
       <body className="bg-background text-foreground min-h-screen antialiased">
         <TRPCReactProvider>
           <RadixDappToolkitProvider>
-            {children}
+            <>
+              <div className="text-center font-bold bg-white text-black sticky top-0 z-50">
+                ⚠️ PREVIEW TEST ⚠️
+              </div>
+
+              {children}
+            </>
             <Toaster richColors position="top-right" />
           </RadixDappToolkitProvider>
         </TRPCReactProvider>
