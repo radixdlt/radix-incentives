@@ -18,6 +18,10 @@ export const activitiesData = [
     id: `defiPlaza_lp_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
+  {
+    id: `oci_lp_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
 
   {
     id: `c9_lp_${getPair("xrd", "xusdt")}`,
@@ -27,6 +31,10 @@ export const activitiesData = [
     id: `defiPlaza_lp_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
+  {
+    id: `oci_lp_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
 
   // DEX blue chip LP activities
   {
@@ -34,7 +42,15 @@ export const activitiesData = [
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
   {
+    id: `oci_lp_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
     id: `c9_lp_${getPair("xwbtc", "xrd")}`,
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: `oci_lp_${getPair("xwbtc", "xrd")}`,
     category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
   {
@@ -136,11 +152,19 @@ export const activitiesData = [
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
+    id: `oci_hold_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
     id: `c9_hold_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
     id: `defiPlaza_hold_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `oci_hold_${getPair("xrd", "xusdt")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
@@ -152,11 +176,19 @@ export const activitiesData = [
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
+    id: `oci_hold_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
     id: `c9_hold_${getPair("xrd", "xwbtc")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
     id: `defiPlaza_hold_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `oci_hold_${getPair("xrd", "xwbtc")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
@@ -210,6 +242,10 @@ export const activitiesData = [
   },
   {
     id: `c9_trade_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `c9_trade_${getPair("xrd", "lsulp")}`,
     category: ActivityCategoryKey.tradingVolume,
   },
   {

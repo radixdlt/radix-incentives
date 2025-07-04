@@ -3,6 +3,7 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import { Assets } from "../../common/assets/constants";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
+import { OciswapConstants } from "../../common/dapps/ociswap/constants";
 import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
 import {
   AddressValidationService,
@@ -190,9 +191,7 @@ const processCaviarNinePools = (
   accountBalance: AccountBalanceFromSnapshot,
   xrdToUsd: XrdValueConverter,
   addressValidationService: {
-    getTokenName: (
-      address: string
-    ) => Effect.Effect<string, UnknownTokenError>
+    getTokenName: (address: string) => Effect.Effect<string, UnknownTokenError>;
   }
 ) =>
   Effect.gen(function* () {
@@ -248,12 +247,14 @@ const processCaviarNinePools = (
               : xToken;
             const xrdDerivativeToken = isXTokenXrdDerivative ? xToken : yToken;
 
-            const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-              nonXrdDerivativeToken.resourceAddress
-            );
-            const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-              xrdDerivativeToken.resourceAddress
-            );
+            const nonXrdDerivativeTokenName =
+              yield* addressValidationService.getTokenName(
+                nonXrdDerivativeToken.resourceAddress
+              );
+            const xrdDerivativeTokenName =
+              yield* addressValidationService.getTokenName(
+                xrdDerivativeToken.resourceAddress
+              );
             const activityId =
               `c9_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
 
@@ -317,12 +318,14 @@ const processCaviarNinePools = (
           ? pool.token_x
           : pool.token_y;
 
-        const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-          nonXrdDerivativeTokenAddress
-        );
-        const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-          xrdDerivativeTokenAddress
-        );
+        const nonXrdDerivativeTokenName =
+          yield* addressValidationService.getTokenName(
+            nonXrdDerivativeTokenAddress
+          );
+        const xrdDerivativeTokenName =
+          yield* addressValidationService.getTokenName(
+            xrdDerivativeTokenAddress
+          );
         const activityId =
           `c9_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
 
@@ -343,9 +346,7 @@ const processDefiPlazaPools = (
   accountBalance: AccountBalanceFromSnapshot,
   xrdToUsd: XrdValueConverter,
   addressValidationService: {
-    getTokenName: (
-      address: string
-    ) => Effect.Effect<string, UnknownTokenError>
+    getTokenName: (address: string) => Effect.Effect<string, UnknownTokenError>;
   }
 ) =>
   Effect.gen(function* () {
@@ -379,12 +380,14 @@ const processDefiPlazaPools = (
             ? pool.baseResourceAddress
             : pool.quoteResourceAddress;
 
-          const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-            nonXrdDerivativeTokenAddress
-          );
-          const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-            xrdDerivativeTokenAddress
-          );
+          const nonXrdDerivativeTokenName =
+            yield* addressValidationService.getTokenName(
+              nonXrdDerivativeTokenAddress
+            );
+          const xrdDerivativeTokenName =
+            yield* addressValidationService.getTokenName(
+              xrdDerivativeTokenAddress
+            );
           const activityId =
             `defiPlaza_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
 
@@ -425,16 +428,119 @@ const processDefiPlazaPools = (
           ? pool.baseResourceAddress
           : pool.quoteResourceAddress;
 
-        const nonXrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-          nonXrdDerivativeTokenAddress
-        );
-        const xrdDerivativeTokenName = yield* addressValidationService.getTokenName(
-          xrdDerivativeTokenAddress
-        );
+        const nonXrdDerivativeTokenName =
+          yield* addressValidationService.getTokenName(
+            nonXrdDerivativeTokenAddress
+          );
+        const xrdDerivativeTokenName =
+          yield* addressValidationService.getTokenName(
+            xrdDerivativeTokenAddress
+          );
         const activityId =
           `defiPlaza_hold_${xrdDerivativeTokenName}-${nonXrdDerivativeTokenName}` as ActivityId;
 
         if (!defiPlazaByPool.has(activityId)) {
+          output.push({
+            activityId,
+            usdValue: yield* xrdToUsd(new BigNumber(0)),
+          });
+        }
+      }
+    }
+
+    return output;
+  });
+
+// Extract OciSwap pool processing
+const processOciswapPools = (
+  accountBalance: AccountBalanceFromSnapshot,
+  xrdToUsd: XrdValueConverter,
+  addressValidationService: {
+    getTokenName: (address: string) => Effect.Effect<string, UnknownTokenError>;
+  }
+) =>
+  Effect.gen(function* () {
+    const output: AccountBalanceData[] = [];
+    const ociswapByPool = new Map<ActivityId, BigNumber>();
+
+    // Process existing positions
+    for (const [_poolKey, poolAssets] of Object.entries(
+      accountBalance.ociswapPositions
+    )) {
+      const poolXrdAmount = poolAssets.reduce((currentXrd, item) => {
+        let newXrd = currentXrd;
+
+        // Process xToken (use totalAmount for ALL XRD, not just in bounds)
+        if (item.xToken.resourceAddress === Assets.Fungible.XRD) {
+          const tokenAmount = new BigNumber(item.xToken.totalAmount);
+          newXrd = newXrd.plus(tokenAmount);
+        }
+
+        // Process yToken (use totalAmount for ALL XRD, not just in bounds)
+        if (item.yToken.resourceAddress === Assets.Fungible.XRD) {
+          const tokenAmount = new BigNumber(item.yToken.totalAmount);
+          newXrd = newXrd.plus(tokenAmount);
+        }
+
+        return newXrd;
+      }, new BigNumber(0));
+
+      if (poolAssets.length > 0) {
+        const firstAsset = poolAssets[0];
+        if (firstAsset) {
+          const { xToken, yToken } = firstAsset;
+          const isXTokenXrd = xToken.resourceAddress === Assets.Fungible.XRD;
+          const isYTokenXrd = yToken.resourceAddress === Assets.Fungible.XRD;
+
+          if (isXTokenXrd || isYTokenXrd) {
+            const nonXrdToken = isXTokenXrd ? yToken : xToken;
+            const xrdToken = isXTokenXrd ? xToken : yToken;
+
+            const nonXrdTokenName =
+              yield* addressValidationService.getTokenName(
+                nonXrdToken.resourceAddress
+              );
+            const xrdTokenName = yield* addressValidationService.getTokenName(
+              xrdToken.resourceAddress
+            );
+            // Alphabetically sort token names for activityId
+            const [tokenA, tokenB] = [xrdTokenName, nonXrdTokenName].sort();
+            const activityId = `oci_hold_${tokenA}-${tokenB}` as ActivityId;
+
+            const currentAmount =
+              ociswapByPool.get(activityId) ?? new BigNumber(0);
+            ociswapByPool.set(activityId, currentAmount.plus(poolXrdAmount));
+          }
+        }
+      }
+    }
+
+    // Add results for pools with positions
+    for (const [activityId, xrdAmount] of ociswapByPool.entries()) {
+      output.push({
+        activityId,
+        usdValue: yield* xrdToUsd(xrdAmount),
+      });
+    }
+
+    // Add zero entries for pools without positions
+    for (const pool of Object.values(OciswapConstants.pools)) {
+      const isTokenXXrd = pool.token_x === Assets.Fungible.XRD;
+      const isTokenYXrd = pool.token_y === Assets.Fungible.XRD;
+
+      if (isTokenXXrd || isTokenYXrd) {
+        const nonXrdTokenAddress = isTokenXXrd ? pool.token_y : pool.token_x;
+        const xrdTokenAddress = isTokenXXrd ? pool.token_x : pool.token_y;
+
+        const nonXrdTokenName =
+          yield* addressValidationService.getTokenName(nonXrdTokenAddress);
+        const xrdTokenName =
+          yield* addressValidationService.getTokenName(xrdTokenAddress);
+        // Alphabetically sort token names for activityId
+        const [tokenA, tokenB] = [xrdTokenName, nonXrdTokenName].sort();
+        const activityId = `oci_hold_${tokenA}-${tokenB}` as ActivityId;
+
+        if (!ociswapByPool.has(activityId)) {
           output.push({
             activityId,
             usdValue: yield* xrdToUsd(new BigNumber(0)),
@@ -484,11 +590,17 @@ export const XrdBalanceLive = Layer.effect(
           basicHoldings,
           lendingHoldings,
           caviarNineHoldings,
+          ociswapHoldings,
           defiPlazaHoldings,
         ] = yield* Effect.all([
           processBasicXrdHoldings(input.accountBalance, xrdToUsd),
           processLendingProtocols(input.accountBalance, xrdToUsd),
           processCaviarNinePools(
+            input.accountBalance,
+            xrdToUsd,
+            addressValidationService
+          ),
+          processOciswapPools(
             input.accountBalance,
             xrdToUsd,
             addressValidationService
@@ -505,6 +617,7 @@ export const XrdBalanceLive = Layer.effect(
           ...basicHoldings,
           ...lendingHoldings,
           ...caviarNineHoldings,
+          ...ociswapHoldings,
           ...defiPlazaHoldings,
         ];
       });
