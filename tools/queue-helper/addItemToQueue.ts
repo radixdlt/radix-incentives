@@ -3,7 +3,7 @@
 import inquirer from "inquirer";
 import { fileURLToPath } from "node:url";
 import { dirname } from "node:path";
-import { db } from "../../packages/db/src/incentives";
+import { db } from "db/incentives";
 
 type QueueType =
   | "event"
