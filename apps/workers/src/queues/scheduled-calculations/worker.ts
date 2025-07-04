@@ -2,9 +2,11 @@ import { dependencyLayer } from "api/incentives";
 import { FlowProducer } from "bullmq";
 import { Exit } from "effect";
 import { QueueName } from "../types";
+import { redisClient } from "../../redis";
+
+const flowProducer = new FlowProducer({ connection: redisClient });
 
 export const scheduledCalculationsWorker = async () => {
-  const flowProducer = new FlowProducer();
   const result = await dependencyLayer.getActiveWeek();
 
   if (Exit.isFailure(result)) {
