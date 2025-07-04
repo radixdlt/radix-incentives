@@ -99,7 +99,7 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
           }).pipe(Effect.withSpan(`calculateActivityPoints-${offset}`));
 
           offset += accountsLimitPerPage;
-          yield* Effect.log(`Progress: ${offset}% of accounts processed.`);
+          yield* Effect.log(`Progress: ${offset} of accounts processed.`);
         }
 
         yield* Effect.log(

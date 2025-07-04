@@ -122,7 +122,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
 
         const week = yield* getWeekByIdService({ id: input.weekId });
         const userIds = parsedInput.data.userIds;
-
+        const xrdBalanceThreshold = 10000;
         const getPaginatedUserIds = ({
           offset = 0,
           limit = 10000,
@@ -146,7 +146,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
               console.error(error);
               return new DbError(error);
             },
-          });
+          }).pipe(Effect.withSpan("getPaginatedUserIds"));
 
         const getAccountsForUserIds = (userIds: string[]) =>
           Effect.tryPromise({
@@ -161,7 +161,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
               console.error(error);
               return new DbError(error);
             },
-          });
+          }).pipe(Effect.withSpan("getAccountsForUserIds"));
 
         let allUserTwaBalances: UsersWithTwaBalance[] = [];
 
@@ -176,7 +176,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
                   (address: { address: string }) => address.address
                 ),
               })
-          );
+          ).pipe(Effect.withSpan("getUserTWAXrdBalanceService"));
           allUserTwaBalances = results.flat();
         } else {
           let offset = 0;
@@ -206,6 +206,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
             });
             allUserTwaBalances.push(...userTwaBalances);
             offset += userIdsLimitPerPage;
+            yield* Effect.log(`Progress: ${offset} of userIds processed.`);
           }
         }
 
@@ -216,10 +217,10 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
 
         // Split users into two groups: those with balance >= 10000 and those with balance < 10000
         const filteredUserTwaBalances = allUserTwaBalances.filter(
-          (u: UsersWithTwaBalance) => u.totalTWABalance.gte(10000)
+          (u: UsersWithTwaBalance) => u.totalTWABalance.gte(xrdBalanceThreshold)
         );
         const belowThresholdUsers = allUserTwaBalances.filter(
-          (u: UsersWithTwaBalance) => u.totalTWABalance.lt(10000)
+          (u: UsersWithTwaBalance) => u.totalTWABalance.lt(xrdBalanceThreshold)
         );
 
         // Calculate cumulative balances and multipliers for users >= 10000 balance
