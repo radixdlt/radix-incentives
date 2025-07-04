@@ -28,7 +28,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       rdtSingleton ??
       RadixDappToolkit({
         dAppDefinitionAddress:
-          'account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k',
+          'account_rdx129xqyvgkn9h73atyrzndal004fwye3tzw49kkygv9ltm2kyrv2lmda',
         networkId: 1,
         onDisconnect: async () => {
           await signOut.mutateAsync();
