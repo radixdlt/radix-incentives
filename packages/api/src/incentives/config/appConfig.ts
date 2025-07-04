@@ -31,7 +31,7 @@ export const defaultAppConfig: AppConfig = {
   networkId: 1,
   applicationName: "Radix Incentivization dApp",
   dAppDefinitionAddress:
-    "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
+    "account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh",
   expectedOrigin,
   logLevel: "debug",
   challengeTTL: 1000 * 60 * 5,
