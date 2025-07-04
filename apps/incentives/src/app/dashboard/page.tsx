@@ -77,7 +77,7 @@ export default function DashboardPage() {
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       <MetricCard
-        title="Current Week"
+        title="Estimated Current Week"
         value={latestWeeklyPoints.toLocaleString()}
         icon={MoveUpRight}
         description="Activity Points earned this week"
@@ -85,7 +85,7 @@ export default function DashboardPage() {
       />
 
       <MetricCard
-        title="Current Season"
+        title="Estimated Current Season"
         value={Number(totalSeasonPoints).toLocaleString(undefined, {
           maximumFractionDigits: 2,
         })}
@@ -96,7 +96,6 @@ export default function DashboardPage() {
 
       <MetricCard
         title="Multiplier"
-        subtitle="Based on holdings"
         value={userStats.data?.multiplier?.value ?? '0'}
         icon={Zap}
         description="Current points multiplier"

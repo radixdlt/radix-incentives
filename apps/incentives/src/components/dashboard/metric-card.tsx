@@ -28,9 +28,11 @@ export const MetricCard = ({
       <div className="p-6 flex flex-col space-y-4">
         <div className="flex items-center justify-between">
           <span className="text-sm font-medium">{title}</span>
-          {subtitle && (
-            <span className="text-xs text-muted-foreground">{subtitle}</span>
-          )}
+          {/* {subtitle && (
+            <span className="text-xs text-muted-foreground hidden">
+              {subtitle}
+            </span>
+          )} */}
         </div>
         <div className="flex items-end gap-2">
           <span className="text-3xl font-bold tracking-tight">{value}</span>
