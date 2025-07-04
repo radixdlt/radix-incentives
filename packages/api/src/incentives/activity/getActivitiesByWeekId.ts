@@ -17,6 +17,11 @@ export class NotFoundError {
 
 export type GetActivitiesByWeekIdError = DbError | NotFoundError;
 
+export type GetActivitiesByWeekIdServiceOutput = (ActivityWeek & {
+  activityId: ActivityId;
+  category: ActivityCategoryKey;
+})[];
+
 export class GetActivitiesByWeekIdService extends Context.Tag(
   "GetActivitiesByWeekIdService"
 )<
@@ -25,7 +30,10 @@ export class GetActivitiesByWeekIdService extends Context.Tag(
     weekId: string;
     excludeCategories?: ActivityCategoryKey[];
     includeCategories?: ActivityCategoryKey[];
-  }) => Effect.Effect<ActivityWeek[], GetActivitiesByWeekIdError>
+  }) => Effect.Effect<
+    GetActivitiesByWeekIdServiceOutput,
+    GetActivitiesByWeekIdError
+  >
 >() {}
 
 export const GetActivitiesByWeekIdLive = Layer.effect(
@@ -68,6 +76,7 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
         return result.map((row) => ({
           ...row.activity_week,
           activityId: row.activity_week.activityId as ActivityId,
+          category: row.activity.category as ActivityCategoryKey,
         }));
       });
   })

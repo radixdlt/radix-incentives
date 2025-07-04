@@ -125,7 +125,15 @@ export const CalculateSeasonPointsLive = Layer.effect(
         );
 
         // TODO: get values from db
-        const minimumPoints = Thresholds.ACTIVITY_POINTS_THRESHOLD;
+
+        const minimumAPThresholdMap = new Map<ActivityCategoryKey, number>([
+          [ActivityCategoryKey.common, 1],
+          [ActivityCategoryKey.tradingVolume, 1],
+          [ActivityCategoryKey.componentCalls, 1],
+          [ActivityCategoryKey.transactionFees, 1],
+        ]);
+
+        const defaultMinimumPoints = Thresholds.ACTIVITY_POINTS_THRESHOLD;
         const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
         const lowerBoundsPercentage = 0.1;
         const seasonPointMultipliers = yield* getSeasonPointMultiplier({
@@ -146,7 +154,9 @@ export const CalculateSeasonPointsLive = Layer.effect(
               const userActivityPoints = yield* getUserActivityPoints({
                 weekId: input.weekId,
                 activityId: activity.activityId,
-                minPoints: minimumPoints,
+                minPoints:
+                  minimumAPThresholdMap.get(activity.category) ??
+                  defaultMinimumPoints,
                 minTWABalance: minimumBalance,
               });
 
