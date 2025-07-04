@@ -23,6 +23,7 @@
     "db:studio:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts",
     "db:seed:users": "tsx src/incentives/seed/users.ts",
     "db:seed:activities": "tsx src/incentives/seed/activities.ts",
+    "db:seed:preview": "tsx src/incentives/seed/preview.ts",
     "db:seed": "pnpm db:seed:users && pnpm db:seed:activities",
     "db:reset": "./scripts/reset.sh"
   },
