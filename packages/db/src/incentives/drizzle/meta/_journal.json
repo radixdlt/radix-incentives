@@ -113,6 +113,13 @@
       "when": 1750926024933,
       "tag": "0015_sticky_blacklash",
       "breakpoints": true
+    },
+    {
+      "idx": 16,
+      "version": "7",
+      "when": 1751630001005,
+      "tag": "0016_young_maverick",
+      "breakpoints": true
     }
   ]
 }
