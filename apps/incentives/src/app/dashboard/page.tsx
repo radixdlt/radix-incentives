@@ -44,7 +44,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (accounts.data?.length === 0) {
+  if (accounts.data?.length === 0 || !persona) {
     return (
       <div className="space-y-6">
         <EmptyState

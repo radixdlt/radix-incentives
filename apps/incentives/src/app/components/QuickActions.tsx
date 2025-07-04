@@ -14,6 +14,7 @@ export const QuickActions = () => {
       description: 'Purchase XRD tokens to participate in campaigns',
       icon: CreditCardIcon,
       href: 'https://radixdlt.com/tokens',
+      target: '_blank',
       color: 'from-green-500 to-emerald-600',
     },
     {
@@ -21,13 +22,15 @@ export const QuickActions = () => {
       description: 'Bridge your assets to Radix network',
       icon: ArrowLeftRightIcon,
       href: 'https://www.instabridge.io',
+      target: '_blank',
       color: 'from-blue-500 to-cyan-600',
     },
     {
       title: 'View Points',
       description: 'Check your campaign points and rewards',
       icon: TrophyIcon,
-      href: '/dashboard/points',
+      href: '/dashboard',
+      target: '_self',
       color: 'from-purple-500 to-violet-600',
     },
   ];
@@ -43,7 +46,11 @@ export const QuickActions = () => {
           className="h-full"
         >
           <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 cursor-pointer group h-full">
-            <a href={action.href} className="block h-full">
+            <a
+              href={action.href}
+              target={action.target}
+              className="block h-full"
+            >
               <div className="flex flex-col h-full">
                 <div className="flex items-start space-x-4 flex-1">
                   <div
