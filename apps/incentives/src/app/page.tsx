@@ -58,7 +58,7 @@ export default function Home() {
               transition={{ delay: 1.0 }}
               className="text-2xl font-bold text-white text-center mb-8"
             >
-              Quick Actions
+              Ready to Start Earning?
             </motion.h2>
             <QuickActions />
           </div>

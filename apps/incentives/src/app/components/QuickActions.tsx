@@ -10,24 +10,24 @@ import { Card } from '~/components/ui/card';
 export const QuickActions = () => {
   const actions = [
     {
-      title: 'Buy XRD',
-      description: 'Purchase XRD tokens to participate in campaigns',
+      title: 'Get XRD & Stablecoins',
+      description: 'Acquire XRD for multipliers and stablecoins for high-point activities like trading and lending',
       icon: CreditCardIcon,
       href: 'https://radixdlt.com/tokens',
       target: '_blank',
       color: 'from-green-500 to-emerald-600',
     },
     {
-      title: 'Bridge Assets',
-      description: 'Bridge your assets to Radix network',
+      title: 'Bridge to Radix',
+      description: 'Bridge blue-chip assets like BTC, ETH, and stablecoins to participate in DeFi activities',
       icon: ArrowLeftRightIcon,
       href: 'https://www.instabridge.io',
       target: '_blank',
       color: 'from-blue-500 to-cyan-600',
     },
     {
-      title: 'View Points',
-      description: 'Check your campaign points and rewards',
+      title: 'Track Your Points',
+      description: 'Monitor your weekly points, season rankings, and multiplier bonuses in real-time',
       icon: TrophyIcon,
       href: '/dashboard',
       target: '_self',

@@ -29,7 +29,7 @@ export const HeroSection = () => {
       >
         <TrophyIcon className="h-4 w-4 text-blue-400" />
         <span className="text-sm text-white/80 tracking-wide">
-          Radix Incentives Campaign Platform
+          Radix Incentives Campaign • Season 1 Live
         </span>
       </motion.div>
 
@@ -41,10 +41,12 @@ export const HeroSection = () => {
       >
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
-            Earn Rewards on
+            Earn XRD Rewards for
           </span>
           <br />
-          <span className="bg-clip-text">Radix Network</span>
+          <span className="bg-clip-text text-transparent bg-gradient-to-r from-blue-400 via-cyan-400 to-purple-400">
+            On-Chain Activity
+          </span>
         </h1>
       </motion.div>
 
@@ -54,9 +56,10 @@ export const HeroSection = () => {
         initial="hidden"
         animate="visible"
       >
-        <p className="text-lg sm:text-xl text-white/60 mb-8 leading-relaxed font-light max-w-2xl mx-auto">
-          Participate in the incentives campaign, earn XRD rewards, and help
-          grow the Radix ecosystem. Connect your wallet to get started.
+        <p className="text-lg sm:text-xl text-white/60 mb-8 leading-relaxed font-light max-w-3xl mx-auto">
+          Join the Radix Incentives Campaign and earn rewards for meaningful DeFi activity. 
+          Trade, provide liquidity, lend, and stake to earn points. Boost your rewards up to 3x 
+          with XRD and LSU holdings. <strong className="text-white/80">1 Billion XRD in rewards</strong> across all seasons.
         </p>
       </motion.div>
 
@@ -75,7 +78,7 @@ export const HeroSection = () => {
             window.location.href = '/dashboard';
           }}
         >
-          Enroll in Campaign
+          Connect Wallet & Start Earning
         </CosmicGlowButton>
         <Link href="/dashboard/faq">
           <Button
@@ -83,7 +86,7 @@ export const HeroSection = () => {
             size="lg"
             className="border-white/20 text-white hover:bg-white/10"
           >
-            Learn More
+            View Campaign Details
           </Button>
         </Link>
       </motion.div>

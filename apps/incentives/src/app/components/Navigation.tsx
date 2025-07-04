@@ -16,7 +16,7 @@ export const Navigation = () => {
         <div className="flex items-center space-x-4">
           <Link href="/dashboard" className="flex items-center">
             <Button variant="ghost" className="text-white hover:bg-white/10">
-              Open app
+              Launch Dashboard
             </Button>
           </Link>
         </div>
