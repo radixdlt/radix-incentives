@@ -341,7 +341,7 @@ export const userSeasonPoints = createTable(
     weekId: uuid("week_id")
       .notNull()
       .references(() => weeks.id, { onDelete: "cascade" }),
-    points: integer("points").notNull(),
+    points: decimal("points", { precision: 18, scale: 6 }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.seasonId, table.weekId] }),

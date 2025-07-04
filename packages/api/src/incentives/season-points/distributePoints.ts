@@ -14,7 +14,7 @@ export const distributeSeasonPoints = (input: {
         const pointsPerUser = points.dividedBy(band.userIds.length);
 
         return band.userIds.map((userId) => {
-          return { userId, seasonPoints: pointsPerUser.decimalPlaces(0) };
+          return { userId, seasonPoints: pointsPerUser };
         });
       });
     });
