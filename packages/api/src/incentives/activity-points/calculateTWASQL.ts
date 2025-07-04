@@ -57,7 +57,7 @@ export const CalculateTWASQLLive = Layer.effect(
                   activity_item->>'activityId' AS activity_id,
                   (activity_item->>'usdValue')::decimal AS usd_value
                 FROM account_balances ab
-                CROSS JOIN jsonb_array_elements(ab.data) AS activity_item
+                CROSS JOIN LATERAL jsonb_array_elements(ab.data) AS activity_item
                 WHERE ab.timestamp >= ${input.startDate.toISOString()}
                   AND ab.timestamp <= ${input.endDate.toISOString()}
                   AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
@@ -66,7 +66,6 @@ export const CalculateTWASQLLive = Layer.effect(
                   AND ${input.filterType === "exclude_hold" 
                     ? sql`(activity_item->>'activityId') NOT LIKE '%hold_%'`
                     : sql`(activity_item->>'activityId') LIKE '%hold_%'`}
-                  AND (activity_item->>'usdValue')::decimal > 0
               ),
               activities_with_duration AS (
                 -- Calculate duration to next timestamp using LEAD window function
@@ -146,7 +145,7 @@ export const CalculateTWASQLLive = Layer.effect(
             }));
           },
           catch: (error) => new DbError(error),
-        });
+        }).pipe(Effect.withSpan("executeQuery_twa"));
       };
 
       // If addresses array is small enough, process in single batch
@@ -174,9 +173,18 @@ export const CalculateTWASQLLive = Layer.effect(
           batches,
           (addressBatch, index) =>
             Effect.gen(function* () {
+              // Add progressive delay based on concurrent execution slot
+              const concurrentSlot = index % concurrency;
+              if (concurrentSlot > 0) {
+                const delaySeconds = concurrentSlot * 3;
+                yield* Effect.log(`Batch ${index + 1} (slot ${concurrentSlot}): Waiting ${delaySeconds} seconds before starting...`);
+                yield* Effect.sleep(`${delaySeconds} seconds`);
+              }
+              
               yield* Effect.log(`Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`);
               const batchResults = yield* executeQuery(addressBatch);
               yield* Effect.log(`Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`);
+              
               return batchResults;
             }),
           { concurrency }

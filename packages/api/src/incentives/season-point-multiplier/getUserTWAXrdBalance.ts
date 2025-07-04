@@ -62,7 +62,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
         }).pipe(
           Effect.tap(() => Effect.log("Calculated TWA XRD balance using SQL")),
           Effect.tap((items) => Effect.log(`Found ${items.length} hold activity entries`))
-        );
+        ).pipe(Effect.withSpan("calculateTWASQL"));
 
         const getAccountsWithUserId = (createdAt: Date) => {
           return Effect.gen(function* () {
@@ -80,7 +80,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
                   ),
               catch: (error) => new DbError(error),
             });
-          });
+          }).pipe(Effect.withSpan("getAccountsWithUserId"));
         };
         
         // accountsWithUserId is: Array<{ address: string, userId: string }>
@@ -105,7 +105,6 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
         const userTwaBalances = Array.from(userTwaMap.entries()).map(
           ([userId, totalTWABalance]) => ({ userId, totalTWABalance })
         );
-        
         return userTwaBalances;
       });
     };
