@@ -4,7 +4,7 @@ export async function GET() {
       dApps: [
         {
           dAppDefinitionAddress:
-            'account_rdx129xqyvgkn9h73atyrzndal004fwye3tzw49kkygv9ltm2kyrv2lmda',
+            'account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh',
         },
       ],
     }),
