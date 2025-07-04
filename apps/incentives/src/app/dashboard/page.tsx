@@ -86,7 +86,9 @@ export default function DashboardPage() {
 
       <MetricCard
         title="Current Season"
-        value={totalSeasonPoints.toLocaleString()}
+        value={Number(totalSeasonPoints).toLocaleString(undefined, {
+          maximumFractionDigits: 2,
+        })}
         icon={MoveUpRight}
         description="Points earned this season"
         iconColor="text-green-500"
