@@ -22,6 +22,7 @@ import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
 import { UpdateWeekStatusService } from "../week/updateWeekStatus";
 import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
 import { ActivityCategoryKey } from "db/incentives";
+import { Thresholds } from "../../common/config/constants";
 
 export const calculateSeasonPointsInputSchema = z.object({
   seasonId: z.string(),
@@ -124,8 +125,8 @@ export const CalculateSeasonPointsLive = Layer.effect(
         );
 
         // TODO: get values from db
-        const minimumPoints = 10080;
-        const minimumBalance = 10000;
+        const minimumPoints = Thresholds.ACTIVITY_POINTS_THRESHOLD;
+        const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
         const lowerBoundsPercentage = 0.1;
         const seasonPointMultipliers = yield* getSeasonPointMultiplier({
           weekId: input.weekId,

@@ -17,6 +17,7 @@ import {
   type WeekNotFoundError,
 } from "../week/getWeekById";
 import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplier";
+import { Thresholds } from "../../common/config/constants";
 
 export const seasonPointsMultiplierJobSchema = z.object({
   weekId: z.string(),
@@ -122,7 +123,6 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
 
         const week = yield* getWeekByIdService({ id: input.weekId });
         const userIds = parsedInput.data.userIds;
-        const xrdBalanceThreshold = 10000;
         const getPaginatedUserIds = ({
           offset = 0,
           limit = 10000,
@@ -217,10 +217,10 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
 
         // Split users into two groups: those with balance >= 10000 and those with balance < 10000
         const filteredUserTwaBalances = allUserTwaBalances.filter(
-          (u: UsersWithTwaBalance) => u.totalTWABalance.gte(xrdBalanceThreshold)
+          (u: UsersWithTwaBalance) => u.totalTWABalance.gte(Thresholds.XRD_BALANCE_THRESHOLD)
         );
         const belowThresholdUsers = allUserTwaBalances.filter(
-          (u: UsersWithTwaBalance) => u.totalTWABalance.lt(xrdBalanceThreshold)
+          (u: UsersWithTwaBalance) => u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD)
         );
 
         // Calculate cumulative balances and multipliers for users >= 10000 balance
