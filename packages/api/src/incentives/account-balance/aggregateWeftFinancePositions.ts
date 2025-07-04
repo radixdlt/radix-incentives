@@ -49,7 +49,7 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
           [Assets.Fungible.XRD]: "weft_lend_xrd",
         } as const;
 
-        if (accountBalance.weftFinancePositions.length === 0) {
+        if (accountBalance.weftFinancePositions.lending.length === 0) {
           // Return zero entries for all supported assets
           return Object.entries(supportedAssets).map(
             ([_, activityId]) =>
@@ -61,7 +61,7 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
         }
 
         // Aggregate amounts across all Weft Finance positions
-        const aggregatedAmounts = accountBalance.weftFinancePositions.reduce(
+        const aggregatedAmounts = accountBalance.weftFinancePositions.lending.reduce(
           (acc, item) => {
             const resourceAddress = item.unwrappedAsset.resourceAddress;
 

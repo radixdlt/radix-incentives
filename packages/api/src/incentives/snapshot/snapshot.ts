@@ -28,7 +28,7 @@ import type {
   MissingConversionRatioError,
   ParseSborError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
-import type { FailedToParseLendingPoolSchemaError } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import type { FailedToParseLendingPoolSchemaError, FailedToParseCDPDataError } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
 import type { InvalidInputError } from "../../common/gateway/getNonFungibleBalance";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
@@ -78,6 +78,7 @@ export type SnapshotServiceError =
   | InvalidAmountError
   | EntityDetailsNotFoundError
   | FailedToParseLendingPoolSchemaError
+  | FailedToParseCDPDataError
   | ParseSborError
   | InvalidRootReceiptItemError
   | FailedToParseLendingPoolStateError

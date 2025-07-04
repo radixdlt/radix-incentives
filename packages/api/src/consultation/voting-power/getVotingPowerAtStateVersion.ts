@@ -38,6 +38,7 @@ import type {
 } from "../../common/gateway/getEntityDetails";
 import {
   type FailedToParseLendingPoolSchemaError,
+  type FailedToParseCDPDataError,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
@@ -99,6 +100,7 @@ export class GetVotingPowerAtStateVersionService extends Context.Tag(
     | GatewayError
     | InvalidComponentStateError
     | FailedToParseLendingPoolSchemaError
+    | FailedToParseCDPDataError
     | ParseSborError
     | InvalidRootReceiptItemError
     | InvalidStateInputError

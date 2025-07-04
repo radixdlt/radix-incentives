@@ -16,6 +16,7 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
+import type { GetWeftFinancePositionsOutput } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 
 // Helper function to check if a resource address is XRD or LSULP
 const isXrdOrLsulp = (resourceAddress: string): boolean => {
@@ -149,9 +150,12 @@ const processLendingProtocols = (
       }
     );
 
-    // Weft Finance lending
-    const weftFinanceLending = accountBalance.weftFinancePositions.reduce(
-      (acc, position) => {
+    // Weft Finance lending and collateral
+    const weftFinancePositions = accountBalance.weftFinancePositions;
+    
+    // Process lending positions
+    const weftLending = weftFinancePositions.lending.reduce(
+      (acc: { xrd: BigNumber; lsulp: BigNumber }, position: GetWeftFinancePositionsOutput["lending"][number]) => {
         if (position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD) {
           acc.xrd = acc.xrd.plus(position.unwrappedAsset.amount);
         }
@@ -170,7 +174,34 @@ const processLendingProtocols = (
         return acc;
       },
       { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
-    ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
+    );
+
+    // Process collateral positions
+    const weftCollateral = weftFinancePositions.collateral.reduce(
+      (acc: { xrd: BigNumber; lsulp: BigNumber }, position: GetWeftFinancePositionsOutput["collateral"][number]) => {
+        if (position.resourceAddress === Assets.Fungible.XRD) {
+          acc.xrd = acc.xrd.plus(position.amount);
+        }
+
+        if (
+          position.resourceAddress === CaviarNineConstants.LSULP.resourceAddress
+        ) {
+          const lsulpXrdEquivalent = convertLsulpToXrd(
+            position.amount,
+            accountBalance.lsulp.lsulpValue
+          );
+          acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
+        }
+
+        return acc;
+      },
+      { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+    );
+
+    const weftFinanceLending = {
+      xrd: weftLending.xrd.plus(weftCollateral.xrd),
+      lsulp: weftLending.lsulp.plus(weftCollateral.lsulp),
+    };
 
     output.push(
       {

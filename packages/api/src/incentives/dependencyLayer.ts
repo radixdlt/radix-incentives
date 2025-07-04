@@ -201,6 +201,7 @@ const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
 
 const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getKeyValueStoreServiceLive),
   Layer.provide(getComponentStateServiceLive)
 );

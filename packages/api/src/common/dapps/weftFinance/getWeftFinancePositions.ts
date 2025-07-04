@@ -1,15 +1,10 @@
 import { Context, Effect, Layer } from "effect";
 
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-
-import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
-import type {
+import {
   GetNonFungibleBalanceService,
-  InvalidInputError,
+  type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
-import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 
 import {
   type GetFungibleBalanceOutput,
@@ -21,16 +16,26 @@ import {
   GetComponentStateService,
   type InvalidComponentStateError,
 } from "../../gateway/getComponentState";
-import { LendingPoolSchema, SingleResourcePool } from "./schemas";
+import { LendingPoolSchema, SingleResourcePool, CDPData } from "./schemas";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 
 import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
+import { Assets } from "../../assets/constants";
+import { CaviarNineConstants } from "../caviarnine/constants";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 export class FailedToParseLendingPoolSchemaError {
   readonly _tag = "FailedToParseLendingPoolSchemaError";
   constructor(readonly lendingPool: unknown) {}
+}
+
+export class FailedToParseCDPDataError {
+  readonly _tag = "FailedToParseCDPDataError";
+  constructor(
+    readonly nftId: string,
+    readonly cdpData: unknown
+  ) {}
 }
 
 type AssetBalance = {
@@ -47,6 +52,7 @@ type WeftLendingPosition = {
 export type GetWeftFinancePositionsOutput = {
   address: string;
   lending: WeftLendingPosition[];
+  collateral: AssetBalance[];
 };
 
 export class GetWeftFinancePositionsService extends Context.Tag(
@@ -65,6 +71,7 @@ export class GetWeftFinancePositionsService extends Context.Tag(
     | GatewayError
     | InvalidComponentStateError
     | FailedToParseLendingPoolSchemaError
+    | FailedToParseCDPDataError
   >
 >() {}
 
@@ -75,18 +82,22 @@ export const GetWeftFinancePositionsLive = Layer.effect(
   GetWeftFinancePositionsService,
   Effect.gen(function* () {
     const getFungibleBalanceService = yield* GetFungibleBalanceService;
+    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
     const getComponentStateService = yield* GetComponentStateService;
     const getKeyValueStoreService = yield* GetKeyValueStoreService;
 
-    return (input) => {
-      return Effect.gen(function* () {
+    return (input) =>
+      Effect.gen(function* () {
         const accountBalancesMap = new Map<
           AccountAddress,
-          WeftLendingPosition[]
+          { lending: WeftLendingPosition[]; collateral: AssetBalance[] }
         >();
 
         for (const accountAddress of input.accountAddresses) {
-          accountBalancesMap.set(accountAddress, []);
+          accountBalancesMap.set(accountAddress, {
+            lending: [],
+            collateral: [],
+          });
         }
 
         // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
@@ -159,35 +170,159 @@ export const GetWeftFinancePositionsLive = Layer.effect(
               poolToUnitToAssetRatio.get(resourceAddress);
 
             if (unitToAssetRatio) {
-              const items = accountBalancesMap.get(accountAddress) ?? [];
+              const accountData = accountBalancesMap.get(accountAddress) ?? {
+                lending: [],
+                collateral: [],
+              };
 
-              accountBalancesMap.set(accountAddress, [
-                ...items,
-                {
-                  unitToAssetRatio,
-                  wrappedAsset: {
-                    resourceAddress,
-                    amount,
-                  },
-                  unwrappedAsset: {
-                    resourceAddress:
-                      // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                      weftFungibleRecourceAddresses.get(resourceAddress)!,
-                    amount: amount.div(unitToAssetRatio),
-                  },
+              accountData.lending.push({
+                unitToAssetRatio,
+                wrappedAsset: {
+                  resourceAddress,
+                  amount,
                 },
-              ]);
+                unwrappedAsset: {
+                  resourceAddress:
+                    // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                    weftFungibleRecourceAddresses.get(resourceAddress)!,
+                  amount: amount.div(unitToAssetRatio),
+                },
+              });
+
+              accountBalancesMap.set(accountAddress, accountData);
             }
           }
         }
 
+        // Process WeftyV2 NFTs to get collateral assets
+
+        const weftyV2NonFungibleBalances = yield* getNonFungibleBalanceService({
+          addresses: input.accountAddresses,
+          at_ledger_state: input.at_ledger_state,
+          resourceAddresses: [WeftFinance.v2.WeftyV2.resourceAddress],
+        });
+
+        for (const accountNFTBalance of weftyV2NonFungibleBalances.items) {
+          const accountAddress = accountNFTBalance.address;
+          const accountData = accountBalancesMap.get(accountAddress) ?? {
+            lending: [],
+            collateral: [],
+          };
+
+          for (const nftResource of accountNFTBalance.nonFungibleResources) {
+            if (
+              nftResource.resourceAddress ===
+              WeftFinance.v2.WeftyV2.resourceAddress
+            ) {
+              for (const nftItem of nftResource.items) {
+                if (nftItem.isBurned || !nftItem.sbor) continue;
+
+                // Manual SBOR parsing - ideally we'd use safeParse() like with Root
+                // but it fails with empty path errors, likely due to incorrect CDPData schema?
+                // I am having trouble getting the actual schema with the Weft package address in https://www.8arms1goal.com/sbor-ez-mode-ez-mode
+                // For some reason the CDPData struct isn't being returned
+                const sborData = nftItem.sbor as any;
+                if (!sborData?.fields) continue;
+
+                const collateralsField = sborData.fields.find(
+                  (field: any) => field.field_name === "collaterals"
+                );
+
+                if (!collateralsField?.entries) continue;
+
+                for (const entry of collateralsField.entries) {
+                  const resourceAddress = entry.key?.value;
+                  const amountField = entry.value?.fields?.find(
+                    (f: any) => f.field_name === "amount"
+                  );
+
+                  if (!resourceAddress || !amountField?.value) continue;
+
+                  const amount = new BigNumber(amountField.value);
+
+                  // Check if this is a w2 asset (lending position)
+                  const isW2Asset =
+                    weftFungibleRecourceAddresses.has(resourceAddress);
+                  if (isW2Asset) {
+                    const unitToAssetRatio =
+                      poolToUnitToAssetRatio.get(resourceAddress);
+
+                    if (unitToAssetRatio) {
+                      // Find existing lending position for this asset or create new one
+                      const existingLendingIndex =
+                        accountData.lending.findIndex(
+                          (lending) =>
+                            lending.wrappedAsset.resourceAddress ===
+                            resourceAddress
+                        );
+
+                      if (existingLendingIndex >= 0) {
+                        // Aggregate with existing position
+                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                        accountData.lending[
+                          existingLendingIndex
+                        ]!.wrappedAsset.amount =
+                          // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                          accountData.lending[
+                            existingLendingIndex
+                          ]!.wrappedAsset.amount.plus(amount);
+                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                        accountData.lending[
+                          existingLendingIndex
+                        ]!.unwrappedAsset.amount =
+                          // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                          accountData.lending[
+                            existingLendingIndex
+                          ]!.unwrappedAsset.amount.plus(
+                            amount.div(unitToAssetRatio)
+                          );
+                      } else {
+                        // Create new lending position
+                        accountData.lending.push({
+                          unitToAssetRatio,
+                          wrappedAsset: {
+                            resourceAddress,
+                            amount,
+                          },
+                          unwrappedAsset: {
+                            resourceAddress:
+                              // biome-ignore lint/style/noNonNullAssertion: <explanation>
+                              weftFungibleRecourceAddresses.get(
+                                resourceAddress
+                              )!,
+                            amount: amount.div(unitToAssetRatio),
+                          },
+                        });
+                      }
+                    }
+                  } else {
+                    // Regular asset - add to collateral only if it's XRD or LSULP
+                    if (
+                      resourceAddress === Assets.Fungible.XRD ||
+                      resourceAddress ===
+                        CaviarNineConstants.LSULP.resourceAddress
+                    ) {
+                      accountData.collateral.push({
+                        resourceAddress,
+                        amount,
+                      });
+                    }
+                  }
+                }
+              }
+            }
+          }
+
+          accountBalancesMap.set(accountAddress, accountData);
+        }
+
         return Array.from(accountBalancesMap.entries()).map(
-          ([address, items]) => ({
+          ([address, data]) => ({
             address,
-            lending: items,
+            lending: data.lending,
+            collateral: data.collateral,
           })
         );
       });
-    };
   })
 );

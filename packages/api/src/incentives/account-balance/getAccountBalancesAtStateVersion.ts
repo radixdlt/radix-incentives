@@ -32,6 +32,7 @@ import {
 import type { GetEntityDetailsError } from "../../common/gateway/getEntityDetails";
 import {
   type FailedToParseLendingPoolSchemaError,
+  type FailedToParseCDPDataError,
   type GetWeftFinancePositionsOutput,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
@@ -114,7 +115,7 @@ type NonFungibleTokenBalance = {
   }[];
 };
 
-type WeftFinancePosition = GetWeftFinancePositionsOutput["lending"];
+type WeftFinancePosition = GetWeftFinancePositionsOutput;
 
 type RootFinancePosition = CollaterizedDebtPosition;
 
@@ -155,6 +156,7 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | InvalidAmountError
   | EntityDetailsNotFoundError
   | FailedToParseLendingPoolSchemaError
+  | FailedToParseCDPDataError
   | ParseSborError
   | InvalidRootReceiptItemError
   | FailedToParseLendingPoolStateError
@@ -402,7 +404,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         );
 
         const weftFinanceMap = new Map(
-          allWeftFinancePositions.map((item) => [item.address, item.lending])
+          allWeftFinancePositions.map((item) => [item.address, item])
         );
 
         const rootFinanceMap = new Map(
@@ -480,7 +482,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 nonFungibleBalanceMap.get(address) ?? [];
 
               const weftFinancePositions: WeftFinancePosition =
-                weftFinanceMap.get(address) ?? [];
+                weftFinanceMap.get(address) ?? {
+                  address,
+                  lending: [],
+                  collateral: [],
+                };
 
               const rootFinancePositions: RootFinancePosition[] =
                 rootFinanceMap.get(address) ?? [];
