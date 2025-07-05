@@ -395,6 +395,10 @@ export const activitiesData = [
     id: "weft_hold_lsulp",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
+  {
+    id: "weft_hold_staked",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
 
   {
     id: "componentCalls",

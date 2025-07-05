@@ -218,6 +218,10 @@ export const activitiesData = [
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
+    id: "weft_hold_staked",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
     id: "componentCalls",
     category: ActivityCategoryKey.componentCalls,
   },

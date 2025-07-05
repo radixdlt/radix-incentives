@@ -17,6 +17,12 @@ import {
 import { BigNumber } from "bignumber.js";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
 import type { GetWeftFinancePositionsOutput } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import { WeftFinance } from "../../common/dapps/weftFinance/constants";
+
+export class MissingLsuConverterError {
+  readonly _tag = "MissingLsuConverterError";
+  constructor(readonly resourceAddress: string) {}
+}
 
 // Helper function to check if a resource address is XRD or LSULP
 const isXrdOrLsulp = (resourceAddress: string): boolean => {
@@ -177,30 +183,44 @@ const processLendingProtocols = (
     );
 
     // Process collateral positions
-    const weftCollateral = weftFinancePositions.collateral.reduce(
-      (acc: { xrd: BigNumber; lsulp: BigNumber }, position: GetWeftFinancePositionsOutput["collateral"][number]) => {
-        if (position.resourceAddress === Assets.Fungible.XRD) {
-          acc.xrd = acc.xrd.plus(position.amount);
-        }
+    const weftCollateral = yield* Effect.reduce(
+      weftFinancePositions.collateral,
+      { xrd: new BigNumber(0), lsulp: new BigNumber(0), staked: new BigNumber(0) },
+      (acc: { xrd: BigNumber; lsulp: BigNumber; staked: BigNumber }, position: GetWeftFinancePositionsOutput["collateral"][number]) =>
+        Effect.gen(function* () {
+          if (position.resourceAddress === Assets.Fungible.XRD) {
+            acc.xrd = acc.xrd.plus(position.amount);
+          }
 
-        if (
-          position.resourceAddress === CaviarNineConstants.LSULP.resourceAddress
-        ) {
-          const lsulpXrdEquivalent = convertLsulpToXrd(
-            position.amount,
-            accountBalance.lsulp.lsulpValue
-          );
-          acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
-        }
+          if (
+            position.resourceAddress === CaviarNineConstants.LSULP.resourceAddress
+          ) {
+            const lsulpXrdEquivalent = convertLsulpToXrd(
+              position.amount,
+              accountBalance.lsulp.lsulpValue
+            );
+            acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
+          }
 
-        return acc;
-      },
-      { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+          if (position.resourceAddress === WeftFinance.validator.resourceAddress) {
+            // Use LSU to XRD conversion from the conversion map
+            const converter = accountBalance.convertLsuToXrdMap.get(position.resourceAddress);
+            if (!converter) {
+              yield* Effect.fail(new MissingLsuConverterError(position.resourceAddress));
+            }
+            // biome-ignore lint/style/noNonNullAssertion: converter is guaranteed to exist after null check above
+            const xrdEquivalent = converter!(position.amount);
+            acc.staked = acc.staked.plus(xrdEquivalent);
+          }
+
+          return acc;
+        })
     );
 
     const weftFinanceLending = {
       xrd: weftLending.xrd.plus(weftCollateral.xrd),
       lsulp: weftLending.lsulp.plus(weftCollateral.lsulp),
+      staked: weftCollateral.staked,
     };
 
     output.push(
@@ -211,6 +231,10 @@ const processLendingProtocols = (
       {
         activityId: "weft_hold_lsulp",
         usdValue: yield* xrdToUsd(weftFinanceLending.lsulp),
+      },
+      {
+        activityId: "weft_hold_staked",
+        usdValue: yield* xrdToUsd(weftFinanceLending.staked),
       }
     );
 
@@ -596,7 +620,7 @@ export class XrdBalanceService extends Context.Tag("XrdBalanceService")<
     input: XrdBalanceInput
   ) => Effect.Effect<
     XrdBalanceOutput[],
-    GetUsdValueServiceError | UnknownTokenError
+    GetUsdValueServiceError | UnknownTokenError | MissingLsuConverterError
   >
 >() {}
 

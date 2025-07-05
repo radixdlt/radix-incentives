@@ -5,7 +5,7 @@ import type { GetUsdValueServiceError } from "../token-price/getUsdValue";
 import { AggregateCaviarninePositionsService } from "./aggregateCaviarninePositions";
 import { AggregateOciswapPositionsService } from "./aggregateOciswapPositions";
 
-import { XrdBalanceService } from "./aggregateXrdBalance";
+import { XrdBalanceService, type MissingLsuConverterError } from "./aggregateXrdBalance";
 import { AggregateWeftFinancePositionsService } from "./aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsService } from "./aggregateRootFinancePositions";
 import {
@@ -25,7 +25,8 @@ export type AggregateAccountBalanceOutput = AccountBalance;
 export type AggregateAccountBalanceError =
   | GetUsdValueServiceError
   | UnknownTokenError
-  | InvalidDefiPlazaPositionError;
+  | InvalidDefiPlazaPositionError
+  | MissingLsuConverterError;
 
 export class AggregateAccountBalanceService extends Context.Tag(
   "AggregateAccountBalanceService"

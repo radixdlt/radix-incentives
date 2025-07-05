@@ -36,6 +36,7 @@ import {
   type GetWeftFinancePositionsOutput,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import { OciswapConstants } from "../../common/dapps/ociswap/constants";
@@ -144,6 +145,7 @@ export type AccountBalance = {
   ociswapPositions: OciswapPosition;
   defiPlazaPositions: DefiPlazaPosition;
   hyperstakePositions: HyperstakePosition;
+  convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
 };
 
 export type GetAccountBalancesAtStateVersionServiceError =
@@ -365,6 +367,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               item.staked.map((item) => item.resourceAddress)
             )
           ),
+          WeftFinance.validator.resourceAddress,
         ];
 
         const convertLsuToXrdMap = yield* convertLsuToXrdService({
@@ -533,6 +536,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 ociswapPositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
                 hyperstakePositions: accountHyperstakePositions,
+                convertLsuToXrdMap,
               } satisfies AccountBalance;
             })
         ).pipe(Effect.withSpan("PositionsToAccountBalance"));
