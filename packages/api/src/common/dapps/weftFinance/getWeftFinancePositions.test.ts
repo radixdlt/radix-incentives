@@ -115,6 +115,31 @@ const program = Effect.provide(
 describe("GetWeftFinancePositionsService", () => {
   it("should get weft finance positions", async () => {
     const result = await Effect.runPromise(program);
+    
+    console.log("=== Weft Finance Positions ===");
+    for (const account of result) {
+      console.log(`\nAccount: ${account.address}`);
+      
+      console.log(`\nLending Positions (${account.lending.length}):`);
+      for (const lending of account.lending) {
+        console.log(`  Wrapped Asset: ${lending.wrappedAsset.resourceAddress}`);
+        console.log(`    Amount: ${lending.wrappedAsset.amount.toString()}`);
+        console.log(`  Unwrapped Asset: ${lending.unwrappedAsset.resourceAddress}`);
+        console.log(`    Amount: ${lending.unwrappedAsset.amount.toString()}`);
+        console.log(`  Unit to Asset Ratio: ${lending.unitToAssetRatio.toString()}`);
+        console.log("  ---");
+      }
+      
+      console.log(`\nCollateral Positions (${account.collateral.length}):`);
+      for (const collateral of account.collateral) {
+        console.log(`  Resource: ${collateral.resourceAddress}`);
+        console.log(`  Amount: ${collateral.amount.toString()}`);
+        console.log("  ---");
+      }
+    }
+    
+    // Also log the raw JSON for comparison
+    console.log("\n=== Raw JSON (for debugging) ===");
     console.log(JSON.stringify(result, null, 2));
   });
 });

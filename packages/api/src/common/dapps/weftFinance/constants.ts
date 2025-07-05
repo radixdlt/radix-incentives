@@ -75,6 +75,9 @@ export const WeftFinance = {
         "package_rdx1pktdrmwan4mcugates06wwcvspn4y0hsapm9zkyg4clh0sf8qn7c6t",
     },
   },
+  validator: {
+    resourceAddress: "resource_rdx1tkhpmejwlqn8fqlgtqe8ex0cpzkmlkth572hddy07g37a40s356wz4",
+  }
 } as const;
 
 export const weftFungibleRecourceAddresses = new Map<string, string>([

@@ -175,21 +175,22 @@ export const GetWeftFinancePositionsLive = Layer.effect(
                 collateral: [],
               };
 
-              accountData.lending.push({
-                unitToAssetRatio,
-                wrappedAsset: {
-                  resourceAddress,
-                  amount,
-                },
-                unwrappedAsset: {
-                  resourceAddress:
-                    // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                    weftFungibleRecourceAddresses.get(resourceAddress)!,
-                  amount: amount.div(unitToAssetRatio),
-                },
-              });
+              const unwrappedAssetAddress = weftFungibleRecourceAddresses.get(resourceAddress);
+              if (unwrappedAssetAddress) {
+                accountData.lending.push({
+                  unitToAssetRatio,
+                  wrappedAsset: {
+                    resourceAddress,
+                    amount,
+                  },
+                  unwrappedAsset: {
+                    resourceAddress: unwrappedAssetAddress,
+                    amount: amount.div(unitToAssetRatio),
+                  },
+                });
 
-              accountBalancesMap.set(accountAddress, accountData);
+                accountBalancesMap.set(accountAddress, accountData);
+              }
             }
           }
         }
@@ -217,97 +218,61 @@ export const GetWeftFinancePositionsLive = Layer.effect(
               for (const nftItem of nftResource.items) {
                 if (nftItem.isBurned || !nftItem.sbor) continue;
 
-                // Manual SBOR parsing - ideally we'd use safeParse() like with Root
-                // but it fails with empty path errors, likely due to incorrect CDPData schema?
-                // I am having trouble getting the actual schema with the Weft package address in https://www.8arms1goal.com/sbor-ez-mode-ez-mode
-                // For some reason the CDPData struct isn't being returned
-                const sborData = nftItem.sbor as any;
-                if (!sborData?.fields) continue;
+                // Use safeParse with the CDPData schema
+                const parseResult = CDPData.safeParse(nftItem.sbor);
+                
+                if (parseResult.isOk()) {
+                  const cdpData = parseResult.value;
 
-                const collateralsField = sborData.fields.find(
-                  (field: any) => field.field_name === "collaterals"
-                );
+                  // Process collaterals using the parsed Map
+                  for (const [resourceAddress, collateralInfo] of cdpData.collaterals.entries()) {
+                    const amount = new BigNumber(collateralInfo.amount);
 
-                if (!collateralsField?.entries) continue;
-
-                for (const entry of collateralsField.entries) {
-                  const resourceAddress = entry.key?.value;
-                  const amountField = entry.value?.fields?.find(
-                    (f: any) => f.field_name === "amount"
-                  );
-
-                  if (!resourceAddress || !amountField?.value) continue;
-
-                  const amount = new BigNumber(amountField.value);
-
-                  // Check if this is a w2 asset (lending position)
-                  const isW2Asset =
-                    weftFungibleRecourceAddresses.has(resourceAddress);
-                  if (isW2Asset) {
-                    const unitToAssetRatio =
-                      poolToUnitToAssetRatio.get(resourceAddress);
-
-                    if (unitToAssetRatio) {
-                      // Find existing lending position for this asset or create new one
-                      const existingLendingIndex =
-                        accountData.lending.findIndex(
-                          (lending) =>
-                            lending.wrappedAsset.resourceAddress ===
-                            resourceAddress
-                        );
-
-                      if (existingLendingIndex >= 0) {
-                        // Aggregate with existing position
-                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                        accountData.lending[
-                          existingLendingIndex
-                        ]!.wrappedAsset.amount =
-                          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                          accountData.lending[
-                            existingLendingIndex
-                          ]!.wrappedAsset.amount.plus(amount);
-                        // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                        accountData.lending[
-                          existingLendingIndex
-                        ]!.unwrappedAsset.amount =
-                          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                          accountData.lending[
-                            existingLendingIndex
-                          ]!.unwrappedAsset.amount.plus(
-                            amount.div(unitToAssetRatio)
+                    // Check if this is a w2 asset (lending position)
+                    if (weftFungibleRecourceAddresses.has(resourceAddress)) {
+                      const unitToAssetRatio = poolToUnitToAssetRatio.get(resourceAddress);
+                      if (unitToAssetRatio) {
+                        const unwrappedAssetAddress = weftFungibleRecourceAddresses.get(resourceAddress);
+                        if (unwrappedAssetAddress) {
+                          const unwrappedAmount = amount.div(unitToAssetRatio);
+                          
+                          // Find or create lending position
+                          const existingIndex = accountData.lending.findIndex(
+                            lending => lending.wrappedAsset.resourceAddress === resourceAddress
                           );
-                      } else {
-                        // Create new lending position
-                        accountData.lending.push({
-                          unitToAssetRatio,
-                          wrappedAsset: {
-                            resourceAddress,
-                            amount,
-                          },
-                          unwrappedAsset: {
-                            resourceAddress:
-                              // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                              weftFungibleRecourceAddresses.get(
-                                resourceAddress
-                              )!,
-                            amount: amount.div(unitToAssetRatio),
-                          },
-                        });
+                          
+                          if (existingIndex >= 0) {
+                            // Aggregate with existing position
+                            const existingPosition = accountData.lending[existingIndex];
+                            if (existingPosition) {
+                              existingPosition.wrappedAsset.amount = 
+                                existingPosition.wrappedAsset.amount.plus(amount);
+                              existingPosition.unwrappedAsset.amount = 
+                                existingPosition.unwrappedAsset.amount.plus(unwrappedAmount);
+                            }
+                          } else {
+                            // Create new lending position
+                            accountData.lending.push({
+                              unitToAssetRatio,
+                              wrappedAsset: { resourceAddress, amount },
+                              unwrappedAsset: { resourceAddress: unwrappedAssetAddress, amount: unwrappedAmount },
+                            });
+                          }
+                        }
                       }
-                    }
-                  } else {
-                    // Regular asset - add to collateral only if it's XRD or LSULP
-                    if (
+                    } else if (
                       resourceAddress === Assets.Fungible.XRD ||
-                      resourceAddress ===
-                        CaviarNineConstants.LSULP.resourceAddress
+                      resourceAddress === CaviarNineConstants.LSULP.resourceAddress ||
+                      resourceAddress === WeftFinance.validator.resourceAddress
                     ) {
-                      accountData.collateral.push({
-                        resourceAddress,
-                        amount,
-                      });
+                      // Regular asset - add to collateral
+                      accountData.collateral.push({ resourceAddress, amount });
                     }
                   }
+                } else {
+                  yield* Effect.fail(
+                    new FailedToParseCDPDataError(nftItem.id, parseResult.error)
+                  );
                 }
               }
             }
