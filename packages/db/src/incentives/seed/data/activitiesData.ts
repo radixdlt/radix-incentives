@@ -218,7 +218,11 @@ export const activitiesData = [
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
-    id: "weft_hold_staked",
+    id: "weft_hold_stakedXrd",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "weft_hold_unstakedXrd",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
   {
