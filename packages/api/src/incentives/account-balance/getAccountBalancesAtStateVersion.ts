@@ -32,9 +32,12 @@ import {
 import type { GetEntityDetailsError } from "../../common/gateway/getEntityDetails";
 import {
   type FailedToParseLendingPoolSchemaError,
+  type FailedToParseCDPDataError,
   type GetWeftFinancePositionsOutput,
+  type ValidatorNotFoundForClaimNftError,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import type { FailedToParseUnstakingReceiptError } from "../../common/staking/unstakingReceiptProcessor";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import { OciswapConstants } from "../../common/dapps/ociswap/constants";
@@ -80,6 +83,8 @@ import type {
 } from "@radixdlt/babylon-gateway-api-sdk";
 import BigNumber from "bignumber.js";
 import { RootFinance } from "../../common/dapps/rootFinance/constants";
+import { Assets } from "../../common/assets/constants";
+import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 
 type Lsu = {
   resourceAddress: string;
@@ -114,7 +119,7 @@ type NonFungibleTokenBalance = {
   }[];
 };
 
-type WeftFinancePosition = GetWeftFinancePositionsOutput["lending"];
+type WeftFinancePosition = GetWeftFinancePositionsOutput;
 
 type RootFinancePosition = CollaterizedDebtPosition;
 
@@ -143,6 +148,7 @@ export type AccountBalance = {
   ociswapPositions: OciswapPosition;
   defiPlazaPositions: DefiPlazaPosition;
   hyperstakePositions: HyperstakePosition;
+  convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
 };
 
 export type GetAccountBalancesAtStateVersionServiceError =
@@ -155,6 +161,9 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | InvalidAmountError
   | EntityDetailsNotFoundError
   | FailedToParseLendingPoolSchemaError
+  | FailedToParseCDPDataError
+  | FailedToParseUnstakingReceiptError
+  | ValidatorNotFoundForClaimNftError
   | ParseSborError
   | InvalidRootReceiptItemError
   | FailedToParseLendingPoolStateError
@@ -225,6 +234,14 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           state_version,
         } satisfies AtLedgerState;
 
+        // Create validator claim NFT mapping for Weft Finance processing
+        const validatorClaimNftMap = new Map(
+          input.validators.map((validator) => [
+            validator.address,
+            validator.claimNftResourceAddress,
+          ])
+        );
+
         yield* Effect.log("getting non fungible and fungible balance");
         const [nonFungibleBalanceResults, fungibleBalanceResults] =
           yield* Effect.all(
@@ -240,6 +257,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                     (pool) => pool.lpResourceAddress
                   ),
                   RootFinance.receiptResourceAddress,
+                  WeftFinance.v2.WeftyV2.resourceAddress,
                   ...input.validators.map(
                     (validator) => validator.claimNftResourceAddress
                   ),
@@ -289,6 +307,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
+              nonFungibleBalance: nonFungibleBalanceResults,
+              validatorClaimNftMap: validatorClaimNftMap,
             }).pipe(Effect.withSpan("getWeftFinancePositionsService")),
             getRootFinancePositionsService({
               accountAddresses: input.addresses,
@@ -357,25 +377,41 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           { concurrency: "unbounded" }
         );
 
-        const lsuResourceAddresses = [
-          ...new Set(
-            userStakingPositions.items.flatMap((item) =>
-              item.staked.map((item) => item.resourceAddress)
+        // Create LSU resource address set from input validators
+        const lsuResourceAddressSet = new Set(
+          input.validators.map((validator) => validator.lsuResourceAddress)
+        );
+
+        // Collect LSU resource addresses from multiple sources
+        const directStakingLsus = userStakingPositions.items.flatMap((item) =>
+          item.staked.map((item) => item.resourceAddress)
+        );
+
+        // Include potential LSUs from Weft Finance collaterals
+        // Filter using the lsuResourceAddressSet to only include valid LSUs
+        const weftFinanceLsus = allWeftFinancePositions.flatMap((account) =>
+          account.collateral
+            .map((collateral) => collateral.resourceAddress)
+            .filter(
+              (address) =>
+                address !== Assets.Fungible.XRD &&
+                address !== CaviarNineConstants.LSULP.resourceAddress &&
+                lsuResourceAddressSet.has(address)
             )
-          ),
+        );
+
+        const lsuResourceAddresses = [
+          ...new Set([...directStakingLsus, ...weftFinanceLsus]),
         ];
 
-        const convertLsuToXrdMap = yield* convertLsuToXrdService({
+        // Convert all valid LSUs at once instead of individually
+        const validLsuConversions = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
           at_ledger_state: atLedgerState,
-        }).pipe(
-          Effect.map(
-            (results) =>
-              new Map(
-                results.map((item) => [item.lsuResourceAddress, item.converter])
-              )
-          ),
-          Effect.withSpan("convertLsuToXrdService")
+        }).pipe(Effect.withSpan("convertLsuToXrdService"));
+
+        const convertLsuToXrdMap = new Map(
+          validLsuConversions.map((item) => [item.lsuResourceAddress, item.converter])
         );
 
         // Create lookup maps for O(1) access instead of O(n) find operations
@@ -402,7 +438,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         );
 
         const weftFinanceMap = new Map(
-          allWeftFinancePositions.map((item) => [item.address, item.lending])
+          allWeftFinancePositions.map((item) => [item.address, item])
         );
 
         const rootFinanceMap = new Map(
@@ -480,7 +516,12 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 nonFungibleBalanceMap.get(address) ?? [];
 
               const weftFinancePositions: WeftFinancePosition =
-                weftFinanceMap.get(address) ?? [];
+                weftFinanceMap.get(address) ?? {
+                  address,
+                  lending: [],
+                  collateral: [],
+                  unstakingReceipts: [],
+                };
 
               const rootFinancePositions: RootFinancePosition[] =
                 rootFinanceMap.get(address) ?? [];
@@ -527,6 +568,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 ociswapPositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
                 hyperstakePositions: accountHyperstakePositions,
+                convertLsuToXrdMap,
               } satisfies AccountBalance;
             })
         ).pipe(Effect.withSpan("PositionsToAccountBalance"));

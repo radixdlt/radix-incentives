@@ -19,6 +19,7 @@ import { GetLsulpLive } from "../common/dapps/caviarnine/getLsulp";
 import { GetLsulpValueLive } from "../common/dapps/caviarnine/getLsulpValue";
 import { ConvertLsuToXrdLive } from "../common/staking/convertLsuToXrd";
 import { GetWeftFinancePositionsLive } from "../common/dapps/weftFinance/getWeftFinancePositions";
+import { UnstakingReceiptProcessorLive } from "../common/staking/unstakingReceiptProcessor";
 import { GetComponentStateLive } from "../common/gateway/getComponentState";
 import { KeyValueStoreDataLive } from "../common/gateway/keyValueStoreData";
 import { KeyValueStoreKeysLive } from "../common/gateway/keyValueStoreKeys";
@@ -199,10 +200,16 @@ const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
   Layer.provide(entityFungiblesPageServiceLive)
 );
 
+const unstakingReceiptProcessorLive = UnstakingReceiptProcessorLive.pipe(
+  Layer.provide(entityNonFungibleDataServiceLive)
+);
+
 const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getKeyValueStoreServiceLive),
-  Layer.provide(getComponentStateServiceLive)
+  Layer.provide(getComponentStateServiceLive),
+  Layer.provide(unstakingReceiptProcessorLive)
 );
 
 const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(

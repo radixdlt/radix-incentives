@@ -16,6 +16,7 @@ import {
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import type { AccountBalanceData, ActivityId } from "db/incentives";
+import type { GetWeftFinancePositionsOutput } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 
 // Helper function to check if a resource address is XRD or LSULP
 const isXrdOrLsulp = (resourceAddress: string): boolean => {
@@ -37,10 +38,18 @@ const convertLsulpToXrd = (
 const toXrdEquivalent = (
   amount: BigNumber,
   resourceAddress: string,
-  lsulpValue: BigNumber
+  lsulpValue: BigNumber,
+  convertLsuToXrdMap?: Map<string, (amount: BigNumber) => BigNumber>
 ): BigNumber => {
   if (resourceAddress === CaviarNineConstants.LSULP.resourceAddress) {
     return convertLsulpToXrd(amount, lsulpValue);
+  }
+  // Handle LSU conversion
+  if (convertLsuToXrdMap?.has(resourceAddress)) {
+    const converter = convertLsuToXrdMap.get(resourceAddress);
+    if (converter) {
+      return converter(amount);
+    }
   }
   return amount;
 };
@@ -149,39 +158,93 @@ const processLendingProtocols = (
       }
     );
 
-    // Weft Finance lending
-    const weftFinanceLending = accountBalance.weftFinancePositions.reduce(
-      (acc, position) => {
+    // Weft Finance lending and collateral
+    const weftFinancePositions = accountBalance.weftFinancePositions;
+
+    // Process lending positions (only w2-assets like w2XRD)
+    const weftLendingXrd = weftFinancePositions.lending.reduce(
+      (
+        acc: BigNumber,
+        position: GetWeftFinancePositionsOutput["lending"][number]
+      ) => {
         if (position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD) {
-          acc.xrd = acc.xrd.plus(position.unwrappedAsset.amount);
+          return acc.plus(position.unwrappedAsset.amount);
         }
-
-        if (
-          position.unwrappedAsset.resourceAddress ===
-          CaviarNineConstants.LSULP.resourceAddress
-        ) {
-          const lsulpXrdEquivalent = convertLsulpToXrd(
-            position.unwrappedAsset.amount,
-            accountBalance.lsulp.lsulpValue
-          );
-          acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
-        }
-
         return acc;
       },
-      { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
-    ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
+      new BigNumber(0)
+    );
+
+    // Process collateral positions
+    let weftCollateralXrd = new BigNumber(0);
+    let weftCollateralLsulp = new BigNumber(0);
+    let weftCollateralStakedXrd = new BigNumber(0);
+
+    for (const position of weftFinancePositions.collateral) {
+      if (position.resourceAddress === Assets.Fungible.XRD) {
+        // Direct XRD collateral
+        weftCollateralXrd = weftCollateralXrd.plus(position.amount);
+      } else if (
+        position.resourceAddress === CaviarNineConstants.LSULP.resourceAddress
+      ) {
+        // LSULP collateral - convert to XRD equivalent
+        const lsulpXrdEquivalent = convertLsulpToXrd(
+          position.amount,
+          accountBalance.lsulp.lsulpValue
+        );
+        weftCollateralLsulp = weftCollateralLsulp.plus(lsulpXrdEquivalent);
+      } else if (
+        accountBalance.convertLsuToXrdMap?.has(position.resourceAddress)
+      ) {
+        // Only process if it's actually an LSU (exists in the conversion map)
+        const xrdAmount = toXrdEquivalent(
+          position.amount,
+          position.resourceAddress,
+          accountBalance.lsulp.lsulpValue,
+          accountBalance.convertLsuToXrdMap
+        );
+
+        weftCollateralStakedXrd = weftCollateralStakedXrd.plus(xrdAmount);
+      }
+      // Skip any other resources that aren't XRD, LSULP, or actual LSUs
+    }
+
+    // Add combined lending + collateral results
+    const totalWeftXrd = weftLendingXrd.plus(weftCollateralXrd);
+    const totalWeftLsulp = weftCollateralLsulp; // Only from collateral
 
     output.push(
       {
         activityId: "weft_hold_xrd",
-        usdValue: yield* xrdToUsd(weftFinanceLending.xrd),
+        usdValue: yield* xrdToUsd(totalWeftXrd),
       },
       {
         activityId: "weft_hold_lsulp",
-        usdValue: yield* xrdToUsd(weftFinanceLending.lsulp),
+        usdValue: yield* xrdToUsd(totalWeftLsulp),
       }
     );
+
+    // Add aggregated staked XRD from LSU collaterals
+    if (weftCollateralStakedXrd.gt(0)) {
+      output.push({
+        activityId: "weft_hold_stakedXrd" as ActivityId,
+        usdValue: yield* xrdToUsd(weftCollateralStakedXrd),
+      });
+    }
+
+    // Process Weft unstaking receipts from NFT collaterals
+    // Aggregate all unstaking receipts into a single entry
+    const totalUnstakingXrd = weftFinancePositions.unstakingReceipts.reduce(
+      (acc, receipt) => acc.plus(receipt.claimAmount),
+      new BigNumber(0)
+    );
+
+    if (totalUnstakingXrd.gt(0)) {
+      output.push({
+        activityId: "weft_hold_unstakedXrd" as ActivityId,
+        usdValue: yield* xrdToUsd(totalUnstakingXrd),
+      });
+    }
 
     return output;
   });
@@ -213,7 +276,8 @@ const processCaviarNinePools = (
           const xrdEquivalent = toXrdEquivalent(
             tokenAmount,
             item.xToken.resourceAddress,
-            accountBalance.lsulp.lsulpValue
+            accountBalance.lsulp.lsulpValue,
+            accountBalance.convertLsuToXrdMap
           );
           newXrd = newXrd.plus(xrdEquivalent);
         }
@@ -226,7 +290,8 @@ const processCaviarNinePools = (
           const xrdEquivalent = toXrdEquivalent(
             tokenAmount,
             item.yToken.resourceAddress,
-            accountBalance.lsulp.lsulpValue
+            accountBalance.lsulp.lsulpValue,
+            accountBalance.convertLsuToXrdMap
           );
           newXrd = newXrd.plus(xrdEquivalent);
         }
@@ -279,7 +344,8 @@ const processCaviarNinePools = (
           const xrdEquivalent = toXrdEquivalent(
             position.amount,
             position.resourceAddress,
-            accountBalance.lsulp.lsulpValue
+            accountBalance.lsulp.lsulpValue,
+            accountBalance.convertLsuToXrdMap
           );
 
           totalHyperstakeXrdDerivatives =
@@ -396,7 +462,8 @@ const processDefiPlazaPools = (
           const xrdDerivativeAmount = toXrdEquivalent(
             xrdDerivativePosition.amount,
             xrdDerivativePosition.resourceAddress,
-            accountBalance.lsulp.lsulpValue
+            accountBalance.lsulp.lsulpValue,
+            accountBalance.convertLsuToXrdMap
           );
 
           defiPlazaByPool.set(

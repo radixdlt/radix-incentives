@@ -19,3 +19,46 @@ export const SingleResourcePool = s.struct({
   pool_unit_res_manager: s.address(),
   unit_to_asset_ratio: s.decimal(),
 });
+
+// EfficiencyMode enum
+export const EfficiencyMode = s.enum([
+  { variant: "None", schema: s.tuple([]) },
+  { variant: "EfficiencyGroup", schema: s.tuple([s.number()]) }, // u16 as number
+  { variant: "IdenticalResource", schema: s.tuple([]) },
+]);
+
+// CollateralConfigVersion struct
+export const CollateralConfigVersion = s.struct({
+  entry_version: s.number(), // u64
+  efficiency_mode: EfficiencyMode,
+});
+
+// CollateralInfo struct
+export const CollateralInfo = s.struct({
+  amount: s.decimal(),
+  config_version: CollateralConfigVersion,
+});
+
+// NFTCollateralInfo struct
+export const NFTCollateralInfo = s.struct({
+  nft_ids: s.array(s.nonFungibleLocalId()),
+  config_version: s.map({ key: s.address(), value: CollateralConfigVersion }),
+});
+
+// LoanInfo struct
+export const LoanInfo = s.struct({
+  units: s.decimal(),
+  config_version: s.number(), // u64
+});
+
+// CDPData struct
+export const CDPData = s.struct({
+  minted_at: s.number(), // Instant
+  updated_at: s.number(), // Instant
+  key_image_url: s.string(),
+  name: s.string(),
+  description: s.string(),
+  loans: s.map({ key: s.address(), value: LoanInfo }),
+  collaterals: s.map({ key: s.address(), value: CollateralInfo }),
+  nft_collaterals: s.map({ key: s.address(), value: NFTCollateralInfo }),
+});

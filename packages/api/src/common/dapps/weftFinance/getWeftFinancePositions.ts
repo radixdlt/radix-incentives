@@ -1,15 +1,10 @@
 import { Context, Effect, Layer } from "effect";
 
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
-
-import type { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import type {
-  GetNonFungibleBalanceService,
+  GetNonFungibleBalanceOutput,
   InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
-import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 
 import {
   type GetFungibleBalanceOutput,
@@ -21,16 +16,49 @@ import {
   GetComponentStateService,
   type InvalidComponentStateError,
 } from "../../gateway/getComponentState";
-import { LendingPoolSchema, SingleResourcePool } from "./schemas";
+import { LendingPoolSchema, SingleResourcePool, CDPData } from "./schemas";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 
 import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
+import {
+  UnstakingReceiptProcessorService,
+  type UnstakingReceipt,
+  type FailedToParseUnstakingReceiptError,
+} from "../../staking/unstakingReceiptProcessor";
+
+export class ValidatorNotFoundForClaimNftError {
+  readonly _tag = "ValidatorNotFoundForClaimNftError";
+  constructor(readonly claimNftResourceAddress: string) {}
+}
+
+// Helper function for unstaking receipt processing
+const getValidatorFromClaimNft = (
+  claimNftResourceAddress: string,
+  validatorClaimNftMap: Map<string, string>
+): Effect.Effect<string, ValidatorNotFoundForClaimNftError> => {
+  for (const [validatorAddress, claimNftResource] of validatorClaimNftMap) {
+    if (claimNftResource === claimNftResourceAddress) {
+      return Effect.succeed(validatorAddress);
+    }
+  }
+  return Effect.fail(
+    new ValidatorNotFoundForClaimNftError(claimNftResourceAddress)
+  );
+};
 
 export class FailedToParseLendingPoolSchemaError {
   readonly _tag = "FailedToParseLendingPoolSchemaError";
   constructor(readonly lendingPool: unknown) {}
+}
+
+export class FailedToParseCDPDataError {
+  readonly _tag = "FailedToParseCDPDataError";
+  constructor(
+    readonly nftId: string,
+    readonly cdpData: unknown
+  ) {}
 }
 
 type AssetBalance = {
@@ -47,6 +75,14 @@ type WeftLendingPosition = {
 export type GetWeftFinancePositionsOutput = {
   address: string;
   lending: WeftLendingPosition[];
+  collateral: AssetBalance[];
+  unstakingReceipts: {
+    resourceAddress: string;
+    id: string;
+    claimAmount: BigNumber;
+    claimEpoch: number;
+    validatorAddress: string;
+  }[];
 };
 
 export class GetWeftFinancePositionsService extends Context.Tag(
@@ -57,6 +93,8 @@ export class GetWeftFinancePositionsService extends Context.Tag(
     accountAddresses: string[];
     at_ledger_state: AtLedgerState;
     fungibleBalance?: GetFungibleBalanceOutput;
+    nonFungibleBalance?: GetNonFungibleBalanceOutput;
+    validatorClaimNftMap: Map<string, string>;
   }) => Effect.Effect<
     GetWeftFinancePositionsOutput[],
     | GetEntityDetailsError
@@ -65,6 +103,9 @@ export class GetWeftFinancePositionsService extends Context.Tag(
     | GatewayError
     | InvalidComponentStateError
     | FailedToParseLendingPoolSchemaError
+    | FailedToParseCDPDataError
+    | FailedToParseUnstakingReceiptError
+    | ValidatorNotFoundForClaimNftError
   >
 >() {}
 
@@ -77,16 +118,25 @@ export const GetWeftFinancePositionsLive = Layer.effect(
     const getFungibleBalanceService = yield* GetFungibleBalanceService;
     const getComponentStateService = yield* GetComponentStateService;
     const getKeyValueStoreService = yield* GetKeyValueStoreService;
+    const unstakingReceiptProcessor = yield* UnstakingReceiptProcessorService;
 
-    return (input) => {
-      return Effect.gen(function* () {
+    return (input) =>
+      Effect.gen(function* () {
         const accountBalancesMap = new Map<
           AccountAddress,
-          WeftLendingPosition[]
+          {
+            lending: WeftLendingPosition[];
+            collateral: AssetBalance[];
+            unstakingReceipts: UnstakingReceipt[];
+          }
         >();
 
         for (const accountAddress of input.accountAddresses) {
-          accountBalancesMap.set(accountAddress, []);
+          accountBalancesMap.set(accountAddress, {
+            lending: [],
+            collateral: [],
+            unstakingReceipts: [],
+          });
         }
 
         // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
@@ -159,35 +209,180 @@ export const GetWeftFinancePositionsLive = Layer.effect(
               poolToUnitToAssetRatio.get(resourceAddress);
 
             if (unitToAssetRatio) {
-              const items = accountBalancesMap.get(accountAddress) ?? [];
+              const accountData = accountBalancesMap.get(accountAddress) ?? {
+                lending: [],
+                collateral: [],
+                unstakingReceipts: [],
+              };
 
-              accountBalancesMap.set(accountAddress, [
-                ...items,
-                {
+              const unwrappedAssetAddress =
+                weftFungibleRecourceAddresses.get(resourceAddress);
+              if (unwrappedAssetAddress) {
+                accountData.lending.push({
                   unitToAssetRatio,
                   wrappedAsset: {
                     resourceAddress,
                     amount,
                   },
                   unwrappedAsset: {
-                    resourceAddress:
-                      // biome-ignore lint/style/noNonNullAssertion: <explanation>
-                      weftFungibleRecourceAddresses.get(resourceAddress)!,
+                    resourceAddress: unwrappedAssetAddress,
                     amount: amount.div(unitToAssetRatio),
                   },
-                },
-              ]);
+                });
+
+                accountBalancesMap.set(accountAddress, accountData);
+              }
             }
           }
         }
 
+        // Process WeftyV2 NFTs to get collateral assets
+
+        const weftyV2NonFungibleBalances = input.nonFungibleBalance;
+
+        if (!weftyV2NonFungibleBalances) {
+          return Array.from(accountBalancesMap.entries()).map(
+            ([address, data]) => ({
+              address,
+              lending: data.lending,
+              collateral: data.collateral,
+              unstakingReceipts: data.unstakingReceipts,
+            })
+          );
+        }
+
+        for (const accountNFTBalance of weftyV2NonFungibleBalances.items) {
+          const accountAddress = accountNFTBalance.address;
+          const accountData = accountBalancesMap.get(accountAddress) ?? {
+            lending: [],
+            collateral: [],
+            unstakingReceipts: [],
+          };
+
+          for (const nftResource of accountNFTBalance.nonFungibleResources) {
+            if (
+              nftResource.resourceAddress !==
+              WeftFinance.v2.WeftyV2.resourceAddress
+            ) {
+              continue;
+            }
+
+            for (const nftItem of nftResource.items) {
+              if (nftItem.isBurned || !nftItem.sbor) continue;
+
+              const parseResult = CDPData.safeParse(nftItem.sbor);
+              if (parseResult.isErr()) {
+                yield* Effect.fail(
+                  new FailedToParseCDPDataError(nftItem.id, parseResult.error)
+                );
+                continue;
+              }
+
+              const cdpData = parseResult.value;
+
+              // Process regular collaterals
+              for (const [
+                resourceAddress,
+                collateralInfo,
+              ] of cdpData.collaterals.entries()) {
+                const amount = new BigNumber(collateralInfo.amount);
+
+                // Handle non-weft assets as regular collateral
+                if (!weftFungibleRecourceAddresses.has(resourceAddress)) {
+                  accountData.collateral.push({ resourceAddress, amount });
+                  continue;
+                }
+
+                // Handle weft assets as lending positions
+                const unitToAssetRatio =
+                  poolToUnitToAssetRatio.get(resourceAddress);
+                const unwrappedAssetAddress =
+                  weftFungibleRecourceAddresses.get(resourceAddress);
+
+                if (!unitToAssetRatio || !unwrappedAssetAddress) continue;
+
+                const unwrappedAmount = amount.div(unitToAssetRatio);
+                const existingIndex = accountData.lending.findIndex(
+                  (lending) =>
+                    lending.wrappedAsset.resourceAddress === resourceAddress
+                );
+
+                if (existingIndex >= 0) {
+                  const existingPosition = accountData.lending[existingIndex];
+                  if (existingPosition) {
+                    existingPosition.wrappedAsset.amount =
+                      existingPosition.wrappedAsset.amount.plus(amount);
+                    existingPosition.unwrappedAsset.amount =
+                      existingPosition.unwrappedAsset.amount.plus(
+                        unwrappedAmount
+                      );
+                  }
+                } else {
+                  accountData.lending.push({
+                    unitToAssetRatio,
+                    wrappedAsset: { resourceAddress, amount },
+                    unwrappedAsset: {
+                      resourceAddress: unwrappedAssetAddress,
+                      amount: unwrappedAmount,
+                    },
+                  });
+                }
+              }
+
+              // Process NFT collaterals for unstaking receipts
+              const nftCollateralEntries = Array.from(
+                cdpData.nft_collaterals.entries()
+              ).filter(([resourceAddress]) =>
+                Array.from(input.validatorClaimNftMap.values()).includes(
+                  resourceAddress
+                )
+              );
+
+              if (nftCollateralEntries.length === 0) continue;
+
+              const unstakingReceiptRequests = yield* Effect.withSpan(
+                Effect.forEach(
+                  nftCollateralEntries,
+                  ([resourceAddress, nftCollateralInfo]) =>
+                    Effect.gen(function* () {
+                      const validatorAddress = yield* getValidatorFromClaimNft(
+                        resourceAddress,
+                        input.validatorClaimNftMap
+                      );
+                      return {
+                        resourceAddress,
+                        nftIds: nftCollateralInfo.nft_ids,
+                        validatorAddress,
+                      };
+                    })
+                ),
+                "processNftCollaterals"
+              );
+
+              if (unstakingReceiptRequests.length > 0) {
+                const unstakingReceipts = yield* unstakingReceiptProcessor
+                  .processUnstakingReceipts({
+                    unstakingReceiptRequests,
+                    at_ledger_state: input.at_ledger_state,
+                  })
+                  .pipe(Effect.withSpan("processUnstakingReceipts"));
+
+                accountData.unstakingReceipts.push(...unstakingReceipts);
+              }
+            }
+          }
+
+          accountBalancesMap.set(accountAddress, accountData);
+        }
+
         return Array.from(accountBalancesMap.entries()).map(
-          ([address, items]) => ({
+          ([address, data]) => ({
             address,
-            lending: items,
+            lending: data.lending,
+            collateral: data.collateral,
+            unstakingReceipts: data.unstakingReceipts,
           })
         );
       });
-    };
   })
 );
