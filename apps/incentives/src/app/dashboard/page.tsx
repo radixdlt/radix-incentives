@@ -5,6 +5,7 @@ import {
   MetricCard,
   ActivityBreakdown,
   RecentActivity,
+  AccountBalances,
 } from '~/components/dashboard';
 import { api } from '~/trpc/react';
 import { ConnectedState } from './components/ConnectedState';
@@ -28,7 +29,13 @@ export default function DashboardPage() {
     retry: false,
   });
 
-  if (accounts.isLoading || userStats.isLoading) {
+  const accountBalances = api.account.getLatestAccountBalances.useQuery(undefined, {
+    refetchOnMount: true,
+    enabled: accounts.isSuccess && accounts.data?.length > 0,
+    retry: false,
+  });
+
+  if (accounts.isLoading || userStats.isLoading || accountBalances.isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="text-2xl">Loading...</div>
@@ -36,7 +43,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (accounts.isError || userStats.isError) {
+  if (accounts.isError || userStats.isError || accountBalances.isError) {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="text-2xl text-red-500">Error loading data.</div>
@@ -75,45 +82,52 @@ export default function DashboardPage() {
     .sort((a, b) => b.points - a.points);
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      <MetricCard
-        title="Estimated Current Week"
-        value={latestWeeklyPoints.toLocaleString()}
-        icon={MoveUpRight}
-        description="Activity Points earned this week"
-        iconColor="text-green-500"
-      />
+    <div className="space-y-6">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          title="Estimated Current Week"
+          value={latestWeeklyPoints.toLocaleString()}
+          icon={MoveUpRight}
+          description="Activity Points earned this week"
+          iconColor="text-green-500"
+        />
 
-      <MetricCard
-        title="Estimated Current Season"
-        value={Number(totalSeasonPoints).toLocaleString(undefined, {
-          maximumFractionDigits: 2,
-        })}
-        icon={MoveUpRight}
-        description="Points earned this season"
-        iconColor="text-green-500"
-      />
+        <MetricCard
+          title="Estimated Current Season"
+          value={Number(totalSeasonPoints).toLocaleString(undefined, {
+            maximumFractionDigits: 2,
+          })}
+          icon={MoveUpRight}
+          description="Points earned this season"
+          iconColor="text-green-500"
+        />
 
-      <MetricCard
-        title="Multiplier"
-        value={userStats.data?.multiplier?.value ?? '0'}
-        icon={Zap}
-        description="Current points multiplier"
-        iconColor="text-amber-500"
-      />
+        <MetricCard
+          title="Multiplier"
+          value={userStats.data?.multiplier?.value ?? '0'}
+          icon={Zap}
+          description="Current points multiplier"
+          iconColor="text-amber-500"
+        />
 
-      <MetricCard
-        title="Weekly Ranking"
-        subtitle="Global"
-        value={
-          userStats.data?.multiplier?.weeklyRanking.toLocaleString() ?? 'n/a'
-        }
-        icon={Award}
-        description="Global leaderboard position"
-        iconColor="text-blue-500"
-      />
+        <MetricCard
+          title="Weekly Ranking"
+          subtitle="Global"
+          value={
+            userStats.data?.multiplier?.weeklyRanking.toLocaleString() ?? 'n/a'
+          }
+          icon={Award}
+          description="Global leaderboard position"
+          iconColor="text-blue-500"
+        />
 
-      <ActivityBreakdown activities={activityBreakdownData} />
+        <ActivityBreakdown activities={activityBreakdownData} />
+      </div>
+      
+      <AccountBalances 
+        balances={accountBalances.data || []}
+        selectedAccounts={accounts.data || []}
+      />
     </div>
   );
 }

@@ -59,6 +59,7 @@ import {
   UpdateWeekStatusService,
 } from "../week/updateWeekStatus";
 import { UserStatsService } from "../user/user";
+import { GetLatestAccountBalancesService } from "../account/getLatestAccountBalances";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -119,6 +120,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
+
 
   const getActivitiesLive = GetActivitiesLive.pipe(Layer.provide(dbClientLive));
 
@@ -337,6 +339,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getLatestAccountBalances = (accountAddresses: string[]) => {
+    const getLatestAccountBalancesServiceLive = GetLatestAccountBalancesService.Default.pipe(
+      Layer.provide(dbClientLive)
+    );
+
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const service = yield* GetLatestAccountBalancesService;
+        return yield* service.getLatestAccountBalances(accountAddresses);
+      }),
+      getLatestAccountBalancesServiceLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -352,5 +370,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getUsersPaginated,
     updateWeekStatus,
     getUserStats,
+    getLatestAccountBalances,
   };
 };
