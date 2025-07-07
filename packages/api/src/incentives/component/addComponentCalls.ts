@@ -6,6 +6,7 @@ import { utc } from "@date-fns/utc";
 import { componentCalls } from "db/incentives";
 import { inArray, sql, and, between } from "drizzle-orm";
 import { GetUserIdByAccountAddressService } from "../user/getUserIdByAccountAddress";
+import { groupBy } from "effect/Array";
 
 export type AddComponentCallsServiceInput = {
   accountAddress: string;
@@ -146,11 +147,28 @@ export const AddComponentCallsLive = Layer.effect(
 
         if (dbEntries.length === 0) return;
 
+        // Handle duplicate inserts for the same user
+        const itemsToInsert = Object.values(
+          groupBy(dbEntries, (item) => item.userId)
+        ).map((userComponentCalls) => {
+          const componentCalls = userComponentCalls.reduce((acc, item) => {
+            for (const componentCall of item.data) {
+              acc.add(componentCall);
+            }
+            return acc;
+          }, new Set<string>());
+          return {
+            userId: userComponentCalls[0].userId,
+            data: Array.from(componentCalls),
+            timestamp: userComponentCalls[0].timestamp,
+          };
+        });
+
         yield* Effect.tryPromise({
           try: () =>
             db
               .insert(componentCalls)
-              .values(dbEntries)
+              .values(itemsToInsert)
               .onConflictDoUpdate({
                 target: [componentCalls.userId, componentCalls.timestamp],
                 set: { data: sql`excluded.data` },
