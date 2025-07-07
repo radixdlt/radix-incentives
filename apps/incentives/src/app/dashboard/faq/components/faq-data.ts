@@ -48,7 +48,7 @@ The multiplier follows an S-curve pattern, with significant increases from $5,00
 If you've linked multiple accounts, points from all connected wallets should appear in your unified dashboard. Please note, to earn any points you must have at least $50 of XRD/LSUs across all your linked accounts, and certain activities may have minimum activity thresholds. 
 <br /><br />
 
-<a class='underline' href='mailto:support@radix.foundation'>Contact support</a> if points are still missing after the weekly calculation period.`,
+<a class='underline' href='mailto:hello@radixdlt.com'>Contact support</a> if points are still missing after the weekly calculation period.`,
   },
   {
     question: "Is it safe to link multiple accounts?",
