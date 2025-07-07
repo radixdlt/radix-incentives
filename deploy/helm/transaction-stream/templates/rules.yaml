@@ -11,8 +11,8 @@ spec:
   groups:
   - name: IncentivesTransactionStream
     rules:
-    - alert: Critical{{ title .}}QueueFailedJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", queue="{{ . }}", state="failed"}[5m])) > 100
+    - alert: CriticalFailedJobs
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 100
       for: 5m
       labels:
         severity: critical
@@ -23,13 +23,13 @@ spec:
         cluster: {{ $metrics.alert_labels.cluster }}
         env: {{ $metrics.alert_labels.env }}
       annotations:
-        summary: "Critical number of failed jobs in {{ . }} queue"
-        description: "The {{ . }} queue has seen more than 100 failed jobs in the last 5 minutes."
+        summary: "Critical number of failed jobs"
+        description: "There are  more than 100 failed jobs in the last 5 minutes."
         dashboard: {{ $metrics.dashboard_url }}
         runbook_url: "https://runbooks.extratools.works"
 
-    - alert: High{{ title . }}QueueFailedJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", queue="{{ . }}", state="failed"}[5m])) > 50
+    - alert: HighFailedJobs
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 50
       for: 5m
       labels:
         severity: warning
@@ -40,13 +40,13 @@ spec:
         cluster: {{ $metrics.alert_labels.cluster }}
         env: {{ $metrics.alert_labels.env }}
       annotations:
-        summary: "High number of failed jobs in {{ . }} queue"
-        description: "The {{ . }} queue has seen more than 50 failed jobs in the last 5 minutes."
+        summary: "High number of failed jobs"
+        description: "There are more than 50 failed jobs in the last 5 minutes."
         dashboard: {{ $metrics.dashboard_url }}
         runbook_url: "https://runbooks.extratools.works"
 
-    - alert: High{{ title . }}QueueWaitingJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", queue="{{ . }}", state="waiting"}[5m])) > 20
+    - alert: HighWaitingJobs
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="waiting"}[5m])) > 20
       for: 5m
       labels:
         tier: application
@@ -57,8 +57,8 @@ spec:
         cluster: {{ $metrics.alert_labels.cluster }}
         env: {{ $metrics.alert_labels.env }}
       annotations:
-        summary: "High number of waiting jobs in {{ . }} queue"
-        description: "The {{ . }} queue has seen more than 10 waiting jobs in the last 5 minutes."
+        summary: "High number of waiting jobs"
+        description: "There are more than 20 waiting jobs in the last 5 minutes."
         dashboard: {{ $metrics.dashboard_url }}
         runbook_url: "https://runbooks.extratools.works"
 
