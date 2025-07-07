@@ -63,6 +63,8 @@ import { AccountBalanceService } from "../account/accountBalance";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
+import { SeasonService } from "../season/season";
+import { WeekService } from "../week/week";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -321,16 +323,30 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const userLive = UserService.Default.pipe(Layer.provide(dbClientLive));
+  const seasonLive = SeasonService.Default.pipe(Layer.provide(dbClientLive));
+
+  const weekLive = WeekService.Default.pipe(Layer.provide(dbClientLive));
+
+  const userLive = UserService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(seasonLive)
+  );
 
   const getUserStats = (input: { userId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const userStatsService = yield* UserService;
+        const weekService = yield* WeekService;
 
-        return yield* userStatsService.getUserStats(input);
+        const activeWeek = yield* weekService.getActiveWeek();
+
+        return yield* userStatsService.getUserStats({
+          ...input,
+          weekId: activeWeek.id,
+          seasonId: activeWeek.seasonId,
+        });
       }),
-      userLive
+      Layer.mergeAll(userLive, weekLive)
     ).pipe(Effect.provide(NodeSdkLive));
 
     return Effect.runPromiseExit(program);

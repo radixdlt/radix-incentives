@@ -29,11 +29,14 @@ export default function DashboardPage() {
     retry: false,
   });
 
-  const accountBalances = api.account.getLatestAccountBalances.useQuery(undefined, {
-    refetchOnMount: true,
-    enabled: accounts.isSuccess && accounts.data?.length > 0,
-    retry: false,
-  });
+  const accountBalances = api.account.getLatestAccountBalances.useQuery(
+    undefined,
+    {
+      refetchOnMount: true,
+      enabled: accounts.isSuccess && accounts.data?.length > 0,
+      retry: false,
+    },
+  );
 
   if (accounts.isLoading || userStats.isLoading || accountBalances.isLoading) {
     return (
@@ -94,9 +97,12 @@ export default function DashboardPage() {
 
         <MetricCard
           title="Estimated Current Season"
-          value={Number(totalSeasonPoints).toLocaleString(undefined, {
-            maximumFractionDigits: 2,
-          })}
+          value={Number(userStats.data?.seasonPoints.points).toLocaleString(
+            undefined,
+            {
+              maximumFractionDigits: 2,
+            },
+          )}
           icon={MoveUpRight}
           description="Points earned this season"
           iconColor="text-green-500"
@@ -113,9 +119,7 @@ export default function DashboardPage() {
         <MetricCard
           title="Weekly Ranking"
           subtitle="Global"
-          value={
-            userStats.data?.multiplier?.weeklyRanking.toLocaleString() ?? 'n/a'
-          }
+          value={userStats.data?.seasonPoints.rank.toLocaleString() ?? 'n/a'}
           icon={Award}
           description="Global leaderboard position"
           iconColor="text-blue-500"
@@ -123,8 +127,8 @@ export default function DashboardPage() {
 
         <ActivityBreakdown activities={activityBreakdownData} />
       </div>
-      
-      <AccountBalances 
+
+      <AccountBalances
         balances={accountBalances.data || []}
         selectedAccounts={accounts.data || []}
       />
