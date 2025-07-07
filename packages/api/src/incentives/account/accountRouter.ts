@@ -72,4 +72,22 @@ export const accountRouter = createTRPCRouter({
 
     return result.value;
   }),
+
+  getLatestAccountBalances: protectedProcedure.query(async ({ ctx }) => {
+    const userId = ctx.session.user.id;
+
+    // Then get the latest balances for those accounts
+    const balancesResult = await ctx.dependencyLayer.getLatestAccountBalances({
+      userId,
+    });
+
+    if (balancesResult._tag === "Failure") {
+      console.error(balancesResult.cause);
+      throw new TRPCError({
+        code: "INTERNAL_SERVER_ERROR",
+      });
+    }
+
+    return balancesResult.value;
+  }),
 });

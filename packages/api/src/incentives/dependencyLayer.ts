@@ -104,7 +104,7 @@ import {
   SnapshotWorkerService,
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
-import { UserStatsService } from "./user/user";
+import { UserService } from "./user/user";
 import { WeekService } from "./week/week";
 const appConfig = createConfig();
 
@@ -655,18 +655,16 @@ const calculateSPMultiplier = (input: {
   return Effect.runPromiseExit(program);
 };
 
-const userStatsLive = UserStatsService.Default.pipe(
-  Layer.provide(dbClientLive)
-);
+const userLive = UserService.Default.pipe(Layer.provide(dbClientLive));
 
 const getUserStats = (input: { userId: string }) => {
   const program = Effect.provide(
     Effect.gen(function* () {
-      const userStatsService = yield* UserStatsService;
+      const userService = yield* UserService;
 
-      return yield* userStatsService.getUserStats(input);
+      return yield* userService.getUserStats(input);
     }),
-    userStatsLive
+    userLive
   ).pipe(Effect.provide(NodeSdkLive));
 
   return Effect.runPromiseExit(program);
