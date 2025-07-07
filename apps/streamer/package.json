@@ -22,7 +22,9 @@
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-node": "catalog:",
     "@opentelemetry/semantic-conventions": "catalog:",
-    "make-fetch-happen": "catalog:"
+    "make-fetch-happen": "catalog:",
+    "hono": "catalog:",
+    "@hono/node-server": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",

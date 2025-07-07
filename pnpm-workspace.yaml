@@ -69,3 +69,4 @@ catalog:
   "@types/node": "^20.0.0"
   "date-fns": "^4.1.0"
   "@date-fns/utc": "^2.1.0"
+  "hono": "^4.7.10"

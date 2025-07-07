@@ -26,7 +26,7 @@
     "db": "workspace:*",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
-    "hono": "^4.7.10",
+    "hono": "catalog:",
     "ioredis": "catalog:",
     "pino": "catalog:",
     "zod": "catalog:",
