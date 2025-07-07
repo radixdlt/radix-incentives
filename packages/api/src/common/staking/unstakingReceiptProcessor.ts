@@ -1,8 +1,7 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { BigNumber } from "bignumber.js";
 import { EntityNonFungibleDataService } from "../gateway/entityNonFungiblesData";
 import { claimNftSchema } from "./schema";
-import type { GatewayError } from "../gateway/errors";
 import type { AtLedgerState } from "../gateway/schemas";
 import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 
@@ -22,22 +21,55 @@ export class FailedToParseUnstakingReceiptError {
   ) {}
 }
 
-export class UnstakingReceiptProcessorService extends Context.Tag(
-  "UnstakingReceiptProcessorService"
-)<
-  UnstakingReceiptProcessorService,
-  (input: {
-    unstakingReceiptRequests: Array<{
-      resourceAddress: string;
-      nftIds: string[];
-      validatorAddress: string;
-    }>;
-    at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<
-    UnstakingReceipt[],
-    GatewayError | FailedToParseUnstakingReceiptError
-  >
->() {}
+export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingReceiptProcessorService>()(
+  "UnstakingReceiptProcessorService",
+  {
+    effect: Effect.gen(function* () {
+      const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
+
+      return {
+        processUnstakingReceipts: Effect.fn(function* (input: {
+          unstakingReceiptRequests: Array<{
+            resourceAddress: string;
+            nftIds: string[];
+            validatorAddress: string;
+          }>;
+          at_ledger_state: AtLedgerState;
+        }) {
+          const allUnstakingReceipts: UnstakingReceipt[] = [];
+
+          for (const request of input.unstakingReceiptRequests) {
+            if (request.nftIds.length === 0) continue;
+
+            const specificNftData = yield* entityNonFungibleDataService({
+              resource_address: request.resourceAddress,
+              non_fungible_ids: request.nftIds,
+              at_ledger_state: input.at_ledger_state,
+            }).pipe(Effect.withSpan("fetchUnstakingReceiptNftData"));
+
+            const relevantNftItems = specificNftData
+              .filter((item) => request.nftIds.includes(item.non_fungible_id))
+              .map((item) => ({
+                id: item.non_fungible_id,
+                data: item.data,
+              }));
+
+            const receipts = yield* extractUnstakingReceiptData(
+              request.resourceAddress,
+              request.nftIds,
+              request.validatorAddress,
+              relevantNftItems
+            );
+
+            allUnstakingReceipts.push(...receipts);
+          }
+
+          return allUnstakingReceipts;
+        }),
+      };
+    }),
+  }
+) {}
 
 const extractUnstakingReceiptData = (
   resourceAddress: string,
@@ -91,42 +123,5 @@ const extractUnstakingReceiptData = (
   });
 };
 
-export const UnstakingReceiptProcessorLive = Layer.effect(
-  UnstakingReceiptProcessorService,
-  Effect.gen(function* () {
-    const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
-
-    return (input) =>
-      Effect.gen(function* () {
-        const allUnstakingReceipts: UnstakingReceipt[] = [];
-
-        for (const request of input.unstakingReceiptRequests) {
-          if (request.nftIds.length === 0) continue;
-
-          const specificNftData = yield* entityNonFungibleDataService({
-            resource_address: request.resourceAddress,
-            non_fungible_ids: request.nftIds,
-            at_ledger_state: input.at_ledger_state,
-          }).pipe(Effect.withSpan("fetchUnstakingReceiptNftData"));
-
-          const relevantNftItems = specificNftData
-            .filter((item) => request.nftIds.includes(item.non_fungible_id))
-            .map((item) => ({
-              id: item.non_fungible_id,
-              data: item.data,
-            }));
-
-          const receipts = yield* extractUnstakingReceiptData(
-            request.resourceAddress,
-            request.nftIds,
-            request.validatorAddress,
-            relevantNftItems
-          );
-
-          allUnstakingReceipts.push(...receipts);
-        }
-
-        return allUnstakingReceipts;
-      });
-  })
-);
+export const UnstakingReceiptProcessorLive =
+  UnstakingReceiptProcessorService.Default;

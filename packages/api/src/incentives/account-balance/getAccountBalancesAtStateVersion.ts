@@ -84,6 +84,7 @@ import type {
 import BigNumber from "bignumber.js";
 import { RootFinance } from "../../common/dapps/rootFinance/constants";
 import { Assets } from "../../common/assets/constants";
+import { WeftFinance } from "../../common/dapps/weftFinance/constants";
 
 type Lsu = {
   resourceAddress: string;
@@ -256,6 +257,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                     (pool) => pool.lpResourceAddress
                   ),
                   RootFinance.receiptResourceAddress,
+                  WeftFinance.v2.WeftyV2.resourceAddress,
                   ...input.validators.map(
                     (validator) => validator.claimNftResourceAddress
                   ),
@@ -305,6 +307,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
+              nonFungibleBalance: nonFungibleBalanceResults,
               validatorClaimNftMap: validatorClaimNftMap,
             }).pipe(Effect.withSpan("getWeftFinancePositionsService")),
             getRootFinancePositionsService({
