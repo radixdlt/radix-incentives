@@ -58,8 +58,8 @@ import {
   UpdateWeekStatusLive,
   UpdateWeekStatusService,
 } from "../week/updateWeekStatus";
-import { UserStatsService } from "../user/user";
-import { GetLatestAccountBalancesService } from "../account/getLatestAccountBalances";
+import { UserService } from "../user/user";
+import { AccountBalanceService } from "../account/accountBalance";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
@@ -78,7 +78,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const appConfigLive = createAppConfigLive(appConfig);
 
   const gatewayApiClientLive = GatewayApiClientLive;
-  
+
   const checkAccountPersistenceLive = CheckAccountPersistenceServiceLive.pipe(
     Layer.provide(gatewayApiClientLive)
   );
@@ -120,7 +120,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
-
 
   const getActivitiesLive = GetActivitiesLive.pipe(Layer.provide(dbClientLive));
 
@@ -322,34 +321,43 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const userStatsLive = UserStatsService.Default.pipe(
-    Layer.provide(dbClientLive)
-  );
+  const userLive = UserService.Default.pipe(Layer.provide(dbClientLive));
 
   const getUserStats = (input: { userId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const userStatsService = yield* UserStatsService;
+        const userStatsService = yield* UserService;
 
         return yield* userStatsService.getUserStats(input);
       }),
-      userStatsLive
+      userLive
     ).pipe(Effect.provide(NodeSdkLive));
 
     return Effect.runPromiseExit(program);
   };
 
-  const getLatestAccountBalances = (accountAddresses: string[]) => {
-    const getLatestAccountBalancesServiceLive = GetLatestAccountBalancesService.Default.pipe(
-      Layer.provide(dbClientLive)
-    );
+  const getLatestAccountBalancesServiceLive =
+    AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
 
+  const getLatestAccountBalances = ({ userId }: { userId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const service = yield* GetLatestAccountBalancesService;
-        return yield* service.getLatestAccountBalances(accountAddresses);
+        const userService = yield* UserService;
+        const accountBalanceService = yield* AccountBalanceService;
+
+        const accounts = yield* userService.getAccountsByUserId({
+          userId,
+        });
+
+        const accountAddresses = accounts.map((account) => account.address);
+
+        if (accountAddresses.length === 0) {
+          return [];
+        }
+
+        return yield* accountBalanceService.getLatest(accountAddresses);
       }),
-      getLatestAccountBalancesServiceLive
+      Layer.mergeAll(getLatestAccountBalancesServiceLive, userLive)
     );
 
     return Effect.runPromiseExit(program);
