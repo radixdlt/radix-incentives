@@ -4,39 +4,27 @@ import { MoveUpRight, Award, Zap, Wallet, Clock } from 'lucide-react';
 import {
   MetricCard,
   ActivityBreakdown,
-  RecentActivity,
   AccountBalances,
 } from '~/components/dashboard';
 import { api } from '~/trpc/react';
-import { ConnectedState } from './components/ConnectedState';
 import { EmptyState } from '~/components/ui/empty-state';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
 import { useState, useEffect } from 'react';
-import { getNextUpdateTime, formatTimeUntilUpdate } from '~/lib/utils';
+import { getNextUpdateTime } from '~/lib/utils';
 
 const NextUpdateNotification = () => {
   const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
-  const [nextUpdate, setNextUpdate] = useState<Date | null>(null);
 
   useEffect(() => {
-    const updateTime = () => {
-      const next = getNextUpdateTime();
-      const formatted = formatTimeUntilUpdate(next);
-      setNextUpdate(next);
-      setTimeUntilUpdate(formatted);
-    };
+    setTimeUntilUpdate(getNextUpdateTime());
 
-    // Update immediately
-    updateTime();
-
-    // Update every minute
-    const interval = setInterval(updateTime, 60000);
+    const interval = setInterval(() => {
+      setTimeUntilUpdate(getNextUpdateTime());
+    }, 60000);
 
     return () => clearInterval(interval);
   }, []);
-
-  if (!nextUpdate) return null;
 
   return (
     <div className="bg-card border rounded-lg p-4 mb-6">
@@ -44,7 +32,9 @@ const NextUpdateNotification = () => {
         <Clock className="h-4 w-4" />
         <span>
           Points calculations update every 2 hours. Next update in{' '}
-          <span className="font-semibold text-foreground">{timeUntilUpdate}</span>
+          <span className="font-semibold text-foreground">
+            {timeUntilUpdate}
+          </span>
         </span>
       </div>
     </div>
@@ -122,10 +112,10 @@ export default function DashboardPage() {
     }))
     .sort((a, b) => b.points - a.points);
 
-    return (
+  return (
     <div className="space-y-6">
       <NextUpdateNotification />
-      
+
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title="Estimated Current Week"
