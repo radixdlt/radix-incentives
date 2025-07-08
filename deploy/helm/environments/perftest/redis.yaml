@@ -3,7 +3,7 @@ auth:
   enabled: false
 master:
   persistence:
-    enabled: false
+    enabled: true
   extraFlags: 
   - "--maxmemory-policy noeviction"
   - "--maxmemory 250mb"
