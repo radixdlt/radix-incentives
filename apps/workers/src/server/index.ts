@@ -19,6 +19,7 @@ import { seasonPointsMultiplierJobSchema } from "../queues/calculate-season-poin
 import { calculateSeasonPointsQueue } from "../queues/calculate-season-points/queue";
 import { seasonPointsMultiplierQueue } from "../queues/calculate-season-points-multiplier/queue";
 import { scheduledCalculationsQueue } from "../queues/scheduled-calculations/queue";
+import { snapshotJobSchema } from "../queues/snapshot/schemas";
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -59,6 +60,16 @@ app.post("/queues/event/add", async (c) => {
     return c.json({ error: parsedInput.error.message }, 400);
   }
   await eventQueue.queue.add("event", parsedInput.data);
+  return c.text("ok");
+});
+
+app.post("/queues/snapshot/add", async (c) => {
+  const input = await c.req.json();
+  const parsedInput = snapshotJobSchema.safeParse(input);
+  if (!parsedInput.success) {
+    return c.json({ error: parsedInput.error.message }, 400);
+  }
+  await snapshotQueue.queue.add("snapshot", parsedInput.data);
   return c.text("ok");
 });
 
