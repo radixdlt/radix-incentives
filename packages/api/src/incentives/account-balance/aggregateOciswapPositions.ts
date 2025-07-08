@@ -130,11 +130,13 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                     baseToken: {
                       resourceAddress: xToken.resourceAddress,
                       amount: totals.totalXToken.toString(),
+                      outsidePriceBounds: totals.totalXTokenOutsidePriceBounds.toString(),
                       isXrdOrDerivative: isXTokenXrdDerivative,
                     },
                     quoteToken: {
                       resourceAddress: yToken.resourceAddress,
                       amount: totals.totalYToken.toString(),
+                      outsidePriceBounds: totals.totalYTokenOutsidePriceBounds.toString(),
                       isXrdOrDerivative: isYTokenXrdDerivative,
                     },
                   },
@@ -172,11 +174,13 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                       baseToken: {
                         resourceAddress: pool.token_x,
                         amount: "0",
+                        outsidePriceBounds: "0",
                         isXrdOrDerivative: isXTokenXrdDerivative,
                       },
                       quoteToken: {
                         resourceAddress: pool.token_y,
                         amount: "0",
+                        outsidePriceBounds: "0",
                         isXrdOrDerivative: isYTokenXrdDerivative,
                       },
                     },
