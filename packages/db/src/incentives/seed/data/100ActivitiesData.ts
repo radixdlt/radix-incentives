@@ -103,6 +103,14 @@ export const activitiesData = [
     id: "root_lend_lsulp",
     category: ActivityCategoryKey.lendingStables,
   },
+  {
+    id: "root_lend_xusdt",
+    category: ActivityCategoryKey.lendingStables,
+  },
+  {
+    id: "root_lend_xeth",
+    category: ActivityCategoryKey.lendingStables,
+  },
 
   // Weft lending activities (25 tokens)
   {
@@ -205,9 +213,25 @@ export const activitiesData = [
     id: "weft_lend_lsulp",
     category: ActivityCategoryKey.lendingStables,
   },
+  {
+    id: "weft_lend_xusdt",
+    category: ActivityCategoryKey.lendingStables,
+  },
+  {
+    id: "weft_lend_xwbtc",
+    category: ActivityCategoryKey.lendingStables,
+  },
+  {
+    id: "weft_lend_xeth",
+    category: ActivityCategoryKey.lendingStables,
+  },
 
   // === DEX LIQUIDITY ACTIVITIES (25 total) ===
   // C9 DEX LP activities
+  {
+    id: "c9_lp_xwbtc-xrd",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
   {
     id: "c9_lp_xrd-xusdc",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
@@ -243,6 +267,22 @@ export const activitiesData = [
   {
     id: "c9_lp_lsulp-xrd",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "c9_lp_xrd-xusdt",
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "c9_lp_xrd-xeth",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "c9_lp_xeth-xrd",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "c9_lp_hyperstake",
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
 
   // DefiPlaza LP activities
@@ -281,6 +321,22 @@ export const activitiesData = [
   {
     id: "defiPlaza_lp_lsulp-xrd",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xrd-xusdt",
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xrd-xeth",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xrd-xwbtc",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+  },
+  {
+    id: "defiPlaza_lp_xeth-xrd",
+    category: ActivityCategoryKey.provideBlueChipLiquidityToDex,
   },
 
   // OCI LP activities
@@ -414,6 +470,42 @@ export const activitiesData = [
     id: "oci_hold_dfp2-xrd",
     category: ActivityCategoryKey.maintainXrdBalance,
   },
+  {
+    id: "c9_hold_xrd-xeth",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xrd-xeth",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_xrd-xwbtc",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_xrd-xusdt",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_xeth-xrd",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xrd-xusdt",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xrd-xwbtc",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "defiPlaza_hold_xeth-xrd",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: "c9_hold_hyperstake",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
 
   // === NETWORK AND UTILITY ACTIVITIES (5 total) ===
   {
@@ -437,5 +529,9 @@ export const activitiesData = [
   {
     id: "oci_trade_xrd-xusdc",
     category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: "root_lend_xwbtc",
+    category: ActivityCategoryKey.lendingStables,
   },
 ] as const;

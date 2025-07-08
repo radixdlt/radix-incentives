@@ -16,7 +16,7 @@ export type AccountData = {
 const generateAccountsC9xUsdcHolders = (): AccountData[] => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const csvPath = path.join(__dirname, "weftv2xUsdcHolders.csv");
+  const csvPath = path.join(__dirname, "c9xUsdcHolders.csv");
   const csvContent = fs.readFileSync(csvPath, 'utf-8');
   
   // Split by lines and filter out empty lines
@@ -32,7 +32,7 @@ const generateAccountsC9xUsdcHolders = (): AccountData[] => {
     return {
       user_id: userId,
       address: address,
-      label: "Weft v2 xUSDC Holder",
+      label: "C9 xUSDC Holder",
       created_at: createdAt,
     };
   });

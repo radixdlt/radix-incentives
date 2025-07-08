@@ -37,3 +37,6 @@ yarn-error.log*
 # Misc
 .DS_Store
 *.pem
+
+# SQL Utils
+packages/db/src/incentives/seed/data/test-data/
