@@ -44,7 +44,12 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
           activities: Object.entries(groupedByActivity).map(
             ([activityId, points]) => ({
               activityId,
-              points: points[0].activityPoints,
+              points: points
+                .reduce(
+                  (sum, point) => sum.plus(point.activityPoints),
+                  new BigNumber(0)
+                )
+                .toNumber(),
             })
           ),
         };
