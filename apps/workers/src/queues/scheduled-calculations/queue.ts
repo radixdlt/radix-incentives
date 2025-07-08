@@ -12,6 +12,6 @@ export const scheduledCalculationsQueue = createQueue({
   },
 });
 
-scheduledCalculationsQueue.queue.upsertJobScheduler("once_every_day", {
-  pattern: "30 0 * * *",
+scheduledCalculationsQueue.queue.upsertJobScheduler("every_two_hours", {
+  pattern: "0 */2 * * *",
 });
