@@ -8,6 +8,7 @@ import {
 } from "db/incentives";
 import { eq, sql, and } from "drizzle-orm";
 import { groupBy } from "effect/Array";
+import BigNumber from "bignumber.js";
 
 export class UserService extends Effect.Service<UserService>()("UserService", {
   effect: Effect.gen(function* () {
