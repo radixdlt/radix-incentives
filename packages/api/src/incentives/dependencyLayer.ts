@@ -105,7 +105,6 @@ import {
   SnapshotWorkerService,
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
-import { UserService } from "./user/user";
 import { WeekService } from "./week/week";
 const appConfig = createConfig();
 
@@ -662,21 +661,6 @@ const calculateSPMultiplier = (input: {
   return Effect.runPromiseExit(program);
 };
 
-const userLive = UserService.Default.pipe(Layer.provide(dbClientLive));
-
-const getUserStats = (input: { userId: string }) => {
-  const program = Effect.provide(
-    Effect.gen(function* () {
-      const userService = yield* UserService;
-
-      return yield* userService.getUserStats(input);
-    }),
-    userLive
-  ).pipe(Effect.provide(NodeSdkLive));
-
-  return Effect.runPromiseExit(program);
-};
-
 const getActiveWeek = () => {
   const program = Effect.provide(
     Effect.gen(function* () {
@@ -698,6 +682,5 @@ export const dependencyLayer = {
   calculateSeasonPoints,
   calculateSPMultiplier,
   eventWorkerHandler,
-  getUserStats,
   getActiveWeek,
 };

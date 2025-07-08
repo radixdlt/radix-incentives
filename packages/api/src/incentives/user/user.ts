@@ -5,12 +5,9 @@ import {
   accounts,
   userSeasonPoints,
   seasonPointsMultiplier,
-  weeks,
-  seasons,
 } from "db/incentives";
-import { eq, desc } from "drizzle-orm";
+import { eq, sql, and } from "drizzle-orm";
 import { groupBy } from "effect/Array";
-import BigNumber from "bignumber.js";
 
 export class UserService extends Effect.Service<UserService>()("UserService", {
   effect: Effect.gen(function* () {
@@ -18,6 +15,7 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
 
     const getActivityPointsByUserId = Effect.fn(function* (input: {
       userId: string;
+      weekId: string;
     }) {
       const result = yield* Effect.tryPromise({
         try: () =>
@@ -53,72 +51,78 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
       });
     });
 
-    const getCurrentSeasonPointsByUserId = Effect.fn(function* (input: {
+    const getMultiplierByUserId = Effect.fn(function* (input: {
       userId: string;
+      weekId: string;
     }) {
+      const result = yield* Effect.tryPromise({
+        try: () =>
+          db.query.seasonPointsMultiplier.findFirst({
+            where: and(
+              eq(seasonPointsMultiplier.userId, input.userId),
+              eq(seasonPointsMultiplier.weekId, input.weekId)
+            ),
+            columns: {
+              multiplier: true,
+            },
+          }),
+        catch: (error) => new DbError(error),
+      });
+
+      return {
+        value: result?.multiplier ?? "0",
+      };
+    });
+
+    const getSeasonPointsRankingByUserId = Effect.fn(function* (input: {
+      userId: string;
+      weekId: string;
+    }) {
+      const userSeasonPointsSQL = sql<number>`(
+        SELECT SUM(${userSeasonPoints.points})
+        FROM ${userSeasonPoints}
+        WHERE ${userSeasonPoints.userId} = ${input.userId}
+      )`;
+
       const result = yield* Effect.tryPromise({
         try: () =>
           db
             .select({
-              seasonId: userSeasonPoints.seasonId,
-              points: userSeasonPoints.points,
+              points: userSeasonPointsSQL,
+              rank: sql<number>`(
+                SELECT COUNT(*) + 1 
+                FROM ${userSeasonPoints} up2 
+                WHERE up2.week_id = ${input.weekId} 
+                AND up2.points > ${userSeasonPointsSQL}
+              )`,
             })
             .from(userSeasonPoints)
-            .where(eq(userSeasonPoints.userId, input.userId))
-            .innerJoin(seasons, eq(userSeasonPoints.seasonId, seasons.id))
-            .orderBy(desc(seasons.endDate))
-            .limit(1)
             .then((result) => result[0]),
         catch: (error) => new DbError(error),
       });
 
-      return result?.points ?? 0;
-    });
-
-    const getMultiplierByUserId = Effect.fn(function* (input: {
-      userId: string;
-    }) {
-      const result = yield* Effect.tryPromise({
-        try: () =>
-          db
-            .select({
-              multiplier: seasonPointsMultiplier.multiplier,
-              userId: seasonPointsMultiplier.userId,
-            })
-            .from(seasonPointsMultiplier)
-            .where(eq(seasonPointsMultiplier.userId, input.userId))
-            .innerJoin(weeks, eq(seasonPointsMultiplier.weekId, weeks.id))
-            .orderBy(desc(weeks.endDate))
-            .then((result) =>
-              result.map((r) => ({
-                ...r,
-                multiplier: new BigNumber(r.multiplier),
-              }))
-            ),
-        catch: (error) => new DbError(error),
-      });
-
-      const sortedByMultiplier = result.sort((a, b) =>
-        b.multiplier.minus(a.multiplier).toNumber()
-      );
-
-      const userRank = sortedByMultiplier.findIndex(
-        (r) => r.userId === input.userId
-      );
-
-      const isTop5Percentile = userRank < Math.floor(result.length * 0.05);
+      if (!result || result?.points === null) {
+        return {
+          rank: "n/a",
+          points: "0",
+        };
+      }
 
       return {
-        weeklyRanking: userRank + 1,
-        isTop5Percentile,
-        value: sortedByMultiplier[userRank]?.multiplier.toString() ?? "0",
+        rank: result.rank,
+        points: result.points.toString(),
       };
     });
+
     return {
-      getUserStats: Effect.fn(function* (input: { userId: string }) {
+      getUserStats: Effect.fn(function* (input: {
+        userId: string;
+        weekId: string;
+        seasonId: string;
+      }) {
         const activityPoints = yield* getActivityPointsByUserId(input);
         const currentSeasonPoints =
-          yield* getCurrentSeasonPointsByUserId(input);
+          yield* getSeasonPointsRankingByUserId(input);
         const multiplier = yield* getMultiplierByUserId(input);
 
         return {
