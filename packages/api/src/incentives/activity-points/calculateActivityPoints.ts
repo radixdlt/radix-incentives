@@ -34,7 +34,7 @@ export class CalculateActivityPointsService extends Context.Tag(
   (
     input: CalculateActivityPointsInput
   ) => Effect.Effect<void, CalculateActivityPointsError>
->() {}
+>() { }
 
 export const CalculateActivityPointsLive = Layer.effect(
   CalculateActivityPointsService,
@@ -52,15 +52,24 @@ export const CalculateActivityPointsLive = Layer.effect(
         const week = yield* getWeekById({ id: input.weekId });
 
         const currentDate = new Date();
-        const endDate = input.useWeekEndDate || (currentDate >= week.startDate && currentDate <= week.endDate)
-          ? week.endDate
-          : currentDate;
+        let endDate: Date;
+        // If useWeekEndDate is true, use the week end date
+        // If the current date is before the week start date or after the week end date, use the week end date
+        // Otherwise, use the current date
+        if (input.useWeekEndDate) {
+          endDate = week.endDate;
+        } else if (currentDate <= week.startDate || currentDate >= week.endDate) {
+          endDate = week.endDate;
+        } else {
+          endDate = currentDate;
+        }
+
         // Use SQL-based calculation instead of loading data into memory
         const weekAccountBalances = yield* calculateTWASQL({
           weekId: input.weekId,
           addresses: input.addresses,
           startDate: week.startDate,
-          endDate: endDate, 
+          endDate: endDate,
           calculationType: "USDValueDurationMultiplied",
           filterType: "exclude_hold",
           filterZeroValues: true,
