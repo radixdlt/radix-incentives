@@ -12,6 +12,7 @@
     "dev": "next dev --turbo --port 3000",
     "preview": "next build && next start",
     "start": "next start",
+    "test": "vitest",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -55,7 +56,8 @@
     "drizzle-kit": "^0.30.5",
     "postcss": "^8.5.3",
     "tailwindcss": "^4.0.15",
-    "typescript": "^5.8.2"
+    "typescript": "^5.8.2",
+    "vitest": "catalog:"
   },
   "ct3aMetadata": {
     "initVersion": "7.39.3"
