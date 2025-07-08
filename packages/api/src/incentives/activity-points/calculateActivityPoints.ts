@@ -15,6 +15,7 @@ import { GetTradingVolumeService } from "../trading-volume/getTradingVolume";
 export const calculateActivityPointsInputSchema = z.object({
   weekId: z.string(),
   addresses: z.array(z.string()),
+  useWeekEndDate: z.boolean().optional(),
 });
 
 export type CalculateActivityPointsInput = z.infer<
@@ -50,12 +51,13 @@ export const CalculateActivityPointsLive = Layer.effect(
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
 
+        const endDate = input.useWeekEndDate ? week.endDate : new Date();
         // Use SQL-based calculation instead of loading data into memory
         const weekAccountBalances = yield* calculateTWASQL({
           weekId: input.weekId,
           addresses: input.addresses,
           startDate: week.startDate,
-          endDate: week.endDate,
+          endDate: endDate, 
           calculationType: "USDValueDurationMultiplied",
           filterType: "exclude_hold",
           filterZeroValues: true,

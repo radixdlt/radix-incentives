@@ -13,6 +13,7 @@ import { AccountAddressService } from "../account/accountAddressService";
 export const calculateActivityPointsJobSchema = z.object({
   weekId: z.string(),
   addresses: z.array(z.string()).optional(),
+  useWeekEndDate: z.boolean().optional().default(false)
 });
 
 export type CalculateActivityPointsJob = z.infer<
@@ -68,6 +69,7 @@ export const CalculateActivityPointsWorkerLive = Layer.effect(
               calculateActivityPointsService({
                 weekId: parsedInput.data.weekId,
                 addresses: chunk,
+                useWeekEndDate: parsedInput.data.useWeekEndDate,
               })
           );
         }
