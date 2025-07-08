@@ -51,7 +51,10 @@ export const CalculateActivityPointsLive = Layer.effect(
       return Effect.gen(function* () {
         const week = yield* getWeekById({ id: input.weekId });
 
-        const endDate = input.useWeekEndDate ? week.endDate : new Date();
+        const currentDate = new Date();
+        const endDate = input.useWeekEndDate || (currentDate >= week.startDate && currentDate <= week.endDate)
+          ? week.endDate
+          : currentDate;
         // Use SQL-based calculation instead of loading data into memory
         const weekAccountBalances = yield* calculateTWASQL({
           weekId: input.weekId,
