@@ -79,12 +79,18 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               acc.totalXToken = acc.totalXToken.plus(
                 item.xToken.withinPriceBounds
               );
+              acc.totalXTokenOutsidePriceBounds = acc.totalXTokenOutsidePriceBounds.plus(
+                item.xToken.outsidePriceBounds
+              );
               acc.totalYToken = acc.totalYToken.plus(
                 item.yToken.withinPriceBounds
+              );  
+              acc.totalYTokenOutsidePriceBounds = acc.totalYTokenOutsidePriceBounds.plus(
+                item.yToken.outsidePriceBounds
               );
               return acc;
             },
-            { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0) }
+            { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0), totalXTokenOutsidePriceBounds: new BigNumber(0), totalYTokenOutsidePriceBounds: new BigNumber(0)   }
           );
 
           // Calculate USD value of all non-XRD derivative tokens
@@ -128,11 +134,13 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               baseToken: {
                 resourceAddress: xToken.resourceAddress,
                 amount: totals.totalXToken.toString(),
+                outsidePriceBounds: totals.totalXTokenOutsidePriceBounds.toString(),
                 isXrdOrDerivative: isXTokenXrdDerivative,
               },
               quoteToken: {
                 resourceAddress: yToken.resourceAddress,
                 amount: totals.totalYToken.toString(),
+                outsidePriceBounds: totals.totalYTokenOutsidePriceBounds.toString(),
                 isXrdOrDerivative: isYTokenXrdDerivative,
               },
             },
