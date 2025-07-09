@@ -15,6 +15,12 @@ secrets:
     aws_secret_name: "rdx-works-main-dev/eks/incentives/preview/postgres"
     aws_secret_key: "database-url"
     secret_key: "database-url"
+  
+  - external_secret_name: admin-postgres-read-url
+    env_variable: "DATABASE_READ_URL"
+    aws_secret_name: "rdx-works-main-dev/eks/incentives/preview/postgres"
+    aws_secret_key: "database-read-url"
+    secret_key: "database-read-url"
 
   - external_secret_name: admin-jwt-secret
     env_variable: "JWT_SECRET"
