@@ -12,6 +12,7 @@ import {
   AggregateDefiPlazaPositionsService,
   type InvalidDefiPlazaPositionError,
 } from "./aggregateDefiPlazaPositions";
+import { AggregateSurgePositionsService } from "./aggregateSurgePositions";
 import type { UnknownTokenError } from "../../common/token-name/getTokenName";
 import type { AccountBalance } from "db/incentives";
 
@@ -50,6 +51,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
       yield* AggregateRootFinancePositionsService;
     const aggregateDefiPlazaPositionsService =
       yield* AggregateDefiPlazaPositionsService;
+    const aggregateSurgePositionsService = yield* AggregateSurgePositionsService;
 
     return (input) =>
       Effect.gen(function* () {
@@ -85,6 +87,10 @@ export const AggregateAccountBalanceLive = Layer.effect(
                   accountBalance,
                   timestamp: input.timestamp,
                 });
+              const surgePositions = yield* aggregateSurgePositionsService.aggregateSurgePositions({
+                accountBalance,
+                timestamp: input.timestamp,
+              });
 
               return {
                 timestamp: input.timestamp,
@@ -96,6 +102,7 @@ export const AggregateAccountBalanceLive = Layer.effect(
                   ...weftFinancePositions,
                   ...rootFinancePositions,
                   ...defiPlazaPositions,
+                  ...surgePositions,
                 ],
               };
             });

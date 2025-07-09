@@ -77,6 +77,12 @@ import {
   GetHyperstakePositionsService,
   type GetHyperstakePositionsError,
 } from "../../common/dapps/caviarnine/getHyperstakePositions";
+import {
+  type GetSurgeLiquidityPositionsOutput,
+  GetSurgeLiquidityPositionsService,
+  type FailedToParseMarginPoolSchemaError,
+  type SlpNotFoundError,
+} from "../../common/dapps/surge/getSurgeLiquidityPositions";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
@@ -135,6 +141,8 @@ type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
 
 type HyperstakePosition = GetHyperstakePositionsOutput[number];
 
+type SurgePosition = GetSurgeLiquidityPositionsOutput[number];
+
 export type AccountBalance = {
   address: string;
   staked: Lsu[];
@@ -148,6 +156,7 @@ export type AccountBalance = {
   ociswapPositions: OciswapPosition;
   defiPlazaPositions: DefiPlazaPosition;
   hyperstakePositions: HyperstakePosition;
+  surgePositions: SurgePosition;
   convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
 };
 
@@ -179,7 +188,9 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | FailedToParseOciswapComponentStateError
   | FailedToParseOciswapLiquidityPositionError
   | GetDefiPlazaPositionsError
-  | GetHyperstakePositionsError;
+  | GetHyperstakePositionsError
+  | FailedToParseMarginPoolSchemaError
+  | SlpNotFoundError;
 
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
@@ -219,6 +230,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
       yield* GetOciswapLiquidityAssetsService;
     const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
     const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
+    const getSurgeLiquidityPositionsService = yield* GetSurgeLiquidityPositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -278,7 +290,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         const allOciswapPools = Object.values(OciswapConstants.pools);
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, lsulp value"
         );
         const [
           userStakingPositions,
@@ -289,6 +301,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allOciswapLiquidityAssets,
           allDefiPlazaPositions,
           allHyperstakePositions,
+          allSurgeLiquidityPositions,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -370,6 +383,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getHyperstakePositionsService")),
+            getSurgeLiquidityPositionsService.getSurgeLiquidityPositions({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan("getSurgeLiquidityPositionsService")),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -456,6 +474,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allHyperstakePositions.map((item) => [item.address, item])
         );
 
+        const surgeLiquidityPositionsMap = new Map(
+          allSurgeLiquidityPositions.map((item) => [item.address, item])
+        );
+
         // Create lookup maps for CaviarNine shape liquidity assets for O(1) access
         const caviarNineShapeLiquidityPositions = new Map(
           allCaviarNineShapeLiquidityAssets.map((poolData) => {
@@ -535,6 +557,15 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   items: [],
                 };
 
+              const accountSurgePositions: SurgePosition =
+                surgeLiquidityPositionsMap.get(address) ?? {
+                  address,
+                  liquidityPosition: {
+                    resourceAddress: Assets.Fungible.xUSDC,
+                    amount: new BigNumber(0),
+                  },
+                };
+
               const caviarninePositions: CaviarNinePosition = {};
 
               for (const [
@@ -568,6 +599,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 ociswapPositions,
                 defiPlazaPositions: accountDefiPlazaPositions,
                 hyperstakePositions: accountHyperstakePositions,
+                surgePositions: accountSurgePositions,
                 convertLsuToXrdMap,
               } satisfies AccountBalance;
             })

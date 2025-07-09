@@ -9,7 +9,7 @@ const getPair = (token1: Token, token2: Token) => {
 };
 
 export const activitiesData = [
-  // DEX activities
+  // DEX activities stables
   {
     id: `c9_lp_${getPair("xrd", "xusdc")}`,
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
@@ -33,6 +33,10 @@ export const activitiesData = [
   },
   {
     id: `oci_lp_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.provideStablesLiquidityToDex,
+  },
+  {
+    id: "surge_lp_xusdc",
     category: ActivityCategoryKey.provideStablesLiquidityToDex,
   },
 
