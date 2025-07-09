@@ -47,8 +47,113 @@ export function Podium({
   return (
     <div className="space-y-6">
       {/* Podium */}
-      <div className="relative">
-        <div className="flex items-end justify-center gap-4 h-48">
+      <div className="relative mt-4">
+        {/* Mobile Layout: Platform on top, cards below */}
+        <div className="sm:hidden">
+          <div className="flex items-end justify-center gap-2 h-32 mb-4">
+            {/* Second Place Platform */}
+            {topThree[1] && (
+              <div className="w-12 h-16 bg-gradient-to-t from-gray-300 to-gray-200 rounded-t-lg flex items-end justify-center pb-1">
+                <span className="text-sm font-bold text-gray-700">#2</span>
+              </div>
+            )}
+
+            {/* First Place Platform - Taller */}
+            {topThree[0] && (
+              <div className="w-16 h-24 bg-gradient-to-t from-yellow-400 to-yellow-300 rounded-t-lg flex items-end justify-center pb-1">
+                <span className="text-base font-bold text-yellow-800">#1</span>
+              </div>
+            )}
+
+            {/* Third Place Platform */}
+            {topThree[2] && (
+              <div className="w-12 h-12 bg-gradient-to-t from-orange-400 to-orange-300 rounded-t-lg flex items-end justify-center pb-1">
+                <span className="text-sm font-bold text-orange-800">#3</span>
+              </div>
+            )}
+          </div>
+
+          {/* Mobile User Cards */}
+          <div className="flex justify-center gap-2">
+            {/* Second Place Card */}
+            {topThree[1] && (
+              <div
+                className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
+                  isCurrentUser(topThree[1])
+                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    : "bg-card border-border"
+                }`}
+              >
+                <div className="text-lg mb-1">🥈</div>
+                <div className="font-medium text-xs">
+                  {topThree[1].label ||
+                    truncateAddress(topThree[1].identityAddress)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {formatPoints(topThree[1].totalPoints)} {pointsLabel}
+                </div>
+                {isCurrentUser(topThree[1]) && (
+                  <div className="text-xs font-medium text-primary mt-1">
+                    You!
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* First Place Card */}
+            {topThree[0] && (
+              <div
+                className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
+                  isCurrentUser(topThree[0])
+                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    : "bg-card border-border"
+                }`}
+              >
+                <div className="text-xl mb-1">🏆</div>
+                <div className="font-bold text-xs">
+                  {topThree[0].label ||
+                    truncateAddress(topThree[0].identityAddress)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {formatPoints(topThree[0].totalPoints)} {pointsLabel}
+                </div>
+                {isCurrentUser(topThree[0]) && (
+                  <div className="text-xs font-medium text-primary mt-1">
+                    You!
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Third Place Card */}
+            {topThree[2] && (
+              <div
+                className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
+                  isCurrentUser(topThree[2])
+                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    : "bg-card border-border"
+                }`}
+              >
+                <div className="text-lg mb-1">🥉</div>
+                <div className="font-medium text-xs">
+                  {topThree[2].label ||
+                    truncateAddress(topThree[2].identityAddress)}
+                </div>
+                <div className="text-xs text-muted-foreground">
+                  {formatPoints(topThree[2].totalPoints)} {pointsLabel}
+                </div>
+                {isCurrentUser(topThree[2]) && (
+                  <div className="text-xs font-medium text-primary mt-1">
+                    You!
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Desktop Layout: Original design */}
+        <div className="hidden sm:flex items-end justify-center gap-4 h-48">
           {/* Second Place */}
           {topThree[1] && (
             <div className="flex flex-col items-center">

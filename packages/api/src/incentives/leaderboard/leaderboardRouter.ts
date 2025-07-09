@@ -1,19 +1,47 @@
 import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
 
+// Helper function to get user ID from session token
+const getUserId = async (ctx: {
+  sessionToken: string | null;
+  dependencyLayer: {
+    validateSessionToken: (token: string) => Promise<Exit.Exit<{ user: { id: string } }, unknown>>;
+  };
+}): Promise<string | undefined> => {
+  if (!ctx.sessionToken) {
+    return undefined;
+  }
+
+  try {
+    const result = await ctx.dependencyLayer.validateSessionToken(ctx.sessionToken);
+    
+    if (Exit.isSuccess(result)) {
+      const validatedSession = result.value as { user: { id: string } };
+      return validatedSession.user.id;
+    }
+  } catch (error) {
+    // Silently ignore session validation errors for public procedures
+    console.log("Session validation failed for public procedure:", error);
+  }
+  
+  return undefined;
+};
+
 export const leaderboardRouter = createTRPCRouter({
-  getSeasonLeaderboard: protectedProcedure
+  getSeasonLeaderboard: publicProcedure
     .input(
       z.object({
         seasonId: z.string().uuid(),
       })
     )
     .query(async ({ ctx, input }) => {
+      const userId = await getUserId(ctx);
+      
       const result = await ctx.dependencyLayer.getSeasonLeaderboard({
         seasonId: input.seasonId,
-        userId: ctx.session.user.id,
+        userId,
       });
 
       return Exit.match(result, {
@@ -25,7 +53,7 @@ export const leaderboardRouter = createTRPCRouter({
       });
     }),
 
-  getActivityLeaderboard: protectedProcedure
+  getActivityLeaderboard: publicProcedure
     .input(
       z.object({
         activityId: z.string(),
@@ -33,10 +61,12 @@ export const leaderboardRouter = createTRPCRouter({
       })
     )
     .query(async ({ ctx, input }) => {
+      const userId = await getUserId(ctx);
+      
       const result = await ctx.dependencyLayer.getActivityLeaderboard({
         activityId: input.activityId,
         weekId: input.weekId,
-        userId: ctx.session.user.id,
+        userId,
       });
 
       return Exit.match(result, {

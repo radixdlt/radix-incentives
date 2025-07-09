@@ -65,8 +65,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
-import { SeasonLeaderboardService } from "../leaderboard/seasonLeaderboard";
-import { ActivityLeaderboardService } from "../leaderboard/activityLeaderboard";
+import { LeaderboardService } from "../leaderboard/leaderboard";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -357,11 +356,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getLatestAccountBalancesServiceLive =
     AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
 
-  const seasonLeaderboardLive = SeasonLeaderboardService.Default.pipe(
-    Layer.provide(dbClientLive)
-  );
-
-  const activityLeaderboardLive = ActivityLeaderboardService.Default.pipe(
+  const leaderboardLive = LeaderboardService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
@@ -395,10 +390,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const seasonLeaderboardService = yield* SeasonLeaderboardService;
-        return yield* seasonLeaderboardService.getSeasonLeaderboard(input);
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getSeasonLeaderboard(input);
       }),
-      seasonLeaderboardLive
+      leaderboardLive
     );
 
     return Effect.runPromiseExit(program);
@@ -411,10 +406,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const activityLeaderboardService = yield* ActivityLeaderboardService;
-        return yield* activityLeaderboardService.getActivityLeaderboard(input);
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getActivityLeaderboard(input);
       }),
-      activityLeaderboardLive
+      leaderboardLive
     );
 
     return Effect.runPromiseExit(program);
@@ -423,10 +418,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getAvailableSeasons = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const seasonLeaderboardService = yield* SeasonLeaderboardService;
-        return yield* seasonLeaderboardService.getAvailableSeasons();
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableSeasons();
       }),
-      seasonLeaderboardLive
+      leaderboardLive
     );
 
     return Effect.runPromiseExit(program);
@@ -435,10 +430,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getAvailableWeeks = (input: { seasonId?: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const activityLeaderboardService = yield* ActivityLeaderboardService;
-        return yield* activityLeaderboardService.getAvailableWeeks(input);
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableWeeks(input);
       }),
-      activityLeaderboardLive
+      leaderboardLive
     );
 
     return Effect.runPromiseExit(program);
@@ -447,10 +442,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getAvailableActivities = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
-        const activityLeaderboardService = yield* ActivityLeaderboardService;
-        return yield* activityLeaderboardService.getAvailableActivities();
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableActivities();
       }),
-      activityLeaderboardLive
+      leaderboardLive
     );
 
     return Effect.runPromiseExit(program);
