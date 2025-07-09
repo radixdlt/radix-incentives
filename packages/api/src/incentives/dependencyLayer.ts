@@ -603,6 +603,7 @@ const deriveAccountFromEvent = (input: DeriveAccountFromEventInput) => {
 
 const calculateActivityPoints = (input: {
   weekId: string;
+  useWeekEndDate: boolean;
   addresses?: string[];
 }) => {
   const program = Effect.provide(
@@ -612,6 +613,7 @@ const calculateActivityPoints = (input: {
 
       return yield* calculateActivityPointsWorkerService({
         weekId: input.weekId,
+        useWeekEndDate: input.useWeekEndDate,
         addresses: input.addresses,
       });
     }),
