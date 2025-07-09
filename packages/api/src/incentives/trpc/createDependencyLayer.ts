@@ -65,6 +65,7 @@ import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
+import { LeaderboardService } from "../leaderboard/leaderboard";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -355,6 +356,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getLatestAccountBalancesServiceLive =
     AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
 
+  const leaderboardLive = LeaderboardService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
   const getLatestAccountBalances = ({ userId }: { userId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -379,6 +384,73 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getSeasonLeaderboard = (input: {
+    seasonId: string;
+    userId?: string;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getSeasonLeaderboard(input);
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getActivityLeaderboard = (input: {
+    activityId: string;
+    weekId: string;
+    userId?: string;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getActivityLeaderboard(input);
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getAvailableSeasons = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableSeasons();
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getAvailableWeeks = (input: { seasonId?: string }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableWeeks(input);
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getAvailableActivities = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableActivities();
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -395,5 +467,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateWeekStatus,
     getUserStats,
     getLatestAccountBalances,
+    getSeasonLeaderboard,
+    getActivityLeaderboard,
+    getAvailableSeasons,
+    getAvailableWeeks,
+    getAvailableActivities,
   };
 };

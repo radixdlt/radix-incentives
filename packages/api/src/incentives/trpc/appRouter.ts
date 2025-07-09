@@ -4,6 +4,7 @@ import { accountRouter } from "../account/accountRouter";
 import { activityRouter } from "../activity/activityRouter";
 import { seasonRouter } from "../season/seasonRouter";
 import { userRouter } from "../user/userRouter";
+import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 
 /**
  * This is the primary router for your server.
@@ -14,6 +15,7 @@ export const appRouter = createTRPCRouter({
   auth: authRouter,
   account: accountRouter,
   user: userRouter,
+  leaderboard: leaderboardRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
@@ -22,6 +24,7 @@ export const adminAppRouter = createTRPCRouter({
   activity: activityRouter,
   season: seasonRouter,
   user: userRouter,
+  leaderboard: leaderboardRouter,
 });
 
 // export type definition of API
