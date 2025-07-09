@@ -1,7 +1,10 @@
 import { createCallerFactory, createTRPCRouter } from ".";
 import { authRouter } from "../auth/authRouter";
 import { accountRouter } from "../account/accountRouter";
-import { activityRouter } from "../activity/activityRouter";
+import {
+  activityRouter,
+  adminActivityRouter,
+} from "../activity/activityRouter";
 import { seasonRouter } from "../season/seasonRouter";
 import { userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
@@ -16,12 +19,13 @@ export const appRouter = createTRPCRouter({
   account: accountRouter,
   user: userRouter,
   leaderboard: leaderboardRouter,
+  activity: activityRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
   auth: authRouter,
   account: accountRouter,
-  activity: activityRouter,
+  activity: adminActivityRouter,
   season: seasonRouter,
   user: userRouter,
   leaderboard: leaderboardRouter,
