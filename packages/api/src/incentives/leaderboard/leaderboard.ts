@@ -24,7 +24,6 @@ const MANUALLY_EXCLUDED_ACTIVITIES = [
 export interface ActivityLeaderboardData {
   topUsers: Array<{
     userId: string;
-    identityAddress: string;
     label: string | null;
     totalPoints: string;
     rank: number;
@@ -59,7 +58,6 @@ export interface ActivityLeaderboardData {
 export interface SeasonLeaderboardData {
   topUsers: Array<{
     userId: string;
-    identityAddress: string;
     label: string | null;
     totalPoints: string;
     rank: number;
@@ -137,7 +135,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           return db
             .select({
               userId: accounts.userId,
-              identityAddress: users.identityAddress,
               label: users.label,
               totalPoints: sum(accountActivityPoints.activityPoints).as(
                 "totalPoints"
@@ -155,7 +152,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                 eq(accountActivityPoints.weekId, input.weekId)
               )
             )
-            .groupBy(accounts.userId, users.identityAddress, users.label)
+            .groupBy(accounts.userId, users.label)
             .orderBy(desc(sum(accountActivityPoints.activityPoints)));
         };
 
@@ -196,7 +193,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Get top 5 users
         const topUsers = userTotals.slice(0, 5).map((user, index) => ({
           userId: user.userId,
-          identityAddress: user.identityAddress,
           label: user.label,
           totalPoints: user.totalPoints?.toString() || "0",
           rank: index + 1,
@@ -293,7 +289,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           db
             .select({
               userId: userSeasonPoints.userId,
-              identityAddress: users.identityAddress,
               label: users.label,
               totalPoints: sum(userSeasonPoints.points).as("totalPoints"),
             })
@@ -302,7 +297,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .where(eq(userSeasonPoints.seasonId, input.seasonId))
             .groupBy(
               userSeasonPoints.userId,
-              users.identityAddress,
               users.label
             )
             .orderBy(desc(sum(userSeasonPoints.points)))
@@ -342,7 +336,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Get top 5 users
         const topUsers = userTotals.slice(0, 5).map((user, index) => ({
           userId: user.userId,
-          identityAddress: user.identityAddress,
           label: user.label,
           totalPoints: user.totalPoints || "0",
           rank: index + 1,

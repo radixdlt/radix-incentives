@@ -1,6 +1,5 @@
 interface PodiumUser {
   userId: string;
-  identityAddress: string;
   label: string | null;
   totalPoints: string;
   rank: number;
@@ -30,8 +29,8 @@ export function Podium({
     return num.toLocaleString();
   };
 
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 10)}...${address.slice(-6)}`;
+  const getDisplayName = (user: PodiumUser) => {
+    return user.label || "Anonymous User";
   };
 
   const isCurrentUser = (user: PodiumUser) => {
@@ -86,8 +85,7 @@ export function Podium({
               >
                 <div className="text-lg mb-1">🥈</div>
                 <div className="font-medium text-xs">
-                  {topThree[1].label ||
-                    truncateAddress(topThree[1].identityAddress)}
+                  {getDisplayName(topThree[1])}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {formatPoints(topThree[1].totalPoints)} {pointsLabel}
@@ -111,8 +109,7 @@ export function Podium({
               >
                 <div className="text-xl mb-1">🏆</div>
                 <div className="font-bold text-xs">
-                  {topThree[0].label ||
-                    truncateAddress(topThree[0].identityAddress)}
+                  {getDisplayName(topThree[0])}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {formatPoints(topThree[0].totalPoints)} {pointsLabel}
@@ -136,8 +133,7 @@ export function Podium({
               >
                 <div className="text-lg mb-1">🥉</div>
                 <div className="font-medium text-xs">
-                  {topThree[2].label ||
-                    truncateAddress(topThree[2].identityAddress)}
+                  {getDisplayName(topThree[2])}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {formatPoints(topThree[2].totalPoints)} {pointsLabel}
@@ -166,8 +162,7 @@ export function Podium({
               >
                 <div className="text-2xl mb-1">🥈</div>
                 <div className="font-medium text-sm">
-                  {topThree[1].label ||
-                    truncateAddress(topThree[1].identityAddress)}
+                  {getDisplayName(topThree[1])}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {formatPoints(topThree[1].totalPoints)} {pointsLabel}
@@ -196,8 +191,7 @@ export function Podium({
               >
                 <div className="text-3xl mb-1">🏆</div>
                 <div className="font-bold text-base">
-                  {topThree[0].label ||
-                    truncateAddress(topThree[0].identityAddress)}
+                  {getDisplayName(topThree[0])}
                 </div>
                 <div className="text-sm text-muted-foreground">
                   {formatPoints(topThree[0].totalPoints)} {pointsLabel}
@@ -226,8 +220,7 @@ export function Podium({
               >
                 <div className="text-2xl mb-1">🥉</div>
                 <div className="font-medium text-sm">
-                  {topThree[2].label ||
-                    truncateAddress(topThree[2].identityAddress)}
+                  {getDisplayName(topThree[2])}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {formatPoints(topThree[2].totalPoints)} {pointsLabel}
@@ -264,7 +257,7 @@ export function Podium({
                 </div>
                 <div>
                   <div className="font-medium">
-                    {user.label || truncateAddress(user.identityAddress)}
+                    {getDisplayName(user)}
                     {isCurrentUser(user) && (
                       <span className="text-xs font-medium text-primary ml-2">
                         (You)

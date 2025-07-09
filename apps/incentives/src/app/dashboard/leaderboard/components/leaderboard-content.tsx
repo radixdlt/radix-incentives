@@ -5,7 +5,6 @@ import { UserStats } from "./user-stats";
 
 interface User {
   userId: string;
-  identityAddress: string;
   label: string | null;
   totalPoints: string;
   rank: number;
