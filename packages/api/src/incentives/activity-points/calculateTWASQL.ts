@@ -61,8 +61,6 @@ export const CalculateTWASQLLive = Layer.effect(
                 WHERE ab.timestamp >= ${input.startDate.toISOString()}
                   AND ab.timestamp <= ${input.endDate.toISOString()}
                   AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
-                  AND ab.data IS NOT NULL
-                  AND jsonb_typeof(ab.data) = 'array'
                   AND ${input.filterType === "exclude_hold" 
                     ? sql`(activity_item->>'activityId') NOT LIKE '%hold_%'`
                     : sql`(activity_item->>'activityId') LIKE '%hold_%'`}
