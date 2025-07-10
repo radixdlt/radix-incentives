@@ -202,8 +202,7 @@ export const activityWeeks = createTable(
     weekId: uuid("week_id")
       .notNull()
       .references(() => weeks.id, { onDelete: "cascade" }),
-    pointsPool: integer("points_pool"),
-    status: activityWeekStatusEnum("status").notNull().default("inactive"),
+    multiplier: integer("multiplier").notNull().default(1),
   },
   (table) => {
     return {
@@ -222,6 +221,39 @@ export const activityWeeksRelations = relations(activityWeeks, ({ one }) => ({
   }),
   week: one(weeks, { fields: [activityWeeks.weekId], references: [weeks.id] }),
 }));
+
+export const activityCategoryWeeks = createTable(
+  "activity_category_weeks",
+  {
+    activityCategoryId: text("activity_category_id")
+      .notNull()
+      .references(() => activityCategories.id, { onDelete: "cascade" }),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+    pointsPool: integer("points_pool").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      name: "activity_category_week_pk",
+      columns: [table.weekId, table.activityCategoryId],
+    }),
+  })
+);
+
+export const activityCategoryWeeksRelations = relations(
+  activityCategoryWeeks,
+  ({ one }) => ({
+    activityCategory: one(activityCategories, {
+      fields: [activityCategoryWeeks.activityCategoryId],
+      references: [activityCategories.id],
+    }),
+    week: one(weeks, {
+      fields: [activityCategoryWeeks.weekId],
+      references: [weeks.id],
+    }),
+  })
+);
 
 // UserActivity Table
 export const events = createTable(
