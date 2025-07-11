@@ -1,5 +1,10 @@
-import { DashboardLayout } from "~/app/dashboard/components/dashboard-layout";
+import { DashboardLayout } from '~/app/dashboard/components/dashboard-layout';
+import { PreviewBlockWrapper } from '~/components/PreviewBlockWrapper';
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  return <DashboardLayout>{children}</DashboardLayout>;
+  return (
+    <PreviewBlockWrapper>
+      <DashboardLayout>{children}</DashboardLayout>
+    </PreviewBlockWrapper>
+  );
 }
