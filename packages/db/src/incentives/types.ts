@@ -65,9 +65,9 @@ const allTokens = [
 export type Asset = (typeof allTokens)[number];
 
 export type AssetPair = `${Asset}-${Asset}`;
-export type SpecialCase = "hyperstake";
+export type SpecialCase = "hyperstake" | "xusdc";
 
-export type DexDApp = "c9" | "defiPlaza" | "oci";
+export type DexDApp = "c9" | "defiPlaza" | "oci" | "surge";
 export type DexAction = "lp" | "trade";
 export type DexActivityId =
   | `${DexDApp}_${DexAction}_${AssetPair}`

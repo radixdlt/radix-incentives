@@ -89,6 +89,8 @@ import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeaso
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
 import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
+import { GetSurgeLiquidityPositionsLive } from "../common/dapps/surge/getSurgeLiquidityPositions";
+import { AggregateSurgePositionsLive } from "./account-balance/aggregateSurgePositions";
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
 import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
@@ -323,13 +325,23 @@ const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(addressValidationServiceLive)
 );
 
+const getSurgeLiquidityPositionsLive = GetSurgeLiquidityPositionsLive.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(getComponentStateServiceLive)
+);
+
+const aggregateSurgePositionsLive = AggregateSurgePositionsLive.pipe(
+  Layer.provide(getUsdValueLive)
+);
+
 const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(aggregateCaviarninePositionsLive),
   Layer.provide(aggregateOciswapPositionsLive),
   Layer.provide(xrdBalanceLive),
   Layer.provide(aggregateWeftFinancePositionsLive),
   Layer.provide(aggregateRootFinancePositionsLive),
-  Layer.provide(aggregateDefiPlazaPositionsLive)
+  Layer.provide(aggregateDefiPlazaPositionsLive),
+  Layer.provide(aggregateSurgePositionsLive)
 );
 
 const gatewayLive = Layer.mergeAll(
@@ -364,7 +376,8 @@ const dappsLive = Layer.mergeAll(
   getShapeLiquidityClaimsLive,
   getQuantaSwapBinMapLive,
   getOciswapLiquidityAssetsLive,
-  getOciswapLiquidityClaimsLive
+  getOciswapLiquidityClaimsLive,
+  getSurgeLiquidityPositionsLive
 );
 
 const accountBalanceLive = Layer.mergeAll(

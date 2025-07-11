@@ -7,6 +7,7 @@ import { DefiPlaza } from "../dapps/defiplaza/constants";
 import { WeftFinance } from "../dapps/weftFinance/constants";
 import { RootFinance } from "../dapps/rootFinance/constants";
 import { OciswapConstants } from "../dapps/ociswap/constants";
+import { SurgeConstants } from "../dapps/surge/constants";
 import { Assets } from "../assets/constants";
 import { tokenNameMap } from "./tokenNameMap";
 
@@ -61,6 +62,7 @@ export class AddressValidationService extends Context.Tag(
     isOciswapResource: (address: string) => boolean;
     isWeftFinanceResource: (address: string) => boolean;
     isRootFinanceResource: (address: string) => boolean;
+    isSurgeResource: (address: string) => boolean;
     isBaseAssetResource: (address: string) => boolean;
 
     // Trading and utility methods
@@ -157,6 +159,7 @@ const validResourceAddresses = new Set([
   ...extractPropertyValues(WeftFinance, "resourceAddress"),
   ...extractPropertyValues(RootFinance, "resourceAddress"),
   RootFinance.receiptResourceAddress,
+  ...extractPropertyValues(SurgeConstants, "resourceAddress"),
 ]);
 
 const caviarNineComponents = new Set([
@@ -214,6 +217,10 @@ const rootResources = new Set([
   RootFinance.receiptResourceAddress,
   ...extractPropertyValues(RootFinance, "resourceAddress"),
 ]);
+
+const surgeResources = new Set(
+  extractPropertyValues(SurgeConstants, "resourceAddress")
+);
 
 const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
 
@@ -391,6 +398,10 @@ export const AddressValidationServiceLive = Layer.succeed(
 
     isRootFinanceResource: (resourceAddress: string): boolean => {
       return rootResources.has(resourceAddress);
+    },
+
+    isSurgeResource: (resourceAddress: string): boolean => {
+      return surgeResources.has(resourceAddress);
     },
 
     isBaseAssetResource: (resourceAddress: string): boolean => {
