@@ -68,10 +68,7 @@ import {
   CalculateActivityPointsWorkerLive,
   CalculateActivityPointsWorkerService,
 } from "./activity-points/calculateActivityPointsWorker";
-import {
-  CalculateSeasonPointsLive,
-  CalculateSeasonPointsService,
-} from "./season-points/calculateSeasonPoints";
+import { CalculateSeasonPointsService } from "./season-points/calculateSeasonPoints";
 import { GetSeasonByIdLive } from "./season/getSeasonById";
 import { GetActivitiesByWeekIdLive } from "./activity/getActivitiesByWeekId";
 import { GetUserActivityPointsLive } from "./user/getUserActivityPoints";
@@ -108,6 +105,7 @@ import {
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
 import { WeekService } from "./week/week";
+import { ActivityCategoryWeekService } from "./activity-category-week/activityCategoryWeek";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -506,7 +504,10 @@ const getSeasonPointMultiplierLive = GetSeasonPointMultiplierLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
+const activityCategoryWeekServiceLive =
+  ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
+
+const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getSeasonByIdLive),
   Layer.provide(getWeekByIdLive),
@@ -514,7 +515,8 @@ const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
   Layer.provide(getUserActivityPointsLive),
   Layer.provide(addSeasonPointsToUserLive),
   Layer.provide(updateWeekStatusLive),
-  Layer.provide(getSeasonPointMultiplierLive)
+  Layer.provide(getSeasonPointMultiplierLive),
+  Layer.provide(activityCategoryWeekServiceLive)
 );
 
 const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
@@ -648,7 +650,7 @@ const calculateSeasonPoints = (input: {
     Effect.gen(function* () {
       const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
 
-      return yield* calculateSeasonPointsService({
+      return yield* calculateSeasonPointsService.run({
         ...input,
         endOfWeek: !!input.endOfWeek,
       });
