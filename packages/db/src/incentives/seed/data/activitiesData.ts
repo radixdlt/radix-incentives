@@ -76,6 +76,68 @@ export const activitiesData = [
     category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
 
+  // New nativeLp activities for stables
+  {
+    id: `c9_nativeLp_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_nativeLp_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("xrd", "xusdc")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `c9_nativeLp_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_nativeLp_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("xrd", "xusdt")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+
+  // New nativeLp activities for blue chips
+  {
+    id: `c9_nativeLp_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `c9_nativeLp_${getPair("xwbtc", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("xwbtc", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_nativeLp_${getPair("xrd", "xeth")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_nativeLp_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+
+  // New nativeLp activities for native assets
+  {
+    id: `c9_nativeLp_${getPair("lsulp", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: "c9_nativeLp_hyperstake",
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+
   // Lending activities
   {
     id: "root_lend_xusdc",
@@ -201,6 +263,26 @@ export const activitiesData = [
   },
   {
     id: "c9_hold_hyperstake",
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `oci_hold_${getPair("early", "xrd")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `oci_hold_${getPair("ilis", "xrd")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `oci_hold_${getPair("oci", "xrd")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `defiPlaza_hold_${getPair("dfp2", "astrl")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `defiPlaza_hold_${getPair("dfp2", "xrd")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
 

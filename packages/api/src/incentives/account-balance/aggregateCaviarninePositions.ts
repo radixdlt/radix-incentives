@@ -56,91 +56,128 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
 
           const { xToken, yToken } = firstAsset;
 
-          // Determine which tokens are XRD derivatives (XRD or LSULP)
-          const isXTokenXrdDerivative =
-            xToken.resourceAddress === Assets.Fungible.XRD ||
-            xToken.resourceAddress ===
-              CaviarNineConstants.LSULP.resourceAddress;
-          const isYTokenXrdDerivative =
-            yToken.resourceAddress === Assets.Fungible.XRD ||
-            yToken.resourceAddress ===
-              CaviarNineConstants.LSULP.resourceAddress;
+          // Get token info including XRD derivative status
+          const xTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              xToken.resourceAddress
+            );
+          const yTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              yToken.resourceAddress
+            );
 
-          // Get token names for the pair
-          const xTokenName = yield* addressValidationService.getTokenName(
-            xToken.resourceAddress
-          );
-          const yTokenName = yield* addressValidationService.getTokenName(
-            yToken.resourceAddress
-          );
+          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
+          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+          const xTokenName = xTokenInfo.name;
+          const yTokenName = yTokenInfo.name;
 
           const totals = poolAssets.reduce(
             (acc, item) => {
               acc.totalXToken = acc.totalXToken.plus(
                 item.xToken.withinPriceBounds
               );
-              acc.totalXTokenOutsidePriceBounds = acc.totalXTokenOutsidePriceBounds.plus(
-                item.xToken.outsidePriceBounds
-              );
+              acc.totalXTokenOutsidePriceBounds =
+                acc.totalXTokenOutsidePriceBounds.plus(
+                  item.xToken.outsidePriceBounds
+                );
               acc.totalYToken = acc.totalYToken.plus(
                 item.yToken.withinPriceBounds
-              );  
-              acc.totalYTokenOutsidePriceBounds = acc.totalYTokenOutsidePriceBounds.plus(
-                item.yToken.outsidePriceBounds
               );
+              acc.totalYTokenOutsidePriceBounds =
+                acc.totalYTokenOutsidePriceBounds.plus(
+                  item.yToken.outsidePriceBounds
+                );
               return acc;
             },
-            { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0), totalXTokenOutsidePriceBounds: new BigNumber(0), totalYTokenOutsidePriceBounds: new BigNumber(0)   }
+            {
+              totalXToken: new BigNumber(0),
+              totalYToken: new BigNumber(0),
+              totalXTokenOutsidePriceBounds: new BigNumber(0),
+              totalYTokenOutsidePriceBounds: new BigNumber(0),
+            }
           );
 
-          // Calculate USD value of all non-XRD derivative tokens
-          let totalNonXrdDerivativeUsdValue = new BigNumber(0);
+          // Calculate USD values for both tokens upfront (only if amounts > 0)
+          const xTokenUsdValue = totals.totalXToken.gt(0)
+            ? yield* getUsdValueService({
+                amount: totals.totalXToken,
+                resourceAddress: xToken.resourceAddress,
+                timestamp: input.timestamp,
+              })
+            : new BigNumber(0);
 
-          // Add xToken value if it's not an XRD derivative
-          if (!isXTokenXrdDerivative && totals.totalXToken.gt(0)) {
-            const xTokenUsdValue = yield* getUsdValueService({
-              amount: totals.totalXToken,
-              resourceAddress: xToken.resourceAddress,
-              timestamp: input.timestamp,
-            });
-            totalNonXrdDerivativeUsdValue =
-              totalNonXrdDerivativeUsdValue.plus(xTokenUsdValue);
-          }
+          const yTokenUsdValue = totals.totalYToken.gt(0)
+            ? yield* getUsdValueService({
+                amount: totals.totalYToken,
+                resourceAddress: yToken.resourceAddress,
+                timestamp: input.timestamp,
+              })
+            : new BigNumber(0);
 
-          // Add yToken value if it's not an XRD derivative
-          if (!isYTokenXrdDerivative && totals.totalYToken.gt(0)) {
-            const yTokenUsdValue = yield* getUsdValueService({
-              amount: totals.totalYToken,
-              resourceAddress: yToken.resourceAddress,
-              timestamp: input.timestamp,
-            });
-            totalNonXrdDerivativeUsdValue =
-              totalNonXrdDerivativeUsdValue.plus(yTokenUsdValue);
-          }
+          // Split values based on XRD derivative status
+          const totalNonXrdDerivativeUsdValue = new BigNumber(0)
+            .plus(isXTokenXrdDerivative ? 0 : xTokenUsdValue)
+            .plus(isYTokenXrdDerivative ? 0 : yTokenUsdValue);
 
-          // Generate activity ID based on token pair - cast to ActivityId since we know it's valid
-          const activityId = `c9_lp_${getPair(
+          const totalXrdDerivativeUsdValue = new BigNumber(0)
+            .plus(isXTokenXrdDerivative ? xTokenUsdValue : 0)
+            .plus(isYTokenXrdDerivative ? yTokenUsdValue : 0);
+
+          // Generate activity IDs based on token pair
+          const nonNativeActivityId = `c9_lp_${getPair(
             xTokenName as Token,
             yTokenName as Token
           )}` as ActivityId;
 
-          processedPools.add(activityId);
+          const nativeActivityId = `c9_nativeLp_${getPair(
+            xTokenName as Token,
+            yTokenName as Token
+          )}` as ActivityId;
 
+          processedPools.add(nonNativeActivityId);
+          processedPools.add(nativeActivityId);
+
+          // Add non-native LP activity (non-XRD derivative tokens only)
           results.push({
-            activityId,
+            activityId: nonNativeActivityId,
             usdValue: totalNonXrdDerivativeUsdValue.toString(),
             metadata: {
-              tokenPair: `${xTokenName}_${yTokenName}`,
+              tokenPair: getPair(xTokenName as Token, yTokenName as Token),
               baseToken: {
                 resourceAddress: xToken.resourceAddress,
                 amount: totals.totalXToken.toString(),
-                outsidePriceBounds: totals.totalXTokenOutsidePriceBounds.toString(),
+                outsidePriceBounds:
+                  totals.totalXTokenOutsidePriceBounds.toString(),
                 isXrdOrDerivative: isXTokenXrdDerivative,
               },
               quoteToken: {
                 resourceAddress: yToken.resourceAddress,
                 amount: totals.totalYToken.toString(),
-                outsidePriceBounds: totals.totalYTokenOutsidePriceBounds.toString(),
+                outsidePriceBounds:
+                  totals.totalYTokenOutsidePriceBounds.toString(),
+                isXrdOrDerivative: isYTokenXrdDerivative,
+              },
+            },
+          });
+
+          // Add native LP activity (XRD derivatives only)
+          results.push({
+            activityId: nativeActivityId,
+            usdValue: totalXrdDerivativeUsdValue.toString(),
+            metadata: {
+              tokenPair: getPair(xTokenName as Token, yTokenName as Token),
+              baseToken: {
+                resourceAddress: xToken.resourceAddress,
+                amount: totals.totalXToken.toString(),
+                outsidePriceBounds:
+                  totals.totalXTokenOutsidePriceBounds.toString(),
+                isXrdOrDerivative: isXTokenXrdDerivative,
+              },
+              quoteToken: {
+                resourceAddress: yToken.resourceAddress,
+                amount: totals.totalYToken.toString(),
+                outsidePriceBounds:
+                  totals.totalYTokenOutsidePriceBounds.toString(),
                 isXrdOrDerivative: isYTokenXrdDerivative,
               },
             },
@@ -165,14 +202,33 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           }
         }
 
-        // Hyperstake is LSULP/XRD pool, both are XRD derivatives, so USD value is 0
-        // But we track the amounts for XRD holding calculations
-        const hyperstakeActivityId = "c9_lp_hyperstake" as ActivityId;
+        // Calculate USD value for hyperstake (LSULP/XRD pool)
+        let hyperstakeUsdValue = new BigNumber(0);
+        if (totalLsulpAmount.gt(0)) {
+          const lsulpUsdValue = yield* getUsdValueService({
+            amount: totalLsulpAmount,
+            resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
+            timestamp: input.timestamp,
+          });
+          hyperstakeUsdValue = hyperstakeUsdValue.plus(lsulpUsdValue);
+        }
+        if (totalXrdAmount.gt(0)) {
+          const xrdUsdValue = yield* getUsdValueService({
+            amount: totalXrdAmount,
+            resourceAddress: Assets.Fungible.XRD,
+            timestamp: input.timestamp,
+          });
+          hyperstakeUsdValue = hyperstakeUsdValue.plus(xrdUsdValue);
+        }
+
+        // Hyperstake is LSULP/XRD pool, both are XRD derivatives
+        // Change from "c9_lp_hyperstake" to "c9_nativeLp_hyperstake"
+        const hyperstakeActivityId = "c9_nativeLp_hyperstake" as ActivityId;
         processedPools.add(hyperstakeActivityId);
 
         results.push({
           activityId: hyperstakeActivityId,
-          usdValue: "0", // XRD derivatives don't count towards USD value
+          usdValue: hyperstakeUsdValue.toString(), // Now tracking XRD derivative USD value
           metadata: {
             tokenPair: "lsulp_xrd",
             baseToken: {
@@ -192,32 +248,61 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
         for (const pool of Object.values(
           CaviarNineConstants.shapeLiquidityPools
         )) {
-          const xTokenName = yield* addressValidationService.getTokenName(
-            pool.token_x
-          );
-          const yTokenName = yield* addressValidationService.getTokenName(
-            pool.token_y
-          );
-          const activityId = `c9_lp_${getPair(
-            xTokenName as Token,
-            yTokenName as Token
+          const xTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              pool.token_x
+            );
+          const yTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              pool.token_y
+            );
+          const nonNativeActivityId = `c9_lp_${getPair(
+            xTokenInfo.name as Token,
+            yTokenInfo.name as Token
+          )}` as ActivityId;
+          const nativeActivityId = `c9_nativeLp_${getPair(
+            xTokenInfo.name as Token,
+            yTokenInfo.name as Token
           )}` as ActivityId;
 
-          if (!processedPools.has(activityId)) {
-            // Determine which tokens are XRD derivatives
-            const isXTokenXrdDerivative =
-              pool.token_x === Assets.Fungible.XRD ||
-              pool.token_x === CaviarNineConstants.LSULP.resourceAddress;
-            const isYTokenXrdDerivative =
-              pool.token_y === (Assets.Fungible.XRD as string) ||
-              pool.token_y ===
-                (CaviarNineConstants.LSULP.resourceAddress as string);
+          // Get XRD derivative status from the centralized function
+          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
+          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
 
+          // Add zero entry for non-native LP if not processed
+          if (!processedPools.has(nonNativeActivityId)) {
             results.push({
-              activityId,
+              activityId: nonNativeActivityId,
               usdValue: "0",
               metadata: {
-                tokenPair: `${xTokenName}_${yTokenName}`,
+                tokenPair: getPair(
+                  xTokenInfo.name as Token,
+                  yTokenInfo.name as Token
+                ),
+                baseToken: {
+                  resourceAddress: pool.token_x,
+                  amount: "0",
+                  isXrdOrDerivative: isXTokenXrdDerivative,
+                },
+                quoteToken: {
+                  resourceAddress: pool.token_y,
+                  amount: "0",
+                  isXrdOrDerivative: isYTokenXrdDerivative,
+                },
+              },
+            });
+          }
+
+          // Add zero entry for native LP if not processed
+          if (!processedPools.has(nativeActivityId)) {
+            results.push({
+              activityId: nativeActivityId,
+              usdValue: "0",
+              metadata: {
+                tokenPair: getPair(
+                  xTokenInfo.name as Token,
+                  yTokenInfo.name as Token
+                ),
                 baseToken: {
                   resourceAddress: pool.token_x,
                   amount: "0",
@@ -233,8 +318,9 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           }
         }
 
-        // Add zero entry for Hyperstake if not processed
-        const hyperstakeActivityIdCheck = "c9_lp_hyperstake" as ActivityId;
+        // Add zero entry for Hyperstake if not processed (now using nativeLp naming)
+        const hyperstakeActivityIdCheck =
+          "c9_nativeLp_hyperstake" as ActivityId;
         if (!processedPools.has(hyperstakeActivityIdCheck)) {
           results.push({
             activityId: hyperstakeActivityIdCheck,

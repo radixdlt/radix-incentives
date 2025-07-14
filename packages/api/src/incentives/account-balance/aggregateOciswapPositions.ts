@@ -6,13 +6,13 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
 import { OciswapConstants } from "../../common/dapps/ociswap/constants";
-import type { AccountBalanceData, ActivityId } from "db/incentives";
+import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
 } from "../../common/address-validation/addressValidation";
+import { getPair } from "../../common/helpers/getPair";
 
 // Only include metadata if STORE_METADATA is not set to 'false' (defaults to true then)
 const STORE_METADATA = process.env.STORE_METADATA !== "false";
@@ -58,19 +58,20 @@ export const AggregateOciswapPositionsLive = Layer.effect(
 
           const { xToken, yToken } = firstAsset;
 
-          // Determine which tokens are XRD derivatives (only XRD for OciSwap)
-          const isXTokenXrdDerivative =
-            xToken.resourceAddress === Assets.Fungible.XRD;
-          const isYTokenXrdDerivative =
-            yToken.resourceAddress === Assets.Fungible.XRD;
+          // Get token info including XRD derivative status
+          const xTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              xToken.resourceAddress
+            );
+          const yTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              yToken.resourceAddress
+            );
 
-          // Get token names for the pair
-          const xTokenName = yield* addressValidationService.getTokenName(
-            xToken.resourceAddress
-          );
-          const yTokenName = yield* addressValidationService.getTokenName(
-            yToken.resourceAddress
-          );
+          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
+          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+          const xTokenName = xTokenInfo.name;
+          const yTokenName = yTokenInfo.name;
 
           const totals = poolAssets.reduce(
             (acc, item) => {
@@ -78,99 +79,171 @@ export const AggregateOciswapPositionsLive = Layer.effect(
               acc.totalXToken = acc.totalXToken.plus(
                 item.xToken.amountInBounds
               );
-              acc.totalXTokenOutsidePriceBounds = acc.totalXTokenOutsidePriceBounds.plus(
-                new BigNumber(item.xToken.totalAmount).minus(item.xToken.amountInBounds)
-              );
+              acc.totalXTokenOutsidePriceBounds =
+                acc.totalXTokenOutsidePriceBounds.plus(
+                  new BigNumber(item.xToken.totalAmount).minus(
+                    item.xToken.amountInBounds
+                  )
+                );
               acc.totalYToken = acc.totalYToken.plus(
                 item.yToken.amountInBounds
               );
-              acc.totalYTokenOutsidePriceBounds = acc.totalYTokenOutsidePriceBounds.plus(
-                new BigNumber(item.yToken.totalAmount).minus(item.yToken.amountInBounds)
-              );
+              acc.totalYTokenOutsidePriceBounds =
+                acc.totalYTokenOutsidePriceBounds.plus(
+                  new BigNumber(item.yToken.totalAmount).minus(
+                    item.yToken.amountInBounds
+                  )
+                );
               return acc;
             },
-            { totalXToken: new BigNumber(0), totalYToken: new BigNumber(0), totalXTokenOutsidePriceBounds: new BigNumber(0), totalYTokenOutsidePriceBounds: new BigNumber(0) }
+            {
+              totalXToken: new BigNumber(0),
+              totalYToken: new BigNumber(0),
+              totalXTokenOutsidePriceBounds: new BigNumber(0),
+              totalYTokenOutsidePriceBounds: new BigNumber(0),
+            }
           );
 
-          // Calculate USD value of all non-XRD tokens
-          let totalNonXrdUsdValue = new BigNumber(0);
+          // Calculate USD values for both tokens upfront (only if amounts > 0)
+          const xTokenUsdValue = totals.totalXToken.gt(0)
+            ? yield* getUsdValueService({
+                amount: totals.totalXToken,
+                resourceAddress: xToken.resourceAddress,
+                timestamp: input.timestamp,
+              })
+            : new BigNumber(0);
 
-          // Add xToken value if it's not XRD
-          if (!isXTokenXrdDerivative && totals.totalXToken.gt(0)) {
-            const xTokenUsdValue = yield* getUsdValueService({
-              amount: totals.totalXToken,
-              resourceAddress: xToken.resourceAddress,
-              timestamp: input.timestamp,
-            });
-            totalNonXrdUsdValue = totalNonXrdUsdValue.plus(xTokenUsdValue);
-          }
+          const yTokenUsdValue = totals.totalYToken.gt(0)
+            ? yield* getUsdValueService({
+                amount: totals.totalYToken,
+                resourceAddress: yToken.resourceAddress,
+                timestamp: input.timestamp,
+              })
+            : new BigNumber(0);
 
-          // Add yToken value if it's not XRD
-          if (!isYTokenXrdDerivative && totals.totalYToken.gt(0)) {
-            const yTokenUsdValue = yield* getUsdValueService({
-              amount: totals.totalYToken,
-              resourceAddress: yToken.resourceAddress,
-              timestamp: input.timestamp,
-            });
-            totalNonXrdUsdValue = totalNonXrdUsdValue.plus(yTokenUsdValue);
-          }
+          // Split values based on XRD derivative status
+          const totalNonXrdUsdValue = new BigNumber(0)
+            .plus(isXTokenXrdDerivative ? 0 : xTokenUsdValue)
+            .plus(isYTokenXrdDerivative ? 0 : yTokenUsdValue);
 
-          // Generate activity ID based on token pair - sort alphabetically
-          const [tokenA, tokenB] = [xTokenName, yTokenName].sort();
-          const activityId = `oci_lp_${tokenA}-${tokenB}` as ActivityId;
-          processedPools.add(activityId);
+          const totalXrdDerivativeUsdValue = new BigNumber(0)
+            .plus(isXTokenXrdDerivative ? xTokenUsdValue : 0)
+            .plus(isYTokenXrdDerivative ? yTokenUsdValue : 0);
 
+          // Generate activity IDs based on token pair
+          const nonNativeActivityId =
+            `oci_lp_${getPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
+          const nativeActivityId =
+            `oci_nativeLp_${getPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
+
+          processedPools.add(nonNativeActivityId);
+          processedPools.add(nativeActivityId);
+
+          // Add non-native LP activity (non-XRD tokens only)
           results.push(
             STORE_METADATA
               ? {
-                  activityId,
+                  activityId: nonNativeActivityId,
                   usdValue: totalNonXrdUsdValue.toString(),
                   metadata: {
-                    tokenPair: `${xTokenName}_${yTokenName}`,
+                    tokenPair: getPair(
+                      xTokenName as Token,
+                      yTokenName as Token
+                    ),
                     baseToken: {
                       resourceAddress: xToken.resourceAddress,
                       amount: totals.totalXToken.toString(),
-                      outsidePriceBounds: totals.totalXTokenOutsidePriceBounds.toString(),
+                      outsidePriceBounds:
+                        totals.totalXTokenOutsidePriceBounds.toString(),
                       isXrdOrDerivative: isXTokenXrdDerivative,
                     },
                     quoteToken: {
                       resourceAddress: yToken.resourceAddress,
                       amount: totals.totalYToken.toString(),
-                      outsidePriceBounds: totals.totalYTokenOutsidePriceBounds.toString(),
+                      outsidePriceBounds:
+                        totals.totalYTokenOutsidePriceBounds.toString(),
                       isXrdOrDerivative: isYTokenXrdDerivative,
                     },
                   },
                 }
               : {
-                  activityId,
+                  activityId: nonNativeActivityId,
                   usdValue: totalNonXrdUsdValue.toString(),
+                }
+          );
+
+          // Add native LP activity (XRD derivatives only)
+          results.push(
+            STORE_METADATA
+              ? {
+                  activityId: nativeActivityId,
+                  usdValue: totalXrdDerivativeUsdValue.toString(),
+                  metadata: {
+                    tokenPair: getPair(
+                      xTokenName as Token,
+                      yTokenName as Token
+                    ),
+                    baseToken: {
+                      resourceAddress: xToken.resourceAddress,
+                      amount: totals.totalXToken.toString(),
+                      outsidePriceBounds:
+                        totals.totalXTokenOutsidePriceBounds.toString(),
+                      isXrdOrDerivative: isXTokenXrdDerivative,
+                    },
+                    quoteToken: {
+                      resourceAddress: yToken.resourceAddress,
+                      amount: totals.totalYToken.toString(),
+                      outsidePriceBounds:
+                        totals.totalYTokenOutsidePriceBounds.toString(),
+                      isXrdOrDerivative: isYTokenXrdDerivative,
+                    },
+                  },
+                }
+              : {
+                  activityId: nativeActivityId,
+                  usdValue: totalXrdDerivativeUsdValue.toString(),
                 }
           );
         }
 
-        // Add zero entries for OciSwap pools with no positions
-        for (const pool of Object.values(OciswapConstants.pools)) {
-          const xTokenName = yield* addressValidationService.getTokenName(
-            pool.token_x
-          );
-          const yTokenName = yield* addressValidationService.getTokenName(
-            pool.token_y
-          );
-          const [tokenA, tokenB] = [xTokenName, yTokenName].sort();
-          const activityId = `oci_lp_${tokenA}-${tokenB}` as ActivityId;
+        // Add zero entries for all OciSwap pool types with no positions
+        const allPools = [
+          ...Object.values(OciswapConstants.pools),
+          ...Object.values(OciswapConstants.poolsV2),
+          ...Object.values(OciswapConstants.flexPools),
+          ...Object.values(OciswapConstants.basicPools),
+        ];
 
-          if (!processedPools.has(activityId)) {
-            // Determine which tokens are XRD derivatives
-            const isXTokenXrdDerivative = pool.token_x === Assets.Fungible.XRD;
-            const isYTokenXrdDerivative = pool.token_y === Assets.Fungible.XRD;
+        for (const pool of allPools) {
+          const xTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              pool.token_x
+            );
+          const yTokenInfo =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              pool.token_y
+            );
+          const nonNativeActivityId =
+            `oci_lp_${getPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
+          const nativeActivityId =
+            `oci_nativeLp_${getPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
 
+          // Get XRD derivative status from the centralized function
+          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
+          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+
+          // Add zero entry for non-native LP if not processed
+          if (!processedPools.has(nonNativeActivityId)) {
             results.push(
               STORE_METADATA
                 ? {
-                    activityId,
+                    activityId: nonNativeActivityId,
                     usdValue: "0",
                     metadata: {
-                      tokenPair: `${xTokenName}_${yTokenName}`,
+                      tokenPair: getPair(
+                        xTokenInfo.name as Token,
+                        yTokenInfo.name as Token
+                      ),
                       baseToken: {
                         resourceAddress: pool.token_x,
                         amount: "0",
@@ -186,7 +259,40 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                     },
                   }
                 : {
-                    activityId,
+                    activityId: nonNativeActivityId,
+                    usdValue: "0",
+                  }
+            );
+          }
+
+          // Add zero entry for native LP if not processed
+          if (!processedPools.has(nativeActivityId)) {
+            results.push(
+              STORE_METADATA
+                ? {
+                    activityId: nativeActivityId,
+                    usdValue: "0",
+                    metadata: {
+                      tokenPair: getPair(
+                        xTokenInfo.name as Token,
+                        yTokenInfo.name as Token
+                      ),
+                      baseToken: {
+                        resourceAddress: pool.token_x,
+                        amount: "0",
+                        outsidePriceBounds: "0",
+                        isXrdOrDerivative: isXTokenXrdDerivative,
+                      },
+                      quoteToken: {
+                        resourceAddress: pool.token_y,
+                        amount: "0",
+                        outsidePriceBounds: "0",
+                        isXrdOrDerivative: isYTokenXrdDerivative,
+                      },
+                    },
+                  }
+                : {
+                    activityId: nativeActivityId,
                     usdValue: "0",
                   }
             );

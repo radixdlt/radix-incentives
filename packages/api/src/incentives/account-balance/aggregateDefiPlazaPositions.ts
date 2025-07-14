@@ -6,9 +6,7 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
 import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
-import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
@@ -54,19 +52,32 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           input.accountBalance.defiPlazaPositions.items;
 
         if (defiPlazaPositions.length === 0) {
-          // Return zero entries for all supported pools
+          // Return zero entries for all supported pools (both native and non-native)
           const results: AggregateDefiPlazaPositionsOutput[] = [];
           for (const pool of Object.values(DefiPlaza)) {
-            const baseTokenName = yield* addressValidationService.getTokenName(
-              pool.baseResourceAddress
-            );
-            const quoteTokenName = yield* addressValidationService.getTokenName(
-              pool.quoteResourceAddress
-            );
+            const baseTokenInfo =
+              yield* addressValidationService.getTokenNameAndXrdStatus(
+                pool.baseResourceAddress
+              );
+            const quoteTokenInfo =
+              yield* addressValidationService.getTokenNameAndXrdStatus(
+                pool.quoteResourceAddress
+              );
+
+            // Add non-native LP zero entry
             results.push({
               activityId: `defiPlaza_lp_${getPair(
-                baseTokenName as Token,
-                quoteTokenName as Token
+                baseTokenInfo.name as Token,
+                quoteTokenInfo.name as Token
+              )}` as ActivityId,
+              usdValue: new BigNumber(0).toString(),
+            });
+
+            // Add native LP zero entry
+            results.push({
+              activityId: `defiPlaza_nativeLp_${getPair(
+                baseTokenInfo.name as Token,
+                quoteTokenInfo.name as Token
               )}` as ActivityId,
               usdValue: new BigNumber(0).toString(),
             });
@@ -98,84 +109,128 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             );
           }
 
-          // Get token names for both positions
-          const token1Name = yield* addressValidationService.getTokenName(
-            position1.resourceAddress
-          );
-          const token2Name = yield* addressValidationService.getTokenName(
-            position2.resourceAddress
-          );
+          // Get token info including XRD derivative status
+          const token1Info =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              position1.resourceAddress
+            );
+          const token2Info =
+            yield* addressValidationService.getTokenNameAndXrdStatus(
+              position2.resourceAddress
+            );
 
-          // Determine which tokens are XRD derivatives (XRD or LSULP)
-          const isToken1XrdDerivative =
-            position1.resourceAddress === Assets.Fungible.XRD ||
-            position1.resourceAddress ===
-              CaviarNineConstants.LSULP.resourceAddress;
-          const isToken2XrdDerivative =
-            position2.resourceAddress === Assets.Fungible.XRD ||
-            position2.resourceAddress ===
-              CaviarNineConstants.LSULP.resourceAddress;
+          const token1Name = token1Info.name;
+          const token2Name = token2Info.name;
+          const isToken1XrdDerivative = token1Info.isXrdDerivative;
+          const isToken2XrdDerivative = token2Info.isXrdDerivative;
 
-          // Calculate USD value of all non-XRD derivative tokens
-          let totalUsdValue = new BigNumber(0);
+          // Calculate USD values for both tokens upfront
+          const token1UsdValue = yield* getUsdValueService({
+            amount: new BigNumber(position1.amount),
+            resourceAddress: position1.resourceAddress,
+            timestamp: input.timestamp,
+          });
 
-          // Add token1 value if it's not an XRD derivative
-          if (!isToken1XrdDerivative) {
-            const token1UsdValue = yield* getUsdValueService({
-              amount: new BigNumber(position1.amount),
-              resourceAddress: position1.resourceAddress,
-              timestamp: input.timestamp,
-            });
-            totalUsdValue = totalUsdValue.plus(token1UsdValue);
-          }
+          const token2UsdValue = yield* getUsdValueService({
+            amount: new BigNumber(position2.amount),
+            resourceAddress: position2.resourceAddress,
+            timestamp: input.timestamp,
+          });
 
-          // Add token2 value if it's not an XRD derivative
-          if (!isToken2XrdDerivative) {
-            const token2UsdValue = yield* getUsdValueService({
-              amount: new BigNumber(position2.amount),
-              resourceAddress: position2.resourceAddress,
-              timestamp: input.timestamp,
-            });
-            totalUsdValue = totalUsdValue.plus(token2UsdValue);
-          }
+          // Split values based on XRD derivative status
+          const totalNonXrdDerivativeUsdValue = new BigNumber(0)
+            .plus(isToken1XrdDerivative ? 0 : token1UsdValue)
+            .plus(isToken2XrdDerivative ? 0 : token2UsdValue);
 
-          // Generate dynamic activity ID based on token pair (alphabetical order for consistency)
-          const activityId = `defiPlaza_lp_${getPair(
+          const totalXrdDerivativeUsdValue = new BigNumber(0)
+            .plus(isToken1XrdDerivative ? token1UsdValue : 0)
+            .plus(isToken2XrdDerivative ? token2UsdValue : 0);
+
+          // Generate dynamic activity IDs based on token pair (alphabetical order for consistency)
+          const nonNativeActivityId = `defiPlaza_lp_${getPair(
             token1Name as Token,
             token2Name as Token
           )}` as ActivityId;
 
-          // Check for duplicate activity IDs and handle aggregation
-          if (processedActivityIds.has(activityId)) {
+          const nativeActivityId = `defiPlaza_nativeLp_${getPair(
+            token1Name as Token,
+            token2Name as Token
+          )}` as ActivityId;
+
+          // Check for duplicate activity IDs and handle aggregation for non-native
+          if (processedActivityIds.has(nonNativeActivityId)) {
             // Find existing result and add to it
             const existingResultIndex = results.findIndex(
-              (r) => r.activityId === activityId
+              (r) => r.activityId === nonNativeActivityId
             );
             if (existingResultIndex >= 0) {
               const existingResult = results[existingResultIndex];
               if (existingResult) {
                 const newTotalValue = new BigNumber(
                   existingResult.usdValue
-                ).plus(totalUsdValue);
+                ).plus(totalNonXrdDerivativeUsdValue);
                 results[existingResultIndex] = {
                   ...existingResult,
                   usdValue: newTotalValue.toString(),
                   metadata: {
                     ...existingResult.metadata,
-                    // Could merge metadata here if needed
                     note: "Aggregated from multiple positions",
                   },
                 };
               }
             }
           } else {
-            processedActivityIds.add(activityId);
+            processedActivityIds.add(nonNativeActivityId);
             results.push({
-              activityId,
-              usdValue: totalUsdValue.toString(),
+              activityId: nonNativeActivityId,
+              usdValue: totalNonXrdDerivativeUsdValue.toString(),
               metadata: {
                 lpResourceAddress: lpPosition.lpResourceAddress,
-                tokenPair: `${token1Name}_${token2Name}`,
+                tokenPair: getPair(token1Name as Token, token2Name as Token),
+                baseToken: {
+                  resourceAddress: position1.resourceAddress,
+                  amount: position1.amount.toString(),
+                  isXrdOrDerivative: isToken1XrdDerivative,
+                },
+                quoteToken: {
+                  resourceAddress: position2.resourceAddress,
+                  amount: position2.amount.toString(),
+                  isXrdOrDerivative: isToken2XrdDerivative,
+                },
+              },
+            });
+          }
+
+          // Check for duplicate activity IDs and handle aggregation for native
+          if (processedActivityIds.has(nativeActivityId)) {
+            // Find existing result and add to it
+            const existingResultIndex = results.findIndex(
+              (r) => r.activityId === nativeActivityId
+            );
+            if (existingResultIndex >= 0) {
+              const existingResult = results[existingResultIndex];
+              if (existingResult) {
+                const newTotalValue = new BigNumber(
+                  existingResult.usdValue
+                ).plus(totalXrdDerivativeUsdValue);
+                results[existingResultIndex] = {
+                  ...existingResult,
+                  usdValue: newTotalValue.toString(),
+                  metadata: {
+                    ...existingResult.metadata,
+                    note: "Aggregated from multiple positions",
+                  },
+                };
+              }
+            }
+          } else {
+            processedActivityIds.add(nativeActivityId);
+            results.push({
+              activityId: nativeActivityId,
+              usdValue: totalXrdDerivativeUsdValue.toString(),
+              metadata: {
+                lpResourceAddress: lpPosition.lpResourceAddress,
+                tokenPair: getPair(token1Name as Token, token2Name as Token),
                 baseToken: {
                   resourceAddress: position1.resourceAddress,
                   amount: position1.amount.toString(),

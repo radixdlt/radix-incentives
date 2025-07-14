@@ -9,7 +9,11 @@ import { RootFinance } from "../dapps/rootFinance/constants";
 import { OciswapConstants } from "../dapps/ociswap/constants";
 import { SurgeConstants } from "../dapps/surge/constants";
 import { Assets } from "../assets/constants";
-import { tokenNameMap } from "./tokenNameMap";
+import {
+  flatTokenNameMap,
+  xrdDerivatives,
+  type TokenInfo,
+} from "./tokenNameMap";
 
 export type ProtocolValidation = {
   componentAddress: string;
@@ -47,6 +51,9 @@ export class AddressValidationService extends Context.Tag(
     isCaviarNinePoolComponent: (address: string) => boolean;
     isDefiPlazaPoolComponent: (address: string) => boolean;
     isOciswapPoolComponent: (address: string) => boolean;
+    isOciswapPrecisionPoolComponent: (address: string) => boolean;
+    isOciswapFlexPoolComponent: (address: string) => boolean;
+    isOciswapBasicPoolComponent: (address: string) => boolean;
     isWeftFinanceComponent: (
       address: string,
       packageAddress?: string
@@ -70,6 +77,9 @@ export class AddressValidationService extends Context.Tag(
     getTokenName: (
       resourceAddress: string
     ) => Effect.Effect<string, UnknownTokenError>;
+    getTokenNameAndXrdStatus: (
+      resourceAddress: string
+    ) => Effect.Effect<TokenInfo, UnknownTokenError>;
   }
 >() {}
 
@@ -140,7 +150,7 @@ function extractProtocolValidations(
 
 // Helper function to get token name from resource address
 function getTokenNameSync(resourceAddress: string): string | undefined {
-  return tokenNameMap[resourceAddress as keyof typeof tokenNameMap];
+  return flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
 }
 
 // Precompute sets for resource validation at module load
@@ -177,11 +187,31 @@ const defiPlazaComponents = new Set(
     .filter((addr) => addr && addr.length > 0) as string[]
 );
 
-const ociswapComponents = new Set(
-  Object.values(OciswapConstants.pools).map(
+const ociswapPrecisionPoolComponents = new Set([
+  ...Object.values(OciswapConstants.pools).map((pool) => pool.componentAddress),
+  ...Object.values(OciswapConstants.poolsV2).map(
+    (pool) => pool.componentAddress
+  ),
+] as string[]);
+
+const ociswapFlexPoolComponents = new Set(
+  Object.values(OciswapConstants.flexPools).map(
     (pool) => pool.componentAddress
   ) as string[]
 );
+
+const ociswapBasicPoolComponents = new Set(
+  Object.values(OciswapConstants.basicPools).map(
+    (pool) => pool.componentAddress
+  ) as string[]
+);
+
+// Keep the original combined set for backward compatibility
+const ociswapComponents = new Set([
+  ...ociswapPrecisionPoolComponents,
+  ...ociswapFlexPoolComponents,
+  ...ociswapBasicPoolComponents,
+]);
 
 const caviarNineResources = new Set([
   CaviarNineConstants.LSULP.resourceAddress,
@@ -207,6 +237,15 @@ const ociswapResources = new Set([
   ...extractPropertyValues(OciswapConstants.pools, "lpResourceAddress"),
   ...extractPropertyValues(OciswapConstants.pools, "token_x"),
   ...extractPropertyValues(OciswapConstants.pools, "token_y"),
+  ...extractPropertyValues(OciswapConstants.poolsV2, "lpResourceAddress"),
+  ...extractPropertyValues(OciswapConstants.poolsV2, "token_x"),
+  ...extractPropertyValues(OciswapConstants.poolsV2, "token_y"),
+  ...extractPropertyValues(OciswapConstants.flexPools, "lpResourceAddress"),
+  ...extractPropertyValues(OciswapConstants.flexPools, "token_x"),
+  ...extractPropertyValues(OciswapConstants.flexPools, "token_y"),
+  ...extractPropertyValues(OciswapConstants.basicPools, "lpResourceAddress"),
+  ...extractPropertyValues(OciswapConstants.basicPools, "token_x"),
+  ...extractPropertyValues(OciswapConstants.basicPools, "token_y"),
 ]);
 
 const weftResources = new Set(
@@ -260,8 +299,44 @@ const poolTradingMap = (() => {
       }
     }
   }
-  // Ociswap Pools
+  // Ociswap Precision Pools (V1)
   for (const pool of Object.values(OciswapConstants.pools)) {
+    const tokenX = getTokenNameSync(pool.token_x);
+    const tokenY = getTokenNameSync(pool.token_y);
+    if (tokenX && tokenY) {
+      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
+        a.localeCompare(b)
+      );
+      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      map.set(pool.componentAddress, activityId);
+    }
+  }
+  // Ociswap Precision Pools (V2)
+  for (const pool of Object.values(OciswapConstants.poolsV2)) {
+    const tokenX = getTokenNameSync(pool.token_x);
+    const tokenY = getTokenNameSync(pool.token_y);
+    if (tokenX && tokenY) {
+      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
+        a.localeCompare(b)
+      );
+      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      map.set(pool.componentAddress, activityId);
+    }
+  }
+  // Ociswap Flex Pools
+  for (const pool of Object.values(OciswapConstants.flexPools)) {
+    const tokenX = getTokenNameSync(pool.token_x);
+    const tokenY = getTokenNameSync(pool.token_y);
+    if (tokenX && tokenY) {
+      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
+        a.localeCompare(b)
+      );
+      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      map.set(pool.componentAddress, activityId);
+    }
+  }
+  // Ociswap Basic Pools
+  for (const pool of Object.values(OciswapConstants.basicPools)) {
     const tokenX = getTokenNameSync(pool.token_x);
     const tokenY = getTokenNameSync(pool.token_y);
     if (tokenX && tokenY) {
@@ -290,6 +365,25 @@ export const isDefiPlazaPoolComponent = (componentAddress: string): boolean => {
   return defiPlazaComponents.has(componentAddress);
 };
 
+export const isOciswapPrecisionPoolComponent = (
+  componentAddress: string
+): boolean => {
+  return ociswapPrecisionPoolComponents.has(componentAddress);
+};
+
+export const isOciswapFlexPoolComponent = (
+  componentAddress: string
+): boolean => {
+  return ociswapFlexPoolComponents.has(componentAddress);
+};
+
+export const isOciswapBasicPoolComponent = (
+  componentAddress: string
+): boolean => {
+  return ociswapBasicPoolComponents.has(componentAddress);
+};
+
+// Keep the original function for backward compatibility
 export const isOciswapPoolComponent = (componentAddress: string): boolean => {
   return ociswapComponents.has(componentAddress);
 };
@@ -330,6 +424,15 @@ export const AddressValidationServiceLive = Layer.succeed(
         ...extractPropertyValues(CaviarNineConstants, "component"),
         ...extractPropertyValues(DefiPlaza, "componentAddress"),
         ...extractPropertyValues(OciswapConstants.pools, "componentAddress"),
+        ...extractPropertyValues(OciswapConstants.poolsV2, "componentAddress"),
+        ...extractPropertyValues(
+          OciswapConstants.flexPools,
+          "componentAddress"
+        ),
+        ...extractPropertyValues(
+          OciswapConstants.basicPools,
+          "componentAddress"
+        ),
       ]);
 
       return validPoolComponents.has(componentAddress);
@@ -339,6 +442,9 @@ export const AddressValidationServiceLive = Layer.succeed(
     isCaviarNinePoolComponent,
     isDefiPlazaPoolComponent,
     isOciswapPoolComponent,
+    isOciswapPrecisionPoolComponent,
+    isOciswapFlexPoolComponent,
+    isOciswapBasicPoolComponent,
 
     isValidProtocolComponent: (
       componentAddress: string,
@@ -418,10 +524,26 @@ export const AddressValidationServiceLive = Layer.succeed(
       resourceAddress: string
     ): Effect.Effect<string, UnknownTokenError> => {
       const tokenName =
-        tokenNameMap[resourceAddress as keyof typeof tokenNameMap];
+        flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
 
       if (tokenName) {
         return Effect.succeed(tokenName);
+      }
+
+      return Effect.fail(new UnknownTokenError(resourceAddress));
+    },
+
+    getTokenNameAndXrdStatus: (
+      resourceAddress: string
+    ): Effect.Effect<TokenInfo, UnknownTokenError> => {
+      const tokenName =
+        flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
+
+      if (tokenName) {
+        return Effect.succeed({
+          name: tokenName,
+          isXrdDerivative: xrdDerivatives.has(resourceAddress),
+        });
       }
 
       return Effect.fail(new UnknownTokenError(resourceAddress));

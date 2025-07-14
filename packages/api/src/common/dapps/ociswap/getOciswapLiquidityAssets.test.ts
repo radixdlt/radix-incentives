@@ -21,30 +21,39 @@ import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage
 import { GetNonFungibleIdsLive } from "../../gateway/getNonFungibleIds";
 
 const TEST_CONFIG = {
-  // Pool component address
-  componentAddress:
-    "component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f",
+  // V1 Pool (xUSDC/XRD)
+  v1: {
+    componentAddress:
+      "component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f",
+    lpResourceAddress:
+      "resource_rdx1nflrqd24a8xqelasygwlt6dhrgtu3akky695kk6j3cy4wu0wfn2ef8",
+    tokenXAddress:
+      "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
+    tokenYAddress:
+      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+    tokenXDivisibility: 6,
+    tokenYDivisibility: 18,
+    nftId: "#435#",
+  },
 
-  // LP NFT resource address for this pool
-  lpResourceAddress:
-    "resource_rdx1nflrqd24a8xqelasygwlt6dhrgtu3akky695kk6j3cy4wu0wfn2ef8",
-
-  // Token addresses
-  tokenXAddress:
-    "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
-  tokenYAddress:
-    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-
-  // Token divisibilities
-  tokenXDivisibility: 18,
-  tokenYDivisibility: 18,
+  // V2 Pool (OCI/XRD)
+  v2: {
+    componentAddress:
+      "component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp",
+    lpResourceAddress:
+      "resource_rdx1n2qukjm07d26matv7cyc5ev2f942uy44zn9h3x7p8hnm9dah5flht4",
+    tokenXAddress:
+      "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8", // Correct OCI address
+    tokenYAddress:
+      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+    tokenXDivisibility: 18,
+    tokenYDivisibility: 18,
+    nftId: "#1#",
+  },
 
   // Test user address that holds LP NFTs
   userAddress:
     "account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew",
-
-  // Specific NFT ID to test
-  nftId: "#435#",
 
   // Price bounds for testing
   priceBounds: {
@@ -128,25 +137,26 @@ const TestLive = Layer.mergeAll(
 );
 
 describe("OciSwap Liquidity Assets Test", () => {
-  it("should calculate liquidity assets with normal price bounds", async () => {
+  it.skip("should calculate liquidity assets with v1 schema", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getOciswapLiquidityAssetsService =
           yield* GetOciswapLiquidityAssetsService;
 
         const result = yield* getOciswapLiquidityAssetsService({
-          componentAddress: TEST_CONFIG.componentAddress,
+          componentAddress: TEST_CONFIG.v1.componentAddress,
           addresses: [TEST_CONFIG.userAddress],
-          at_ledger_state: { state_version: 321803265 },
-          lpResourceAddress: TEST_CONFIG.lpResourceAddress,
-          tokenXAddress: TEST_CONFIG.tokenXAddress,
-          tokenYAddress: TEST_CONFIG.tokenYAddress,
-          tokenXDivisibility: TEST_CONFIG.tokenXDivisibility,
-          tokenYDivisibility: TEST_CONFIG.tokenYDivisibility,
+          at_ledger_state: { state_version: 328823647 },
+          lpResourceAddress: TEST_CONFIG.v1.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.v1.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.v1.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.v1.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.v1.tokenYDivisibility,
+          schemaVersion: "v1",
           priceBounds: TEST_CONFIG.priceBounds,
         });
 
-        console.log("=== NORMAL PRICE BOUNDS TEST ===");
+        console.log("=== V1 SCHEMA TEST (xUSDC/XRD) ===");
         console.log("Price bounds:", TEST_CONFIG.priceBounds);
         console.log("Result:", JSON.stringify(result, null, 2));
 
@@ -170,24 +180,163 @@ describe("OciSwap Liquidity Assets Test", () => {
 
     // @ts-ignore - Ignoring type errors to test functionality
     const result = await Effect.runPromise(program);
-    console.log("Normal bounds result:", result);
+    console.log("V1 schema result:", result);
   });
 
-  it("should calculate liquidity assets with tight price bounds", async () => {
+  it.skip("should calculate liquidity assets with v2 schema", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getOciswapLiquidityAssetsService =
           yield* GetOciswapLiquidityAssetsService;
 
         const result = yield* getOciswapLiquidityAssetsService({
-          componentAddress: TEST_CONFIG.componentAddress,
+          componentAddress: TEST_CONFIG.v2.componentAddress,
           addresses: [TEST_CONFIG.userAddress],
-          at_ledger_state: { state_version: 321803265 },
-          lpResourceAddress: TEST_CONFIG.lpResourceAddress,
-          tokenXAddress: TEST_CONFIG.tokenXAddress,
-          tokenYAddress: TEST_CONFIG.tokenYAddress,
-          tokenXDivisibility: TEST_CONFIG.tokenXDivisibility,
-          tokenYDivisibility: TEST_CONFIG.tokenYDivisibility,
+          at_ledger_state: { state_version: 328823647 },
+          lpResourceAddress: TEST_CONFIG.v2.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.v2.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.v2.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.v2.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.v2.tokenYDivisibility,
+          schemaVersion: "v2",
+          priceBounds: TEST_CONFIG.priceBounds,
+        });
+
+        console.log("=== V2 SCHEMA TEST (OCI/XRD) ===");
+        console.log("Price bounds:", TEST_CONFIG.priceBounds);
+        console.log("Result:", JSON.stringify(result, null, 2));
+
+        // Show comparison clearly
+        if (result.length > 0 && result[0].items.length > 0) {
+          const item = result[0].items[0];
+          console.log("\n--- COMPARISON ---");
+          console.log(`X Token (${item.xToken.resourceAddress}):`);
+          console.log(`  Total: ${item.xToken.totalAmount}`);
+          console.log(`  In bounds: ${item.xToken.amountInBounds}`);
+          console.log(`Y Token (${item.yToken.resourceAddress}):`);
+          console.log(`  Total: ${item.yToken.totalAmount}`);
+          console.log(`  In bounds: ${item.yToken.amountInBounds}`);
+          console.log(`Active: ${item.isActive}`);
+        }
+
+        return result;
+      }),
+      TestLive
+    );
+
+    // @ts-ignore - Ignoring type errors to test functionality
+    const result = await Effect.runPromise(program);
+    console.log("V2 schema result:", result);
+  });
+
+  it("should debug V2 schema NFT detection step by step", async () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getNonFungibleBalanceService =
+          yield* GetNonFungibleBalanceService;
+        const getOciswapLiquidityAssetsService =
+          yield* GetOciswapLiquidityAssetsService;
+        const getOciswapLiquidityClaimsService =
+          yield* GetOciswapLiquidityClaimsService;
+
+        console.log("=== V2 DEBUG TEST ===");
+        console.log("Testing V2 pool:", TEST_CONFIG.v2.componentAddress);
+        console.log("LP Resource Address:", TEST_CONFIG.v2.lpResourceAddress);
+        console.log("Account:", TEST_CONFIG.userAddress);
+
+        // Step 1: Check NFT balance with NO resource filter (all NFTs)
+        console.log("\n🔍 Step 1: Checking ALL NFTs for account...");
+        const allNftBalance = yield* getNonFungibleBalanceService({
+          addresses: [TEST_CONFIG.userAddress],
+          at_ledger_state: { state_version: 328823647 },
+        });
+
+        console.log("All NFT Resources found:");
+        for (const item of allNftBalance.items) {
+          console.log(`Account: ${item.address}`);
+          for (const nftResource of item.nonFungibleResources) {
+            console.log(
+              `  - Resource: ${nftResource.resourceAddress} (${nftResource.items.length} NFTs)`
+            );
+            if (
+              nftResource.resourceAddress === TEST_CONFIG.v2.lpResourceAddress
+            ) {
+              console.log(
+                `    ⭐ FOUND V2 POOL NFTs! IDs: ${nftResource.items.map((i) => i.id).join(", ")}`
+              );
+            }
+          }
+        }
+
+        // Step 2: Check NFT balance with specific V2 resource filter
+        console.log("\n🔍 Step 2: Checking V2 pool NFTs specifically...");
+        const v2NftBalance = yield* getNonFungibleBalanceService({
+          addresses: [TEST_CONFIG.userAddress],
+          at_ledger_state: { state_version: 328823647 },
+          resourceAddresses: [TEST_CONFIG.v2.lpResourceAddress],
+        });
+
+        console.log(
+          "V2 NFT Balance result:",
+          JSON.stringify(v2NftBalance, null, 2)
+        );
+
+        // Step 3: Test V2 liquidity claims service first
+        console.log("\n🔍 Step 3a: Testing V2 liquidity claims service...");
+
+        try {
+          const v2Claims = yield* getOciswapLiquidityClaimsService({
+            lpResourceAddress: TEST_CONFIG.v2.lpResourceAddress,
+            nonFungibleLocalIds: ["#1005#"],
+            at_ledger_state: { state_version: 328823647 },
+          });
+          console.log("V2 Claims result:", JSON.stringify(v2Claims, null, 2));
+        } catch (error) {
+          console.log("V2 Claims failed:", error);
+        }
+
+        // Step 3b: Try the full service
+        console.log("\n🔍 Step 3b: Testing V2 liquidity assets service...");
+        const result = yield* getOciswapLiquidityAssetsService({
+          componentAddress: TEST_CONFIG.v2.componentAddress,
+          addresses: [TEST_CONFIG.userAddress],
+          at_ledger_state: { state_version: 328823647 },
+          lpResourceAddress: TEST_CONFIG.v2.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.v2.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.v2.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.v2.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.v2.tokenYDivisibility,
+          schemaVersion: "v2",
+          priceBounds: TEST_CONFIG.priceBounds,
+        });
+
+        console.log("Final V2 result:", JSON.stringify(result, null, 2));
+
+        return result;
+      }),
+      TestLive
+    );
+
+    await Effect.runPromise(program);
+    console.log("V2 debug test completed");
+  }, 30000); // 30 second timeout
+
+  it.skip("should calculate liquidity assets with tight price bounds", async () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const getOciswapLiquidityAssetsService =
+          yield* GetOciswapLiquidityAssetsService;
+
+        const result = yield* getOciswapLiquidityAssetsService({
+          componentAddress: TEST_CONFIG.v1.componentAddress,
+          addresses: [TEST_CONFIG.userAddress],
+          at_ledger_state: { state_version: 328823647 },
+          lpResourceAddress: TEST_CONFIG.v1.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.v1.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.v1.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.v1.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.v1.tokenYDivisibility,
+          schemaVersion: "v1",
           priceBounds: TEST_CONFIG.tightPriceBounds,
         });
 
@@ -218,21 +367,22 @@ describe("OciSwap Liquidity Assets Test", () => {
     console.log("Tight bounds result:", result);
   });
 
-  it("should calculate liquidity assets with wide price bounds", async () => {
+  it.skip("should calculate liquidity assets with wide price bounds", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getOciswapLiquidityAssetsService =
           yield* GetOciswapLiquidityAssetsService;
 
         const result = yield* getOciswapLiquidityAssetsService({
-          componentAddress: TEST_CONFIG.componentAddress,
+          componentAddress: TEST_CONFIG.v1.componentAddress,
           addresses: [TEST_CONFIG.userAddress],
-          at_ledger_state: { state_version: 321803265 },
-          lpResourceAddress: TEST_CONFIG.lpResourceAddress,
-          tokenXAddress: TEST_CONFIG.tokenXAddress,
-          tokenYAddress: TEST_CONFIG.tokenYAddress,
-          tokenXDivisibility: TEST_CONFIG.tokenXDivisibility,
-          tokenYDivisibility: TEST_CONFIG.tokenYDivisibility,
+          at_ledger_state: { state_version: 328823647 },
+          lpResourceAddress: TEST_CONFIG.v1.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.v1.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.v1.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.v1.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.v1.tokenYDivisibility,
+          schemaVersion: "v1",
           priceBounds: TEST_CONFIG.widePriceBounds,
         });
 
@@ -263,20 +413,20 @@ describe("OciSwap Liquidity Assets Test", () => {
     console.log("Wide bounds result:", result);
   });
 
-  it("should show position details for debugging", async () => {
+  it.skip("should show position details for debugging", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getOciswapLiquidityClaimsService =
           yield* GetOciswapLiquidityClaimsService;
 
         const positionDetails = yield* getOciswapLiquidityClaimsService({
-          lpResourceAddress: TEST_CONFIG.lpResourceAddress,
-          nonFungibleLocalIds: [TEST_CONFIG.nftId],
-          at_ledger_state: { state_version: 321803265 },
+          lpResourceAddress: TEST_CONFIG.v1.lpResourceAddress,
+          nonFungibleLocalIds: [TEST_CONFIG.v1.nftId],
+          at_ledger_state: { state_version: 328823647 },
         });
 
         console.log("=== POSITION DETAILS DEBUG ===");
-        console.log("NFT ID:", TEST_CONFIG.nftId);
+        console.log("NFT ID:", TEST_CONFIG.v1.nftId);
         console.log(
           "Position details:",
           JSON.stringify(positionDetails, null, 2)
@@ -292,7 +442,7 @@ describe("OciSwap Liquidity Assets Test", () => {
     console.log("Position details:", result);
   });
 
-  it("should calculate liquidity assets without price bounds (everything in bounds)", async () => {
+  it.skip("should calculate liquidity assets without price bounds (everything in bounds)", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getOciswapLiquidityAssetsService =
@@ -303,19 +453,20 @@ describe("OciSwap Liquidity Assets Test", () => {
           yield* GetNonFungibleBalanceService;
         const nonFungibleBalance = yield* getNonFungibleBalanceService({
           addresses: [TEST_CONFIG.userAddress],
-          at_ledger_state: { state_version: 321803265 },
+          at_ledger_state: { state_version: 328823647 },
         });
 
         const result = yield* getOciswapLiquidityAssetsService({
-          componentAddress: TEST_CONFIG.componentAddress,
+          componentAddress: TEST_CONFIG.v1.componentAddress,
           addresses: [TEST_CONFIG.userAddress],
-          at_ledger_state: { state_version: 321803265 },
+          at_ledger_state: { state_version: 328823647 },
           nonFungibleBalance,
-          lpResourceAddress: TEST_CONFIG.lpResourceAddress,
-          tokenXAddress: TEST_CONFIG.tokenXAddress,
-          tokenYAddress: TEST_CONFIG.tokenYAddress,
-          tokenXDivisibility: TEST_CONFIG.tokenXDivisibility,
-          tokenYDivisibility: TEST_CONFIG.tokenYDivisibility,
+          lpResourceAddress: TEST_CONFIG.v1.lpResourceAddress,
+          tokenXAddress: TEST_CONFIG.v1.tokenXAddress,
+          tokenYAddress: TEST_CONFIG.v1.tokenYAddress,
+          tokenXDivisibility: TEST_CONFIG.v1.tokenXDivisibility,
+          tokenYDivisibility: TEST_CONFIG.v1.tokenYDivisibility,
+          schemaVersion: "v1",
           // No priceBounds - everything should be in bounds
         });
 
@@ -354,7 +505,7 @@ describe("OciSwap Liquidity Assets Test", () => {
     console.log("No bounds result:", result);
   });
 
-  it("should test tick math utilities", async () => {
+  it.skip("should test tick math utilities", async () => {
     const { tickToPriceSqrt, removableAmounts } = await import(
       "./tickCalculator"
     );

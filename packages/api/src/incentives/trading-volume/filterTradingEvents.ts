@@ -13,7 +13,6 @@ import type { ActivityId } from "db/incentives";
 import { defiPlazaComponentSet } from "../../common/dapps/defiplaza/constants";
 import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
 import type { HLPEmittableEvents } from "../events/event-matchers/hlpEventMatcher";
-import { ociswapComponentSet } from "../../common/dapps/ociswap/constants";
 import type { OciswapSwapEvent } from "../events/event-matchers/ociswapEventMatcher";
 import { AddressValidationService } from "../../common/address-validation/addressValidation";
 
@@ -188,13 +187,12 @@ export const FilterTradingEventsLive = Layer.effect(
             event.eventData.type === "SwapEvent"
           ) {
             const swapEvent = event as CapturedEvent<OciswapSwapEvent>;
-            const pool = ociswapComponentSet.get(swapEvent.globalEmitter);
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
                 swapEvent.globalEmitter
               );
 
-            if (pool && activityId) {
+            if (activityId) {
               const swapData = swapEvent.eventData.data;
               const inputAmount = new BigNumber(swapData.input_amount);
               const inputToken = swapData.input_address;

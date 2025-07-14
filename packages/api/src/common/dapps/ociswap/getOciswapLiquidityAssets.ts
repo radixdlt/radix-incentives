@@ -18,7 +18,7 @@ import {
   type FailedToParseOciswapLiquidityPositionError,
   GetOciswapLiquidityClaimsService,
 } from "./getOciswapLiquidityClaims";
-import { PrecisionPool } from "./schemas";
+import { PrecisionPool, PrecisionPoolV2 } from "./schemas";
 import { tickToPriceSqrt, removableAmounts } from "./tickCalculator";
 
 export class FailedToParseOciswapComponentStateError {
@@ -54,6 +54,7 @@ export class GetOciswapLiquidityAssetsService extends Context.Tag(
     tokenYAddress: string;
     tokenXDivisibility: number;
     tokenYDivisibility: number;
+    schemaVersion?: "v1" | "v2";
     priceBounds?: {
       lower: number;
       upper: number;
@@ -84,11 +85,18 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const componentStateResult = yield* getComponentStateService({
-          addresses: [input.componentAddress],
-          schema: PrecisionPool,
-          at_ledger_state: input.at_ledger_state,
-        });
+        const componentStateResult =
+          input.schemaVersion === "v2"
+            ? yield* getComponentStateService({
+                addresses: [input.componentAddress],
+                schema: PrecisionPoolV2,
+                at_ledger_state: input.at_ledger_state,
+              })
+            : yield* getComponentStateService({
+                addresses: [input.componentAddress],
+                schema: PrecisionPool,
+                at_ledger_state: input.at_ledger_state,
+              });
 
         if (componentStateResult.length === 0) {
           return yield* Effect.fail(

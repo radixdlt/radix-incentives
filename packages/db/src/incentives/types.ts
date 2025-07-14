@@ -41,15 +41,24 @@ const testTokens = [
   "fomo",
 ];
 
+// TODO: this seems double, together with address-validation and its token map.
+// we might want to clean that up a bit
 export const TOKENS = {
   xrd: "xrd",
+  lsulp: "lsulp",
+  stakedXrd: "stakedXrd",
+  unstakedXrd: "unstakedXrd",
+
+  astrl: "astrl",
+  dfp2: "dfp2",
+  ilis: "ilis",
+  oci: "oci",
+  early: "early",
+
   xeth: "xeth",
   xusdc: "xusdc",
   xusdt: "xusdt",
   xwbtc: "xwbtc",
-  lsulp: "lsulp",
-  stakedXrd: "stakedXrd",
-  unstakedXrd: "unstakedXrd",
 } as const;
 export type Token = keyof typeof TOKENS;
 
