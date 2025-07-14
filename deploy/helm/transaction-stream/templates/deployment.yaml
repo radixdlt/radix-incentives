@@ -46,15 +46,24 @@ spec:
             value: {{ $value | quote }}
           {{- end }}
           ports:
+            - name: http
+              containerPort: 3004
+              protocol: TCP
           {{- if .Values.metrics.enabled }}
             - name: metrics
               containerPort: {{ .Values.metrics.port }}
               protocol: TCP
           {{- end }}
           livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
+            initialDelaySeconds: 10
+            httpGet:
+              path: /health
+              port: http
           readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
+            initialDelaySeconds: 10
+            httpGet:
+              path: /health
+              port: http
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       {{- with .Values.nodeSelector }}
