@@ -87,3 +87,19 @@ services:
   #     - REDIS_PASSWORD=password
   #     - OTLP_BASE_URL=http://jaeger:4318
   #     - WORKERS_API_BASE_URL=http://workers:3003
+
+  # incentives:
+  #   hostname: workers
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfiles/incentives.Dockerfile
+  #   image: incentives:latest
+  #   restart: always
+  #   ports:
+  #     - '3000:3000'
+  #   environment:
+  #     - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
+  #     - REDIS_HOST=redis
+  #     - REDIS_PORT=6379
+  #     - REDIS_PASSWORD=password
+  #     - NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED=2025-07-14T00:00:00.000Z

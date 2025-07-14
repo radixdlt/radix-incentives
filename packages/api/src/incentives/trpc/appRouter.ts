@@ -8,6 +8,7 @@ import {
 import { seasonRouter } from "../season/seasonRouter";
 import { userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
+import { configRouter } from "../config/configRouter";
 
 /**
  * This is the primary router for your server.
@@ -20,6 +21,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   leaderboard: leaderboardRouter,
   activity: activityRouter,
+  config: configRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
