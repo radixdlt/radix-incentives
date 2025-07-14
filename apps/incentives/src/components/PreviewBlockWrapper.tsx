@@ -1,25 +1,36 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { env } from '~/env';
 import { ThankYouPage } from './ThankYouPage';
+import { api } from '~/trpc/react';
 
 interface PreviewBlockWrapperProps {
   children: ReactNode;
 }
 
-const isPreviewBlocked = (): boolean => {
-  const isBlockEnabled = !!env.NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED;
-  // biome-ignore lint/style/noNonNullAssertion: value is not null
-  const blockDate = new Date(env.NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED!);
+const isPreviewBlocked = (blockDate: Date): boolean => {
   const currentDate = new Date();
   const isAfterBlockDate = currentDate > blockDate;
 
-  return isBlockEnabled && isAfterBlockDate;
+  return isAfterBlockDate;
 };
 
 export const PreviewBlockWrapper = ({ children }: PreviewBlockWrapperProps) => {
-  if (isPreviewBlocked()) {
+  const { data: publicConfig, isLoading } =
+    api.config.getPublicConfig.useQuery();
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white" />
+      </div>
+    );
+  }
+
+  if (
+    publicConfig?.NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED &&
+    isPreviewBlocked(publicConfig.NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED)
+  ) {
     return <ThankYouPage />;
   }
 
