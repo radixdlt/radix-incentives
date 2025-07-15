@@ -54,6 +54,8 @@ export const TOKENS = {
   ilis: "ilis",
   oci: "oci",
   early: "early",
+  floop: "floop",
+  reddicks: "reddicks",
 
   xeth: "xeth",
   xusdc: "xusdc",

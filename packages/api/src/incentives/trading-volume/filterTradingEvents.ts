@@ -53,33 +53,56 @@ export const FilterTradingEventsLive = Layer.effect(
             event.eventData.type === "SwapEvent"
           ) {
             const swapEvent = event as CapturedEvent<CaviarnineSwapEvent>;
-            const pool = shapeLiquidityComponentSet.get(
-              swapEvent.globalEmitter
-            );
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
                 swapEvent.globalEmitter
               );
 
-            if (pool && activityId) {
+            if (activityId) {
               const swapData = swapEvent.eventData.data;
-              const amountChangeX = new BigNumber(swapData.amount_change_x);
-              const amountChangeY = new BigNumber(swapData.amount_change_y);
-
               let inputToken: string | undefined;
               let inputAmount = new BigNumber(0);
 
-              // Determine which token was the input (has negative change) and which was output (positive change)
-              if (amountChangeX.isNegative() && amountChangeY.isPositive()) {
-                // X token was input, Y token was output
-                inputToken = pool.token_x;
-                inputAmount = amountChangeX.abs();
-              }
+              // Check if this is a precision pool SwapEvent (has amount_change_x/y)
+              if (
+                "amount_change_x" in swapData &&
+                "amount_change_y" in swapData
+              ) {
+                // Precision pool swap event
+                const pool = shapeLiquidityComponentSet.get(
+                  swapEvent.globalEmitter
+                );
 
-              if (amountChangeY.isNegative() && amountChangeX.isPositive()) {
-                // Y token was input, X token was output
-                inputToken = pool.token_y;
-                inputAmount = amountChangeY.abs();
+                if (pool) {
+                  const amountChangeX = new BigNumber(swapData.amount_change_x);
+                  const amountChangeY = new BigNumber(swapData.amount_change_y);
+
+                  // Determine which token was the input (has negative change) and which was output (positive change)
+                  if (
+                    amountChangeX.isNegative() &&
+                    amountChangeY.isPositive()
+                  ) {
+                    // X token was input, Y token was output
+                    inputToken = pool.token_x;
+                    inputAmount = amountChangeX.abs();
+                  }
+
+                  if (
+                    amountChangeY.isNegative() &&
+                    amountChangeX.isPositive()
+                  ) {
+                    // Y token was input, X token was output
+                    inputToken = pool.token_y;
+                    inputAmount = amountChangeY.abs();
+                  }
+                }
+              } else if (
+                "input_resource" in swapData &&
+                "input_amount" in swapData
+              ) {
+                // HLP or SimplePool swap event
+                inputToken = swapData.input_resource;
+                inputAmount = new BigNumber(swapData.input_amount);
               }
 
               if (inputToken) {

@@ -87,6 +87,7 @@ import {
   GetOciswapResourcePoolPositionsService,
   type InvalidResourcePoolError,
 } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import { GetCaviarnineResourcePoolPositionsService } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
@@ -239,6 +240,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
       yield* GetSurgeLiquidityPositionsService;
     const getOciswapResourcePoolPositionsService =
       yield* GetOciswapResourcePoolPositionsService;
+    const getCaviarnineResourcePoolPositionsService =
+      yield* GetCaviarnineResourcePoolPositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -315,6 +318,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allHyperstakePositions,
           allSurgeLiquidityPositions,
           allOciswapResourcePoolPositions,
+          allCaviarnineResourcePoolPositions,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -441,6 +445,14 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 // No poolType specified - will fetch both FlexPools and BasicPools
               })
               .pipe(Effect.withSpan("getOciswapResourcePoolPositionsService")),
+            getCaviarnineResourcePoolPositionsService
+              .getCaviarnineResourcePoolPositions({
+                addresses: input.addresses,
+                at_ledger_state: atLedgerState,
+              })
+              .pipe(
+                Effect.withSpan("getCaviarnineResourcePoolPositionsService")
+              ),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -641,6 +653,18 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               ] of caviarNineShapeLiquidityPositions) {
                 const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
                 caviarninePositions[poolKey] = accountPoolAssets;
+              }
+
+              // Add Caviarnine SimplePool resource pool positions
+              for (const poolData of allCaviarnineResourcePoolPositions) {
+                const pool = poolData.pool;
+                const addressResult = poolData.result.find(
+                  (r) => r.address === address
+                );
+                if (addressResult && addressResult.items.length > 0) {
+                  const poolKey = pool.name.replace("/", "_");
+                  caviarninePositions[poolKey] = addressResult.items;
+                }
               }
 
               const ociswapPositions: OciswapPosition = {};

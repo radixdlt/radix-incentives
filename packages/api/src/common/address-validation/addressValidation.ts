@@ -49,6 +49,9 @@ export class AddressValidationService extends Context.Tag(
 
     // dApp-specific validation methods (for strict event matching)
     isCaviarNinePoolComponent: (address: string) => boolean;
+    isCaviarNinePrecisionPoolComponent: (address: string) => boolean;
+    isCaviarNineHyperstakePoolComponent: (address: string) => boolean;
+    isCaviarNineSimplePoolComponent: (address: string) => boolean;
     isDefiPlazaPoolComponent: (address: string) => boolean;
     isOciswapPoolComponent: (address: string) => boolean;
     isOciswapPrecisionPoolComponent: (address: string) => boolean;
@@ -172,14 +175,29 @@ const validResourceAddresses = new Set([
   ...extractPropertyValues(SurgeConstants, "resourceAddress"),
 ]);
 
-const caviarNineComponents = new Set([
-  // Shape liquidity pools
+const caviarNinePrecisionPoolComponents = new Set([
+  // Shape liquidity pools (precision pools)
   ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
     (p) => p.componentAddress
   ),
-  // TODO: think about uncommenting this if we ever need it, but we don't need to watch events from the LSULP pool for now
-  //CaviarNineConstants.LSULP.component,
 ] as string[]);
+
+const caviarNineHyperstakePoolComponents = new Set([
+  CaviarNineConstants.HLP.componentAddress,
+] as string[]);
+
+const caviarNineSimplePoolComponents = new Set([
+  ...Object.values(CaviarNineConstants.simplePools).map(
+    (p) => p.componentAddress
+  ),
+] as string[]);
+
+// Keep the original combined set for backward compatibility
+const caviarNineComponents = new Set([
+  ...caviarNinePrecisionPoolComponents,
+  ...caviarNineHyperstakePoolComponents,
+  ...caviarNineSimplePoolComponents,
+]);
 
 const defiPlazaComponents = new Set(
   Object.values(DefiPlaza)
@@ -224,6 +242,12 @@ const caviarNineResources = new Set([
   ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, "token_y"),
   CaviarNineConstants.HLP.token_x,
   CaviarNineConstants.HLP.token_y,
+  ...extractPropertyValues(
+    CaviarNineConstants.simplePools,
+    "lpResourceAddress"
+  ),
+  ...extractPropertyValues(CaviarNineConstants.simplePools, "token_x"),
+  ...extractPropertyValues(CaviarNineConstants.simplePools, "token_y"),
 ]);
 
 const defiPlazaResources = new Set([
@@ -284,6 +308,18 @@ const poolTradingMap = (() => {
   if (hlpTokenX && hlpTokenY) {
     const activityId = "c9_trade_hyperstake" as ActivityId;
     map.set(CaviarNineConstants.HLP.componentAddress, activityId);
+  }
+  // CaviarNine Simple Pools
+  for (const pool of Object.values(CaviarNineConstants.simplePools)) {
+    const tokenX = getTokenNameSync(pool.token_x);
+    const tokenY = getTokenNameSync(pool.token_y);
+    if (tokenX && tokenY) {
+      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
+        a.localeCompare(b)
+      );
+      const activityId: ActivityId = `c9_trade_${firstToken}-${secondToken}`;
+      map.set(pool.componentAddress, activityId);
+    }
   }
   // DefiPlaza Pools
   for (const [_poolKey, pool] of Object.entries(DefiPlaza)) {
@@ -355,6 +391,25 @@ export const isValidResourceAddress = (resourceAddress: string): boolean => {
   return validResourceAddresses.has(resourceAddress);
 };
 
+export const isCaviarNinePrecisionPoolComponent = (
+  componentAddress: string
+): boolean => {
+  return caviarNinePrecisionPoolComponents.has(componentAddress);
+};
+
+export const isCaviarNineHyperstakePoolComponent = (
+  componentAddress: string
+): boolean => {
+  return caviarNineHyperstakePoolComponents.has(componentAddress);
+};
+
+export const isCaviarNineSimplePoolComponent = (
+  componentAddress: string
+): boolean => {
+  return caviarNineSimplePoolComponents.has(componentAddress);
+};
+
+// Keep the original function for backward compatibility
 export const isCaviarNinePoolComponent = (
   componentAddress: string
 ): boolean => {
@@ -422,6 +477,10 @@ export const AddressValidationServiceLive = Layer.succeed(
       const validPoolComponents = new Set([
         ...extractPropertyValues(CaviarNineConstants, "componentAddress"),
         ...extractPropertyValues(CaviarNineConstants, "component"),
+        ...extractPropertyValues(
+          CaviarNineConstants.simplePools,
+          "componentAddress"
+        ),
         ...extractPropertyValues(DefiPlaza, "componentAddress"),
         ...extractPropertyValues(OciswapConstants.pools, "componentAddress"),
         ...extractPropertyValues(OciswapConstants.poolsV2, "componentAddress"),
@@ -440,6 +499,9 @@ export const AddressValidationServiceLive = Layer.succeed(
 
     // dApp-specific pool component validation
     isCaviarNinePoolComponent,
+    isCaviarNinePrecisionPoolComponent,
+    isCaviarNineHyperstakePoolComponent,
+    isCaviarNineSimplePoolComponent,
     isDefiPlazaPoolComponent,
     isOciswapPoolComponent,
     isOciswapPrecisionPoolComponent,

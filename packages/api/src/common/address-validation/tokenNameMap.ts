@@ -12,6 +12,8 @@ export const tokenNameMap = {
     [Assets.Fungible.ILIS]: "ilis",
     [Assets.Fungible.DFP2]: "dfp2",
     [Assets.Fungible.ASTRL]: "astrl",
+    [Assets.Fungible.FLOOP]: "floop",
+    [Assets.Fungible.REDDICKS]: "reddicks",
   },
   // Non-XRD derivatives
   nonXrdDerivatives: {

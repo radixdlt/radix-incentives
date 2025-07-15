@@ -3,6 +3,9 @@ import { Assets } from "../../assets/constants";
 export type ShapeLiquidityPool =
   (typeof CaviarNineConstants.shapeLiquidityPools)[keyof typeof CaviarNineConstants.shapeLiquidityPools];
 
+export type SimplePool =
+  (typeof CaviarNineConstants.simplePools)[keyof typeof CaviarNineConstants.simplePools];
+
 export const CaviarNineConstants = {
   LSULP: {
     component:
@@ -68,6 +71,28 @@ export const CaviarNineConstants = {
       liquidity_receipt:
         "resource_rdx1nft63kjp38agw0z8nnwkyjhcgpzwjer84945h5z8yr663fgukjyp3l",
     },
+    FLOOP_XRD: {
+      name: "FLOOP/XRD",
+      componentAddress:
+        "component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz",
+      token_x: Assets.Fungible.FLOOP,
+      token_y: Assets.Fungible.XRD,
+      liquidity_receipt:
+        "resource_rdx1ntpkcfe5ny37wk487ruuxj8wrgk6qg8rjq80m08un4yg98dmyj6msq",
+    },
+  },
+  simplePools: {
+    REDDICKS_LSULP: {
+      name: "REDDICKS/LSULP",
+      componentAddress:
+        "component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n",
+      poolAddress: "pool_rdx1chmx480a0crrnaqyg2e6tr7wtqwk5239grzs6ecckcmhqjm3gdmm73",
+      lpResourceAddress:
+        "resource_rdx1tkjspzkzmhyzxwcrjha3y2aapmg5690vayjehqtfa729jnr88hcaue",
+      token_x: Assets.Fungible.REDDICKS,
+      token_y:
+        "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+    },
   },
 } as const;
 
@@ -80,6 +105,13 @@ export const shapeLiquidityReceiptSet = new Map<string, ShapeLiquidityPool>(
 
 export const shapeLiquidityComponentSet = new Map<string, ShapeLiquidityPool>(
   Object.values(CaviarNineConstants.shapeLiquidityPools).map((pool) => [
+    pool.componentAddress,
+    pool,
+  ])
+);
+
+export const simplePoolComponentSet = new Map<string, SimplePool>(
+  Object.values(CaviarNineConstants.simplePools).map((pool) => [
     pool.componentAddress,
     pool,
   ])

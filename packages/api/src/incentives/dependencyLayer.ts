@@ -31,6 +31,7 @@ import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShape
 import { GetOciswapLiquidityAssetsLive } from "../common/dapps/ociswap/getOciswapLiquidityAssets";
 import { GetOciswapLiquidityClaimsLive } from "../common/dapps/ociswap/getOciswapLiquidityClaims";
 import { GetOciswapResourcePoolPositionsLive } from "../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import { GetCaviarnineResourcePoolPositionsLive } from "../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import { GetDefiPlazaPositionsLive } from "../common/dapps/defiplaza/getDefiPlazaPositions";
 import { GetHyperstakePositionsLive } from "../common/dapps/caviarnine/getHyperstakePositions";
 import { GetResourcePoolUnitsLive } from "../common/resource-pool/getResourcePoolUnits";
@@ -322,10 +323,17 @@ const getHyperstakePositionsLive = GetHyperstakePositionsLive.pipe(
   Layer.provide(getResourcePoolUnitsLive)
 );
 
-const getOciswapResourcePoolPositionsLive = GetOciswapResourcePoolPositionsLive.pipe(
-  Layer.provide(getFungibleBalanceLive),
-  Layer.provide(getResourcePoolUnitsLive)
-);
+const getOciswapResourcePoolPositionsLive =
+  GetOciswapResourcePoolPositionsLive.pipe(
+    Layer.provide(getFungibleBalanceLive),
+    Layer.provide(getResourcePoolUnitsLive)
+  );
+
+const getCaviarnineResourcePoolPositionsLive =
+  GetCaviarnineResourcePoolPositionsLive.pipe(
+    Layer.provide(getFungibleBalanceLive),
+    Layer.provide(getResourcePoolUnitsLive)
+  );
 
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(getUsdValueLive),
@@ -385,6 +393,7 @@ const dappsLive = Layer.mergeAll(
   getOciswapLiquidityAssetsLive,
   getOciswapLiquidityClaimsLive,
   getOciswapResourcePoolPositionsLive,
+  getCaviarnineResourcePoolPositionsLive,
   getSurgeLiquidityPositionsLive
 );
 

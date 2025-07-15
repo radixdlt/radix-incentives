@@ -74,6 +74,8 @@ export const ociswapEventMatcherFn = (input: TransformedEvent) =>
       case "InstantiateEvent":
       case "AddLiquidityEvent":
       case "RemoveLiquidityEvent":
+      case "DepositEvent":
+      case "WithdrawEvent":
         return yield* Effect.succeed(null);
     }
 

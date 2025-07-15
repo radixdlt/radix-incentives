@@ -75,6 +75,34 @@ export const activitiesData = [
     id: "c9_lp_hyperstake",
     category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
+  {
+    id: `c9_lp_${getPair("reddicks", "lsulp")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `c9_lp_${getPair("floop", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_lp_${getPair("oci", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_lp_${getPair("ilis", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_lp_${getPair("early", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_lp_${getPair("astrl", "dfp2")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_lp_${getPair("xrd", "dfp2")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
 
   // New nativeLp activities for stables
   {
@@ -135,6 +163,34 @@ export const activitiesData = [
   },
   {
     id: "c9_nativeLp_hyperstake",
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `c9_nativeLp_${getPair("reddicks", "lsulp")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `c9_nativeLp_${getPair("floop", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("oci", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("ilis", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `oci_nativeLp_${getPair("early", "xrd")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_nativeLp_${getPair("astrl", "dfp2")}`,
+    category: ActivityCategoryKey.provideNativeLiquidityToDex,
+  },
+  {
+    id: `defiPlaza_nativeLp_${getPair("xrd", "dfp2")}`,
     category: ActivityCategoryKey.provideNativeLiquidityToDex,
   },
 
@@ -285,6 +341,14 @@ export const activitiesData = [
     id: `defiPlaza_hold_${getPair("dfp2", "xrd")}`,
     category: ActivityCategoryKey.maintainXrdBalance,
   },
+  {
+    id: `c9_hold_${getPair("floop", "xrd")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
+  {
+    id: `c9_hold_${getPair("reddicks", "lsulp")}`,
+    category: ActivityCategoryKey.maintainXrdBalance,
+  },
 
   // Season multiplier Hodl activities XRD activities through lending positions
   {
@@ -376,6 +440,34 @@ export const activitiesData = [
   },
   {
     id: `oci_trade_${getPair("xrd", "xwbtc")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `c9_trade_${getPair("reddicks", "lsulp")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `c9_trade_${getPair("floop", "xrd")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `oci_trade_${getPair("oci", "xrd")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `oci_trade_${getPair("ilis", "xrd")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `oci_trade_${getPair("early", "xrd")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `defiPlaza_trade_${getPair("astrl", "dfp2")}`,
+    category: ActivityCategoryKey.tradingVolume,
+  },
+  {
+    id: `defiPlaza_trade_${getPair("xrd", "dfp2")}`,
     category: ActivityCategoryKey.tradingVolume,
   },
 ];
