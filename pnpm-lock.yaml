@@ -78,6 +78,9 @@ catalogs:
     '@tanstack/react-query':
       specifier: ^5.69.0
       version: 5.71.10
+    '@testcontainers/postgresql':
+      specifier: ^11.2.1
+      version: 11.2.1
     '@trpc/client':
       specifier: ^11.0.0
       version: 11.0.2
@@ -111,6 +114,9 @@ catalogs:
     clsx:
       specifier: ^2.1.1
       version: 2.1.1
+    commander:
+      specifier: ^12.0.0
+      version: 12.1.0
     date-fns:
       specifier: ^4.1.0
       version: 4.1.0
@@ -814,6 +820,55 @@ importers:
         specifier: ^3.1.2
         version: 3.1.2(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0)
 
+  experiments/preview:
+    dependencies:
+      '@testcontainers/postgresql':
+        specifier: 'catalog:'
+        version: 11.2.1
+      '@types/fs-extra':
+        specifier: ^11.0.4
+        version: 11.0.4
+      api:
+        specifier: workspace:*
+        version: link:../../packages/api
+      bignumber.js:
+        specifier: 'catalog:'
+        version: 9.3.0
+      commander:
+        specifier: 'catalog:'
+        version: 12.1.0
+      db:
+        specifier: workspace:*
+        version: link:../../packages/db
+      drizzle-orm:
+        specifier: 'catalog:'
+        version: 0.33.0(@opentelemetry/api@1.9.0)(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0)
+      effect:
+        specifier: 'catalog:'
+        version: 3.14.6
+      fs-extra:
+        specifier: ^11.3.0
+        version: 11.3.0
+      inquirer:
+        specifier: 'catalog:'
+        version: 8.2.6
+      postgres:
+        specifier: 'catalog:'
+        version: 3.4.5
+    devDependencies:
+      '@types/inquirer':
+        specifier: 'catalog:'
+        version: 9.0.8
+      tsup:
+        specifier: 'catalog:'
+        version: 8.4.0(jiti@2.4.2)(postcss@8.5.3)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.8.0)
+      tsx:
+        specifier: 'catalog:'
+        version: 4.19.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0)
+
   experiments/xrd-calculation:
     dependencies:
       api:
@@ -892,9 +947,6 @@ importers:
       '@stabilis/c9-shape-liquidity-getter':
         specifier: ^1.1.2
         version: 1.1.2
-      '@testcontainers/postgresql':
-        specifier: ^11.2.1
-        version: 11.2.1
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.2(typescript@5.8.2)
@@ -956,6 +1008,9 @@ importers:
       '@effect/vitest':
         specifier: ^0.20.10
         version: 0.20.10(effect@3.14.6)(vitest@3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0))
+      '@testcontainers/postgresql':
+        specifier: 'catalog:'
+        version: 11.2.1
       '@types/aws-lambda':
         specifier: 'catalog:'
         version: 8.10.147
@@ -3514,8 +3569,14 @@ packages:
   '@types/estree@1.0.7':
     resolution: {integrity: sha512-w28IoSUCJpidD/TGviZwwMJckNESJZXFu7NBZ5YJ4mEUnNraUn9Pm8HSZm/jDF1pDWYKspWE7oVphigUPRakIQ==}
 
+  '@types/fs-extra@11.0.4':
+    resolution: {integrity: sha512-yTbItCNreRooED33qjunPthRcSjERP1r4MqCZc7wv0u2sUkzTFp45tgUfS5+r7FrZPdmCCNflLhVSP/o+SemsQ==}
+
   '@types/inquirer@9.0.8':
     resolution: {integrity: sha512-CgPD5kFGWsb8HJ5K7rfWlifao87m4ph8uioU7OTncJevmE/VLIqAAjfQtko578JZg7/f69K4FgqYym3gNr7DeA==}
+
+  '@types/jsonfile@6.1.4':
+    resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
 
   '@types/make-fetch-happen@10.0.4':
     resolution: {integrity: sha512-jKzweQaEMMAi55ehvR1z0JF6aSVQm/h1BXBhPLOJriaeQBctjw5YbpIGs7zAx9dN0Sa2OO5bcXwCkrlgenoPEA==}
@@ -3922,6 +3983,10 @@ packages:
     resolution: {integrity: sha512-FQN4MRfuJeHf7cBbBMJFXhKSDq+2kAArBlmRBvcvFE5BB1HZKXtSFASDhdlz9zOYwxh8lDdnvmMOe/+5cdoEdg==}
     engines: {node: '>= 0.8'}
 
+  commander@12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
+
   commander@4.1.1:
     resolution: {integrity: sha512-NOKm8xhkzAjzFx8B2v5OAHT+u5pRQc2UCa2Vq9jYL/31o2wi9mxBA7LIFs3sV5VSC49z6pEhfbMULvShKj26WA==}
     engines: {node: '>= 6'}
@@ -4306,6 +4371,10 @@ packages:
   fs-constants@1.0.0:
     resolution: {integrity: sha512-y6OAwoSIf7FyjMIv94u+b5rdheZEjzR63GTyZJm5qh4Bi+2YgwLCcI/fPFZkL5PSixOt6ZNKm+w+Hfp/Bciwow==}
 
+  fs-extra@11.3.0:
+    resolution: {integrity: sha512-Z4XaCL6dUDHfP/jT25jJKMmtxvuwbkrD1vNSMFlo9lNLY2c5FHYSQgHPRZUjAB26TpDEoW9HCOgplrdbaPV/ew==}
+    engines: {node: '>=14.14'}
+
   fs-minipass@3.0.3:
     resolution: {integrity: sha512-XUBA9XClHbnJWSfBzjkm6RvPsyg3sryZt06BEQoXcF7EK/xpGaQYJgQKDJSUH5SGZ76Y7pFx1QBnXz09rU5Fbw==}
     engines: {node: ^14.17.0 || ^16.13.0 || >=18.0.0}
@@ -4494,6 +4563,9 @@ packages:
 
   jsbn@1.1.0:
     resolution: {integrity: sha512-4bYVV3aAMtDTTu4+xsDYa6sy9GyJ69/amsu9sYF2zqjiEoZA5xJi3BrfX3uY+/IekIu7MwdObdbDWpoZdBv3/A==}
+
+  jsonfile@6.1.0:
+    resolution: {integrity: sha512-5dgndWOriYSm5cnYaJNhalLNDKOqFwyDB/rr1E9ZsGciGvKPs8R2xYGCacuf3z6K1YKDz182fd+fY3cn3pMqXQ==}
 
   lazystream@1.0.1:
     resolution: {integrity: sha512-b94GiNHQNy6JNTrt5w6zNyffMrNkXZb3KTkCZJb2V1xaEGCk093vkZ2jk3tpaeP33/OiXC+WvK9AxUebnf5nbw==}
@@ -5493,6 +5565,10 @@ packages:
   unique-slug@5.0.0:
     resolution: {integrity: sha512-9OdaqO5kwqR+1kVgHAhsp5vPNU0hnxRa26rBFNfNgM7M6pNtgzeBn3s/xbyCQL3dcjzOatcef6UUHpB/6MaETg==}
     engines: {node: ^18.17.0 || >=20.5.0}
+
+  universalify@2.0.1:
+    resolution: {integrity: sha512-gptHNQghINnc/vTGIk0SOFGFNXw7JVrlRUtConJRlvaw6DuX0wO5Jeko9sWrMBhh+PsYAZ7oXAiOnf/UKogyiw==}
+    engines: {node: '>= 10.0.0'}
 
   upper-case-first@2.0.2:
     resolution: {integrity: sha512-514ppYHBaKwfJRK/pNC6c/OxfGa0obSnAl106u97Ed0I625Nin96KAjttZF6ZL3e1XLtphxnqrOi9iWgm+u+bg==}
@@ -8215,10 +8291,19 @@ snapshots:
 
   '@types/estree@1.0.7': {}
 
+  '@types/fs-extra@11.0.4':
+    dependencies:
+      '@types/jsonfile': 6.1.4
+      '@types/node': 22.15.17
+
   '@types/inquirer@9.0.8':
     dependencies:
       '@types/through': 0.0.33
       rxjs: 7.8.2
+
+  '@types/jsonfile@6.1.4':
+    dependencies:
+      '@types/node': 22.15.17
 
   '@types/make-fetch-happen@10.0.4':
     dependencies:
@@ -8688,6 +8773,8 @@ snapshots:
     dependencies:
       delayed-stream: 1.0.0
 
+  commander@12.1.0: {}
+
   commander@4.1.1: {}
 
   compress-commons@6.0.2:
@@ -9049,6 +9136,12 @@ snapshots:
 
   fs-constants@1.0.0: {}
 
+  fs-extra@11.3.0:
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.1.0
+      universalify: 2.0.1
+
   fs-minipass@3.0.3:
     dependencies:
       minipass: 7.1.2
@@ -9262,6 +9355,12 @@ snapshots:
   joycon@3.1.1: {}
 
   jsbn@1.1.0: {}
+
+  jsonfile@6.1.0:
+    dependencies:
+      universalify: 2.0.1
+    optionalDependencies:
+      graceful-fs: 4.2.11
 
   lazystream@1.0.1:
     dependencies:
@@ -10235,7 +10334,7 @@ snapshots:
       cac: 6.7.14
       chokidar: 4.0.3
       consola: 3.4.2
-      debug: 4.4.0
+      debug: 4.4.1
       esbuild: 0.25.2
       joycon: 3.1.1
       picocolors: 1.1.1
@@ -10316,6 +10415,8 @@ snapshots:
     dependencies:
       imurmurhash: 0.1.4
 
+  universalify@2.0.1: {}
+
   upper-case-first@2.0.2:
     dependencies:
       tslib: 2.8.1
@@ -10352,7 +10453,7 @@ snapshots:
   vite-node@3.1.1(@types/node@20.17.30)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0
+      debug: 4.4.1
       es-module-lexer: 1.6.0
       pathe: 2.0.3
       vite: 6.2.5(@types/node@20.17.30)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0)
@@ -10373,7 +10474,7 @@ snapshots:
   vite-node@3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0):
     dependencies:
       cac: 6.7.14
-      debug: 4.4.0
+      debug: 4.4.1
       es-module-lexer: 1.6.0
       pathe: 2.0.3
       vite: 6.2.5(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0)
@@ -10448,7 +10549,7 @@ snapshots:
       '@vitest/spy': 3.1.1
       '@vitest/utils': 3.1.1
       chai: 5.2.0
-      debug: 4.4.0
+      debug: 4.4.1
       expect-type: 1.2.1
       magic-string: 0.30.17
       pathe: 2.0.3
@@ -10486,7 +10587,7 @@ snapshots:
       '@vitest/spy': 3.1.1
       '@vitest/utils': 3.1.1
       chai: 5.2.0
-      debug: 4.4.0
+      debug: 4.4.1
       expect-type: 1.2.1
       magic-string: 0.30.17
       pathe: 2.0.3

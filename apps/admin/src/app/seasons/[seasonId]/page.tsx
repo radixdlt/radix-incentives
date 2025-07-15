@@ -263,20 +263,6 @@ const getWeekStatusVariant = (
   }
 };
 
-// Add helper for activity week status
-const getActivityWeekStatusVariant = (
-  status: ActivityWeek['status'],
-): 'secondary' | 'default' | 'destructive' => {
-  switch (status) {
-    case 'active':
-      return 'default';
-    case 'inactive':
-      return 'secondary';
-    default:
-      return 'secondary';
-  }
-};
-
 // Add component to display activity weeks
 const ActivityWeeksDisplay: React.FC<{
   weekId: string;
@@ -327,7 +313,7 @@ const ActivityWeeksDisplay: React.FC<{
                   ID: {activityWeek.activityId}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
                   {activityWeek.pointsPool || 0} pts
                 </span>
@@ -337,7 +323,7 @@ const ActivityWeeksDisplay: React.FC<{
                 >
                   {activityWeek.status}
                 </Badge>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>

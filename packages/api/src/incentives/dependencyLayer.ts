@@ -72,8 +72,8 @@ import { CalculateSeasonPointsService } from "./season-points/calculateSeasonPoi
 import { GetSeasonByIdLive } from "./season/getSeasonById";
 import { GetActivitiesByWeekIdLive } from "./activity/getActivitiesByWeekId";
 import { UserActivityPointsService } from "./user/userActivityPoints";
-import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
-import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
+import { UpdateWeekStatusService } from "./week/updateWeekStatus";
+import { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import {
   SeasonPointsMultiplierWorkerLive,
@@ -81,7 +81,7 @@ import {
 } from "./season-point-multiplier/seasonPointsMultiplierWorker";
 import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
-import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeasonPointMultiplier";
+import { GetSeasonPointMultiplierService } from "./season-point-multiplier/getSeasonPointMultiplier";
 
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
@@ -496,15 +496,14 @@ const getUserActivityPointsLive = UserActivityPointsService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
-const addSeasonPointsToUserLive = AddSeasonPointsToUserLive.pipe(
+const addSeasonPointsToUserLive = AddSeasonPointsToUserService.Default.pipe(
   Layer.provide(dbClientLive)
 );
-const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
+const updateWeekStatusLive = UpdateWeekStatusService.Default.pipe(
   Layer.provide(dbClientLive)
 );
-const getSeasonPointMultiplierLive = GetSeasonPointMultiplierLive.pipe(
-  Layer.provide(dbClientLive)
-);
+const getSeasonPointMultiplierLive =
+  GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbClientLive));
 
 const activityCategoryWeekServiceLive =
   ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));

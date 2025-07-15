@@ -32,10 +32,10 @@ import { Effect } from "effect";
  * ```
  *
  * ## Behavior:
- * - **Sorting**: Users are sorted by points in **ascending order** (lowest points first)
+ * - **Sorting**: Users are sorted by points in **descending order** (highest points first), then reversed to place highest point users in later bands
  * - **Band Distribution**: Users are divided as evenly as possible across bands
  * - **Pool Shares**: Each band gets a progressively higher pool share (last band gets highest share)
- * - **Remainder Handling**: If users don't divide evenly, the first bands get extra users
+ * - **Remainder Handling**: If users don't divide evenly, the first bands (lower rewards) get extra users
  *
  * ## Edge Cases:
  * - **Empty Users**: Returns empty array if no users provided
@@ -67,11 +67,11 @@ export const createUserBands = (input: {
   users: { points: BigNumber; userId: string }[];
 }) =>
   Effect.gen(function* () {
-    // Sort users by points in ascending order (lowest points first)
-    // This puts highest point users in later bands which have higher pool shares
+    // Sort users by points in descending order (highest points first)
+    // Highest point users will go to later bands which have higher pool shares
     const sortedUsers = input.users.sort((a, b) => {
-      const comparison = new BigNumber(a.points).comparedTo(
-        new BigNumber(b.points)
+      const comparison = new BigNumber(b.points).comparedTo(
+        new BigNumber(a.points)
       );
       return comparison ?? 0;
     });
@@ -79,48 +79,70 @@ export const createUserBands = (input: {
     // Calculate band configuration
     const totalSurvivingUsers = sortedUsers.length;
 
-    const numberOfBands = input.numberOfBands;
-    const poolShareStart = input.poolShareStart;
-    const poolShareStep = input.poolShareStep;
-
-    const baseBandSize = Math.floor(totalSurvivingUsers / numberOfBands);
-    const remainder = totalSurvivingUsers % numberOfBands;
-
-    yield* Effect.log(
-      `creating ${numberOfBands} bands with base size ${baseBandSize} users each. ${remainder} bands will have ${baseBandSize + 1} users (${totalSurvivingUsers} surviving users)`
+    // Only create bands for users that exist
+    const actualNumberOfBands = Math.min(
+      input.numberOfBands,
+      totalSurvivingUsers
     );
 
-    const bands = Array.from({ length: numberOfBands }, (_, i) => i).reduce(
-      (acc, i) => {
-        // First 'remainder' bands get an extra user
-        const bandSize = i < remainder ? baseBandSize + 1 : baseBandSize;
-        const startIndex = acc.reduce(
-          (sum, band) => sum + band.userIds.length,
-          0
-        );
-        const endIndex = startIndex + bandSize;
-        const band = sortedUsers.slice(startIndex, endIndex);
-        const lastPoolShare = acc.at(-1)?.poolShare;
+    if (actualNumberOfBands === 0) {
+      yield* Effect.log(
+        "created 0 bands with base size 0 users each. 0 bands will have 1 users (0 surviving users)",
+        { bands: [] }
+      );
+      return [];
+    }
 
-        const poolShare =
-          lastPoolShare?.multipliedBy(poolShareStep).decimalPlaces(4) ??
-          poolShareStart;
+    const baseBandSize = Math.floor(totalSurvivingUsers / actualNumberOfBands);
+    const remainder = totalSurvivingUsers % actualNumberOfBands;
 
-        if (band.length > 0) {
-          acc.push({
-            bandNumber: i + 1,
-            userIds: band.map((user) => user.userId),
-            poolShare,
-          });
-        }
+    // Calculate starting band number - if fewer users than bands, start from highest bands
+    const startingBandNumber = input.numberOfBands - actualNumberOfBands + 1;
 
-        return acc;
-      },
-      [] as {
-        bandNumber: number;
-        userIds: string[];
-        poolShare: BigNumber;
-      }[]
+    const bands: {
+      bandNumber: number;
+      userIds: string[];
+      poolShare: BigNumber;
+    }[] = [];
+
+    let currentUserIndex = 0;
+
+    // Create bands from startingBandNumber to numberOfBands
+    for (let bandIndex = 0; bandIndex < actualNumberOfBands; bandIndex++) {
+      // First 'remainder' bands get an extra user (lower reward bands get extra users)
+      const bandSize = bandIndex < remainder ? baseBandSize + 1 : baseBandSize;
+
+      // Get users for this band (lowest points users go to lowest bands)
+      const endIndex = totalSurvivingUsers - currentUserIndex;
+      const startIndex = endIndex - bandSize;
+      const bandUsers = sortedUsers.slice(startIndex, endIndex);
+      currentUserIndex += bandSize;
+
+      // Calculate the actual band number
+      const actualBandNumber = startingBandNumber + bandIndex;
+
+      // Calculate pool share for this band based on the actual band number
+      // Pool share calculation uses (actualBandNumber - 1) as the exponent since band 1 should get exponent 0
+      const poolShare = input.poolShareStart
+        .multipliedBy(input.poolShareStep.pow(actualBandNumber - 1))
+        .decimalPlaces(4);
+
+      bands.push({
+        bandNumber: actualBandNumber,
+        userIds: bandUsers.map((user) => user.userId),
+        poolShare,
+      });
+    }
+
+    yield* Effect.log(
+      `created ${bands.length} bands with base size ${baseBandSize} users each. ${remainder} bands will have ${baseBandSize + 1} users (${totalSurvivingUsers} surviving users)`,
+      {
+        bands: bands.map((band) => ({
+          bandNumber: band.bandNumber,
+          numberOfUsers: band.userIds.length,
+          poolShare: band.poolShare.toString(),
+        })),
+      }
     );
 
     return bands;

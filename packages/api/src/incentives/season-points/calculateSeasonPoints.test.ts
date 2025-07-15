@@ -26,15 +26,12 @@ import postgres from "postgres";
 
 // Import required services
 import { UserActivityPointsService } from "../user/userActivityPoints";
-import { AddSeasonPointsToUserLive } from "./addSeasonPointsToUser";
-import { UpdateWeekStatusLive } from "../week/updateWeekStatus";
-import { GetSeasonPointMultiplierLive } from "../season-point-multiplier/getSeasonPointMultiplier";
+import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
+import { UpdateWeekStatusService } from "../week/updateWeekStatus";
+import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
-import { GetSeasonByIdLive } from "../season/getSeasonById";
-import { GetWeekByIdLive } from "../week/getWeekById";
-import { GetActivitiesByWeekIdLive } from "../activity/getActivitiesByWeekId";
 
 describe(
   "CalculateSeasonPointsService",
@@ -436,15 +433,13 @@ describe(
       const userActivityPointsLayer = UserActivityPointsService.Default.pipe(
         Layer.provide(dbLive)
       );
-      const addSeasonPointsToUserLayer = AddSeasonPointsToUserLive.pipe(
+      const addSeasonPointsToUserLayer =
+        AddSeasonPointsToUserService.Default.pipe(Layer.provide(dbLive));
+      const updateWeekStatusLayer = UpdateWeekStatusService.Default.pipe(
         Layer.provide(dbLive)
       );
-      const updateWeekStatusLayer = UpdateWeekStatusLive.pipe(
-        Layer.provide(dbLive)
-      );
-      const getSeasonPointMultiplierLayer = GetSeasonPointMultiplierLive.pipe(
-        Layer.provide(dbLive)
-      );
+      const getSeasonPointMultiplierLayer =
+        GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbLive));
 
       const testLayer = CalculateSeasonPointsService.Default.pipe(
         Layer.provide(dbLive),

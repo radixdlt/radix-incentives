@@ -115,7 +115,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         input: CalculateSeasonPointsInput
       ) {
         if (input.endOfWeek) {
-          yield* updateWeekStatus({
+          yield* updateWeekStatus.run({
             id: input.weekId,
             status: "completed",
           });
@@ -176,7 +176,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                         acc[item.userId] = new BigNumber(0);
                       }
 
-                      acc[item.userId] = acc[item.userId].plus(item.points);
+                      // biome-ignore lint/style/noNonNullAssertion: it is known
+                      acc[item.userId] = acc[item.userId]!.plus(item.points);
 
                       return acc;
                     }, {})
@@ -194,15 +195,18 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               })
             );
 
-          const seasonPointMultipliers = yield* getSeasonPointMultiplier({
-            weekId: input.weekId,
-          }).pipe(Effect.map((items) => groupBy(items, (item) => item.userId)));
+          const seasonPointMultipliers = yield* getSeasonPointMultiplier
+            .run({
+              weekId: input.weekId,
+            })
+            .pipe(Effect.map((items) => groupBy(items, (item) => item.userId)));
 
           const userSeasonPoints = yield* Effect.forEach(
             userActivityPointsGroupedByActivityCategory,
             Effect.fn(function* (activityCategory) {
+              yield* Effect.log("--------------------------------");
               yield* Effect.log(
-                `calculating season points for ${activityCategory.categoryId}`
+                `processing category: ${activityCategory.categoryId} with points pool: ${activityCategory.pointsPool}`
               );
 
               // should not happen at this point, but just in case
@@ -210,6 +214,11 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 yield* Effect.log(
                   `activity category ${activityCategory.categoryId} has no points, skipping`
                 );
+                return;
+              }
+
+              if (activityCategory.users.length === 0) {
+                yield* Effect.log("no users found, skipping");
                 return;
               }
 
@@ -227,7 +236,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
               const bands = yield* createUserBands({
                 numberOfBands: 20,
-                poolShareStart: new BigNumber("0.98"),
+                poolShareStart: new BigNumber("0.98").div(100),
                 poolShareStep: new BigNumber("1.15"),
                 users: withoutLowerBounds,
               });
@@ -250,7 +259,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   acc[curr.userId] = new BigNumber(0);
                 }
 
-                acc[curr.userId] = acc[curr.userId].plus(curr.seasonPoints);
+                // biome-ignore lint/style/noNonNullAssertion: it is known
+                acc[curr.userId] = acc[curr.userId]!.plus(curr.seasonPoints);
 
                 return acc;
               }, {})
@@ -272,9 +282,11 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             )
           );
 
-          yield* addSeasonPointsToUser(userSeasonPoints);
+          yield* addSeasonPointsToUser.run(userSeasonPoints);
 
           yield* markAsProcessed(input);
+
+          yield* Effect.log("--------------------------------");
 
           yield* Effect.log(
             `season points for week ${input.weekId} successfully applied to users`
