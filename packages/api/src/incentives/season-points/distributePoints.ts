@@ -10,7 +10,7 @@ export const distributeSeasonPoints = (input: {
   return Effect.gen(function* () {
     const points = yield* Effect.forEach(input.bands, (band) => {
       return Effect.gen(function* () {
-        const points = input.pointsPool.multipliedBy(band.poolShare);
+        const points = input.pointsPool.multipliedBy(band.poolShare).dividedBy(100);
         const pointsPerUser = points.dividedBy(band.userIds.length);
 
         return band.userIds.map((userId) => {

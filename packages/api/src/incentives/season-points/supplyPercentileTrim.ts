@@ -14,7 +14,7 @@ export const supplyPercentileTrim = (
     const pointsMatrix = users.reduce<BigNumber[]>((acc, curr, index, arr) => {
       const pointsBefore = arr
         .slice(0, index)
-        .reduce((acc, curr) => acc.plus(curr.points), curr.points);
+        .reduce((acc, curr) => acc.plus(curr.points), new BigNumber(0));
 
       acc.push(curr.points.plus(pointsBefore));
       return acc;
