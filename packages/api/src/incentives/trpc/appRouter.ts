@@ -6,7 +6,7 @@ import {
   adminActivityRouter,
 } from "../activity/activityRouter";
 import { seasonRouter } from "../season/seasonRouter";
-import { userRouter } from "../user/userRouter";
+import { adminUserRouter, userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 import { configRouter } from "../config/configRouter";
 
@@ -29,7 +29,7 @@ export const adminAppRouter = createTRPCRouter({
   account: accountRouter,
   activity: adminActivityRouter,
   season: seasonRouter,
-  user: userRouter,
+  user: adminUserRouter,
   leaderboard: leaderboardRouter,
 });
 
