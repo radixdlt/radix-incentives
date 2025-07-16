@@ -1,13 +1,18 @@
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
-import { verifyConsultationSignatureInputSchema } from "../programs/verifyConsultationSignature";
+import { verifyConsultationSignatureInputSchema } from "./verifyConsultationSignature";
 import { createConsultationMessageHash } from "./createConsultationHash";
 import { toHex } from "../../common/crypto";
-import { repurposeTheStablecoinReserveSchema } from "./schemas";
+
+import {
+  type Consultation,
+  consultationConfig,
+  SelectedOptionSchema,
+} from "./consultationConfig";
 
 export const consultationRouter = createTRPCRouter({
   createConsultationHash: protectedProcedure
-    .input(repurposeTheStablecoinReserveSchema)
+    .input(SelectedOptionSchema)
     .mutation(
       async ({ input }) =>
         await createConsultationMessageHash(input).then(toHex)
@@ -16,7 +21,20 @@ export const consultationRouter = createTRPCRouter({
   verifyConsultationSignature: protectedProcedure
     .input(verifyConsultationSignatureInputSchema)
     .mutation(async ({ input, ctx }) => {
-      if (new Date("2025-05-19T23:59:00Z") < new Date()) {
+      input.consultationId;
+
+      const consultation = Object.values(consultationConfig).find(
+        (c) => c.consultationId === input.consultationId
+      );
+
+      if (!consultation) {
+        throw new TRPCError({
+          code: "BAD_REQUEST",
+          message: "Consultation not found",
+        });
+      }
+
+      if (consultation.endDate < new Date()) {
         throw new TRPCError({
           code: "BAD_REQUEST",
           message: "Consultation has ended",
@@ -53,4 +71,14 @@ export const consultationRouter = createTRPCRouter({
     }
     return result.value;
   }),
+  listConsultations: protectedProcedure.query(
+    async ({ ctx }): Promise<Consultation[]> => {
+      const result = await ctx.dependencyLayer.listConsultations();
+      if (result._tag === "Failure") {
+        console.error(result.cause);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      }
+      return result.value;
+    }
+  ),
 });

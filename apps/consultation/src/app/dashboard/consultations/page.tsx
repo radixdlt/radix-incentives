@@ -1,50 +1,25 @@
-"use client";
+'use client';
 
-import { type FC, useState, useEffect } from "react";
-import { toast } from "sonner";
+import { type FC, useState, useEffect } from 'react';
+import { toast } from 'sonner';
 
-import { ConsultationCard } from "./components/ConsultationCard";
-import { SubmittedConsultationsCard } from "./components/SubmittedConsultationsCard";
-import { useDappToolkit } from "~/lib/hooks/useRdt";
-import { ConnectedState } from "../components/ConnectedState";
-import { OneTimeDataRequestBuilder } from "@radixdlt/radix-dapp-toolkit";
-import { api } from "~/trpc/react";
-import { Skeleton } from "~/components/ui/skeleton";
-import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { usePersona } from "~/lib/hooks/usePersona";
-import { EmptyState } from "~/components/ui/empty-state";
-import { Wallet } from "lucide-react";
-import { consultationConfig } from "./consultationConfig";
-
-// --- Types (Adjust based on actual API response) ---
-// Assuming the API returns a structure similar to PlaceholderConsultation
-// but potentially with different field names or nullability.
-export type VotingOption = {
-  id: string;
-  text: string;
-};
-
-// Type for API response (adapt as needed)
-export type Consultation = {
-  id: string;
-  question: string;
-  options: VotingOption[];
-  startDate: Date;
-  endDate: Date;
-  rules: string;
-  userVotingPower: number | null; // May be null if not applicable/calculated
-  userHasVoted: boolean;
-  submittedAt?: Date | null; // May be null if not voted
-  selectedOptionId?: string | null; // May be null if not voted
-  // Add other fields from the API response if necessary
-};
-
-// Type specifically for SubmittedConsultationsCard props
-export type SubmittedConsultation = Consultation & {
-  submittedAt: Date; // Ensure these are present for submitted items
-  selectedOptionId: string;
-};
-// ---------------------------------------------------
+import { ConsultationCard } from './components/ConsultationCard';
+import { SubmittedConsultationsCard } from './components/SubmittedConsultationsCard';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
+import { ConnectedState } from '../components/ConnectedState';
+import { OneTimeDataRequestBuilder } from '@radixdlt/radix-dapp-toolkit';
+import { api } from '~/trpc/react';
+import { Skeleton } from '~/components/ui/skeleton';
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { EmptyState } from '~/components/ui/empty-state';
+import { Wallet } from 'lucide-react';
+import type {
+  Consultation,
+  ConsultationId,
+  ConsultationOptionId,
+  SelectedOption,
+} from 'api/consultation';
 
 /**
  * VotingPage Component
@@ -61,6 +36,7 @@ const VotingPage: FC = () => {
   const verifyConsultationSignature =
     api.consultation.verifyConsultationSignature.useMutation({ retry: false });
   const persona = usePersona();
+  const listConsultations = api.consultation.listConsultations.useQuery();
 
   const {
     data: consultationsData,
@@ -81,7 +57,7 @@ const VotingPage: FC = () => {
   });
 
   useEffect(() => {
-    if (accounts.error?.data?.code === "UNAUTHORIZED") {
+    if (accounts.error?.data?.code === 'UNAUTHORIZED') {
       rdt?.disconnect();
     }
   }, [accounts.error, rdt]);
@@ -89,26 +65,28 @@ const VotingPage: FC = () => {
   /**
    * Handler for submitting a vote, now uses activeConsultation.
    */
-  const handleVoteSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  const handleVoteSubmit = async (
+    event: React.FormEvent<HTMLFormElement>,
+    consultation: Consultation,
+  ) => {
     event.preventDefault();
     if (!selectedOptionId) {
-      toast.warning("Please select an option before submitting.");
+      toast.warning('Please select an option before submitting.');
       return;
     }
 
     setIsSubmitting(true); // Use isSubmitting state
-    toast.info("Submitting your consultation...");
+    toast.info('Submitting your consultation...');
 
     const userConsultationValue = {
-      consultationId:
-        consultationConfig.RepurposeTheStablecoinReserve.consultationId,
-      selectedOption: selectedOptionId,
-    };
+      consultationId: consultation.consultationId as ConsultationId,
+      selectedOption: selectedOptionId as ConsultationOptionId,
+    } satisfies SelectedOption;
 
     try {
       // Create the hash of the user's consultation value
       const hash = await createConsultationHash.mutateAsync(
-        userConsultationValue
+        userConsultationValue,
       );
 
       const registeredAccountAddresses =
@@ -119,8 +97,8 @@ const VotingPage: FC = () => {
 
       const walletResponse = await rdt?.walletApi.sendOneTimeRequest(
         OneTimeDataRequestBuilder.proofOfOwnership().accounts(
-          registeredAccountAddresses
-        )
+          registeredAccountAddresses,
+        ),
       );
 
       if (walletResponse?.isOk()) {
@@ -134,14 +112,14 @@ const VotingPage: FC = () => {
               type: proof.type,
               label:
                 connectedAccounts.data?.find(
-                  (account) => account.address === proof.address
-                )?.label ?? "",
+                  (account) => account.address === proof.address,
+                )?.label ?? '',
               address: proof.address,
               proof: proof.proof,
             })),
           },
         });
-        toast.success("Consultation submitted successfully!");
+        toast.success('Consultation submitted successfully!');
         // Optimistically update or refetch consultations after successful vote
         // e.g., getConsultations.refetch(); or manually update state
         // For simplicity, we'll rely on potential future refetch/cache invalidation
@@ -149,17 +127,17 @@ const VotingPage: FC = () => {
       } else if (walletResponse?.isErr()) {
         // Handle wallet errors if possible (e.g., user rejection)
         toast.error(
-          walletResponse.error.message ?? "Wallet interaction failed."
+          walletResponse.error.message ?? 'Wallet interaction failed.',
         );
       }
     } catch (error) {
-      console.error("Vote Submission Error:", error);
+      console.error('Vote Submission Error:', error);
       // More specific error handling based on caught error type if needed
-      toast.error("Error submitting vote. Please try again.");
+      toast.error('Error submitting vote. Please try again.');
     } finally {
       // Always reset challenge generator and loading state
       rdt?.walletApi.provideChallengeGenerator(() =>
-        generateChallenge.mutateAsync()
+        generateChallenge.mutateAsync(),
       );
       setIsSubmitting(false);
       refetchConsultations();
@@ -221,21 +199,26 @@ const VotingPage: FC = () => {
     // Data loaded successfully
     return (
       <div className="space-y-6">
-        <ConsultationCard
-          // Cast activeConsultation to the type expected by ConsultationCard if necessary
-          // This assumes ConsultationCard expects a type compatible with 'Consultation'
-          consultation={{
-            question: `Repurpose the Stablecoin Reserve. <a class="text-blue-500 text-lg hover:underline" href="https://www.radixdlt.com/blog/token-holder-consultation-repurposing-the-stablecoin-reserve" target="_blank" rel="noopener noreferrer">Learn more</a>`,
-            startDate:
-              consultationConfig.RepurposeTheStablecoinReserve.startDate,
-            endDate: consultationConfig.RepurposeTheStablecoinReserve.endDate,
-            options: consultationConfig.RepurposeTheStablecoinReserve.options,
-          }}
-          selectedOptionId={selectedOptionId}
-          isLoading={isSubmitting} // Pass submission loading state
-          onOptionChange={setSelectedOptionId}
-          onSubmit={handleVoteSubmit}
-        />
+        {listConsultations.data?.map((consultation) => (
+          <ConsultationCard
+            key={consultation.consultationId}
+            // Cast activeConsultation to the type expected by ConsultationCard if necessary
+            // This assumes ConsultationCard expects a type compatible with 'Consultation'
+            consultation={{
+              title: consultation.title,
+              question: consultation.question,
+              startDate: consultation.startDate,
+              endDate: consultation.endDate,
+              options: consultation.options,
+            }}
+            selectedOptionId={selectedOptionId}
+            isLoading={isSubmitting} // Pass submission loading state
+            onOptionChange={setSelectedOptionId}
+            onSubmit={(event) =>
+              handleVoteSubmit(event, consultation as unknown as Consultation)
+            }
+          />
+        ))}
 
         {/* Separator */}
         <div className="py-4">

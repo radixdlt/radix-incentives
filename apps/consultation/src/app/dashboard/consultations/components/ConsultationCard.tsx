@@ -1,13 +1,19 @@
-"use client";
+'use client';
 
-import type { FC } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import type { FC } from 'react';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
 
-import { VotingForm } from "./VotingForm";
-import { VotedMessage } from "./VotedMessage";
+import { VotingForm } from './VotingForm';
 
 type ConsultationCardProps = {
   consultation: {
+    title: string;
     question: string;
     startDate: Date;
     endDate: Date;
@@ -35,12 +41,13 @@ export const ConsultationCard: FC<ConsultationCardProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle
+        <CardTitle>{consultation.title}</CardTitle>
+        <CardDescription
           // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
           dangerouslySetInnerHTML={{ __html: consultation.question }}
         />
         <p className="text-sm text-muted-foreground">
-          Consultation Period: {consultation.startDate.toLocaleDateString()} -{" "}
+          Consultation Period: {consultation.startDate.toLocaleDateString()} -{' '}
           {consultation.endDate.toLocaleDateString()}
         </p>
       </CardHeader>

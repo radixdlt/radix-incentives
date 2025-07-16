@@ -1,22 +1,18 @@
-"use client";
+'use client';
 
-import type { FC } from "react";
-import { Button } from "~/components/ui/button";
-import { RadioGroup, RadioGroupItem } from "~/components/ui/radio-group";
-import { Label } from "~/components/ui/label";
-import type { VotingOption } from "../page"; // Import type from parent
+import type { FC } from 'react';
+import { Button } from '~/components/ui/button';
+import { RadioGroup, RadioGroupItem } from '~/components/ui/radio-group';
+import { Label } from '~/components/ui/label';
 
 type VotingFormProps = {
-  options: VotingOption[];
+  options: { id: string; text: string }[];
   selectedOptionId: string | null;
   isLoading: boolean;
   onOptionChange: (value: string) => void;
   onSubmit: (event: React.FormEvent<HTMLFormElement>) => void;
 };
 
-/**
- * Renders the form containing radio buttons for voting options and a submit button.
- */
 export const VotingForm: FC<VotingFormProps> = ({
   options,
   selectedOptionId,
@@ -42,7 +38,7 @@ export const VotingForm: FC<VotingFormProps> = ({
             />
             <Label
               htmlFor={option.id}
-              className={`cursor-pointer ${isLoading ? "text-muted-foreground" : ""}`}
+              className={`cursor-pointer ${isLoading ? 'text-muted-foreground' : ''}`}
             >
               {option.text}
             </Label>
@@ -54,7 +50,7 @@ export const VotingForm: FC<VotingFormProps> = ({
         disabled={isLoading || !selectedOptionId}
         aria-label="Submit your consultation"
       >
-        {isLoading ? "Submitting..." : "Submit Consultation"}
+        {isLoading ? 'Submitting...' : 'Submit Consultation'}
       </Button>
     </form>
   );

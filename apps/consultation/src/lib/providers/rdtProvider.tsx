@@ -1,12 +1,13 @@
-"use client";
+'use client';
 
-import { useState, createContext, useEffect } from "react";
+import { useState, createContext, useEffect } from 'react';
 import {
   DataRequestBuilder,
   RadixDappToolkit,
-} from "@radixdlt/radix-dapp-toolkit";
-import { api } from "~/trpc/react";
-import { toast } from "sonner";
+  Logger,
+} from '@radixdlt/radix-dapp-toolkit';
+import { api } from '~/trpc/react';
+import { toast } from 'sonner';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 
@@ -22,14 +23,15 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // RDT is not available on server
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const rdt =
       rdtSingleton ??
       RadixDappToolkit({
         dAppDefinitionAddress:
-          "account_rdx129xqyvgkn9h73atyrzndal004fwye3tzw49kkygv9ltm2kyrv2lmda",
+          'account_rdx129xqyvgkn9h73atyrzndal004fwye3tzw49kkygv9ltm2kyrv2lmda',
         networkId: 1,
+        logger: Logger(),
         onDisconnect: async () => {
           await signOut.mutateAsync();
         },
@@ -37,13 +39,13 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
 
     setRdt(rdt);
 
-    rdt.buttonApi.setMode("dark");
-    rdt.buttonApi.setTheme("white");
+    rdt.buttonApi.setMode('dark');
+    rdt.buttonApi.setTheme('white');
 
     rdt.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
 
     rdt?.walletApi.provideChallengeGenerator(() => {
-      toast.info("Open your wallet to continue");
+      toast.info('Open your wallet to continue');
       return generateChallenge.mutateAsync();
     });
 
@@ -54,7 +56,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
         !request.persona ||
         !request.proofs ||
         !request.proofs[0] ||
-        request.proofs[0].type !== "persona"
+        request.proofs[0].type !== 'persona'
       ) {
         return;
       }

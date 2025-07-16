@@ -10,7 +10,7 @@ import {
 import { GetFungibleBalanceLive } from "../common/gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../common/gateway/entityFungiblesPage";
 import { EntityNonFungiblesPageLive } from "../common/gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataLive } from "../common/gateway/entityNonFungiblesData";
+import { EntityNonFungibleDataService } from "../common/gateway/entityNonFungiblesData";
 import { GetNonFungibleBalanceLive } from "../common/gateway/getNonFungibleBalance";
 import { GetAllValidatorsLive } from "../common/gateway/getAllValidators";
 import { GetAccountBalancesAtStateVersionLive } from "./account-balance/getAccountBalancesAtStateVersion";
@@ -18,13 +18,13 @@ import { GetUserStakingPositionsLive } from "../common/staking/getUserStakingPos
 import { GetLsulpLive } from "../common/dapps/caviarnine/getLsulp";
 import { GetLsulpValueLive } from "../common/dapps/caviarnine/getLsulpValue";
 import { ConvertLsuToXrdLive } from "../common/staking/convertLsuToXrd";
-import { GetWeftFinancePositionsLive } from "../common/dapps/weftFinance/getWeftFinancePositions";
+import { GetWeftFinancePositionsService } from "../common/dapps/weftFinance/getWeftFinancePositions";
 import { UnstakingReceiptProcessorLive } from "../common/staking/unstakingReceiptProcessor";
 import { GetComponentStateLive } from "../common/gateway/getComponentState";
 import { KeyValueStoreDataLive } from "../common/gateway/keyValueStoreData";
 import { KeyValueStoreKeysLive } from "../common/gateway/keyValueStoreKeys";
-import { GetKeyValueStoreLive } from "../common/gateway/getKeyValueStore";
-import { GetRootFinancePositionsLive } from "../common/dapps/rootFinance/getRootFinancePositions";
+import { GetKeyValueStoreService } from "../common/gateway/getKeyValueStore";
+import { GetRootFinancePositionsService } from "../common/dapps/rootFinance/getRootFinancePositions";
 import { GetQuantaSwapBinMapLive } from "../common/dapps/caviarnine/getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShapeLiquidityAssets";
@@ -142,9 +142,10 @@ const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
+const entityNonFungibleDataServiceLive =
+  EntityNonFungibleDataService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
 
 const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
   Layer.provide(gatewayApiClientLive)
@@ -191,7 +192,7 @@ const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
+const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(keyValueStoreDataServiceLive),
   Layer.provide(keyValueStoreKeysServiceLive)
 );
@@ -205,7 +206,7 @@ const unstakingReceiptProcessorLive = UnstakingReceiptProcessorLive.pipe(
   Layer.provide(entityNonFungibleDataServiceLive)
 );
 
-const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
+const getWeftFinancePositionsLive = GetWeftFinancePositionsService.Default.pipe(
   Layer.provide(getFungibleBalanceLive),
   Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getKeyValueStoreServiceLive),
@@ -213,7 +214,7 @@ const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
   Layer.provide(unstakingReceiptProcessorLive)
 );
 
-const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
+const getRootFinancePositionLive = GetRootFinancePositionsService.Default.pipe(
   Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getKeyValueStoreServiceLive)
 );
@@ -226,7 +227,7 @@ const getKeyValueStoreKeysLive = KeyValueStoreKeysLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getKeyValueStoreLive = GetKeyValueStoreLive.pipe(
+const getKeyValueStoreLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(keyValueStoreDataLive),
   Layer.provide(getKeyValueStoreKeysLive)
 );
@@ -235,7 +236,7 @@ const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataLive = EntityNonFungibleDataLive.pipe(
+const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 

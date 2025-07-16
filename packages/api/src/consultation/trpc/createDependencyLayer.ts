@@ -2,45 +2,45 @@ import type { Db } from "db/consultation";
 import { type AppConfig, createAppConfigLive } from "../config/appConfig";
 import { createDbClientLive } from "../db/dbClient";
 import { Effect, Layer } from "effect";
-import { RolaServiceLive } from "../rola/rola";
+import { RolaService } from "../rola/rola";
 import {
   CreateChallengeLive,
   createChallengeProgram,
 } from "../challenge/createChallenge";
-import { VerifyRolaProofLive } from "../rola/verifyRolaProof";
+import { VerifyRolaProofService } from "../rola/verifyRolaProof";
 import {
-  signInWithRolaProof,
+  SignInWithRolaProofService,
   type SignInWithRolaProofInput,
-} from "../programs/signInWithRolaProof";
-import { GenerateSessionTokenLive } from "../session/generateSessionToken";
-import { CreateSessionLive } from "../session/createSession";
-import { VerifyChallengeLive } from "../challenge/verifyChallenge";
-import { UpsertUserLive } from "../user/upsertUser";
-import { validateSessionTokenProgram } from "../programs/validateSessionToken";
-import { InvalidateSessionLive } from "../session/invalidateSession";
+} from "../auth/signInWithRolaProof";
+import { GenerateSessionTokenService } from "../session/generateSessionToken";
+import { CreateSessionService } from "../session/createSession";
+import { VerifyChallengeService } from "../challenge/verifyChallenge";
+import { UpsertUserService } from "../user/upsertUser";
+import { ValidateSessionTokenService } from "../auth/validateSessionToken";
+import { InvalidateSessionService } from "../session/invalidateSession";
 import {
-  verifyAccountOwnershipProgram,
+  VerifyAccountOwnershipService,
   type VerifyAccountOwnershipInput,
-} from "../programs/verifyAccountOwnership";
-import { UpsertAccountsLive } from "../account/upsertAccounts";
-import { GetAccountsByAddressLive } from "../account/getAccountsByAddress";
-import { GetSessionLive } from "../session/getSession";
-import { getAccountsProgram } from "../programs/getAccounts";
-import { signOutProgram } from "../programs/signOutProgram";
+} from "../account/verifyAccountOwnership";
+import { UpsertAccountsService } from "../account/upsertAccounts";
+import { GetAccountsByAddressService } from "../account/getAccountsByAddress";
+import { GetSessionService } from "../session/getSession";
+import { getAccountsProgram } from "../account/getAccounts";
+import { signOutProgram } from "../auth/signOutProgram";
 import {
   type VerifyConsultationSignatureInput,
-  verifyConsultationSignatureProgram,
-} from "../programs/verifyConsultationSignature";
-import { AddConsultationToDbLive } from "../consultation/addConsultationToDb";
-import { CreateConsultationMessageLive } from "../consultation/createConsultationMessage";
-import { getConsultationsProgram } from "../programs/getConsulations";
-import { GetVotingPowerAtStateVersionLive } from "../voting-power/getVotingPowerAtStateVersion";
+  VerifyConsultationSignatureService,
+} from "../consultation/verifyConsultationSignature";
+import { AddConsultationToDbService } from "../consultation/addConsultationToDb";
+import { CreateConsultationMessageService } from "../consultation/createConsultationMessage";
+import { GetConsultationsService } from "../consultation/getConsulations";
+import { GetVotingPowerAtStateVersionService } from "../voting-power/getVotingPowerAtStateVersion";
 import { ConvertLsuToXrdLive } from "../../common/staking/convertLsuToXrd";
 import { GetLsulpValueLive } from "../../common/dapps/caviarnine/getLsulpValue";
 import { GetLsulpLive } from "../../common/dapps/caviarnine/getLsulp";
 import { GetUserStakingPositionsLive } from "../../common/staking/getUserStakingPositions";
 import { GetNonFungibleBalanceLive } from "../../common/gateway/getNonFungibleBalance";
-import { EntityNonFungibleDataLive } from "../../common/gateway/entityNonFungiblesData";
+import { EntityNonFungibleDataService } from "../../common/gateway/entityNonFungiblesData";
 import { EntityNonFungiblesPageLive } from "../../common/gateway/entityNonFungiblesPage";
 import { GetFungibleBalanceLive } from "../../common/gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../../common/gateway/entityFungiblesPage";
@@ -48,19 +48,17 @@ import { GetAllValidatorsLive } from "../../common/gateway/getAllValidators";
 import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
 import { GetEntityDetailsServiceLive } from "../../common/gateway/getEntityDetails";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
-import {
-  getVotingPowerAtStateVersionProgram,
-  type GetVotingPowerAtStateVersionProgramInput,
-} from "../voting-power/getVotingPowerAtStateVersionProgram";
-import { GetWeftFinancePositionsLive } from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import { GetRootFinancePositionsLive } from "../../common/dapps/rootFinance/getRootFinancePositions";
+import { GetWeftFinancePositionsService } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import { GetRootFinancePositionsService } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import { GetComponentStateLive } from "../../common/gateway/getComponentState";
-import { GetKeyValueStoreLive } from "../../common/gateway/getKeyValueStore";
+import { GetKeyValueStoreService } from "../../common/gateway/getKeyValueStore";
 import { KeyValueStoreDataLive } from "../../common/gateway/keyValueStoreData";
 import { KeyValueStoreKeysLive } from "../../common/gateway/keyValueStoreKeys";
-import { AddVotingPowerToDbLive } from "../voting-power/addVotingPowerToDb";
+import { AddVotingPowerToDbService } from "../voting-power/addVotingPowerToDb";
 import { GetNftResourceManagersLive } from "../../common/gateway/getNftResourceManagers";
 import { GetNonFungibleIdsLive } from "../../common/gateway/getNonFungibleIds";
+import { getDatesBetweenIntervals } from "../../common/helpers/getDatesBetweenIntervals";
+import { UnstakingReceiptProcessorService } from "../../common/staking/unstakingReceiptProcessor";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -73,49 +71,56 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const dbClientLive = createDbClientLive(input.dbClient);
   const appConfigLive = createAppConfigLive(input.appConfig);
 
-  const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
+  const rolaServiceLive = RolaService.Default.pipe(
+    Layer.provide(appConfigLive)
+  );
 
   const createChallengeLive = CreateChallengeLive.pipe(
     Layer.provide(dbClientLive)
   );
 
-  const upsertUserLive = UpsertUserLive.pipe(Layer.provide(dbClientLive));
+  const upsertUserLive = UpsertUserService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
 
-  const generateSessionTokenLive = GenerateSessionTokenLive;
+  const generateSessionTokenLive = GenerateSessionTokenService.Default;
 
-  const verifyChallengeLive = VerifyChallengeLive.pipe(
+  const verifyChallengeLive = VerifyChallengeService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(appConfigLive)
   );
 
-  const createSessionLive = CreateSessionLive.pipe(
+  const createSessionLive = CreateSessionService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(appConfigLive)
   );
 
-  const verifyRolaProofLive = VerifyRolaProofLive.pipe(
+  const verifyRolaProofLive = VerifyRolaProofService.Default.pipe(
     Layer.provide(rolaServiceLive)
   );
 
-  const invalidateSessionLive = InvalidateSessionLive.pipe(
+  const invalidateSessionLive = InvalidateSessionService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
-  const upsertAccountsLive = UpsertAccountsLive.pipe(
+  const upsertAccountsLive = UpsertAccountsService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
-  const getAccountsByAddressLive = GetAccountsByAddressLive.pipe(
+  const getAccountsByAddressLive = GetAccountsByAddressService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
-  const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
-
-  const addConsultationToDbLive = AddConsultationToDbLive.pipe(
+  const getSessionLive = GetSessionService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
-  const createConsultationMessageLive = CreateConsultationMessageLive;
+  const addConsultationToDbLive = AddConsultationToDbService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const createConsultationMessageLive =
+    CreateConsultationMessageService.Default;
 
   const appConfigServiceLive = createAppConfigLive();
 
@@ -150,9 +155,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(gatewayApiClientLive)
   );
 
-  const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
-    Layer.provide(gatewayApiClientLive)
-  );
+  const entityNonFungibleDataServiceLive =
+    EntityNonFungibleDataService.Default.pipe(
+      Layer.provide(gatewayApiClientLive)
+    );
 
   const getNonFungibleIdsServiceLive = GetNonFungibleIdsLive.pipe(
     Layer.provide(gatewayApiClientLive),
@@ -246,29 +252,43 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(gatewayApiClientLive)
   );
 
-  const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
+  const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(keyValueStoreDataServiceLive),
     Layer.provide(keyValueStoreKeysServiceLive)
   );
 
-  const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
-    Layer.provide(getNonFungibleBalanceLive),
-    Layer.provide(entityNonFungiblesPageServiceLive),
-    Layer.provide(entityFungiblesPageServiceLive),
-    Layer.provide(getEntityDetailsServiceLive),
-    Layer.provide(getFungibleBalanceLive),
-    Layer.provide(getComponentStateServiceLive),
-    Layer.provide(getKeyValueStoreServiceLive)
+  const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
   );
 
-  const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
-    Layer.provide(getNonFungibleBalanceLive),
-    Layer.provide(entityNonFungiblesPageServiceLive)
-  );
+  const unstakingReceiptProcessorService =
+    UnstakingReceiptProcessorService.Default.pipe(
+      Layer.provide(entityNonFungibleDataLive)
+    );
+
+  const getWeftFinancePositionsLive =
+    GetWeftFinancePositionsService.Default.pipe(
+      Layer.provide(getNonFungibleBalanceLive),
+      Layer.provide(entityNonFungiblesPageServiceLive),
+      Layer.provide(entityFungiblesPageServiceLive),
+      Layer.provide(getEntityDetailsServiceLive),
+      Layer.provide(getFungibleBalanceLive),
+      Layer.provide(getComponentStateServiceLive),
+      Layer.provide(getKeyValueStoreServiceLive),
+      Layer.provide(unstakingReceiptProcessorService)
+    );
+
+  const getRootFinancePositionLive =
+    GetRootFinancePositionsService.Default.pipe(
+      Layer.provide(getNonFungibleBalanceLive),
+      Layer.provide(entityNonFungiblesPageServiceLive),
+      Layer.provide(unstakingReceiptProcessorService),
+      Layer.provide(getKeyValueStoreServiceLive)
+    );
 
   const getVotingPowerAtStateVersionLive =
-    GetVotingPowerAtStateVersionLive.pipe(
+    GetVotingPowerAtStateVersionService.Default.pipe(
       Layer.provide(stateEntityDetailsLive),
       Layer.provide(entityFungiblesPageServiceLive),
       Layer.provide(getLedgerStateLive),
@@ -283,10 +303,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Layer.provide(getLsulpValueLive),
       Layer.provide(getEntityDetailsServiceLive),
       Layer.provide(getWeftFinancePositionsLive),
-      Layer.provide(getRootFinancePositionLive)
+      Layer.provide(getRootFinancePositionLive),
+      Layer.provide(getKeyValueStoreServiceLive),
+      Layer.provide(unstakingReceiptProcessorService)
     );
 
-  const addVotingPowerToDbLive = AddVotingPowerToDbLive.pipe(
+  const addVotingPowerToDbLive = AddVotingPowerToDbService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
@@ -295,129 +317,165 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       createChallengeProgram.pipe(Effect.provide(createChallengeLive))
     );
 
+  const signInWithRolaProofLive = SignInWithRolaProofService.Default.pipe(
+    Layer.provide(createSessionLive),
+    Layer.provide(generateSessionTokenLive),
+    Layer.provide(verifyRolaProofLive),
+    Layer.provide(upsertUserLive),
+    Layer.provide(verifyChallengeLive)
+  );
+
   const signIn = (input: SignInWithRolaProofInput) => {
-    const program = Effect.provide(
-      signInWithRolaProof(input),
-      Layer.mergeAll(
-        rolaServiceLive,
-        appConfigLive,
-        dbClientLive,
-        verifyRolaProofLive,
-        createSessionLive,
-        generateSessionTokenLive,
-        upsertUserLive,
-        verifyChallengeLive
-      )
-    );
+    const runnable = Effect.gen(function* () {
+      const signInWithRolaProof = yield* SignInWithRolaProofService;
+      return yield* signInWithRolaProof.run(input);
+    });
+
+    const program = Effect.provide(runnable, signInWithRolaProofLive);
 
     return Effect.runPromiseExit(program);
   };
+
+  const validateSessionTokenLive = ValidateSessionTokenService.Default.pipe(
+    Layer.provide(getSessionLive),
+    Layer.provide(invalidateSessionLive),
+    Layer.provide(dbClientLive),
+    Layer.provide(appConfigLive)
+  );
 
   const validateSessionToken = (sessionToken: string) => {
-    const program = Effect.provide(
-      validateSessionTokenProgram(sessionToken),
-      Layer.mergeAll(
-        getSessionLive,
-        invalidateSessionLive,
-        dbClientLive,
-        appConfigLive
-      )
-    );
+    const runnable = Effect.gen(function* () {
+      const validateSessionToken = yield* ValidateSessionTokenService;
+      return yield* validateSessionToken.run(sessionToken);
+    });
+
+    const program = Effect.provide(runnable, validateSessionTokenLive);
 
     return Effect.runPromiseExit(program);
   };
 
+  const verifyAccountOwnershipLive = VerifyAccountOwnershipService.Default.pipe(
+    Layer.provide(verifyChallengeLive),
+    Layer.provide(verifyRolaProofLive),
+    Layer.provide(upsertAccountsLive),
+    Layer.provide(getAccountsByAddressLive)
+  );
+
   const verifyAccountOwnership = (input: VerifyAccountOwnershipInput) => {
-    const program = Effect.provide(
-      verifyAccountOwnershipProgram(input),
-      Layer.mergeAll(
-        rolaServiceLive,
-        appConfigLive,
-        dbClientLive,
-        verifyRolaProofLive,
-        verifyChallengeLive,
-        upsertAccountsLive,
-        getAccountsByAddressLive
-      )
-    );
+    const runnable = Effect.gen(function* () {
+      const verifyAccountOwnership = yield* VerifyAccountOwnershipService;
+      return yield* verifyAccountOwnership.run(input);
+    });
+
+    const program = Effect.provide(runnable, verifyAccountOwnershipLive);
 
     return Effect.runPromiseExit(program);
   };
 
   const getAccounts = (userId: string) => {
-    const program = Effect.provide(
-      getAccountsProgram(userId),
-      Layer.mergeAll(dbClientLive)
-    );
+    const program = Effect.provide(getAccountsProgram(userId), dbClientLive);
 
     return Effect.runPromiseExit(program);
   };
 
   const signOut = (userId: string) => {
-    const program = Effect.provide(
-      signOutProgram(userId),
-      Layer.mergeAll(dbClientLive)
-    );
+    const program = Effect.provide(signOutProgram(userId), dbClientLive);
 
     return Effect.runPromiseExit(program);
   };
 
+  const verifyConsultationSignatureLive =
+    VerifyConsultationSignatureService.Default.pipe(
+      Layer.provide(createConsultationMessageLive),
+      Layer.provide(rolaServiceLive),
+      Layer.provide(verifyRolaProofLive),
+      Layer.provide(addConsultationToDbLive)
+    );
+
   const verifyConsultationSignature = (
     input: VerifyConsultationSignatureInput
   ) => {
-    const program = Effect.provide(
-      verifyConsultationSignatureProgram(input),
-      Layer.mergeAll(
-        dbClientLive,
-        createConsultationMessageLive,
-        addConsultationToDbLive,
-        verifyRolaProofLive,
-        rolaServiceLive
-      )
-    );
+    const runnable = Effect.gen(function* () {
+      const verifyConsultationSignature =
+        yield* VerifyConsultationSignatureService;
+      yield* verifyConsultationSignature.run(input);
+    });
+
+    const program = Effect.provide(runnable, verifyConsultationSignatureLive);
 
     return Effect.runPromiseExit(program);
   };
 
   const getConsultations = (userId: string) => {
+    const runnable = Effect.gen(function* () {
+      const getConsultations = yield* GetConsultationsService;
+      return yield* getConsultations.run(userId);
+    });
+
     const program = Effect.provide(
-      getConsultationsProgram(userId),
-      Layer.mergeAll(dbClientLive)
+      runnable,
+      GetConsultationsService.Default.pipe(Layer.provide(dbClientLive))
     );
 
     return Effect.runPromiseExit(program);
   };
 
-  const getVotingPowerAtStateVersion = (
-    input: GetVotingPowerAtStateVersionProgramInput
-  ) => {
+  const getVotingPowerAtStateVersion = (input: {
+    startDate: Date;
+    endDate: Date;
+    addresses: string[];
+  }) => {
+    const runnable = Effect.gen(function* () {
+      const getVotingPowerAtStateVersion =
+        yield* GetVotingPowerAtStateVersionService;
+
+      const addVotingPowerToDb = yield* AddVotingPowerToDbService;
+
+      const dates = getDatesBetweenIntervals(
+        input.startDate,
+        input.endDate,
+        (date) => {
+          date.setHours(date.getHours() + 1);
+        }
+      );
+
+      const votingPower = yield* Effect.forEach(dates, (date) => {
+        return Effect.gen(function* () {
+          yield* Effect.log(`getting voting power for ${date.toISOString()}`);
+          const result = yield* getVotingPowerAtStateVersion.run({
+            addresses: input.addresses,
+            at_ledger_state: { timestamp: date },
+          });
+
+          return result.map((item) => ({
+            accountAddress: item.address,
+            votingPower: item.votingPower.toString(),
+            balances: item.balances,
+            timestamp: date,
+          }));
+        });
+      });
+
+      yield* addVotingPowerToDb.run(votingPower.flat());
+    });
+
     const program = Effect.provide(
-      getVotingPowerAtStateVersionProgram(input),
-      Layer.mergeAll(
-        getVotingPowerAtStateVersionLive,
-        gatewayApiClientLive,
-        stateEntityDetailsLive,
-        entityFungiblesPageServiceLive,
-        getLedgerStateLive,
-        entityNonFungiblesPageServiceLive,
-        entityNonFungibleDataServiceLive,
-        getNonFungibleBalanceLive,
-        getAllValidatorsServiceLive,
-        getUserStakingPositionsLive,
-        getLsulpLive,
-        getLsulpValueLive,
-        convertLsuToXrdLive,
-        getEntityDetailsServiceLive,
-        getWeftFinancePositionsLive,
-        getKeyValueStoreServiceLive,
-        keyValueStoreDataServiceLive,
-        keyValueStoreKeysServiceLive,
-        getRootFinancePositionLive,
-        addVotingPowerToDbLive,
-        dbClientLive,
-        getNftResourceManagersLive,
-        getNonFungibleIdsLive
-      )
+      runnable,
+      Layer.mergeAll(getVotingPowerAtStateVersionLive, addVotingPowerToDbLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const listConsultations = () => {
+    const runnable = Effect.gen(function* () {
+      const listConsultations = yield* GetConsultationsService;
+      return yield* listConsultations.listConsultations();
+    });
+
+    const program = Effect.provide(
+      runnable,
+      GetConsultationsService.Default.pipe(Layer.provide(dbClientLive))
     );
 
     return Effect.runPromiseExit(program);
@@ -433,5 +491,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     verifyConsultationSignature,
     getConsultations,
     getVotingPowerAtStateVersion,
+    listConsultations,
   };
 };
