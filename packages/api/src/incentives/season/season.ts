@@ -33,6 +33,23 @@ export class SeasonService extends Effect.Service<SeasonService>()(
 
           return season;
         }),
+        getById: Effect.fn(function* (id: string) {
+          const season = yield* Effect.tryPromise({
+            try: () =>
+              db.query.seasons.findFirst({
+                where: eq(seasons.id, id),
+              }),
+            catch: (error) => new DbError(error),
+          });
+
+          if (!season) {
+            return yield* Effect.fail(
+              new NotFound({ message: `Season ${id} not found` })
+            );
+          }
+
+          return season;
+        }),
       };
     }),
   }

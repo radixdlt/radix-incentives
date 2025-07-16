@@ -68,15 +68,12 @@ import {
   CalculateActivityPointsWorkerLive,
   CalculateActivityPointsWorkerService,
 } from "./activity-points/calculateActivityPointsWorker";
-import {
-  CalculateSeasonPointsLive,
-  CalculateSeasonPointsService,
-} from "./season-points/calculateSeasonPoints";
+import { CalculateSeasonPointsService } from "./season-points/calculateSeasonPoints";
 import { GetSeasonByIdLive } from "./season/getSeasonById";
 import { GetActivitiesByWeekIdLive } from "./activity/getActivitiesByWeekId";
-import { GetUserActivityPointsLive } from "./user/getUserActivityPoints";
-import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
-import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
+import { UserActivityPointsService } from "./user/userActivityPoints";
+import { UpdateWeekStatusService } from "./week/updateWeekStatus";
+import { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import {
   SeasonPointsMultiplierWorkerLive,
@@ -84,7 +81,7 @@ import {
 } from "./season-point-multiplier/seasonPointsMultiplierWorker";
 import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
-import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeasonPointMultiplier";
+import { GetSeasonPointMultiplierService } from "./season-point-multiplier/getSeasonPointMultiplier";
 
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
@@ -108,6 +105,8 @@ import {
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
 import { WeekService } from "./week/week";
+import { ActivityCategoryWeekService } from "./activity-category-week/activityCategoryWeek";
+import { SeasonService } from "./season/season";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -493,21 +492,29 @@ const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
 const getActivitiesByWeekIdLive = GetActivitiesByWeekIdLive.pipe(
   Layer.provide(dbClientLive)
 );
-const getUserActivityPointsLive = GetUserActivityPointsLive.pipe(
+const getUserActivityPointsLive = UserActivityPointsService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
-const addSeasonPointsToUserLive = AddSeasonPointsToUserLive.pipe(
+const addSeasonPointsToUserLive = AddSeasonPointsToUserService.Default.pipe(
   Layer.provide(dbClientLive)
 );
-const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
+const updateWeekStatusLive = UpdateWeekStatusService.Default.pipe(
   Layer.provide(dbClientLive)
 );
-const getSeasonPointMultiplierLive = GetSeasonPointMultiplierLive.pipe(
+const getSeasonPointMultiplierLive =
+  GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbClientLive));
+
+const activityCategoryWeekServiceLive =
+  ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
+
+const seasonServiceLive = SeasonService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
-const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
+const weekServiceLive = WeekService.Default.pipe(Layer.provide(dbClientLive));
+
+const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getSeasonByIdLive),
   Layer.provide(getWeekByIdLive),
@@ -515,7 +522,10 @@ const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
   Layer.provide(getUserActivityPointsLive),
   Layer.provide(addSeasonPointsToUserLive),
   Layer.provide(updateWeekStatusLive),
-  Layer.provide(getSeasonPointMultiplierLive)
+  Layer.provide(getSeasonPointMultiplierLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(seasonServiceLive),
+  Layer.provide(weekServiceLive)
 );
 
 const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
@@ -649,7 +659,7 @@ const calculateSeasonPoints = (input: {
     Effect.gen(function* () {
       const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
 
-      return yield* calculateSeasonPointsService({
+      return yield* calculateSeasonPointsService.run({
         ...input,
         endOfWeek: !!input.endOfWeek,
       });

@@ -206,7 +206,7 @@ export default function ActivitySettingsPage() {
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>
+                      {/* <TableCell>
                         {activityWeek.pointsPool !== null ? (
                           <div className="flex items-center gap-1">
                             <Star className="h-4 w-4 text-yellow-500" />
@@ -222,12 +222,12 @@ export default function ActivitySettingsPage() {
                             No allocation
                           </span>
                         )}
-                      </TableCell>
-                      <TableCell>
+                      </TableCell> */}
+                      {/* <TableCell>
                         <Badge variant={getStatusVariant(activityWeek.status)}>
                           {activityWeek.status}
                         </Badge>
-                      </TableCell>
+                      </TableCell> */}
                       <TableCell>
                         <div className="flex gap-2">
                           <Button

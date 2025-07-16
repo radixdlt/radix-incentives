@@ -1,0 +1,33 @@
+{
+  "name": "preview",
+  "type": "module",
+  "main": "./src/index.ts",
+  "bin": {
+    "preview": "./dist/cli.js"
+  },
+  "scripts": {
+    "start": "tsx --watch src/index.ts",
+    "cli": "tsx src/cli.ts",
+    "build": "tsup",
+    "build:cli": "tsup src/cli.ts --format esm --target node18"
+  },
+  "devDependencies": {
+    "tsup": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:",
+    "@types/inquirer": "catalog:"
+  },
+  "dependencies": {
+    "@testcontainers/postgresql": "catalog:",
+    "@types/fs-extra": "^11.0.4",
+    "api": "workspace:*",
+    "bignumber.js": "catalog:",
+    "commander": "catalog:",
+    "db": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "fs-extra": "^11.3.0",
+    "inquirer": "catalog:",
+    "postgres": "catalog:"
+  }
+}

@@ -45,14 +45,16 @@
     "radix-web3.js": "catalog:",
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "postgres": "catalog:"
   },
   "devDependencies": {
     "@effect/vitest": "^0.20.10",
     "@types/aws-lambda": "catalog:",
     "@types/make-fetch-happen": "catalog:",
     "tsup": "catalog:",
-    "vitest": "catalog:"
+    "vitest": "catalog:",
+    "@testcontainers/postgresql": "catalog:"
   },
   "publishConfig": {
     "access": "restricted"

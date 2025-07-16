@@ -59,10 +59,10 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     await refetch();
   };
 
-  const totalPointsPool = activityWeeks.reduce(
-    (acc, activityWeek) => acc + (activityWeek.pointsPool ?? 0),
-    0,
-  );
+  // const totalPointsPool = activityWeeks.reduce(
+  //   (acc, activityWeek) => acc + (activityWeek.pointsPool ?? 0),
+  //   0,
+  // );
 
   if (!week) {
     return <div>Week not found</div>;
@@ -82,16 +82,16 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
           isProcessed: false,
           totalActivities: activityWeeks.length,
           totalParticipants: 0,
-          totalPointsPool: totalPointsPool,
+          totalPointsPool: 0,
         }}
         activities={activityWeeks.map((activityWeek) => ({
           id: activityWeek.activityId,
           name: activityWeek.activityId,
           description: 'Activity description',
           type: 'active',
+          status: 'active',
           rewardType: 'points',
-          status: activityWeek.status,
-          pointsPool: activityWeek.pointsPool ?? 0,
+          pointsPool: 0,
           participants: 0,
           startDate: week.startDate.toISOString(),
           endDate: week.endDate.toISOString(),

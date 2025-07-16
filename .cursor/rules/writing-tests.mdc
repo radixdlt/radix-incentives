@@ -1,0 +1,18 @@
+---
+description: writing automated tests
+globs: **/*.test.ts
+alwaysApply: true
+---
+
+Don't mock, use the `testDbUrl` to connect to the db
+
+
+Example:
+
+```
+const dbUrl = inject("testDbUrl");
+const client = postgres(dbUrl);
+const db = drizzle(client, { schema });
+const dbLive = createDbClientLive(db);
+```
+
