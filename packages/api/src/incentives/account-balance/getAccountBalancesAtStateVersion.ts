@@ -230,7 +230,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
       yield* GetOciswapLiquidityAssetsService;
     const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
     const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
-    const getSurgeLiquidityPositionsService = yield* GetSurgeLiquidityPositionsService;
+    const getSurgeLiquidityPositionsService =
+      yield* GetSurgeLiquidityPositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -316,18 +317,22 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getLsulpService")),
-            getWeftFinancePositionsService({
-              accountAddresses: input.addresses,
-              at_ledger_state: atLedgerState,
-              fungibleBalance: fungibleBalanceResults,
-              nonFungibleBalance: nonFungibleBalanceResults,
-              validatorClaimNftMap: validatorClaimNftMap,
-            }).pipe(Effect.withSpan("getWeftFinancePositionsService")),
-            getRootFinancePositionsService({
-              accountAddresses: input.addresses,
-              at_ledger_state: atLedgerState,
-              nonFungibleBalance: nonFungibleBalanceResults,
-            }).pipe(Effect.withSpan("getRootFinancePositionsService")),
+            getWeftFinancePositionsService
+              .run({
+                accountAddresses: input.addresses,
+                at_ledger_state: atLedgerState,
+                fungibleBalance: fungibleBalanceResults,
+                nonFungibleBalance: nonFungibleBalanceResults,
+                validatorClaimNftMap: validatorClaimNftMap,
+              })
+              .pipe(Effect.withSpan("getWeftFinancePositionsService")),
+            getRootFinancePositionsService
+              .run({
+                accountAddresses: input.addresses,
+                at_ledger_state: atLedgerState,
+                nonFungibleBalance: nonFungibleBalanceResults,
+              })
+              .pipe(Effect.withSpan("getRootFinancePositionsService")),
             Effect.all(
               allCaviarNinePools.map((pool) =>
                 getShapeLiquidityAssetsService({
@@ -383,11 +388,13 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
             }).pipe(Effect.withSpan("getHyperstakePositionsService")),
-            getSurgeLiquidityPositionsService.getSurgeLiquidityPositions({
-              accountAddresses: input.addresses,
-              at_ledger_state: atLedgerState,
-              fungibleBalance: fungibleBalanceResults,
-            }).pipe(Effect.withSpan("getSurgeLiquidityPositionsService")),
+            getSurgeLiquidityPositionsService
+              .getSurgeLiquidityPositions({
+                accountAddresses: input.addresses,
+                at_ledger_state: atLedgerState,
+                fungibleBalance: fungibleBalanceResults,
+              })
+              .pipe(Effect.withSpan("getSurgeLiquidityPositionsService")),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -429,7 +436,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         }).pipe(Effect.withSpan("convertLsuToXrdService"));
 
         const convertLsuToXrdMap = new Map(
-          validLsuConversions.map((item) => [item.lsuResourceAddress, item.converter])
+          validLsuConversions.map((item) => [
+            item.lsuResourceAddress,
+            item.converter,
+          ])
         );
 
         // Create lookup maps for O(1) access instead of O(n) find operations

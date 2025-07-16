@@ -1,37 +1,15 @@
-import type { FC } from "react";
+import type { FC } from 'react';
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import { Badge } from "~/components/ui/badge";
-import { Separator } from "~/components/ui/separator";
-import type { VotingOption } from "../page"; // Assuming types are exported from page.tsx for now
-import { consultationConfig } from "../consultationConfig";
-
-// --- Component Types ---
-type SubmittedConsultation = {
-  consultationId: string;
-  selectedOption: string;
-  rolaProof: unknown;
-  id: string;
-  timestamp: Date;
-  accountAddress: string;
-};
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { ScrollArea } from '~/components/ui/scroll-area';
+import { Badge } from '~/components/ui/badge';
+import { Separator } from '~/components/ui/separator';
+import type { ConsultationEntry } from 'api/consultation';
 
 type SubmittedConsultationsCardProps = {
-  consultations: SubmittedConsultation[];
+  consultations: ConsultationEntry[];
 };
 // ----------------------
-
-/**
- * Finds the text of the selected option.
- */
-const getSelectedOptionText = (
-  options: VotingOption[],
-  selectedOptionId: string
-): string => {
-  const option = options.find((opt) => opt.id === selectedOptionId);
-  return option ? option.text : "Unknown Option";
-};
 
 /**
  * SubmittedConsultationsCard Component
@@ -48,11 +26,11 @@ export const SubmittedConsultationsCard: FC<
       <CardContent>
         {consultations.length > 0 ? (
           <ScrollArea className="h-72 pr-4">
-            {" "}
+            {' '}
             {/* Added padding-right */}
             <div className="space-y-4">
               {consultations.map((consultation, index) => (
-                <div key={consultation.id} className="space-y-2">
+                <div key={consultation.consultationId} className="space-y-2">
                   <div>
                     <p className="font-medium">{consultation.consultationId}</p>
                     <p className="text-sm text-muted-foreground">
@@ -66,11 +44,7 @@ export const SubmittedConsultationsCard: FC<
                     </pre>
                   </div>
                   <Badge variant="secondary">
-                    Your input:{" "}
-                    {getSelectedOptionText(
-                      consultationConfig.RepurposeTheStablecoinReserve.options,
-                      consultation.selectedOption
-                    )}
+                    Your input: {consultation.selectedOption}
                   </Badge>
                   {index < consultations.length - 1 && <Separator />}
                 </div>

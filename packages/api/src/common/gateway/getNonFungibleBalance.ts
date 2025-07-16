@@ -91,27 +91,29 @@ export const GetNonFungibleBalanceLive = Layer.effect(
                         items: [],
                       });
                     }
-                    return yield* entityNonFungibleDataService({
-                      resource_address: resourceManager.resourceAddress,
-                      non_fungible_ids: resourceManager.nftIds,
-                      at_ledger_state: input.at_ledger_state,
-                    }).pipe(
-                      Effect.withSpan("entityNonFungibleDataService"),
-                      Effect.map((nftDataResult) => {
-                        const items = nftDataResult.map((nftDataItem) => ({
-                          id: nftDataItem.non_fungible_id,
-                          lastUpdatedStateVersion:
-                            nftDataItem.last_updated_at_state_version,
-                          sbor: nftDataItem.data?.programmatic_json,
-                          isBurned: nftDataItem.is_burned,
-                        }));
-
-                        return {
-                          resourceAddress: resourceManager.resourceAddress,
-                          items,
-                        };
+                    return yield* entityNonFungibleDataService
+                      .run({
+                        resource_address: resourceManager.resourceAddress,
+                        non_fungible_ids: resourceManager.nftIds,
+                        at_ledger_state: input.at_ledger_state,
                       })
-                    );
+                      .pipe(
+                        Effect.withSpan("entityNonFungibleDataService"),
+                        Effect.map((nftDataResult) => {
+                          const items = nftDataResult.map((nftDataItem) => ({
+                            id: nftDataItem.non_fungible_id,
+                            lastUpdatedStateVersion:
+                              nftDataItem.last_updated_at_state_version,
+                            sbor: nftDataItem.data?.programmatic_json,
+                            isBurned: nftDataItem.is_burned,
+                          }));
+
+                          return {
+                            resourceAddress: resourceManager.resourceAddress,
+                            items,
+                          };
+                        })
+                      );
                   });
                 }
               );

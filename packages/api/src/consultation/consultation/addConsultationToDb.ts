@@ -1,10 +1,10 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { DbClientService } from "../db/dbClient";
-import { consultations } from "db/consultation";
+import { type Consultation, consultations } from "db/consultation";
 import { z, type ZodError } from "zod";
 import { sql } from "drizzle-orm";
 
-export const consultationSchema = z.object({
+export const consultationEntrySchema = z.object({
   accountAddress: z.string(),
   consultationId: z.string(),
   selectedOption: z.string(),
@@ -15,7 +15,7 @@ export const consultationSchema = z.object({
   }),
 });
 
-export type Consultation = z.infer<typeof consultationSchema>;
+export type ConsultationEntry = Consultation;
 
 export class InsertConsultationError {
   readonly _tag = "InsertConsultationError";
@@ -24,59 +24,49 @@ export class InsertConsultationError {
 
 export class ParseConsultationError {
   readonly _tag = "ParseConsultationError";
-  constructor(readonly error: ZodError<Consultation>) {}
+  constructor(readonly error: ZodError<ConsultationEntry>) {}
 }
 
-export class AddConsultationToDbService extends Context.Tag(
-  "AddConsultationToDbService"
-)<
-  AddConsultationToDbService,
-  (
-    input: Consultation[]
-  ) => Effect.Effect<
-    null,
-    InsertConsultationError | ParseConsultationError,
-    DbClientService
-  >
->() {}
+export class AddConsultationToDbService extends Effect.Service<AddConsultationToDbService>()(
+  "AddConsultationToDbService",
+  {
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return {
+        run: Effect.fn(function* (
+          items: z.infer<typeof consultationEntrySchema>[]
+        ) {
+          yield* Effect.all(
+            items.map((item) =>
+              Effect.tryPromise({
+                try: () => consultationEntrySchema.parseAsync(item),
+                catch: (error) =>
+                  new ParseConsultationError(
+                    error as ZodError<ConsultationEntry>
+                  ),
+              })
+            )
+          );
 
-export const AddConsultationToDbLive = Layer.effect(
-  AddConsultationToDbService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (items) => {
-      return Effect.gen(function* () {
-        yield* Effect.all(
-          items.map((item) =>
-            Effect.tryPromise({
-              try: () => consultationSchema.parseAsync(item),
-              catch: (error) =>
-                new ParseConsultationError(error as ZodError<Consultation>),
-            })
-          )
-        );
-
-        yield* Effect.tryPromise({
-          try: () =>
-            db
-              .insert(consultations)
-              .values(items)
-              .onConflictDoUpdate({
-                target: [
-                  consultations.consultationId,
-                  consultations.accountAddress,
-                ],
-                set: {
-                  selectedOption: sql`excluded.selected_option`,
-                  rolaProof: sql`excluded.rola_proof`,
-                },
-              }),
-          catch: (error) => new InsertConsultationError(error),
-        });
-
-        return null;
-      });
-    };
-  })
-);
+          yield* Effect.tryPromise({
+            try: () =>
+              db
+                .insert(consultations)
+                .values(items)
+                .onConflictDoUpdate({
+                  target: [
+                    consultations.consultationId,
+                    consultations.accountAddress,
+                  ],
+                  set: {
+                    selectedOption: sql`excluded.selected_option`,
+                    rolaProof: sql`excluded.rola_proof`,
+                  },
+                }),
+            catch: (error) => new InsertConsultationError(error),
+          });
+        }),
+      };
+    }),
+  }
+) {}
