@@ -4,6 +4,22 @@ import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
 
 export const userRouter = createTRPCRouter({
+  getUserStats: protectedProcedure.query(async ({ ctx }) => {
+    const result = await ctx.dependencyLayer.getUserStats({
+      userId: ctx.session.user.id,
+    });
+
+    return Exit.match(result, {
+      onSuccess: (value) => value,
+      onFailure: (error) => {
+        console.error(error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      },
+    });
+  }),
+});
+
+export const adminUserRouter = createTRPCRouter({
   getUsersPaginated: publicProcedure
     .input(z.object({ page: z.number(), limit: z.number() }))
     .query(async ({ ctx, input }) => {
