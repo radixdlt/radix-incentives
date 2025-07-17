@@ -72,6 +72,7 @@ import { CalculateSeasonPointsService } from "./season-points/calculateSeasonPoi
 import { GetSeasonByIdLive } from "./season/getSeasonById";
 import { GetActivitiesByWeekIdLive } from "./activity/getActivitiesByWeekId";
 import { UserActivityPointsService } from "./user/userActivityPoints";
+import { GetUsersPaginatedLive } from "./user/getUsersPaginated";
 import { UpdateWeekStatusService } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
@@ -496,6 +497,10 @@ const getUserActivityPointsLive = UserActivityPointsService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
+const getUsersPaginatedLive = GetUsersPaginatedLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
 const addSeasonPointsToUserLive = AddSeasonPointsToUserService.Default.pipe(
   Layer.provide(dbClientLive)
 );
@@ -520,6 +525,7 @@ const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
   Layer.provide(getWeekByIdLive),
   Layer.provide(getActivitiesByWeekIdLive),
   Layer.provide(getUserActivityPointsLive),
+  Layer.provide(getUsersPaginatedLive),
   Layer.provide(addSeasonPointsToUserLive),
   Layer.provide(updateWeekStatusLive),
   Layer.provide(getSeasonPointMultiplierLive),
