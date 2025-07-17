@@ -56,11 +56,11 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           const results: AggregateDefiPlazaPositionsOutput[] = [];
           for (const pool of Object.values(DefiPlaza)) {
             const baseTokenInfo =
-              yield* addressValidationService.getTokenNameAndXrdStatus(
+              yield* addressValidationService.getTokenNameAndNativeAssetStatus(
                 pool.baseResourceAddress
               );
             const quoteTokenInfo =
-              yield* addressValidationService.getTokenNameAndXrdStatus(
+              yield* addressValidationService.getTokenNameAndNativeAssetStatus(
                 pool.quoteResourceAddress
               );
 
@@ -111,18 +111,18 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
 
           // Get token info including XRD derivative status
           const token1Info =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               position1.resourceAddress
             );
           const token2Info =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               position2.resourceAddress
             );
 
           const token1Name = token1Info.name;
           const token2Name = token2Info.name;
-          const isToken1XrdDerivative = token1Info.isXrdDerivative;
-          const isToken2XrdDerivative = token2Info.isXrdDerivative;
+          const isToken1NativeAsset = token1Info.isNativeAsset;
+          const isToken2NativeAsset = token2Info.isNativeAsset;
 
           // Calculate USD values for both tokens upfront
           const token1UsdValue = yield* getUsdValueService({
@@ -138,13 +138,13 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           });
 
           // Split values based on XRD derivative status
-          const totalNonXrdDerivativeUsdValue = new BigNumber(0)
-            .plus(isToken1XrdDerivative ? 0 : token1UsdValue)
-            .plus(isToken2XrdDerivative ? 0 : token2UsdValue);
+          const totalWrappedAssetUsdValue = new BigNumber(0)
+            .plus(isToken1NativeAsset ? 0 : token1UsdValue)
+            .plus(isToken2NativeAsset ? 0 : token2UsdValue);
 
-          const totalXrdDerivativeUsdValue = new BigNumber(0)
-            .plus(isToken1XrdDerivative ? token1UsdValue : 0)
-            .plus(isToken2XrdDerivative ? token2UsdValue : 0);
+          const totalNativeAssetUsdValue = new BigNumber(0)
+            .plus(isToken1NativeAsset ? token1UsdValue : 0)
+            .plus(isToken2NativeAsset ? token2UsdValue : 0);
 
           // Generate dynamic activity IDs based on token pair (alphabetical order for consistency)
           const nonNativeActivityId = `defiPlaza_lp_${getPair(
@@ -168,7 +168,7 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
               if (existingResult) {
                 const newTotalValue = new BigNumber(
                   existingResult.usdValue
-                ).plus(totalNonXrdDerivativeUsdValue);
+                ).plus(totalWrappedAssetUsdValue);
                 results[existingResultIndex] = {
                   ...existingResult,
                   usdValue: newTotalValue.toString(),
@@ -183,19 +183,19 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             processedActivityIds.add(nonNativeActivityId);
             results.push({
               activityId: nonNativeActivityId,
-              usdValue: totalNonXrdDerivativeUsdValue.toString(),
+              usdValue: totalWrappedAssetUsdValue.toString(),
               metadata: {
                 lpResourceAddress: lpPosition.lpResourceAddress,
                 tokenPair: getPair(token1Name as Token, token2Name as Token),
                 baseToken: {
                   resourceAddress: position1.resourceAddress,
                   amount: position1.amount.toString(),
-                  isXrdOrDerivative: isToken1XrdDerivative,
+                  isNativeAsset: isToken1NativeAsset,
                 },
                 quoteToken: {
                   resourceAddress: position2.resourceAddress,
                   amount: position2.amount.toString(),
-                  isXrdOrDerivative: isToken2XrdDerivative,
+                  isNativeAsset: isToken2NativeAsset,
                 },
               },
             });
@@ -212,7 +212,7 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
               if (existingResult) {
                 const newTotalValue = new BigNumber(
                   existingResult.usdValue
-                ).plus(totalXrdDerivativeUsdValue);
+                ).plus(totalNativeAssetUsdValue);
                 results[existingResultIndex] = {
                   ...existingResult,
                   usdValue: newTotalValue.toString(),
@@ -227,19 +227,19 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             processedActivityIds.add(nativeActivityId);
             results.push({
               activityId: nativeActivityId,
-              usdValue: totalXrdDerivativeUsdValue.toString(),
+              usdValue: totalNativeAssetUsdValue.toString(),
               metadata: {
                 lpResourceAddress: lpPosition.lpResourceAddress,
                 tokenPair: getPair(token1Name as Token, token2Name as Token),
                 baseToken: {
                   resourceAddress: position1.resourceAddress,
                   amount: position1.amount.toString(),
-                  isXrdOrDerivative: isToken1XrdDerivative,
+                  isNativeAsset: isToken1NativeAsset,
                 },
                 quoteToken: {
                   resourceAddress: position2.resourceAddress,
                   amount: position2.amount.toString(),
-                  isXrdOrDerivative: isToken2XrdDerivative,
+                  isNativeAsset: isToken2NativeAsset,
                 },
               },
             });

@@ -60,16 +60,16 @@ export const AggregateOciswapPositionsLive = Layer.effect(
 
           // Get token info including XRD derivative status
           const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               xToken.resourceAddress
             );
           const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               yToken.resourceAddress
             );
 
-          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
-          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
+          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
           const xTokenName = xTokenInfo.name;
           const yTokenName = yTokenInfo.name;
 
@@ -123,12 +123,12 @@ export const AggregateOciswapPositionsLive = Layer.effect(
 
           // Split values based on XRD derivative status
           const totalNonXrdUsdValue = new BigNumber(0)
-            .plus(isXTokenXrdDerivative ? 0 : xTokenUsdValue)
-            .plus(isYTokenXrdDerivative ? 0 : yTokenUsdValue);
+            .plus(isXTokenNativeAsset ? 0 : xTokenUsdValue)
+            .plus(isYTokenNativeAsset ? 0 : yTokenUsdValue);
 
-          const totalXrdDerivativeUsdValue = new BigNumber(0)
-            .plus(isXTokenXrdDerivative ? xTokenUsdValue : 0)
-            .plus(isYTokenXrdDerivative ? yTokenUsdValue : 0);
+          const totalNativeAssetUsdValue = new BigNumber(0)
+            .plus(isXTokenNativeAsset ? xTokenUsdValue : 0)
+            .plus(isYTokenNativeAsset ? yTokenUsdValue : 0);
 
           // Generate activity IDs based on token pair
           const nonNativeActivityId =
@@ -155,14 +155,14 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                       amount: totals.totalXToken.toString(),
                       outsidePriceBounds:
                         totals.totalXTokenOutsidePriceBounds.toString(),
-                      isXrdOrDerivative: isXTokenXrdDerivative,
+                      isNativeAsset: isXTokenNativeAsset,
                     },
                     quoteToken: {
                       resourceAddress: yToken.resourceAddress,
                       amount: totals.totalYToken.toString(),
                       outsidePriceBounds:
                         totals.totalYTokenOutsidePriceBounds.toString(),
-                      isXrdOrDerivative: isYTokenXrdDerivative,
+                      isNativeAsset: isYTokenNativeAsset,
                     },
                   },
                 }
@@ -177,7 +177,7 @@ export const AggregateOciswapPositionsLive = Layer.effect(
             STORE_METADATA
               ? {
                   activityId: nativeActivityId,
-                  usdValue: totalXrdDerivativeUsdValue.toString(),
+                  usdValue: totalNativeAssetUsdValue.toString(),
                   metadata: {
                     tokenPair: getPair(
                       xTokenName as Token,
@@ -188,20 +188,20 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                       amount: totals.totalXToken.toString(),
                       outsidePriceBounds:
                         totals.totalXTokenOutsidePriceBounds.toString(),
-                      isXrdOrDerivative: isXTokenXrdDerivative,
+                      isNativeAsset: isXTokenNativeAsset,
                     },
                     quoteToken: {
                       resourceAddress: yToken.resourceAddress,
                       amount: totals.totalYToken.toString(),
                       outsidePriceBounds:
                         totals.totalYTokenOutsidePriceBounds.toString(),
-                      isXrdOrDerivative: isYTokenXrdDerivative,
+                      isNativeAsset: isYTokenNativeAsset,
                     },
                   },
                 }
               : {
                   activityId: nativeActivityId,
-                  usdValue: totalXrdDerivativeUsdValue.toString(),
+                  usdValue: totalNativeAssetUsdValue.toString(),
                 }
           );
         }
@@ -216,11 +216,11 @@ export const AggregateOciswapPositionsLive = Layer.effect(
 
         for (const pool of allPools) {
           const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               pool.token_x
             );
           const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               pool.token_y
             );
           const nonNativeActivityId =
@@ -229,8 +229,8 @@ export const AggregateOciswapPositionsLive = Layer.effect(
             `oci_nativeLp_${getPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
 
           // Get XRD derivative status from the centralized function
-          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
-          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
+          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
 
           // Add zero entry for non-native LP if not processed
           if (!processedPools.has(nonNativeActivityId)) {
@@ -248,13 +248,13 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                         resourceAddress: pool.token_x,
                         amount: "0",
                         outsidePriceBounds: "0",
-                        isXrdOrDerivative: isXTokenXrdDerivative,
+                        isNativeAsset: isXTokenNativeAsset,
                       },
                       quoteToken: {
                         resourceAddress: pool.token_y,
                         amount: "0",
                         outsidePriceBounds: "0",
-                        isXrdOrDerivative: isYTokenXrdDerivative,
+                        isNativeAsset: isYTokenNativeAsset,
                       },
                     },
                   }
@@ -281,13 +281,13 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                         resourceAddress: pool.token_x,
                         amount: "0",
                         outsidePriceBounds: "0",
-                        isXrdOrDerivative: isXTokenXrdDerivative,
+                        isNativeAsset: isXTokenNativeAsset,
                       },
                       quoteToken: {
                         resourceAddress: pool.token_y,
                         amount: "0",
                         outsidePriceBounds: "0",
-                        isXrdOrDerivative: isYTokenXrdDerivative,
+                        isNativeAsset: isYTokenNativeAsset,
                       },
                     },
                   }

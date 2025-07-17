@@ -58,16 +58,16 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
 
           // Get token info including XRD derivative status
           const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               xToken.resourceAddress
             );
           const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               yToken.resourceAddress
             );
 
-          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
-          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
+          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
           const xTokenName = xTokenInfo.name;
           const yTokenName = yTokenInfo.name;
 
@@ -115,13 +115,13 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             : new BigNumber(0);
 
           // Split values based on XRD derivative status
-          const totalNonXrdDerivativeUsdValue = new BigNumber(0)
-            .plus(isXTokenXrdDerivative ? 0 : xTokenUsdValue)
-            .plus(isYTokenXrdDerivative ? 0 : yTokenUsdValue);
+          const totalWrappedAssetUsdValue = new BigNumber(0)
+            .plus(isXTokenNativeAsset ? 0 : xTokenUsdValue)
+            .plus(isYTokenNativeAsset ? 0 : yTokenUsdValue);
 
-          const totalXrdDerivativeUsdValue = new BigNumber(0)
-            .plus(isXTokenXrdDerivative ? xTokenUsdValue : 0)
-            .plus(isYTokenXrdDerivative ? yTokenUsdValue : 0);
+          const totalNativeAssetUsdValue = new BigNumber(0)
+            .plus(isXTokenNativeAsset ? xTokenUsdValue : 0)
+            .plus(isYTokenNativeAsset ? yTokenUsdValue : 0);
 
           // Generate activity IDs based on token pair
           const nonNativeActivityId = `c9_lp_${getPair(
@@ -140,7 +140,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           // Add non-native LP activity (non-XRD derivative tokens only)
           results.push({
             activityId: nonNativeActivityId,
-            usdValue: totalNonXrdDerivativeUsdValue.toString(),
+            usdValue: totalWrappedAssetUsdValue.toString(),
             metadata: {
               tokenPair: getPair(xTokenName as Token, yTokenName as Token),
               baseToken: {
@@ -148,14 +148,14 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
                 amount: totals.totalXToken.toString(),
                 outsidePriceBounds:
                   totals.totalXTokenOutsidePriceBounds.toString(),
-                isXrdOrDerivative: isXTokenXrdDerivative,
+                isNativeAsset: isXTokenNativeAsset,
               },
               quoteToken: {
                 resourceAddress: yToken.resourceAddress,
                 amount: totals.totalYToken.toString(),
                 outsidePriceBounds:
                   totals.totalYTokenOutsidePriceBounds.toString(),
-                isXrdOrDerivative: isYTokenXrdDerivative,
+                isNativeAsset: isYTokenNativeAsset,
               },
             },
           });
@@ -163,7 +163,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           // Add native LP activity (XRD derivatives only)
           results.push({
             activityId: nativeActivityId,
-            usdValue: totalXrdDerivativeUsdValue.toString(),
+            usdValue: totalNativeAssetUsdValue.toString(),
             metadata: {
               tokenPair: getPair(xTokenName as Token, yTokenName as Token),
               baseToken: {
@@ -171,14 +171,14 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
                 amount: totals.totalXToken.toString(),
                 outsidePriceBounds:
                   totals.totalXTokenOutsidePriceBounds.toString(),
-                isXrdOrDerivative: isXTokenXrdDerivative,
+                isNativeAsset: isXTokenNativeAsset,
               },
               quoteToken: {
                 resourceAddress: yToken.resourceAddress,
                 amount: totals.totalYToken.toString(),
                 outsidePriceBounds:
                   totals.totalYTokenOutsidePriceBounds.toString(),
-                isXrdOrDerivative: isYTokenXrdDerivative,
+                isNativeAsset: isYTokenNativeAsset,
               },
             },
           });
@@ -234,12 +234,12 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             baseToken: {
               resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
               amount: totalLsulpAmount.toString(),
-              isXrdOrDerivative: true,
+              isNativeAsset: true,
             },
             quoteToken: {
               resourceAddress: Assets.Fungible.XRD,
               amount: totalXrdAmount.toString(),
-              isXrdOrDerivative: true,
+              isNativeAsset: true,
             },
           },
         });
@@ -249,11 +249,11 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           CaviarNineConstants.shapeLiquidityPools
         )) {
           const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               pool.token_x
             );
           const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndXrdStatus(
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               pool.token_y
             );
           const nonNativeActivityId = `c9_lp_${getPair(
@@ -266,8 +266,8 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           )}` as ActivityId;
 
           // Get XRD derivative status from the centralized function
-          const isXTokenXrdDerivative = xTokenInfo.isXrdDerivative;
-          const isYTokenXrdDerivative = yTokenInfo.isXrdDerivative;
+          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
+          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
 
           // Add zero entry for non-native LP if not processed
           if (!processedPools.has(nonNativeActivityId)) {
@@ -282,12 +282,12 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
                 baseToken: {
                   resourceAddress: pool.token_x,
                   amount: "0",
-                  isXrdOrDerivative: isXTokenXrdDerivative,
+                  isNativeAsset: isXTokenNativeAsset,
                 },
                 quoteToken: {
                   resourceAddress: pool.token_y,
                   amount: "0",
-                  isXrdOrDerivative: isYTokenXrdDerivative,
+                  isNativeAsset: isYTokenNativeAsset,
                 },
               },
             });
@@ -306,12 +306,12 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
                 baseToken: {
                   resourceAddress: pool.token_x,
                   amount: "0",
-                  isXrdOrDerivative: isXTokenXrdDerivative,
+                  isNativeAsset: isXTokenNativeAsset,
                 },
                 quoteToken: {
                   resourceAddress: pool.token_y,
                   amount: "0",
-                  isXrdOrDerivative: isYTokenXrdDerivative,
+                  isNativeAsset: isYTokenNativeAsset,
                 },
               },
             });
@@ -330,12 +330,12 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               baseToken: {
                 resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
                 amount: "0",
-                isXrdOrDerivative: true,
+                isNativeAsset: true,
               },
               quoteToken: {
                 resourceAddress: Assets.Fungible.XRD,
                 amount: "0",
-                isXrdOrDerivative: true,
+                isNativeAsset: true,
               },
             },
           });

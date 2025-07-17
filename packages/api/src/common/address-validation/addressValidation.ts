@@ -11,6 +11,7 @@ import { SurgeConstants } from "../dapps/surge/constants";
 import { Assets } from "../assets/constants";
 import {
   flatTokenNameMap,
+  nativeAssets,
   xrdDerivatives,
   type TokenInfo,
 } from "./tokenNameMap";
@@ -80,7 +81,7 @@ export class AddressValidationService extends Context.Tag(
     getTokenName: (
       resourceAddress: string
     ) => Effect.Effect<string, UnknownTokenError>;
-    getTokenNameAndXrdStatus: (
+    getTokenNameAndNativeAssetStatus: (
       resourceAddress: string
     ) => Effect.Effect<TokenInfo, UnknownTokenError>;
   }
@@ -595,7 +596,7 @@ export const AddressValidationServiceLive = Layer.succeed(
       return Effect.fail(new UnknownTokenError(resourceAddress));
     },
 
-    getTokenNameAndXrdStatus: (
+    getTokenNameAndNativeAssetStatus: (
       resourceAddress: string
     ): Effect.Effect<TokenInfo, UnknownTokenError> => {
       const tokenName =
@@ -604,7 +605,7 @@ export const AddressValidationServiceLive = Layer.succeed(
       if (tokenName) {
         return Effect.succeed({
           name: tokenName,
-          isXrdDerivative: xrdDerivatives.has(resourceAddress),
+          isNativeAsset: nativeAssets.has(resourceAddress),
         });
       }
 
