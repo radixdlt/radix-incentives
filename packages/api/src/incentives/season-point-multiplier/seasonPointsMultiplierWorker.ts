@@ -50,7 +50,7 @@ export const calculateMultiplier = (xrdBalance: BigNumber): number => {
     // m(B) = 0.5 + 2.587/(1 + exp[-0.9×(ln(B)-14.4)])
     const lnB = Math.log(xrdBalance.toNumber());
     const expTerm = Math.exp(-0.9 * (lnB - 14.4));
-    return 0.5 + 2.587 / (1 + expTerm);
+    return 0.5 + 2.586 / (1 + expTerm);
   }
   return 3.0;
 };
@@ -74,7 +74,7 @@ const applyMultiplierToUsers = (
 
       return {
         ...user,
-        multiplier: multiplier.toString(),
+        multiplier: multiplier.toFixed(2),
       };
     })
   );
