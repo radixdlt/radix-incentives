@@ -319,7 +319,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           }));
 
           // Combine existing season points with zero season points for missing users
-          const completeUserSeasonPoints = [ ...zeroSeasonPoints,...userSeasonPoints,];
+          const completeUserSeasonPoints = [ ...zeroSeasonPoints,...userSeasonPoints];
 
           yield* Effect.log(`Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`);
 
