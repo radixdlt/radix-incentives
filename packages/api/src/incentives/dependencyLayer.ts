@@ -532,7 +532,8 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
   Layer.provide(calculateSPMultiplierLive),
   Layer.provide(getWeekByIdLive),
   Layer.provide(upsertUserTwaWithMultiplierLive),
-  Layer.provide(accountBalanceServiceLive)
+  Layer.provide(accountBalanceServiceLive),
+  Layer.provide(getUsdValueLive)
 );
 
 const NodeSdkLive = NodeSdk.layer(() => ({

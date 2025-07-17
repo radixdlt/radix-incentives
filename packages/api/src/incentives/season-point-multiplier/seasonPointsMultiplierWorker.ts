@@ -18,6 +18,11 @@ import {
 } from "../week/getWeekById";
 import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplier";
 import { Thresholds } from "../../common/config/constants";
+import {
+  GetUsdValueService,
+  type GetUsdValueServiceError,
+} from "../token-price/getUsdValue";
+import { Assets } from "../../common/assets/constants";
 
 export const seasonPointsMultiplierJobSchema = z.object({
   weekId: z.string(),
@@ -30,30 +35,24 @@ export type SeasonPointsMultiplierJob = z.infer<
 
 // Multiplier calculation function
 
-export const calculateMultiplier = (
-  q: number,
-  constants: { K: number; Q0: number; QLowerCap: number; QUpperCap: number } = {
-    K: 15,
-    Q0: 0.18,
-    QLowerCap: 0.02,
-    QUpperCap: 0.5,
-  }
-): number => {
-  const K = constants.K;
-  const Q0 = constants.Q0;
-  const QLowerCap = constants.QLowerCap;
-  const QUpperCap = constants.QUpperCap;
-
-  if (q < QLowerCap) {
+/**
+ * S-curve function for calculating multiplier based on XRD balance
+ * Based on the formula:
+ * - m(B) = 0.5 if B < 10,000
+ * - m(B) = 0.5 + 2.587/(1 + exp[-0.9×(ln(B)-14.4)]) if 10,000 ≤ B < 75,000,000
+ * - m(B) = 3.0 if B ≥ 75,000,000
+ */
+export const calculateMultiplier = (xrdBalance: BigNumber): number => {
+  if (xrdBalance.lt(10000)) {
     return 0.5;
   }
-  if (q < QUpperCap && q >= QLowerCap) {
-    return 0.5 + 2.5 / (1 + Math.exp(-K * (q - Q0)));
+  if (xrdBalance.lt(75000000)) {
+    // m(B) = 0.5 + 2.587/(1 + exp[-0.9×(ln(B)-14.4)])
+    const lnB = Math.log(xrdBalance.toNumber());
+    const expTerm = Math.exp(-0.9 * (lnB - 14.4));
+    return 0.5 + 2.586 / (1 + expTerm);
   }
-  if (q >= QUpperCap) {
-    return 3.0;
-  }
-  return 0;
+  return 3.0;
 };
 
 const applyMultiplierToUsers = (
@@ -63,35 +62,24 @@ const applyMultiplierToUsers = (
     cumulativeTWABalance: string;
     weekId: string;
   }>,
-  totalTwaBalanceSum: string
+  xrdPrice: BigNumber
 ) => {
-  return users.map((user) => {
-    const q = new BigNumber(user.cumulativeTWABalance)
-      .dividedBy(totalTwaBalanceSum)
-      .toNumber();
-    return {
-      ...user,
-      multiplier: calculateMultiplier(q).toString(),
-    };
-  });
+  return Effect.forEach(users, (user) =>
+    Effect.gen(function* () {
+      // Convert totalTWABalance ( USD value) to xrd amount
+      const xrdAmount = new BigNumber(user.totalTWABalance).dividedBy(xrdPrice);
+
+      // Calculate multiplier based on XRD balance
+      const multiplier = calculateMultiplier(xrdAmount);
+
+      return {
+        ...user,
+        multiplier: multiplier.toFixed(2),
+      };
+    })
+  );
 };
 
-// Calculate cumulativeTwaBalance for each user
-const calculateCumulativeTwaBalances = (
-  users: UsersWithTwaBalance[],
-  weekId: string
-) => {
-  let cumulative = new BigNumber(0);
-  return users.map((user) => {
-    cumulative = cumulative.plus(user.totalTWABalance);
-    return {
-      userId: user.userId,
-      totalTWABalance: user.totalTWABalance.toString(),
-      cumulativeTWABalance: cumulative.toString(),
-      weekId: weekId,
-    };
-  });
-};
 
 export class SeasonPointsMultiplierWorkerService extends Context.Tag(
   "SeasonPointsMultiplierWorkerService"
@@ -101,7 +89,11 @@ export class SeasonPointsMultiplierWorkerService extends Context.Tag(
     input: SeasonPointsMultiplierJob
   ) => Effect.Effect<
     void,
-    InvalidInputError | DbError | WeekNotFoundError | GetWeekByIdError
+    | InvalidInputError
+    | DbError
+    | WeekNotFoundError
+    | GetWeekByIdError
+    | GetUsdValueServiceError
   >
 >() {}
 
@@ -113,6 +105,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
     const getWeekByIdService = yield* GetWeekByIdService;
     const upsertUserTwaWithMultiplier =
       yield* UpsertUserTwaWithMultiplierService;
+    const getUsdValueService = yield* GetUsdValueService;
     return (input) =>
       Effect.gen(function* () {
         yield* Effect.log("Calculating season points multiplier");
@@ -223,21 +216,22 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
           (u: UsersWithTwaBalance) => u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD)
         );
 
-        // Calculate cumulative balances and multipliers for users >= 10000 balance
-        const userTwaBalancesWithCumulative = calculateCumulativeTwaBalances(
-          filteredUserTwaBalances,
-          week.id
-        );
+        const xrdPrice = yield* getUsdValueService({
+          amount: new BigNumber(1),
+          resourceAddress: Assets.Fungible.XRD,
+          timestamp: new Date(), // Current timestamp
+        });
 
-        const totalTwaBalanceSum =
-          userTwaBalancesWithCumulative.length > 0
-            ? (userTwaBalancesWithCumulative.at(-1)?.cumulativeTWABalance ??
-              "0")
-            : "0";
-
-        const userTwaWithMultiplier = applyMultiplierToUsers(
-          userTwaBalancesWithCumulative,
-          totalTwaBalanceSum
+        const userTwaWithMultiplier = yield* applyMultiplierToUsers(
+          filteredUserTwaBalances.map(
+            (user) => ({
+              userId: user.userId,
+              totalTWABalance: user.totalTWABalance.toString(),
+              weekId: week.id,
+              cumulativeTWABalance: "0", //TODO remove cumulativeTWABalance from the db
+            })
+          ),
+          xrdPrice
         );
 
         // Add users with balance < 10000 with 0.0 multiplier and cumulative balance
