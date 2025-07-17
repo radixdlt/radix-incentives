@@ -36,19 +36,19 @@ export type SeasonPointsMultiplierJob = z.infer<
 // Multiplier calculation function
 
 /**
- * S-curve function for calculating multiplier based on USD balance
+ * S-curve function for calculating multiplier based on XRD balance
  * Based on the formula:
  * - m(B) = 0.5 if B < 10,000
  * - m(B) = 0.5 + 2.587/(1 + exp[-0.9×(ln(B)-14.4)]) if 10,000 ≤ B < 75,000,000
  * - m(B) = 3.0 if B ≥ 75,000,000
  */
-export const calculateMultiplier = (xrdBalance: number): number => {
-  if (xrdBalance < 10000) {
+export const calculateMultiplier = (xrdBalance: BigNumber): number => {
+  if (xrdBalance.lt(10000)) {
     return 0.5;
   }
-  if (xrdBalance < 75000000) {
+  if (xrdBalance.lt(75000000)) {
     // m(B) = 0.5 + 2.587/(1 + exp[-0.9×(ln(B)-14.4)])
-    const lnB = Math.log(xrdBalance);
+    const lnB = Math.log(xrdBalance.toNumber());
     const expTerm = Math.exp(-0.9 * (lnB - 14.4));
     return 0.5 + 2.587 / (1 + expTerm);
   }
@@ -69,8 +69,8 @@ const applyMultiplierToUsers = (
       // Convert totalTWABalance ( USD value) to xrd amount
       const xrdAmount = new BigNumber(user.totalTWABalance).dividedBy(xrdPrice);
 
-      // Calculate multiplier based on USD balance
-      const multiplier = calculateMultiplier(xrdAmount.toNumber());
+      // Calculate multiplier based on XRD balance
+      const multiplier = calculateMultiplier(xrdAmount);
 
       return {
         ...user,
