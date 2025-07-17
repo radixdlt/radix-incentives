@@ -51,7 +51,7 @@ describe("calculateMultiplier", () => {
         expect(result).toBeGreaterThan(0.5);
 
         const result2 = calculateMultiplier(new BigNumber(75000000));
-        expect(Number( result2.toFixed(2))).toBe(3.0);
+        expect(result2).toBe(3.0);
         expect(result2).toBeGreaterThan(0.5);
         
 
