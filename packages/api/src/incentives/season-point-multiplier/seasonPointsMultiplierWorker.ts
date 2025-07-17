@@ -62,23 +62,15 @@ const applyMultiplierToUsers = (
     cumulativeTWABalance: string;
     weekId: string;
   }>,
-  getUsdValueService: (input: {
-    amount: BigNumber;
-    resourceAddress: string;
-    timestamp: Date;
-  }) => Effect.Effect<BigNumber, GetUsdValueServiceError>
+  usdPrice: BigNumber
 ) => {
   return Effect.forEach(users, (user) =>
     Effect.gen(function* () {
-      // Convert totalTWABalance (XRD amount) to USD value
-      const usdValue = yield* getUsdValueService({
-        amount: new BigNumber(user.totalTWABalance),
-        resourceAddress: Assets.Fungible.XRD,
-        timestamp: new Date(), // Current timestamp
-      });
+      // Convert totalTWABalance ( USD value) to xrd amount
+      const xrdAmount = new BigNumber(user.totalTWABalance).dividedBy(usdPrice);
 
       // Calculate multiplier based on USD balance
-      const multiplier = calculateMultiplier(usdValue.toNumber());
+      const multiplier = calculateMultiplier(xrdAmount.toNumber());
 
       return {
         ...user,
@@ -224,6 +216,12 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
           (u: UsersWithTwaBalance) => u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD)
         );
 
+        const usdPrice = yield* getUsdValueService({
+          amount: new BigNumber(1),
+          resourceAddress: Assets.Fungible.XRD,
+          timestamp: new Date(), // Current timestamp
+        });
+
         const userTwaWithMultiplier = yield* applyMultiplierToUsers(
           filteredUserTwaBalances.map(
             (user) => ({
@@ -233,7 +231,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
               cumulativeTWABalance: "0", //TODO remove cumulativeTWABalance from the db
             })
           ),
-          getUsdValueService
+          usdPrice
         );
 
         // Add users with balance < 10000 with 0.0 multiplier and cumulative balance
