@@ -17,10 +17,9 @@ import { WeekService } from "../week/week";
 import { GetUsersPaginatedService } from "../user/getUsersPaginated";
 
 export const calculateSeasonPointsInputSchema = z.object({
-  seasonId: z.string(),
   weekId: z.string(),
   force: z.boolean().optional(),
-  endOfWeek: z.boolean(),
+  markAsProcessed: z.boolean(),
 });
 
 export type CalculateSeasonPointsInput = z.infer<
@@ -70,9 +69,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         return parsedInput.data;
       });
 
-      const validateSeason = Effect.fn(function* (
-        input: CalculateSeasonPointsInput
-      ) {
+      const validateSeason = Effect.fn(function* (input: {
+        seasonId: string;
+        force?: boolean;
+      }) {
         const season = yield* seasonService.getById(input.seasonId);
 
         if (season.status === "completed" && !input.force) {
@@ -94,8 +94,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`
         );
 
-        if (week.status === "completed" && !input.force) {
-          yield* Effect.log(`week ${input.weekId} is completed`);
+        if (week.processed && !input.force) {
+          yield* Effect.log(`week ${input.weekId} is already processed`);
           return yield* Effect.fail(
             new InvalidStateError({
               message: `week ${input.weekId} is already processed`,
@@ -122,7 +122,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         while (hasMore) {
           const result = yield* getUsersPaginated({ page, limit });
           allUserIds.push(...result.users.map((user) => user.id));
-          
+
           hasMore = result.users.length === limit;
           page++;
         }
@@ -133,10 +133,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const markAsProcessed = Effect.fn(function* (
         input: CalculateSeasonPointsInput
       ) {
-        if (input.endOfWeek) {
+        if (input.markAsProcessed) {
           yield* updateWeekStatus.run({
             id: input.weekId,
-            status: "completed",
+            processed: true,
           });
         }
       });
@@ -147,7 +147,9 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
           yield* parseInput(input);
 
-          yield* validateSeason(input);
+          const season = yield* seasonService.getByWeekId(input.weekId);
+
+          yield* validateSeason({ seasonId: season.id, force: input.force });
 
           yield* validateWeek(input);
 
@@ -293,7 +295,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
                 return {
                   userId,
-                  seasonId: input.seasonId,
+                  seasonId: season.id,
                   points: seasonPoints.multipliedBy(multiplier),
                   weekId: input.weekId,
                 };
@@ -305,23 +307,32 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           const allUserIds = yield* getAllUserIds();
 
           // Extract user IDs that already have season points
-          const existingUserIds = new Set(userSeasonPoints.map(sp => sp.userId));
+          const existingUserIds = new Set(
+            userSeasonPoints.map((sp) => sp.userId)
+          );
 
           // Find users that don't have season points
-          const missingUserIds = allUserIds.filter(userId => !existingUserIds.has(userId));
+          const missingUserIds = allUserIds.filter(
+            (userId) => !existingUserIds.has(userId)
+          );
 
           // Create zero season points for missing users
-          const zeroSeasonPoints = missingUserIds.map(userId => ({
+          const zeroSeasonPoints = missingUserIds.map((userId) => ({
             userId,
-            seasonId: input.seasonId,
+            seasonId: season.id,
             points: new BigNumber(0),
             weekId: input.weekId,
           }));
 
           // Combine existing season points with zero season points for missing users
-          const completeUserSeasonPoints = [ ...zeroSeasonPoints,...userSeasonPoints];
+          const completeUserSeasonPoints = [
+            ...zeroSeasonPoints,
+            ...userSeasonPoints,
+          ];
 
-          yield* Effect.log(`Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`);
+          yield* Effect.log(
+            `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`
+          );
 
           yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
 

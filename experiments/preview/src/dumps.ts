@@ -28,9 +28,9 @@ export const listAvailableDumps = (): DumpInfo[] => {
   }
 
   const files = fs.readdirSync(dumpsDir);
-  const sqlFiles = files.filter((file) => file.endsWith(".sql"));
+  const dumpFiles = files.filter((file) => file.endsWith(".dump"));
 
-  return sqlFiles
+  return dumpFiles
     .map((file) => {
       const filePath = path.join(dumpsDir, file);
       const stats = fs.statSync(filePath);
@@ -203,7 +203,7 @@ export const selectDumpInteractively = async (): Promise<{
 
 export const generateDumpFileName = (prefix = "dump"): string => {
   const timestamp = new Date().toISOString().replace(/[:.]/g, "-").slice(0, -5);
-  return `${prefix}_${timestamp}.sql`;
+  return `${prefix}_${timestamp}.dump`;
 };
 
 export const findDumpByName = (name: string): string | null => {
@@ -213,9 +213,9 @@ export const findDumpByName = (name: string): string | null => {
   let dump = dumps.find((d) => d.name === name);
   if (dump) return dump.path;
 
-  // Try with .sql extension
-  if (!name.endsWith(".sql")) {
-    dump = dumps.find((d) => d.name === `${name}.sql`);
+  // Try with .dump extension
+  if (!name.endsWith(".dump")) {
+    dump = dumps.find((d) => d.name === `${name}.dump`);
     if (dump) return dump.path;
   }
 

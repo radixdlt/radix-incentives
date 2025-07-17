@@ -40,21 +40,22 @@
     "jose": "catalog:",
     "make-fetch-happen": "catalog:",
     "pino": "catalog:",
+    "postgres": "catalog:",
     "radix-connect": "catalog:",
     "radix-transaction-stream": "catalog:",
     "radix-web3.js": "catalog:",
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:",
-    "postgres": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
+    "@effect/language-service": "catalog:",
     "@effect/vitest": "^0.20.10",
+    "@testcontainers/postgresql": "catalog:",
     "@types/aws-lambda": "catalog:",
     "@types/make-fetch-happen": "catalog:",
     "tsup": "catalog:",
-    "vitest": "catalog:",
-    "@testcontainers/postgresql": "catalog:"
+    "vitest": "catalog:"
   },
   "publishConfig": {
     "access": "restricted"

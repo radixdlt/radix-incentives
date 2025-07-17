@@ -1,107 +1,81 @@
-import {
-  activities,
-  activityCategories,
-  activityWeeks,
-  seasons,
-  weeks,
-} from "../schema";
+import { activities, activityCategories } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
-import {
-  activityCategoriesToSeed,
-  type ActivityCategoryKey,
-  type ActivityId,
-} from "../types";
+import { ActivityCategoryKey } from "../types";
 import { activitiesData } from "./data/activitiesData";
 
-const WEEK_ID = "6b209cf9-5932-487e-bf75-9d6f7d2330dd";
-const SEASON_ID = "036031e3-8bfb-4d2f-b653-f05c76f07704";
+const activityCategoriesToSeed: {
+  id: ActivityCategoryKey;
+  name: string;
+}[] = [
+  {
+    id: ActivityCategoryKey.maintainXrdBalance,
+    name: "Maintain XRD balance",
+  },
+  {
+    id: ActivityCategoryKey.provideStablesLiquidityToDex,
+    name: "Provide stables liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
+    name: "Provide blue chip liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.provideNativeLiquidityToDex,
+    name: "Provide native liquidity to a DEX",
+  },
+  {
+    id: ActivityCategoryKey.lendingStables,
+    name: "Lend stables",
+  },
+  {
+    id: ActivityCategoryKey.transactionFees,
+    name: "Paid transaction fees",
+  },
+  {
+    id: ActivityCategoryKey.common,
+    name: "Common activities",
+  },
+  {
+    id: ActivityCategoryKey.componentCalls,
+    name: "Component calls",
+  },
+  {
+    id: ActivityCategoryKey.tradingVolume,
+    name: "Trading volume",
+  },
+];
 
-const [seasonResult] = await db
-  .insert(seasons)
-  .values([
-    {
-      startDate: new Date("2025-06-01:00:00:00Z"),
-      endDate: new Date("2025-07-30:23:59:59Z"),
-      name: "Season 1",
-      status: "active",
-      id: SEASON_ID,
-    },
-  ])
-  .returning()
-  .onConflictDoNothing();
+export const seedActivities = async () => {
+  await db
+    .insert(activityCategories)
+    .values(activityCategoriesToSeed)
+    .returning()
+    .onConflictDoUpdate({
+      target: [activityCategories.id],
+      set: {
+        name: sql`excluded.name`,
+      },
+    });
 
-console.log("Season seeded", seasonResult);
+  console.log("Activity categories seeded");
 
-const [weekResult] = await db
-  .insert(weeks)
-  .values([
-    {
-      startDate: new Date("2025-06-23:00:00:00Z"),
-      endDate: new Date("2025-06-29:23:59:59Z"),
-      seasonId: SEASON_ID,
-      id: WEEK_ID,
-      status: "active",
-    },
-  ])
-  .returning()
-  .onConflictDoNothing();
-
-console.log("Week seeded", weekResult);
-
-const activityCategoryResults = await db
-  .insert(activityCategories)
-  .values(activityCategoriesToSeed)
-  .returning()
-  .onConflictDoUpdate({
-    target: [activityCategories.id],
-    set: {
-      name: sql`excluded.name`,
-    },
-  });
-
-console.log("Activity categories seeded", activityCategoryResults);
-
-const activitiesToSeed: { id: ActivityId; category: ActivityCategoryKey }[] =
-  activitiesData.map((activity) => ({
-    id: activity.id as ActivityId,
-    category: activity.category,
-  }));
-
-const activityResults = await db
-  .insert(activities)
-  .values(activitiesToSeed)
-  .returning()
-  .onConflictDoUpdate({
-    target: [activities.id],
-    set: {
-      name: sql`excluded.name`,
-      category: sql`excluded.category`,
-    },
-  });
-
-console.log("Activities seeded", activityResults);
-
-const [activityWeekResult] = await db
-  .insert(activityWeeks)
-  .values(
-    activityResults
-      .map((item) => ({
-        activityId: item.id,
-        weekId: WEEK_ID,
-        pointsPool: 100_000,
-        status: "active" as const,
+  await db
+    .insert(activities)
+    .values(
+      activitiesData.map((activity) => ({
+        id: activity.id,
+        category: activity.category,
       }))
-      .filter(
-        (item) =>
-          item.activityId !== "common" && !item.activityId.includes("hold_")
-      )
-  )
-  .returning()
-  .onConflictDoNothing();
+    )
+    .returning()
+    .onConflictDoUpdate({
+      target: [activities.id],
+      set: {
+        name: sql`excluded.name`,
+        category: sql`excluded.category`,
+      },
+    });
 
-console.log("ActivityWeeks seeded", activityWeekResult);
-
-console.log("Users and accounts successfully seeded");
-
-process.exit(0);
+  console.log("Activities seeded");
+};

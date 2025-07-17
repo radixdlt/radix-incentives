@@ -73,8 +73,7 @@ function ManageSeasonsPage() {
           <TableHeader>
             <TableRow>
               <TableHead>Name</TableHead>
-              <TableHead>Start Date</TableHead>
-              <TableHead>End Date</TableHead>
+
               <TableHead>Status</TableHead>
             </TableRow>
           </TableHeader>
@@ -87,8 +86,7 @@ function ManageSeasonsPage() {
                   className="cursor-pointer hover:bg-muted/50"
                 >
                   <TableCell className="font-medium">{season.name}</TableCell>
-                  <TableCell>{format(season.startDate, 'PPP')}</TableCell>
-                  <TableCell>{format(season.endDate, 'PPP')}</TableCell>
+
                   <TableCell>
                     <Badge
                       variant={getStatusVariant(season.status)}

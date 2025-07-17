@@ -117,11 +117,6 @@ export const seasonStatusEnum = pgEnum("season_status", [
   "active",
   "completed",
 ]);
-export const weekStatusEnum = pgEnum("week_status", [
-  "upcoming",
-  "active",
-  "completed",
-]);
 export const activityWeekStatusEnum = pgEnum("activity_week_status", [
   "active",
   "inactive",
@@ -131,14 +126,6 @@ export const activityWeekStatusEnum = pgEnum("activity_week_status", [
 export const seasons = createTable("season", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
-  startDate: timestamp("start_date", {
-    mode: "date",
-    withTimezone: true,
-  }).notNull(),
-  endDate: timestamp("end_date", {
-    mode: "date",
-    withTimezone: true,
-  }).notNull(),
   status: seasonStatusEnum("status").notNull().default("upcoming"),
 });
 
@@ -160,7 +147,7 @@ export const weeks = createTable("week", {
     mode: "date",
     withTimezone: true,
   }).notNull(),
-  status: weekStatusEnum("status").notNull().default("upcoming"),
+  processed: boolean("processed").notNull().default(false),
 });
 
 export const weeksRelations = relations(weeks, ({ one, many }) => ({

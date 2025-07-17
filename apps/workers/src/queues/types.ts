@@ -4,7 +4,6 @@ export const QueueName = {
   seasonPointsMultiplier: "seasonPointsMultiplier",
   scheduledSnapshot: "scheduledSnapshot",
   event: "event",
-  orchestrator: "orchestrator",
   snapshot: "snapshot",
   snapshotDateRange: "snapshotDateRange",
   scheduledCalculations: "scheduledCalculations",

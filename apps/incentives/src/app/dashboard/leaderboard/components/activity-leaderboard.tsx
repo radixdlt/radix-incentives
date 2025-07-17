@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { api } from "~/trpc/react";
-import { usePersona } from "~/lib/hooks/usePersona";
-import { ActivitySelectors } from "./activity-selectors";
-import { ActivityInfo } from "./activity-info";
-import { LeaderboardContent } from "./leaderboard-content";
-import { LoadingState } from "./loading-state";
-import { EmptyState } from "./empty-state";
+import { useState, useEffect } from 'react';
+import { api } from '~/trpc/react';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { ActivitySelectors } from './activity-selectors';
+import { ActivityInfo } from './activity-info';
+import { LeaderboardContent } from './leaderboard-content';
+import { LoadingState } from './loading-state';
+import { EmptyState } from './empty-state';
 
 export function ActivityLeaderboard() {
-  const [selectedWeekId, setSelectedWeekId] = useState<string>("");
-  const [selectedActivityId, setSelectedActivityId] = useState<string>("");
+  const [selectedWeekId, setSelectedWeekId] = useState<string>('');
+  const [selectedActivityId, setSelectedActivityId] = useState<string>('');
   const persona = usePersona();
 
   // Fetch available weeks and activities
@@ -24,7 +24,7 @@ export function ActivityLeaderboard() {
   useEffect(() => {
     if (weeks && weeks.length > 0 && !selectedWeekId) {
       // Default to the most recent active or completed week
-      const activeWeek = weeks.find((w) => w.status === "active") || weeks[0];
+      const activeWeek = weeks[0];
       if (activeWeek) {
         setSelectedWeekId(activeWeek.id);
       }
@@ -46,7 +46,7 @@ export function ActivityLeaderboard() {
         activityId: selectedActivityId,
         weekId: selectedWeekId,
       },
-      { enabled: !!selectedActivityId && !!selectedWeekId }
+      { enabled: !!selectedActivityId && !!selectedWeekId },
     );
 
   if (weeksLoading || activitiesLoading) {

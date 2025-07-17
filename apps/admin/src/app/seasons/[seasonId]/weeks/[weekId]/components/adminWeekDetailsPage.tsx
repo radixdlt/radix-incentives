@@ -81,7 +81,6 @@ interface WeekData {
   description: string;
   startDate: string;
   endDate: string;
-  status: 'upcoming' | 'active' | 'completed';
   isProcessed: boolean;
   totalActivities: number;
   totalParticipants: number;
@@ -91,7 +90,7 @@ interface WeekData {
 interface AdminWeekDetailsProps {
   weekData: WeekData;
   activities: WeekActivity[];
-  onWeekAction?: (action: Week['status']) => void;
+
   onActivityAction?: (activityId: string, action: 'edit' | 'delete') => void;
   onRecalculatePoints?: () => void;
 }
@@ -99,7 +98,6 @@ interface AdminWeekDetailsProps {
 const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
   weekData,
   activities,
-  onWeekAction = (action) => console.log(`Week ${action} action triggered`),
   onActivityAction = (activityId, action) =>
     console.log(`Activity ${activityId} ${action} action triggered`),
   onRecalculatePoints = () =>
@@ -195,7 +193,6 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
           </div>
         </div>
         <div className="flex items-center gap-2">
-          {getStatusBadge(weekData.status)}
           {weekData.isProcessed && (
             <Badge
               variant="outline"
@@ -260,13 +257,7 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
             </p>
           </div>
           <ButtonGroup>
-            {weekData.status === 'upcoming' && (
-              <Button variant="default" onClick={() => onWeekAction('active')}>
-                <Play className="h-4 w-4 mr-2" />
-                Start Week
-              </Button>
-            )}
-            {weekData.status === 'active' && !weekData.isProcessed && (
+            {!weekData.isProcessed && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="default">
@@ -294,7 +285,7 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
                 </AlertDialogContent>
               </AlertDialog>
             )}
-            {weekData.status === 'completed' && !weekData.isProcessed && (
+            {!weekData.isProcessed && (
               <AlertDialog>
                 <AlertDialogTrigger asChild>
                   <Button variant="default">

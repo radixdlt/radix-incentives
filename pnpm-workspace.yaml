@@ -72,3 +72,4 @@ catalog:
   "hono": "^4.7.10"
   "@testcontainers/postgresql": "^11.2.1"
   "commander": "^12.0.0"
+  "@effect/language-service": "^0.27.2"

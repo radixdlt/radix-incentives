@@ -393,13 +393,13 @@ function SeasonDetailPage() {
             <p className="text-sm font-medium text-muted-foreground">
               Start Date
             </p>
-            <p>{format(season.startDate, 'PPP')}</p>
+            {/* <p>{format(season.startDate, 'PPP')}</p> */}
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               End Date
             </p>
-            <p>{format(season.endDate, 'PPP')}</p>
+            {/* <p>{format(season.endDate, 'PPP')}</p> */}
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">Status</p>
@@ -459,12 +459,12 @@ function SeasonDetailPage() {
                       {format(week.endDate, 'PPP')}
                     </TableCell>
                     <TableCell onClick={() => handleWeekRowClick(week.id)}>
-                      <Badge
+                      {/* <Badge
                         variant={getWeekStatusVariant(week.status)}
                         className="capitalize"
                       >
                         {week.status}
-                      </Badge>
+                      </Badge> */}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <ActivityWeeksDisplay
