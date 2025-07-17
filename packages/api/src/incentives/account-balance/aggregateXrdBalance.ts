@@ -260,9 +260,10 @@ const processCaviarNinePools = (
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
     const caviarNineByPool = new Map<ActivityId, BigNumber>();
+    const poolContributions = new Map<ActivityId, Map<string, BigNumber>>();
 
     // Process existing positions
-    for (const [_poolKey, poolAssets] of Object.entries(
+    for (const [poolKey, poolAssets] of Object.entries(
       accountBalance.caviarninePositions
     )) {
       const poolXrdDerivatives = poolAssets.reduce((currentXrd, item) => {
@@ -325,6 +326,18 @@ const processCaviarNinePools = (
               activityId,
               currentAmount.plus(poolXrdDerivatives)
             );
+
+            // Track individual pool contributions
+            if (!poolContributions.has(activityId)) {
+              poolContributions.set(activityId, new Map());
+            }
+            const contributions = poolContributions.get(activityId)!;
+            const currentContribution =
+              contributions.get(poolKey) ?? new BigNumber(0);
+            contributions.set(
+              poolKey,
+              currentContribution.plus(poolXrdDerivatives)
+            );
           }
         }
       }
@@ -361,14 +374,31 @@ const processCaviarNinePools = (
 
     // Add results for pools with positions (including hyperstake)
     for (const [activityId, xrdAmount] of caviarNineByPool.entries()) {
+      const contributions = poolContributions.get(activityId);
+      let poolShare: Record<string, number> | undefined;
+
+      // Calculate pool shares if there are multiple pools
+      if (contributions && contributions.size > 1 && xrdAmount.gt(0)) {
+        poolShare = {};
+        for (const [poolKey, contribution] of contributions) {
+          poolShare[poolKey] = contribution.dividedBy(xrdAmount).toNumber();
+        }
+      }
+
       output.push({
         activityId,
         usdValue: yield* xrdToUsd(xrdAmount),
+        poolShare,
       });
     }
 
     // Add zero entries for pools without positions
-    for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
+    const allCaviarNinePools = [
+      ...Object.values(CaviarNineConstants.shapeLiquidityPools),
+      ...Object.values(CaviarNineConstants.simplePools),
+    ];
+
+    for (const pool of allCaviarNinePools) {
       const isToken1XrdDerivative = isXrdOrLsulp(pool.token_x);
       const isToken2XrdDerivative = isXrdOrLsulp(pool.token_y);
 
@@ -523,9 +553,10 @@ const processOciswapPools = (
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
     const ociswapByPool = new Map<ActivityId, BigNumber>();
+    const poolContributions = new Map<ActivityId, Map<string, BigNumber>>();
 
     // Process existing positions
-    for (const [_poolKey, poolAssets] of Object.entries(
+    for (const [poolKey, poolAssets] of Object.entries(
       accountBalance.ociswapPositions
     )) {
       const poolXrdAmount = poolAssets.reduce((currentXrd, item) => {
@@ -569,6 +600,15 @@ const processOciswapPools = (
             const currentAmount =
               ociswapByPool.get(activityId) ?? new BigNumber(0);
             ociswapByPool.set(activityId, currentAmount.plus(poolXrdAmount));
+
+            // Track individual pool contributions
+            if (!poolContributions.has(activityId)) {
+              poolContributions.set(activityId, new Map());
+            }
+            const contributions = poolContributions.get(activityId)!;
+            const currentContribution =
+              contributions.get(poolKey) ?? new BigNumber(0);
+            contributions.set(poolKey, currentContribution.plus(poolXrdAmount));
           }
         }
       }
@@ -576,14 +616,33 @@ const processOciswapPools = (
 
     // Add results for pools with positions
     for (const [activityId, xrdAmount] of ociswapByPool.entries()) {
+      const contributions = poolContributions.get(activityId);
+      let poolShare: Record<string, number> | undefined;
+
+      // Calculate pool shares if there are multiple pools
+      if (contributions && contributions.size > 1 && xrdAmount.gt(0)) {
+        poolShare = {};
+        for (const [poolKey, contribution] of contributions) {
+          poolShare[poolKey] = contribution.dividedBy(xrdAmount).toNumber();
+        }
+      }
+
       output.push({
         activityId,
         usdValue: yield* xrdToUsd(xrdAmount),
+        poolShare,
       });
     }
 
     // Add zero entries for pools without positions
-    for (const pool of Object.values(OciswapConstants.pools)) {
+    const allPools = [
+      ...Object.values(OciswapConstants.pools),
+      ...Object.values(OciswapConstants.poolsV2),
+      ...Object.values(OciswapConstants.flexPools),
+      ...Object.values(OciswapConstants.basicPools),
+    ];
+
+    for (const pool of allPools) {
       const isTokenXXrd = pool.token_x === Assets.Fungible.XRD;
       const isTokenYXrd = pool.token_y === Assets.Fungible.XRD;
 

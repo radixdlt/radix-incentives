@@ -1,7 +1,10 @@
 import { Effect } from "effect";
 import BigNumber from "bignumber.js";
 
-import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
+import {
+  type GetFungibleBalanceOutput,
+  GetFungibleBalanceService,
+} from "../../gateway/getFungibleBalance";
 
 import { CaviarNineConstants } from "./constants";
 import type { AtLedgerState } from "../../gateway/schemas";
@@ -19,11 +22,24 @@ export class InvalidResourcePoolError extends Error {
 
 import type { ShapeLiquidityAsset } from "./getShapeLiquidityAssets";
 
+export type CaviarnineSimplePoolLiquidityAsset = {
+  xToken: {
+    withinPriceBounds: string;
+    outsidePriceBounds: string;
+    resourceAddress: string;
+  };
+  yToken: {
+    withinPriceBounds: string;
+    outsidePriceBounds: string;
+    resourceAddress: string;
+  };
+};
+
 export type GetCaviarnineResourcePoolPositionsOutput = {
   pool: (typeof CaviarNineConstants.simplePools)[keyof typeof CaviarNineConstants.simplePools];
   result: {
     address: string;
-    items: ShapeLiquidityAsset[];
+    items: CaviarnineSimplePoolLiquidityAsset[];
   }[];
 }[];
 
@@ -37,11 +53,11 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
       const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
 
       return {
-        getCaviarnineResourcePoolPositions: Effect.fn(
-          (input: {
-            addresses: AccountAddress[];
-            at_ledger_state: AtLedgerState;
-          }) =>
+        run: (input: {
+          addresses: AccountAddress[];
+          at_ledger_state: AtLedgerState;
+          fungibleBalance?: GetFungibleBalanceOutput;
+        }) =>
             Effect.gen(function* () {
               const allPoolAddresses = Object.values(
                 CaviarNineConstants.simplePools
@@ -61,11 +77,13 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
                 poolConfigMap.set(pool.poolAddress, { key, ...pool });
               }
 
-              // Get fungible balances for user addresses
-              const fungibleBalance = yield* getFungibleBalanceService({
-                addresses: input.addresses,
-                at_ledger_state: input.at_ledger_state,
-              });
+              // Get fungible balances for user addresses (if not provided)
+              const fungibleBalance =
+                input.fungibleBalance ??
+                (yield* getFungibleBalanceService({
+                  addresses: input.addresses,
+                  at_ledger_state: input.at_ledger_state,
+                }));
 
               const poolResults: GetCaviarnineResourcePoolPositionsOutput = [];
 
@@ -77,7 +95,7 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
 
                 const addressResults: {
                   address: string;
-                  items: ShapeLiquidityAsset[];
+                  items: CaviarnineSimplePoolLiquidityAsset[];
                 }[] = [];
 
                 for (const address of input.addresses) {
@@ -118,7 +136,7 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
                     ? yTokenPool.poolUnitValue.multipliedBy(lpAmount).toString()
                     : "0";
 
-                  const liquidityAsset: ShapeLiquidityAsset = {
+                  const liquidityAsset: CaviarnineSimplePoolLiquidityAsset = {
                     xToken: {
                       withinPriceBounds: xTokenAmount, // For simple pools, all liquidity is "within bounds"
                       outsidePriceBounds: "0", // Simple pools don't have concentrated liquidity
@@ -129,10 +147,6 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
                       outsidePriceBounds: "0", // Simple pools don't have concentrated liquidity
                       resourceAddress: poolConfig.token_y,
                     },
-                    currentPrice: "1", // Simple pools don't track exact price
-                    nonFungibleId: "", // Simple pools use fungible LP tokens
-                    resourceAddress: poolConfig.lpResourceAddress,
-                    isActive: true, // Simple pools are always active
                   };
 
                   addressResults.push({
@@ -148,8 +162,7 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
               }
 
               return poolResults;
-            })
-        ),
+            }),
       };
     }),
   }

@@ -11,6 +11,7 @@ import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
+  CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
 import { getPair } from "../../common/helpers/getPair";
 
@@ -138,13 +139,16 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           });
 
           // Split values based on XRD derivative status
+          // Apply constant product multiplier for DefiPlaza pools
           const totalWrappedAssetUsdValue = new BigNumber(0)
             .plus(isToken1NativeAsset ? 0 : token1UsdValue)
-            .plus(isToken2NativeAsset ? 0 : token2UsdValue);
+            .plus(isToken2NativeAsset ? 0 : token2UsdValue)
+            .multipliedBy(CONSTANT_PRODUCT_MULTIPLIER);
 
           const totalNativeAssetUsdValue = new BigNumber(0)
             .plus(isToken1NativeAsset ? token1UsdValue : 0)
-            .plus(isToken2NativeAsset ? token2UsdValue : 0);
+            .plus(isToken2NativeAsset ? token2UsdValue : 0)
+            .multipliedBy(CONSTANT_PRODUCT_MULTIPLIER);
 
           // Generate dynamic activity IDs based on token pair (alphabetical order for consistency)
           const nonNativeActivityId = `defiPlaza_lp_${getPair(
@@ -181,11 +185,16 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             }
           } else {
             processedActivityIds.add(nonNativeActivityId);
+            // Find the pool configuration for this lpResourceAddress
+            const poolConfig = Object.values(DefiPlaza).find(
+              (pool) => pool.baseLpResourceAddress === lpPosition.lpResourceAddress
+            );
+            
             results.push({
               activityId: nonNativeActivityId,
               usdValue: totalWrappedAssetUsdValue.toString(),
               metadata: {
-                lpResourceAddress: lpPosition.lpResourceAddress,
+                componentAddress: poolConfig?.componentAddress ?? lpPosition.lpResourceAddress,
                 tokenPair: getPair(token1Name as Token, token2Name as Token),
                 baseToken: {
                   resourceAddress: position1.resourceAddress,
@@ -225,11 +234,16 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             }
           } else {
             processedActivityIds.add(nativeActivityId);
+            // Find the pool configuration for this lpResourceAddress
+            const poolConfig = Object.values(DefiPlaza).find(
+              (pool) => pool.baseLpResourceAddress === lpPosition.lpResourceAddress
+            );
+            
             results.push({
               activityId: nativeActivityId,
               usdValue: totalNativeAssetUsdValue.toString(),
               metadata: {
-                lpResourceAddress: lpPosition.lpResourceAddress,
+                componentAddress: poolConfig?.componentAddress ?? lpPosition.lpResourceAddress,
                 tokenPair: getPair(token1Name as Token, token2Name as Token),
                 baseToken: {
                   resourceAddress: position1.resourceAddress,

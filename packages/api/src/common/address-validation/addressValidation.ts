@@ -9,12 +9,10 @@ import { RootFinance } from "../dapps/rootFinance/constants";
 import { OciswapConstants } from "../dapps/ociswap/constants";
 import { SurgeConstants } from "../dapps/surge/constants";
 import { Assets } from "../assets/constants";
-import {
-  flatTokenNameMap,
-  nativeAssets,
-  xrdDerivatives,
-  type TokenInfo,
-} from "./tokenNameMap";
+import { flatTokenNameMap, nativeAssets, type TokenInfo } from "./tokenNameMap";
+
+// Multiplier for constant product market maker pools (less efficient than precision pools)
+export const CONSTANT_PRODUCT_MULTIPLIER = 0.5;
 
 export type ProtocolValidation = {
   componentAddress: string;
@@ -84,6 +82,9 @@ export class AddressValidationService extends Context.Tag(
     getTokenNameAndNativeAssetStatus: (
       resourceAddress: string
     ) => Effect.Effect<TokenInfo, UnknownTokenError>;
+
+    // Pool efficiency methods
+    isConstantProductPool: (componentAddress: string) => boolean;
   }
 >() {}
 
@@ -285,6 +286,17 @@ const rootResources = new Set([
 const surgeResources = new Set(
   extractPropertyValues(SurgeConstants, "resourceAddress")
 );
+
+// Constant product pools (less efficient, use CONSTANT_PRODUCT_MULTIPLIER)
+const constantProductPools = new Set([
+  // Ociswap FlexPools and BasicPools
+  ...extractPropertyValues(OciswapConstants.flexPools, "componentAddress"),
+  ...extractPropertyValues(OciswapConstants.basicPools, "componentAddress"),
+  // Caviarnine SimplePools
+  ...extractPropertyValues(CaviarNineConstants.simplePools, "componentAddress"),
+  // DefiPlaza pools (all are constant product)
+  ...extractPropertyValues(DefiPlaza, "componentAddress"),
+]);
 
 const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
 
@@ -610,6 +622,11 @@ export const AddressValidationServiceLive = Layer.succeed(
       }
 
       return Effect.fail(new UnknownTokenError(resourceAddress));
+    },
+
+    // Pool efficiency methods
+    isConstantProductPool: (componentAddress: string): boolean => {
+      return constantProductPools.has(componentAddress);
     },
   }
 );

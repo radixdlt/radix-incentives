@@ -72,6 +72,17 @@ export const OciswapConstants = {
       token_x: Assets.Fungible.EARLY,
       token_y: Assets.Fungible.XRD,
     },
+    OCI_XRD: {
+      name: "OCI/XRD",
+      componentAddress:
+        "component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw",
+      poolAddress:
+        "pool_rdx1ckyg8aujf09uh8qlz6asst75g5w6pl6vu8nl6qrhskawcndyk6585y",
+      lpResourceAddress:
+        "resource_rdx1th7ew2u9c9t00xhk34efm9uj8zxnme48h4ypuerv5uu4ftz8j82gdm",
+      token_x: Assets.Fungible.OCI,
+      token_y: Assets.Fungible.XRD,
+    },
   },
   flexPools: {
     ILIS_XRD: {

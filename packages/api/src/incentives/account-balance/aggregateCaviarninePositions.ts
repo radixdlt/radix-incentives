@@ -12,8 +12,11 @@ import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
+  CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
 import { getPair } from "../../common/helpers/getPair";
+import type { ShapeLiquidityAsset } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import type { CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -44,8 +47,24 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
         const results: AccountBalanceData[] = [];
         const processedPools = new Set<string>();
 
-        // Process each pool in the CaviarNine positions
-        for (const [_poolKey, poolAssets] of Object.entries(
+        // Aggregate pools by token pair
+        const poolsByTokenPair = new Map<
+          string,
+          {
+            pools: {
+              poolKey: string;
+              poolAssets: (
+                | ShapeLiquidityAsset
+                | CaviarnineSimplePoolLiquidityAsset
+              )[];
+            }[];
+            xTokenInfo: { name: string; isNativeAsset: boolean };
+            yTokenInfo: { name: string; isNativeAsset: boolean };
+          }
+        >();
+
+        // First pass: group pools by token pair
+        for (const [poolKey, poolAssets] of Object.entries(
           input.accountBalance.caviarninePositions
         )) {
           const firstAsset = poolAssets[0];
@@ -66,62 +85,150 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               yToken.resourceAddress
             );
 
+          const tokenPairKey = getPair(
+            xTokenInfo.name as Token,
+            yTokenInfo.name as Token
+          );
+
+          if (!poolsByTokenPair.has(tokenPairKey)) {
+            poolsByTokenPair.set(tokenPairKey, {
+              pools: [],
+              xTokenInfo,
+              yTokenInfo,
+            });
+          }
+
+          poolsByTokenPair
+            .get(tokenPairKey)!
+            .pools.push({ poolKey, poolAssets });
+        }
+
+        // Second pass: process each token pair
+        for (const [
+          _tokenPairKey,
+          { pools, xTokenInfo, yTokenInfo },
+        ] of poolsByTokenPair) {
           const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
           const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
           const xTokenName = xTokenInfo.name;
           const yTokenName = yTokenInfo.name;
 
-          const totals = poolAssets.reduce(
-            (acc, item) => {
-              acc.totalXToken = acc.totalXToken.plus(
-                item.xToken.withinPriceBounds
-              );
-              acc.totalXTokenOutsidePriceBounds =
-                acc.totalXTokenOutsidePriceBounds.plus(
-                  item.xToken.outsidePriceBounds
+          // Aggregate totals across all pools for this token pair
+          let totalXToken = new BigNumber(0);
+          let totalYToken = new BigNumber(0);
+          let totalXTokenOutsidePriceBounds = new BigNumber(0);
+          let totalYTokenOutsidePriceBounds = new BigNumber(0);
+
+          const poolShares: Record<string, number> = {};
+          let totalUsdValue = new BigNumber(0);
+
+          // Pre-calculate all pool data in single pass to avoid redundant calculations
+          const poolData = [];
+          for (const { poolKey, poolAssets } of pools) {
+            const poolTotals = poolAssets.reduce(
+              (acc, item) => {
+                acc.totalXToken = acc.totalXToken.plus(
+                  item.xToken.withinPriceBounds
                 );
-              acc.totalYToken = acc.totalYToken.plus(
-                item.yToken.withinPriceBounds
-              );
-              acc.totalYTokenOutsidePriceBounds =
-                acc.totalYTokenOutsidePriceBounds.plus(
-                  item.yToken.outsidePriceBounds
+                acc.totalXTokenOutsidePriceBounds =
+                  acc.totalXTokenOutsidePriceBounds.plus(
+                    item.xToken.outsidePriceBounds
+                  );
+                acc.totalYToken = acc.totalYToken.plus(
+                  item.yToken.withinPriceBounds
                 );
-              return acc;
-            },
-            {
-              totalXToken: new BigNumber(0),
-              totalYToken: new BigNumber(0),
-              totalXTokenOutsidePriceBounds: new BigNumber(0),
-              totalYTokenOutsidePriceBounds: new BigNumber(0),
+                acc.totalYTokenOutsidePriceBounds =
+                  acc.totalYTokenOutsidePriceBounds.plus(
+                    item.yToken.outsidePriceBounds
+                  );
+                return acc;
+              },
+              {
+                totalXToken: new BigNumber(0),
+                totalYToken: new BigNumber(0),
+                totalXTokenOutsidePriceBounds: new BigNumber(0),
+                totalYTokenOutsidePriceBounds: new BigNumber(0),
+              }
+            );
+
+            // Calculate USD values for this pool
+            const xTokenUsdValue = poolTotals.totalXToken.gt(0)
+              ? yield* getUsdValueService({
+                  amount: poolTotals.totalXToken,
+                  resourceAddress: poolAssets[0]!.xToken.resourceAddress,
+                  timestamp: input.timestamp,
+                })
+              : new BigNumber(0);
+
+            const yTokenUsdValue = poolTotals.totalYToken.gt(0)
+              ? yield* getUsdValueService({
+                  amount: poolTotals.totalYToken,
+                  resourceAddress: poolAssets[0]!.yToken.resourceAddress,
+                  timestamp: input.timestamp,
+                })
+              : new BigNumber(0);
+
+            // Check if this specific pool is constant product and apply multiplier
+            const isPoolConstantProduct =
+              addressValidationService.isConstantProductPool(poolKey);
+            const poolMultiplier = isPoolConstantProduct
+              ? CONSTANT_PRODUCT_MULTIPLIER
+              : 1;
+
+            const poolUsdValue = xTokenUsdValue
+              .plus(yTokenUsdValue)
+              .multipliedBy(poolMultiplier);
+            totalUsdValue = totalUsdValue.plus(poolUsdValue);
+
+            // Store all calculated values for later use
+            poolData.push({
+              poolKey,
+              poolAssets,
+              poolTotals,
+              xTokenUsdValue,
+              yTokenUsdValue,
+              poolMultiplier,
+              poolUsdValue,
+            });
+
+            // Add to overall totals
+            totalXToken = totalXToken.plus(poolTotals.totalXToken);
+            totalYToken = totalYToken.plus(poolTotals.totalYToken);
+            totalXTokenOutsidePriceBounds = totalXTokenOutsidePriceBounds.plus(
+              poolTotals.totalXTokenOutsidePriceBounds
+            );
+            totalYTokenOutsidePriceBounds = totalYTokenOutsidePriceBounds.plus(
+              poolTotals.totalYTokenOutsidePriceBounds
+            );
+          }
+
+          // Calculate pool shares using pre-calculated values
+          for (const { poolKey, poolUsdValue } of poolData) {
+            if (totalUsdValue.gt(0)) {
+              poolShares[poolKey] = poolUsdValue
+                .dividedBy(totalUsdValue)
+                .toNumber();
             }
-          );
+          }
 
-          // Calculate USD values for both tokens upfront (only if amounts > 0)
-          const xTokenUsdValue = totals.totalXToken.gt(0)
+          // Calculate individual token USD values for proper split
+          const xTokenUsdValue = totalXToken.gt(0)
             ? yield* getUsdValueService({
-                amount: totals.totalXToken,
-                resourceAddress: xToken.resourceAddress,
+                amount: totalXToken,
+                resourceAddress:
+                  pools[0]!.poolAssets[0]!.xToken.resourceAddress,
                 timestamp: input.timestamp,
               })
             : new BigNumber(0);
 
-          const yTokenUsdValue = totals.totalYToken.gt(0)
+          const yTokenUsdValue = totalYToken.gt(0)
             ? yield* getUsdValueService({
-                amount: totals.totalYToken,
-                resourceAddress: yToken.resourceAddress,
+                amount: totalYToken,
+                resourceAddress:
+                  pools[0]!.poolAssets[0]!.yToken.resourceAddress,
                 timestamp: input.timestamp,
               })
             : new BigNumber(0);
-
-          // Split values based on XRD derivative status
-          const totalWrappedAssetUsdValue = new BigNumber(0)
-            .plus(isXTokenNativeAsset ? 0 : xTokenUsdValue)
-            .plus(isYTokenNativeAsset ? 0 : yTokenUsdValue);
-
-          const totalNativeAssetUsdValue = new BigNumber(0)
-            .plus(isXTokenNativeAsset ? xTokenUsdValue : 0)
-            .plus(isYTokenNativeAsset ? yTokenUsdValue : 0);
 
           // Generate activity IDs based on token pair
           const nonNativeActivityId = `c9_lp_${getPair(
@@ -137,50 +244,69 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           processedPools.add(nonNativeActivityId);
           processedPools.add(nativeActivityId);
 
-          // Add non-native LP activity (non-XRD derivative tokens only)
-          results.push({
-            activityId: nonNativeActivityId,
-            usdValue: totalWrappedAssetUsdValue.toString(),
-            metadata: {
+          // Create separate metadata for each pool using pre-calculated data
+          const poolMetadata: Record<string, any> = {};
+          for (const { poolKey, poolAssets, poolTotals } of poolData) {
+            poolMetadata[poolKey] = {
+              componentAddress: poolKey,
               tokenPair: getPair(xTokenName as Token, yTokenName as Token),
               baseToken: {
-                resourceAddress: xToken.resourceAddress,
-                amount: totals.totalXToken.toString(),
+                resourceAddress: poolAssets[0]!.xToken.resourceAddress,
+                amount: poolTotals.totalXToken.toString(),
                 outsidePriceBounds:
-                  totals.totalXTokenOutsidePriceBounds.toString(),
+                  poolTotals.totalXTokenOutsidePriceBounds.toString(),
                 isNativeAsset: isXTokenNativeAsset,
               },
               quoteToken: {
-                resourceAddress: yToken.resourceAddress,
-                amount: totals.totalYToken.toString(),
+                resourceAddress: poolAssets[0]!.yToken.resourceAddress,
+                amount: poolTotals.totalYToken.toString(),
                 outsidePriceBounds:
-                  totals.totalYTokenOutsidePriceBounds.toString(),
+                  poolTotals.totalYTokenOutsidePriceBounds.toString(),
                 isNativeAsset: isYTokenNativeAsset,
               },
-            },
+            };
+          }
+
+          // Calculate wrapped and native asset portions from the totalUsdValue
+          const wrappedAssetPortion = new BigNumber(0)
+            .plus(isXTokenNativeAsset ? 0 : xTokenUsdValue)
+            .plus(isYTokenNativeAsset ? 0 : yTokenUsdValue);
+
+          const nativeAssetPortion = new BigNumber(0)
+            .plus(isXTokenNativeAsset ? xTokenUsdValue : 0)
+            .plus(isYTokenNativeAsset ? yTokenUsdValue : 0);
+
+          const totalPortion = wrappedAssetPortion.plus(nativeAssetPortion);
+
+          // Calculate final USD values using the already-multiplied totalUsdValue
+          const finalWrappedAssetUsdValue = totalPortion.gt(0)
+            ? totalUsdValue
+                .multipliedBy(wrappedAssetPortion)
+                .dividedBy(totalPortion)
+            : new BigNumber(0);
+
+          const finalNativeAssetUsdValue = totalPortion.gt(0)
+            ? totalUsdValue
+                .multipliedBy(nativeAssetPortion)
+                .dividedBy(totalPortion)
+            : new BigNumber(0);
+
+          // Add non-native LP activity (non-XRD derivative tokens only)
+          results.push({
+            activityId: nonNativeActivityId,
+            usdValue: finalWrappedAssetUsdValue.toString(),
+            poolShare:
+              Object.keys(poolShares).length > 1 ? poolShares : undefined,
+            metadata: poolMetadata,
           });
 
           // Add native LP activity (XRD derivatives only)
           results.push({
             activityId: nativeActivityId,
-            usdValue: totalNativeAssetUsdValue.toString(),
-            metadata: {
-              tokenPair: getPair(xTokenName as Token, yTokenName as Token),
-              baseToken: {
-                resourceAddress: xToken.resourceAddress,
-                amount: totals.totalXToken.toString(),
-                outsidePriceBounds:
-                  totals.totalXTokenOutsidePriceBounds.toString(),
-                isNativeAsset: isXTokenNativeAsset,
-              },
-              quoteToken: {
-                resourceAddress: yToken.resourceAddress,
-                amount: totals.totalYToken.toString(),
-                outsidePriceBounds:
-                  totals.totalYTokenOutsidePriceBounds.toString(),
-                isNativeAsset: isYTokenNativeAsset,
-              },
-            },
+            usdValue: finalNativeAssetUsdValue.toString(),
+            poolShare:
+              Object.keys(poolShares).length > 1 ? poolShares : undefined,
+            metadata: poolMetadata,
           });
         }
 

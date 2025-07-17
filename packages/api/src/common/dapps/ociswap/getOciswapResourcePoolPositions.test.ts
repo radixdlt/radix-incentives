@@ -49,7 +49,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
     const program = Effect.gen(function* () {
       const service = yield* GetOciswapResourcePoolPositionsService;
 
-      const result = yield* service.getOciswapResourcePoolPositions({
+      const result = yield* service.run({
         accountAddresses: [TEST_ACCOUNT_ADDRESS],
         at_ledger_state: { state_version: TEST_STATE_VERSION },
         poolType: "flexPools",
@@ -88,8 +88,6 @@ describe("GetOciswapResourcePoolPositionsService", () => {
           expect(item.yToken).toHaveProperty("totalAmount");
           expect(item.yToken).toHaveProperty("amountInBounds");
           expect(item.yToken).toHaveProperty("resourceAddress");
-
-          expect(typeof item.isActive).toBe("boolean");
         }
       }
     }
@@ -101,7 +99,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
     const program = Effect.gen(function* () {
       const service = yield* GetOciswapResourcePoolPositionsService;
 
-      const result = yield* service.getOciswapResourcePoolPositions({
+      const result = yield* service.run({
         accountAddresses: [TEST_ACCOUNT_ADDRESS],
         at_ledger_state: { state_version: TEST_STATE_VERSION },
         poolType: "basicPools",
@@ -137,8 +135,6 @@ describe("GetOciswapResourcePoolPositionsService", () => {
           expect(item.yToken).toHaveProperty("totalAmount");
           expect(item.yToken).toHaveProperty("amountInBounds");
           expect(item.yToken).toHaveProperty("resourceAddress");
-
-          expect(typeof item.isActive).toBe("boolean");
         }
       }
     }
@@ -151,7 +147,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
       const service = yield* GetOciswapResourcePoolPositionsService;
 
       // Test with an account that likely has no positions
-      const result = yield* service.getOciswapResourcePoolPositions({
+      const result = yield* service.run({
         accountAddresses: [
           "account_rdx12y528ccdmqge0dgw9ce3vg30vyhax5ynpwakvzafrzzg69texgpe60",
         ], // Example empty account

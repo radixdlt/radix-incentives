@@ -86,12 +86,24 @@ export const CaviarNineConstants = {
       name: "REDDICKS/LSULP",
       componentAddress:
         "component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n",
-      poolAddress: "pool_rdx1chmx480a0crrnaqyg2e6tr7wtqwk5239grzs6ecckcmhqjm3gdmm73",
+      poolAddress:
+        "pool_rdx1chmx480a0crrnaqyg2e6tr7wtqwk5239grzs6ecckcmhqjm3gdmm73",
       lpResourceAddress:
         "resource_rdx1tkjspzkzmhyzxwcrjha3y2aapmg5690vayjehqtfa729jnr88hcaue",
       token_x: Assets.Fungible.REDDICKS,
       token_y:
         "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+    },
+    FLOOP_XRD: {
+      name: "FLOOP/XRD",
+      componentAddress:
+        "component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c",
+      poolAddress:
+        "pool_rdx1ch3vyhagpzqll4cu6quafdpkf7lvyuz7ke4z66tuqpxhvtxzd9lvmu",
+      lpResourceAddress:
+        "resource_rdx1th2pnc0lzgp20wwv2r22knjn32ntvecapws6v7z644c0d3rzz0fvng",
+      token_x: Assets.Fungible.FLOOP,
+      token_y: Assets.Fungible.XRD,
     },
   },
 } as const;

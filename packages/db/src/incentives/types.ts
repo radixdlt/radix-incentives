@@ -116,6 +116,7 @@ export const AccountBalanceData = z.object({
   activityId: z.string(),
   usdValue: z.string(),
   metadata: z.record(z.string(), z.unknown()).optional(),
+  poolShare: z.record(z.string(), z.number()).optional(),
 });
 
 export type AccountBalanceData = Omit<

@@ -58,10 +58,12 @@ import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
 } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import { type CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import {
   GetOciswapLiquidityAssetsService,
   type OciswapLiquidityAsset,
 } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
+import { type OciswapResourcePoolLiquidityAsset } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
 import { OciswapConstants } from "../../common/dapps/ociswap/constants";
 import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
@@ -135,11 +137,11 @@ type WeftFinancePosition = GetWeftFinancePositionsOutput;
 type RootFinancePosition = CollaterizedDebtPosition;
 
 type CaviarNinePosition = {
-  [key: string]: ShapeLiquidityAsset[];
+  [key: string]: ShapeLiquidityAsset[] | CaviarnineSimplePoolLiquidityAsset[];
 };
 
 type OciswapPosition = {
-  [key: string]: OciswapLiquidityAsset[];
+  [key: string]: OciswapLiquidityAsset[] | OciswapResourcePoolLiquidityAsset[];
 };
 
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
@@ -438,7 +440,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               })
               .pipe(Effect.withSpan("getSurgeLiquidityPositionsService")),
             getOciswapResourcePoolPositionsService
-              .getOciswapResourcePoolPositions({
+              .run({
                 accountAddresses: input.addresses,
                 at_ledger_state: atLedgerState,
                 fungibleBalance: fungibleBalanceResults,
@@ -446,9 +448,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               })
               .pipe(Effect.withSpan("getOciswapResourcePoolPositionsService")),
             getCaviarnineResourcePoolPositionsService
-              .getCaviarnineResourcePoolPositions({
+              .run({
                 addresses: input.addresses,
                 at_ledger_state: atLedgerState,
+                fungibleBalance: fungibleBalanceResults,
               })
               .pipe(
                 Effect.withSpan("getCaviarnineResourcePoolPositionsService")
@@ -662,7 +665,7 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   (r) => r.address === address
                 );
                 if (addressResult && addressResult.items.length > 0) {
-                  const poolKey = pool.name.replace("/", "_");
+                  const poolKey = pool.componentAddress;
                   caviarninePositions[poolKey] = addressResult.items;
                 }
               }
