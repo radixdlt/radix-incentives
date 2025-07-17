@@ -122,7 +122,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         while (hasMore) {
           const result = yield* getUsersPaginated({ page, limit });
           allUserIds.push(...result.users.map((user) => user.id));
-          
+
           hasMore = result.users.length === limit;
           page++;
         }
@@ -307,23 +307,32 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           const allUserIds = yield* getAllUserIds();
 
           // Extract user IDs that already have season points
-          const existingUserIds = new Set(userSeasonPoints.map(sp => sp.userId));
+          const existingUserIds = new Set(
+            userSeasonPoints.map((sp) => sp.userId)
+          );
 
           // Find users that don't have season points
-          const missingUserIds = allUserIds.filter(userId => !existingUserIds.has(userId));
+          const missingUserIds = allUserIds.filter(
+            (userId) => !existingUserIds.has(userId)
+          );
 
           // Create zero season points for missing users
-          const zeroSeasonPoints = missingUserIds.map(userId => ({
+          const zeroSeasonPoints = missingUserIds.map((userId) => ({
             userId,
-            seasonId: input.seasonId,
+            seasonId: season.id,
             points: new BigNumber(0),
             weekId: input.weekId,
           }));
 
           // Combine existing season points with zero season points for missing users
-          const completeUserSeasonPoints = [ ...zeroSeasonPoints,...userSeasonPoints];
+          const completeUserSeasonPoints = [
+            ...zeroSeasonPoints,
+            ...userSeasonPoints,
+          ];
 
-          yield* Effect.log(`Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`);
+          yield* Effect.log(
+            `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`
+          );
 
           yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
 

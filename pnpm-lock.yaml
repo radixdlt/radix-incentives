@@ -18,6 +18,9 @@ catalogs:
     '@date-fns/utc':
       specifier: ^2.1.0
       version: 2.1.0
+    '@effect/language-service':
+      specifier: ^0.27.2
+      version: 0.27.2
     '@hono/node-server':
       specifier: ^1.14.2
       version: 1.14.3
@@ -1008,6 +1011,9 @@ importers:
         specifier: 'catalog:'
         version: 3.24.2
     devDependencies:
+      '@effect/language-service':
+        specifier: 'catalog:'
+        version: 0.27.2
       '@effect/vitest':
         specifier: ^0.20.10
         version: 0.20.10(effect@3.14.6)(vitest@3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0))
@@ -1281,6 +1287,10 @@ packages:
 
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
+
+  '@effect/language-service@0.27.2':
+    resolution: {integrity: sha512-AFgxoIZ6xpfwCZp7+1mj3f1HsK3Yqe9I0iUfpf8Iu2gl9F3dmdFiOvuoLRVSkfVsK2BTQr8kv2zPi53Lst2haw==}
+    hasBin: true
 
   '@effect/opentelemetry@0.47.0':
     resolution: {integrity: sha512-CrBrksLVwZCYSouleGlV9UP1gnYGTi2EAiauaL17h6qz3WJBNeREY5CKJW/jVF20PbfqjhfY0IVCaXTuWfTNxA==}
@@ -6205,6 +6215,8 @@ snapshots:
   '@date-fns/utc@2.1.0': {}
 
   '@drizzle-team/brocli@0.10.2': {}
+
+  '@effect/language-service@0.27.2': {}
 
   '@effect/opentelemetry@0.47.0(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.34.0)(effect@3.14.6)':
     dependencies:
