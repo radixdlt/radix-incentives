@@ -22,19 +22,6 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     id: params.seasonId,
   });
 
-  const handleWeekAction = async (action: Week['status']) => {
-    console.log(
-      `Week ${action} action triggered for season ${params.seasonId}, week ${params.weekId}`,
-    );
-
-    await updateWeekStatus.mutateAsync({
-      id: params.weekId,
-      status: action,
-    });
-
-    await refetch();
-  };
-
   const handleActivityAction = (
     activityId: string,
     action: 'edit' | 'delete',
@@ -53,7 +40,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     const result = await recalculatePoints.mutateAsync({
       seasonId: params.seasonId,
       weekId: params.weekId,
-      force: week?.status === 'completed',
+      force: week?.processed,
     });
 
     await refetch();
@@ -78,7 +65,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
           description: 'Week 1 description',
           startDate: week.startDate.toISOString(),
           endDate: week.endDate.toISOString(),
-          status: week.status,
+
           isProcessed: false,
           totalActivities: activityWeeks.length,
           totalParticipants: 0,
@@ -97,7 +84,6 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
           endDate: week.endDate.toISOString(),
           category: 'category',
         }))}
-        onWeekAction={handleWeekAction}
         onActivityAction={handleActivityAction}
         onRecalculatePoints={handleRecalculatePoints}
       />

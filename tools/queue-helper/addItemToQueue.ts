@@ -35,10 +35,13 @@ const SERVER_URL = process.env.WORKERS_SERVER_URL || "http://localhost:3003";
 const fetchSeasonsAndWeeks = async () => {
   try {
     const seasonsData = await db.query.seasons.findMany({
-      orderBy: (seasons, { desc }) => [desc(seasons.startDate)],
+      orderBy: (seasons, { desc }) => [desc(seasons.name)],
     });
 
     const weeksData = await db.query.weeks.findMany({
+      with: {
+        season: true,
+      },
       orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
     });
 
@@ -53,7 +56,7 @@ const fetchSeasonsAndWeeks = async () => {
 const fetchActiveWeek = async () => {
   try {
     const activeWeek = await db.query.weeks.findFirst({
-      where: (weeks, { eq }) => eq(weeks.status, "active"),
+      where: (weeks, { eq }) => eq(weeks.processed, false),
       orderBy: (weeks, { desc }) => [desc(weeks.startDate)],
     });
     return activeWeek;
@@ -149,10 +152,16 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       {
         name: "intervalInHours",
         type: "number",
-        message: "Enter interval in hours (default: 24):",
-        default: 24,
+        message: "Enter interval in hours (default: 1):",
+        default: 1,
         validate: (input) =>
           (input as number) > 0 || "Interval must be greater than 0",
+      },
+      {
+        name: "addDummyData",
+        type: "confirm",
+        message: "Add dummy data?",
+        default: false,
       },
     ],
   },
@@ -188,13 +197,8 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
   "calculate-season-points": {
     name: "Calculate Season Points Queue",
     endpoint: "/queues/calculate-season-points/add",
-    description: "Calculate season points for a specific season and week",
+    description: "Calculate season points for a specific week",
     promptFields: [
-      {
-        name: "seasonId",
-        type: "list",
-        message: "Select a season:",
-      },
       {
         name: "weekId",
         type: "list",
@@ -204,6 +208,12 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         name: "force",
         type: "confirm",
         message: "Force recalculation (overwrite existing data)?",
+        default: false,
+      },
+      {
+        name: "markAsProcessed",
+        type: "confirm",
+        message: "Mark week as processed after calculation?",
         default: false,
       },
     ],
@@ -245,14 +255,21 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
     description: "Manually trigger the scheduled calculations job.",
     promptFields: [
       {
-        name: "seasonId",
-        type: "list",
-        message: "Select a season:",
-      },
-      {
         name: "weekId",
         type: "list",
-        message: "Select a week:",
+        message: "Select a week (optional):",
+      },
+      {
+        name: "force",
+        type: "confirm",
+        message: "Force recalculation (overwrite existing data)?",
+        default: false,
+      },
+      {
+        name: "markAsProcessed",
+        type: "confirm",
+        message: "Mark week as processed after calculation?",
+        default: false,
       },
     ],
   },
@@ -278,6 +295,7 @@ const buildPayload = (
             .map((addr: string) => addr.trim()),
         }),
         intervalInHours: answers.intervalInHours,
+        addDummyData: answers.addDummyData,
       };
 
     case "calculate-activity-points":
@@ -292,9 +310,9 @@ const buildPayload = (
 
     case "calculate-season-points":
       return {
-        seasonId: answers.seasonId,
         weekId: answers.weekId,
         force: answers.force,
+        markAsProcessed: answers.markAsProcessed,
       };
 
     case "calculate-season-points-multiplier":
@@ -309,8 +327,10 @@ const buildPayload = (
 
     case "scheduled-calculations":
       return {
-        seasonId: answers.seasonId,
-        weekId: answers.weekId,
+        ...(answers.weekId &&
+          answers.weekId !== undefined && { weekId: answers.weekId }),
+        force: answers.force,
+        markAsProcessed: answers.markAsProcessed,
       };
 
     default:
@@ -383,7 +403,7 @@ const main = async (): Promise<void> => {
 
     let promptFields = selectedConfig.promptFields;
 
-    // Handle queues that require database-driven choices for weekId and/or seasonId
+    // Handle queues that require database-driven choices for weekId
     const requiresDatabaseChoices = [
       "scheduled-calculations",
       "calculate-activity-points",
@@ -392,31 +412,27 @@ const main = async (): Promise<void> => {
     ];
 
     if (requiresDatabaseChoices.includes(queueType)) {
-      console.log("🔍 Fetching seasons and weeks from database...");
-      const { seasons: seasonsData, weeks: weeksData } =
-        await fetchSeasonsAndWeeks();
-
-      const seasonChoices = seasonsData.map((season) => ({
-        name: `${season.name} (${season.status}) - ${season.startDate.toISOString().split("T")[0]} to ${season.endDate.toISOString().split("T")[0]}`,
-        value: season.id,
-      }));
+      console.log("🔍 Fetching weeks from database...");
+      const { weeks: weeksData } = await fetchSeasonsAndWeeks();
 
       const weekChoices = weeksData.map((week) => {
-        const season = seasonsData.find((s) => s.id === week.seasonId);
+        const processingStatus = week.processed ? "processed" : "not processed";
         return {
-          name: `Week ${week.startDate.toISOString().split("T")[0]} to ${week.endDate.toISOString().split("T")[0]} (${week.status}) - Season: ${season?.name || "Unknown"}`,
+          name: `Week ${week.startDate.toISOString().split("T")[0]} to ${week.endDate.toISOString().split("T")[0]} (${processingStatus}) - Season: ${week.season?.name || "Unknown"}`,
           value: week.id,
         };
       });
 
+      // Add "None" option for scheduled-calculations weekId (which is optional)
+      if (queueType === "scheduled-calculations") {
+        weekChoices.unshift({
+          name: "None (process all unprocessed weeks)",
+          value: "",
+        });
+      }
+
       // Update prompt fields with database choices
       promptFields = promptFields.map((field) => {
-        if (field.name === "seasonId" && field.type === "list") {
-          return {
-            ...field,
-            choices: seasonChoices,
-          };
-        }
         if (field.name === "weekId" && field.type === "list") {
           return {
             ...field,
@@ -434,7 +450,7 @@ const main = async (): Promise<void> => {
 
       if (activeWeek) {
         console.log(
-          `✅ Found active week: ${activeWeek.startDate.toISOString().split("T")[0]} to ${activeWeek.endDate.toISOString().split("T")[0]}`
+          `✅ Found unprocessed week: ${activeWeek.startDate.toISOString().split("T")[0]} to ${activeWeek.endDate.toISOString().split("T")[0]}`
         );
 
         // Update prompt fields with active week defaults
@@ -443,28 +459,34 @@ const main = async (): Promise<void> => {
             return {
               ...field,
               default: activeWeek.startDate.toISOString(),
-              message: `Enter start timestamp (default: active week start - ${activeWeek.startDate.toISOString()}):`,
+              message: `Enter start timestamp (default: unprocessed week start - ${activeWeek.startDate.toISOString()}):`,
             };
           }
           if (field.name === "toTimestamp") {
             return {
               ...field,
               default: activeWeek.endDate.toISOString(),
-              message: `Enter end timestamp (default: active week end - ${activeWeek.endDate.toISOString()}):`,
+              message: `Enter end timestamp (default: unprocessed week end - ${activeWeek.endDate.toISOString()}):`,
             };
           }
           return field;
         });
       } else {
-        console.log("⚠️  No active week found, using manual input");
+        console.log("⚠️  No unprocessed week found, using manual input");
       }
     }
 
     // Collect input data
     const answers = await inquirer.prompt(promptFields);
 
+    // Handle empty weekId for scheduled-calculations
+    const processedAnswers =
+      queueType === "scheduled-calculations" && answers.weekId === ""
+        ? { ...answers, weekId: undefined }
+        : answers;
+
     // Build and send payload
-    const payload = buildPayload(queueType as QueueType, answers);
+    const payload = buildPayload(queueType as QueueType, processedAnswers);
     await sendToQueue(queueType as QueueType, payload);
 
     // Ask if user wants to add another item

@@ -641,7 +641,7 @@ const calculateActivityPoints = (input: {
       const calculateActivityPointsWorkerService =
         yield* CalculateActivityPointsWorkerService;
 
-      return yield* calculateActivityPointsWorkerService({
+      return yield* calculateActivityPointsWorkerService.run({
         weekId: input.weekId,
         useWeekEndDate: input.useWeekEndDate,
         addresses: input.addresses,
@@ -657,9 +657,8 @@ const calculateActivityPoints = (input: {
 };
 
 const calculateSeasonPoints = (input: {
-  seasonId: string;
   weekId: string;
-  endOfWeek?: boolean;
+  markAsProcessed?: boolean;
 }) => {
   const program = Effect.provide(
     Effect.gen(function* () {
@@ -667,7 +666,7 @@ const calculateSeasonPoints = (input: {
 
       return yield* calculateSeasonPointsService.run({
         ...input,
-        endOfWeek: !!input.endOfWeek,
+        markAsProcessed: !!input.markAsProcessed,
       });
     }),
     calculateSeasonPointsLive
@@ -693,14 +692,27 @@ const calculateSPMultiplier = (input: {
   return Effect.runPromiseExit(program);
 };
 
-const getActiveWeek = () => {
+const getWeekByDate = (date: Date) => {
   const program = Effect.provide(
     Effect.gen(function* () {
-      const getActiveWeekService = yield* WeekService;
+      const weekService = yield* WeekService;
 
-      return yield* getActiveWeekService.getActiveWeek();
+      return yield* weekService.getByDate(date);
     }),
     WeekService.Default.pipe(Layer.provide(dbClientLive))
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
+const getSeasonByWeekId = (weekId: string) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+
+      return yield* seasonService.getByWeekId(weekId);
+    }),
+    SeasonService.Default.pipe(Layer.provide(dbClientLive))
   );
 
   return Effect.runPromiseExit(program);
@@ -714,5 +726,6 @@ export const dependencyLayer = {
   calculateSeasonPoints,
   calculateSPMultiplier,
   eventWorkerHandler,
-  getActiveWeek,
+  getWeekByDate,
+  getSeasonByWeekId,
 };

@@ -310,7 +310,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const updateWeekStatus = (input: { id: string; status: Week["status"] }) => {
+  const updateWeekStatus = (input: { id: string; processed: boolean }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const updateWeekStatusService = yield* UpdateWeekStatusService;
@@ -331,13 +331,13 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(seasonLive)
   );
 
-  const getUserStats = (input: { userId: string }) => {
+  const getUserStats = (input: { userId: string; weekId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const userStatsService = yield* UserService;
         const weekService = yield* WeekService;
 
-        const activeWeek = yield* weekService.getActiveWeek();
+        const activeWeek = yield* weekService.getById(input.weekId);
 
         return yield* userStatsService.getUserStats({
           ...input,

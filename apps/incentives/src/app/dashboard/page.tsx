@@ -6,6 +6,7 @@ import {
   ActivityBreakdown,
   AccountBalances,
 } from '~/components/dashboard';
+import { WeekSelector } from '~/components/dashboard/WeekSelector';
 import { api } from '~/trpc/react';
 import { EmptyState } from '~/components/ui/empty-state';
 import { usePersona } from '~/lib/hooks/usePersona';
@@ -43,7 +44,8 @@ const NextUpdateNotification = () => {
 
 export default function DashboardPage() {
   const persona = usePersona();
-  const rdt = useDappToolkit();
+
+  const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
@@ -51,11 +53,33 @@ export default function DashboardPage() {
     retry: false,
   });
 
-  const userStats = api.user.getUserStats.useQuery(undefined, {
+  const weeks = api.week.getWeeks.useQuery(undefined, {
     refetchOnMount: true,
-    enabled: accounts.isSuccess && accounts.data?.length > 0,
-    retry: false,
   });
+
+  // Set default selected week to the most recent week when weeks data is loaded
+  useEffect(() => {
+    if (weeks.data && weeks.data.length > 0 && !selectedWeek) {
+      // Sort weeks by start date descending and select the most recent
+      const sortedWeeks = [...weeks.data].sort(
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+      );
+      if (sortedWeeks[0]) {
+        setSelectedWeek(sortedWeeks[0].id);
+      }
+    }
+  }, [weeks.data, selectedWeek]);
+
+  const userStats = api.user.getUserStats.useQuery(
+    { weekId: selectedWeek ?? '' },
+    {
+      refetchOnMount: true,
+      enabled:
+        accounts.isSuccess && accounts.data?.length > 0 && !!selectedWeek,
+      retry: false,
+    },
+  );
 
   const accountBalances = api.account.getLatestAccountBalances.useQuery(
     undefined,
@@ -66,7 +90,7 @@ export default function DashboardPage() {
     },
   );
 
-  if (accounts.isLoading || userStats.isLoading || accountBalances.isLoading) {
+  if (accounts.isLoading || weeks.isLoading) {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="text-2xl">Loading...</div>
@@ -74,7 +98,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (accounts.isError || userStats.isError || accountBalances.isError) {
+  if (accounts.isError || weeks.isError) {
     return (
       <div className="flex justify-center items-center h-96">
         <div className="text-2xl text-red-500">Error loading data.</div>
@@ -115,6 +139,14 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <NextUpdateNotification />
+
+      {weeks.data && (
+        <WeekSelector
+          weeks={weeks.data}
+          selectedWeek={selectedWeek}
+          onWeekChange={setSelectedWeek}
+        />
+      )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard

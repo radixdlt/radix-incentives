@@ -22,6 +22,8 @@ const program = new Command();
 type LoadDumpOptions = {
   singleTransaction?: boolean;
   stopOnError?: boolean;
+  noPrivileges?: boolean;
+  noOwner?: boolean;
 };
 
 const loadDumpToDatabase = async (
@@ -29,11 +31,16 @@ const loadDumpToDatabase = async (
   dumpPath: string,
   options: LoadDumpOptions = {}
 ): Promise<void> => {
-  const { singleTransaction = true, stopOnError = true } = options;
+  const {
+    singleTransaction = true,
+    stopOnError = true,
+    noPrivileges = true,
+    noOwner = true,
+  } = options;
 
   return new Promise((resolve, reject) => {
-    // Build psql arguments
-    const args = [databaseUrl];
+    // Build pg_restore arguments
+    const args = ["-d", databaseUrl];
 
     // Add options
     if (singleTransaction) {
@@ -41,41 +48,52 @@ const loadDumpToDatabase = async (
     }
 
     if (stopOnError) {
-      args.push("-v", "ON_ERROR_STOP=1");
+      args.push("--exit-on-error");
+    }
+
+    // Add user access control options
+    if (noPrivileges) {
+      args.push("--no-privileges");
+    }
+
+    if (noOwner) {
+      args.push("--no-owner");
     }
 
     // Add the dump file
-    args.push("-f", dumpPath);
+    args.push(dumpPath);
 
-    // Spawn psql process
-    const psql = spawn("psql", args, {
+    // Spawn pg_restore process
+    const pgRestore = spawn("pg_restore", args, {
       stdio: ["ignore", "pipe", "pipe"],
     });
 
     // Handle stdout - collect output for potential logging
     let outputData = "";
-    psql.stdout.on("data", (data) => {
+    pgRestore.stdout.on("data", (data) => {
       outputData += data.toString();
     });
 
     // Handle stderr
     let errorOutput = "";
-    psql.stderr.on("data", (data) => {
+    pgRestore.stderr.on("data", (data) => {
       errorOutput += data.toString();
     });
 
     // Handle process completion
-    psql.on("close", (code) => {
+    pgRestore.on("close", (code) => {
       if (code === 0) {
         resolve();
       } else {
-        reject(new Error(`psql failed with code ${code}: ${errorOutput}`));
+        reject(
+          new Error(`pg_restore failed with code ${code}: ${errorOutput}`)
+        );
       }
     });
 
     // Handle process errors
-    psql.on("error", (error) => {
-      reject(new Error(`Failed to start psql: ${error.message}`));
+    pgRestore.on("error", (error) => {
+      reject(new Error(`Failed to start pg_restore: ${error.message}`));
     });
   });
 };
@@ -215,7 +233,7 @@ program
   )
   .option(
     "-n, --name <name>",
-    "Custom name for the dump file (without .sql extension)"
+    "Custom name for the dump file (without .dump extension)"
   )
   .action(async (options) => {
     try {
@@ -251,14 +269,14 @@ program
 
 program
   .command("load")
-  .description("Load a SQL dump into a database")
+  .description("Load a database dump into a database")
   .option(
     "-d, --database-url <url>",
     "PostgreSQL database connection URL (defaults to DATABASE_URL env var)"
   )
   .option(
     "--dump <name>",
-    "Specific dump file to load (without .sql extension)"
+    "Specific dump file to load (without .dump extension)"
   )
   .option(
     "--single-transaction",
@@ -266,16 +284,36 @@ program
     true
   )
   .option("--stop-on-error", "Stop immediately on any error", true)
+  .option(
+    "--no-privileges",
+    "Skip loading of access privileges (grant/revoke commands) (default: true)",
+    true
+  )
+  .option(
+    "--with-privileges",
+    "Include loading of access privileges (overrides --no-privileges)",
+    false
+  )
+  .option(
+    "--no-owner",
+    "Skip restoration of object ownership (default: true)",
+    true
+  )
+  .option(
+    "--with-owner",
+    "Include restoration of object ownership (overrides --no-owner)",
+    false
+  )
   .action(async (options) => {
     try {
-      console.log("🔄 Loading SQL dump into database\n");
+      console.log("🔄 Loading database dump into database\n");
 
       // Ensure dumps directory exists
       ensureDumpsDirectory();
 
       const dumps = listAvailableDumps();
       if (dumps.length === 0) {
-        console.error("❌ Error: No SQL dumps found in dumps/ directory");
+        console.error("❌ Error: No database dumps found in dumps/ directory");
         console.log("   Create one with: pnpm cli dump");
         process.exit(1);
       }
@@ -367,6 +405,8 @@ program
       await loadDumpToDatabase(databaseUrl, selectedDumpPath, {
         singleTransaction: options.singleTransaction,
         stopOnError: options.stopOnError,
+        noPrivileges: options.withPrivileges ? false : options.noPrivileges,
+        noOwner: options.withOwner ? false : options.noOwner,
       });
 
       console.log("✅ Dump loaded successfully!");
@@ -379,17 +419,17 @@ program
 
 program
   .command("list")
-  .description("List available SQL dumps")
+  .description("List available database dumps")
   .action(() => {
     const dumps = listAvailableDumps();
 
     if (dumps.length === 0) {
-      console.log("📂 No SQL dumps found in dumps/ directory");
+      console.log("📂 No database dumps found in dumps/ directory");
       console.log("   Create one with: pnpm cli dump");
       return;
     }
 
-    console.log("📂 Available SQL dumps:");
+    console.log("📂 Available database dumps:");
     for (const [index, dump] of dumps.entries()) {
       const marker = index === 0 ? "🆕" : "  ";
       console.log(`${marker} ${formatDumpInfo(dump)}`);

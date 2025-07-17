@@ -3,12 +3,9 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 import {
   activities,
-  activityCategories,
   activityCategoryWeeks,
-  activityWeeks,
   schema,
   seasons,
-  users,
   userSeasonPoints,
   weeks,
   accounts,
@@ -16,7 +13,7 @@ import {
 } from "db/incentives";
 import postgres from "postgres";
 import path from "node:path";
-import { eq, count, sum } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { Effect, Layer, Logger } from "effect";
 import {
   ActivityCategoryWeekService,

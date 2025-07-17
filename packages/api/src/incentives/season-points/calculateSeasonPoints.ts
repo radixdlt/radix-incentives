@@ -17,10 +17,9 @@ import { WeekService } from "../week/week";
 import { GetUsersPaginatedService } from "../user/getUsersPaginated";
 
 export const calculateSeasonPointsInputSchema = z.object({
-  seasonId: z.string(),
   weekId: z.string(),
   force: z.boolean().optional(),
-  endOfWeek: z.boolean(),
+  markAsProcessed: z.boolean(),
 });
 
 export type CalculateSeasonPointsInput = z.infer<
@@ -70,9 +69,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         return parsedInput.data;
       });
 
-      const validateSeason = Effect.fn(function* (
-        input: CalculateSeasonPointsInput
-      ) {
+      const validateSeason = Effect.fn(function* (input: {
+        seasonId: string;
+        force?: boolean;
+      }) {
         const season = yield* seasonService.getById(input.seasonId);
 
         if (season.status === "completed" && !input.force) {
@@ -94,8 +94,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`
         );
 
-        if (week.status === "completed" && !input.force) {
-          yield* Effect.log(`week ${input.weekId} is completed`);
+        if (week.processed && !input.force) {
+          yield* Effect.log(`week ${input.weekId} is already processed`);
           return yield* Effect.fail(
             new InvalidStateError({
               message: `week ${input.weekId} is already processed`,
@@ -133,10 +133,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const markAsProcessed = Effect.fn(function* (
         input: CalculateSeasonPointsInput
       ) {
-        if (input.endOfWeek) {
+        if (input.markAsProcessed) {
           yield* updateWeekStatus.run({
             id: input.weekId,
-            status: "completed",
+            processed: true,
           });
         }
       });
@@ -147,7 +147,9 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
           yield* parseInput(input);
 
-          yield* validateSeason(input);
+          const season = yield* seasonService.getByWeekId(input.weekId);
+
+          yield* validateSeason({ seasonId: season.id, force: input.force });
 
           yield* validateWeek(input);
 
@@ -293,7 +295,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
                 return {
                   userId,
-                  seasonId: input.seasonId,
+                  seasonId: season.id,
                   points: seasonPoints.multipliedBy(multiplier),
                   weekId: input.weekId,
                 };

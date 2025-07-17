@@ -5,10 +5,11 @@ import {
   activityRouter,
   adminActivityRouter,
 } from "../activity/activityRouter";
-import { seasonRouter } from "../season/seasonRouter";
+import { adminSeasonRouter } from "../season/seasonRouter";
 import { adminUserRouter, userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 import { configRouter } from "../config/configRouter";
+import { weekRouter } from "../week/weekRouter";
 
 /**
  * This is the primary router for your server.
@@ -22,13 +23,14 @@ export const appRouter = createTRPCRouter({
   leaderboard: leaderboardRouter,
   activity: activityRouter,
   config: configRouter,
+  week: weekRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
   auth: authRouter,
   account: accountRouter,
   activity: adminActivityRouter,
-  season: seasonRouter,
+  season: adminSeasonRouter,
   user: adminUserRouter,
   leaderboard: leaderboardRouter,
 });
