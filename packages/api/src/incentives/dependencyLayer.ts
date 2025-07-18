@@ -591,7 +591,7 @@ const getLedgerState = (input: GetLedgerStateInput) => {
     Effect.gen(function* () {
       const getLedgerStateService = yield* GetLedgerStateService;
 
-      return yield* getLedgerStateService(input);
+      return yield* getLedgerStateService.run(input);
     }),
     getLedgerStateLive
   );

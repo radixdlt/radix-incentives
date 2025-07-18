@@ -1,33 +1,18 @@
-import Redis from "ioredis";
-import { Effect, Layer } from "effect";
+import { Effect, Layer, Config } from "effect";
 
-import {
-  createStateVersionManager,
-  createStateVersionManagerLive,
-} from "./stateVersionManager";
 import { TransactionStreamLive } from "./transactionStream";
-import { transactionStreamLoop } from "./transactionStreamLoop";
+import { TransactionStreamLoopService } from "./transactionStreamLoop";
 import { createTransactionStream } from "radix-transaction-stream";
 import { createRadixNetworkClient } from "radix-web3.js";
 import { createAppConfigLive, createConfig } from "../config/appConfig";
-import { createRedisClientLive } from "../../common/redis/redisClient";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
-import {
-  GetStateVersionLive,
-  getStateVersionProgram,
-  SetStateVersionLive,
-  setStateVersionProgram,
-} from "../stateversion";
-import {
-  GetLedgerStateLive,
-  getLedgerStateProgram,
-} from "../../common/gateway/getLedgerState";
+
+import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
 
 import { createDbClientLive } from "../db/dbClient";
 import { db } from "db/incentives";
 import { FilterTransactionsLive } from "./filterTransactions";
 import { AddEventsToDbLive } from "../events/queries/addEventToDb";
-import { GetActivitiesLive } from "../activity/getActivities";
 import { AddToEventQueueLive } from "../events/addToEventQueue";
 import { EventQueueClientLive } from "../events/eventQueueClient";
 import { AddTransactionFeeLive } from "../transaction-fee/addTransactionFee";
@@ -38,220 +23,136 @@ import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
 import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
 import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
 import { GetUserIdByAccountAddressLive } from "../user/getUserIdByAccountAddress";
+import { ConfigService } from "../config/configService";
 
-export const runTransactionStreamLoop = async () => {
-  const REDIS_HOST = process.env.REDIS_HOST;
-  const REDIS_PORT = process.env.REDIS_PORT;
+const config = createConfig({
+  networkId: 1,
+  logLevel: "debug",
+});
 
-  if (!REDIS_HOST || !REDIS_PORT) {
-    throw new Error("REDIS_HOST, REDIS_PORT must be set");
-  }
+const configLive = createAppConfigLive(config);
 
-  const START_TIMESTAMP = process.env.START_TIMESTAMP
-    ? new Date(process.env.START_TIMESTAMP)
-    : undefined;
+const dbClientLive = createDbClientLive(db);
 
-  const config = createConfig({
-    networkId: 1,
-    logLevel: "debug",
-    redisHost: REDIS_HOST,
-  });
+const apiGatewayClientLive = GatewayApiClientLive.pipe(
+  Layer.provide(configLive)
+);
 
-  const redis = new Redis({
-    host: REDIS_HOST,
-    port: config.redisPort,
-  });
+const getLedgerStateLive = GetLedgerStateLive.pipe(
+  Layer.provide(apiGatewayClientLive),
+  Layer.provide(configLive)
+);
 
-  const stateVersionManager = createStateVersionManager();
+const addEventsLive = AddEventsToDbLive.pipe(Layer.provide(dbClientLive));
 
-  const configLive = createAppConfigLive(config);
+const getAccountAddressByUserIdLive = GetUserIdByAccountAddressLive.pipe(
+  Layer.provide(dbClientLive)
+);
 
-  const dbClientLive = createDbClientLive(db);
+const addComponentCallsLive = AddComponentCallsLive.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(getAccountAddressByUserIdLive)
+);
 
-  const apiGatewayClientLive = GatewayApiClientLive.pipe(
-    Layer.provide(configLive)
+const transactionStreamClient = createTransactionStream({
+  gatewayApi: createRadixNetworkClient({
+    networkId: config.networkId,
+  }),
+  optIns: {
+    detailed_events: true,
+    balance_changes: true,
+    manifest_instructions: true,
+  },
+  startStateVersion: 1,
+});
+
+const transactionStreamLive = TransactionStreamLive(transactionStreamClient);
+
+const filterTransactionsLive = FilterTransactionsLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const eventQueueClientLive = EventQueueClientLive;
+
+const addToEventQueueLive = AddToEventQueueLive.pipe(
+  Layer.provide(eventQueueClientLive)
+);
+
+const addTransactionFeeLive = AddTransactionFeeLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const addTradingVolumeLive = AddTradingVolumeLive.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const addressValidationServiceLive = AddressValidationServiceLive;
+
+const getUsdValueLive = GetUsdValueLive.pipe(
+  Layer.provide(addressValidationServiceLive)
+);
+
+const filterTradingEventsLive = FilterTradingEventsLive.pipe(
+  Layer.provide(getUsdValueLive),
+  Layer.provide(addressValidationServiceLive),
+  Layer.provide(dbClientLive)
+);
+
+const processSwapEventTradingVolumeLive =
+  ProcessSwapEventTradingVolumeLive.pipe(
+    Layer.provide(filterTradingEventsLive),
+    Layer.provide(addTradingVolumeLive)
   );
 
-  const getLedgerStateLive = GetLedgerStateLive.pipe(
-    Layer.provide(apiGatewayClientLive),
-    Layer.provide(configLive)
-  );
+const configServiceLive = ConfigService.Default.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(getLedgerStateLive)
+);
 
-  const redisClientLive = createRedisClientLive(redis);
+const transactionStreamLoopLive = TransactionStreamLoopService.Default.pipe(
+  Layer.provide(transactionStreamLive),
+  Layer.provide(configServiceLive),
+  Layer.provide(filterTransactionsLive),
+  Layer.provide(addEventsLive),
+  Layer.provide(addToEventQueueLive),
+  Layer.provide(addTransactionFeeLive),
+  Layer.provide(addComponentCallsLive),
+  Layer.provide(processSwapEventTradingVolumeLive),
+  Layer.provide(getLedgerStateLive)
+);
 
-  const setStateVersionLive = SetStateVersionLive.pipe(
-    Layer.provide(redisClientLive),
-    Layer.provide(configLive)
-  );
+export const transactionStreamLoopProgram = () => {
+  const runnable = Effect.provide(
+    Effect.gen(function* () {
+      const transactionStreamLoopService = yield* TransactionStreamLoopService;
+      const configService = yield* ConfigService;
 
-  const addEventsLive = AddEventsToDbLive.pipe(Layer.provide(dbClientLive));
+      const startTimestamp = yield* Config.string("START_TIMESTAMP").pipe(
+        Config.withDefault(null)
+      );
 
-  const getStateVersionLive = GetStateVersionLive.pipe(
-    Layer.provide(redisClientLive),
-    Layer.provide(configLive)
-  );
+      const lastProcessedStateVersion = yield* configService.getStateVersion();
 
-  const getAccountAddressByUserIdLive = GetUserIdByAccountAddressLive.pipe(
-    Layer.provide(dbClientLive)
-  );
+      if (startTimestamp) {
+        yield* Effect.log(
+          `Starting streamer from START_TIMESTAMP: ${startTimestamp}`
+        );
+        yield* configService.setStartStateVersion(new Date(startTimestamp));
+      } else if (lastProcessedStateVersion) {
+        yield* Effect.log(
+          `Starting streamer from last processed state version: ${lastProcessedStateVersion}`
+        );
+      } else {
+        yield* Effect.log(
+          `Starting streamer from current date: ${new Date().toISOString()}`
+        );
+        yield* configService.setStartStateVersion(new Date());
+      }
 
-  const addComponentCallsLive = AddComponentCallsLive.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(getAccountAddressByUserIdLive)
-  );
-
-  const currentLedgerState = await Effect.runPromise(
-    Effect.provide(
-      getLedgerStateProgram({
-        at_ledger_state: {
-          timestamp: new Date(),
-        },
-      }),
-      Layer.mergeAll(getLedgerStateLive, apiGatewayClientLive)
-    )
-  );
-
-  if (START_TIMESTAMP) {
-    console.log(
-      `using START_TIMESTAMP "${START_TIMESTAMP.toISOString()}", overriding state version`
-    );
-
-    const ledgerState = await Effect.runPromise(
-      Effect.provide(
-        getLedgerStateProgram({
-          at_ledger_state: {
-            timestamp: START_TIMESTAMP,
-          },
-        }),
-        Layer.mergeAll(getLedgerStateLive, apiGatewayClientLive)
-      )
-    );
-
-    await Effect.runPromise(
-      Effect.provide(
-        setStateVersionProgram(ledgerState.state_version),
-        Layer.mergeAll(setStateVersionLive, configLive)
-      )
-    );
-
-    stateVersionManager.setStateVersion(ledgerState.state_version);
-  } else {
-    const stateVersion = await Effect.runPromise(
-      Effect.provide(
-        getStateVersionProgram,
-        Layer.mergeAll(getStateVersionLive, configLive)
-      ).pipe(
-        Effect.catchTags({
-          StateVersionNotFoundError: () => {
-            console.log(
-              "State version not found, using current ledger state version",
-              currentLedgerState.state_version
-            );
-            return Effect.succeed(currentLedgerState.state_version);
-          },
-        })
-      )
-    );
-    const ledgerState = await Effect.runPromise(
-      Effect.provide(
-        getLedgerStateProgram({
-          at_ledger_state: {
-            state_version: stateVersion,
-          },
-        }),
-        Layer.mergeAll(getLedgerStateLive, apiGatewayClientLive)
-      )
-    );
-
-    console.log(
-      `using last processed state version ${ledgerState.proposer_round_timestamp}`
-    );
-
-    await Effect.runPromise(
-      Effect.provide(
-        setStateVersionProgram(stateVersion),
-        Layer.mergeAll(setStateVersionLive, configLive)
-      )
-    );
-    stateVersionManager.setStateVersion(stateVersion);
-  }
-
-  const stateVersionManagerLive = createStateVersionManagerLive(
-    stateVersionManager
-  ).pipe(Layer.provide(setStateVersionLive));
-
-  const transactionStreamClient = createTransactionStream({
-    gatewayApi: createRadixNetworkClient({
-      networkId: config.networkId,
+      return yield* transactionStreamLoopService.run();
     }),
-    optIns: {
-      detailed_events: true,
-      balance_changes: true,
-      manifest_instructions: true,
-    },
-    startStateVersion: 1,
-  });
-
-  const transactionStreamLive = TransactionStreamLive(transactionStreamClient);
-
-  const filterTransactionsLive = FilterTransactionsLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.merge(transactionStreamLoopLive, configServiceLive)
   );
 
-  const getActivitiesLive = GetActivitiesLive.pipe(Layer.provide(dbClientLive));
-
-  const eventQueueClientLive = EventQueueClientLive;
-
-  const addToEventQueueLive = AddToEventQueueLive.pipe(
-    Layer.provide(eventQueueClientLive)
-  );
-
-  const addTransactionFeeLive = AddTransactionFeeLive.pipe(
-    Layer.provide(dbClientLive)
-  );
-
-  const addTradingVolumeLive = AddTradingVolumeLive.pipe(
-    Layer.provide(dbClientLive)
-  );
-
-  const addressValidationServiceLive = AddressValidationServiceLive;
-
-  const getUsdValueLive = GetUsdValueLive.pipe(
-    Layer.provide(addressValidationServiceLive)
-  );
-
-  const filterTradingEventsLive = FilterTradingEventsLive.pipe(
-    Layer.provide(getUsdValueLive),
-    Layer.provide(addressValidationServiceLive),
-    Layer.provide(dbClientLive)
-  );
-
-  const processSwapEventTradingVolumeLive =
-    ProcessSwapEventTradingVolumeLive.pipe(
-      Layer.provide(filterTradingEventsLive),
-      Layer.provide(addTradingVolumeLive)
-    );
-
-  const transactionStream = Effect.provide(
-    transactionStreamLoop(),
-    Layer.mergeAll(
-      transactionStreamLive,
-      setStateVersionLive,
-      stateVersionManagerLive,
-      getLedgerStateLive,
-      apiGatewayClientLive,
-      dbClientLive,
-      filterTransactionsLive,
-      getActivitiesLive,
-      addEventsLive,
-      configLive,
-      addToEventQueueLive,
-      eventQueueClientLive,
-      addTransactionFeeLive,
-      addComponentCallsLive,
-      processSwapEventTradingVolumeLive
-    )
-  );
-
-  await Effect.runPromise(transactionStream);
+  return Effect.runPromise(runnable);
 };

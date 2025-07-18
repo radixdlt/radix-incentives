@@ -237,9 +237,11 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         yield* validateAtLedgerStateInput(input.at_ledger_state);
 
         // convert timestamp to state version
-        const ledgerState = yield* getLedgerStateService({
-          at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("getLedgerStateService"));
+        const ledgerState = yield* getLedgerStateService
+          .run({
+            at_ledger_state: input.at_ledger_state,
+          })
+          .pipe(Effect.withSpan("getLedgerStateService"));
 
         const state_version = ledgerState.state_version;
 

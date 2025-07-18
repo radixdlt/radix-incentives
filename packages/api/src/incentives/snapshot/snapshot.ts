@@ -28,7 +28,10 @@ import type {
   MissingConversionRatioError,
   ParseSborError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
-import type { FailedToParseLendingPoolSchemaError, FailedToParseCDPDataError } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import type {
+  FailedToParseLendingPoolSchemaError,
+  FailedToParseCDPDataError,
+} from "../../common/dapps/weftFinance/getWeftFinancePositions";
 import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
 import type { InvalidInputError } from "../../common/gateway/getNonFungibleBalance";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
@@ -136,7 +139,7 @@ export const SnapshotLive = Layer.effect(
           input.batchSize ??
           Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? "30000", 10);
 
-        const lederState = yield* getLedgerState({
+        const lederState = yield* getLedgerState.run({
           at_ledger_state: {
             timestamp: input.timestamp,
           },

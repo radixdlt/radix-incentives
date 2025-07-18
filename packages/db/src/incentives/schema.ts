@@ -449,6 +449,12 @@ export const tradingVolume = createTable(
   })
 );
 
+export const config = createTable("config", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  value: jsonb("value").notNull(),
+});
+
+export type Config = InferSelectModel<typeof config>;
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
