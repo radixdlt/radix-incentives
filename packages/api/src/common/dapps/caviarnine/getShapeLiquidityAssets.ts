@@ -198,7 +198,6 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
               address: nftOwnerMap.get(nft.nonFungibleId)!,
             }))
           )

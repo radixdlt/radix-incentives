@@ -47,7 +47,7 @@ describe("getCaviarnineResourcePoolPositions", () => {
     const program = Effect.gen(function* () {
       const service = yield* GetCaviarnineResourcePoolPositionsService;
 
-      const result = yield* service.getCaviarnineResourcePoolPositions({
+      const result = yield* service.run({
         addresses: [TEST_ACCOUNT],
         at_ledger_state: { state_version: 329748623 },
       });
@@ -68,8 +68,10 @@ describe("getCaviarnineResourcePoolPositions", () => {
     const program = Effect.gen(function* () {
       const service = yield* GetCaviarnineResourcePoolPositionsService;
 
-      const result = yield* service.getCaviarnineResourcePoolPositions({
-        addresses: ["account_rdx1000000000000000000000000000000000000000000000000000000"],
+      const result = yield* service.run({
+        addresses: [
+          "account_rdx1000000000000000000000000000000000000000000000000000000",
+        ],
         at_ledger_state: { state_version: 329748623 },
       });
 

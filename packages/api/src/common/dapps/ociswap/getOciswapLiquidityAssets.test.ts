@@ -9,7 +9,7 @@ import {
   GetOciswapLiquidityClaimsService,
 } from "./getOciswapLiquidityClaims";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
+
 import { GetComponentStateLive } from "../../gateway/getComponentState";
 import {
   GetNonFungibleBalanceLive,
@@ -19,6 +19,7 @@ import { GetNftResourceManagersLive } from "../../gateway/getNftResourceManagers
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
 import { GetNonFungibleIdsLive } from "../../gateway/getNonFungibleIds";
+import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
 
 const TEST_CONFIG = {
   // V1 Pool (xUSDC/XRD)
@@ -80,7 +81,7 @@ const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataLive = EntityNonFungibleDataLive.pipe(
+const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
