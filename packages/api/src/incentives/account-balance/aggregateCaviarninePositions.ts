@@ -12,8 +12,8 @@ import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
-  CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
+import { CONSTANT_PRODUCT_MULTIPLIER } from "../../common/config/constants";
 import { getPair } from "../../common/helpers/getPair";
 import type { ShapeLiquidityAsset } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
 import type { CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
