@@ -321,7 +321,7 @@ export const accountActivityPoints = createTable(
     activityId: text("activity_id")
       .notNull()
       .references(() => activities.id, { onDelete: "cascade" }),
-    activityPoints: bigint("activity_points", { mode: "number" }).notNull(),
+    activityPoints: decimal("activity_points", { precision: 18, scale: 6 }).notNull(),
   },
   (table) => ({
     pk: primaryKey({
