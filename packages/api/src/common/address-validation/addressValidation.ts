@@ -11,8 +11,6 @@ import { SurgeConstants } from "../dapps/surge/constants";
 import { Assets } from "../assets/constants";
 import { flatTokenNameMap, nativeAssets, type TokenInfo } from "./tokenNameMap";
 
-// Multiplier for constant product market maker pools (less efficient than precision pools)
-export const CONSTANT_PRODUCT_MULTIPLIER = 0.5;
 
 export type ProtocolValidation = {
   componentAddress: string;

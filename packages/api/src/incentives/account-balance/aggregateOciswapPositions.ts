@@ -11,8 +11,8 @@ import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
 import {
   AddressValidationService,
   type UnknownTokenError,
-  CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
+import { CONSTANT_PRODUCT_MULTIPLIER } from "../../common/config/constants";
 import { getPair } from "../../common/helpers/getPair";
 import type { OciswapLiquidityAsset } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
 import type { OciswapResourcePoolLiquidityAsset } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
