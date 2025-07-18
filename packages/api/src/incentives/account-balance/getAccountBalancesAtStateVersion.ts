@@ -40,7 +40,6 @@ import {
 import type { FailedToParseUnstakingReceiptError } from "../../common/staking/unstakingReceiptProcessor";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
 import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
-import { OciswapConstants } from "../../common/dapps/ociswap/constants";
 import {
   type CollaterizedDebtPosition,
   GetRootFinancePositionsService,
@@ -59,10 +58,13 @@ import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
 } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+import { type CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import {
   GetOciswapLiquidityAssetsService,
   type OciswapLiquidityAsset,
 } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
+import { type OciswapResourcePoolLiquidityAsset } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import { OciswapConstants } from "../../common/dapps/ociswap/constants";
 import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
 import type { FailedToParseOciswapComponentStateError } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
@@ -83,6 +85,11 @@ import {
   type FailedToParseMarginPoolSchemaError,
   type SlpNotFoundError,
 } from "../../common/dapps/surge/getSurgeLiquidityPositions";
+import {
+  GetOciswapResourcePoolPositionsService,
+  type InvalidResourcePoolError,
+} from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import { GetCaviarnineResourcePoolPositionsService } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
@@ -130,11 +137,11 @@ type WeftFinancePosition = GetWeftFinancePositionsOutput;
 type RootFinancePosition = CollaterizedDebtPosition;
 
 type CaviarNinePosition = {
-  [key: string]: ShapeLiquidityAsset[];
+  [key: string]: ShapeLiquidityAsset[] | CaviarnineSimplePoolLiquidityAsset[];
 };
 
 type OciswapPosition = {
-  [key: string]: OciswapLiquidityAsset[];
+  [key: string]: OciswapLiquidityAsset[] | OciswapResourcePoolLiquidityAsset[];
 };
 
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
@@ -190,7 +197,8 @@ export type GetAccountBalancesAtStateVersionServiceError =
   | GetDefiPlazaPositionsError
   | GetHyperstakePositionsError
   | FailedToParseMarginPoolSchemaError
-  | SlpNotFoundError;
+  | SlpNotFoundError
+  | InvalidResourcePoolError;
 
 export class GetAccountBalancesAtStateVersionService extends Context.Tag(
   "GetAccountBalancesAtStateVersionService"
@@ -232,6 +240,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
     const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
     const getSurgeLiquidityPositionsService =
       yield* GetSurgeLiquidityPositionsService;
+    const getOciswapResourcePoolPositionsService =
+      yield* GetOciswapResourcePoolPositionsService;
+    const getCaviarnineResourcePoolPositionsService =
+      yield* GetCaviarnineResourcePoolPositionsService;
     return (input) =>
       Effect.gen(function* () {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
@@ -271,6 +283,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   ...Object.values(OciswapConstants.pools).map(
                     (pool) => pool.lpResourceAddress
                   ),
+                  ...Object.values(OciswapConstants.poolsV2).map(
+                    (pool) => pool.lpResourceAddress
+                  ),
                   RootFinance.receiptResourceAddress,
                   WeftFinance.v2.WeftyV2.resourceAddress,
                   ...input.validators.map(
@@ -291,9 +306,10 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
         );
 
         const allOciswapPools = Object.values(OciswapConstants.pools);
+        const allOciswapPoolsV2 = Object.values(OciswapConstants.poolsV2);
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, lsulp value"
+          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, lsulp value"
         );
         const [
           userStakingPositions,
@@ -305,6 +321,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           allDefiPlazaPositions,
           allHyperstakePositions,
           allSurgeLiquidityPositions,
+          allOciswapResourcePoolPositions,
+          allCaviarnineResourcePoolPositions,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -356,28 +374,54 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
               { concurrency: "unbounded" }
             ),
             Effect.all(
-              allOciswapPools.map((pool) =>
-                getOciswapLiquidityAssetsService({
-                  componentAddress: pool.componentAddress,
-                  addresses: input.addresses,
-                  at_ledger_state: atLedgerState,
-                  lpResourceAddress: pool.lpResourceAddress,
-                  tokenXAddress: pool.token_x,
-                  tokenYAddress: pool.token_y,
-                  tokenXDivisibility: pool.divisibility_x,
-                  tokenYDivisibility: pool.divisibility_y,
-                  priceBounds: {
-                    lower: 0.7,
-                    upper: 1.3,
-                  },
-                  nonFungibleBalance: nonFungibleBalanceResults,
-                }).pipe(
-                  Effect.withSpan(
-                    `OciSwap_${pool.name.replace("/", "_")}_getOciswapLiquidityAssetsService`
-                  ),
-                  Effect.map((result) => ({ pool, result }))
-                )
-              ),
+              [
+                ...allOciswapPools.map((pool) =>
+                  getOciswapLiquidityAssetsService({
+                    componentAddress: pool.componentAddress,
+                    addresses: input.addresses,
+                    at_ledger_state: atLedgerState,
+                    lpResourceAddress: pool.lpResourceAddress,
+                    tokenXAddress: pool.token_x,
+                    tokenYAddress: pool.token_y,
+                    tokenXDivisibility: pool.divisibility_x,
+                    tokenYDivisibility: pool.divisibility_y,
+                    schemaVersion: "v1",
+                    priceBounds: {
+                      lower: 0.7,
+                      upper: 1.3,
+                    },
+                    nonFungibleBalance: nonFungibleBalanceResults,
+                  }).pipe(
+                    Effect.withSpan(
+                      `OciSwap_${pool.name.replace("/", "_")}_getOciswapLiquidityAssetsService`
+                    ),
+                    Effect.map((result) => ({ pool, result }))
+                  )
+                ),
+                ...allOciswapPoolsV2.map((pool) =>
+                  getOciswapLiquidityAssetsService({
+                    componentAddress: pool.componentAddress,
+                    addresses: input.addresses,
+                    at_ledger_state: atLedgerState,
+                    lpResourceAddress: pool.lpResourceAddress,
+                    tokenXAddress: pool.token_x,
+                    tokenYAddress: pool.token_y,
+                    tokenXDivisibility: pool.divisibility_x,
+                    tokenYDivisibility: pool.divisibility_y,
+                    schemaVersion: "v2",
+                    priceBounds: {
+                      lower: 0.7,
+                      upper: 1.3,
+                    },
+                    nonFungibleBalance: nonFungibleBalanceResults,
+                  }).pipe(
+                    Effect.withSpan(
+                      `OciSwapV2_${pool.name.replace("/", "_")}_getOciswapLiquidityAssetsService`
+                    ),
+                    Effect.map((result) => ({ pool, result }))
+                  )
+                ),
+              ],
               { concurrency: "unbounded" }
             ),
             getDefiPlazaPositionsService({
@@ -397,6 +441,23 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 fungibleBalance: fungibleBalanceResults,
               })
               .pipe(Effect.withSpan("getSurgeLiquidityPositionsService")),
+            getOciswapResourcePoolPositionsService
+              .run({
+                accountAddresses: input.addresses,
+                at_ledger_state: atLedgerState,
+                fungibleBalance: fungibleBalanceResults,
+                // No poolType specified - will fetch both FlexPools and BasicPools
+              })
+              .pipe(Effect.withSpan("getOciswapResourcePoolPositionsService")),
+            getCaviarnineResourcePoolPositionsService
+              .run({
+                addresses: input.addresses,
+                at_ledger_state: atLedgerState,
+                fungibleBalance: fungibleBalanceResults,
+              })
+              .pipe(
+                Effect.withSpan("getCaviarnineResourcePoolPositionsService")
+              ),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan("getLsulpValueService")),
@@ -512,6 +573,17 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
           })
         );
 
+        // Create lookup maps for FlexPool and BasicPool positions (combined)
+        const ociswapResourcePoolLiquidityPositions = new Map(
+          allOciswapResourcePoolPositions.map((poolData) => {
+            const poolKey = poolData.pool.componentAddress;
+            const addressToAssetsMap = new Map(
+              poolData.result.map((item) => [item.address, item.items])
+            );
+            return [poolKey, addressToAssetsMap];
+          })
+        );
+
         const accountBalances = yield* Effect.forEach(
           input.addresses,
           (address) =>
@@ -588,12 +660,33 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                 caviarninePositions[poolKey] = accountPoolAssets;
               }
 
+              // Add Caviarnine SimplePool resource pool positions
+              for (const poolData of allCaviarnineResourcePoolPositions) {
+                const pool = poolData.pool;
+                const addressResult = poolData.result.find(
+                  (r) => r.address === address
+                );
+                if (addressResult && addressResult.items.length > 0) {
+                  const poolKey = pool.componentAddress;
+                  caviarninePositions[poolKey] = addressResult.items;
+                }
+              }
+
               const ociswapPositions: OciswapPosition = {};
 
+              // Add all Ociswap positions (regular, FlexPools, and BasicPools) using lookup maps
               for (const [
                 poolKey,
                 addressToAssetsMap,
               ] of ociswapLiquidityPositions) {
+                const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
+                ociswapPositions[poolKey] = accountPoolAssets;
+              }
+
+              for (const [
+                poolKey,
+                addressToAssetsMap,
+              ] of ociswapResourcePoolLiquidityPositions) {
                 const accountPoolAssets = addressToAssetsMap.get(address) ?? [];
                 ociswapPositions[poolKey] = accountPoolAssets;
               }

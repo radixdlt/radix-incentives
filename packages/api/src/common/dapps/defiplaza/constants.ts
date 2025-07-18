@@ -60,6 +60,36 @@ export const DefiPlaza = {
     componentAddress:
       "component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29",
   },
+  ASTRLPool: {
+    type: "component",
+    basePoolAddress:
+      "pool_rdx1c47jlmd9stptfy2a7e39wnjfechu72q9ggus29x0mqf98m8xt70rx2",
+    baseLpResourceAddress:
+      "resource_rdx1t5q26nr5t02pzf40tp9z999ex7d84szldnpqg8e459jyvztrxhqqls",
+    quotePoolAddress:
+      "pool_rdx1c4xm5wfm92vh39dzszzv3huvdmvz73juhkw8vls0z4fg2vfr0wkv93",
+    quoteLpResourceAddress:
+      "resource_rdx1tkuuhphx2rtdytucgt0ucnd4k8zymxdeta4xa2req93yuaup3s244u",
+    baseResourceAddress: Assets.Fungible.ASTRL,
+    quoteResourceAddress: Assets.Fungible.DFP2,
+    componentAddress:
+      "component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5", //make sure this is PlazaPair component, not Dex
+  },
+  XRDPool: {
+    type: "component",
+    basePoolAddress:
+      "pool_rdx1chxn0nqj840r78t2ah5agchq4ue9p65q23nc9ckqfe0mmjstq8fyg0",
+    baseLpResourceAddress:
+      "resource_rdx1tknxlx2sy23qkg6twvnu3kqcd5l4daacq0n6mdam54upqgx50f4ju8",
+    quotePoolAddress:
+      "pool_rdx1c4547fnprjhlp2m27aycmf8rzrkrfzcck58jt2706r85gpcaeapz7k",
+    quoteLpResourceAddress:
+      "resource_rdx1t4a5clnxmnctmezaty08cuugfzmj2lezqcjk2szezrfdfl4w4ederu",
+    baseResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
+    componentAddress:
+      "component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72",
+  },
 } as const;
 
 export const defiPlazaComponentSet = new Map<
