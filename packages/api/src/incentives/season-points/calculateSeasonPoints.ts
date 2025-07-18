@@ -107,6 +107,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const getMinimumAPThreshold = Effect.fn(function* (
         categoryId: ActivityCategoryKey
       ) {
+        // all thresholds in the map are 1, and the ACTIVITY_POINTS_THRESHOLD is too
+        // so this might be unnecessary, but let's keep the structure for now
         return (
           minimumAPThresholdMap.get(categoryId) ??
           Thresholds.ACTIVITY_POINTS_THRESHOLD

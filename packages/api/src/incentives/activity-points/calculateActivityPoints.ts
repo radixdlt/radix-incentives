@@ -70,7 +70,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           addresses: input.addresses,
           startDate: week.startDate,
           endDate: endDate,
-          calculationType: "USDValueDurationMultiplied",
+          calculationType: "USDValueHighPrecision",
           filterType: "exclude_hold",
           filterZeroValues: true,
         }).pipe(
@@ -96,7 +96,7 @@ export const CalculateActivityPointsLive = Layer.effect(
               weekId: week.id,
               accountAddress,
               activityId: "txFees",
-              activityPoints: fee.decimalPlaces(0).toNumber(),
+              activityPoints: fee.decimalPlaces(0).toString(),
             }))
           )
         );
@@ -123,7 +123,7 @@ export const CalculateActivityPointsLive = Layer.effect(
               weekId: week.id,
               accountAddress,
               activityId: "componentCalls",
-              activityPoints: componentCalls,
+              activityPoints: componentCalls.toString(),
             }))
           );
         }
@@ -143,7 +143,7 @@ export const CalculateActivityPointsLive = Layer.effect(
               weekId: week.id,
               accountAddress,
               activityId,
-              activityPoints: usdValue.decimalPlaces(0).toNumber(),
+              activityPoints: usdValue.decimalPlaces(0).toString(),
             }))
           );
         }

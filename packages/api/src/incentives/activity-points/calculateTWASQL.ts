@@ -8,7 +8,7 @@ export const calculateTWASQLInputSchema = z.object({
   addresses: z.array(z.string()),
   startDate: z.date(),
   endDate: z.date(),
-  calculationType: z.enum(["USDValue", "USDValueDurationMultiplied"]).default("USDValueDurationMultiplied"),
+  calculationType: z.enum(["USDValue", "USDValueDurationMultiplied", "USDValueHighPrecision"]).default("USDValueDurationMultiplied"),
   filterType: z.enum(["exclude_hold", "include_hold"]).default("exclude_hold"),
   filterZeroValues: z.boolean().default(true),
 });
@@ -20,7 +20,7 @@ export type CalculateTWASQLInput = z.infer<
 export type CalculateTWASQLOutput = {
   accountAddress: string;
   activityId: string;
-  activityPoints: number;
+  activityPoints: string;
   weekId: string;
 }[];
 
@@ -111,9 +111,11 @@ export const CalculateTWASQLLive = Layer.effect(
                 ${input.weekId}::uuid AS week_id,
                 CASE 
                   WHEN ${input.calculationType} = 'USDValue' THEN 
-                    ROUND(twa_usd_value, 2)::bigint
+                    ROUND(twa_usd_value, 2)::decimal(18,6)
+                  WHEN ${input.calculationType} = 'USDValueHighPrecision' THEN 
+                    ROUND(twa_usd_value, 6)::decimal(18,6)
                   ELSE 
-                    ROUND(twa_usd_value * total_duration_minutes, 0)::bigint
+                    ROUND(twa_usd_value * total_duration_minutes, 0)::decimal(18,6)
                 END AS activity_points
               FROM twa_results
               WHERE ${input.filterZeroValues 
@@ -121,6 +123,8 @@ export const CalculateTWASQLLive = Layer.effect(
                   AND CASE 
                     WHEN ${input.calculationType} = 'USDValue' THEN 
                       ROUND(twa_usd_value, 2)
+                    WHEN ${input.calculationType} = 'USDValueHighPrecision' THEN 
+                      ROUND(twa_usd_value, 6)
                     ELSE 
                       ROUND(twa_usd_value * total_duration_minutes, 0)
                   END > 0`
@@ -140,7 +144,7 @@ export const CalculateTWASQLLive = Layer.effect(
             return rows.map((row) => ({
               accountAddress: row.account_address,
               activityId: row.activity_id,
-              activityPoints: Number(row.activity_points),
+              activityPoints: row.activity_points,
               weekId: row.week_id,
             }));
           },
