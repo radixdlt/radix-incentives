@@ -58,7 +58,7 @@ export const consultationConfig = [
     question:
       "The Radix Foundation believes that launching Radix Rewards with the Hyperlane bridge in place will dramatically increase its reach and impact. Do you support launching the campaign at the moment of highest cross-chain accessibility and network visibility?",
     startDate: new Date("2025-07-16T00:00:00Z"),
-    endDate: new Date("2025-07-22T23:59:00Z"),
+    endDate: new Date("2025-07-23T23:59:00Z"),
     options: ConsultationOptions,
   },
 ] satisfies Consultation[];
