@@ -1,0 +1,16 @@
+# SQL dumps
+dumps/
+dump.sql
+
+# Output files
+output/
+
+# Built files
+dist/
+
+# Node modules
+node_modules/
+
+# Environment files
+.env
+.env.local

@@ -1,0 +1,27 @@
+{
+  "name": "calculate-points",
+  "type": "module",
+  "main": "./src/index.ts",
+  "scripts": {
+    "calc:sp": "tsx --watch src/calculateSeasonPoints.ts"
+  },
+  "devDependencies": {
+    "tsup": "catalog:",
+    "tsx": "catalog:",
+    "vitest": "catalog:",
+    "@types/inquirer": "catalog:"
+  },
+  "dependencies": {
+    "@testcontainers/postgresql": "catalog:",
+    "@types/fs-extra": "^11.0.4",
+    "api": "workspace:*",
+    "bignumber.js": "catalog:",
+    "commander": "catalog:",
+    "db": "workspace:*",
+    "drizzle-orm": "catalog:",
+    "effect": "catalog:",
+    "fs-extra": "^11.3.0",
+    "inquirer": "catalog:",
+    "postgres": "catalog:"
+  }
+}
