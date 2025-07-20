@@ -41,11 +41,13 @@ export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingRe
           for (const request of input.unstakingReceiptRequests) {
             if (request.nftIds.length === 0) continue;
 
-            const specificNftData = yield* entityNonFungibleDataService({
-              resource_address: request.resourceAddress,
-              non_fungible_ids: request.nftIds,
-              at_ledger_state: input.at_ledger_state,
-            }).pipe(Effect.withSpan("fetchUnstakingReceiptNftData"));
+            const specificNftData = yield* entityNonFungibleDataService
+              .run({
+                resource_address: request.resourceAddress,
+                non_fungible_ids: request.nftIds,
+                at_ledger_state: input.at_ledger_state,
+              })
+              .pipe(Effect.withSpan("fetchUnstakingReceiptNftData"));
 
             const relevantNftItems = specificNftData
               .filter((item) => request.nftIds.includes(item.non_fungible_id))

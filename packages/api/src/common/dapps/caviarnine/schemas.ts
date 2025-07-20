@@ -67,6 +67,19 @@ export const HLPSwapEvent = s.struct({
   treasury_fee: s.decimal(),
 });
 
+// SimplePool has the same SwapEvent structure as HLP but without oracle_price
+export const SimplePoolSwapEvent = s.struct({
+  input_resource: s.address(),
+  output_resource: s.address(),
+  input_amount: s.decimal(),
+  output_amount: s.decimal(),
+  input_reserve: s.decimal(),
+  output_reserve: s.decimal(),
+  liquidity_fee: s.decimal(),
+  protocol_fee: s.decimal(),
+  treasury_fee: s.decimal(),
+});
+
 export const RemoveLiquidityEvent = s.struct({
   liquidity_receipt_id: s.nonFungibleLocalId(),
   amount_change_x: s.decimal(),
@@ -95,3 +108,4 @@ export type AddLiquidityEvent = s.infer<typeof AddLiquidityEvent>;
 export type RemoveLiquidityEvent = s.infer<typeof RemoveLiquidityEvent>;
 export type SwapEvent = s.infer<typeof SwapEvent>;
 export type HLPSwapEvent = s.infer<typeof HLPSwapEvent>;
+export type SimplePoolSwapEvent = s.infer<typeof SimplePoolSwapEvent>;

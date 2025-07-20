@@ -1,16 +1,9 @@
 import { Context, Effect, Layer } from "effect";
 
 import type { AtLedgerState } from "../../gateway/schemas";
-import type {
-  GetEntityDetailsError,
-  GetEntityDetailsService,
-} from "../../gateway/getEntityDetails";
-import type { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
+import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import { QuantaSwap } from "./schemas";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
-import type { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
-import type { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
 
 import {
   GetComponentStateService,
@@ -21,14 +14,12 @@ import {
   GetNonFungibleBalanceService,
   type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
-import type { GetLedgerStateService } from "../../gateway/getLedgerState";
 import { GetQuantaSwapBinMapService } from "./getQuantaSwapBinMap";
 import {
   type FailedToParseLiquidityClaimsError,
   GetShapeLiquidityClaimsService,
 } from "./getShapeLiquidityClaims";
 import { I192 } from "../../helpers/i192";
-import type { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
 import { calculatePrice, calculateTick } from "./tickCalculator";
 
 export class FailedToParseComponentStateError {
@@ -207,7 +198,6 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
               address: nftOwnerMap.get(nft.nonFungibleId)!,
             }))
           )

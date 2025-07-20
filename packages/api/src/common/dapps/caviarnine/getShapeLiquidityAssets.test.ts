@@ -123,7 +123,7 @@ describe("getShapeLiquidityAssets", () => {
         const getResourceHoldersService = yield* GetResourceHoldersService;
         const getNonfungibleBalance = yield* GetNonFungibleBalanceService;
 
-        const state = yield* getLedgerState({
+        const state = yield* getLedgerState.run({
           // timestamp: new Date(),
           at_ledger_state: {
             timestamp: new Date("2025-04-01T00:00:00.000Z"),

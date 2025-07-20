@@ -21,10 +21,11 @@
     "db:start": "docker compose up -d",
     "db:studio:incentives": "drizzle-kit studio --config=./src/incentives/drizzle.config.ts",
     "db:studio:consultation": "drizzle-kit studio --config=./src/consultation/drizzle.config.ts",
-    "db:seed:users": "tsx src/incentives/seed/users.ts",
+    "db:seed:season": "tsx src/incentives/seed/season.ts",
     "db:seed:activities": "tsx src/incentives/seed/activities.ts",
-    "db:seed:preview": "tsx src/incentives/seed/preview.ts",
-    "db:seed": "pnpm db:seed:users && pnpm db:seed:activities",
+    "db:seed:activityCategoryWeeks": "tsx src/incentives/seed/activityCategoryWeeks.ts",
+    "db:seed:weeks": "tsx src/incentives/seed/weeks.ts",
+    "db:seed": "tsx src/incentives/seed/seed.ts",
     "db:reset": "./scripts/reset.sh"
   },
   "dependencies": {
@@ -34,7 +35,7 @@
   "devDependencies": {
     "@types/node": "^20.14.10",
     "drizzle-kit": "^0.22.0",
-    "postgres": "^3.4.4",
+    "postgres": "catalog:",
     "tsx": "catalog:"
   },
   "publishConfig": {

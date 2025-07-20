@@ -1,15 +1,9 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { Rola } from "@radixdlt/rola";
 import { AppConfigService } from "../config/appConfig";
 
-export class RolaService extends Context.Tag("RolaService")<
-  RolaService,
-  ReturnType<typeof Rola>["verifySignedChallenge"]
->() {}
-
-export const RolaServiceLive = Layer.effect(
-  RolaService,
-  Effect.gen(function* () {
+export class RolaService extends Effect.Service<RolaService>()("RolaService", {
+  effect: Effect.gen(function* () {
     const {
       networkId,
       applicationName,
@@ -24,6 +18,19 @@ export const RolaServiceLive = Layer.effect(
       expectedOrigin,
     });
 
-    return verifySignedChallenge;
-  })
-);
+    yield* Effect.log("rolaConfig", {
+      networkId,
+      applicationName,
+      dAppDefinitionAddress,
+      expectedOrigin,
+    });
+
+    return {
+      run: Effect.fn(function* (
+        input: Parameters<typeof verifySignedChallenge>[0]
+      ) {
+        return yield* Effect.tryPromise(() => verifySignedChallenge(input));
+      }),
+    };
+  }),
+}) {}

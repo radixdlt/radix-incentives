@@ -10,7 +10,7 @@ import {
 import { GetFungibleBalanceLive } from "../common/gateway/getFungibleBalance";
 import { EntityFungiblesPageLive } from "../common/gateway/entityFungiblesPage";
 import { EntityNonFungiblesPageLive } from "../common/gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataLive } from "../common/gateway/entityNonFungiblesData";
+import { EntityNonFungibleDataService } from "../common/gateway/entityNonFungiblesData";
 import { GetNonFungibleBalanceLive } from "../common/gateway/getNonFungibleBalance";
 import { GetAllValidatorsLive } from "../common/gateway/getAllValidators";
 import { GetAccountBalancesAtStateVersionLive } from "./account-balance/getAccountBalancesAtStateVersion";
@@ -18,18 +18,20 @@ import { GetUserStakingPositionsLive } from "../common/staking/getUserStakingPos
 import { GetLsulpLive } from "../common/dapps/caviarnine/getLsulp";
 import { GetLsulpValueLive } from "../common/dapps/caviarnine/getLsulpValue";
 import { ConvertLsuToXrdLive } from "../common/staking/convertLsuToXrd";
-import { GetWeftFinancePositionsLive } from "../common/dapps/weftFinance/getWeftFinancePositions";
+import { GetWeftFinancePositionsService } from "../common/dapps/weftFinance/getWeftFinancePositions";
 import { UnstakingReceiptProcessorLive } from "../common/staking/unstakingReceiptProcessor";
 import { GetComponentStateLive } from "../common/gateway/getComponentState";
 import { KeyValueStoreDataLive } from "../common/gateway/keyValueStoreData";
 import { KeyValueStoreKeysLive } from "../common/gateway/keyValueStoreKeys";
-import { GetKeyValueStoreLive } from "../common/gateway/getKeyValueStore";
-import { GetRootFinancePositionsLive } from "../common/dapps/rootFinance/getRootFinancePositions";
+import { GetKeyValueStoreService } from "../common/gateway/getKeyValueStore";
+import { GetRootFinancePositionsService } from "../common/dapps/rootFinance/getRootFinancePositions";
 import { GetQuantaSwapBinMapLive } from "../common/dapps/caviarnine/getQuantaSwapBinMap";
 import { GetShapeLiquidityClaimsLive } from "../common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../common/dapps/caviarnine/getShapeLiquidityAssets";
 import { GetOciswapLiquidityAssetsLive } from "../common/dapps/ociswap/getOciswapLiquidityAssets";
 import { GetOciswapLiquidityClaimsLive } from "../common/dapps/ociswap/getOciswapLiquidityClaims";
+import { GetOciswapResourcePoolPositionsLive } from "../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import { GetCaviarnineResourcePoolPositionsLive } from "../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import { GetDefiPlazaPositionsLive } from "../common/dapps/defiplaza/getDefiPlazaPositions";
 import { GetHyperstakePositionsLive } from "../common/dapps/caviarnine/getHyperstakePositions";
 import { GetResourcePoolUnitsLive } from "../common/resource-pool/getResourcePoolUnits";
@@ -68,15 +70,13 @@ import {
   CalculateActivityPointsWorkerLive,
   CalculateActivityPointsWorkerService,
 } from "./activity-points/calculateActivityPointsWorker";
-import {
-  CalculateSeasonPointsLive,
-  CalculateSeasonPointsService,
-} from "./season-points/calculateSeasonPoints";
+import { CalculateSeasonPointsService } from "./season-points/calculateSeasonPoints";
 import { GetSeasonByIdLive } from "./season/getSeasonById";
 import { GetActivitiesByWeekIdLive } from "./activity/getActivitiesByWeekId";
-import { GetUserActivityPointsLive } from "./user/getUserActivityPoints";
-import { UpdateWeekStatusLive } from "./week/updateWeekStatus";
-import { AddSeasonPointsToUserLive } from "./season-points/addSeasonPointsToUser";
+import { UserActivityPointsService } from "./user/userActivityPoints";
+import { GetUsersPaginatedLive } from "./user/getUsersPaginated";
+import { UpdateWeekStatusService } from "./week/updateWeekStatus";
+import { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import {
   SeasonPointsMultiplierWorkerLive,
@@ -84,7 +84,7 @@ import {
 } from "./season-point-multiplier/seasonPointsMultiplierWorker";
 import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
-import { GetSeasonPointMultiplierLive } from "./season-point-multiplier/getSeasonPointMultiplier";
+import { GetSeasonPointMultiplierService } from "./season-point-multiplier/getSeasonPointMultiplier";
 
 import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
 import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
@@ -108,6 +108,8 @@ import {
 } from "./snapshot/snapshotWorker";
 import { AccountAddressService } from "./account/accountAddressService";
 import { WeekService } from "./week/week";
+import { ActivityCategoryWeekService } from "./activity-category-week/activityCategoryWeek";
+import { SeasonService } from "./season/season";
 const appConfig = createConfig();
 
 const appConfigServiceLive = createAppConfigLive(appConfig);
@@ -142,9 +144,10 @@ const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
+const entityNonFungibleDataServiceLive =
+  EntityNonFungibleDataService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
 
 const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
   Layer.provide(gatewayApiClientLive)
@@ -191,7 +194,7 @@ const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
+const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(keyValueStoreDataServiceLive),
   Layer.provide(keyValueStoreKeysServiceLive)
 );
@@ -205,7 +208,7 @@ const unstakingReceiptProcessorLive = UnstakingReceiptProcessorLive.pipe(
   Layer.provide(entityNonFungibleDataServiceLive)
 );
 
-const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
+const getWeftFinancePositionsLive = GetWeftFinancePositionsService.Default.pipe(
   Layer.provide(getFungibleBalanceLive),
   Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getKeyValueStoreServiceLive),
@@ -213,7 +216,7 @@ const getWeftFinancePositionsLive = GetWeftFinancePositionsLive.pipe(
   Layer.provide(unstakingReceiptProcessorLive)
 );
 
-const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
+const getRootFinancePositionLive = GetRootFinancePositionsService.Default.pipe(
   Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getKeyValueStoreServiceLive)
 );
@@ -226,7 +229,7 @@ const getKeyValueStoreKeysLive = KeyValueStoreKeysLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getKeyValueStoreLive = GetKeyValueStoreLive.pipe(
+const getKeyValueStoreLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(keyValueStoreDataLive),
   Layer.provide(getKeyValueStoreKeysLive)
 );
@@ -235,7 +238,7 @@ const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataLive = EntityNonFungibleDataLive.pipe(
+const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -320,6 +323,18 @@ const getHyperstakePositionsLive = GetHyperstakePositionsLive.pipe(
   Layer.provide(getResourcePoolUnitsLive)
 );
 
+const getOciswapResourcePoolPositionsLive =
+  GetOciswapResourcePoolPositionsLive.pipe(
+    Layer.provide(getFungibleBalanceLive),
+    Layer.provide(getResourcePoolUnitsLive)
+  );
+
+const getCaviarnineResourcePoolPositionsLive =
+  GetCaviarnineResourcePoolPositionsLive.pipe(
+    Layer.provide(getFungibleBalanceLive),
+    Layer.provide(getResourcePoolUnitsLive)
+  );
+
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(addressValidationServiceLive)
@@ -377,6 +392,8 @@ const dappsLive = Layer.mergeAll(
   getQuantaSwapBinMapLive,
   getOciswapLiquidityAssetsLive,
   getOciswapLiquidityClaimsLive,
+  getOciswapResourcePoolPositionsLive,
+  getCaviarnineResourcePoolPositionsLive,
   getSurgeLiquidityPositionsLive
 );
 
@@ -492,29 +509,45 @@ const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
 const getActivitiesByWeekIdLive = GetActivitiesByWeekIdLive.pipe(
   Layer.provide(dbClientLive)
 );
-const getUserActivityPointsLive = GetUserActivityPointsLive.pipe(
+const getUserActivityPointsLive = UserActivityPointsService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
-const addSeasonPointsToUserLive = AddSeasonPointsToUserLive.pipe(
-  Layer.provide(dbClientLive)
-);
-const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
-  Layer.provide(dbClientLive)
-);
-const getSeasonPointMultiplierLive = GetSeasonPointMultiplierLive.pipe(
+const getUsersPaginatedLive = GetUsersPaginatedLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const calculateSeasonPointsLive = CalculateSeasonPointsLive.pipe(
+const addSeasonPointsToUserLive = AddSeasonPointsToUserService.Default.pipe(
+  Layer.provide(dbClientLive)
+);
+const updateWeekStatusLive = UpdateWeekStatusService.Default.pipe(
+  Layer.provide(dbClientLive)
+);
+const getSeasonPointMultiplierLive =
+  GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbClientLive));
+
+const activityCategoryWeekServiceLive =
+  ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
+
+const seasonServiceLive = SeasonService.Default.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const weekServiceLive = WeekService.Default.pipe(Layer.provide(dbClientLive));
+
+const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getSeasonByIdLive),
   Layer.provide(getWeekByIdLive),
   Layer.provide(getActivitiesByWeekIdLive),
   Layer.provide(getUserActivityPointsLive),
+  Layer.provide(getUsersPaginatedLive),
   Layer.provide(addSeasonPointsToUserLive),
   Layer.provide(updateWeekStatusLive),
-  Layer.provide(getSeasonPointMultiplierLive)
+  Layer.provide(getSeasonPointMultiplierLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(seasonServiceLive),
+  Layer.provide(weekServiceLive)
 );
 
 const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
@@ -575,7 +608,7 @@ const getLedgerState = (input: GetLedgerStateInput) => {
     Effect.gen(function* () {
       const getLedgerStateService = yield* GetLedgerStateService;
 
-      return yield* getLedgerStateService(input);
+      return yield* getLedgerStateService.run(input);
     }),
     getLedgerStateLive
   );
@@ -625,7 +658,7 @@ const calculateActivityPoints = (input: {
       const calculateActivityPointsWorkerService =
         yield* CalculateActivityPointsWorkerService;
 
-      return yield* calculateActivityPointsWorkerService({
+      return yield* calculateActivityPointsWorkerService.run({
         weekId: input.weekId,
         useWeekEndDate: input.useWeekEndDate,
         addresses: input.addresses,
@@ -641,17 +674,16 @@ const calculateActivityPoints = (input: {
 };
 
 const calculateSeasonPoints = (input: {
-  seasonId: string;
   weekId: string;
-  endOfWeek?: boolean;
+  markAsProcessed?: boolean;
 }) => {
   const program = Effect.provide(
     Effect.gen(function* () {
       const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
 
-      return yield* calculateSeasonPointsService({
+      return yield* calculateSeasonPointsService.run({
         ...input,
-        endOfWeek: !!input.endOfWeek,
+        markAsProcessed: !!input.markAsProcessed,
       });
     }),
     calculateSeasonPointsLive
@@ -677,14 +709,27 @@ const calculateSPMultiplier = (input: {
   return Effect.runPromiseExit(program);
 };
 
-const getActiveWeek = () => {
+const getWeekByDate = (date: Date) => {
   const program = Effect.provide(
     Effect.gen(function* () {
-      const getActiveWeekService = yield* WeekService;
+      const weekService = yield* WeekService;
 
-      return yield* getActiveWeekService.getActiveWeek();
+      return yield* weekService.getByDate(date);
     }),
     WeekService.Default.pipe(Layer.provide(dbClientLive))
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
+const getSeasonByWeekId = (weekId: string) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+
+      return yield* seasonService.getByWeekId(weekId);
+    }),
+    SeasonService.Default.pipe(Layer.provide(dbClientLive))
   );
 
   return Effect.runPromiseExit(program);
@@ -698,5 +743,6 @@ export const dependencyLayer = {
   calculateSeasonPoints,
   calculateSPMultiplier,
   eventWorkerHandler,
-  getActiveWeek,
+  getWeekByDate,
+  getSeasonByWeekId,
 };

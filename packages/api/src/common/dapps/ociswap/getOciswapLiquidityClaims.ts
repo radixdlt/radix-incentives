@@ -43,11 +43,13 @@ export const GetOciswapLiquidityClaimsLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const nonFungibleDataResult = yield* entityNonFungibleDataService({
-          resource_address: input.lpResourceAddress,
-          non_fungible_ids: input.nonFungibleLocalIds,
-          at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("entityNonFungibleDataService"));
+        const nonFungibleDataResult = yield* entityNonFungibleDataService
+          .run({
+            resource_address: input.lpResourceAddress,
+            non_fungible_ids: input.nonFungibleLocalIds,
+            at_ledger_state: input.at_ledger_state,
+          })
+          .pipe(Effect.withSpan("entityNonFungibleDataService"));
 
         return yield* Effect.forEach(nonFungibleDataResult, (result) => {
           return Effect.gen(function* () {

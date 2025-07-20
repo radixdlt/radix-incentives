@@ -48,7 +48,7 @@ export const GetQuantaSwapBinMapLive = Layer.effect(
 
     return (input) => {
       return Effect.gen(function* () {
-        const keyValueStore = yield* getKeyValueStoreService({
+        const keyValueStore = yield* getKeyValueStoreService.run({
           address: input.address,
           at_ledger_state: input.at_ledger_state,
         });

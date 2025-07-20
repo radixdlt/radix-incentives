@@ -45,7 +45,7 @@ describe("GetFungibleBalanceService", () => {
         const getFungibleBalance = yield* GetFungibleBalanceService;
         const getLedgerState = yield* GetLedgerStateService;
 
-        const ledgerState = yield* getLedgerState({
+        const ledgerState = yield* getLedgerState.run({
           at_ledger_state: {
             timestamp: new Date("2025-04-31T00:00:00.000Z"),
           },

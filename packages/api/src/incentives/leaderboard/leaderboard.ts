@@ -295,10 +295,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .from(userSeasonPoints)
             .innerJoin(users, eq(userSeasonPoints.userId, users.id))
             .where(eq(userSeasonPoints.seasonId, input.seasonId))
-            .groupBy(
-              userSeasonPoints.userId,
-              users.label
-            )
+            .groupBy(userSeasonPoints.userId, users.label)
             .orderBy(desc(sum(userSeasonPoints.points)))
         );
 
@@ -381,7 +378,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             seasonId: weeks.seasonId,
             startDate: weeks.startDate,
             endDate: weeks.endDate,
-            status: weeks.status,
             seasonName: seasons.name,
           })
           .from(weeks)
@@ -426,12 +422,9 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .select({
               id: seasons.id,
               name: seasons.name,
-              startDate: seasons.startDate,
-              endDate: seasons.endDate,
               status: seasons.status,
             })
             .from(seasons)
-            .orderBy(desc(seasons.startDate))
         );
       });
 

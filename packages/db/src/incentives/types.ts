@@ -41,15 +41,26 @@ const testTokens = [
   "fomo",
 ];
 
+// TODO: this seems double, together with address-validation and its token map.
+// we might want to clean that up a bit
 export const TOKENS = {
   xrd: "xrd",
+  lsulp: "lsulp",
+  stakedXrd: "stakedXrd",
+  unstakedXrd: "unstakedXrd",
+
+  astrl: "astrl",
+  dfp2: "dfp2",
+  ilis: "ilis",
+  oci: "oci",
+  early: "early",
+  floop: "floop",
+  reddicks: "reddicks",
+
   xeth: "xeth",
   xusdc: "xusdc",
   xusdt: "xusdt",
   xwbtc: "xwbtc",
-  lsulp: "lsulp",
-  stakedXrd: "stakedXrd",
-  unstakedXrd: "unstakedXrd",
 } as const;
 export type Token = keyof typeof TOKENS;
 
@@ -105,6 +116,7 @@ export const AccountBalanceData = z.object({
   activityId: z.string(),
   usdValue: z.string(),
   metadata: z.record(z.string(), z.unknown()).optional(),
+  poolShare: z.record(z.string(), z.number()).optional(),
 });
 
 export type AccountBalanceData = Omit<
@@ -113,45 +125,3 @@ export type AccountBalanceData = Omit<
 > & {
   activityId: ActivityId;
 };
-
-export const activityCategoriesToSeed: {
-  id: ActivityCategoryKey;
-  name: string;
-}[] = [
-  {
-    id: ActivityCategoryKey.maintainXrdBalance,
-    name: "Maintain XRD balance",
-  },
-  {
-    id: ActivityCategoryKey.provideStablesLiquidityToDex,
-    name: "Provide stables liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-    name: "Provide blue chip liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.provideNativeLiquidityToDex,
-    name: "Provide native liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.lendingStables,
-    name: "Lend stables",
-  },
-  {
-    id: ActivityCategoryKey.transactionFees,
-    name: "Paid transaction fees",
-  },
-  {
-    id: ActivityCategoryKey.common,
-    name: "Common activities",
-  },
-  {
-    id: ActivityCategoryKey.componentCalls,
-    name: "Component calls",
-  },
-  {
-    id: ActivityCategoryKey.tradingVolume,
-    name: "Trading volume",
-  },
-];

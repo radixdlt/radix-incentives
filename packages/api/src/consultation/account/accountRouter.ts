@@ -2,7 +2,7 @@ import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 
 import type { Account } from "db/consultation";
-import { verifyAccountOwnershipInputSchema } from "../programs/verifyAccountOwnership";
+import { verifyAccountOwnershipInputSchema } from "./verifyAccountOwnership";
 
 export const accountRouter = createTRPCRouter({
   verifyAccountOwnership: protectedProcedure

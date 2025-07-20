@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { createConsultationMessageHash } from "./createConsultationHash";
 
 export class CreateConsultationMessageError {
@@ -6,28 +6,21 @@ export class CreateConsultationMessageError {
   constructor(readonly error: unknown) {}
 }
 
-export class CreateConsultationMessageService extends Context.Tag(
-  "CreateConsultationMessageService"
-)<
-  CreateConsultationMessageService,
-  (input: {
-    consultationId: string;
-    selectedOption: string;
-  }) => Effect.Effect<
-    Uint8Array<ArrayBufferLike>,
-    CreateConsultationMessageError
-  >
->() {}
-
-export const CreateConsultationMessageLive = Layer.effect(
-  CreateConsultationMessageService,
-  Effect.gen(function* () {
-    return (input) =>
-      Effect.gen(function* () {
-        return yield* Effect.tryPromise({
-          try: () => createConsultationMessageHash(input),
-          catch: (error) => new CreateConsultationMessageError(error),
-        });
-      });
-  })
-);
+export class CreateConsultationMessageService extends Effect.Service<CreateConsultationMessageService>()(
+  "CreateConsultationMessageService",
+  {
+    effect: Effect.gen(function* () {
+      return {
+        run: Effect.fn(function* (input: {
+          consultationId: string;
+          selectedOption: string;
+        }) {
+          return yield* Effect.tryPromise({
+            try: () => createConsultationMessageHash(input),
+            catch: (error) => new CreateConsultationMessageError(error),
+          });
+        }),
+      };
+    }),
+  }
+) {}

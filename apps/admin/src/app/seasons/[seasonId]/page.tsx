@@ -263,20 +263,6 @@ const getWeekStatusVariant = (
   }
 };
 
-// Add helper for activity week status
-const getActivityWeekStatusVariant = (
-  status: ActivityWeek['status'],
-): 'secondary' | 'default' | 'destructive' => {
-  switch (status) {
-    case 'active':
-      return 'default';
-    case 'inactive':
-      return 'secondary';
-    default:
-      return 'secondary';
-  }
-};
-
 // Add component to display activity weeks
 const ActivityWeeksDisplay: React.FC<{
   weekId: string;
@@ -327,7 +313,7 @@ const ActivityWeeksDisplay: React.FC<{
                   ID: {activityWeek.activityId}
                 </div>
               </div>
-              <div className="flex items-center gap-2">
+              {/* <div className="flex items-center gap-2">
                 <span className="text-xs text-muted-foreground">
                   {activityWeek.pointsPool || 0} pts
                 </span>
@@ -337,7 +323,7 @@ const ActivityWeeksDisplay: React.FC<{
                 >
                   {activityWeek.status}
                 </Badge>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
@@ -407,13 +393,13 @@ function SeasonDetailPage() {
             <p className="text-sm font-medium text-muted-foreground">
               Start Date
             </p>
-            <p>{format(season.startDate, 'PPP')}</p>
+            {/* <p>{format(season.startDate, 'PPP')}</p> */}
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">
               End Date
             </p>
-            <p>{format(season.endDate, 'PPP')}</p>
+            {/* <p>{format(season.endDate, 'PPP')}</p> */}
           </div>
           <div>
             <p className="text-sm font-medium text-muted-foreground">Status</p>
@@ -473,12 +459,12 @@ function SeasonDetailPage() {
                       {format(week.endDate, 'PPP')}
                     </TableCell>
                     <TableCell onClick={() => handleWeekRowClick(week.id)}>
-                      <Badge
+                      {/* <Badge
                         variant={getWeekStatusVariant(week.status)}
                         className="capitalize"
                       >
                         {week.status}
-                      </Badge>
+                      </Badge> */}
                     </TableCell>
                     <TableCell onClick={(e) => e.stopPropagation()}>
                       <ActivityWeeksDisplay

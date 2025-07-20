@@ -4,5 +4,6 @@
       "mode": "auto"
     }
   ],
-  "cSpell.words": ["defi", "Rola"]
+  "cSpell.words": ["defi", "Rola"],
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

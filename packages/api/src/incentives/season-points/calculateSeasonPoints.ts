@@ -1,19 +1,6 @@
-import { Context, Effect, Layer } from "effect";
-import type { DbError } from "../db/dbClient";
+import { Data, Effect } from "effect";
 import { z, type ZodError } from "zod";
-import {
-  type GetSeasonByIdError,
-  GetSeasonByIdService,
-} from "../season/getSeasonById";
-import { type GetWeekByIdError, GetWeekByIdService } from "../week/getWeekById";
-import {
-  type GetActivitiesByWeekIdError,
-  GetActivitiesByWeekIdService,
-} from "../activity/getActivitiesByWeekId";
-import {
-  type GetUserActivityPointsError,
-  GetUserActivityPointsService,
-} from "../user/getUserActivityPoints";
+import { UserActivityPointsService } from "../user/userActivityPoints";
 import BigNumber from "bignumber.js";
 import { createUserBands } from "./createUserBands";
 import { supplyPercentileTrim } from "./supplyPercentileTrim";
@@ -23,65 +10,55 @@ import { UpdateWeekStatusService } from "../week/updateWeekStatus";
 import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
 import { ActivityCategoryKey } from "db/incentives";
 import { Thresholds } from "../../common/config/constants";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { groupBy } from "effect/Array";
+import { SeasonService } from "../season/season";
+import { WeekService } from "../week/week";
+import { GetUsersPaginatedService } from "../user/getUsersPaginated";
 
 export const calculateSeasonPointsInputSchema = z.object({
-  seasonId: z.string(),
   weekId: z.string(),
   force: z.boolean().optional(),
-  endOfWeek: z.boolean(),
+  markAsProcessed: z.boolean(),
 });
 
 export type CalculateSeasonPointsInput = z.infer<
   typeof calculateSeasonPointsInputSchema
 >;
 
-class InputValidationError extends Error {
-  _tag = "InputValidationError";
-  constructor(public readonly error: ZodError<CalculateSeasonPointsInput>) {
-    super(error.message);
-  }
-}
+const InputValidationError = Data.TaggedError("InputValidationError")<
+  ZodError<CalculateSeasonPointsInput>
+>;
 
-class InvalidStateError extends Error {
-  _tag = "InvalidStateError";
-  constructor(public readonly message: string) {
-    super(message);
-  }
-}
+const InvalidStateError = Data.TaggedError("InvalidStateError")<{
+  message: string;
+}>;
 
-export type CalculateSeasonPointsError =
-  | DbError
-  | InputValidationError
-  | InvalidStateError
-  | GetSeasonByIdError
-  | GetWeekByIdError
-  | GetActivitiesByWeekIdError
-  | GetUserActivityPointsError;
+export class CalculateSeasonPointsService extends Effect.Service<CalculateSeasonPointsService>()(
+  "CalculateSeasonPointsService",
+  {
+    effect: Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      const weekService = yield* WeekService;
+      const userActivityPointsService = yield* UserActivityPointsService;
+      const addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
+      const updateWeekStatus = yield* UpdateWeekStatusService;
+      const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
+      const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      const getUsersPaginated = yield* GetUsersPaginatedService;
 
-export class CalculateSeasonPointsService extends Context.Tag(
-  "CalculateSeasonPointsService"
-)<
-  CalculateSeasonPointsService,
-  (
-    input: CalculateSeasonPointsInput
-  ) => Effect.Effect<void, CalculateSeasonPointsError>
->() {}
+      const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
+      const lowerBoundsPercentage = 0.1;
+      const minimumAPThresholdMap = new Map<ActivityCategoryKey, number>([
+        [ActivityCategoryKey.common, 1],
+        [ActivityCategoryKey.tradingVolume, 1],
+        [ActivityCategoryKey.componentCalls, 1],
+        [ActivityCategoryKey.transactionFees, 1],
+      ]);
 
-export const CalculateSeasonPointsLive = Layer.effect(
-  CalculateSeasonPointsService,
-  Effect.gen(function* () {
-    const getSeasonById = yield* GetSeasonByIdService;
-    const getWeekById = yield* GetWeekByIdService;
-    const getActivitiesByWeekId = yield* GetActivitiesByWeekIdService;
-    const getUserActivityPoints = yield* GetUserActivityPointsService;
-    const addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
-    const updateWeekStatus = yield* UpdateWeekStatusService;
-    const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        yield* Effect.log("calculating season points", input);
-
+      const parseInput = Effect.fn(function* (
+        input: CalculateSeasonPointsInput
+      ) {
         const parsedInput = calculateSeasonPointsInputSchema.safeParse(input);
 
         if (parsedInput.error)
@@ -89,153 +66,285 @@ export const CalculateSeasonPointsLive = Layer.effect(
             new InputValidationError(parsedInput.error)
           );
 
-        const season = yield* getSeasonById({ id: input.seasonId });
+        return parsedInput.data;
+      });
+
+      const validateSeason = Effect.fn(function* (input: {
+        seasonId: string;
+        force?: boolean;
+      }) {
+        const season = yield* seasonService.getById(input.seasonId);
 
         if (season.status === "completed" && !input.force) {
           yield* Effect.log(`season ${input.seasonId} is completed`);
           return yield* Effect.fail(
-            new InvalidStateError(
-              `season ${input.seasonId} is in completed state`
-            )
+            new InvalidStateError({
+              message: `season ${input.seasonId} is in completed state`,
+            })
           );
         }
+      });
 
-        const week = yield* getWeekById({ id: input.weekId });
+      const validateWeek = Effect.fn(function* (
+        input: CalculateSeasonPointsInput
+      ) {
+        const week = yield* weekService.getById(input.weekId);
 
         yield* Effect.log(
           `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`
         );
 
-        if (week.status === "completed" && !input.force) {
-          yield* Effect.log(`week ${input.weekId} is completed`);
+        if (week.processed && !input.force) {
+          yield* Effect.log(`week ${input.weekId} is already processed`);
           return yield* Effect.fail(
-            new InvalidStateError(`week ${input.weekId} is already processed`)
+            new InvalidStateError({
+              message: `week ${input.weekId} is already processed`,
+            })
           );
         }
+      });
 
-        const activities = yield* getActivitiesByWeekId({
-          weekId: input.weekId,
-          excludeCategories: [ActivityCategoryKey.maintainXrdBalance],
-        });
-
-        yield* Effect.log("activities", activities);
-
-        const activeActivities = activities.filter(
-          (activity) => activity.status === "active"
+      const getMinimumAPThreshold = Effect.fn(function* (
+        categoryId: ActivityCategoryKey
+      ) {
+        return (
+          minimumAPThresholdMap.get(categoryId) ??
+          Thresholds.ACTIVITY_POINTS_THRESHOLD
         );
+      });
 
-        // TODO: get values from db
+      const getAllUserIds = Effect.fn(function* () {
+        const allUserIds: string[] = [];
+        let page = 1;
+        const limit = 100;
+        let hasMore = true;
 
-        const minimumAPThresholdMap = new Map<ActivityCategoryKey, number>([
-          [ActivityCategoryKey.common, 1],
-          [ActivityCategoryKey.tradingVolume, 1],
-          [ActivityCategoryKey.componentCalls, 1],
-          [ActivityCategoryKey.transactionFees, 1],
-        ]);
+        while (hasMore) {
+          const result = yield* getUsersPaginated({ page, limit });
+          allUserIds.push(...result.users.map((user) => user.id));
 
-        const defaultMinimumPoints = Thresholds.ACTIVITY_POINTS_THRESHOLD;
-        const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
-        const lowerBoundsPercentage = 0.1;
-        const seasonPointMultipliers = yield* getSeasonPointMultiplier({
-          weekId: input.weekId,
-        });
+          hasMore = result.users.length === limit;
+          page++;
+        }
 
-        const seasonPoints = yield* Effect.forEach(
-          activeActivities,
-          (activity) => {
-            return Effect.gen(function* () {
-              if (activity.pointsPool === null) {
+        return allUserIds;
+      });
+
+      const markAsProcessed = Effect.fn(function* (
+        input: CalculateSeasonPointsInput
+      ) {
+        if (input.markAsProcessed) {
+          yield* updateWeekStatus.run({
+            id: input.weekId,
+            processed: true,
+          });
+        }
+      });
+
+      return {
+        run: Effect.fn(function* (input: CalculateSeasonPointsInput) {
+          yield* Effect.log("calculating season points", input);
+
+          yield* parseInput(input);
+
+          const season = yield* seasonService.getByWeekId(input.weekId);
+
+          yield* validateSeason({ seasonId: season.id, force: input.force });
+
+          yield* validateWeek(input);
+
+          const activityCategories =
+            yield* activityCategoryWeekService.getByWeekId({
+              weekId: input.weekId,
+            });
+
+          const userActivityPointsGroupedByActivityCategory =
+            yield* Effect.forEach(
+              activityCategories,
+              Effect.fn(function* (activityCategory) {
+                const users = yield* Effect.forEach(
+                  activityCategory.activities,
+                  Effect.fn(function* (activity) {
+                    // get user activity points for activity
+                    return yield* userActivityPointsService
+                      .getByWeekIdAndActivityId({
+                        weekId: input.weekId,
+                        activityId: activity.id,
+                        minPoints: yield* getMinimumAPThreshold(
+                          activityCategory.categoryId
+                        ),
+                        minTWABalance: minimumBalance,
+                      })
+                      .pipe(
+                        // multiply user AP by activity multiplier
+                        Effect.map((items) =>
+                          items.map((item) => ({
+                            ...item,
+                            points: item.points.multipliedBy(
+                              activity.multiplier
+                            ),
+                            activityId: activity.id,
+                          }))
+                        )
+                      );
+                  })
+                ).pipe(
+                  Effect.map((items) => items.flat()),
+                  // aggregate user points by user
+                  Effect.map((items) =>
+                    items.reduce<Record<string, BigNumber>>((acc, item) => {
+                      if (!acc[item.userId]) {
+                        acc[item.userId] = new BigNumber(0);
+                      }
+
+                      // biome-ignore lint/style/noNonNullAssertion: it is known
+                      acc[item.userId] = acc[item.userId]!.plus(item.points);
+
+                      return acc;
+                    }, {})
+                  )
+                );
+
+                return {
+                  categoryId: activityCategory.categoryId,
+                  pointsPool: activityCategory.pointsPool,
+                  users: Object.entries(users).map(([userId, points]) => ({
+                    userId,
+                    points,
+                  })),
+                };
+              })
+            );
+
+          const seasonPointMultipliers = yield* getSeasonPointMultiplier
+            .run({
+              weekId: input.weekId,
+            })
+            .pipe(Effect.map((items) => groupBy(items, (item) => item.userId)));
+
+          const userSeasonPoints = yield* Effect.forEach(
+            userActivityPointsGroupedByActivityCategory,
+            Effect.fn(function* (activityCategory) {
+              yield* Effect.log("--------------------------------");
+              yield* Effect.log(
+                `processing category: ${activityCategory.categoryId} with points pool: ${activityCategory.pointsPool}`
+              );
+
+              // should not happen at this point, but just in case
+              if (activityCategory.pointsPool.isZero()) {
                 yield* Effect.log(
-                  `activity ${activity.activityId} has no points pool`
+                  `activity category ${activityCategory.categoryId} has no points, skipping`
                 );
                 return;
               }
 
-              const userActivityPoints = yield* getUserActivityPoints({
-                weekId: input.weekId,
-                activityId: activity.activityId,
-                minPoints:
-                  minimumAPThresholdMap.get(activity.category) ??
-                  defaultMinimumPoints,
-                minTWABalance: minimumBalance,
-              });
+              if (activityCategory.users.length === 0) {
+                yield* Effect.log("no users found, skipping");
+                return;
+              }
 
               yield* Effect.log(
-                `processing ${userActivityPoints.length} users for activity ${activity.activityId}`
+                `processing ${activityCategory.users.length} users`
               );
 
+              // remove users with low activity points
               const withoutLowerBounds = yield* supplyPercentileTrim(
-                userActivityPoints,
+                activityCategory.users,
                 {
                   lowerBoundsPercentage,
                 }
               );
 
-              yield* Effect.log(
-                `processing ${withoutLowerBounds.length} users surviving supply percentile trim`
-              );
-
               const bands = yield* createUserBands({
                 numberOfBands: 20,
-                poolShareStart: new BigNumber("0.98"),
+                poolShareStart: new BigNumber("0.98").div(100),
                 poolShareStep: new BigNumber("1.15"),
                 users: withoutLowerBounds,
               });
 
               const seasonPoints = yield* distributeSeasonPoints({
-                pointsPool: new BigNumber(activity.pointsPool),
+                pointsPool: activityCategory.pointsPool,
                 bands,
               });
 
               return seasonPoints;
-            });
-          }
-        ).pipe(
-          Effect.map((points) => points.flat().filter((p) => p !== undefined))
-        );
+            })
+          ).pipe(
+            // flatten and filter out undefined
+            Effect.map((items) => items.flat().filter((p) => p !== undefined)),
 
-        const seasonPointsAggregated = seasonPoints.reduce<
-          Record<string, BigNumber>
-        >((acc, curr) => {
-          acc[curr.userId] =
-            acc[curr.userId]?.plus(curr.seasonPoints) ??
-            new BigNumber(curr.seasonPoints);
+            // aggregate season points by user
+            Effect.map((items) =>
+              items.reduce<Record<string, BigNumber>>((acc, curr) => {
+                if (!acc[curr.userId]) {
+                  acc[curr.userId] = new BigNumber(0);
+                }
 
-          return acc;
-        }, {});
+                // biome-ignore lint/style/noNonNullAssertion: it is known
+                acc[curr.userId] = acc[curr.userId]!.plus(curr.seasonPoints);
 
-        const seasonPointsMultiplied = Object.entries(
-          seasonPointsAggregated
-        ).map(([userId, seasonPoints]) => {
-          const multiplier =
-            seasonPointMultipliers.find((item) => item.userId === userId)
-              ?.multiplier ?? new BigNumber(0);
-          return {
+                return acc;
+              }, {})
+            ),
+
+            // multiply season points by multiplier
+            Effect.map((items) =>
+              Object.entries(items).map(([userId, seasonPoints]) => {
+                const multiplier =
+                  seasonPointMultipliers[userId]?.[0]?.multiplier ?? "0";
+
+                return {
+                  userId,
+                  seasonId: season.id,
+                  points: seasonPoints.multipliedBy(multiplier),
+                  weekId: input.weekId,
+                };
+              })
+            )
+          );
+
+          // Get all user IDs from the database
+          const allUserIds = yield* getAllUserIds();
+
+          // Extract user IDs that already have season points
+          const existingUserIds = new Set(
+            userSeasonPoints.map((sp) => sp.userId)
+          );
+
+          // Find users that don't have season points
+          const missingUserIds = allUserIds.filter(
+            (userId) => !existingUserIds.has(userId)
+          );
+
+          // Create zero season points for missing users
+          const zeroSeasonPoints = missingUserIds.map((userId) => ({
             userId,
-            seasonPoints: seasonPoints.multipliedBy(multiplier),
-          };
-        });
-
-        yield* addSeasonPointsToUser(
-          seasonPointsMultiplied.map((item) => ({
-            userId: item.userId,
-            seasonId: input.seasonId,
+            seasonId: season.id,
+            points: new BigNumber(0),
             weekId: input.weekId,
-            points: item.seasonPoints,
-          }))
-        );
+          }));
 
-        if (input.endOfWeek) {
-          yield* updateWeekStatus({
-            id: input.weekId,
-            status: "completed",
-          });
-        }
+          // Combine existing season points with zero season points for missing users
+          const completeUserSeasonPoints = [
+            ...zeroSeasonPoints,
+            ...userSeasonPoints,
+          ];
 
-        yield* Effect.log(
-          `season points for week ${input.weekId} successfully applied to users`
-        );
-      });
-    };
-  })
-);
+          yield* Effect.log(
+            `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`
+          );
+
+          yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
+
+          yield* markAsProcessed(input);
+
+          yield* Effect.log("--------------------------------");
+
+          yield* Effect.log(
+            `season points for week ${input.weekId} successfully applied to users`
+          );
+        }),
+      };
+    }),
+  }
+) {}

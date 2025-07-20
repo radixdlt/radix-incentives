@@ -54,10 +54,7 @@ import {
   GetUsersPaginatedLive,
   GetUsersPaginatedService,
 } from "../user/getUsersPaginated";
-import {
-  UpdateWeekStatusLive,
-  UpdateWeekStatusService,
-} from "../week/updateWeekStatus";
+import { UpdateWeekStatusService } from "../week/updateWeekStatus";
 import { UserService } from "../user/user";
 import { AccountBalanceService } from "../account/accountBalance";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
@@ -143,7 +140,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive)
   );
 
-  const updateWeekStatusLive = UpdateWeekStatusLive.pipe(
+  const updateWeekStatusLive = UpdateWeekStatusService.Default.pipe(
     Layer.provide(dbClientLive)
   );
 
@@ -313,11 +310,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const updateWeekStatus = (input: { id: string; status: Week["status"] }) => {
+  const updateWeekStatus = (input: { id: string; processed: boolean }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const updateWeekStatusService = yield* UpdateWeekStatusService;
-        return yield* updateWeekStatusService(input);
+        return yield* updateWeekStatusService.run(input);
       }),
       Layer.mergeAll(dbClientLive, updateWeekStatusLive)
     );
@@ -334,13 +331,13 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(seasonLive)
   );
 
-  const getUserStats = (input: { userId: string }) => {
+  const getUserStats = (input: { userId: string; weekId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const userStatsService = yield* UserService;
         const weekService = yield* WeekService;
 
-        const activeWeek = yield* weekService.getActiveWeek();
+        const activeWeek = yield* weekService.getById(input.weekId);
 
         return yield* userStatsService.getUserStats({
           ...input,

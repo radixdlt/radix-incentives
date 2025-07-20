@@ -54,7 +54,7 @@ describe("GetLsulpValueService", () => {
         const getLsulpValue = yield* GetLsulpValueService;
         const getLedgerState = yield* GetLedgerStateService;
 
-        const state = yield* getLedgerState({
+        const state = yield* getLedgerState.run({
           // timestamp: new Date("2025-04-01T00:00:00.000Z"),
           at_ledger_state: {
             state_version: 286058118,

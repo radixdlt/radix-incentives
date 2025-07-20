@@ -1,4 +1,4 @@
-import { runTransactionStreamLoop } from "api/incentives";
+import { transactionStreamLoopProgram } from "api/incentives";
 import "./server";
 
-await runTransactionStreamLoop();
+await transactionStreamLoopProgram();

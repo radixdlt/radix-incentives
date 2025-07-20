@@ -117,11 +117,6 @@ export const seasonStatusEnum = pgEnum("season_status", [
   "active",
   "completed",
 ]);
-export const weekStatusEnum = pgEnum("week_status", [
-  "upcoming",
-  "active",
-  "completed",
-]);
 export const activityWeekStatusEnum = pgEnum("activity_week_status", [
   "active",
   "inactive",
@@ -131,14 +126,6 @@ export const activityWeekStatusEnum = pgEnum("activity_week_status", [
 export const seasons = createTable("season", {
   id: uuid("id").primaryKey().defaultRandom(),
   name: varchar("name", { length: 255 }).notNull(),
-  startDate: timestamp("start_date", {
-    mode: "date",
-    withTimezone: true,
-  }).notNull(),
-  endDate: timestamp("end_date", {
-    mode: "date",
-    withTimezone: true,
-  }).notNull(),
   status: seasonStatusEnum("status").notNull().default("upcoming"),
 });
 
@@ -160,7 +147,7 @@ export const weeks = createTable("week", {
     mode: "date",
     withTimezone: true,
   }).notNull(),
-  status: weekStatusEnum("status").notNull().default("upcoming"),
+  processed: boolean("processed").notNull().default(false),
 });
 
 export const weeksRelations = relations(weeks, ({ one, many }) => ({
@@ -202,8 +189,7 @@ export const activityWeeks = createTable(
     weekId: uuid("week_id")
       .notNull()
       .references(() => weeks.id, { onDelete: "cascade" }),
-    pointsPool: integer("points_pool"),
-    status: activityWeekStatusEnum("status").notNull().default("inactive"),
+    multiplier: integer("multiplier").notNull().default(1),
   },
   (table) => {
     return {
@@ -222,6 +208,39 @@ export const activityWeeksRelations = relations(activityWeeks, ({ one }) => ({
   }),
   week: one(weeks, { fields: [activityWeeks.weekId], references: [weeks.id] }),
 }));
+
+export const activityCategoryWeeks = createTable(
+  "activity_category_weeks",
+  {
+    activityCategoryId: text("activity_category_id")
+      .notNull()
+      .references(() => activityCategories.id, { onDelete: "cascade" }),
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+    pointsPool: integer("points_pool").notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      name: "activity_category_week_pk",
+      columns: [table.weekId, table.activityCategoryId],
+    }),
+  })
+);
+
+export const activityCategoryWeeksRelations = relations(
+  activityCategoryWeeks,
+  ({ one }) => ({
+    activityCategory: one(activityCategories, {
+      fields: [activityCategoryWeeks.activityCategoryId],
+      references: [activityCategories.id],
+    }),
+    week: one(weeks, {
+      fields: [activityCategoryWeeks.weekId],
+      references: [weeks.id],
+    }),
+  })
+);
 
 // UserActivity Table
 export const events = createTable(
@@ -430,6 +449,12 @@ export const tradingVolume = createTable(
   })
 );
 
+export const config = createTable("config", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  value: jsonb("value").notNull(),
+});
+
+export type Config = InferSelectModel<typeof config>;
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
 export type Session = InferSelectModel<typeof sessions>;
