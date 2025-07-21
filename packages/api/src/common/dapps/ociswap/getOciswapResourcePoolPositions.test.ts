@@ -4,11 +4,11 @@ import {
   GetOciswapResourcePoolPositionsService,
   GetOciswapResourcePoolPositionsLive,
 } from "./getOciswapResourcePoolPositions";
-import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
-import { GetResourcePoolUnitsLive } from "../../resource-pool/getResourcePoolUnits";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
+import { GetResourcePoolUnitsService } from "../../resource-pool/getResourcePoolUnits";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
+import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 
 // Test configuration
 const TEST_ACCOUNT_ADDRESS =
@@ -18,20 +18,20 @@ const TEST_STATE_VERSION = 328823647;
 // Create a test layer that provides all dependencies
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive)
 );
 
-const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
+const getResourcePoolUnitsLive = GetResourcePoolUnitsService.Default.pipe(
   Layer.provide(getFungibleBalanceLive),
   Layer.provide(getEntityDetailsServiceLive)
 );

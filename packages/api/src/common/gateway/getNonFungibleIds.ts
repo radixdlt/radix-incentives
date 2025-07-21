@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { GatewayApiClientService } from "./gatewayApiClient";
 import { GatewayError } from "./errors";
 import type { AtLedgerState } from "./schemas";
@@ -11,42 +11,26 @@ export type GetNonFungibleIdsInput = {
   cursor?: string;
 };
 
-export type GetNonFungibleIdsOutput = {
-  ids: string[];
-};
-
-export class GetNonFungibleIdsService extends Context.Tag(
-  "GetNonFungibleIdsService"
-)<
-  GetNonFungibleIdsService,
-  (
-    input: GetNonFungibleIdsInput
-  ) => Effect.Effect<GetNonFungibleIdsOutput, GatewayError>
->() {}
-
-export const GetNonFungibleIdsLive = Layer.effect(
-  GetNonFungibleIdsService,
-  Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetNonFungibleIdsService extends Effect.Service<GetNonFungibleIdsService>()(
+  "GetNonFungibleIdsService",
+  {
+    effect: Effect.gen(function* () {
+      const gatewayClient = yield* GatewayApiClientService;
+      return Effect.fn(function* (input: GetNonFungibleIdsInput) {
         const makeRequest = (cursor?: string) =>
           Effect.tryPromise({
             try: () =>
-              gatewayClient.gatewayApiClient.state.innerClient.entityNonFungibleIdsPage(
-                {
-                  stateEntityNonFungibleIdsPageRequest: {
-                    resource_address: input.resourceAddress,
-                    vault_address: input.vaultAddress,
-                    address: input.address,
-                    at_ledger_state: input.at_ledger_state,
-                    cursor: cursor,
-                    limit_per_page: 100,
-                  },
-                }
-              ),
-            catch: (error) => new GatewayError(error),
+              gatewayClient.state.innerClient.entityNonFungibleIdsPage({
+                stateEntityNonFungibleIdsPageRequest: {
+                  resource_address: input.resourceAddress,
+                  vault_address: input.vaultAddress,
+                  address: input.address,
+                  at_ledger_state: input.at_ledger_state,
+                  cursor: cursor,
+                  limit_per_page: 100,
+                },
+              }),
+            catch: (error) => new GatewayError({ error }),
           });
 
         const result = yield* makeRequest(input.cursor);
@@ -64,6 +48,6 @@ export const GetNonFungibleIdsLive = Layer.effect(
 
         return { ids, address: input.address };
       });
-    };
-  })
-);
+    }),
+  }
+) {}

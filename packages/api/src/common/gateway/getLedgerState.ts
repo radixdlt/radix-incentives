@@ -13,26 +13,20 @@ export class GetLedgerStateService extends Effect.Service<GetLedgerStateService>
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
-      return {
-        run: Effect.fn(function* (input: GetLedgerStateInput) {
-          const result = yield* Effect.tryPromise({
-            try: () =>
-              gatewayClient.gatewayApiClient.stream.innerClient.streamTransactions(
-                {
-                  streamTransactionsRequest: {
-                    limit_per_page: 1,
-                    at_ledger_state: input.at_ledger_state,
-                  },
-                }
-              ),
-            catch: (error) => new GatewayError(error),
-          });
+      return Effect.fn(function* (input: GetLedgerStateInput) {
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            gatewayClient.stream.innerClient.streamTransactions({
+              streamTransactionsRequest: {
+                limit_per_page: 1,
+                at_ledger_state: input.at_ledger_state,
+              },
+            }),
+          catch: (error) => new GatewayError({ error }),
+        });
 
-          return result.ledger_state;
-        }),
-      };
+        return result.ledger_state;
+      });
     }),
   }
 ) {}
-
-export const GetLedgerStateLive = GetLedgerStateService.Default;

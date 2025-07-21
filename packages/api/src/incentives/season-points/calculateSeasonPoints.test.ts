@@ -20,9 +20,9 @@ import {
   accountActivityPoints,
   seasonPointsMultiplier,
   userSeasonPoints,
-  ActivityCategoryKey,
 } from "db/incentives";
 import postgres from "postgres";
+import { ActivityCategoryId } from "data";
 
 // Import required services
 import { UserActivityPointsService } from "../user/userActivityPoints";
@@ -99,11 +99,11 @@ describe(
           .insert(activityCategories)
           .values([
             {
-              id: ActivityCategoryKey.tradingVolume,
+              id: ActivityCategoryId.tradingVolume,
               name: "Trading Volume",
             },
             {
-              id: ActivityCategoryKey.componentCalls,
+              id: ActivityCategoryId.componentCalls,
               name: "Component Calls",
             },
           ])
@@ -118,17 +118,17 @@ describe(
             {
               id: ACTIVITY_1,
               name: "Test Activity 1",
-              category: ActivityCategoryKey.tradingVolume,
+              category: ActivityCategoryId.tradingVolume,
             },
             {
               id: ACTIVITY_2,
               name: "Test Activity 2",
-              category: ActivityCategoryKey.tradingVolume,
+              category: ActivityCategoryId.tradingVolume,
             },
             {
               id: ACTIVITY_3,
               name: "Test Activity 3",
-              category: ActivityCategoryKey.componentCalls,
+              category: ActivityCategoryId.componentCalls,
             },
           ])
           .onConflictDoNothing()
@@ -140,12 +140,12 @@ describe(
           .insert(activityCategoryWeeks)
           .values([
             {
-              activityCategoryId: ActivityCategoryKey.tradingVolume,
+              activityCategoryId: ActivityCategoryId.tradingVolume,
               weekId: WEEK_ID,
               pointsPool: 10000,
             },
             {
-              activityCategoryId: ActivityCategoryKey.componentCalls,
+              activityCategoryId: ActivityCategoryId.componentCalls,
               weekId: WEEK_ID,
               pointsPool: 5000,
             },
@@ -581,7 +581,7 @@ describe(
               .insert(activityCategories)
               .values([
                 {
-                  id: ActivityCategoryKey.tradingVolume,
+                  id: ActivityCategoryId.tradingVolume,
                   name: "Trading Volume",
                 },
               ])
@@ -593,7 +593,7 @@ describe(
               .insert(activityCategoryWeeks)
               .values([
                 {
-                  activityCategoryId: ActivityCategoryKey.tradingVolume,
+                  activityCategoryId: ActivityCategoryId.tradingVolume,
                   weekId: WEEK_ID,
                   pointsPool: 1000,
                 },
@@ -673,7 +673,7 @@ describe(
                 .insert(activityCategories)
                 .values([
                   {
-                    id: ActivityCategoryKey.tradingVolume,
+                    id: ActivityCategoryId.tradingVolume,
                     name: "Trading Volume",
                   },
                 ])
@@ -688,7 +688,7 @@ describe(
                   {
                     id: ACTIVITY_1,
                     name: "Large Test Activity",
-                    category: ActivityCategoryKey.tradingVolume,
+                    category: ActivityCategoryId.tradingVolume,
                   },
                 ])
                 .onConflictDoNothing()
@@ -700,7 +700,7 @@ describe(
                 .insert(activityCategoryWeeks)
                 .values([
                   {
-                    activityCategoryId: ActivityCategoryKey.tradingVolume,
+                    activityCategoryId: ActivityCategoryId.tradingVolume,
                     weekId: WEEK_ID,
                     pointsPool: 100000, // Large points pool for 24 users
                   },

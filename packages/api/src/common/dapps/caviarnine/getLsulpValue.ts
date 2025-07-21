@@ -1,9 +1,5 @@
-import { Context, Effect, Layer } from "effect";
-import {
-  type InvalidInputError,
-  GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
-import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
+import { Effect } from "effect";
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
 
 import { BigNumber } from "bignumber.js";
 import type {
@@ -11,7 +7,6 @@ import type {
   ProgrammaticScryptoSborValueDecimal,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import { DappConstants } from "data";
-import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
@@ -26,30 +21,12 @@ export class InvalidEntityAddressError {
   constructor(readonly error: unknown) {}
 }
 
-export class GetLsulpValueService extends Context.Tag("GetLsulpValueService")<
-  GetLsulpValueService,
-  (input: { at_ledger_state: AtLedgerState }) => Effect.Effect<
-    {
-      lsulpTotalSupply: BigNumber;
-      dexValuationXrd: BigNumber;
-      lsulpValue: BigNumber;
-    },
-    | LsulpNotFoundError
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError
-    | InvalidEntityAddressError
-  >
->() {}
-
-export const GetLsulpValueLive = Layer.effect(
-  GetLsulpValueService,
-  Effect.gen(function* () {
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetLsulpValueService extends Effect.Service<GetLsulpValueService>()(
+  "GetLsulpValueService",
+  {
+    effect: Effect.gen(function* () {
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
+      return Effect.fn(function* (input: { at_ledger_state: AtLedgerState }) {
         const [lsulpComponentResult, lsulpResourceResult] =
           yield* getFungibleBalanceService({
             addresses: [
@@ -121,6 +98,8 @@ export const GetLsulpValueLive = Layer.effect(
           lsulpValue: lsulpValue.isNaN() ? new BigNumber(0) : lsulpValue,
         };
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetLsulpValueLive = GetLsulpValueService.Default;

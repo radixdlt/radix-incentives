@@ -49,7 +49,7 @@ export class ConfigService extends Effect.Service<ConfigService>()(
       });
 
       const setStartStateVersion = Effect.fn(function* (startTimestamp: Date) {
-        const stateVersionResult = yield* getLedgerStateService.run({
+        const stateVersionResult = yield* getLedgerStateService({
           at_ledger_state: {
             timestamp: startTimestamp,
           },

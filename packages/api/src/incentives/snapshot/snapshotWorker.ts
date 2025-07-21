@@ -1,8 +1,8 @@
-import { Context, Layer, Effect } from "effect";
+import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { and, gt, lte } from "drizzle-orm";
 
-import { SnapshotService, type SnapshotServiceError } from "./snapshot";
+import { SnapshotService } from "./snapshot";
 
 import { z } from "zod";
 import { weeks } from "db/incentives";
@@ -17,23 +17,14 @@ export const snapshotJobSchema = z.object({
 
 export type SnapshotWorkerInput = z.infer<typeof snapshotJobSchema>;
 
-export type SnapshotWorkerError = SnapshotServiceError | DbError;
+export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>()(
+  "SnapshotWorkerService",
+  {
+    effect: Effect.gen(function* () {
+      const snapshotService = yield* SnapshotService;
+      const db = yield* DbClientService;
 
-export class SnapshotWorkerService extends Context.Tag("SnapshotWorkerService")<
-  SnapshotWorkerService,
-  (
-    input: SnapshotWorkerInput
-  ) => Effect.Effect<{ weekId: string } | undefined, SnapshotWorkerError>
->() {}
-
-export const SnapshotWorkerLive = Layer.effect(
-  SnapshotWorkerService,
-  Effect.gen(function* () {
-    const snapshotService = yield* SnapshotService;
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+      return Effect.fn(function* (input: SnapshotWorkerInput) {
         yield* Effect.log("Snapshot started", input);
 
         yield* snapshotService(input);
@@ -63,6 +54,8 @@ export const SnapshotWorkerLive = Layer.effect(
 
         return { weekId: maybeWeek.id };
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const SnapshotWorkerLive = SnapshotWorkerService.Default;

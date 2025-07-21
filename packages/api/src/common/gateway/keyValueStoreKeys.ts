@@ -1,53 +1,35 @@
-import { Context, Effect, Layer } from "effect";
-import {
-  type GatewayApiClientImpl,
-  GatewayApiClientService,
-} from "./gatewayApiClient";
-import type { StateKeyValueStoreKeysResponse } from "@radixdlt/babylon-gateway-api-sdk";
-import { EntityNotFoundError, GatewayError } from "./errors";
+import { Data, Effect } from "effect";
+import { GatewayApiClientService } from "./gatewayApiClient";
+import type { StateKeyValueStoreKeysRequest } from "@radixdlt/babylon-gateway-api-sdk";
+import { GatewayError } from "./errors";
 import type { AtLedgerState } from "./schemas";
 
-type KeyValueStoreKeysParams = Parameters<
-  GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["keyValueStoreKeys"]
->[0]["stateKeyValueStoreKeysRequest"];
+class EntityNotFoundError extends Data.TaggedError("EntityNotFoundError") {}
 
-export class KeyValueStoreKeysService extends Context.Tag(
-  "KeyValueStoreKeysService"
-)<
-  KeyValueStoreKeysService,
-  (
-    input: Omit<KeyValueStoreKeysParams, "at_ledger_state"> & {
-      at_ledger_state: AtLedgerState;
-    }
-  ) => Effect.Effect<
-    StateKeyValueStoreKeysResponse,
-    GatewayError | EntityNotFoundError
-  >
->() {}
+export class KeyValueStoreKeysService extends Effect.Service<KeyValueStoreKeysService>()(
+  "KeyValueStoreKeysService",
+  {
+    effect: Effect.gen(function* () {
+      const gatewayClient = yield* GatewayApiClientService;
 
-export const KeyValueStoreKeysLive = Layer.effect(
-  KeyValueStoreKeysService,
-  Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        const result = yield* Effect.tryPromise({
+      return Effect.fn(function* (
+        input: Omit<StateKeyValueStoreKeysRequest, "at_ledger_state"> & {
+          at_ledger_state: AtLedgerState;
+        }
+      ) {
+        return yield* Effect.tryPromise({
           try: () =>
-            gatewayClient.gatewayApiClient.state.innerClient.keyValueStoreKeys({
+            gatewayClient.state.innerClient.keyValueStoreKeys({
               stateKeyValueStoreKeysRequest: input,
             }),
           catch: (error) => {
             if (error instanceof Error && error.message.includes("404")) {
-              return new EntityNotFoundError(error);
+              return new EntityNotFoundError();
             }
-
-            return new GatewayError(error);
+            return new GatewayError({ error });
           },
         });
-
-        return result;
       });
-    };
-  })
-);
+    }),
+  }
+) {}

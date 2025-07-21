@@ -1,12 +1,8 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
-import {
-  DeriveAccountFromEventService,
-  type DeriveAccountFromEventServiceError,
-} from "./deriveAccountFromEvent";
+import { DeriveAccountFromEventService } from "./deriveAccountFromEvent";
 import { events } from "db/incentives";
 import { inArray } from "drizzle-orm";
-import type { UnknownException } from "effect/Cause";
 import { groupBy } from "effect/Array";
 
 export type EventWorkerInput = {
@@ -20,22 +16,14 @@ export type EventWorkerInput = {
   }) => Promise<void>;
 };
 
-export type EventWorkerError =
-  | DeriveAccountFromEventServiceError
-  | UnknownException;
-
-export class EventWorkerService extends Context.Tag("EventWorkerService")<
-  EventWorkerService,
-  (input: EventWorkerInput) => Effect.Effect<void, EventWorkerError>
->() {}
-
-export const EventWorkerLive = Layer.effect(
-  EventWorkerService,
-  Effect.gen(function* () {
-    const deriveAccountFromEventService = yield* DeriveAccountFromEventService;
-    const db = yield* DbClientService;
-    return (input) =>
-      Effect.gen(function* () {
+export class EventWorkerService extends Effect.Service<EventWorkerService>()(
+  "EventWorkerService",
+  {
+    effect: Effect.gen(function* () {
+      const deriveAccountFromEventService =
+        yield* DeriveAccountFromEventService;
+      const db = yield* DbClientService;
+      return Effect.fn(function* (input: EventWorkerInput) {
         const result = yield* deriveAccountFromEventService(input.items);
 
         const addToSnapshotQueue = (job: {
@@ -84,5 +72,8 @@ export const EventWorkerLive = Layer.effect(
           catch: (error) => new DbError(error),
         });
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const EventWorkerLive = EventWorkerService.Default;

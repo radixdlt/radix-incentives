@@ -1,22 +1,16 @@
-import { Context, Effect, Layer } from "effect";
-
-import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
+import { Effect } from "effect";
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-  type InvalidInputError,
 } from "../../gateway/getFungibleBalance";
 
-import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 import { DappConstants } from "data";
-import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 import {
   type GetResourcePoolOutput,
   GetResourcePoolUnitsService,
-  type GetResourcePoolError,
   InvalidPoolResourceError,
 } from "../../resource-pool/getResourcePoolUnits";
 
@@ -27,40 +21,19 @@ type HyperstakePosition = {
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
-export type GetHyperstakePositionsOutput = {
-  address: string;
-  items: HyperstakePosition[];
-}[];
-
-export type GetHyperstakePositionsError =
-  | GetEntityDetailsError
-  | EntityNotFoundError
-  | InvalidInputError
-  | GatewayError
-  | InvalidComponentStateError
-  | GetResourcePoolError;
-
-export class GetHyperstakePositionsService extends Context.Tag(
-  "GetHyperstakePositionsService"
-)<
-  GetHyperstakePositionsService,
-  (input: {
-    accountAddresses: string[];
-    at_ledger_state: AtLedgerState;
-    fungibleBalance?: GetFungibleBalanceOutput;
-  }) => Effect.Effect<GetHyperstakePositionsOutput, GetHyperstakePositionsError>
->() {}
-
 type AccountAddress = string;
 
-export const GetHyperstakePositionsLive = Layer.effect(
-  GetHyperstakePositionsService,
-  Effect.gen(function* () {
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
-    const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakePositionsService>()(
+  "GetHyperstakePositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
+      const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
+      return Effect.fn(function* (input: {
+        accountAddresses: string[];
+        at_ledger_state: AtLedgerState;
+        fungibleBalance?: GetFungibleBalanceOutput;
+      }) {
         const accountBalancesMap = new Map<
           AccountAddress,
           HyperstakePosition[]
@@ -133,6 +106,8 @@ export const GetHyperstakePositionsLive = Layer.effect(
           })
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetHyperstakePositionsLive = GetHyperstakePositionsService.Default;

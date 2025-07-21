@@ -31,11 +31,13 @@
     "@trpc/server": "catalog:",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",
+    "data": "workspace:*",
     "date-fns": "catalog:",
     "db": "workspace:*",
     "decimal.js": "^10.5.0",
     "drizzle-orm": "catalog:",
     "effect": "catalog:",
+    "fetch-retry": "^6.0.0",
     "ioredis": "catalog:",
     "jose": "catalog:",
     "make-fetch-happen": "catalog:",
@@ -46,8 +48,7 @@
     "radix-web3.js": "catalog:",
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:",
-    "data": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:",

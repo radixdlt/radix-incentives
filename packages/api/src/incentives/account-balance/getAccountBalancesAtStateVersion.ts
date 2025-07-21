@@ -1,58 +1,24 @@
-import { Context, Effect, Layer } from "effect";
-import {
-  GetFungibleBalanceService,
-  type InvalidInputError,
-} from "../../common/gateway/getFungibleBalance";
+import { Effect } from "effect";
+import { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
 
 import { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
 import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
 
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 import { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
-import type {
-  GetAllValidatorsError,
-  Validator,
-} from "../../common/gateway/getAllValidators";
-import type {
-  EntityNotFoundError,
-  GatewayError,
-} from "../../common/gateway/errors";
+import type { Validator } from "../../common/gateway/getAllValidators";
+import { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
+import { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
 import {
-  GetLsulpValueService,
-  type InvalidEntityAddressError,
-  type LsulpNotFoundError,
-} from "../../common/dapps/caviarnine/getLsulpValue";
-import {
-  ConvertLsuToXrdService,
-  type EntityDetailsNotFoundError,
-  type InvalidAmountError,
-  type InvalidNativeResourceKindError,
-  type InvalidResourceError,
-} from "../../common/staking/convertLsuToXrd";
-import type { GetEntityDetailsError } from "../../common/gateway/getEntityDetails";
-import {
-  type FailedToParseLendingPoolSchemaError,
-  type FailedToParseCDPDataError,
   type GetWeftFinancePositionsOutput,
-  type ValidatorNotFoundForClaimNftError,
   GetWeftFinancePositionsService,
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import type { FailedToParseUnstakingReceiptError } from "../../common/staking/unstakingReceiptProcessor";
-import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
 import { DappConstants, Assets } from "data";
 import {
   type CollaterizedDebtPosition,
   GetRootFinancePositionsService,
-  type InvalidRootReceiptItemError,
-  type ParseSborError,
-  type FailedToParseLendingPoolStateError,
-  type FailedToParsePoolStatesKeyError,
-  type MissingConversionRatioError,
 } from "../../common/dapps/rootFinance/getRootFinancePositions";
-import {
-  type InvalidStateInputError,
-  validateAtLedgerStateInput,
-} from "../../common/gateway/schemas";
+import { validateAtLedgerStateInput } from "../../common/gateway/schemas";
 import type { AtLedgerState } from "../../common/gateway/schemas";
 import {
   GetShapeLiquidityAssetsService,
@@ -64,39 +30,24 @@ import {
   type OciswapLiquidityAsset,
 } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
 
-import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
-import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
-import type { FailedToParseOciswapComponentStateError } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
-import type { FailedToParseOciswapLiquidityPositionError } from "../../common/dapps/ociswap/getOciswapLiquidityClaims";
 import {
   type GetDefiPlazaPositionsOutput,
   GetDefiPlazaPositionsService,
-  type GetDefiPlazaPositionsError,
 } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
-import {
-  type GetHyperstakePositionsOutput,
-  GetHyperstakePositionsService,
-  type GetHyperstakePositionsError,
-} from "../../common/dapps/caviarnine/getHyperstakePositions";
+import { GetHyperstakePositionsService } from "../../common/dapps/caviarnine/getHyperstakePositions";
 import {
   type GetSurgeLiquidityPositionsOutput,
   GetSurgeLiquidityPositionsService,
-  type FailedToParseMarginPoolSchemaError,
-  type SlpNotFoundError,
 } from "../../common/dapps/surge/getSurgeLiquidityPositions";
 import {
   GetOciswapResourcePoolPositionsService,
   type OciswapResourcePoolLiquidityAsset,
-  type InvalidResourcePoolError,
 } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
 import {
   type CaviarnineSimplePoolLiquidityAsset,
   GetCaviarnineResourcePoolPositionsService,
 } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
-import type {
-  LedgerState,
-  ProgrammaticScryptoSborValue,
-} from "@radixdlt/babylon-gateway-api-sdk";
+import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 import BigNumber from "bignumber.js";
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
@@ -151,7 +102,9 @@ type OciswapPosition = {
 
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
 
-type HyperstakePosition = GetHyperstakePositionsOutput[number];
+export type HyperstakePosition = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof GetHyperstakePositionsService)["Service"]>>
+>[number];
 
 type SurgePosition = GetSurgeLiquidityPositionsOutput[number];
 
@@ -172,93 +125,47 @@ export type AccountBalance = {
   convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
 };
 
-export type GetAccountBalancesAtStateVersionServiceError =
-  | GetAllValidatorsError
-  | GetEntityDetailsError
-  | LsulpNotFoundError
-  | InvalidEntityAddressError
-  | InvalidResourceError
-  | InvalidNativeResourceKindError
-  | InvalidAmountError
-  | EntityDetailsNotFoundError
-  | FailedToParseLendingPoolSchemaError
-  | FailedToParseCDPDataError
-  | FailedToParseUnstakingReceiptError
-  | ValidatorNotFoundForClaimNftError
-  | ParseSborError
-  | InvalidRootReceiptItemError
-  | FailedToParseLendingPoolStateError
-  | FailedToParsePoolStatesKeyError
-  | MissingConversionRatioError
-  | InvalidStateInputError
-  | FailedToParseComponentStateError
-  | GatewayError
-  | EntityNotFoundError
-  | InvalidInputError
-  | InvalidComponentStateError
-  | FailedToParseLiquidityClaimsError
-  | FailedToParseOciswapComponentStateError
-  | FailedToParseOciswapLiquidityPositionError
-  | GetDefiPlazaPositionsError
-  | GetHyperstakePositionsError
-  | FailedToParseMarginPoolSchemaError
-  | SlpNotFoundError
-  | InvalidResourcePoolError;
+export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetAccountBalancesAtStateVersionService>()(
+  "GetAccountBalancesAtStateVersionService",
+  {
+    effect: Effect.gen(function* () {
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
+      const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
+      const getLsulpService = yield* GetLsulpService;
+      const getUserStakingPositionsService =
+        yield* GetUserStakingPositionsService;
+      const getLsulpValueService = yield* GetLsulpValueService;
+      const convertLsuToXrdService = yield* ConvertLsuToXrdService;
+      const getWeftFinancePositionsService =
+        yield* GetWeftFinancePositionsService;
+      const getRootFinancePositionsService =
+        yield* GetRootFinancePositionsService;
+      const getLedgerStateService = yield* GetLedgerStateService;
+      const getShapeLiquidityAssetsService =
+        yield* GetShapeLiquidityAssetsService;
+      const getOciswapLiquidityAssetsService =
+        yield* GetOciswapLiquidityAssetsService;
+      const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
+      const getHyperstakePositionsService =
+        yield* GetHyperstakePositionsService;
+      const getSurgeLiquidityPositionsService =
+        yield* GetSurgeLiquidityPositionsService;
+      const getOciswapResourcePoolPositionsService =
+        yield* GetOciswapResourcePoolPositionsService;
+      const getCaviarnineResourcePoolPositionsService =
+        yield* GetCaviarnineResourcePoolPositionsService;
 
-export class GetAccountBalancesAtStateVersionService extends Context.Tag(
-  "GetAccountBalancesAtStateVersionService"
-)<
-  GetAccountBalancesAtStateVersionService,
-  (input: {
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-    validators: Validator[];
-  }) => Effect.Effect<
-    {
-      items: AccountBalance[];
-      ledgerState: LedgerState;
-    },
-    GetAccountBalancesAtStateVersionServiceError
-  >
->() {}
-
-export const GetAccountBalancesAtStateVersionLive = Layer.effect(
-  GetAccountBalancesAtStateVersionService,
-  Effect.gen(function* () {
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
-    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
-    const getLsulpService = yield* GetLsulpService;
-    const getUserStakingPositionsService =
-      yield* GetUserStakingPositionsService;
-    const getLsulpValueService = yield* GetLsulpValueService;
-    const convertLsuToXrdService = yield* ConvertLsuToXrdService;
-    const getWeftFinancePositionsService =
-      yield* GetWeftFinancePositionsService;
-    const getRootFinancePositionsService =
-      yield* GetRootFinancePositionsService;
-    const getLedgerStateService = yield* GetLedgerStateService;
-    const getShapeLiquidityAssetsService =
-      yield* GetShapeLiquidityAssetsService;
-    const getOciswapLiquidityAssetsService =
-      yield* GetOciswapLiquidityAssetsService;
-    const getDefiPlazaPositionsService = yield* GetDefiPlazaPositionsService;
-    const getHyperstakePositionsService = yield* GetHyperstakePositionsService;
-    const getSurgeLiquidityPositionsService =
-      yield* GetSurgeLiquidityPositionsService;
-    const getOciswapResourcePoolPositionsService =
-      yield* GetOciswapResourcePoolPositionsService;
-    const getCaviarnineResourcePoolPositionsService =
-      yield* GetCaviarnineResourcePoolPositionsService;
-    return (input) =>
-      Effect.gen(function* () {
+      return Effect.fn(function* (input: {
+        addresses: string[];
+        at_ledger_state: AtLedgerState;
+        validators: Validator[];
+      }) {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
 
         // convert timestamp to state version
-        const ledgerState = yield* getLedgerStateService
-          .run({
-            at_ledger_state: input.at_ledger_state,
-          })
-          .pipe(Effect.withSpan("getLedgerStateService"));
+        const ledgerState = yield* getLedgerStateService({
+          at_ledger_state: input.at_ledger_state,
+        }).pipe(Effect.withSpan("getLedgerStateService"));
 
         const state_version = ledgerState.state_version;
 
@@ -719,5 +626,9 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
 
         return { items: accountBalances, ledgerState };
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const GetAccountBalancesAtStateVersionLive =
+  GetAccountBalancesAtStateVersionService.Default;

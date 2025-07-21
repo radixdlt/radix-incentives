@@ -1,9 +1,6 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import type BigNumber from "bignumber.js";
-import {
-  type GetEntityDetailsError,
-  GetEntityDetailsService,
-} from "../gateway/getEntityDetails";
+import { GetEntityDetailsService } from "../gateway/getEntityDetails";
 import type { AtLedgerState } from "../gateway/schemas";
 
 export class InvalidResourceError {
@@ -25,34 +22,15 @@ export class EntityDetailsNotFoundError {
   readonly _tag = "EntityDetailsNotFoundError";
 }
 
-export class ConvertLsuToXrdService extends Context.Tag(
-  "ConvertLsuToXrdService"
-)<
-  ConvertLsuToXrdService,
-  (input: {
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<
-    {
-      validatorAddress: string;
-      lsuResourceAddress: string;
-      converter: (amount: BigNumber) => BigNumber;
-    }[],
-    | InvalidResourceError
-    | InvalidNativeResourceKindError
-    | InvalidAmountError
-    | GetEntityDetailsError
-    | EntityDetailsNotFoundError
-  >
->() {}
-
-export const ConvertLsuToXrdLive = Layer.effect(
-  ConvertLsuToXrdService,
-  Effect.gen(function* () {
-    const getEntityDetails = yield* GetEntityDetailsService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdService>()(
+  "ConvertLsuToXrdService",
+  {
+    effect: Effect.gen(function* () {
+      const getEntityDetails = yield* GetEntityDetailsService;
+      return Effect.fn(function* (input: {
+        addresses: string[];
+        at_ledger_state: AtLedgerState;
+      }) {
         const entityDetailsResponse = yield* getEntityDetails(
           input.addresses,
           {
@@ -108,6 +86,8 @@ export const ConvertLsuToXrdLive = Layer.effect(
           })
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const ConvertLsuToXrdLive = ConvertLsuToXrdService.Default;

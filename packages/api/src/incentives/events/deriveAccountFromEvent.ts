@@ -1,26 +1,13 @@
-import { Effect, Layer } from "effect";
-import { Context } from "effect";
-import type {
-  EventQueueClientInput,
-  EventQueueClientServiceError,
-} from "./eventQueueClient";
+import { Effect } from "effect";
+import type { EventQueueClientInput } from "./eventQueueClient";
 import { GetEventsFromDbService } from "./queries/getEventsFromDb";
-import type { DbError } from "../db/dbClient";
-import type { GatewayError } from "../../common/gateway/errors";
-import {
-  GetAddressByNonFungibleService,
-  type GetAddressByNonFungibleServiceError,
-} from "../../common/gateway/getAddressByNonFungible";
+import { GetAddressByNonFungibleService } from "../../common/gateway/getAddressByNonFungible";
 import { GetAccountsIntersectionService } from "../account/getAccountsIntersection";
 import type { CommonEmittableEvents } from "./event-matchers/commonEventMatcher";
 import type { WeftFinanceEmittableEvents } from "./event-matchers/weftFinanceEventMatcher";
 import type { RootFinanceEmittableEvents } from "./event-matchers/rootFinanceEventMatcher";
 import { WeftFinanceConstants, RootFinanceConstants } from "data";
 import type { AtLedgerState } from "../../common";
-import type {
-  InvalidResourceAddressError,
-  PriceServiceApiError,
-} from "../token-price/getUsdValue";
 
 export class InvalidEventError {
   _tag = "InvalidEventError";
@@ -29,40 +16,16 @@ export class InvalidEventError {
 
 export type DeriveAccountFromEventInput = EventQueueClientInput;
 
-export type DeriveAccountFromEventServiceError =
-  | EventQueueClientServiceError
-  | DbError
-  | GatewayError
-  | GetAddressByNonFungibleServiceError
-  | InvalidEventError
-  | InvalidResourceAddressError
-  | PriceServiceApiError;
-
-export class DeriveAccountFromEventService extends Context.Tag(
-  "DeriveAccountFromEventService"
-)<
-  DeriveAccountFromEventService,
-  (input: DeriveAccountFromEventInput) => Effect.Effect<
-    {
-      address?: string;
-      timestamp: string;
-      transactionId: string;
-    }[],
-    DeriveAccountFromEventServiceError
-  >
->() {}
-
-export const DeriveAccountFromEventLive = Layer.effect(
-  DeriveAccountFromEventService,
-  Effect.gen(function* () {
-    const getEventsFromDbService = yield* GetEventsFromDbService;
-    const getAddressByNonFungibleService =
-      yield* GetAddressByNonFungibleService;
-    const getAccountsIntersectionService =
-      yield* GetAccountsIntersectionService;
-
-    return (input) =>
-      Effect.gen(function* () {
+export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountFromEventService>()(
+  "DeriveAccountFromEventService",
+  {
+    effect: Effect.gen(function* () {
+      const getEventsFromDbService = yield* GetEventsFromDbService;
+      const getAddressByNonFungibleService =
+        yield* GetAddressByNonFungibleService;
+      const getAccountsIntersectionService =
+        yield* GetAccountsIntersectionService;
+      return Effect.fn(function* (input: DeriveAccountFromEventInput) {
         const events = yield* getEventsFromDbService(input);
 
         const accountAddresses = yield* Effect.forEach(events, (event) => {
@@ -230,5 +193,8 @@ export const DeriveAccountFromEventLive = Layer.effect(
 
         return accountAddresses;
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const DeriveAccountFromEventLive = DeriveAccountFromEventService.Default;

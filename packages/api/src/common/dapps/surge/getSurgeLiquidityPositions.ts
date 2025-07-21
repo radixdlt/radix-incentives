@@ -57,7 +57,7 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
 
               // Get margin pool component state
               const [marginPoolComponentState] =
-                yield* getComponentStateService({
+                yield* getComponentStateService.run({
                   addresses: [SurgeConstants.marginPool.componentAddress],
                   schema: MarginPool,
                   at_ledger_state: input.at_ledger_state,
