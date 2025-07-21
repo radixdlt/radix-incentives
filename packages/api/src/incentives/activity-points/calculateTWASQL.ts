@@ -60,7 +60,7 @@ export const CalculateTWASQLLive = Layer.effect(
                 CROSS JOIN LATERAL jsonb_array_elements(ab.data) AS activity_item
                 WHERE ab.timestamp >= ${input.startDate.toISOString()}
                   AND ab.timestamp <= ${input.endDate.toISOString()}
-                  AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}])
+                  AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}]::text[])
                   AND ab.data IS NOT NULL
                   AND jsonb_typeof(ab.data) = 'array'
                   AND ${input.filterType === "exclude_hold" 
