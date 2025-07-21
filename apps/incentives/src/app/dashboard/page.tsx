@@ -1,21 +1,18 @@
-'use client';
+"use client";
 
-import { MoveUpRight, Award, Zap, Wallet, Clock } from 'lucide-react';
-import {
-  MetricCard,
-  ActivityBreakdown,
-  AccountBalances,
-} from '~/components/dashboard';
-import { WeekSelector } from '~/components/dashboard/WeekSelector';
-import { api } from '~/trpc/react';
-import { EmptyState } from '~/components/ui/empty-state';
-import { usePersona } from '~/lib/hooks/usePersona';
-import { useDappToolkit } from '~/lib/hooks/useRdt';
-import { useState, useEffect } from 'react';
-import { getNextUpdateTime } from '~/lib/utils';
+import { MoveUpRight, Award, Zap, Wallet, Clock } from "lucide-react";
+import { MetricCard, AccountBalances } from "~/components/dashboard";
+import { CategoryBreakdown } from "./components/category-breakdown";
+import { WeekSelector } from "~/components/dashboard/WeekSelector";
+import { api } from "~/trpc/react";
+import { EmptyState } from "~/components/ui/empty-state";
+import { usePersona } from "~/lib/hooks/usePersona";
+import { useDappToolkit } from "~/lib/hooks/useRdt";
+import { useState, useEffect } from "react";
+import { getNextUpdateTime } from "~/lib/utils";
 
 const NextUpdateNotification = () => {
-  const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
+  const [timeUntilUpdate, setTimeUntilUpdate] = useState("");
 
   useEffect(() => {
     setTimeUntilUpdate(getNextUpdateTime());
@@ -32,7 +29,7 @@ const NextUpdateNotification = () => {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Clock className="h-4 w-4" />
         <span>
-          Points calculations update every 2 hours. Next update in{' '}
+          Points calculations update every 2 hours. Next update in{" "}
           <span className="font-semibold text-foreground">
             {timeUntilUpdate}
           </span>
@@ -63,7 +60,7 @@ export default function DashboardPage() {
       // Sort weeks by start date descending and select the most recent
       const sortedWeeks = [...weeks.data].sort(
         (a, b) =>
-          new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
       );
       if (sortedWeeks[0]) {
         setSelectedWeek(sortedWeeks[0].id);
@@ -72,13 +69,13 @@ export default function DashboardPage() {
   }, [weeks.data, selectedWeek]);
 
   const userStats = api.user.getUserStats.useQuery(
-    { weekId: selectedWeek ?? '' },
+    { weekId: selectedWeek ?? "" },
     {
       refetchOnMount: true,
       enabled:
         accounts.isSuccess && accounts.data?.length > 0 && !!selectedWeek,
       retry: false,
-    },
+    }
   );
 
   const accountBalances = api.account.getLatestAccountBalances.useQuery(
@@ -87,7 +84,7 @@ export default function DashboardPage() {
       refetchOnMount: true,
       enabled: accounts.isSuccess && accounts.data?.length > 0,
       retry: false,
-    },
+    }
   );
 
   if (accounts.isLoading || weeks.isLoading) {
@@ -119,22 +116,14 @@ export default function DashboardPage() {
     );
   }
 
-  const latestWeekActivities =
-    userStats.data?.activityPoints?.slice(-1)[0]?.activities ?? [];
-  const latestWeeklyPoints = latestWeekActivities.reduce(
-    (acc, activity) => acc + activity.points,
-    0,
-  );
+  // Get total points for the selected week directly
+  const latestWeeklyPoints = userStats.data?.activityPoints?.totalPoints ?? 0;
 
-  const totalSeasonPoints = userStats.data?.seasonPoints ?? 0;
-
-  const activityBreakdownData = latestWeekActivities
-    .map((activity) => ({
-      name: activity.activityId, // TODO: Map activityId to a display name
-      points: activity.points,
-      percentage: 0,
-    }))
-    .sort((a, b) => b.points - a.points);
+  // Check if the selected week is completed
+  const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
+  const isWeekCompleted = selectedWeekData
+    ? new Date(selectedWeekData.endDate) < new Date()
+    : false;
 
   return (
     <div className="space-y-6">
@@ -148,47 +137,33 @@ export default function DashboardPage() {
         />
       )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
         <MetricCard
-          title="Estimated Current Week"
+          title={
+            isWeekCompleted
+              ? "Activity Points Earned"
+              : "Activity Points Earned So Far"
+          }
           value={latestWeeklyPoints.toLocaleString()}
           icon={MoveUpRight}
-          description="Activity Points earned this week"
-          iconColor="text-green-500"
-        />
-
-        <MetricCard
-          title="Estimated Current Season"
-          value={Number(userStats.data?.seasonPoints.points).toLocaleString(
-            undefined,
-            {
-              maximumFractionDigits: 2,
-            },
-          )}
-          icon={MoveUpRight}
-          description="Points earned this season"
+          description={
+            isWeekCompleted
+              ? "Activity Points earned this week"
+              : "Activity Points earned so far this week"
+          }
           iconColor="text-green-500"
         />
 
         <MetricCard
           title="Multiplier"
-          value={userStats.data?.multiplier?.value ?? '0'}
+          value={userStats.data?.multiplier?.value ?? "0"}
           icon={Zap}
           description="Current points multiplier"
           iconColor="text-amber-500"
         />
-
-        <MetricCard
-          title="Weekly Ranking"
-          subtitle="Global"
-          value={userStats.data?.seasonPoints.rank.toLocaleString() ?? 'n/a'}
-          icon={Award}
-          description="Global leaderboard position"
-          iconColor="text-blue-500"
-        />
-
-        <ActivityBreakdown activities={activityBreakdownData} />
       </div>
+
+      {selectedWeek && <CategoryBreakdown weekId={selectedWeek} />}
 
       <AccountBalances
         balances={accountBalances.data || []}

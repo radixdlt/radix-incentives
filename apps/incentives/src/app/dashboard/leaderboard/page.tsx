@@ -1,14 +1,24 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { api } from "~/trpc/react";
 import { SeasonLeaderboard } from "./components/season-leaderboard";
-import { ActivityLeaderboard } from "./components/activity-leaderboard";
+import { CategoryLeaderboard } from "./components/category-leaderboard";
 
-type TabType = "activity" | "season";
+type TabType = "category" | "season";
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>("season");
+  const searchParams = useSearchParams();
+
+  // Switch to activity points tab if coming from dashboard with category parameter
+  useEffect(() => {
+    const categoryParam = searchParams.get("category");
+    if (categoryParam) {
+      setActiveTab("category");
+    }
+  }, [searchParams]);
 
   return (
     <div className="space-y-6">
@@ -31,9 +41,9 @@ export default function LeaderboardPage() {
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("activity")}
+          onClick={() => setActiveTab("category")}
           className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
-            activeTab === "activity"
+            activeTab === "category"
               ? "bg-background text-foreground shadow-sm"
               : "text-muted-foreground hover:text-foreground"
           }`}
@@ -45,7 +55,7 @@ export default function LeaderboardPage() {
       {/* Tab Content */}
       <div className="mt-6">
         {activeTab === "season" && <SeasonLeaderboard />}
-        {activeTab === "activity" && <ActivityLeaderboard />}
+        {activeTab === "category" && <CategoryLeaderboard />}
       </div>
     </div>
   );

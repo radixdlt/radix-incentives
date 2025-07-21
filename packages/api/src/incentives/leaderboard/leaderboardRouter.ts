@@ -53,30 +53,6 @@ export const leaderboardRouter = createTRPCRouter({
       });
     }),
 
-  getActivityLeaderboard: publicProcedure
-    .input(
-      z.object({
-        activityId: z.string(),
-        weekId: z.string().uuid(),
-      })
-    )
-    .query(async ({ ctx, input }) => {
-      const userId = await getUserId(ctx);
-      
-      const result = await ctx.dependencyLayer.getActivityLeaderboard({
-        activityId: input.activityId,
-        weekId: input.weekId,
-        userId,
-      });
-
-      return Exit.match(result, {
-        onSuccess: (value) => value,
-        onFailure: (error) => {
-          console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-        },
-      });
-    }),
 
   getAvailableSeasons: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getAvailableSeasons();
@@ -121,4 +97,42 @@ export const leaderboardRouter = createTRPCRouter({
       },
     });
   }),
+
+  getActivityCategoryLeaderboard: publicProcedure
+    .input(
+      z.object({
+        categoryId: z.string(),
+        weekId: z.string().uuid(),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const userId = await getUserId(ctx);
+      
+      const result = await ctx.dependencyLayer.getActivityCategoryLeaderboard({
+        categoryId: input.categoryId,
+        weekId: input.weekId,
+        userId,
+      });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
+      });
+    }),
+
+  getAvailableCategories: publicProcedure.query(async ({ ctx }) => {
+    const result = await ctx.dependencyLayer.getAvailableCategories();
+
+    return Exit.match(result, {
+      onSuccess: (value) => value,
+      onFailure: (error) => {
+        console.error(error);
+        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+      },
+    });
+  }),
+
 });

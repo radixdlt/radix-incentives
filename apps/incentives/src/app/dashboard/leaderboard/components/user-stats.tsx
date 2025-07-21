@@ -1,3 +1,5 @@
+import { StackedProgressBar } from "~/components/ui/stacked-progress-bar";
+
 interface UserStatsProps {
   stats: {
     rank: number;
@@ -6,6 +8,11 @@ interface UserStatsProps {
     accountContributions?: Array<{
       accountAddress: string;
       accountLabel: string;
+      points: string;
+    }>;
+    activityBreakdown?: Array<{
+      activityId: string;
+      activityName: string;
       points: string;
     }>;
   } | null;
@@ -49,10 +56,10 @@ export function UserStats({
 
   // If no stats, show appropriate message based on connection status
   if (!stats) {
-    const title = isUserConnected 
-      ? "No Points Yet" 
+    const title = isUserConnected
+      ? "No Points Yet"
       : "Not Currently Participating";
-    
+
     const description = isUserConnected
       ? `You haven't earned any ${pointsLabel} in this category yet. Start participating to see your stats here!`
       : `Connect your wallet and start earning ${pointsLabel} to see your performance stats here.`;
@@ -61,9 +68,7 @@ export function UserStats({
       <div className="space-y-6">
         <div className="text-center p-6 rounded-lg border bg-card">
           <div className="text-lg font-medium mb-2">{title}</div>
-          <p className="text-sm text-muted-foreground mb-4">
-            {description}
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">{description}</p>
           <div className="text-xs text-muted-foreground">
             Total participants: {globalStats.totalUsers.toLocaleString()}
           </div>
@@ -112,14 +117,18 @@ export function UserStats({
           <div className="text-lg sm:text-2xl font-bold text-primary">
             #{stats.rank} of {globalStats.totalUsers.toLocaleString()}
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground">Ranking</div>
+          <div className="text-xs sm:text-sm text-muted-foreground">
+            Ranking
+          </div>
         </div>
 
         <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
           <div className="text-lg sm:text-2xl font-bold text-green-600">
             {stats.percentile}%
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground">Percentile</div>
+          <div className="text-xs sm:text-sm text-muted-foreground">
+            Percentile
+          </div>
         </div>
       </div>
 
@@ -132,7 +141,9 @@ export function UserStats({
               {formatPoints(stats.totalPoints)}
             </div>
             <div className="text-xs sm:text-sm text-muted-foreground">vs</div>
-            <div className="text-base sm:text-lg">{formatPoints(globalStats.average)}</div>
+            <div className="text-base sm:text-lg">
+              {formatPoints(globalStats.average)}
+            </div>
           </div>
           <div className="text-xs sm:text-sm text-muted-foreground mt-1">
             {Number.parseFloat(stats.totalPoints) >
@@ -152,7 +163,9 @@ export function UserStats({
               {formatPoints(stats.totalPoints)}
             </div>
             <div className="text-xs sm:text-sm text-muted-foreground">vs</div>
-            <div className="text-base sm:text-lg">{formatPoints(globalStats.median)}</div>
+            <div className="text-base sm:text-lg">
+              {formatPoints(globalStats.median)}
+            </div>
           </div>
           <div className="text-xs sm:text-sm text-muted-foreground mt-1">
             {Number.parseFloat(stats.totalPoints) >
@@ -166,13 +179,33 @@ export function UserStats({
         </div>
 
         <div className="p-3 sm:p-4 rounded-lg border bg-card sm:col-span-2 lg:col-span-1">
-          <h4 className="font-medium mb-2 text-sm sm:text-base">Participants</h4>
+          <h4 className="font-medium mb-2 text-sm sm:text-base">
+            Participants
+          </h4>
           <div className="text-base sm:text-lg font-semibold">
             {globalStats.totalUsers.toLocaleString()}
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1">Total users</div>
+          <div className="text-xs sm:text-sm text-muted-foreground mt-1">
+            Total users
+          </div>
         </div>
       </div>
+
+      {/* Sub-Activities Breakdown (for category leaderboard) */}
+      {stats?.activityBreakdown && stats.activityBreakdown.length > 0 && (
+        <div className="space-y-4">
+          <StackedProgressBar
+            items={stats.activityBreakdown.map((activity) => ({
+              id: activity.activityId,
+              name: activity.activityName || activity.activityId,
+              value: Number.parseFloat(activity.points),
+            }))}
+            title="Your Sub-Activities"
+            formatValue={(value) => formatPoints(value.toString())}
+            valueSuffix=" AP"
+          />
+        </div>
+      )}
 
       {/* Account Contributions (for activity leaderboard) */}
       {stats?.accountContributions && stats.accountContributions.length > 0 && (

@@ -403,21 +403,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getActivityLeaderboard = (input: {
-    activityId: string;
-    weekId: string;
-    userId?: string;
-  }) => {
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const leaderboardService = yield* LeaderboardService;
-        return yield* leaderboardService.getActivityLeaderboard(input);
-      }),
-      leaderboardLive
-    );
-
-    return Effect.runPromiseExit(program);
-  };
 
   const getAvailableSeasons = () => {
     const program = Effect.provide(
@@ -450,6 +435,49 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         return yield* leaderboardService.getAvailableActivities();
       }),
       leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getActivityCategoryLeaderboard = (input: {
+    categoryId: string;
+    weekId: string;
+    userId?: string;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getActivityCategoryLeaderboard(input);
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getAvailableCategories = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.getAvailableCategories();
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getUserCategoryBreakdown = (input: {
+    weekId: string;
+    userId: string;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const userService = yield* UserService;
+        return yield* userService.getUserCategoryBreakdown(input);
+      }),
+      userLive
     );
 
     return Effect.runPromiseExit(program);
@@ -527,10 +555,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getUserStats,
     getLatestAccountBalances,
     getSeasonLeaderboard,
-    getActivityLeaderboard,
+    getActivityCategoryLeaderboard,
+    getUserCategoryBreakdown,
     getAvailableSeasons,
     getAvailableWeeks,
     getAvailableActivities,
+    getAvailableCategories,
     getActivityData,
     updateActivity,
     getDapps,

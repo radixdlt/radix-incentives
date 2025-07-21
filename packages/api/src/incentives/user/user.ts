@@ -5,57 +5,15 @@ import {
   accounts,
   userSeasonPoints,
   seasonPointsMultiplier,
+  activities,
+  activityCategories,
 } from "db/incentives";
-import { eq, sql, and } from "drizzle-orm";
-import { groupBy } from "effect/Array";
-import BigNumber from "bignumber.js";
+import { eq, sql, and, sum } from "drizzle-orm";
 
 export class UserService extends Effect.Service<UserService>()("UserService", {
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
 
-    const getActivityPointsByUserId = Effect.fn(function* (input: {
-      userId: string;
-      weekId: string;
-    }) {
-      const result = yield* Effect.tryPromise({
-        try: () =>
-          db
-            .select({
-              accountAddress: accounts.address,
-              activityId: accountActivityPoints.activityId,
-              activityPoints: accountActivityPoints.activityPoints,
-              weekId: accountActivityPoints.weekId,
-            })
-            .from(accounts)
-            .where(eq(accounts.userId, input.userId))
-            .innerJoin(
-              accountActivityPoints,
-              eq(accountActivityPoints.accountAddress, accounts.address)
-            ),
-        catch: (error) => new DbError(error),
-      });
-
-      const groupedByWeek = groupBy(result, (point) => point.weekId);
-
-      return Object.entries(groupedByWeek).map(([weekId, points]) => {
-        const groupedByActivity = groupBy(points, (point) => point.activityId);
-        return {
-          weekId,
-          activities: Object.entries(groupedByActivity).map(
-            ([activityId, points]) => ({
-              activityId,
-              points: points
-                .reduce(
-                  (sum, point) => sum.plus(point.activityPoints),
-                  new BigNumber(0)
-                )
-                .toNumber(),
-            })
-          ),
-        };
-      });
-    });
 
     const getMultiplierByUserId = Effect.fn(function* (input: {
       userId: string;
@@ -120,13 +78,133 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
       };
     });
 
+    const getUserCategoryBreakdown = Effect.fn(function* (input: {
+      weekId: string;
+      userId: string;
+    }) {
+      // Get all available categories with activities
+      const categoriesWithActivities = yield* Effect.tryPromise({
+        try: () =>
+          db
+            .select({
+              categoryId: activities.category,
+              categoryName: activityCategories.name,
+            })
+            .from(activities)
+            .innerJoin(
+              activityCategories,
+              eq(activities.category, activityCategories.id)
+            )
+            .where(
+              and(
+                // Exclude hold_ activities (they're for multiplier calculation, not leaderboards)
+                sql`${activities.id} NOT LIKE '%hold_%'`,
+                // Exclude common activity (not rewarded)
+                sql`${activities.id} != 'common'`
+              )
+            )
+            .groupBy(activities.category, activityCategories.name),
+        catch: (error) => new DbError(error),
+      });
+
+      // Get user's points for all categories in this week
+      const userCategoryPoints = yield* Effect.tryPromise({
+        try: () =>
+          db
+            .select({
+              categoryId: activities.category,
+              totalPoints: sum(accountActivityPoints.activityPoints).as(
+                "totalPoints"
+              ),
+            })
+            .from(accountActivityPoints)
+            .innerJoin(
+              accounts,
+              eq(accountActivityPoints.accountAddress, accounts.address)
+            )
+            .innerJoin(
+              activities,
+              eq(accountActivityPoints.activityId, activities.id)
+            )
+            .where(
+              and(
+                eq(accounts.userId, input.userId),
+                eq(accountActivityPoints.weekId, input.weekId),
+                // Same exclusions as above
+                sql`${activities.id} NOT LIKE '%hold_%'`,
+                sql`${activities.id} != 'common'`
+              )
+            )
+            .groupBy(activities.category),
+        catch: (error) => new DbError(error),
+      });
+
+      // Combine category info with user points
+      const categoryBreakdown = categoriesWithActivities
+        .map((category) => {
+          const userPoints = userCategoryPoints.find(
+            (up) => up.categoryId === category.categoryId
+          );
+          return {
+            categoryId: category.categoryId,
+            categoryName: category.categoryName,
+            points: userPoints
+              ? Number.parseFloat(userPoints.totalPoints || "0")
+              : 0,
+          };
+        })
+        .filter((category) => category.points > 0); // Only return categories with points
+
+      return categoryBreakdown;
+    });
+
+    const getUserWeekActivityPoints = Effect.fn(function* (input: {
+      userId: string;
+      weekId: string;
+    }) {
+      const result = yield* Effect.tryPromise({
+        try: () =>
+          db
+            .select({
+              totalPoints: sum(accountActivityPoints.activityPoints).as(
+                "totalPoints"
+              ),
+            })
+            .from(accountActivityPoints)
+            .innerJoin(
+              accounts,
+              eq(accountActivityPoints.accountAddress, accounts.address)
+            )
+            .innerJoin(
+              activities,
+              eq(accountActivityPoints.activityId, activities.id)
+            )
+            .where(
+              and(
+                eq(accounts.userId, input.userId),
+                eq(accountActivityPoints.weekId, input.weekId),
+                // Exclude hold_ activities and common like other functions
+                sql`${activities.id} NOT LIKE '%hold_%'`,
+                sql`${activities.id} != 'common'`
+              )
+            )
+            .then((result) => result[0]),
+        catch: (error) => new DbError(error),
+      });
+
+      return {
+        weekId: input.weekId,
+        totalPoints: result?.totalPoints ? Number.parseFloat(result.totalPoints) : 0,
+      };
+    });
+
     return {
       getUserStats: Effect.fn(function* (input: {
         userId: string;
         weekId: string;
         seasonId: string;
       }) {
-        const activityPoints = yield* getActivityPointsByUserId(input);
+        const activityPoints = yield* getUserWeekActivityPoints(input);
         const currentSeasonPoints =
           yield* getSeasonPointsRankingByUserId(input);
         const multiplier = yield* getMultiplierByUserId(input);
@@ -137,6 +215,8 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
           multiplier,
         };
       }),
+      getUserCategoryBreakdown,
+      getUserWeekActivityPoints,
       getAccountsByUserId: Effect.fn(function* (input: { userId: string }) {
         const result = yield* Effect.tryPromise({
           try: () =>
