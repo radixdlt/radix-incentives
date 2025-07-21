@@ -10,7 +10,10 @@ export type AccountActivityPointsMap = Record<
   Record<ActivityId, BigNumber>
 >;
 
-export type TWACalculationType = "USDValue" | "USDValueDurationMultiplied";
+export type TWACalculationType =
+  | "USDValue"
+  | "USDValueDurationMultiplied"
+  | "USDValueHighPrecision";
 
 export const calculateTWA = ({
   items: grouped,
@@ -97,9 +100,11 @@ export const calculateTWA = ({
         resultWithTwa[accountAddress][activityId] =
           calculationType === "USDValue"
             ? timeWeightedAverageUsdValue.decimalPlaces(2)
-            : timeWeightedAverageUsdValue
-                .multipliedBy(totalDurationInMinutes)
-                .decimalPlaces(0);
+            : calculationType === "USDValueHighPrecision"
+              ? timeWeightedAverageUsdValue.decimalPlaces(6)
+              : timeWeightedAverageUsdValue
+                  .multipliedBy(totalDurationInMinutes)
+                  .decimalPlaces(0);
       }
     }
 
