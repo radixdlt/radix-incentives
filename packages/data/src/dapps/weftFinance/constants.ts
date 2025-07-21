@@ -1,7 +1,7 @@
-import { Assets } from "../../assets/constants";
+import { Assets } from "../../assets";
 import { CaviarNineConstants } from "../caviarnine/constants";
 
-export const WeftFinance = {
+export const WeftFinanceConstants = {
   v1: {
     wXRD: {
       type: "fungible",
@@ -82,24 +82,24 @@ export const WeftFinance = {
 } as const;
 
 export const weftFungibleRecourceAddresses = new Map<string, string>([
-  [WeftFinance.v1.wXRD.resourceAddress, Assets.Fungible.XRD],
-  [WeftFinance.v1.wxUSDC.resourceAddress, Assets.Fungible.xUSDC],
+  [WeftFinanceConstants.v1.wXRD.resourceAddress, Assets.Fungible.XRD],
+  [WeftFinanceConstants.v1.wxUSDC.resourceAddress, Assets.Fungible.xUSDC],
   [
-    WeftFinance.v1.wLSULP.resourceAddress,
+    WeftFinanceConstants.v1.wLSULP.resourceAddress,
     CaviarNineConstants.LSULP.resourceAddress,
   ],
-  [WeftFinance.v2.w2XRD.resourceAddress, Assets.Fungible.XRD],
-  [WeftFinance.v2.w2xUSDC.resourceAddress, Assets.Fungible.xUSDC],
-  [WeftFinance.v2.w2xUSDT.resourceAddress, Assets.Fungible.xUSDT],
-  [WeftFinance.v2.w2xwBTC.resourceAddress, Assets.Fungible.wxBTC],
-  [WeftFinance.v2.w2wETH.resourceAddress, Assets.Fungible.xETH],
+  [WeftFinanceConstants.v2.w2XRD.resourceAddress, Assets.Fungible.XRD],
+  [WeftFinanceConstants.v2.w2xUSDC.resourceAddress, Assets.Fungible.xUSDC],
+  [WeftFinanceConstants.v2.w2xUSDT.resourceAddress, Assets.Fungible.xUSDT],
+  [WeftFinanceConstants.v2.w2xwBTC.resourceAddress, Assets.Fungible.wxBTC],
+  [WeftFinanceConstants.v2.w2wETH.resourceAddress, Assets.Fungible.xETH],
 ]);
 
 export const weftFungibleComponentAddressSet = new Set<string>([
-  WeftFinance.v1.wXRD.componentAddress,
-  WeftFinance.v1.wxUSDC.componentAddress,
-  WeftFinance.v1.wLSULP.componentAddress,
-  WeftFinance.v1.Wefty.componentAddress,
-  WeftFinance.v2.lendingPool.componentAddress,
-  WeftFinance.v2.WeftyV2.componentAddress,
+  WeftFinanceConstants.v1.wXRD.componentAddress,
+  WeftFinanceConstants.v1.wxUSDC.componentAddress,
+  WeftFinanceConstants.v1.wLSULP.componentAddress,
+  WeftFinanceConstants.v1.Wefty.componentAddress,
+  WeftFinanceConstants.v2.lendingPool.componentAddress,
+  WeftFinanceConstants.v2.WeftyV2.componentAddress,
 ]);

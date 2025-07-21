@@ -4,7 +4,6 @@ import {
   type GetEntityDetailsError,
   GetEntityDetailsService,
 } from "../gateway/getEntityDetails";
-import type { GetLedgerStateService } from "../gateway/getLedgerState";
 import type { AtLedgerState } from "../gateway/schemas";
 
 export class InvalidResourceError {

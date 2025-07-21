@@ -2,7 +2,7 @@ import { Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import type { AccountBalanceData } from "db/incentives";
+import type { AccountBalanceData } from "data";
 
 export type AggregateSurgePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;

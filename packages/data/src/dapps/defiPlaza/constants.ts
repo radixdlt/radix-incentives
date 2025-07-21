@@ -1,6 +1,6 @@
-import { Assets } from "../../assets/constants";
+import { Assets } from "../../assets";
 
-export const DefiPlaza = {
+export const DefiPlazaConstants = {
   xUSDCPool: {
     type: "component",
     basePoolAddress:
@@ -94,5 +94,7 @@ export const DefiPlaza = {
 
 export const defiPlazaComponentSet = new Map<
   string,
-  (typeof DefiPlaza)[keyof typeof DefiPlaza]
->(Object.values(DefiPlaza).map((pool) => [pool.componentAddress, pool]));
+  (typeof DefiPlazaConstants)[keyof typeof DefiPlazaConstants]
+>(
+  Object.values(DefiPlazaConstants).map((pool) => [pool.componentAddress, pool])
+);

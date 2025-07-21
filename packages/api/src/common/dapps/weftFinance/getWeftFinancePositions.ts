@@ -12,12 +12,16 @@ import { GetComponentStateService } from "../../gateway/getComponentState";
 import { LendingPoolSchema, SingleResourcePool, CDPData } from "./schemas";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 
-import { WeftFinance, weftFungibleRecourceAddresses } from "./constants";
+import { DappConstants } from "data";
 import type { AtLedgerState } from "../../gateway/schemas";
 import {
   UnstakingReceiptProcessorService,
   type UnstakingReceipt,
 } from "../../staking/unstakingReceiptProcessor";
+
+const WeftFinanceConstants = DappConstants.WeftFinance.constants;
+const weftFungibleRecourceAddresses =
+  DappConstants.WeftFinance.weftFungibleRecourceAddresses;
 
 export class ValidatorNotFoundForClaimNftError {
   readonly _tag = "ValidatorNotFoundForClaimNftError";
@@ -107,7 +111,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
           // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
           const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService
             .run({
-              address: WeftFinance.v2.lendingPool.kvsAddress,
+              address: WeftFinanceConstants.v2.lendingPool.kvsAddress,
               at_ledger_state: input.at_ledger_state,
             })
             .pipe(
@@ -133,7 +137,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                 new BigNumber(lendingPool.value.deposit_state.unit_ratio)
               );
             } else {
-              yield* Effect.fail(
+              return yield* Effect.fail(
                 new FailedToParseLendingPoolSchemaError(lendingPool.error)
               );
             }
@@ -142,9 +146,9 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
           // WEFT V1 Lending pool component states contains the unit to asset ratio for each asset
           const lendingPoolV1ComponentStates = yield* getComponentStateService({
             addresses: [
-              WeftFinance.v1.wLSULP.componentAddress,
-              WeftFinance.v1.wXRD.componentAddress,
-              WeftFinance.v1.wxUSDC.componentAddress,
+              WeftFinanceConstants.v1.wLSULP.componentAddress,
+              WeftFinanceConstants.v1.wXRD.componentAddress,
+              WeftFinanceConstants.v1.wxUSDC.componentAddress,
             ],
             schema: SingleResourcePool,
             at_ledger_state: input.at_ledger_state,
@@ -229,7 +233,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
             for (const nftResource of accountNFTBalance.nonFungibleResources) {
               if (
                 nftResource.resourceAddress !==
-                WeftFinance.v2.WeftyV2.resourceAddress
+                WeftFinanceConstants.v2.WeftyV2.resourceAddress
               ) {
                 continue;
               }
@@ -239,10 +243,9 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
 
                 const parseResult = CDPData.safeParse(nftItem.sbor);
                 if (parseResult.isErr()) {
-                  yield* Effect.fail(
+                  return yield* Effect.fail(
                     new FailedToParseCDPDataError(nftItem.id, parseResult.error)
                   );
-                  continue;
                 }
 
                 const cdpData = parseResult.value;

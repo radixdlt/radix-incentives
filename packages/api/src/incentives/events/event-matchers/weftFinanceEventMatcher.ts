@@ -1,6 +1,6 @@
 import { Effect } from "effect";
 import type { TransformedEvent } from "../../transaction-stream/transformEvent";
-import { WeftFinance } from "../../../common/dapps/weftFinance/constants";
+
 import {
   AddCollateralEvent,
   AddNFTCollateralEvent,
@@ -61,7 +61,12 @@ export type CapturedWeftFinanceEvent =
 
 export const weftFinanceEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
-    if (!isWeftFinanceComponent(input.emitter.globalEmitter, input.package.address)) {
+    if (
+      !isWeftFinanceComponent(
+        input.emitter.globalEmitter,
+        input.package.address
+      )
+    ) {
       return yield* Effect.succeed(null);
     }
 

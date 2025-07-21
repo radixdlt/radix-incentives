@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
+import { UpdateActivitySchema } from "./activity";
 
 export const adminActivityRouter = createTRPCRouter({
   getActivities: publicProcedure.query(async ({ ctx }) => {
@@ -45,6 +46,43 @@ export const adminActivityRouter = createTRPCRouter({
         },
       });
     }),
+
+  updateActivity: publicProcedure
+    .input(UpdateActivitySchema)
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.updateActivity(input);
+
+      return Exit.match(result, {
+        onSuccess: (value) => {
+          return value;
+        },
+        onFailure: (error) => {
+          console.error(error);
+
+          throw new TRPCError({
+            code: "INTERNAL_SERVER_ERROR",
+            message: "An unexpected error occurred",
+          });
+        },
+      });
+    }),
+
+  getActivityCategories: publicProcedure.query(async ({ ctx }) => {
+    const result = await ctx.dependencyLayer.getActivityCategories();
+
+    return Exit.match(result, {
+      onSuccess: (value) => {
+        return value;
+      },
+      onFailure: (error) => {
+        console.error(error);
+        throw new TRPCError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "An unexpected error occurred",
+        });
+      },
+    });
+  }),
 });
 
 export const activityRouter = createTRPCRouter({

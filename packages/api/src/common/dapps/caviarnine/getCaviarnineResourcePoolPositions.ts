@@ -6,11 +6,12 @@ import {
   GetFungibleBalanceService,
 } from "../../gateway/getFungibleBalance";
 
-import { CaviarNineConstants } from "./constants";
+import { DappConstants } from "data";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 import { GetResourcePoolUnitsService } from "../../resource-pool/getResourcePoolUnits";
 
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
 export class InvalidResourcePoolError extends Error {
   readonly _tag = "InvalidResourcePoolError";
   constructor(error: unknown) {

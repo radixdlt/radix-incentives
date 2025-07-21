@@ -1,13 +1,10 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
-import {
-  type ActivityCategoryKey,
-  activityCategoryWeeks,
-  activityWeeks,
-} from "db/incentives";
+import { activityCategoryWeeks, activityWeeks } from "db/incentives";
 import { eq, gt, and } from "drizzle-orm";
 import { groupBy } from "effect/Array";
 import BigNumber from "bignumber.js";
+import type { ActivityCategoryId } from "data";
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
   "ActivityCategoryWeekService",
@@ -73,7 +70,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
               }
 
               return {
-                categoryId: categoryId as ActivityCategoryKey,
+                categoryId: categoryId as ActivityCategoryId,
                 activities: activities.map((item) => ({
                   id: item.activityId,
                   multiplier: new BigNumber(item.multiplier),

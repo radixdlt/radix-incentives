@@ -1,55 +1,23 @@
-import { activities, activityCategories } from "../schema";
+import { activities, activityCategories, dapps } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
-import { ActivityCategoryKey } from "../types";
-import { activitiesData } from "./data/activitiesData";
-
-const activityCategoriesToSeed: {
-  id: ActivityCategoryKey;
-  name: string;
-}[] = [
-  {
-    id: ActivityCategoryKey.maintainXrdBalance,
-    name: "Maintain XRD balance",
-  },
-  {
-    id: ActivityCategoryKey.provideStablesLiquidityToDex,
-    name: "Provide stables liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.provideBlueChipLiquidityToDex,
-    name: "Provide blue chip liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.provideNativeLiquidityToDex,
-    name: "Provide native liquidity to a DEX",
-  },
-  {
-    id: ActivityCategoryKey.lendingStables,
-    name: "Lend stables",
-  },
-  {
-    id: ActivityCategoryKey.transactionFees,
-    name: "Paid transaction fees",
-  },
-  {
-    id: ActivityCategoryKey.common,
-    name: "Common activities",
-  },
-  {
-    id: ActivityCategoryKey.componentCalls,
-    name: "Component calls",
-  },
-  {
-    id: ActivityCategoryKey.tradingVolume,
-    name: "Trading volume",
-  },
-];
+import { activityCategoriesData, dappsData, activitiesData } from "data";
 
 export const seedActivities = async () => {
   await db
+    .insert(dapps)
+    .values(dappsData)
+    .onConflictDoUpdate({
+      target: [dapps.id],
+      set: {
+        name: sql`excluded.name`,
+        website: sql`excluded.website`,
+      },
+    });
+
+  await db
     .insert(activityCategories)
-    .values(activityCategoriesToSeed)
+    .values(activityCategoriesData)
     .returning()
     .onConflictDoUpdate({
       target: [activityCategories.id],
@@ -66,6 +34,7 @@ export const seedActivities = async () => {
       activitiesData.map((activity) => ({
         id: activity.id,
         category: activity.category,
+        dapp: activity.dApp,
       }))
     )
     .returning()
@@ -74,6 +43,7 @@ export const seedActivities = async () => {
       set: {
         name: sql`excluded.name`,
         category: sql`excluded.category`,
+        dapp: sql`excluded.dapp`,
       },
     });
 

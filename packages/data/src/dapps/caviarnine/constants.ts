@@ -1,4 +1,4 @@
-import { Assets } from "../../assets/constants";
+import { Assets } from "../../assets";
 
 export type ShapeLiquidityPool =
   (typeof CaviarNineConstants.shapeLiquidityPools)[keyof typeof CaviarNineConstants.shapeLiquidityPools];
@@ -10,18 +10,15 @@ export const CaviarNineConstants = {
   LSULP: {
     component:
       "component_rdx1cppy08xgra5tv5melsjtj79c0ngvrlmzl8hhs7vwtzknp9xxs63mfp",
-    resourceAddress:
-      "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+    resourceAddress: Assets.Fungible.LSULP,
   },
   HLP: {
-    resourceAddress:
-      "resource_rdx1th0f0khh9g8hwa0qtxsarmq8y7yeekjnh4n74494d5zf4k5vw8qv6m",
+    resourceAddress: Assets.Fungible.HLP,
     poolAddress:
       "pool_rdx1chmckjpr0ks5lk6h7mqvmrw56wt4w6tsuy6n2jhd8fhr8vc5en5e90",
     componentAddress:
       "component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf", //don't need to derive user's value, but important to check for SwapEvents!
-    token_x:
-      "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+    token_x: Assets.Fungible.HLP,
     token_y: Assets.Fungible.XRD,
   },
   shapeLiquidityPools: {
@@ -29,8 +26,7 @@ export const CaviarNineConstants = {
       name: "LSULP/XRD",
       componentAddress:
         "component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas",
-      token_x:
-        "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+      token_x: Assets.Fungible.LSULP,
       token_y: Assets.Fungible.XRD,
       liquidity_receipt:
         "resource_rdx1ntrysy2sncpj6t6shjlgsfr55dns9290e2zsy67fwwrp6mywsrrgsc",
@@ -91,8 +87,7 @@ export const CaviarNineConstants = {
       lpResourceAddress:
         "resource_rdx1tkjspzkzmhyzxwcrjha3y2aapmg5690vayjehqtfa729jnr88hcaue",
       token_x: Assets.Fungible.REDDICKS,
-      token_y:
-        "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf",
+      token_y: Assets.Fungible.LSULP,
     },
     FLOOP_XRD: {
       name: "FLOOP/XRD",

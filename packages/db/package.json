@@ -30,7 +30,8 @@
   },
   "dependencies": {
     "drizzle-orm": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "data": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",

@@ -1,9 +1,9 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
-import type { ActivityId } from "db/incentives";
 import { tradingVolume } from "db/incentives";
 import { sql } from "drizzle-orm";
+import type { ActivityId } from "data";
 
 export type AddTradingVolumeServiceInput = {
   accountAddress: string;

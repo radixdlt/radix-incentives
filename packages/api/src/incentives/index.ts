@@ -15,3 +15,4 @@ export { UserActivityPointsService } from "./user/userActivityPoints";
 export { GetSeasonPointMultiplierService } from "./season-point-multiplier/getSeasonPointMultiplier";
 export { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 export { UpdateWeekStatusService } from "./week/updateWeekStatus";
+export type { UpdateActivityInput } from "./activity/activity";

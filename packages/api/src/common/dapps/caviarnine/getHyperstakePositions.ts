@@ -9,7 +9,7 @@ import {
 } from "../../gateway/getFungibleBalance";
 
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
-import { CaviarNineConstants } from "./constants";
+import { DappConstants } from "data";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
@@ -24,6 +24,8 @@ type HyperstakePosition = {
   lpResourceAddress: string;
   position: { resourceAddress: string; amount: BigNumber }[];
 };
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export type GetHyperstakePositionsOutput = {
   address: string;

@@ -47,6 +47,7 @@
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
     "zod": "catalog:",
+    "data": "workspace:*",
     "csv-writer": "catalog:"
   },
   "devDependencies": {

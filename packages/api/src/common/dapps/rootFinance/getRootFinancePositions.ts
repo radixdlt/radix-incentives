@@ -4,7 +4,9 @@ import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from "../../gateway/getNonFungibleBalance";
-import { RootFinance } from "./constants";
+import { DappConstants } from "data";
+
+const RootFinanceConstants = DappConstants.RootFinance.constants;
 
 import {
   CollaterizedDebtPositionData,
@@ -84,7 +86,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
         run: Effect.fn(function* (input: GetRootFinancePositionsServiceInput) {
           const poolStatesKvs = yield* getKeyValueStoreService
             .run({
-              address: RootFinance.poolStateKvs,
+              address: RootFinanceConstants.poolStateKvs,
               at_ledger_state: input.at_ledger_state,
             })
             .pipe(
@@ -141,12 +143,12 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                   loanConversionRatios.set(resourceAddress, loanRatio);
                 }
               } else {
-                yield* Effect.fail(
+                return yield* Effect.fail(
                   new FailedToParsePoolStatesKeyError(keyParseResult.error)
                 );
               }
             } else {
-              yield* Effect.fail(
+              return yield* Effect.fail(
                 new FailedToParseLendingPoolStateError(poolState.error)
               );
             }
@@ -167,7 +169,8 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
 
             const rootReceipts = account.nonFungibleResources.filter(
               (resource) =>
-                resource.resourceAddress === RootFinance.receiptResourceAddress
+                resource.resourceAddress ===
+                RootFinanceConstants.receiptResourceAddress
             );
 
             for (const rootReceipt of rootReceipts) {

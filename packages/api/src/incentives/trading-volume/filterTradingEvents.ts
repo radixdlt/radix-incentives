@@ -3,14 +3,17 @@ import { Context, Effect, Layer } from "effect";
 import type { EmittableEvent } from "../events/event-matchers/types";
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
 import type { CaviarnineSwapEvent } from "../events/event-matchers/caviarnineEventMatcher";
-import { shapeLiquidityComponentSet } from "../../common/dapps/caviarnine/constants";
+import {
+  shapeLiquidityComponentSet,
+  defiPlazaComponentSet,
+  type ActivityId,
+} from "data";
 import {
   GetUsdValueService,
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import BigNumber from "bignumber.js";
-import type { ActivityId } from "db/incentives";
-import { defiPlazaComponentSet } from "../../common/dapps/defiplaza/constants";
+
 import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
 import type { HLPEmittableEvents } from "../events/event-matchers/hlpEventMatcher";
 import type { OciswapSwapEvent } from "../events/event-matchers/ociswapEventMatcher";

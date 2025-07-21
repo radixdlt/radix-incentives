@@ -64,6 +64,12 @@ import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
 import { LeaderboardService } from "../leaderboard/leaderboard";
 import { ActivityDataService } from "../activity/activityData";
+import {
+  ActivityService,
+  type UpdateActivityInput,
+} from "../activity/activity";
+import { DappService } from "../dapp/dapp";
+import { ActivityCategoryService } from "../activity-category/activityCategory";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -461,6 +467,49 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const activityServiceLive = ActivityService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const updateActivity = (input: UpdateActivityInput) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityService = yield* ActivityService;
+        yield* activityService.update(input);
+      }),
+      activityServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const dappServiceLive = DappService.Default.pipe(Layer.provide(dbClientLive));
+
+  const getDapps = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const dappService = yield* DappService;
+        return yield* dappService.list();
+      }),
+      dappServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getActivityCategories = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryService = yield* ActivityCategoryService;
+        return yield* activityCategoryService.list();
+      }),
+      activityCategoryServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -483,5 +532,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getAvailableWeeks,
     getAvailableActivities,
     getActivityData,
+    updateActivity,
+    getDapps,
+    getActivityCategories,
   };
 };

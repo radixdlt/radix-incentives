@@ -1,18 +1,24 @@
 import { Context, Effect, Layer } from "effect";
-import type { ActivityId } from "db/incentives";
 
 // Import all protocol constants
-import { CaviarNineConstants } from "../dapps/caviarnine/constants";
-import { DefiPlaza } from "../dapps/defiplaza/constants";
-import { WeftFinance } from "../dapps/weftFinance/constants";
-import { RootFinance } from "../dapps/rootFinance/constants";
-import { OciswapConstants } from "../dapps/ociswap/constants";
-import { SurgeConstants } from "../dapps/surge/constants";
-import { Assets } from "../assets/constants";
-import { flatTokenNameMap, nativeAssets, type TokenInfo } from "./tokenNameMap";
+import {
+  DappConstants,
+  type ActivityId,
+  flatTokenNameMap,
+  nativeAssets,
+  type TokenInfo,
+  Assets,
+} from "data";
 
 // Multiplier for constant product market maker pools (less efficient than precision pools)
 export const CONSTANT_PRODUCT_MULTIPLIER = 0.5;
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
+const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
+const WeftFinanceConstants = DappConstants.WeftFinance.constants;
+const RootFinanceConstants = DappConstants.RootFinance.constants;
+const OciswapConstants = DappConstants.Ociswap.constants;
+const SurgeConstants = DappConstants.Surge.constants;
 
 export type ProtocolValidation = {
   componentAddress: string;
@@ -164,16 +170,16 @@ const validResourceAddresses = new Set([
   ...Object.values(Assets.Fungible),
   ...extractPropertyValues(CaviarNineConstants, "resourceAddress"),
   ...extractPropertyValues(CaviarNineConstants, "liquidity_receipt"),
-  ...extractPropertyValues(DefiPlaza, "baseLpResourceAddress"),
-  ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
-  ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
-  ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "baseLpResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "quoteLpResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "baseResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "quoteResourceAddress"),
   ...extractPropertyValues(OciswapConstants, "lpResourceAddress"),
   ...extractPropertyValues(OciswapConstants, "token_x"),
   ...extractPropertyValues(OciswapConstants, "token_y"),
-  ...extractPropertyValues(WeftFinance, "resourceAddress"),
-  ...extractPropertyValues(RootFinance, "resourceAddress"),
-  RootFinance.receiptResourceAddress,
+  ...extractPropertyValues(WeftFinanceConstants, "resourceAddress"),
+  ...extractPropertyValues(RootFinanceConstants, "resourceAddress"),
+  RootFinanceConstants.receiptResourceAddress,
   ...extractPropertyValues(SurgeConstants, "resourceAddress"),
 ]);
 
@@ -202,7 +208,7 @@ const caviarNineComponents = new Set([
 ]);
 
 const defiPlazaComponents = new Set(
-  Object.values(DefiPlaza)
+  Object.values(DefiPlazaConstants)
     .map((pool) => pool.componentAddress)
     .filter((addr) => addr && addr.length > 0) as string[]
 );
@@ -253,10 +259,10 @@ const caviarNineResources = new Set([
 ]);
 
 const defiPlazaResources = new Set([
-  ...extractPropertyValues(DefiPlaza, "baseLpResourceAddress"),
-  ...extractPropertyValues(DefiPlaza, "quoteLpResourceAddress"),
-  ...extractPropertyValues(DefiPlaza, "baseResourceAddress"),
-  ...extractPropertyValues(DefiPlaza, "quoteResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "baseLpResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "quoteLpResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "baseResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "quoteResourceAddress"),
 ]);
 
 const ociswapResources = new Set([
@@ -275,12 +281,12 @@ const ociswapResources = new Set([
 ]);
 
 const weftResources = new Set(
-  extractPropertyValues(WeftFinance, "resourceAddress")
+  extractPropertyValues(WeftFinanceConstants, "resourceAddress")
 );
 
 const rootResources = new Set([
-  RootFinance.receiptResourceAddress,
-  ...extractPropertyValues(RootFinance, "resourceAddress"),
+  RootFinanceConstants.receiptResourceAddress,
+  ...extractPropertyValues(RootFinanceConstants, "resourceAddress"),
 ]);
 
 const surgeResources = new Set(
@@ -295,7 +301,7 @@ const constantProductPools = new Set([
   // Caviarnine SimplePools
   ...extractPropertyValues(CaviarNineConstants.simplePools, "componentAddress"),
   // DefiPlaza pools (all are constant product)
-  ...extractPropertyValues(DefiPlaza, "componentAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, "componentAddress"),
 ]);
 
 const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
@@ -311,7 +317,8 @@ const poolTradingMap = (() => {
       const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
         a.localeCompare(b)
       );
-      const activityId: ActivityId = `c9_trade_${firstToken}-${secondToken}`;
+      // TODO: improve this
+      const activityId = `c9_trade_${firstToken}-${secondToken}` as ActivityId;
       map.set(pool.componentAddress, activityId);
     }
   }
@@ -330,12 +337,13 @@ const poolTradingMap = (() => {
       const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
         a.localeCompare(b)
       );
-      const activityId: ActivityId = `c9_trade_${firstToken}-${secondToken}`;
+      // TODO: improve this
+      const activityId = `c9_trade_${firstToken}-${secondToken}` as ActivityId;
       map.set(pool.componentAddress, activityId);
     }
   }
   // DefiPlaza Pools
-  for (const [_poolKey, pool] of Object.entries(DefiPlaza)) {
+  for (const [_poolKey, pool] of Object.entries(DefiPlazaConstants)) {
     if (pool.componentAddress && pool.componentAddress.length > 0) {
       const baseToken = getTokenNameSync(pool.baseResourceAddress);
       const quoteToken = getTokenNameSync(pool.quoteResourceAddress);
@@ -343,7 +351,9 @@ const poolTradingMap = (() => {
         const [firstToken, secondToken] = [baseToken, quoteToken].sort((a, b) =>
           a.localeCompare(b)
         );
-        const activityId: ActivityId = `defiPlaza_trade_${firstToken}-${secondToken}`;
+        // TODO: improve this
+        const activityId =
+          `defiPlaza_trade_${firstToken}-${secondToken}` as ActivityId;
         map.set(pool.componentAddress, activityId);
       }
     }
@@ -356,7 +366,8 @@ const poolTradingMap = (() => {
       const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
         a.localeCompare(b)
       );
-      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      // TODO: improve this
+      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
       map.set(pool.componentAddress, activityId);
     }
   }
@@ -368,19 +379,22 @@ const poolTradingMap = (() => {
       const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
         a.localeCompare(b)
       );
-      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      // TODO: improve this
+      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
       map.set(pool.componentAddress, activityId);
     }
   }
   // Ociswap Flex Pools
   for (const pool of Object.values(OciswapConstants.flexPools)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
+    const tokenX = getTokenNameSync(pool.token_x) ?? "";
+    const tokenY = getTokenNameSync(pool.token_y) ?? "";
+
     if (tokenX && tokenY) {
       const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
         a.localeCompare(b)
       );
-      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      // TODO: improve this
+      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
       map.set(pool.componentAddress, activityId);
     }
   }
@@ -392,7 +406,8 @@ const poolTradingMap = (() => {
       const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
         a.localeCompare(b)
       );
-      const activityId: ActivityId = `oci_trade_${firstToken}-${secondToken}`;
+      // TODO: improve this
+      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
       map.set(pool.componentAddress, activityId);
     }
   }
@@ -461,9 +476,9 @@ export const isWeftFinanceComponent = (
   packageAddress: string
 ): boolean => {
   const isWeftV2Event =
-    componentAddress === WeftFinance.v2.WeftyV2.componentAddress;
+    componentAddress === WeftFinanceConstants.v2.WeftyV2.componentAddress;
   const isExpectedPackage =
-    packageAddress === WeftFinance.v2.WeftyV2.packageAddress;
+    packageAddress === WeftFinanceConstants.v2.WeftyV2.packageAddress;
 
   return isWeftV2Event && isExpectedPackage;
 };
@@ -472,8 +487,10 @@ export const isRootFinanceComponent = (
   componentAddress: string,
   packageAddress: string
 ): boolean => {
-  const isRootFinanceEvent = componentAddress === RootFinance.componentAddress;
-  const isExpectedPackage = packageAddress === RootFinance.packageAddress;
+  const isRootFinanceEvent =
+    componentAddress === RootFinanceConstants.componentAddress;
+  const isExpectedPackage =
+    packageAddress === RootFinanceConstants.packageAddress;
 
   return isRootFinanceEvent && isExpectedPackage;
 };
@@ -494,7 +511,7 @@ export const AddressValidationServiceLive = Layer.succeed(
           CaviarNineConstants.simplePools,
           "componentAddress"
         ),
-        ...extractPropertyValues(DefiPlaza, "componentAddress"),
+        ...extractPropertyValues(DefiPlazaConstants, "componentAddress"),
         ...extractPropertyValues(OciswapConstants.pools, "componentAddress"),
         ...extractPropertyValues(OciswapConstants.poolsV2, "componentAddress"),
         ...extractPropertyValues(
@@ -527,8 +544,8 @@ export const AddressValidationServiceLive = Layer.succeed(
     ): boolean => {
       // Generic validation - checks ALL protocols
       const protocolValidations = [
-        ...extractProtocolValidations(WeftFinance),
-        ...extractProtocolValidations(RootFinance),
+        ...extractProtocolValidations(WeftFinanceConstants),
+        ...extractProtocolValidations(RootFinanceConstants),
       ];
 
       return protocolValidations.some((validation) => {

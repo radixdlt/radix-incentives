@@ -6,10 +6,12 @@ import {
   GetFungibleBalanceService,
 } from "../../gateway/getFungibleBalance";
 
-import { OciswapConstants } from "./constants";
+import { DappConstants } from "data";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 import { GetResourcePoolUnitsService } from "../../resource-pool/getResourcePoolUnits";
+
+const OciswapConstants = DappConstants.Ociswap.constants;
 
 export class InvalidResourcePoolError extends Error {
   readonly _tag = "InvalidResourcePoolError";

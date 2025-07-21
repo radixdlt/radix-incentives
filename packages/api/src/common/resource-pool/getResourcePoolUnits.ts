@@ -1,7 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import {
   GetFungibleBalanceService,
-  type GetFungibleBalanceServiceDependencies,
   type GetFungibleBalanceServiceError,
 } from "../gateway/getFungibleBalance";
 import {

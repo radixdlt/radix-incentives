@@ -7,9 +7,9 @@ import {
   type Week,
   type Activity,
   type ActivityWeek,
-  type ActivityId,
 } from "db/incentives";
 import { eq } from "drizzle-orm";
+import type { ActivityId } from "data";
 
 export class NotFoundError {
   readonly _tag = "NotFoundError";
