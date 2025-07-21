@@ -6,8 +6,7 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
-import type { AccountBalanceData } from "db/incentives";
+import { Assets, type AccountBalanceData } from "data";
 
 export type AggregateWeftFinancePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;

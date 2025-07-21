@@ -8,13 +8,13 @@ import { distributeSeasonPoints } from "./distributePoints";
 import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
 import { UpdateWeekStatusService } from "../week/updateWeekStatus";
 import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
-import { ActivityCategoryKey } from "db/incentives";
 import { Thresholds } from "../../common/config/constants";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { groupBy } from "effect/Array";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
 import { GetUsersPaginatedService } from "../user/getUsersPaginated";
+import { ActivityCategoryId } from "data";
 
 export const calculateSeasonPointsInputSchema = z.object({
   weekId: z.string(),
@@ -49,11 +49,11 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
       const lowerBoundsPercentage = 0.1;
-      const minimumAPThresholdMap = new Map<ActivityCategoryKey, number>([
-        [ActivityCategoryKey.common, 1],
-        [ActivityCategoryKey.tradingVolume, 1],
-        [ActivityCategoryKey.componentCalls, 1],
-        [ActivityCategoryKey.transactionFees, 1],
+      const minimumAPThresholdMap = new Map<ActivityCategoryId, number>([
+        [ActivityCategoryId.common, 1],
+        [ActivityCategoryId.tradingVolume, 1],
+        [ActivityCategoryId.componentCalls, 1],
+        [ActivityCategoryId.transactionFees, 1],
       ]);
 
       const parseInput = Effect.fn(function* (
@@ -105,7 +105,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       });
 
       const getMinimumAPThreshold = Effect.fn(function* (
-        categoryId: ActivityCategoryKey
+        categoryId: ActivityCategoryId
       ) {
         // all thresholds in the map are 1, and the ACTIVITY_POINTS_THRESHOLD is too
         // so this might be unnecessary, but let's keep the structure for now

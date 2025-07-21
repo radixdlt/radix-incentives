@@ -1,13 +1,8 @@
 import { Context, Effect, Layer } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 
-import {
-  activities,
-  type ActivityCategoryKey,
-  activityWeeks,
-  type ActivityWeek,
-  type ActivityId,
-} from "db/incentives";
+import { activities, activityWeeks, type ActivityWeek } from "db/incentives";
+import type { ActivityCategoryId, ActivityId } from "data";
 import { and, eq, inArray, notInArray } from "drizzle-orm";
 
 export class NotFoundError {
@@ -19,7 +14,7 @@ export type GetActivitiesByWeekIdError = DbError | NotFoundError;
 
 export type GetActivitiesByWeekIdServiceOutput = (ActivityWeek & {
   activityId: ActivityId;
-  category: ActivityCategoryKey;
+  category: ActivityCategoryId;
 })[];
 
 export class GetActivitiesByWeekIdService extends Context.Tag(
@@ -28,8 +23,8 @@ export class GetActivitiesByWeekIdService extends Context.Tag(
   GetActivitiesByWeekIdService,
   (input: {
     weekId: string;
-    excludeCategories?: ActivityCategoryKey[];
-    includeCategories?: ActivityCategoryKey[];
+    excludeCategories?: ActivityCategoryId[];
+    includeCategories?: ActivityCategoryId[];
   }) => Effect.Effect<
     GetActivitiesByWeekIdServiceOutput,
     GetActivitiesByWeekIdError
@@ -76,7 +71,7 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
         return result.map((row) => ({
           ...row.activity_week,
           activityId: row.activity_week.activityId as ActivityId,
-          category: row.activity.category as ActivityCategoryKey,
+          category: row.activity.category as ActivityCategoryId,
         }));
       });
   })

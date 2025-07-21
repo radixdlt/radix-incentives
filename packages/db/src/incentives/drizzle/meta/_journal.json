@@ -148,6 +148,13 @@
       "when": 1752849606494,
       "tag": "0020_rapid_thena",
       "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1753101987847,
+      "tag": "0021_cold_agent_brand",
+      "breakpoints": true
     }
   ]
 }

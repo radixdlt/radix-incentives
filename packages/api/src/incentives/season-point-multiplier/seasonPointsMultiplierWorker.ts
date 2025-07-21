@@ -22,7 +22,7 @@ import {
   GetUsdValueService,
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
-import { Assets } from "../../common/assets/constants";
+import { Assets } from "data";
 
 export const seasonPointsMultiplierJobSchema = z.object({
   weekId: z.string(),
@@ -79,7 +79,6 @@ const applyMultiplierToUsers = (
     })
   );
 };
-
 
 export class SeasonPointsMultiplierWorkerService extends Context.Tag(
   "SeasonPointsMultiplierWorkerService"
@@ -210,10 +209,12 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
 
         // Split users into two groups: those with balance >= 10000 and those with balance < 10000
         const filteredUserTwaBalances = allUserTwaBalances.filter(
-          (u: UsersWithTwaBalance) => u.totalTWABalance.gte(Thresholds.XRD_BALANCE_THRESHOLD)
+          (u: UsersWithTwaBalance) =>
+            u.totalTWABalance.gte(Thresholds.XRD_BALANCE_THRESHOLD)
         );
         const belowThresholdUsers = allUserTwaBalances.filter(
-          (u: UsersWithTwaBalance) => u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD)
+          (u: UsersWithTwaBalance) =>
+            u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD)
         );
 
         const xrdPrice = yield* getUsdValueService({
@@ -223,32 +224,35 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
         });
 
         const userTwaWithMultiplier = yield* applyMultiplierToUsers(
-          filteredUserTwaBalances.map(
-            (user) => ({
-              userId: user.userId,
-              totalTWABalance: user.totalTWABalance.toString(),
-              weekId: week.id,
-              cumulativeTWABalance: "0", //TODO remove cumulativeTWABalance from the db
-            })
-          ),
+          filteredUserTwaBalances.map((user) => ({
+            userId: user.userId,
+            totalTWABalance: user.totalTWABalance.toString(),
+            weekId: week.id,
+            cumulativeTWABalance: "0", //TODO remove cumulativeTWABalance from the db
+          })),
           xrdPrice
         );
 
         // Add users with balance < 10000 with 0.0 multiplier and cumulative balance
-        const belowThresholdUsersWithDefaults = belowThresholdUsers.map((user) => ({
-          userId: user.userId,
-          totalTWABalance: user.totalTWABalance.toString(),
-          cumulativeTWABalance: "0",
-          weekId: week.id,
-          multiplier: "0.0",
-        }));
+        const belowThresholdUsersWithDefaults = belowThresholdUsers.map(
+          (user) => ({
+            userId: user.userId,
+            totalTWABalance: user.totalTWABalance.toString(),
+            cumulativeTWABalance: "0",
+            weekId: week.id,
+            multiplier: "0.0",
+          })
+        );
 
-
-        yield* Effect.log(`Upserting user TWA with multiplier ${userTwaWithMultiplier.length}`);
+        yield* Effect.log(
+          `Upserting user TWA with multiplier ${userTwaWithMultiplier.length}`
+        );
         yield* upsertUserTwaWithMultiplier(userTwaWithMultiplier);
         yield* Effect.log("Season points multiplier calculated");
 
-        yield* Effect.log(`Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`);
+        yield* Effect.log(
+          `Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`
+        );
         yield* upsertUserTwaWithMultiplier(belowThresholdUsersWithDefaults);
       });
   })

@@ -40,11 +40,12 @@
     "react": "catalog:",
     "react-dom": "catalog:",
     "server-only": "catalog:",
-    "sonner": "^2.0.3",
+    "sonner": "catalog:",
     "superjson": "catalog:",
     "tailwind-merge": "catalog:",
     "tw-animate-css": "^1.2.5",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "data": "workspace:*"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

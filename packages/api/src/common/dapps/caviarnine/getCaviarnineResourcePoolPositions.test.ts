@@ -7,10 +7,7 @@ import {
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
 import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
-import {
-  GetResourcePoolUnitsLive,
-  GetResourcePoolUnitsService,
-} from "../../resource-pool/getResourcePoolUnits";
+import { GetResourcePoolUnitsLive } from "../../resource-pool/getResourcePoolUnits";
 import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
 
 const TEST_ACCOUNT =

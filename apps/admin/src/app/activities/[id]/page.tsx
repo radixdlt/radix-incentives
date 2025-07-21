@@ -1,8 +1,11 @@
 'use client';
 
-import { useParams, useRouter } from 'next/navigation';
+import * as React from 'react';
 import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
+import { toast } from 'sonner';
+
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -11,255 +14,261 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
-import { Badge } from '~/components/ui/badge';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Textarea } from '~/components/ui/textarea';
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table';
-import {
-  Trophy,
-  Star,
-  Target,
-  Activity as ActivityIcon,
-  Zap,
-} from 'lucide-react';
-
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
+import { Separator } from '~/components/ui/separator';
+import type { UpdateActivityInput } from 'api/incentives';
+import type { Activity } from 'db/incentives';
 import { api } from '~/trpc/react';
 
-const getTypeIcon = (type: string) => {
-  switch (type) {
-    case 'passive':
-      return <Target className="h-4 w-4" />;
-    case 'active':
-      return <ActivityIcon className="h-4 w-4" />;
-    default:
-      return <Target className="h-4 w-4" />;
-  }
-};
+// Reusable form component (can be extracted later)
+function ActivityForm({
+  initialData,
+  onSubmit,
+  isSubmitting,
+  submitButtonText,
+  dapps,
+  activityCategories,
+}: {
+  initialData: Activity & { dapp?: string };
+  onSubmit: (data: UpdateActivityInput) => void;
+  isSubmitting: boolean;
+  submitButtonText: string;
+  dapps?: Array<{ id: string; name: string; website: string }>;
+  activityCategories?: Array<{
+    id: string;
+    name: string;
+    description: string | null;
+  }>;
+}) {
+  const [formData, setFormData] = React.useState<Activity>(initialData);
 
-const getRewardIcon = (rewardType: string) => {
-  switch (rewardType) {
-    case 'points':
-      return <Star className="h-4 w-4" />;
-    case 'multiplier':
-      return <Zap className="h-4 w-4" />;
-    default:
-      return <Star className="h-4 w-4" />;
-  }
-};
+  // Update state if initialData changes (e.g., after fetch)
+  React.useEffect(() => {
+    setFormData(initialData);
+  }, [initialData]);
 
-const getStatusVariant = (status: string) => {
-  switch (status) {
-    case 'active':
-      return 'default';
-    case 'inactive':
-      return 'secondary';
-    default:
-      return 'outline';
-  }
-};
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >,
+  ) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
-export default function ActivitySettingsPage() {
+  const handleSelectChange = (name: string, value: string) => {
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    onSubmit({
+      id: formData.id,
+      activity: {
+        name: formData.name ?? undefined,
+        description: formData.description ?? undefined,
+        category: formData.category ?? undefined,
+        dapp: formData.dapp ?? undefined,
+      },
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-6">
+      {/* ID */}
+      <div className="grid gap-2">
+        <Label htmlFor="id">ID</Label>
+        <Input
+          id="id"
+          name="id"
+          value={formData.id}
+          required
+          readOnly
+          disabled
+        />
+      </div>
+      {/* Name */}
+      <div className="grid gap-2">
+        <Label htmlFor="name">Name</Label>
+        <Input
+          id="name"
+          name="name"
+          value={formData.name ?? ''}
+          onChange={handleChange}
+          required
+        />
+      </div>
+      {/* Description */}
+      <div className="grid gap-2">
+        <Label htmlFor="description">Description</Label>
+        <Textarea
+          id="description"
+          name="description"
+          value={formData.description ?? ''}
+          onChange={handleChange}
+          className="min-h-[100px]"
+        />
+      </div>
+
+      {/* Category */}
+      <div className="grid gap-2">
+        <Label htmlFor="category">Category</Label>
+        <Select
+          value={formData.category || ''}
+          onValueChange={(value) => handleSelectChange('category', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            {activityCategories?.map((category) => (
+              <SelectItem key={category.id} value={category.id}>
+                {category.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Dapp */}
+      <div className="grid gap-2">
+        <Label htmlFor="dapp">Dapp</Label>
+        <Select
+          value={formData.dapp || ''}
+          onValueChange={(value) => handleSelectChange('dapp', value)}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a dapp" />
+          </SelectTrigger>
+          <SelectContent>
+            {dapps?.map((dapp) => (
+              <SelectItem key={dapp.id} value={dapp.id}>
+                {dapp.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      {/* Actions */}
+      <div className="flex justify-end space-x-2">
+        {/* Link back to the activities list */}
+        <Link href="/activities">
+          <Button type="button" variant="outline">
+            Cancel
+          </Button>
+        </Link>
+        <Button type="submit" disabled={isSubmitting}>
+          {isSubmitting ? 'Saving...' : submitButtonText}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+// Main Page Component
+function EditActivityPage() {
   const { id: activityId } = useParams<{ id: string }>();
-  const router = useRouter();
-
-  const { data, isLoading } = api.activity.getActivityById.useQuery({
+  const { data, isLoading: loading } = api.activity.getActivityById.useQuery({
     id: activityId,
   });
+  const { data: dapps } = api.dapps.getDapps.useQuery();
+  const { data: activityCategories } =
+    api.activity.getActivityCategories.useQuery();
+
+  const { mutate: updateActivity, isPending: isSubmitting } =
+    api.activity.updateActivity.useMutation();
 
   const activity = data?.activity;
-  const activityWeeks = data?.activityWeeks;
 
-  if (isLoading) {
-    return (
-      <div className="p-6">
-        <div className="flex items-center mb-6">
-          <Link href="/activities" className="mr-4">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
-            </Button>
-          </Link>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Loading Activity...
-            </h1>
-          </div>
-        </div>
-      </div>
-    );
+  // Placeholder submit handler for updates
+  const handleUpdateActivity = (data: UpdateActivityInput) => {
+    updateActivity(data, {
+      onSuccess: () => {
+        toast.success('Activity updated successfully');
+      },
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
+  };
+
+  if (loading) {
+    return <div className="p-6">Loading activity details...</div>;
   }
 
   if (!activity) {
+    // Render a not found message or redirect if activity couldn't be loaded
     return (
-      <div className="p-6">
-        <div className="flex items-center mb-6">
-          <Link href="/activities" className="mr-4">
-            <Button variant="outline" size="icon">
-              <ArrowLeft className="h-4 w-4" />
+      <div className="container mx-auto py-6 pl-6 pr-6">
+        <div className="mb-6 flex items-center gap-4">
+          <Link href="/activities">
+            <Button variant="ghost" size="icon" aria-label="Go back">
+              <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Activity Not Found
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              The requested activity could not be found
-            </p>
-          </div>
+          <h1 className="text-xl font-semibold">Activity Not Found</h1>
         </div>
-        <Button asChild>
-          <Link href="/activities">Back to Activities</Link>
-        </Button>
+        <p>The requested activity could not be found.</p>
       </div>
     );
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center mb-6">
-        <Link href="/activities" className="mr-4">
-          <Button variant="outline" size="icon">
-            <ArrowLeft className="h-4 w-4" />
+    <div className="container mx-auto py-6 pl-6 pr-6">
+      {/* Header */}
+      <div className="mb-6 flex items-center gap-4">
+        {/* Link back to activity list page */}
+        <Link href="/activities">
+          <Button variant="ghost" size="icon" aria-label="Go back">
+            <ArrowLeft className="h-5 w-5" />
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Activity Details
-          </h1>
-          <p className="text-muted-foreground mt-1">
-            View and manage activity configuration
+          <h1 className="text-3xl font-bold tracking-tight">Edit Activity</h1>
+          <p className="text-muted-foreground">
+            Modify details for: {activity.id}
           </p>
         </div>
       </div>
 
-      <Card className="w-full">
-        <CardHeader className="space-y-4">
-          <div className="flex items-start justify-between gap-4">
-            <div className="space-y-2 flex-1 min-w-0">
-              <CardTitle className="text-2xl font-semibold leading-tight">
-                {activity.name}
-              </CardTitle>
-              <CardDescription className="text-base">
-                {activity.description}
-              </CardDescription>
-            </div>
-            <Button size="sm" variant="outline">
-              Edit Activity
-            </Button>
-          </div>
+      <Separator className="my-6" />
 
-          <div className="flex flex-wrap gap-2">
-            <Badge variant="outline">{activity.category}</Badge>
-          </div>
-        </CardHeader>
-      </Card>
-
-      {/* Activity Weeks Table */}
-      <Card className="w-full">
-        <CardHeader>
-          <CardTitle>Activity Weeks</CardTitle>
-          <CardDescription>
-            Weekly point allocations and status for this activity
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          {activityWeeks && activityWeeks.length > 0 ? (
-            <div className="border rounded-lg">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Week ID</TableHead>
-                    <TableHead>Season ID</TableHead>
-                    <TableHead>Date Range</TableHead>
-                    <TableHead>Points Pool</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Actions</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {activityWeeks.map((activityWeek, index) => (
-                    <TableRow
-                      key={`${activityWeek.activityId}-${activityWeek.weekId}`}
-                    >
-                      <TableCell className="font-mono text-sm">
-                        {activityWeek.weekId.slice(0, 8)}...
-                      </TableCell>
-                      <TableCell className="font-mono text-sm">
-                        {activityWeek.week.seasonId.slice(0, 8)}...
-                      </TableCell>
-                      <TableCell>
-                        <div className="text-sm">
-                          <div className="font-medium">
-                            {new Date(
-                              activityWeek.week.startDate,
-                            ).toLocaleDateString()}
-                          </div>
-                          <div className="text-xs text-muted-foreground">
-                            to{' '}
-                            {new Date(
-                              activityWeek.week.endDate,
-                            ).toLocaleDateString()}
-                          </div>
-                        </div>
-                      </TableCell>
-                      {/* <TableCell>
-                        {activityWeek.pointsPool !== null ? (
-                          <div className="flex items-center gap-1">
-                            <Star className="h-4 w-4 text-yellow-500" />
-                            <span className="font-medium">
-                              {activityWeek.pointsPool.toLocaleString()}
-                            </span>
-                            <span className="text-sm text-muted-foreground">
-                              pts
-                            </span>
-                          </div>
-                        ) : (
-                          <span className="text-muted-foreground italic">
-                            No allocation
-                          </span>
-                        )}
-                      </TableCell> */}
-                      {/* <TableCell>
-                        <Badge variant={getStatusVariant(activityWeek.status)}>
-                          {activityWeek.status}
-                        </Badge>
-                      </TableCell> */}
-                      <TableCell>
-                        <div className="flex gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              router.push(
-                                `/seasons/${activityWeek.week.seasonId}/weeks/${activityWeek.weekId}`,
-                              );
-                            }}
-                          >
-                            View Details
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            </div>
-          ) : (
-            <div className="text-center py-8">
-              <div className="text-muted-foreground">
-                <p className="text-lg font-medium">No activity weeks found</p>
-                <p className="text-sm">
-                  This activity has not been assigned to any weeks yet.
-                </p>
-              </div>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      {/* Form Card */}
+      <div className="mx-auto max-w-3xl">
+        <Card>
+          <CardHeader>
+            <CardTitle>Activity Details</CardTitle>
+            <CardDescription>Update the activity configuration</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ActivityForm
+              initialData={{
+                id: activity.id,
+                name: activity.name,
+                description: activity.description,
+                category: activity.category,
+                dapp: activity.dapp ?? '',
+              }}
+              onSubmit={handleUpdateActivity}
+              isSubmitting={isSubmitting}
+              submitButtonText="Save Changes"
+              dapps={dapps}
+              activityCategories={activityCategories ?? []}
+            />
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 }
+
+export default EditActivityPage;

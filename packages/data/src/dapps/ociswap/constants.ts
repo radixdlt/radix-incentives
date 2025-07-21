@@ -1,4 +1,4 @@
-import { Assets } from "../../assets/constants";
+import { Assets } from "../../assets";
 
 export const OciswapConstants = {
   pools: {

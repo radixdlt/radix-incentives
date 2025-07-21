@@ -169,7 +169,6 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,
-              // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
               address: nftOwnerMap.get(nft.nonFungibleId)!,
             }))
           )
@@ -209,9 +208,7 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
             } else {
               // Check if position overlaps with price bounds
               const positionOverlapsWithBounds =
-                // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
                 positionLeftPriceSqrt.lt(upperBoundPriceSqrt!) &&
-                // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
                 positionRightPriceSqrt.gt(lowerBoundPriceSqrt!);
 
               if (!positionOverlapsWithBounds) {
@@ -222,12 +219,10 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
                 // Calculate effective bounds (intersection of position bounds and price bounds)
                 const effectiveLeftPriceSqrt = Decimal.max(
                   positionLeftPriceSqrt,
-                  // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
                   lowerBoundPriceSqrt!
                 );
                 const effectiveRightPriceSqrt = Decimal.min(
                   positionRightPriceSqrt,
-                  // biome-ignore lint/style/noNonNullAssertion: guaranteed to exist
                   upperBoundPriceSqrt!
                 );
 

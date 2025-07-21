@@ -1,10 +1,8 @@
 import { Effect, Layer } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
-import { Assets } from "../../common/assets/constants";
-import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
-import { OciswapConstants } from "../../common/dapps/ociswap/constants";
-import { DefiPlaza } from "../../common/dapps/defiplaza/constants";
+import { Assets, DappConstants } from "data";
+
 import {
   AddressValidationService,
   type UnknownTokenError,
@@ -15,8 +13,12 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import type { AccountBalanceData, ActivityId } from "db/incentives";
+import type { AccountBalanceData, ActivityId } from "data";
 import type { GetWeftFinancePositionsOutput } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
+const OciswapConstants = DappConstants.Ociswap.constants;
+const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
 
 // Helper function to check if a resource address is XRD or LSULP
 const isXrdOrLsulp = (resourceAddress: string): boolean => {
@@ -451,7 +453,7 @@ const processDefiPlazaPools = (
       const isPosition2XrdDerivative = isXrdOrLsulp(position2.resourceAddress);
 
       if (isPosition1XrdDerivative || isPosition2XrdDerivative) {
-        const pool = Object.values(DefiPlaza).find(
+        const pool = Object.values(DefiPlazaConstants).find(
           (p) => p.baseLpResourceAddress === lpPosition.lpResourceAddress
         );
 
@@ -513,7 +515,7 @@ const processDefiPlazaPools = (
     }
 
     // Add zero entries for pools without positions
-    for (const pool of Object.values(DefiPlaza)) {
+    for (const pool of Object.values(DefiPlazaConstants)) {
       const isBaseXrdDerivative = isXrdOrLsulp(pool.baseResourceAddress);
       const isQuoteXrdDerivative = isXrdOrLsulp(pool.quoteResourceAddress);
 

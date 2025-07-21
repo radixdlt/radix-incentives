@@ -177,6 +177,9 @@ catalogs:
     server-only:
       specifier: ^0.0.1
       version: 0.0.1
+    sonner:
+      specifier: ^2.0.3
+      version: 2.0.3
     superjson:
       specifier: ^2.2.1
       version: 2.2.2
@@ -326,6 +329,9 @@ importers:
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      sonner:
+        specifier: 'catalog:'
+        version: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       superjson:
         specifier: 'catalog:'
         version: 2.2.2
@@ -417,6 +423,9 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
+      data:
+        specifier: workspace:*
+        version: link:../../packages/data
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -445,7 +454,7 @@ importers:
         specifier: 'catalog:'
         version: 0.0.1
       sonner:
-        specifier: ^2.0.3
+        specifier: 'catalog:'
         version: 2.0.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
       superjson:
         specifier: 'catalog:'
@@ -846,6 +855,9 @@ importers:
       commander:
         specifier: 'catalog:'
         version: 12.1.0
+      data:
+        specifier: workspace:*
+        version: link:../../packages/data
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -965,6 +977,9 @@ importers:
       blakejs:
         specifier: 'catalog:'
         version: 1.2.1
+      data:
+        specifier: workspace:*
+        version: link:../data
       date-fns:
         specifier: 'catalog:'
         version: 4.1.0
@@ -1036,8 +1051,17 @@ importers:
         specifier: 'catalog:'
         version: 3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0)
 
+  packages/data:
+    dependencies:
+      zod:
+        specifier: 'catalog:'
+        version: 3.24.2
+
   packages/db:
     dependencies:
+      data:
+        specifier: workspace:*
+        version: link:../data
       drizzle-orm:
         specifier: 'catalog:'
         version: 0.33.0(@opentelemetry/api@1.9.0)(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0)

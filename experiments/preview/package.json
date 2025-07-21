@@ -28,6 +28,7 @@
     "effect": "catalog:",
     "fs-extra": "^11.3.0",
     "inquirer": "catalog:",
-    "postgres": "catalog:"
+    "postgres": "catalog:",
+    "data": "workspace:*"
   }
 }

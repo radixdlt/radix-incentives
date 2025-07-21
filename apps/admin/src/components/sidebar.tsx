@@ -2,29 +2,10 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import {
-  BarChart3,
-  LayoutDashboard,
-  Settings,
-  Users,
-  FileBarChart,
-  LogOut,
-  CalendarDays,
-  Activity,
-} from 'lucide-react';
+import { Users, LogOut, CalendarDays, Activity } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navigationItems = [
-  {
-    title: 'Dashboard',
-    href: '/',
-    icon: <LayoutDashboard className="h-5 w-5" />,
-  },
-  // {
-  //   title: "Configuration",
-  //   href: "/campaign",
-  //   icon: <Settings className="h-5 w-5" />,
-  // },
   {
     title: 'Seasons',
     href: '/seasons',
@@ -35,21 +16,11 @@ const navigationItems = [
     href: '/activities',
     icon: <Activity className="h-5 w-5" />,
   },
-  // {
-  //   title: 'Analytics',
-  //   href: '/analytics',
-  //   icon: <BarChart3 className="h-5 w-5" />,
-  // },
   {
     title: 'User Management',
     href: '/users',
     icon: <Users className="h-5 w-5" />,
   },
-  // {
-  //   title: 'Reports',
-  //   href: '/reports',
-  //   icon: <FileBarChart className="h-5 w-5" />,
-  // },
 ];
 
 export function Sidebar() {

@@ -6,9 +6,9 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
-import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
-import type { AccountBalanceData } from "db/incentives";
+import { DappConstants, Assets, type AccountBalanceData } from "data";
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export type AggregateRootFinancePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;

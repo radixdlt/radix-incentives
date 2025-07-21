@@ -4,11 +4,13 @@ import {
   GetFungibleBalanceService,
   type InvalidInputError,
 } from "../../gateway/getFungibleBalance";
-import { CaviarNineConstants } from "./constants";
+import { DappConstants } from "data";
 import { BigNumber } from "bignumber.js";
 import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export type GetLsulpOutput = {
   address: string;

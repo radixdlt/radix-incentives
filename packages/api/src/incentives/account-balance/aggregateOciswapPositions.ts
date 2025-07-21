@@ -6,16 +6,23 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { OciswapConstants } from "../../common/dapps/ociswap/constants";
-import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
+import {
+  DappConstants,
+  type ActivityId,
+  type Token,
+  type AccountBalanceData,
+  getTokenPair,
+} from "data";
 import {
   AddressValidationService,
   type UnknownTokenError,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
-import { getPair } from "../../common/helpers/getPair";
+
 import type { OciswapLiquidityAsset } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
 import type { OciswapResourcePoolLiquidityAsset } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
+
+const OciswapConstants = DappConstants.Ociswap.constants;
 
 // Only include metadata if STORE_METADATA is not set to 'false' (defaults to true then)
 const STORE_METADATA = process.env.STORE_METADATA !== "false";
@@ -86,7 +93,7 @@ export const AggregateOciswapPositionsLive = Layer.effect(
               yToken.resourceAddress
             );
 
-          const tokenPairKey = getPair(
+          const tokenPairKey = getTokenPair(
             xTokenInfo.name as Token,
             yTokenInfo.name as Token
           );
@@ -262,9 +269,9 @@ export const AggregateOciswapPositionsLive = Layer.effect(
 
           // Generate activity IDs based on token pair
           const nonNativeActivityId =
-            `oci_lp_${getPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
+            `oci_lp_${getTokenPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
           const nativeActivityId =
-            `oci_nativeLp_${getPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
+            `oci_nativeLp_${getTokenPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
 
           processedPools.add(nonNativeActivityId);
           processedPools.add(nativeActivityId);
@@ -275,7 +282,10 @@ export const AggregateOciswapPositionsLive = Layer.effect(
             for (const { poolKey, poolAssets, poolTotals } of poolData) {
               poolMetadata[poolKey] = {
                 componentAddress: poolKey,
-                tokenPair: getPair(xTokenName as Token, yTokenName as Token),
+                tokenPair: getTokenPair(
+                  xTokenName as Token,
+                  yTokenName as Token
+                ),
                 baseToken: {
                   resourceAddress: poolAssets[0]!.xToken.resourceAddress,
                   amount: poolTotals.totalXToken.toString(),
@@ -349,9 +359,9 @@ export const AggregateOciswapPositionsLive = Layer.effect(
               pool.token_y
             );
           const nonNativeActivityId =
-            `oci_lp_${getPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
+            `oci_lp_${getTokenPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
           const nativeActivityId =
-            `oci_nativeLp_${getPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
+            `oci_nativeLp_${getTokenPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
 
           // Get XRD derivative status from the centralized function
           const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
@@ -365,7 +375,7 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                     activityId: nonNativeActivityId,
                     usdValue: "0",
                     metadata: {
-                      tokenPair: getPair(
+                      tokenPair: getTokenPair(
                         xTokenInfo.name as Token,
                         yTokenInfo.name as Token
                       ),
@@ -398,7 +408,7 @@ export const AggregateOciswapPositionsLive = Layer.effect(
                     activityId: nativeActivityId,
                     usdValue: "0",
                     metadata: {
-                      tokenPair: getPair(
+                      tokenPair: getTokenPair(
                         xTokenInfo.name as Token,
                         yTokenInfo.name as Token
                       ),
