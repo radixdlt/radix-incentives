@@ -10,9 +10,11 @@ import type {
   ProgrammaticScryptoSborValue,
   ProgrammaticScryptoSborValueDecimal,
 } from "@radixdlt/babylon-gateway-api-sdk";
-import { CaviarNineConstants } from "./constants";
+import { DappConstants } from "data";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export class LsulpNotFoundError {
   readonly _tag = "LsulpNotFoundError";

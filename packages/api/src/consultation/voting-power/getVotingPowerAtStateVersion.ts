@@ -1,14 +1,13 @@
 import { Effect } from "effect";
 import { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
+import { Assets, CaviarNineConstants } from "data";
 import { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
 import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 import { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
 import { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
 import { GetWeftFinancePositionsService } from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
 import { GetRootFinancePositionsService } from "../../common/dapps/rootFinance/getRootFinancePositions";
 import { validateStateInput } from "./schemas";
 import type { AtLedgerState } from "../../common/gateway/schemas";

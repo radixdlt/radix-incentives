@@ -7,7 +7,7 @@ import type { CapturedEvent } from "../events/event-matchers/createEventMatcher"
 import type { EmittableEvent } from "../events/event-matchers/types";
 import { FilterTradingEventsService } from "./filterTradingEvents";
 import { groupBy } from "effect/Array";
-import type { ActivityId } from "db/incentives";
+import type { ActivityId } from "data";
 
 export type ProcessSwapEventTradingVolumeServiceInput = {
   events: CapturedEvent<EmittableEvent>[];

@@ -46,7 +46,8 @@
     "radix-web3.js": "catalog:",
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "data": "workspace:*"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:",

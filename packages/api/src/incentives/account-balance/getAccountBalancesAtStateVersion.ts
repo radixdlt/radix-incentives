@@ -39,7 +39,7 @@ import {
 } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 import type { FailedToParseUnstakingReceiptError } from "../../common/staking/unstakingReceiptProcessor";
 import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
-import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
+import { DappConstants, Assets } from "data";
 import {
   type CollaterizedDebtPosition,
   GetRootFinancePositionsService,
@@ -58,13 +58,12 @@ import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
 } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
-import { type CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
+
 import {
   GetOciswapLiquidityAssetsService,
   type OciswapLiquidityAsset,
 } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
-import { type OciswapResourcePoolLiquidityAsset } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
-import { OciswapConstants } from "../../common/dapps/ociswap/constants";
+
 import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getQuantaSwapBinMap";
 import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
 import type { FailedToParseOciswapComponentStateError } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
@@ -87,17 +86,23 @@ import {
 } from "../../common/dapps/surge/getSurgeLiquidityPositions";
 import {
   GetOciswapResourcePoolPositionsService,
+  type OciswapResourcePoolLiquidityAsset,
   type InvalidResourcePoolError,
 } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
-import { GetCaviarnineResourcePoolPositionsService } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
+import {
+  type CaviarnineSimplePoolLiquidityAsset,
+  GetCaviarnineResourcePoolPositionsService,
+} from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import type {
   LedgerState,
   ProgrammaticScryptoSborValue,
 } from "@radixdlt/babylon-gateway-api-sdk";
 import BigNumber from "bignumber.js";
-import { RootFinance } from "../../common/dapps/rootFinance/constants";
-import { Assets } from "../../common/assets/constants";
-import { WeftFinance } from "../../common/dapps/weftFinance/constants";
+
+const RootFinanceConstants = DappConstants.RootFinance.constants;
+const WeftFinanceConstants = DappConstants.WeftFinance.constants;
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
+const OciswapConstants = DappConstants.Ociswap.constants;
 
 type Lsu = {
   resourceAddress: string;
@@ -286,8 +291,8 @@ export const GetAccountBalancesAtStateVersionLive = Layer.effect(
                   ...Object.values(OciswapConstants.poolsV2).map(
                     (pool) => pool.lpResourceAddress
                   ),
-                  RootFinance.receiptResourceAddress,
-                  WeftFinance.v2.WeftyV2.resourceAddress,
+                  RootFinanceConstants.receiptResourceAddress,
+                  WeftFinanceConstants.v2.WeftyV2.resourceAddress,
                   ...input.validators.map(
                     (validator) => validator.claimNftResourceAddress
                   ),

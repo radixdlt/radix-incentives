@@ -1,0 +1,9 @@
+{
+  "name": "data",
+  "type": "module",
+  "private": true,
+  "main": "./src/index.ts",
+  "dependencies": {
+    "zod": "catalog:"
+  }
+}

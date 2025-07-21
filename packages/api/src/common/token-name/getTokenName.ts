@@ -1,6 +1,5 @@
 import { Context, Effect, Layer } from "effect";
-import { Assets } from "../assets/constants";
-import { CaviarNineConstants } from "../dapps/caviarnine/constants";
+import { flatTokenNameMap } from "data";
 
 export class UnknownTokenError extends Error {
   readonly _tag = "UnknownTokenError";
@@ -8,16 +7,6 @@ export class UnknownTokenError extends Error {
     super(`Unknown token resource address: ${resourceAddress}`);
   }
 }
-
-// Centralized mapping from resource address to canonical token name
-const tokenNameMap = {
-  [Assets.Fungible.XRD]: "xrd",
-  [Assets.Fungible.xUSDC]: "xusdc",
-  [Assets.Fungible.xUSDT]: "xusdt",
-  [Assets.Fungible.wxBTC]: "xwbtc",
-  [Assets.Fungible.xETH]: "xeth",
-  [CaviarNineConstants.LSULP.resourceAddress]: "lsulp",
-} as const;
 
 export class TokenNameService extends Context.Tag("TokenNameService")<
   TokenNameService,
@@ -29,7 +18,7 @@ export const TokenNameServiceLive = Layer.effect(
   Effect.gen(function* () {
     return (resourceAddress: string) => {
       const tokenName =
-        tokenNameMap[resourceAddress as keyof typeof tokenNameMap];
+        flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
 
       if (tokenName) {
         return Effect.succeed(tokenName);

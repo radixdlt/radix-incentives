@@ -8,9 +8,10 @@ import {
 import { BigNumber } from "bignumber.js";
 import { GetComponentStateService } from "../../gateway/getComponentState";
 import { MarginPool } from "./schemas";
-import { SurgeConstants } from "./constants";
-import { Assets } from "../../assets/constants";
+import { DappConstants, Assets } from "data";
 import type { AtLedgerState } from "../../gateway/schemas";
+
+const SurgeConstants = DappConstants.Surge.constants;
 
 export class FailedToParseMarginPoolSchemaError {
   readonly _tag = "FailedToParseMarginPoolSchemaError";

@@ -15,8 +15,7 @@ import { GetAccountsIntersectionService } from "../account/getAccountsIntersecti
 import type { CommonEmittableEvents } from "./event-matchers/commonEventMatcher";
 import type { WeftFinanceEmittableEvents } from "./event-matchers/weftFinanceEventMatcher";
 import type { RootFinanceEmittableEvents } from "./event-matchers/rootFinanceEventMatcher";
-import { WeftFinance } from "../../common/dapps/weftFinance/constants";
-import { RootFinance } from "../../common/dapps/rootFinance/constants";
+import { WeftFinanceConstants, RootFinanceConstants } from "data";
 import type { AtLedgerState } from "../../common";
 import type {
   InvalidResourceAddressError,
@@ -163,7 +162,7 @@ export const DeriveAccountFromEventLive = Layer.effect(
               };
 
               const result = yield* getRegisteredAccountAddressFromNonFungible(
-                WeftFinance.v2.WeftyV2.resourceAddress,
+                WeftFinanceConstants.v2.WeftyV2.resourceAddress,
                 nonFungibleId,
                 at_ledger_state
               );
@@ -197,7 +196,7 @@ export const DeriveAccountFromEventLive = Layer.effect(
 
                 const result =
                   yield* getRegisteredAccountAddressFromNonFungible(
-                    RootFinance.receiptResourceAddress,
+                    RootFinanceConstants.receiptResourceAddress,
                     nonFungibleId,
                     at_ledger_state
                   );

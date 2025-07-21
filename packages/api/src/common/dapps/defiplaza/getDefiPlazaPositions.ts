@@ -9,9 +9,11 @@ import {
 } from "../../gateway/getFungibleBalance";
 
 import type { InvalidComponentStateError } from "../../gateway/getComponentState";
-import { DefiPlaza } from "./constants";
+import { DappConstants } from "data";
 import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
+
+const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
 
 import {
   type GetResourcePoolOutput,
@@ -73,13 +75,15 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
         >();
 
         // Gather all pool addresses (base and quote) and LP resource addresses
-        const allPoolAddresses = Object.values(DefiPlaza).flatMap((pool) => [
-          pool.basePoolAddress,
-          pool.quotePoolAddress,
-        ]);
-        const allLpResourceAddresses = Object.values(DefiPlaza).flatMap(
-          (pool) => [pool.baseLpResourceAddress, pool.quoteLpResourceAddress]
+        const allPoolAddresses = Object.values(DefiPlazaConstants).flatMap(
+          (pool) => [pool.basePoolAddress, pool.quotePoolAddress]
         );
+        const allLpResourceAddresses = Object.values(
+          DefiPlazaConstants
+        ).flatMap((pool) => [
+          pool.baseLpResourceAddress,
+          pool.quoteLpResourceAddress,
+        ]);
 
         // Fetch pool data for all pools (base and quote)
         const pools = yield* getResourcePoolUnitsService({
@@ -96,9 +100,9 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
         // Map pool key (baseLpResourceAddress) to pool config
         const poolConfigMap = new Map<
           string,
-          (typeof DefiPlaza)[keyof typeof DefiPlaza]
+          (typeof DefiPlazaConstants)[keyof typeof DefiPlazaConstants]
         >();
-        for (const pool of Object.values(DefiPlaza)) {
+        for (const pool of Object.values(DefiPlazaConstants)) {
           poolConfigMap.set(pool.baseLpResourceAddress, pool);
         }
 
@@ -127,7 +131,7 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
           }
 
           // For each pool, aggregate both base and quote LPs
-          for (const pool of Object.values(DefiPlaza)) {
+          for (const pool of Object.values(DefiPlazaConstants)) {
             const baseLp = userLpBalances.get(pool.baseLpResourceAddress);
             const quoteLp = userLpBalances.get(pool.quoteLpResourceAddress);
 

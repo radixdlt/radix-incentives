@@ -1,10 +1,8 @@
 import { Effect } from "effect";
 import type { TransformedEvent } from "../../transaction-stream/transformEvent";
-import { RootFinance } from "../../../common/dapps/rootFinance/constants";
+
 import {
   CDPUpdatedEvent,
-  CDPLiquidableEvent,
-  LendingPoolUpdatedEvent,
   type CDPUpdatedEvent as CDPUpdatedEventType,
   type CDPLiquidableEvent as CDPLiquidableEventType,
   type LendingPoolUpdatedEvent as LendingPoolUpdatedEventType,

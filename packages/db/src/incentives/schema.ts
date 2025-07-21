@@ -1,3 +1,4 @@
+import type { ActivityCategoryId, ActivityId } from "data";
 import { type InferSelectModel, relations } from "drizzle-orm";
 import {
   pgTableCreator,
@@ -15,7 +16,6 @@ import {
   integer,
   bigint,
 } from "drizzle-orm/pg-core";
-import type { ActivityId, ActivityCategoryKey } from "./types";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -161,6 +161,16 @@ export const activityCategories = createTable("activity_categories", {
   description: text("description"),
 });
 
+export const dapps = createTable("dapp", {
+  id: text("id").primaryKey(),
+  name: text("name").notNull(),
+  website: text("website").notNull(),
+});
+
+export const dappsRelations = relations(dapps, ({ many }) => ({
+  activities: many(activities),
+}));
+
 // Activity Table
 export const activities = createTable("activity", {
   id: text("id").primaryKey(),
@@ -169,6 +179,7 @@ export const activities = createTable("activity", {
   category: text("category")
     .notNull()
     .references(() => activityCategories.id, { onDelete: "cascade" }),
+  dapp: text("dapp").references(() => dapps.id),
 });
 
 export const activitiesRelations = relations(activities, ({ many, one }) => ({
@@ -176,6 +187,10 @@ export const activitiesRelations = relations(activities, ({ many, one }) => ({
   activityCategories: one(activityCategories, {
     fields: [activities.category],
     references: [activityCategories.id],
+  }),
+  dapp: one(dapps, {
+    fields: [activities.dapp],
+    references: [dapps.id],
   }),
 }));
 
@@ -465,14 +480,15 @@ export type ActivityCategory = Omit<
   InferSelectModel<typeof activityCategories>,
   "id"
 > & {
-  id: ActivityCategoryKey;
+  id: ActivityCategoryId;
 };
+export type NewActivity = typeof activities.$inferInsert;
 export type Activity = Omit<
   InferSelectModel<typeof activities>,
   "category" | "id"
 > & {
   id: ActivityId;
-  category: ActivityCategoryKey;
+  category: ActivityCategoryId;
 };
 export type ActivityWeek = Omit<
   InferSelectModel<typeof activityWeeks>,

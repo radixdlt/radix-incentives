@@ -6,17 +6,19 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
-import { CaviarNineConstants } from "../../common/dapps/caviarnine/constants";
-import type { AccountBalanceData, ActivityId, Token } from "db/incentives";
+
+import { Assets, DappConstants, getTokenPair } from "data";
+import type { AccountBalanceData, ActivityId, Token } from "data";
 import {
   AddressValidationService,
   type UnknownTokenError,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
-import { getPair } from "../../common/helpers/getPair";
+
 import type { ShapeLiquidityAsset } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
 import type { CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
+
+const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -85,7 +87,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               yToken.resourceAddress
             );
 
-          const tokenPairKey = getPair(
+          const tokenPairKey = getTokenPair(
             xTokenInfo.name as Token,
             yTokenInfo.name as Token
           );
@@ -231,12 +233,12 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             : new BigNumber(0);
 
           // Generate activity IDs based on token pair
-          const nonNativeActivityId = `c9_lp_${getPair(
+          const nonNativeActivityId = `c9_lp_${getTokenPair(
             xTokenName as Token,
             yTokenName as Token
           )}` as ActivityId;
 
-          const nativeActivityId = `c9_nativeLp_${getPair(
+          const nativeActivityId = `c9_nativeLp_${getTokenPair(
             xTokenName as Token,
             yTokenName as Token
           )}` as ActivityId;
@@ -249,7 +251,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           for (const { poolKey, poolAssets, poolTotals } of poolData) {
             poolMetadata[poolKey] = {
               componentAddress: poolKey,
-              tokenPair: getPair(xTokenName as Token, yTokenName as Token),
+              tokenPair: getTokenPair(xTokenName as Token, yTokenName as Token),
               baseToken: {
                 resourceAddress: poolAssets[0]!.xToken.resourceAddress,
                 amount: poolTotals.totalXToken.toString(),
@@ -382,11 +384,11 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               pool.token_y
             );
-          const nonNativeActivityId = `c9_lp_${getPair(
+          const nonNativeActivityId = `c9_lp_${getTokenPair(
             xTokenInfo.name as Token,
             yTokenInfo.name as Token
           )}` as ActivityId;
-          const nativeActivityId = `c9_nativeLp_${getPair(
+          const nativeActivityId = `c9_nativeLp_${getTokenPair(
             xTokenInfo.name as Token,
             yTokenInfo.name as Token
           )}` as ActivityId;
@@ -401,7 +403,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               activityId: nonNativeActivityId,
               usdValue: "0",
               metadata: {
-                tokenPair: getPair(
+                tokenPair: getTokenPair(
                   xTokenInfo.name as Token,
                   yTokenInfo.name as Token
                 ),
@@ -425,7 +427,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               activityId: nativeActivityId,
               usdValue: "0",
               metadata: {
-                tokenPair: getPair(
+                tokenPair: getTokenPair(
                   xTokenInfo.name as Token,
                   yTokenInfo.name as Token
                 ),

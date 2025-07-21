@@ -423,6 +423,9 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
+      data:
+        specifier: workspace:*
+        version: link:../../packages/data
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -852,6 +855,9 @@ importers:
       commander:
         specifier: 'catalog:'
         version: 12.1.0
+      data:
+        specifier: workspace:*
+        version: link:../../packages/data
       db:
         specifier: workspace:*
         version: link:../../packages/db

@@ -2,7 +2,6 @@ import { Context, Effect, Layer } from "effect";
 
 import type { AtLedgerState } from "../../gateway/schemas";
 import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
-import type { GatewayApiClientService } from "../../gateway/gatewayApiClient";
 import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
 import type { GatewayError } from "../../gateway/errors";
 import s from "sbor-ez-mode";
