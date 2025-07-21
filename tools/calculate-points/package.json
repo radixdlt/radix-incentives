@@ -3,7 +3,8 @@
   "type": "module",
   "main": "./src/index.ts",
   "scripts": {
-    "calc:sp": "tsx --watch src/calculateSeasonPoints.ts"
+    "calc:sp": "tsx --watch src/calculateSeasonPoints.ts",
+    "calc:ap": "tsx --watch src/calculateActivityPoints.ts"
   },
   "devDependencies": {
     "tsup": "catalog:",
