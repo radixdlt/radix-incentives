@@ -59,6 +59,7 @@ import { GetNftResourceManagersLive } from "../../common/gateway/getNftResourceM
 import { GetNonFungibleIdsLive } from "../../common/gateway/getNonFungibleIds";
 import { getDatesBetweenIntervals } from "../../common/helpers/getDatesBetweenIntervals";
 import { UnstakingReceiptProcessorService } from "../../common/staking/unstakingReceiptProcessor";
+import { CalculateTWAVotingPowerService } from "../voting-power/calculateVotingPowerTWA";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -312,6 +313,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive)
   );
 
+  const calculateTWAVotingPowerLive = CalculateTWAVotingPowerService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
   const createChallenge = () =>
     Effect.runPromiseExit(
       createChallengeProgram.pipe(Effect.provide(createChallengeLive))
@@ -420,7 +425,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getVotingPowerAtStateVersion = (input: {
+  const calculateVotingPowerAtStateVersion = (input: {
     startDate: Date;
     endDate: Date;
     addresses: string[];
@@ -467,6 +472,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+
+  const calculateTWAVotingPower = () => {
+    const runnable = Effect.gen(function* () {
+      const calculateTWAVotingPower = yield* CalculateTWAVotingPowerService;
+      return yield* calculateTWAVotingPower.run();
+    });
+
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(calculateTWAVotingPowerLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+
   const listConsultations = () => {
     const runnable = Effect.gen(function* () {
       const listConsultations = yield* GetConsultationsService;
@@ -490,7 +511,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     signOut,
     verifyConsultationSignature,
     getConsultations,
-    getVotingPowerAtStateVersion,
+    calculateVotingPowerAtStateVersion,
     listConsultations,
+    calculateTWAVotingPower,
   };
 };
