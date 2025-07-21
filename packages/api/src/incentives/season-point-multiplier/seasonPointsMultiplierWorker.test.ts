@@ -1,12 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
+import { BigNumber } from "bignumber.js";
 import { 
     calculateMultiplier,
-    seasonPointsMultiplierJobSchema
 } from "./seasonPointsMultiplierWorker";
 
 // Mock the chunker utility
 vi.mock("../../common", () => ({
-    chunker: vi.fn((array: any[], size: number) => {
+    chunker: vi.fn((array: unknown[], size: number) => {
         const result = [];
         for (let i = 0; i < array.length; i += size) {
             result.push(array.slice(i, i + size));
@@ -18,27 +18,44 @@ vi.mock("../../common", () => ({
 // Test the pure multiplier calculation function
 describe("calculateMultiplier", () => {
 
-    it("should return 0.5 for q below lower cap", () => {
-        expect(calculateMultiplier(0.01)).toBe(0.5);
-        expect(calculateMultiplier(0.019)).toBe(0.5);
+    it("should return 0.5 for XRD balance below 10,000", () => {
+        expect(calculateMultiplier(new BigNumber(1000))).toBe(0.5);
+        expect(calculateMultiplier(new BigNumber(9999))).toBe(0.5);
+        expect(calculateMultiplier(new BigNumber(0))).toBe(0.5);
     });
 
-    it("should return 3.0 for q above upper cap", () => {
-        expect(calculateMultiplier(0.51)).toBe(3.0);
-        expect(calculateMultiplier(1.0)).toBe(3.0);
+    it("should return 3.0 for XRD balance above 75,000,000", () => {
+        expect(calculateMultiplier(new BigNumber(75000000))).toBe(3.0);
+        expect(calculateMultiplier(new BigNumber(100000000))).toBe(3.0);
     });
 
-    it("should calculate S-curve multiplier for q between caps", () => {
-        const result = calculateMultiplier(0.18); // Q0 value
-        expect(result).toBeGreaterThan(1.5);
-        expect(result).toBeLessThan(2.5);
+    it("should calculate S-curve multiplier for XRD balance between 10,000 and 75,000,000", () => {
+        // Test with 50,000 XRD - should be in the S-curve range
+        const result = calculateMultiplier(new BigNumber(50000));
+        expect(result).toBeGreaterThan(0.5);
+        expect(result).toBeLessThan(3.0);
+        
+        // Test with 1,000,000 XRD - should be higher on the curve
+        const result2 = calculateMultiplier(new BigNumber(1000000));
+        expect(result2).toBeGreaterThan(result);
+        expect(result2).toBeLessThan(3.0);
     });
 
     it("should handle edge cases at boundaries", () => {
-        expect(calculateMultiplier(0.02)).toBeGreaterThan(0.5);
-        expect(calculateMultiplier(0.50)).toBeGreaterThanOrEqual(3.0);
-    });
+        // Just above the lower threshold
+        expect(calculateMultiplier(new BigNumber(10000))).toBeGreaterThan(0.5);
+        
+        // Just below the upper threshold
+        const result = calculateMultiplier(new BigNumber(74999999));
+        expect(result).toBeLessThan(3.0);
+        expect(result).toBeGreaterThan(0.5);
 
+        const result2 = calculateMultiplier(new BigNumber(75000000));
+        expect(result2).toBe(3.0);
+        expect(result2).toBeGreaterThan(0.5);
+        
+
+    });
 
 });
 
@@ -46,37 +63,46 @@ describe("calculateMultiplier", () => {
 // Test business logic edge cases
 describe("Edge Cases", () => {
 
-    it("should handle zero total sum gracefully", () => {
-        const users = [
-            { userId: "user1", totalTWABalance: 0, cumulativeTWABalance: 0, weekId: "week1" }
-        ];
-        const totalSum = 0;
-
-        // This would cause division by zero in the actual calculation
-        const q = users[0].cumulativeTWABalance / totalSum;
-        expect(isNaN(q) || !isFinite(q)).toBe(true);
-        
-        // The implementation should handle this case
+    it("should handle zero XRD balance", () => {
+        const result = calculateMultiplier(new BigNumber(0));
+        expect(result).toBe(0.5);
     });
 
-    it("should handle extreme q values", () => {
-        expect(calculateMultiplier(-1)).toBe(0.5); // Negative q
-        expect(calculateMultiplier(0)).toBe(0.5); // Zero q
-        expect(calculateMultiplier(100)).toBe(3.0); // Very large q
+    it("should handle negative XRD balance", () => {
+        const result = calculateMultiplier(new BigNumber(-1000));
+        expect(result).toBe(0.5); // Should still return minimum multiplier
     });
 
-    it("should maintain precision with large numbers", () => {
-        const users = [
-            { userId: "user1", totalTWABalance: 1000000, cumulativeTWABalance: 1000000, weekId: "week1" },
-            { userId: "user2", totalTWABalance: 5000000, cumulativeTWABalance: 6000000, weekId: "week1" }
-        ];
-        const totalSum = 6000000;
+    it("should handle extremely large XRD balance", () => {
+        const result = calculateMultiplier(new BigNumber("999999999999"));
+        expect(result).toBe(3.0); // Should cap at maximum multiplier
+    });
 
-        users.forEach(user => {
-            const q = user.cumulativeTWABalance / totalSum;
-            const multiplier = calculateMultiplier(q);
+    it("should maintain precision with large XRD numbers", () => {
+        const testBalances = [
+            new BigNumber(1000000), // 1M XRD
+            new BigNumber(5000000), // 5M XRD  
+            new BigNumber(50000000) // 50M XRD
+        ];
+
+        for (const balance of testBalances) {
+            const multiplier = calculateMultiplier(balance);
             expect(multiplier).toBeGreaterThanOrEqual(0.5);
             expect(multiplier).toBeLessThanOrEqual(3.0);
-        });
+        }
+    });
+
+    it("should produce S-curve progression", () => {
+        // Test that multiplier increases as XRD balance increases
+        const balance1 = new BigNumber(20000);   // 20K XRD
+        const balance2 = new BigNumber(100000);  // 100K XRD
+        const balance3 = new BigNumber(1000000); // 1M XRD
+        
+        const multiplier1 = calculateMultiplier(balance1);
+        const multiplier2 = calculateMultiplier(balance2);
+        const multiplier3 = calculateMultiplier(balance3);
+        
+        expect(multiplier2).toBeGreaterThan(multiplier1);
+        expect(multiplier3).toBeGreaterThan(multiplier2);
     });
 }); 
