@@ -21,8 +21,8 @@ const ConsultationOptionSchema = z.object({
 });
 
 const ConsultationOptions = [
-  { id: ConsultationOptionId.Yes, text: "Yes" },
-  { id: ConsultationOptionId.No, text: "No" },
+  { id: ConsultationOptionId.Yes, text: "Wait for HyperLane" },
+  { id: ConsultationOptionId.No, text: "Launch now" },
 ];
 
 export type ConsultationOption = z.infer<typeof ConsultationOptionSchema>;
