@@ -28,12 +28,18 @@ const main = async () => {
 
   // get addresses from dynamic file
   const { accounts } = await import(ACCOUNTS_FILE_PATH);
-  const addresses = accounts.map((account: { account_address: string }) => account.account_address);
+  // const addresses = accounts.map((account: { account_address: string }) => account.account_address);
 
-  console.log(`Getting voting power for ${addresses.length} addresses`);
+  console.log(`Getting voting power for ${accounts.length} addresses`);
 
   // Split addresses into batches of 1000
-  const addressBatches = chunkArray<string>(addresses, 1000);
+  const addressBatches = chunkArray<{
+    account_address: string, selected_option: string, rola_proof: {
+      curve: string;
+      publicKey: string;
+      signature: string;
+    }
+  }>(accounts, 1000);
   console.log(`Processing ${addressBatches.length} batches of up to 1000 addresses each`);
 
   const allResults: unknown[] = [];
@@ -44,7 +50,7 @@ const main = async () => {
     console.log(`Processing batch ${i + 1}/${addressBatches.length} with ${batch.length} addresses`);
 
     const result = await calculateVotingPowerAtStateVersion({
-      addresses: batch,
+      accounts: batch,
       startDate,
       endDate,
     });
@@ -66,7 +72,7 @@ const main = async () => {
   console.log("\nProcessing complete:");
   console.log(`- Successful batches: ${allResults.length}`);
   console.log(`- Failed batches: ${failedBatches.length}`);
-  
+
   if (failedBatches.length > 0) {
     console.log(`- Failed batch numbers: ${failedBatches.join(', ')}`);
   }
@@ -78,7 +84,7 @@ const main = async () => {
 
   // calculate time weighted average
   await calculateTWAVotingPower();
-  console.log( "Time weighted average calculated");
+  console.log("Time weighted average calculated");
 };
 
 main();

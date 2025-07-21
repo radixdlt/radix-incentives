@@ -39,3 +39,4 @@ yarn-error.log*
 *.pem
 .idea/*
 apps/vote-collector/src/data/*
+apps/vote-collector/time_weighted_averages.csv

@@ -49,11 +49,11 @@ WITH intervals AS (
         rola_proof,
         EXTRACT(EPOCH FROM (LEAD(timestamp, 1, NOW()) OVER (PARTITION BY account_address ORDER BY timestamp) - timestamp)) AS interval_seconds
       FROM 
-        voting_power_results
+        voting_power
     )
     SELECT 
       account_address, selected_option,rola_proof,
-      SUM(voting_power * interval_seconds) / SUM(interval_seconds) AS time_weighted_average
+      SUM(voting_power::numeric * interval_seconds) / SUM(interval_seconds) AS time_weighted_average
     FROM 
       intervals
     GROUP BY 
@@ -68,8 +68,16 @@ export class CalculateTWAVotingPowerService extends Effect.Service<CalculateTWAV
       const db = yield* DbClientService;
       return {
         run: Effect.fn(function* () {
+          yield* Effect.log("Starting TWA calculation...");
           const result = yield* Effect.promise(() => db.execute(sql.raw(timeWeightedAverageQuery)));
-          yield* Effect.promise(() => saveToCsv(result as unknown as TimeWeightedAverageResult));
+          yield* Effect.log(`Query returned ${result.length} rows`);
+          
+          const timeWeightedResult = { rows: result as unknown as TimeWeightedAverageRow[] };
+          yield* Effect.log("Saving results to CSV...");
+          yield* Effect.promise(() => saveToCsv(timeWeightedResult));
+          yield* Effect.log("CSV saved successfully");
+          
+          return timeWeightedResult;
         }),
       };
     }),

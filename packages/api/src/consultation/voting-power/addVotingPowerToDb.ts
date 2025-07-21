@@ -16,6 +16,8 @@ export class AddVotingPowerToDbService extends Effect.Service<AddVotingPowerToDb
             votingPower: string;
             timestamp: Date;
             balances: Record<string, string>;
+            selectedOption: string;
+            rolaProof: string;
           }[]
         ) {
           // Split input into chunks of 10,000 rows
@@ -35,6 +37,8 @@ export class AddVotingPowerToDbService extends Effect.Service<AddVotingPowerToDb
                       votingPower:
                         sql`excluded.voting_power` as unknown as string,
                       balances: sql`excluded.balances` as unknown as object,
+                      selectedOption: sql`excluded.selected_option` as unknown as string,
+                      rolaProof: sql`excluded.rola_proof` as unknown as string,
                     },
                   }),
               catch: (error) => new DbError(`Batch ${i + 1}/${chunks.length} failed: ${error}`),
