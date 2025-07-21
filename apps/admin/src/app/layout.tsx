@@ -4,6 +4,7 @@ import '../styles/globals.css';
 import { ThemeProvider } from '../components/theme-provider';
 import { Sidebar } from '../components/sidebar';
 import { TRPCReactProvider } from '~/trpc/react';
+import { Toaster } from 'sonner';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,6 +27,7 @@ export default function RootLayout({
               <Sidebar />
               <main className="ml-64 flex-1 overflow-auto">{children}</main>
             </div>
+            <Toaster richColors position="top-right" />
           </ThemeProvider>
         </TRPCReactProvider>
       </body>
