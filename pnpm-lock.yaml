@@ -708,9 +708,6 @@ importers:
       api:
         specifier: workspace:*
         version: link:../../packages/api
-      csv-writer:
-        specifier: 1.6.0
-        version: 1.6.0
       db:
         specifier: workspace:*
         version: link:../../packages/db
@@ -983,12 +980,12 @@ importers:
       blakejs:
         specifier: 'catalog:'
         version: 1.2.1
-      data:
-        specifier: workspace:*
-        version: link:../data
       csv-writer:
         specifier: 'catalog:'
         version: 1.6.0
+      data:
+        specifier: workspace:*
+        version: link:../data
       date-fns:
         specifier: 'catalog:'
         version: 4.1.0

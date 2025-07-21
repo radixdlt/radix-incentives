@@ -8,6 +8,13 @@
       "when": 1746539638185,
       "tag": "0000_odd_dragon_man",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1753106926057,
+      "tag": "0001_friendly_karnak",
+      "breakpoints": true
     }
   ]
 }
