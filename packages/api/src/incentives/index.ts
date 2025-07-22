@@ -15,5 +15,7 @@ export { UserActivityPointsService } from "./user/userActivityPoints";
 export { GetSeasonPointMultiplierService } from "./season-point-multiplier/getSeasonPointMultiplier";
 export { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 export { UpdateWeekStatusService } from "./week/updateWeekStatus";
-export type { UpdateActivityInput } from "./activity/activity";
+export type { UpdateActivityInput, Activity } from "./activity/activity";
 export { SnapshotService, SnapshotLive } from "./snapshot/snapshot";
+export type { Dapp } from "./dapp/dapp";
+export type { ActivityCategory } from "./activity-category/activityCategory";

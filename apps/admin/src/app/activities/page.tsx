@@ -17,7 +17,16 @@ import { Separator } from '~/components/ui/separator';
 import { Input } from '~/components/ui/input';
 import { api } from '~/trpc/react';
 
-type SortField = 'id' | 'name' | 'description' | 'category' | 'dapp';
+type SortField =
+  | 'id'
+  | 'name'
+  | 'description'
+  | 'category'
+  | 'dapp'
+  | 'componentAddresses'
+  | 'showOnEarnPage'
+  | 'ap'
+  | 'multiplier';
 type SortDirection = 'asc' | 'desc';
 
 function ManageActivitiesPage() {
@@ -92,6 +101,38 @@ function ManageActivitiesPage() {
         case 'dapp':
           aValue = a.dapp || '';
           bValue = b.dapp || '';
+          break;
+        case 'componentAddresses':
+          aValue =
+            (a.componentAddresses as string[])?.length?.toString() || '0';
+          bValue =
+            (b.componentAddresses as string[])?.length?.toString() || '0';
+          break;
+        case 'showOnEarnPage':
+          aValue =
+            ((a.data as { showOnEarnPage?: boolean })?.showOnEarnPage ?? true)
+              ? 'true'
+              : 'false';
+          bValue =
+            ((b.data as { showOnEarnPage?: boolean })?.showOnEarnPage ?? true)
+              ? 'true'
+              : 'false';
+          break;
+        case 'ap':
+          aValue =
+            ((a.data as { ap?: boolean })?.ap ?? false) ? 'true' : 'false';
+          bValue =
+            ((b.data as { ap?: boolean })?.ap ?? false) ? 'true' : 'false';
+          break;
+        case 'multiplier':
+          aValue =
+            ((a.data as { multiplier?: boolean })?.multiplier ?? false)
+              ? 'true'
+              : 'false';
+          bValue =
+            ((b.data as { multiplier?: boolean })?.multiplier ?? false)
+              ? 'true'
+              : 'false';
           break;
       }
 
@@ -178,12 +219,48 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50"
+                className="cursor-pointer hover:bg-muted/50 border-r"
                 onClick={() => handleSort('dapp')}
               >
                 <div className="flex items-center">
                   Dapp
                   {getSortIcon('dapp')}
+                </div>
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50 border-r"
+                onClick={() => handleSort('componentAddresses')}
+              >
+                <div className="flex items-center">
+                  Component Addresses
+                  {getSortIcon('componentAddresses')}
+                </div>
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50 border-r"
+                onClick={() => handleSort('showOnEarnPage')}
+              >
+                <div className="flex items-center">
+                  Show on Earn Page
+                  {getSortIcon('showOnEarnPage')}
+                </div>
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50 border-r"
+                onClick={() => handleSort('ap')}
+              >
+                <div className="flex items-center">
+                  AP
+                  {getSortIcon('ap')}
+                </div>
+              </TableHead>
+              <TableHead
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleSort('multiplier')}
+              >
+                <div className="flex items-center">
+                  Multiplier
+                  {getSortIcon('multiplier')}
                 </div>
               </TableHead>
             </TableRow>
@@ -208,12 +285,74 @@ function ManageActivitiesPage() {
                   <TableCell className="border-r">
                     <Badge variant="outline">{activity.category}</Badge>
                   </TableCell>
-                  <TableCell>{activity.dapp || '-'}</TableCell>
+                  <TableCell className="border-r">
+                    {activity.dapp || '-'}
+                  </TableCell>
+                  <TableCell className="border-r max-w-xs">
+                    <div className="space-y-1">
+                      {(activity.componentAddresses as string[])?.length > 0
+                        ? (activity.componentAddresses as string[]).map(
+                            (address, index) => (
+                              <div
+                                key={address}
+                                className="text-xs font-mono truncate"
+                                title={address}
+                              >
+                                {address}
+                              </div>
+                            ),
+                          )
+                        : '-'}
+                    </div>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <Badge
+                      variant={
+                        ((activity.data as { showOnEarnPage?: boolean })
+                          ?.showOnEarnPage ?? true)
+                          ? 'default'
+                          : 'secondary'
+                      }
+                    >
+                      {((activity.data as { showOnEarnPage?: boolean })
+                        ?.showOnEarnPage ?? true)
+                        ? 'Yes'
+                        : 'No'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="border-r">
+                    <Badge
+                      variant={
+                        ((activity.data as { ap?: boolean })?.ap ?? false)
+                          ? 'default'
+                          : 'secondary'
+                      }
+                    >
+                      {((activity.data as { ap?: boolean })?.ap ?? false)
+                        ? 'Yes'
+                        : 'No'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell>
+                    <Badge
+                      variant={
+                        ((activity.data as { multiplier?: boolean })
+                          ?.multiplier ?? false)
+                          ? 'default'
+                          : 'secondary'
+                      }
+                    >
+                      {((activity.data as { multiplier?: boolean })
+                        ?.multiplier ?? false)
+                        ? 'Yes'
+                        : 'No'}
+                    </Badge>
+                  </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="h-24 text-center">
+                <TableCell colSpan={9} className="h-24 text-center">
                   {searchTerm
                     ? 'No activities found matching your search.'
                     : 'No activities defined yet.'}

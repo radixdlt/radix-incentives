@@ -12,6 +12,11 @@ export default function EarnPage() {
   const { data: activityData, isLoading } =
     api.activity.getActivityData.useQuery();
 
+  const { data: activityCategories } =
+    api.activity.getActivityCategories.useQuery();
+
+  const { data: dapps } = api.dapps.getDapps.useQuery();
+
   const [selectedCategory, setSelectedCategory] = useState<
     'all' | 'passive' | 'active'
   >('all');
@@ -22,6 +27,10 @@ export default function EarnPage() {
   const activities = activityData?.list || [];
 
   const filteredActivities = activities.filter((activity) => {
+    if (activity.data?.showOnEarnPage === false) {
+      return false;
+    }
+
     const categoryMatch =
       selectedCategory === 'all' ||
       (selectedCategory === 'passive' &&
@@ -91,7 +100,11 @@ export default function EarnPage() {
           <ActivityCardSkeleton key="skeleton-6" />
         </div>
       ) : (
-        <ActivityGrid activities={filteredActivities} />
+        <ActivityGrid
+          activities={filteredActivities}
+          dapps={dapps ?? []}
+          activityCategories={activityCategories ?? []}
+        />
       )}
     </div>
   );

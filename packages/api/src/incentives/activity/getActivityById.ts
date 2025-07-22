@@ -5,11 +5,11 @@ import {
   activities,
   activityWeeks,
   type Week,
-  type Activity,
   type ActivityWeek,
 } from "db/incentives";
 import { eq } from "drizzle-orm";
 import type { ActivityId } from "data";
+import type { Activity } from "./activity";
 
 export class NotFoundError {
   readonly _tag = "NotFoundError";

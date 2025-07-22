@@ -10,7 +10,7 @@ import { adminUserRouter, userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 import { configRouter } from "../config/configRouter";
 import { weekRouter } from "../week/weekRouter";
-import { adminDappRouter } from "../dapp/dappRouter";
+import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
 
 /**
  * This is the primary router for your server.
@@ -25,6 +25,7 @@ export const appRouter = createTRPCRouter({
   activity: activityRouter,
   config: configRouter,
   week: weekRouter,
+  dapps: dappRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
