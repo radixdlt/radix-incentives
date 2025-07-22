@@ -59,6 +59,7 @@ import { GetNftResourceManagersService } from "../../common/gateway/getNftResour
 import { GetNonFungibleIdsService } from "../../common/gateway/getNonFungibleIds";
 import { getDatesBetweenIntervals } from "../../common/helpers/getDatesBetweenIntervals";
 import { UnstakingReceiptProcessorService } from "../../common/staking/unstakingReceiptProcessor";
+import { CalculateTWAVotingPowerService } from "../voting-power/calculateVotingPowerTWA";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -315,6 +316,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive)
   );
 
+  const calculateTWAVotingPowerLive = CalculateTWAVotingPowerService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
   const createChallenge = () =>
     Effect.runPromiseExit(
       createChallengeProgram.pipe(Effect.provide(createChallengeLive))
@@ -423,10 +428,17 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getVotingPowerAtStateVersion = (input: {
+  const calculateVotingPowerAtStateVersion = (input: {
     startDate: Date;
     endDate: Date;
-    addresses: string[];
+    accounts: { 
+      account_address: string;
+      selected_option: string;
+      rola_proof: {
+      curve: string;
+      publicKey: string;
+      signature: string;
+    } }[];
   }) => {
     const runnable = Effect.gen(function* () {
       const getVotingPowerAtStateVersion =
@@ -442,24 +454,26 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         }
       );
 
-      const votingPower = yield* Effect.forEach(dates, (date) => {
+      yield* Effect.forEach(dates, (date) => {
         return Effect.gen(function* () {
           yield* Effect.log(`getting voting power for ${date.toISOString()}`);
           const result = yield* getVotingPowerAtStateVersion.run({
-            addresses: input.addresses,
+            addresses: input.accounts.map((account) => account.account_address),
             at_ledger_state: { timestamp: date },
           });
 
-          return result.map((item) => ({
+          const votingPower = result.map((item) => ({
             accountAddress: item.address,
             votingPower: item.votingPower.toString(),
             balances: item.balances,
             timestamp: date,
+            selectedOption: input.accounts.find((account) => account.account_address === item.address)?.selected_option ?? "",
+            rolaProof: JSON.stringify(input.accounts.find((account) => account.account_address === item.address)?.rola_proof ?? {}),
           }));
+          yield* addVotingPowerToDb.run(votingPower);
         });
       });
 
-      yield* addVotingPowerToDb.run(votingPower.flat());
     });
 
     const program = Effect.provide(
@@ -469,6 +483,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     return Effect.runPromiseExit(program);
   };
+
+
+  const calculateTWAVotingPower = () => {
+    const runnable = Effect.gen(function* () {
+      const calculateTWAVotingPower = yield* CalculateTWAVotingPowerService;
+      return yield* calculateTWAVotingPower.run();
+    });
+
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(calculateTWAVotingPowerLive)
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
 
   const listConsultations = () => {
     const runnable = Effect.gen(function* () {
@@ -493,7 +523,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     signOut,
     verifyConsultationSignature,
     getConsultations,
-    getVotingPowerAtStateVersion,
+    calculateVotingPowerAtStateVersion,
     listConsultations,
+    calculateTWAVotingPower,
   };
 };

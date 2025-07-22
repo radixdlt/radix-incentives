@@ -131,3 +131,6 @@ export const ActivityId = {
 } as const;
 
 export type ActivityId = (typeof ActivityId)[keyof typeof ActivityId];
+
+export const matchActivityId = (input: string) =>
+  !!ActivityId[input as keyof typeof ActivityId];

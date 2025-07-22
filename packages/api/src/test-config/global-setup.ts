@@ -2,9 +2,7 @@ import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 
-import activityCategoriesToSeed from "./seed-data/activity_categories.json";
-import activitiesToSeed from "./seed-data/activity.json";
-import weeksToSeed from "./seed-data/week.json";
+import { activityCategoriesData, activitiesData } from "data";
 
 import {
   activities,
@@ -45,7 +43,7 @@ export default async function setup({ provide }) {
 
   await db
     .insert(activityCategories)
-    .values(activityCategoriesToSeed)
+    .values(activityCategoriesData)
     .returning()
     .onConflictDoUpdate({
       target: [activityCategories.id],
@@ -56,7 +54,7 @@ export default async function setup({ provide }) {
 
   const activityResults = await db
     .insert(activities)
-    .values(activitiesToSeed)
+    .values(activitiesData)
     .returning()
     .onConflictDoUpdate({
       target: [activities.id],
@@ -72,8 +70,6 @@ export default async function setup({ provide }) {
     .insert(seasons)
     .values([
       {
-        startDate: new Date("2025-06-01:00:00:00Z"),
-        endDate: new Date("2025-07-30:23:59:59Z"),
         name: "Season 1",
         status: "active",
         id: SEASON_ID,
@@ -84,15 +80,14 @@ export default async function setup({ provide }) {
 
   const weekResults = await db
     .insert(weeks)
-    .values(
-      weeksToSeed.map((week) => ({
-        startDate: new Date(week.start_date),
-        endDate: new Date(week.end_date),
+    .values([
+      {
+        startDate: new Date("2025-07-07 00:00:00+00"),
+        endDate: new Date("2025-07-13 23:59:59+00"),
         seasonId: SEASON_ID,
-        id: week.id,
-        status: week.status as "active" | "completed",
-      }))
-    )
+        id: "30da196b-7602-4b06-a558-bbb5b5441186",
+      },
+    ])
     .returning()
     .onConflictDoNothing();
 

@@ -567,7 +567,7 @@ const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
   Layer.provide(getUsdValueLive)
 );
 
-const NodeSdkLive = NodeSdk.layer(() => ({
+export const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "api" },
   spanProcessor: new BatchSpanProcessor(
     new OTLPTraceExporter({

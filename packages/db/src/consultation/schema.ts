@@ -154,10 +154,11 @@ export const votingPower = createTable(
       .notNull()
       .defaultNow(),
     accountAddress: varchar("account_address", { length: 255 })
-      .notNull()
-      .references(() => accounts.address, { onDelete: "cascade" }),
+      .notNull(),
     votingPower: text("voting_power").notNull(),
     balances: jsonb("balances"),
+    selectedOption: text("selected_option").notNull(),
+    rolaProof: text("rola_proof"),
   },
   (vp) => ({
     compoundKey: primaryKey({ columns: [vp.timestamp, vp.accountAddress] }),
