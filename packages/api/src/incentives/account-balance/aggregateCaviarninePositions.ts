@@ -372,10 +372,13 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           },
         });
 
-        // Add zero entries for shape liquidity pools with no positions
-        for (const pool of Object.values(
-          CaviarNineConstants.shapeLiquidityPools
-        )) {
+        const allCaviarPools = [
+          ...Object.values(CaviarNineConstants.shapeLiquidityPools),
+          ...Object.values(CaviarNineConstants.simplePools),
+        ];
+
+        // add zero entries
+        for (const pool of allCaviarPools) {
           const xTokenInfo =
             yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               pool.token_x
