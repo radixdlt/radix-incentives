@@ -22,7 +22,8 @@
     "db:push": "turbo run db:push:incentives",
     "db:create": "./postgres-init/init-db.sh",
     "db:reset": "./packages/db/scripts/reset.sh",
-    "queue:add": "pnpm --filter queue-helper run queue"
+    "queue:add": "pnpm --filter queue-helper run queue",
+    "verify:activities": "turbo run verify:activities"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -257,6 +257,8 @@ function EditActivityPage() {
                 description: activity.description,
                 category: activity.category,
                 dapp: activity.dapp ?? '',
+                componentAddresses: activity.componentAddresses ?? [],
+                data: activity.data ?? {},
               }}
               onSubmit={handleUpdateActivity}
               isSubmitting={isSubmitting}

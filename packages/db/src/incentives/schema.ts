@@ -180,6 +180,8 @@ export const activities = createTable("activity", {
     .notNull()
     .references(() => activityCategories.id, { onDelete: "cascade" }),
   dapp: text("dapp").references(() => dapps.id),
+  componentAddresses: jsonb("component_addresses").$defaultFn(() => []),
+  data: jsonb("data").$defaultFn(() => ({})),
 });
 
 export const activitiesRelations = relations(activities, ({ many, one }) => ({
@@ -336,7 +338,10 @@ export const accountActivityPoints = createTable(
     activityId: text("activity_id")
       .notNull()
       .references(() => activities.id, { onDelete: "cascade" }),
-    activityPoints: decimal("activity_points", { precision: 18, scale: 6 }).notNull(),
+    activityPoints: decimal("activity_points", {
+      precision: 18,
+      scale: 6,
+    }).notNull(),
   },
   (table) => ({
     pk: primaryKey({

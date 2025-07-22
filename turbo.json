@@ -40,6 +40,9 @@
     "db:push:incentives": {
       "cache": false,
       "persistent": true
+    },
+    "verify:activities": {
+      "cache": false
     }
   }
 }
