@@ -37,7 +37,8 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
       const aggregateAccountBalanceService =
         yield* AggregateAccountBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
-      return Effect.fn(function* (input: SnapshotInput) {
+
+      return Effect.fn("snapshot")(function* (input: SnapshotInput) {
         yield* Effect.log(
           "running snapshot",
           JSON.stringify({
@@ -191,6 +192,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
             aggregateAccountBalanceResult.right;
 
           if (enableDummyData) {
+            // @ts-expect-error: used for testing
             batchAggregatedAccountBalance = yield* generateDummySnapshotData({
               batchAggregatedAccountBalance,
               batch,

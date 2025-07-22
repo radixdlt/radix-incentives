@@ -1,17 +1,12 @@
-import { Effect, Layer } from "effect";
+import { Config, Data, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Context } from "effect";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 
-import { Assets, DappConstants, getTokenPair } from "data";
-import type { AccountBalanceData, ActivityId, Token } from "data";
+import { Assets, DappConstants, getTokenPair, matchActivityId } from "data";
+import { type AccountBalanceData, ActivityId, type Token } from "data";
 import {
   AddressValidationService,
-  type UnknownTokenError,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
 
@@ -20,50 +15,66 @@ import type { CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/cavi
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
+class ActivityNotSupportedError extends Data.TaggedError(
+  "ActivityNotSupportedError"
+)<{
+  message: string;
+}> {}
+
 export type AggregateCaviarninePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
   timestamp: Date;
 };
 
-export type AggregateCaviarninePositionsOutput = AccountBalanceData;
+type AggregatedPoolsItem = {
+  pools: {
+    poolKey: string;
+    poolAssets: (ShapeLiquidityAsset | CaviarnineSimplePoolLiquidityAsset)[];
+  }[];
+  xTokenInfo: { name: string; isNativeAsset: boolean };
+  yTokenInfo: { name: string; isNativeAsset: boolean };
+  activityId: ActivityId;
+  isNativeLp: boolean;
+};
 
-export class AggregateCaviarninePositionsService extends Context.Tag(
-  "AggregateCaviarninePositionsService"
-)<
-  AggregateCaviarninePositionsService,
-  (
-    input: AggregateCaviarninePositionsInput
-  ) => Effect.Effect<
-    AggregateCaviarninePositionsOutput[],
-    GetUsdValueServiceError | UnknownTokenError
-  >
->() {}
+type TokenPair = string;
 
-export const AggregateCaviarninePositionsLive = Layer.effect(
-  AggregateCaviarninePositionsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const addressValidationService = yield* AddressValidationService;
-    return (input) =>
-      Effect.gen(function* () {
-        const results: AccountBalanceData[] = [];
-        const processedPools = new Set<string>();
+export class AggregateCaviarninePositionsService extends Effect.Service<AggregateCaviarninePositionsService>()(
+  "AggregateCaviarninePositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const DEBUG_ENABLED = Config.boolean("debug").pipe(
+        Config.withDefault(false)
+      );
 
-        // Aggregate pools by token pair
-        const poolsByTokenPair = new Map<
-          string,
-          {
-            pools: {
-              poolKey: string;
-              poolAssets: (
-                | ShapeLiquidityAsset
-                | CaviarnineSimplePoolLiquidityAsset
-              )[];
-            }[];
-            xTokenInfo: { name: string; isNativeAsset: boolean };
-            yTokenInfo: { name: string; isNativeAsset: boolean };
-          }
-        >();
+      const determineLpActivityId = Effect.fn(function* (
+        dapp: string,
+        tokenPair: string
+      ) {
+        const lpActivityId = `${dapp}_lp_${tokenPair}` as ActivityId;
+        const nativeLpActivityId =
+          `${dapp}_nativeLp_${tokenPair}` as ActivityId;
+
+        const isLpActivity = matchActivityId(lpActivityId);
+        const isNativeLpActivity = matchActivityId(nativeLpActivityId);
+
+        if (!isLpActivity && !isNativeLpActivity) {
+          return yield* Effect.fail(
+            new ActivityNotSupportedError({
+              message: `${tokenPair} is not a valid token pair`,
+            })
+          );
+        }
+
+        return isLpActivity
+          ? { activityId: lpActivityId, isNativeLp: false }
+          : { activityId: nativeLpActivityId, isNativeLp: true };
+      });
+
+      const aggregatePools = Effect.fn(function* (
+        input: AggregateCaviarninePositionsInput
+      ) {
+        const poolsByTokenPair = new Map<TokenPair, AggregatedPoolsItem>();
 
         // First pass: group pools by token pair
         for (const [poolKey, poolAssets] of Object.entries(
@@ -82,14 +93,17 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               xToken.resourceAddress
             );
+
           const yTokenInfo =
             yield* addressValidationService.getTokenNameAndNativeAssetStatus(
               yToken.resourceAddress
             );
 
-          const tokenPairKey = getTokenPair(
-            xTokenInfo.name as Token,
-            yTokenInfo.name as Token
+          const tokenPairKey = getTokenPair(xTokenInfo.name, yTokenInfo.name);
+
+          const { activityId, isNativeLp } = yield* determineLpActivityId(
+            "c9",
+            tokenPairKey
           );
 
           if (!poolsByTokenPair.has(tokenPairKey)) {
@@ -97,6 +111,8 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               pools: [],
               xTokenInfo,
               yTokenInfo,
+              activityId,
+              isNativeLp,
             });
           }
 
@@ -105,10 +121,99 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
             .pools.push({ poolKey, poolAssets });
         }
 
+        return poolsByTokenPair;
+      });
+
+      const createDefaultValues = Effect.fn(function* () {
+        const output = new Map<ActivityId, AccountBalanceData>();
+
+        const shapeLiquidityPools = Object.values(
+          CaviarNineConstants.shapeLiquidityPools
+        );
+        const simplePoolLiquidityPools = Object.values(
+          CaviarNineConstants.simplePools
+        );
+
+        // Add zero entries for shape liquidity pools with no positions
+        for (const pool of [
+          ...shapeLiquidityPools,
+          ...simplePoolLiquidityPools,
+        ]) {
+          const xTokenInfo =
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
+              pool.token_x
+            );
+          const yTokenInfo =
+            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
+              pool.token_y
+            );
+
+          const tokenPair = getTokenPair(xTokenInfo.name, yTokenInfo.name);
+
+          const { activityId } = yield* determineLpActivityId("c9", tokenPair);
+
+          // Get XRD derivative status from the centralized function
+          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
+          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
+
+          output.set(activityId, {
+            activityId,
+            usdValue: "0",
+            metadata: {
+              tokenPair,
+              baseToken: {
+                resourceAddress: pool.token_x,
+                amount: "0",
+                isNativeAsset: isXTokenNativeAsset,
+              },
+              quoteToken: {
+                resourceAddress: pool.token_y,
+                amount: "0",
+                isNativeAsset: isYTokenNativeAsset,
+              },
+            },
+          });
+        }
+
+        // Add zero entry for Hyperstake if not processed (now using nativeLp naming)
+        const hyperstakeActivityId = ActivityId.c9_nativeLp_hyperstake;
+
+        output.set(hyperstakeActivityId, {
+          activityId: hyperstakeActivityId,
+          usdValue: "0",
+          metadata: {
+            tokenPair: "lsulp_xrd",
+            baseToken: {
+              resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
+              amount: "0",
+              isNativeAsset: true,
+            },
+            quoteToken: {
+              resourceAddress: Assets.Fungible.XRD,
+              amount: "0",
+              isNativeAsset: true,
+            },
+          },
+        });
+
+        return output;
+      });
+
+      const getUsdValueService = yield* GetUsdValueService;
+      const addressValidationService = yield* AddressValidationService;
+      return Effect.fn("aggregateCaviarninePositions")(function* (
+        input: AggregateCaviarninePositionsInput
+      ) {
+        const accountBalanceMap = yield* createDefaultValues();
+        const processedPools = new Set<string>();
+
+        // Aggregate pools by token pair
+        const poolsByTokenPair = yield* aggregatePools(input);
+
         // Second pass: process each token pair
         for (const [
           _tokenPairKey,
-          { pools, xTokenInfo, yTokenInfo },
+          { pools, xTokenInfo, yTokenInfo, activityId, isNativeLp },
         ] of poolsByTokenPair) {
           const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
           const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
@@ -232,19 +337,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
               })
             : new BigNumber(0);
 
-          // Generate activity IDs based on token pair
-          const nonNativeActivityId = `c9_lp_${getTokenPair(
-            xTokenName as Token,
-            yTokenName as Token
-          )}` as ActivityId;
-
-          const nativeActivityId = `c9_nativeLp_${getTokenPair(
-            xTokenName as Token,
-            yTokenName as Token
-          )}` as ActivityId;
-
-          processedPools.add(nonNativeActivityId);
-          processedPools.add(nativeActivityId);
+          processedPools.add(activityId);
 
           // Create separate metadata for each pool using pre-calculated data
           const poolMetadata: Record<string, any> = {};
@@ -280,36 +373,38 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
 
           const totalPortion = wrappedAssetPortion.plus(nativeAssetPortion);
 
-          // Calculate final USD values using the already-multiplied totalUsdValue
-          const finalWrappedAssetUsdValue = totalPortion.gt(0)
-            ? totalUsdValue
-                .multipliedBy(wrappedAssetPortion)
-                .dividedBy(totalPortion)
-            : new BigNumber(0);
+          if (isNativeLp) {
+            const finalNativeAssetUsdValue = totalPortion.gt(0)
+              ? totalUsdValue
+                  .multipliedBy(nativeAssetPortion)
+                  .dividedBy(totalPortion)
+              : new BigNumber(0);
 
-          const finalNativeAssetUsdValue = totalPortion.gt(0)
-            ? totalUsdValue
-                .multipliedBy(nativeAssetPortion)
-                .dividedBy(totalPortion)
-            : new BigNumber(0);
+            // Add native LP activity (XRD derivatives only)
+            accountBalanceMap.set(activityId, {
+              activityId,
+              usdValue: finalNativeAssetUsdValue.toString(),
+              poolShare:
+                Object.keys(poolShares).length > 1 ? poolShares : undefined,
+              metadata: poolMetadata,
+            });
+          } else {
+            // Calculate final USD values using the already-multiplied totalUsdValue
+            const finalWrappedAssetUsdValue = totalPortion.gt(0)
+              ? totalUsdValue
+                  .multipliedBy(wrappedAssetPortion)
+                  .dividedBy(totalPortion)
+              : new BigNumber(0);
 
-          // Add non-native LP activity (non-XRD derivative tokens only)
-          results.push({
-            activityId: nonNativeActivityId,
-            usdValue: finalWrappedAssetUsdValue.toString(),
-            poolShare:
-              Object.keys(poolShares).length > 1 ? poolShares : undefined,
-            metadata: poolMetadata,
-          });
-
-          // Add native LP activity (XRD derivatives only)
-          results.push({
-            activityId: nativeActivityId,
-            usdValue: finalNativeAssetUsdValue.toString(),
-            poolShare:
-              Object.keys(poolShares).length > 1 ? poolShares : undefined,
-            metadata: poolMetadata,
-          });
+            // Add non-native LP activity (non-XRD derivative tokens only)
+            accountBalanceMap.set(activityId, {
+              activityId,
+              usdValue: finalWrappedAssetUsdValue.toString(),
+              poolShare:
+                Object.keys(poolShares).length > 1 ? poolShares : undefined,
+              metadata: poolMetadata,
+            });
+          }
         }
 
         // Process Hyperstake positions (simple pool - LSULP/XRD)
@@ -354,7 +449,7 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
         const hyperstakeActivityId = "c9_nativeLp_hyperstake" as ActivityId;
         processedPools.add(hyperstakeActivityId);
 
-        results.push({
+        accountBalanceMap.set(hyperstakeActivityId, {
           activityId: hyperstakeActivityId,
           usdValue: hyperstakeUsdValue.toString(), // Now tracking XRD derivative USD value
           metadata: {
@@ -372,104 +467,20 @@ export const AggregateCaviarninePositionsLive = Layer.effect(
           },
         });
 
-        // Add zero entries for shape liquidity pools with no positions
-        for (const pool of Object.values(
-          CaviarNineConstants.shapeLiquidityPools
-        )) {
-          const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
-              pool.token_x
-            );
-          const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
-              pool.token_y
-            );
-          const nonNativeActivityId = `c9_lp_${getTokenPair(
-            xTokenInfo.name as Token,
-            yTokenInfo.name as Token
-          )}` as ActivityId;
-          const nativeActivityId = `c9_nativeLp_${getTokenPair(
-            xTokenInfo.name as Token,
-            yTokenInfo.name as Token
-          )}` as ActivityId;
+        const output = Array.from(accountBalanceMap.values());
 
-          // Get XRD derivative status from the centralized function
-          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
-          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
-
-          // Add zero entry for non-native LP if not processed
-          if (!processedPools.has(nonNativeActivityId)) {
-            results.push({
-              activityId: nonNativeActivityId,
-              usdValue: "0",
-              metadata: {
-                tokenPair: getTokenPair(
-                  xTokenInfo.name as Token,
-                  yTokenInfo.name as Token
-                ),
-                baseToken: {
-                  resourceAddress: pool.token_x,
-                  amount: "0",
-                  isNativeAsset: isXTokenNativeAsset,
-                },
-                quoteToken: {
-                  resourceAddress: pool.token_y,
-                  amount: "0",
-                  isNativeAsset: isYTokenNativeAsset,
-                },
-              },
-            });
-          }
-
-          // Add zero entry for native LP if not processed
-          if (!processedPools.has(nativeActivityId)) {
-            results.push({
-              activityId: nativeActivityId,
-              usdValue: "0",
-              metadata: {
-                tokenPair: getTokenPair(
-                  xTokenInfo.name as Token,
-                  yTokenInfo.name as Token
-                ),
-                baseToken: {
-                  resourceAddress: pool.token_x,
-                  amount: "0",
-                  isNativeAsset: isXTokenNativeAsset,
-                },
-                quoteToken: {
-                  resourceAddress: pool.token_y,
-                  amount: "0",
-                  isNativeAsset: isYTokenNativeAsset,
-                },
-              },
-            });
-          }
-        }
-
-        // Add zero entry for Hyperstake if not processed (now using nativeLp naming)
-        const hyperstakeActivityIdCheck =
-          "c9_nativeLp_hyperstake" as ActivityId;
-        if (!processedPools.has(hyperstakeActivityIdCheck)) {
-          results.push({
-            activityId: hyperstakeActivityIdCheck,
-            usdValue: "0",
-            metadata: {
-              tokenPair: "lsulp_xrd",
-              baseToken: {
-                resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
-                amount: "0",
-                isNativeAsset: true,
-              },
-              quoteToken: {
-                resourceAddress: Assets.Fungible.XRD,
-                amount: "0",
-                isNativeAsset: true,
-              },
-            },
+        if (DEBUG_ENABLED) {
+          yield* Effect.log({
+            input: input.accountBalance.caviarninePositions,
+            output,
           });
         }
 
-        return results;
+        return output;
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const AggregateCaviarninePositionsLive =
+  AggregateCaviarninePositionsService.Default;

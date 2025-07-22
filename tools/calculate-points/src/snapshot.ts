@@ -1,6 +1,18 @@
 import { Effect, Layer, Logger } from "effect";
 import { createDbClientLive, SnapshotService } from "api/incentives";
 import { db } from "db/incentives";
+import { NodeSdk } from "@effect/opentelemetry";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
+import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+
+export const NodeSdkLive = NodeSdk.layer(() => ({
+  resource: { serviceName: "snapshot" },
+  spanProcessor: new BatchSpanProcessor(
+    new OTLPTraceExporter({
+      url: `http://127.0.0.1:4318/v1/traces`,
+    })
+  ),
+}));
 
 // Gateway services
 import { GatewayApiClientLive } from "../../../packages/api/src/common/gateway/gatewayApiClient";
@@ -360,10 +372,19 @@ const runnable = Effect.gen(function* () {
 
   const service = yield* Effect.provide(SnapshotService, snapshotLive);
 
+  const addresses = yield* Effect.tryPromise(() =>
+    db.query.accounts
+      .findMany({
+        limit: 100,
+      })
+      .then((res) => res.map((r) => r.address))
+  );
+
   yield* service({
     timestamp: new Date(),
     batchSize: 10000,
-  });
+    addresses,
+  }).pipe(Effect.provide(NodeSdkLive));
 });
 
 await Effect.runPromise(runnable.pipe(Effect.provide(Logger.pretty)));

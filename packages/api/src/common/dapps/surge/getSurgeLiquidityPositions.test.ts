@@ -1,14 +1,20 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { GetLedgerStateLive } from "../../gateway/getLedgerState";
-import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { GetLedgerStateService } from "../../gateway/getLedgerState";
+import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import {
   GetSurgeLiquidityPositionsLive,
   GetSurgeLiquidityPositionsService,
 } from "./getSurgeLiquidityPositions";
-import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
-import { GetComponentStateLive } from "../../gateway/getComponentState";
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
+import { GetComponentStateService } from "../../gateway/getComponentState";
+
+const GetFungibleBalanceLive = GetFungibleBalanceService.Default;
+const GetComponentStateLive = GetComponentStateService.Default;
+const GetEntityDetailsServiceLive = GetEntityDetailsService.Default;
+const EntityFungiblesPageLive = EntityFungiblesPageService.Default;
+const GetLedgerStateLive = GetLedgerStateService.Default;
 
 const fullLayer = GetSurgeLiquidityPositionsLive.pipe(
   Layer.provide(GetFungibleBalanceLive),

@@ -5,7 +5,7 @@
   "scripts": {
     "calc:sp": "tsx --watch src/calculateSeasonPoints.ts",
     "calc:ap": "tsx --watch src/calculateActivityPoints.ts",
-    "snapshot": "tsx --inspect --watch src/snapshot.ts"
+    "snapshot": "tsx --watch src/snapshot.ts"
   },
   "devDependencies": {
     "tsup": "catalog:",
@@ -24,6 +24,9 @@
     "effect": "catalog:",
     "fs-extra": "^11.3.0",
     "inquirer": "catalog:",
-    "postgres": "catalog:"
+    "postgres": "catalog:",
+    "@effect/opentelemetry": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
+    "@opentelemetry/exporter-trace-otlp-http": "catalog:"
   }
 }

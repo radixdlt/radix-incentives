@@ -75,3 +75,4 @@ catalog:
   "@effect/language-service": "^0.27.2"
   "sonner": "^2.0.3"
   "csv-writer": "^1.6.0"
+  "@effect/opentelemetry": "^0.47.0"

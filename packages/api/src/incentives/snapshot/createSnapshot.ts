@@ -26,7 +26,6 @@ export const CreateSnapshotLive = Layer.effect(
               .insert(snapshots)
               .values(input)
               .returning()
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
               .then((res) => res[0]!),
           catch: (error) => new DbError(error),
         });
