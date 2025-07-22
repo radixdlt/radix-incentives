@@ -32,7 +32,6 @@ export const ActivityId = {
   c9_nativeLp_hyperstake: "c9_nativeLp_hyperstake",
 
   "defiPlaza_nativeLp_astrl-dfp2": "defiPlaza_nativeLp_astrl-dfp2",
-  "defiPlaza_nativeLp_dfp2-xrd": "defiPlaza_nativeLp_dfp2-xrd",
 
   /**
    * Hold XRD/LSU/LSULP/HLP activities (multiplier activities)

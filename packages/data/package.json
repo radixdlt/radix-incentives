@@ -5,5 +5,11 @@
   "main": "./src/index.ts",
   "dependencies": {
     "zod": "catalog:"
+  },
+  "devDependencies": {
+    "tsx": "catalog:"
+  },
+  "scripts": {
+    "verify:activities": "tsx ./src/verifyActivity.ts"
   }
 }

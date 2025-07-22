@@ -35,6 +35,7 @@ export const seedActivities = async () => {
         id: activity.id,
         category: activity.category,
         dapp: activity.dApp,
+        componentAddresses: activity.componentAddresses ?? [],
       }))
     )
     .returning()
@@ -44,6 +45,7 @@ export const seedActivities = async () => {
         name: sql`excluded.name`,
         category: sql`excluded.category`,
         dapp: sql`excluded.dapp`,
+        componentAddresses: sql`excluded.component_addresses`,
       },
     });
 
