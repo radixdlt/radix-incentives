@@ -28,7 +28,8 @@ export const DefiPlazaConstants = {
       "resource_rdx1t5swt0y0u6sdzycg02flamm3e6qljjgvpxeg5p5tw6jl7ssel0x369",
     baseResourceAddress: Assets.Fungible.xUSDT,
     quoteResourceAddress: Assets.Fungible.XRD,
-    componentAddress: "",
+    componentAddress:
+      "component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj",
   },
   xETHPool: {
     type: "component",
