@@ -1,7 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { Effect, Layer } from "effect";
 import { BigNumber } from "bignumber.js";
-import { Assets } from "../../common/assets/constants";
+import { Assets } from "data";
 import { GetUsdValueLive, GetUsdValueService } from "./getUsdValue";
 import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
 

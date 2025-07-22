@@ -109,20 +109,18 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
           }
 
           // WEFT V2 Lending pool KVS contains the unit to asset ratio for each asset
-          const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService
-            .run({
-              address: WeftFinanceConstants.v2.lendingPool.kvsAddress,
-              at_ledger_state: input.at_ledger_state,
+          const lendingPoolV2KeyValueStore = yield* getKeyValueStoreService({
+            address: WeftFinanceConstants.v2.lendingPool.kvsAddress,
+            at_ledger_state: input.at_ledger_state,
+          }).pipe(
+            Effect.catchTags({
+              // EntityNotFoundError here means that the v2 lending pool is not deployed at the provided state version
+              EntityNotFoundError: () =>
+                Effect.succeed({
+                  entries: [],
+                }),
             })
-            .pipe(
-              Effect.catchTags({
-                // EntityNotFoundError here means that the v2 lending pool is not deployed at the provided state version
-                EntityNotFoundError: () =>
-                  Effect.succeed({
-                    entries: [],
-                  }),
-              })
-            );
+          );
 
           const poolToUnitToAssetRatio = new Map<ResourceAddress, BigNumber>();
 
@@ -144,15 +142,16 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
           }
 
           // WEFT V1 Lending pool component states contains the unit to asset ratio for each asset
-          const lendingPoolV1ComponentStates = yield* getComponentStateService({
-            addresses: [
-              WeftFinanceConstants.v1.wLSULP.componentAddress,
-              WeftFinanceConstants.v1.wXRD.componentAddress,
-              WeftFinanceConstants.v1.wxUSDC.componentAddress,
-            ],
-            schema: SingleResourcePool,
-            at_ledger_state: input.at_ledger_state,
-          });
+          const lendingPoolV1ComponentStates =
+            yield* getComponentStateService.run({
+              addresses: [
+                WeftFinanceConstants.v1.wLSULP.componentAddress,
+                WeftFinanceConstants.v1.wXRD.componentAddress,
+                WeftFinanceConstants.v1.wxUSDC.componentAddress,
+              ],
+              schema: SingleResourcePool,
+              at_ledger_state: input.at_ledger_state,
+            });
 
           for (const item of lendingPoolV1ComponentStates) {
             poolToUnitToAssetRatio.set(

@@ -1,12 +1,12 @@
-import { Context, Effect, Layer } from "effect";
-import { EntityNotFoundError, type GatewayError } from "./errors";
-import type { AtLedgerState, InvalidStateInputError } from "./schemas";
+import { Data, Effect } from "effect";
+import type { AtLedgerState } from "./schemas";
 import { GetNonFungibleLocationService } from "./getNonFungibleLocation";
 
-export type GetAddressByNonFungibleServiceError =
-  | GatewayError
-  | InvalidStateInputError
-  | EntityNotFoundError;
+export class EntityNotFoundError extends Data.TaggedError(
+  "EntityNotFoundError"
+)<{
+  message: string;
+}> {}
 
 export type GetAddressByNonFungibleServiceInput = {
   resourceAddress: string;
@@ -14,31 +14,13 @@ export type GetAddressByNonFungibleServiceInput = {
   at_ledger_state: AtLedgerState;
 };
 
-export type GetAddressByNonFungibleServiceOutput = {
-  address: string;
-  resourceAddress: string;
-  nonFungibleId: string;
-};
-
-export class GetAddressByNonFungibleService extends Context.Tag(
-  "GetAddressByNonFungibleService"
-)<
-  GetAddressByNonFungibleService,
-  (
-    input: GetAddressByNonFungibleServiceInput
-  ) => Effect.Effect<
-    GetAddressByNonFungibleServiceOutput,
-    GetAddressByNonFungibleServiceError
-  >
->() {}
-
-export const GetAddressByNonFungibleLive = Layer.effect(
-  GetAddressByNonFungibleService,
-  Effect.gen(function* () {
-    const getNonFungibleLocationService = yield* GetNonFungibleLocationService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByNonFungibleService>()(
+  "GetAddressByNonFungibleService",
+  {
+    effect: Effect.gen(function* () {
+      const getNonFungibleLocationService =
+        yield* GetNonFungibleLocationService;
+      return Effect.fn(function* (input: GetAddressByNonFungibleServiceInput) {
         let isBurned = true;
         let nextStateVersion = input.at_ledger_state;
         let address = "";
@@ -55,9 +37,9 @@ export const GetAddressByNonFungibleLive = Layer.effect(
 
           if (!result) {
             return yield* Effect.fail(
-              new EntityNotFoundError(
-                `Non-fungible location not found for resource address ${input.resourceAddress} and non-fungible id ${input.nonFungibleId}`
-              )
+              new EntityNotFoundError({
+                message: `Non-fungible location not found for resource address ${input.resourceAddress} and non-fungible id ${input.nonFungibleId}`,
+              })
             );
           }
 
@@ -78,6 +60,6 @@ export const GetAddressByNonFungibleLive = Layer.effect(
           nonFungibleId: input.nonFungibleId,
         };
       });
-    };
-  })
-);
+    }),
+  }
+) {}

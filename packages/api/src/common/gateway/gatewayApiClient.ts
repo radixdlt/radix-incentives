@@ -1,47 +1,61 @@
-import { Context, Effect, Layer } from "effect";
-import { createRadixNetworkClient } from "radix-web3.js";
+import { Config, Effect } from "effect";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
-import makeFetchHappen from "make-fetch-happen";
+import fetchRetry from "fetch-retry";
 
-/**
- * Request method is NOT POST; AND
- * Request status is one of: 408, 420, 429, or any status in the 500-range.; OR
- * Request errored with ECONNRESET, ECONNREFUSED, EADDRINUSE, ETIMEDOUT, or the fetch error request-timeout.
- */
-const fetchImpl = makeFetchHappen.defaults(
-  {}
-) as unknown as (typeof globalThis)["fetch"];
+export class GatewayApiClientService extends Effect.Service<GatewayApiClientService>()(
+  "GatewayApiClientService",
+  {
+    effect: Effect.gen(function* () {
+      const networkId = yield* Config.number("NETWORK_ID").pipe(
+        Config.withDefault(1)
+      );
+      const basePath = yield* Config.string("GATEWAY_URL").pipe(
+        Config.withDefault(undefined)
+      );
+      const applicationName = yield* Config.string("APPLICATION_NAME").pipe(
+        Config.withDefault("radix-web3.js")
+      );
+      const gatewayApiKey = yield* Config.string("GATEWAY_BASIC_AUTH").pipe(
+        Config.withDefault(undefined)
+      );
 
-export type GatewayApiClientImpl = ReturnType<typeof createRadixNetworkClient>;
+      /**
+       * Enable retries for ALL requests including POST
+       * - Retry on network errors and 4xx/5xx status codes
+       * - Uses exponential backoff with randomization
+       * - Supports retrying POST requests (unlike make-fetch-happen)
+       */
+      const fetchImpl = fetchRetry(globalThis.fetch, {
+        retries: 3,
+        retryDelay: (attempt, error, response) => {
+          return 2 ** attempt * 1000; // 1000, 2000, 4000ms
+        },
+        retryOn: (attempt, error, response) => {
+          // Retry on network errors
+          if (error !== null) {
+            return true;
+          }
+          // Retry on 4xx/5xx status codes (including for POST requests)
+          if (response && response.status >= 400) {
+            return true;
+          }
+          return false;
+        },
+      }) as unknown as (typeof globalThis)["fetch"];
 
-export class GatewayApiClientService extends Context.Tag(
-  "GatewayApiClientService"
-)<GatewayApiClientService, GatewayApiClientImpl>() {}
+      const client = GatewayApiClient.initialize({
+        networkId,
+        basePath,
+        applicationName,
+        headers: gatewayApiKey
+          ? { Authorization: `Basic ${gatewayApiKey}` }
+          : undefined,
+        fetchApi: fetchImpl,
+      });
 
-export const GatewayApiClientLive = Layer.effect(
-  GatewayApiClientService,
-  Effect.gen(function* () {
-    const networkId = Number.parseInt(process.env.NETWORK_ID ?? "1");
-    const basePath =
-      process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com";
-    const applicationName = process.env.APPLICATION_NAME ?? "";
+      return client;
+    }),
+  }
+) {}
 
-    const options = {
-      networkId,
-      applicationName,
-      basePath,
-    };
-
-    yield* Effect.logDebug("Initializing gateway API client", options);
-
-    const gatewayApiClient = GatewayApiClient.initialize({
-      ...options,
-      fetchApi: fetchImpl,
-    });
-
-    return createRadixNetworkClient({
-      networkId,
-      gatewayApiClient,
-    });
-  })
-);
+export const GatewayApiClientLive = GatewayApiClientService.Default;

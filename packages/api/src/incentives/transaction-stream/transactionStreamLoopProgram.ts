@@ -7,7 +7,7 @@ import { createRadixNetworkClient } from "radix-web3.js";
 import { createAppConfigLive, createConfig } from "../config/appConfig";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 
-import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
+import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
 
 import { createDbClientLive } from "../db/dbClient";
 import { db } from "db/incentives";
@@ -38,7 +38,7 @@ const apiGatewayClientLive = GatewayApiClientLive.pipe(
   Layer.provide(configLive)
 );
 
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(apiGatewayClientLive),
   Layer.provide(configLive)
 );

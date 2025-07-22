@@ -1,47 +1,24 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-  type InvalidInputError,
 } from "../../gateway/getFungibleBalance";
 import { DappConstants } from "data";
 import { BigNumber } from "bignumber.js";
-import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
-import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
-export type GetLsulpOutput = {
-  address: string;
-  lsulp: {
-    resourceAddress: string;
-    amount: BigNumber;
-  };
-}[];
-
-export class GetLsulpService extends Context.Tag("GetLsulpService")<
-  GetLsulpService,
-  (input: {
-    at_ledger_state: AtLedgerState;
-    addresses: string[];
-    fungibleBalance?: GetFungibleBalanceOutput;
-  }) => Effect.Effect<
-    GetLsulpOutput,
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError
-  >
->() {}
-
-export const GetLsulpLive = Layer.effect(
-  GetLsulpService,
-  Effect.gen(function* () {
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetLsulpService extends Effect.Service<GetLsulpService>()(
+  "GetLsulpService",
+  {
+    effect: Effect.gen(function* () {
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
+      return Effect.fn(function* (input: {
+        at_ledger_state: AtLedgerState;
+        addresses: string[];
+        fungibleBalance?: GetFungibleBalanceOutput;
+      }) {
         const fungibleBalanceResults = input.fungibleBalance
           ? input.fungibleBalance
           : yield* getFungibleBalanceService(input).pipe(
@@ -65,6 +42,8 @@ export const GetLsulpLive = Layer.effect(
           };
         });
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetLsulpLive = GetLsulpService.Default;

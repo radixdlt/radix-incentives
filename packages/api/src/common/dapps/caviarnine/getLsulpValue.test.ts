@@ -1,40 +1,27 @@
 import { Effect, Layer } from "effect";
 
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import {
-  GetLedgerStateLive,
-  GetLedgerStateService,
-} from "../../gateway/getLedgerState";
-import { GetAllValidatorsLive } from "../../gateway/getAllValidators";
-import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
-import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { GetLedgerStateService } from "../../gateway/getLedgerState";
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
+import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 import { GetLsulpValueLive, GetLsulpValueService } from "./getLsulpValue";
-import { ConvertLsuToXrdLive } from "../../staking/convertLsuToXrd";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive)
-);
-
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
-
-const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
@@ -54,7 +41,7 @@ describe("GetLsulpValueService", () => {
         const getLsulpValue = yield* GetLsulpValueService;
         const getLedgerState = yield* GetLedgerStateService;
 
-        const state = yield* getLedgerState.run({
+        const state = yield* getLedgerState({
           // timestamp: new Date("2025-04-01T00:00:00.000Z"),
           at_ledger_state: {
             state_version: 286058118,

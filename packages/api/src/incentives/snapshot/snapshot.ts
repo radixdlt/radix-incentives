@@ -1,51 +1,14 @@
-import { Context, Effect, Either, Layer } from "effect";
+import { Effect, Either } from "effect";
 import { CreateSnapshotService } from "./createSnapshot";
 import { UpdateSnapshotService } from "./updateSnapshot";
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
-import type { InvalidStateInputError } from "../../common";
-import type {
-  EntityNotFoundError,
-  GatewayError,
-} from "../../common/gateway/errors";
+import { chunker } from "../../common";
 import { GetAccountBalancesAtStateVersionService } from "../account-balance/getAccountBalancesAtStateVersion";
 import { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
-import type { GetAllValidatorsError } from "../../common/gateway/getAllValidators";
-import type {
-  EntityDetailsNotFoundError,
-  InvalidAmountError,
-  InvalidNativeResourceKindError,
-  InvalidResourceError,
-} from "../../common/staking/convertLsuToXrd";
-import type { GetEntityDetailsError } from "../../common/gateway/getEntityDetails";
-import type {
-  InvalidEntityAddressError,
-  LsulpNotFoundError,
-} from "../../common/dapps/caviarnine/getLsulpValue";
-import type {
-  InvalidRootReceiptItemError,
-  FailedToParseLendingPoolStateError,
-  FailedToParsePoolStatesKeyError,
-  MissingConversionRatioError,
-  ParseSborError,
-} from "../../common/dapps/rootFinance/getRootFinancePositions";
-import type {
-  FailedToParseLendingPoolSchemaError,
-  FailedToParseCDPDataError,
-} from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import type { FailedToParseComponentStateError } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
-import type { InvalidInputError } from "../../common/gateway/getNonFungibleBalance";
-import type { InvalidComponentStateError } from "../../common/gateway/getComponentState";
-import type { FailedToParseLiquidityClaimsError } from "../../common/dapps/caviarnine/getShapeLiquidityClaims";
-import type { GetDefiPlazaPositionsError } from "../../common/dapps/defiplaza/getDefiPlazaPositions";
-import type { UnknownTokenError } from "../../common/token-name/getTokenName";
-import type { DbError } from "../db/dbClient";
 import { GetAccountAddressesService } from "../account/getAccounts";
 import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
 import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
 import { generateDummySnapshotData } from "./generateDummySnapshotData";
-import type { GetAccountBalancesAtStateVersionServiceError } from "../account-balance/getAccountBalancesAtStateVersion";
-
-// Import all activities from 100activities data
 
 export class SnapshotError {
   _tag = "SnapshotError";
@@ -60,67 +23,21 @@ export type SnapshotInput = {
   addDummyData?: boolean;
 };
 
-/**
- * Split an array into chunks of specified size
- */
-const chunkArray = <T>(array: T[], chunkSize: number): T[][] => {
-  const chunks: T[][] = [];
-  for (let i = 0; i < array.length; i += chunkSize) {
-    chunks.push(array.slice(i, i + chunkSize));
-  }
-  return chunks;
-};
-
-export type SnapshotServiceError =
-  | GetAllValidatorsError
-  | GetEntityDetailsError
-  | LsulpNotFoundError
-  | InvalidEntityAddressError
-  | InvalidResourceError
-  | InvalidNativeResourceKindError
-  | InvalidAmountError
-  | EntityDetailsNotFoundError
-  | FailedToParseLendingPoolSchemaError
-  | FailedToParseCDPDataError
-  | ParseSborError
-  | InvalidRootReceiptItemError
-  | FailedToParseLendingPoolStateError
-  | FailedToParsePoolStatesKeyError
-  | MissingConversionRatioError
-  | InvalidStateInputError
-  | FailedToParseComponentStateError
-  | GatewayError
-  | EntityNotFoundError
-  | InvalidInputError
-  | InvalidComponentStateError
-  | FailedToParseLiquidityClaimsError
-  | GetDefiPlazaPositionsError
-  | UnknownTokenError
-  | DbError
-  | SnapshotError
-  | GetAccountBalancesAtStateVersionServiceError;
-
-export class SnapshotService extends Context.Tag("SnapshotService")<
-  SnapshotService,
-  (input: SnapshotInput) => Effect.Effect<void, SnapshotServiceError>
->() {}
-
-export const SnapshotLive = Layer.effect(
-  SnapshotService,
-  Effect.gen(function* () {
-    const getLedgerState = yield* GetLedgerStateService;
-    const getAccountBalancesAtStateVersion =
-      yield* GetAccountBalancesAtStateVersionService;
-    const createSnapshot = yield* CreateSnapshotService;
-    const updateSnapshot = yield* UpdateSnapshotService;
-    const getAccountAddresses = yield* GetAccountAddressesService;
-    const upsertAccountBalances = yield* UpsertAccountBalancesService;
-    const aggregateAccountBalanceService =
-      yield* AggregateAccountBalanceService;
-    const getAllValidatorsService = yield* GetAllValidatorsService;
-
-    return (input) =>
-      Effect.gen(function* () {
+export class SnapshotService extends Effect.Service<SnapshotService>()(
+  "SnapshotService",
+  {
+    effect: Effect.gen(function* () {
+      const getLedgerState = yield* GetLedgerStateService;
+      const getAccountBalancesAtStateVersion =
+        yield* GetAccountBalancesAtStateVersionService;
+      const createSnapshot = yield* CreateSnapshotService;
+      const updateSnapshot = yield* UpdateSnapshotService;
+      const getAccountAddresses = yield* GetAccountAddressesService;
+      const upsertAccountBalances = yield* UpsertAccountBalancesService;
+      const aggregateAccountBalanceService =
+        yield* AggregateAccountBalanceService;
+      const getAllValidatorsService = yield* GetAllValidatorsService;
+      return Effect.fn(function* (input: SnapshotInput) {
         yield* Effect.log(
           "running snapshot",
           JSON.stringify({
@@ -139,7 +56,7 @@ export const SnapshotLive = Layer.effect(
           input.batchSize ??
           Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? "30000", 10);
 
-        const lederState = yield* getLedgerState.run({
+        const lederState = yield* getLedgerState({
           at_ledger_state: {
             timestamp: input.timestamp,
           },
@@ -168,7 +85,7 @@ export const SnapshotLive = Layer.effect(
         const validators = yield* getAllValidatorsService();
 
         // Split accounts into batches
-        const accountBatches = chunkArray(accountAddresses, batchSize);
+        const accountBatches = chunker(accountAddresses, batchSize);
 
         // Track overall progress
         let processedAccounts = 0;
@@ -185,10 +102,9 @@ export const SnapshotLive = Layer.effect(
           const batch = accountBatches[batchIndex];
 
           if (!batch) {
-            yield* Effect.fail(
+            return yield* Effect.fail(
               new SnapshotError(`Batch ${batchIndex} is undefined`)
             );
-            return;
           }
 
           yield* Effect.log(
@@ -344,8 +260,11 @@ export const SnapshotLive = Layer.effect(
         });
 
         yield* Effect.log(`snapshot completed for job ${input.jobId}
-          timestamp: ${input.timestamp}
-          `);
+        timestamp: ${input.timestamp}
+        `);
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const SnapshotLive = SnapshotService.Default;

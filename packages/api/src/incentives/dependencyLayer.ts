@@ -1,18 +1,17 @@
 import { Effect, Layer, Logger } from "effect";
 import { GatewayApiClientLive } from "../common/gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../common/gateway/getEntityDetails";
+import { GetEntityDetailsService } from "../common/gateway/getEntityDetails";
 
 import {
   type GetLedgerStateInput,
-  GetLedgerStateLive,
   GetLedgerStateService,
 } from "../common/gateway/getLedgerState";
-import { GetFungibleBalanceLive } from "../common/gateway/getFungibleBalance";
-import { EntityFungiblesPageLive } from "../common/gateway/entityFungiblesPage";
-import { EntityNonFungiblesPageLive } from "../common/gateway/entityNonFungiblesPage";
+import { GetFungibleBalanceService } from "../common/gateway/getFungibleBalance";
+import { EntityFungiblesPageService } from "../common/gateway/entityFungiblesPage";
+import { EntityNonFungiblesPageService } from "../common/gateway/entityNonFungiblesPage";
 import { EntityNonFungibleDataService } from "../common/gateway/entityNonFungiblesData";
-import { GetNonFungibleBalanceLive } from "../common/gateway/getNonFungibleBalance";
-import { GetAllValidatorsLive } from "../common/gateway/getAllValidators";
+import { GetNonFungibleBalanceService } from "../common/gateway/getNonFungibleBalance";
+import { GetAllValidatorsService } from "../common/gateway/getAllValidators";
 import { GetAccountBalancesAtStateVersionLive } from "./account-balance/getAccountBalancesAtStateVersion";
 import { GetUserStakingPositionsLive } from "../common/staking/getUserStakingPositions";
 import { GetLsulpLive } from "../common/dapps/caviarnine/getLsulp";
@@ -20,9 +19,9 @@ import { GetLsulpValueLive } from "../common/dapps/caviarnine/getLsulpValue";
 import { ConvertLsuToXrdLive } from "../common/staking/convertLsuToXrd";
 import { GetWeftFinancePositionsService } from "../common/dapps/weftFinance/getWeftFinancePositions";
 import { UnstakingReceiptProcessorLive } from "../common/staking/unstakingReceiptProcessor";
-import { GetComponentStateLive } from "../common/gateway/getComponentState";
-import { KeyValueStoreDataLive } from "../common/gateway/keyValueStoreData";
-import { KeyValueStoreKeysLive } from "../common/gateway/keyValueStoreKeys";
+import { GetComponentStateService } from "../common/gateway/getComponentState";
+import { KeyValueStoreDataService } from "../common/gateway/keyValueStoreData";
+import { KeyValueStoreKeysService } from "../common/gateway/keyValueStoreKeys";
 import { GetKeyValueStoreService } from "../common/gateway/getKeyValueStore";
 import { GetRootFinancePositionsService } from "../common/dapps/rootFinance/getRootFinancePositions";
 import { GetQuantaSwapBinMapLive } from "../common/dapps/caviarnine/getQuantaSwapBinMap";
@@ -52,15 +51,15 @@ import {
   DeriveAccountFromEventLive,
   DeriveAccountFromEventService,
 } from "./events/deriveAccountFromEvent";
-import { GetNonFungibleLocationLive } from "../common/gateway/getNonFungibleLocation";
+import { GetNonFungibleLocationService } from "../common/gateway/getNonFungibleLocation";
 import { GetEventsFromDbLive } from "./events/queries/getEventsFromDb";
-import { GetAddressByNonFungibleLive } from "../common/gateway/getAddressByNonFungible";
+import { GetAddressByNonFungibleService } from "../common/gateway/getAddressByNonFungible";
 import { GetAccountsIntersectionLive } from "./account/getAccountsIntersection";
 import { NodeSdk } from "@effect/opentelemetry";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { GetNftResourceManagersLive } from "../common/gateway/getNftResourceManagers";
-import { GetNonFungibleIdsLive } from "../common/gateway/getNonFungibleIds";
+import { GetNftResourceManagersService } from "../common/gateway/getNftResourceManagers";
+import { GetNonFungibleIdsService } from "../common/gateway/getNonFungibleIds";
 import { CalculateActivityPointsLive } from "./activity-points/calculateActivityPoints";
 import { CalculateTWASQLLive } from "./activity-points/calculateTWASQL";
 import { UpsertAccountActivityPointsLive } from "./activity-points/upsertAccountActivityPoints";
@@ -112,54 +111,53 @@ import { ActivityCategoryWeekService } from "./activity-category-week/activityCa
 import { SeasonService } from "./season/season";
 const appConfig = createConfig();
 
-const appConfigServiceLive = createAppConfigLive(appConfig);
-
 const dbClientLive = createDbClientLive(db);
 const dbReadOnlyClientLive = createDbReadOnlyClientLive(readOnlyDb);
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
+const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
+const stateEntityDetailsLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive)
 );
 
-const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
+const entityNonFungiblesPageServiceLive =
+  EntityNonFungiblesPageService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
 
 const entityNonFungibleDataServiceLive =
   EntityNonFungibleDataService.Default.pipe(
     Layer.provide(gatewayApiClientLive)
   );
 
-const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+const getNonFungibleIdsLive = GetNonFungibleIdsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+const getNftResourceManagersLive = GetNftResourceManagersService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(getNonFungibleIdsLive)
 );
 
-const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
+const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(entityNonFungibleDataServiceLive),
   Layer.provide(getNftResourceManagersLive)
 );
@@ -182,15 +180,15 @@ const getLsulpValueLive = GetLsulpValueLive.pipe(
   Layer.provide(entityFungiblesPageServiceLive)
 );
 
-const getComponentStateServiceLive = GetComponentStateLive.pipe(
+const getComponentStateServiceLive = GetComponentStateService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive)
 );
 
-const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
+const keyValueStoreDataServiceLive = KeyValueStoreDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
+const keyValueStoreKeysServiceLive = KeyValueStoreKeysService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -199,7 +197,7 @@ const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(keyValueStoreKeysServiceLive)
 );
 
-const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive)
 );
@@ -221,11 +219,11 @@ const getRootFinancePositionLive = GetRootFinancePositionsService.Default.pipe(
   Layer.provide(getKeyValueStoreServiceLive)
 );
 
-const keyValueStoreDataLive = KeyValueStoreDataLive.pipe(
+const keyValueStoreDataLive = KeyValueStoreDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getKeyValueStoreKeysLive = KeyValueStoreKeysLive.pipe(
+const getKeyValueStoreKeysLive = KeyValueStoreKeysService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -234,7 +232,7 @@ const getKeyValueStoreLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(getKeyValueStoreKeysLive)
 );
 
-const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -242,7 +240,7 @@ const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getComponentStateLive = GetComponentStateLive.pipe(
+const getComponentStateLive = GetComponentStateService.Default.pipe(
   Layer.provide(getEntityDetailsLive)
 );
 
@@ -423,7 +421,7 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(getAllValidatorsServiceLive)
 );
 
-const getNonFungibleLocationLive = GetNonFungibleLocationLive.pipe(
+const getNonFungibleLocationLive = GetNonFungibleLocationService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -431,7 +429,7 @@ const getEventsFromDbLive = GetEventsFromDbLive.pipe(
   Layer.provide(dbClientLive)
 );
 
-const getAddressByNonFungibleLive = GetAddressByNonFungibleLive.pipe(
+const getAddressByNonFungibleLive = GetAddressByNonFungibleService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getNonFungibleLocationLive)
 );
@@ -608,7 +606,7 @@ const getLedgerState = (input: GetLedgerStateInput) => {
     Effect.gen(function* () {
       const getLedgerStateService = yield* GetLedgerStateService;
 
-      return yield* getLedgerStateService.run(input);
+      return yield* getLedgerStateService(input);
     }),
     getLedgerStateLive
   );

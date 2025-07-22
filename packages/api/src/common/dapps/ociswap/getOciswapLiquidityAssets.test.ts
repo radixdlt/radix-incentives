@@ -10,15 +10,12 @@ import {
 } from "./getOciswapLiquidityClaims";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 
-import { GetComponentStateLive } from "../../gateway/getComponentState";
-import {
-  GetNonFungibleBalanceLive,
-  GetNonFungibleBalanceService,
-} from "../../gateway/getNonFungibleBalance";
-import { GetNftResourceManagersLive } from "../../gateway/getNftResourceManagers";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
-import { GetNonFungibleIdsLive } from "../../gateway/getNonFungibleIds";
+import { GetComponentStateService } from "../../gateway/getComponentState";
+import { GetNonFungibleBalanceService } from "../../gateway/getNonFungibleBalance";
+import { GetNftResourceManagersService } from "../../gateway/getNftResourceManagers";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
+import { GetNonFungibleIdsService } from "../../gateway/getNonFungibleIds";
 import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
 
 const TEST_CONFIG = {
@@ -77,7 +74,7 @@ const TEST_CONFIG = {
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -85,28 +82,28 @@ const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungiblesPageLive = EntityNonFungiblesPageLive.pipe(
+const entityNonFungiblesPageLive = EntityNonFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+const getNonFungibleIdsLive = GetNonFungibleIdsService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityNonFungibleDataLive)
 );
 
-const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+const getNftResourceManagersLive = GetNftResourceManagersService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityNonFungiblesPageLive),
   Layer.provide(entityNonFungibleDataLive),
   Layer.provide(getNonFungibleIdsLive)
 );
 
-const getComponentStateLive = GetComponentStateLive.pipe(
+const getComponentStateLive = GetComponentStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getEntityDetailsLive)
 );
 
-const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
+const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityNonFungibleDataLive),
   Layer.provide(entityNonFungiblesPageLive),

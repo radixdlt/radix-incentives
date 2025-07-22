@@ -1,29 +1,26 @@
-import { Effect, Layer } from "effect";
+import { Effect, Exit, Layer } from "effect";
 import { GatewayApiClientLive } from "./gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "./getEntityDetails";
+import { GetEntityDetailsService } from "./getEntityDetails";
 
-import { GetLedgerStateLive, GetLedgerStateService } from "./getLedgerState";
-import {
-  GetFungibleBalanceService,
-  GetFungibleBalanceLive,
-} from "./getFungibleBalance";
-import { EntityFungiblesPageLive } from "./entityFungiblesPage";
+import { GetLedgerStateService } from "./getLedgerState";
+import { GetFungibleBalanceService } from "./getFungibleBalance";
+import { EntityFungiblesPageService } from "./entityFungiblesPage";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
+const stateEntityDetailsLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
 
   Layer.provide(gatewayApiClientLive),
@@ -40,12 +37,12 @@ const ACCOUNT_ADDRESSES = [
 
 describe("GetFungibleBalanceService", () => {
   it("should get account balance", async () => {
-    const program = Effect.provide(
+    const runnable = Effect.provide(
       Effect.gen(function* () {
         const getFungibleBalance = yield* GetFungibleBalanceService;
         const getLedgerState = yield* GetLedgerStateService;
 
-        const ledgerState = yield* getLedgerState.run({
+        const ledgerState = yield* getLedgerState({
           at_ledger_state: {
             timestamp: new Date("2025-04-31T00:00:00.000Z"),
           },
@@ -61,28 +58,24 @@ describe("GetFungibleBalanceService", () => {
           },
         });
       }),
-      Layer.mergeAll(
-        gatewayApiClientLive,
-        stateEntityDetailsLive,
-        entityFungiblesPageServiceLive,
-        getLedgerStateLive
-      )
+      Layer.merge(stateEntityDetailsLive, getLedgerStateLive)
     );
 
-    const result = await Effect.runPromise(
-      program.pipe(
-        Effect.catchAll((error) => {
-          console.error(JSON.stringify(error, null, 2));
-          return Effect.fail(null);
-        })
-      )
-    );
+    const result = await Effect.runPromiseExit(runnable);
 
-    for (const account of result) {
-      console.log(
-        account.address,
-        `${account.fungibleResources.length} fungible resources`
-      );
-    }
+    Exit.match(result, {
+      onSuccess: (value) => {
+        for (const account of value) {
+          console.log(
+            account.address,
+            `${account.fungibleResources.length} fungible resources`
+          );
+        }
+      },
+      onFailure: (error) => {
+        console.error(JSON.stringify(error, null, 2));
+        throw error;
+      },
+    });
   });
 });

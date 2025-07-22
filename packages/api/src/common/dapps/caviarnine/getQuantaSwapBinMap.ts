@@ -1,11 +1,9 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 
 import type { AtLedgerState } from "../../gateway/schemas";
-import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 import s from "sbor-ez-mode";
 
-import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 import { I192 } from "../../helpers/i192";
 
 export class FailedToParseComponentStateError {
@@ -25,30 +23,16 @@ export type GetQuantaSwapBinMapServiceOutput = Map<
   { amount: I192; total_claim: I192 }
 >;
 
-export class GetQuantaSwapBinMapService extends Context.Tag(
-  "GetQuantaSwapBinMapService"
-)<
-  GetQuantaSwapBinMapService,
-  (input: {
-    address: string;
-    at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<
-    GetQuantaSwapBinMapServiceOutput,
-    | FailedToParseComponentStateError
-    | GatewayError
-    | EntityNotFoundError
-    | InvalidComponentStateError
-  >
->() {}
-
-export const GetQuantaSwapBinMapLive = Layer.effect(
-  GetQuantaSwapBinMapService,
-  Effect.gen(function* () {
-    const getKeyValueStoreService = yield* GetKeyValueStoreService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        const keyValueStore = yield* getKeyValueStoreService.run({
+export class GetQuantaSwapBinMapService extends Effect.Service<GetQuantaSwapBinMapService>()(
+  "GetQuantaSwapBinMapService",
+  {
+    effect: Effect.gen(function* () {
+      const getKeyValueStoreService = yield* GetKeyValueStoreService;
+      return Effect.fn(function* (input: {
+        address: string;
+        at_ledger_state: AtLedgerState;
+      }) {
+        const keyValueStore = yield* getKeyValueStoreService({
           address: input.address,
           at_ledger_state: input.at_ledger_state,
         });
@@ -96,6 +80,8 @@ export const GetQuantaSwapBinMapLive = Layer.effect(
 
         return binData;
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetQuantaSwapBinMapLive = GetQuantaSwapBinMapService.Default;

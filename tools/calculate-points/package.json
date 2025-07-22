@@ -4,7 +4,8 @@
   "main": "./src/index.ts",
   "scripts": {
     "calc:sp": "tsx --watch src/calculateSeasonPoints.ts",
-    "calc:ap": "tsx --watch src/calculateActivityPoints.ts"
+    "calc:ap": "tsx --watch src/calculateActivityPoints.ts",
+    "snapshot": "tsx --inspect --watch src/snapshot.ts"
   },
   "devDependencies": {
     "tsup": "catalog:",

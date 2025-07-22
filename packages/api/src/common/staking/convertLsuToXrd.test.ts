@@ -1,17 +1,14 @@
 import { Effect, Layer } from "effect";
 import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from "./convertLsuToXrd";
 import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
+import { GetEntityDetailsService } from "../gateway/getEntityDetails";
 import { BigNumber } from "bignumber.js";
-import { GetLedgerStateLive } from "../gateway/getLedgerState";
-import {
-  GetAllValidatorsLive,
-  GetAllValidatorsService,
-} from "../gateway/getAllValidators";
+import { GetLedgerStateService } from "../gateway/getLedgerState";
+import { GetAllValidatorsService } from "../gateway/getAllValidators";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
@@ -19,11 +16,11 @@ const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
   Layer.provide(getEntityDetailsServiceLive)
 );
 
-const getStateVersionLive = GetLedgerStateLive.pipe(
+const getStateVersionLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
+const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 

@@ -1,24 +1,15 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 
 import type { AtLedgerState } from "../../gateway/schemas";
-import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import { QuantaSwap } from "./schemas";
-import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
 
-import {
-  GetComponentStateService,
-  type InvalidComponentStateError,
-} from "../../gateway/getComponentState";
+import { GetComponentStateService } from "../../gateway/getComponentState";
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-  type InvalidInputError,
 } from "../../gateway/getNonFungibleBalance";
 import { GetQuantaSwapBinMapService } from "./getQuantaSwapBinMap";
-import {
-  type FailedToParseLiquidityClaimsError,
-  GetShapeLiquidityClaimsService,
-} from "./getShapeLiquidityClaims";
+import { GetShapeLiquidityClaimsService } from "./getShapeLiquidityClaims";
 import { I192 } from "../../helpers/i192";
 import { calculatePrice, calculateTick } from "./tickCalculator";
 
@@ -44,47 +35,27 @@ export type ShapeLiquidityAsset = {
   isActive: boolean;
 };
 
-export class GetShapeLiquidityAssetsService extends Context.Tag(
-  "GetShapeLiquidityAssetsService"
-)<
-  GetShapeLiquidityAssetsService,
-  (input: {
-    componentAddress: string;
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-    nonFungibleBalance?: GetNonFungibleBalanceOutput;
-    priceBounds: {
-      lower: number;
-      upper: number;
-    };
-  }) => Effect.Effect<
-    {
-      address: string;
-      items: ShapeLiquidityAsset[];
-    }[],
-    | FailedToParseComponentStateError
-    | GetEntityDetailsError
-    | GatewayError
-    | EntityNotFoundError
-    | GetEntityDetailsError
-    | InvalidInputError
-    | InvalidComponentStateError
-    | FailedToParseLiquidityClaimsError
-  >
->() {}
+export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiquidityAssetsService>()(
+  "GetShapeLiquidityAssetsService",
+  {
+    effect: Effect.gen(function* () {
+      const getComponentStateService = yield* GetComponentStateService;
+      const getQuantaSwapBinMapService = yield* GetQuantaSwapBinMapService;
+      const getShapeLiquidityClaimsService =
+        yield* GetShapeLiquidityClaimsService;
+      const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
 
-export const GetShapeLiquidityAssetsLive = Layer.effect(
-  GetShapeLiquidityAssetsService,
-  Effect.gen(function* () {
-    const getComponentStateService = yield* GetComponentStateService;
-    const getQuantaSwapBinMapService = yield* GetQuantaSwapBinMapService;
-    const getShapeLiquidityClaimsService =
-      yield* GetShapeLiquidityClaimsService;
-    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        const componentStateResult = yield* getComponentStateService({
+      return Effect.fn(function* (input: {
+        componentAddress: string;
+        addresses: string[];
+        at_ledger_state: AtLedgerState;
+        nonFungibleBalance?: GetNonFungibleBalanceOutput;
+        priceBounds: {
+          lower: number;
+          upper: number;
+        };
+      }) {
+        const componentStateResult = yield* getComponentStateService.run({
           addresses: [input.componentAddress],
           schema: QuantaSwap,
           at_ledger_state: input.at_ledger_state,
@@ -320,6 +291,9 @@ export const GetShapeLiquidityAssetsLive = Layer.effect(
           })
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetShapeLiquidityAssetsLive =
+  GetShapeLiquidityAssetsService.Default;

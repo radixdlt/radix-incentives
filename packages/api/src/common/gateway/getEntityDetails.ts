@@ -1,58 +1,36 @@
-import { Context, Effect, Layer } from "effect";
-import {
-  type GatewayApiClientImpl,
-  GatewayApiClientService,
-} from "../gateway/gatewayApiClient";
+import { Effect } from "effect";
+import { GatewayApiClientService } from "../gateway/gatewayApiClient";
 import type { AtLedgerState } from "./schemas";
+import { GatewayError } from "./errors";
 
-export class GetEntityDetailsError {
-  readonly _tag = "GetEntityDetailsError";
-  constructor(readonly error: unknown) {}
-}
-
-export type GetEntityDetailsParameters = Parameters<
-  GatewayApiClientImpl["gatewayApiClient"]["state"]["getEntityDetailsVaultAggregated"]
+type GetEntityDetailsParameters = Parameters<
+  GatewayApiClientService["state"]["getEntityDetailsVaultAggregated"]
 >;
 
 export type GetEntityDetailsInput = GetEntityDetailsParameters[0];
 export type GetEntityDetailsOptions = GetEntityDetailsParameters[1];
 export type GetEntityDetailsState = GetEntityDetailsParameters[2];
-type GetEntityDetailsResult = Awaited<
-  ReturnType<
-    GatewayApiClientImpl["gatewayApiClient"]["state"]["getEntityDetailsVaultAggregated"]
-  >
->;
 
-export class GetEntityDetailsService extends Context.Tag(
-  "GetEntityDetailsService"
-)<
-  GetEntityDetailsService,
-  (
-    input: GetEntityDetailsInput,
-    options: GetEntityDetailsOptions,
-    at_ledger_state: AtLedgerState
-  ) => Effect.Effect<GetEntityDetailsResult, GetEntityDetailsError>
->() {}
-
-export const GetEntityDetailsServiceLive = Layer.effect(
-  GetEntityDetailsService,
-  Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
-
-    return (input, options, state) => {
-      return Effect.gen(function* () {
+export class GetEntityDetailsService extends Effect.Service<GetEntityDetailsService>()(
+  "GetEntityDetailsService",
+  {
+    effect: Effect.gen(function* () {
+      const gatewayClient = yield* GatewayApiClientService;
+      return Effect.fn(function* (
+        input: GetEntityDetailsInput,
+        options: GetEntityDetailsOptions,
+        at_ledger_state: AtLedgerState
+      ) {
         return yield* Effect.tryPromise({
           try: () =>
-            gatewayClient.gatewayApiClient.state.getEntityDetailsVaultAggregated(
+            gatewayClient.state.getEntityDetailsVaultAggregated(
               input,
               options,
-              state
+              at_ledger_state
             ),
-          catch: (error) => {
-            return new GetEntityDetailsError(error);
-          },
+          catch: (error) => new GatewayError({ error }),
         });
       });
-    };
-  })
-);
+    }),
+  }
+) {}
