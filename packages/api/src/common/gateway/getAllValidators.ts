@@ -1,17 +1,6 @@
-import { Context, Effect, Layer } from "effect";
-import {
-  type GatewayApiClientImpl,
-  GatewayApiClientService,
-} from "./gatewayApiClient";
-
-export class GetAllValidatorsError {
-  readonly _tag = "GetAllValidatorsError";
-  constructor(readonly error: unknown) {}
-}
-
-export type GetAllValidatorsResult = Awaited<
-  ReturnType<GatewayApiClientImpl["gatewayApiClient"]["state"]["getValidators"]>
->;
+import { Effect } from "effect";
+import { GatewayApiClientService } from "./gatewayApiClient";
+import { GatewayError } from "./errors";
 
 export type Validator = {
   address: string;
@@ -20,29 +9,20 @@ export type Validator = {
   claimNftResourceAddress: string;
 };
 
-export class GetAllValidatorsService extends Context.Tag(
-  "GetAllValidatorsService"
-)<
-  GetAllValidatorsService,
-  () => Effect.Effect<Validator[], GetAllValidatorsError>
->() {}
-
-export const GetAllValidatorsLive = Layer.effect(
-  GetAllValidatorsService,
-  Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
-
-    return () => {
-      return Effect.gen(function* () {
+export class GetAllValidatorsService extends Effect.Service<GetAllValidatorsService>()(
+  "GetAllValidatorsService",
+  {
+    effect: Effect.gen(function* () {
+      const gatewayClient = yield* GatewayApiClientService;
+      return Effect.fn(function* () {
         const result = yield* Effect.tryPromise({
-          try: () => gatewayClient.gatewayApiClient.state.getValidators(),
-          catch: (error) => {
-            return new GetAllValidatorsError(error);
-          },
+          try: () => gatewayClient.state.getValidators(),
+          catch: (error) => new GatewayError({ error }),
         });
 
         return result.items.map((item) => {
           const address = item.address;
+
           const { name, lsuResourceAddress, claimNftResourceAddress } =
             item.metadata.items.reduce(
               (acc, curr) => {
@@ -80,6 +60,6 @@ export const GetAllValidatorsLive = Layer.effect(
           };
         });
       });
-    };
-  })
-);
+    }),
+  }
+) {}

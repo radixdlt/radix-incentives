@@ -5,25 +5,25 @@ import {
   GetCaviarnineResourcePoolPositionsService,
 } from "./getCaviarnineResourcePoolPositions";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
 import { GetResourcePoolUnitsLive } from "../../resource-pool/getResourcePoolUnits";
-import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
+import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 
 const TEST_ACCOUNT =
   "account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive)
 );

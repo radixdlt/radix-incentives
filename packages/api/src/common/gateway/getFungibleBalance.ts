@@ -1,169 +1,130 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { BigNumber } from "bignumber.js";
-import {
-  type GatewayApiClientImpl,
-  GatewayApiClientService,
-} from "./gatewayApiClient";
+import { GatewayApiClientService } from "./gatewayApiClient";
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
-import { EntityNotFoundError, GatewayError } from "./errors";
-import type { GetLedgerStateService } from "./getLedgerState";
+import { GatewayError } from "./errors";
 import type {
-  EntityMetadataCollection,
-  StateEntityDetailsResponseItemDetails,
+  StateEntityDetailsOperationRequest,
+  StateEntityDetailsResponseItem,
 } from "@radixdlt/babylon-gateway-api-sdk";
 
 import { chunker } from "../helpers/chunker";
 
 import type { AtLedgerState } from "./schemas";
 
-export class InvalidInputError {
-  readonly _tag = "InvalidInputError";
-  constructor(readonly error: unknown) {}
-}
+export type GetFungibleBalanceOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof GetFungibleBalanceService)["Service"]>>
+>;
 
-type StateEntityDetailsParams = Parameters<
-  GatewayApiClientImpl["gatewayApiClient"]["state"]["innerClient"]["stateEntityDetails"]
->[0]["stateEntityDetailsRequest"];
+export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalanceService>()(
+  "GetFungibleBalanceService",
+  {
+    effect: Effect.gen(function* () {
+      const gatewayClient = yield* GatewayApiClientService;
 
-type StateEntityDetailsOptionsParams = StateEntityDetailsParams["opt_ins"];
+      const aggregationLevel = "Global";
 
-export type StateEntityDetailsInput = {
-  addresses: string[];
-  options?: StateEntityDetailsOptionsParams;
-  at_ledger_state: AtLedgerState;
-};
+      const entityFungiblesPageService = yield* EntityFungiblesPageService;
 
-export type GetFungibleBalanceOutput = {
-  address: string;
-  fungibleResources: {
-    resourceAddress: string;
-    amount: BigNumber;
-    lastUpdatedStateVersion: number;
-  }[];
-  details?: StateEntityDetailsResponseItemDetails;
-  metadata: EntityMetadataCollection;
-}[];
+      const getAggregatedFungibleBalance = Effect.fn(function* (
+        item: StateEntityDetailsResponseItem,
+        at_ledger_state: AtLedgerState
+      ) {
+        const address = item.address;
 
-export type GetFungibleBalanceServiceError =
-  | EntityNotFoundError
-  | InvalidInputError
-  | GatewayError;
+        const allFungibleResources = item.fungible_resources?.items ?? [];
 
-export type GetFungibleBalanceServiceDependencies =
-  | GatewayApiClientService
-  | EntityFungiblesPageService
-  | GetLedgerStateService;
+        let nextCursor = item.fungible_resources?.next_cursor;
+        const totalCount = item.fungible_resources?.total_count ?? 0;
 
-export class GetFungibleBalanceService extends Context.Tag(
-  "GetFungibleBalanceService"
-)<
-  GetFungibleBalanceService,
-  (
-    input: StateEntityDetailsInput
-  ) => Effect.Effect<GetFungibleBalanceOutput, GetFungibleBalanceServiceError>
->() {}
+        while (nextCursor && totalCount > 0) {
+          const result = yield* entityFungiblesPageService({
+            address,
+            aggregation_level: aggregationLevel,
+            cursor: nextCursor,
+            at_ledger_state,
+          });
+          nextCursor = result.next_cursor;
+          allFungibleResources.push(...result.items);
+        }
 
-export const GetFungibleBalanceLive = Layer.effect(
-  GetFungibleBalanceService,
-  Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
+        const fungibleResources = allFungibleResources
+          .map((item) => {
+            if (item.aggregation_level === "Global") {
+              const { resource_address: resourceAddress, amount } = item;
 
-    const entityFungiblesPageService = yield* EntityFungiblesPageService;
+              return {
+                resourceAddress,
+                amount: new BigNumber(amount),
+                lastUpdatedStateVersion: item.last_updated_at_state_version,
+              };
+            }
+          })
+          .filter(
+            (
+              item
+            ): item is {
+              resourceAddress: string;
+              amount: BigNumber;
+              lastUpdatedStateVersion: number;
+            } => !!item && item?.amount.gt(0)
+          );
 
-    return (input) => {
-      return Effect.gen(function* () {
-        const aggregationLevel = "Global";
+        return {
+          address: item.address,
+          fungibleResources,
+          details: item.details,
+          metadata: item.metadata,
+        };
+      });
 
-        return yield* Effect.all(
-          chunker(input.addresses, 20).map((chunk) =>
-            Effect.gen(function* () {
-              const results = yield* Effect.tryPromise({
-                try: () =>
-                  gatewayClient.gatewayApiClient.state.innerClient.stateEntityDetails(
-                    {
-                      stateEntityDetailsRequest: {
-                        addresses: chunk,
-                        opt_ins: input.options,
-                        at_ledger_state: input.at_ledger_state,
-                        aggregation_level: aggregationLevel,
-                      },
-                    }
-                  ),
-                catch: (error) => {
-                  return new GatewayError(error);
-                },
-              });
+      return Effect.fn(function* (
+        input: Omit<
+          StateEntityDetailsOperationRequest["stateEntityDetailsRequest"],
+          "at_ledger_state"
+        > & {
+          at_ledger_state: AtLedgerState;
+          options?: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+        },
+        options?: {
+          chunkSize?: number;
+          concurrency?: number;
+        }
+      ) {
+        const chunkSize = options?.chunkSize ?? 20;
+        const concurrency = options?.concurrency ?? 10;
 
-              return yield* Effect.all(
-                results.items.map((result) => {
-                  return Effect.gen(function* () {
-                    if (!result) {
-                      return yield* Effect.fail(new EntityNotFoundError());
-                    }
-
-                    const address = result.address;
-
-                    const allFungibleResources =
-                      result.fungible_resources?.items ?? [];
-
-                    let nextCursor = result.fungible_resources?.next_cursor;
-                    const totalCount =
-                      result.fungible_resources?.total_count ?? 0;
-
-                    while (nextCursor && totalCount > 0) {
-                      const result = yield* entityFungiblesPageService({
-                        address,
-                        aggregation_level: aggregationLevel,
-                        cursor: nextCursor,
-                        at_ledger_state: input.at_ledger_state,
-                      });
-                      nextCursor = result.next_cursor;
-                      allFungibleResources.push(...result.items);
-                    }
-
-                    const fungibleResources = allFungibleResources
-                      .map((item) => {
-                        if (item.aggregation_level === "Global") {
-                          const { resource_address: resourceAddress, amount } =
-                            item;
-
-                          return {
-                            resourceAddress,
-                            amount: new BigNumber(amount),
-                            lastUpdatedStateVersion:
-                              item.last_updated_at_state_version,
-                          };
-                        }
-                      })
-                      .filter(
-                        (
-                          item
-                        ): item is {
-                          resourceAddress: string;
-                          amount: BigNumber;
-                          lastUpdatedStateVersion: number;
-                        } => !!item && item?.amount.gt(0)
-                      );
-
-                    return {
-                      address: result.address,
-                      fungibleResources,
-                      details: result.details,
-                      metadata: result.metadata,
-                    };
-                  });
+        const stateEntityDetailsResults = yield* Effect.forEach(
+          chunker(input.addresses, chunkSize),
+          Effect.fn(function* (addresses) {
+            const stateEntityDetailsResult = yield* Effect.tryPromise({
+              try: () =>
+                gatewayClient.state.innerClient.stateEntityDetails({
+                  stateEntityDetailsRequest: {
+                    addresses,
+                    opt_ins: input.options,
+                    at_ledger_state: input.at_ledger_state,
+                    aggregation_level: aggregationLevel,
+                  },
                 }),
-                {
-                  concurrency: "inherit",
-                }
-              );
-            })
-          ),
+              catch: (error) => new GatewayError({ error }),
+            });
+
+            return stateEntityDetailsResult.items;
+          }),
           {
-            concurrency: "unbounded",
+            concurrency,
           }
         ).pipe(Effect.map((results) => results.flat()));
+
+        const fungibleBalanceResults = yield* Effect.forEach(
+          stateEntityDetailsResults,
+          (item) => getAggregatedFungibleBalance(item, input.at_ledger_state),
+          { concurrency }
+        ).pipe(Effect.map((results) => results.flat()));
+
+        return fungibleBalanceResults;
       });
-    };
-  })
-);
+    }),
+  }
+) {}

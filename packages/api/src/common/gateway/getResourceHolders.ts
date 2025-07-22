@@ -1,36 +1,58 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { GatewayApiClientService } from "./gatewayApiClient";
 import { GatewayError } from "./errors";
-import type { ResourceHoldersResponse } from "@radixdlt/babylon-gateway-api-sdk";
+import type { ResourceHoldersCollectionItem } from "@radixdlt/babylon-gateway-api-sdk";
 
-export class GetResourceHoldersService extends Context.Tag(
-  "GetResourceHoldersService"
-)<
-  GetResourceHoldersService,
-  (input: {
-    resourceAddress: string;
-    cursor?: string;
-  }) => Effect.Effect<ResourceHoldersResponse, GatewayError>
->() {}
+export class GetResourceHoldersService extends Effect.Service<GetResourceHoldersService>()(
+  "GetResourceHoldersService",
+  {
+    effect: Effect.gen(function* () {
+      const gatewayClient = yield* GatewayApiClientService;
 
-export const GetResourceHoldersLive = Layer.effect(
-  GetResourceHoldersService,
-  Effect.gen(function* () {
-    const gatewayClient = yield* GatewayApiClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+      const getResourceHolders = Effect.fn(function* (input: {
+        resourceAddress: string;
+        cursor?: string;
+      }) {
         return yield* Effect.tryPromise({
           try: () =>
-            gatewayClient.gatewayApiClient.extensions.getResourceHolders(
+            gatewayClient.extensions.getResourceHolders(
               input.resourceAddress,
               input.cursor
             ),
           catch: (error) => {
-            return new GatewayError(error);
+            return new GatewayError({ error });
           },
         });
       });
-    };
-  })
-);
+
+      return Effect.fn(function* (input: {
+        resourceAddress: string;
+        cursor?: string;
+      }) {
+        const result = yield* getResourceHolders(input);
+
+        const allItems = [...result.items];
+
+        let nextCursor = result.next_cursor;
+
+        while (nextCursor) {
+          const nextResult = yield* getResourceHolders({
+            resourceAddress: input.resourceAddress,
+            cursor: nextCursor,
+          });
+
+          allItems.push(...nextResult.items);
+          nextCursor = nextResult.next_cursor;
+        }
+
+        const holders = new Map<string, ResourceHoldersCollectionItem>();
+
+        for (const item of allItems) {
+          holders.set(item.holder_address, item);
+        }
+
+        return Array.from(holders.values());
+      });
+    }),
+  }
+) {}

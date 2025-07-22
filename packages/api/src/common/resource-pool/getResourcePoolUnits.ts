@@ -1,13 +1,6 @@
-import { Context, Effect, Layer } from "effect";
-import {
-  GetFungibleBalanceService,
-  type GetFungibleBalanceServiceError,
-} from "../gateway/getFungibleBalance";
-import {
-  type GetEntityDetailsError,
-  GetEntityDetailsService,
-} from "../gateway/getEntityDetails";
-import type { GatewayError } from "../gateway/errors";
+import { Effect } from "effect";
+import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
+import { GetEntityDetailsService } from "../gateway/getEntityDetails";
 import type { AtLedgerState } from "../gateway/schemas";
 import { BigNumber } from "bignumber.js";
 import { PoolUnitSchema, PoolResourcesSchema } from "./schemas";
@@ -36,29 +29,14 @@ export type GetResourcePoolOutput = {
   }[];
 }[];
 
-export type GetResourcePoolError =
-  | GatewayError
-  | InvalidPoolResourceError
-  | GetEntityDetailsError
-  | GetFungibleBalanceServiceError;
+export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolUnitsService>()(
+  "GetResourcePoolUnitsService",
+  {
+    effect: Effect.gen(function* () {
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
+      const getEntityDetailsService = yield* GetEntityDetailsService;
 
-export class GetResourcePoolUnitsService extends Context.Tag(
-  "GetResourcePoolUnitsService"
-)<
-  GetResourcePoolUnitsService,
-  (
-    input: GetResourcePoolInput
-  ) => Effect.Effect<GetResourcePoolOutput, GetResourcePoolError>
->() {}
-
-export const GetResourcePoolUnitsLive = Layer.effect(
-  GetResourcePoolUnitsService,
-  Effect.gen(function* () {
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
-    const getEntityDetailsService = yield* GetEntityDetailsService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+      return Effect.fn(function* (input: GetResourcePoolInput) {
         const entityDetails = yield* getFungibleBalanceService({
           addresses: input.addresses,
           at_ledger_state: input.at_ledger_state,
@@ -161,6 +139,8 @@ export const GetResourcePoolUnitsLive = Layer.effect(
           { concurrency: "inherit" }
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetResourcePoolUnitsLive = GetResourcePoolUnitsService.Default;

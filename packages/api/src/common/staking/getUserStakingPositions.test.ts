@@ -1,65 +1,72 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../gateway/getEntityDetails";
-import { GetLedgerStateLive } from "../gateway/getLedgerState";
-import { GetFungibleBalanceLive } from "../gateway/getFungibleBalance";
-import { EntityFungiblesPageLive } from "../gateway/entityFungiblesPage";
-import {
-  GetUserStakingPositionsLive,
-  GetUserStakingPositionsService,
-} from "./getUserStakingPositions";
-import { EntityNonFungiblesPageLive } from "../gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataLive } from "../gateway/entityNonFungiblesData";
-import { GetNonFungibleBalanceLive } from "../gateway/getNonFungibleBalance";
-import { GetAllValidatorsLive } from "../gateway/getAllValidators";
+import { GetEntityDetailsService } from "../gateway/getEntityDetails";
+import { GetLedgerStateService } from "../gateway/getLedgerState";
+import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
+import { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
+import { GetUserStakingPositionsService } from "./getUserStakingPositions";
+import { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
+import { EntityNonFungibleDataService } from "../gateway/entityNonFungiblesData";
+import { GetNonFungibleBalanceService } from "../gateway/getNonFungibleBalance";
+import { GetAllValidatorsService } from "../gateway/getAllValidators";
 import { accounts } from "../../fixtures/accounts";
-import { NodeSdk } from "@effect/opentelemetry";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import {
+  GetNftResourceManagersService,
+  GetNonFungibleIdsService,
+} from "../gateway";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
+const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
+const stateEntityDetailsLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive)
 );
 
-const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
+const entityNonFungiblesPageServiceLive =
+  EntityNonFungiblesPageService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+const entityNonFungibleDataServiceLive =
+  EntityNonFungibleDataService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+const getNftResourceManagersServiceLive =
+  GetNftResourceManagersService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+const getNonFungibleIdsServiceLive = GetNonFungibleIdsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
-
-const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive),
-  Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(entityNonFungiblesPageServiceLive),
+const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(entityNonFungibleDataServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(getNftResourceManagersServiceLive),
+  Layer.provide(entityNonFungiblesPageServiceLive),
+  Layer.provide(getNonFungibleIdsServiceLive)
 );
 
-const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
+const getUserStakingPositionsLive = GetUserStakingPositionsService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(stateEntityDetailsLive),
   Layer.provide(entityFungiblesPageServiceLive),
@@ -69,11 +76,6 @@ const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
   Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(getAllValidatorsServiceLive)
 );
-
-const NodeSdkLive = NodeSdk.layer(() => ({
-  resource: { serviceName: "api" },
-  spanProcessor: new BatchSpanProcessor(new OTLPTraceExporter()),
-}));
 
 describe("getUserStakingPositions", () => {
   it("should get user staking positions", async () => {
@@ -92,17 +94,7 @@ describe("getUserStakingPositions", () => {
             },
           });
         }),
-        Layer.mergeAll(
-          gatewayApiClientLive,
-          stateEntityDetailsLive,
-          entityFungiblesPageServiceLive,
-          getLedgerStateLive,
-          entityNonFungiblesPageServiceLive,
-          entityNonFungibleDataServiceLive,
-          getNonFungibleBalanceLive,
-          getAllValidatorsServiceLive,
-          getUserStakingPositionsLive
-        )
+        getUserStakingPositionsLive
       )
     );
 

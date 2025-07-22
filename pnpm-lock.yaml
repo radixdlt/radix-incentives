@@ -1001,6 +1001,9 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 3.14.6
+      fetch-retry:
+        specifier: ^6.0.0
+        version: 6.0.0
       ioredis:
         specifier: 'catalog:'
         version: 5.6.0
@@ -4433,6 +4436,9 @@ packages:
     peerDependenciesMeta:
       picomatch:
         optional: true
+
+  fetch-retry@6.0.0:
+    resolution: {integrity: sha512-BUFj1aMubgib37I3v4q78fYo63Po7t4HUPTpQ6/QE6yK6cIQrP+W43FYToeTEyg5m2Y7eFUtijUuAv/PDlWuag==}
 
   figures@3.2.0:
     resolution: {integrity: sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==}
@@ -9204,6 +9210,8 @@ snapshots:
   fdir@6.4.4(picomatch@4.0.2):
     optionalDependencies:
       picomatch: 4.0.2
+
+  fetch-retry@6.0.0: {}
 
   figures@3.2.0:
     dependencies:

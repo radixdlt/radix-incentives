@@ -84,19 +84,17 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
       >();
       return {
         run: Effect.fn(function* (input: GetRootFinancePositionsServiceInput) {
-          const poolStatesKvs = yield* getKeyValueStoreService
-            .run({
-              address: RootFinanceConstants.poolStateKvs,
-              at_ledger_state: input.at_ledger_state,
+          const poolStatesKvs = yield* getKeyValueStoreService({
+            address: RootFinanceConstants.poolStateKvs,
+            at_ledger_state: input.at_ledger_state,
+          }).pipe(
+            Effect.catchTags({
+              EntityNotFoundError: () =>
+                Effect.succeed({
+                  entries: [],
+                }),
             })
-            .pipe(
-              Effect.catchTags({
-                EntityNotFoundError: () =>
-                  Effect.succeed({
-                    entries: [],
-                  }),
-              })
-            );
+          );
 
           // Create maps for conversion ratios: pool units -> real amounts
           const collateralConversionRatios = new Map<

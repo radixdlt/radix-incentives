@@ -39,8 +39,11 @@ export class ValidateSessionTokenService extends Effect.Service<ValidateSessionT
           const isSessionExpired = Date.now() >= session.expiresAt.getTime();
 
           if (isSessionExpired) {
-            yield* invalidateSession.run(session.id);
-            return yield* Effect.fail(new SessionExpiredError());
+            return yield* invalidateSession
+              .run(session.id)
+              .pipe(
+                Effect.flatMap(() => Effect.fail(new SessionExpiredError()))
+              );
           }
 
           const shouldRefreshSession =

@@ -59,11 +59,9 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
           yield* validateStateInput(input.at_ledger_state);
 
           // convert timestamp to state version
-          const { state_version } = yield* getLedgerStateService
-            .run({
-              at_ledger_state: input.at_ledger_state,
-            })
-            .pipe(Effect.withSpan("getLedgerStateService"));
+          const { state_version } = yield* getLedgerStateService({
+            at_ledger_state: input.at_ledger_state,
+          }).pipe(Effect.withSpan("getLedgerStateService"));
 
           const atLedgerState = {
             state_version,

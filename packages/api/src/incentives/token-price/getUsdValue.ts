@@ -96,9 +96,9 @@ export const GetUsdValueLive = Layer.effect(
       timeToLive: Duration.minutes(5),
       lookup: (key: PriceCacheKey) => {
         const [resourceAddress, roundedTimestamp] = key.split(":");
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+
         const timestamp = Number.parseInt(roundedTimestamp!);
-        // biome-ignore lint/style/noNonNullAssertion: <explanation>
+
         return fetchTokenPriceFromAPI(resourceAddress!, timestamp!);
       },
     });
@@ -106,9 +106,9 @@ export const GetUsdValueLive = Layer.effect(
     return (input) => {
       return Effect.gen(function* () {
         // Validate that the token is supported by attempting to get its name from AddressValidationService
-        const tokenNameResult = yield* addressValidationService.getTokenName(
-          input.resourceAddress
-        ).pipe(Effect.either);
+        const tokenNameResult = yield* addressValidationService
+          .getTokenName(input.resourceAddress)
+          .pipe(Effect.either);
 
         if (tokenNameResult._tag === "Left") {
           return yield* Effect.fail(

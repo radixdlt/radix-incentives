@@ -1,16 +1,12 @@
-import { Context, Effect, Layer } from "effect";
-import type { EntityNotFoundError, GatewayError } from "../../gateway/errors";
+import { Effect } from "effect";
 import BigNumber from "bignumber.js";
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-  type InvalidInputError,
 } from "../../gateway/getFungibleBalance";
 
-import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 import { DappConstants } from "data";
-import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
 import type { AtLedgerState } from "../../gateway/schemas";
 
 const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
@@ -39,36 +35,21 @@ export type GetDefiPlazaPositionsOutput = {
   items: DefiPlazaPosition[];
 }[];
 
-export type GetDefiPlazaPositionsError =
-  | GetEntityDetailsError
-  | EntityNotFoundError
-  | InvalidInputError
-  | GatewayError
-  | InvalidComponentStateError
-  | InvalidPoolResourceError;
-
-export class GetDefiPlazaPositionsService extends Context.Tag(
-  "GetDefiPlazaPositionsService"
-)<
-  GetDefiPlazaPositionsService,
-  (input: {
-    accountAddresses: string[];
-    at_ledger_state: AtLedgerState;
-    fungibleBalance?: GetFungibleBalanceOutput;
-  }) => Effect.Effect<GetDefiPlazaPositionsOutput, GetDefiPlazaPositionsError>
->() {}
-
 type AccountAddress = string;
 
-export const GetDefiPlazaPositionsLive = Layer.effect(
-  GetDefiPlazaPositionsService,
-  Effect.gen(function* () {
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
+export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPositionsService>()(
+  "GetDefiPlazaPositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
 
-    const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
+      const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
 
-    return (input) => {
-      return Effect.gen(function* () {
+      return Effect.fn(function* (input: {
+        accountAddresses: string[];
+        at_ledger_state: AtLedgerState;
+        fungibleBalance?: GetFungibleBalanceOutput;
+      }) {
         const accountBalancesMap = new Map<
           AccountAddress,
           DefiPlazaPosition[]
@@ -205,6 +186,8 @@ export const GetDefiPlazaPositionsLive = Layer.effect(
           })
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetDefiPlazaPositionsLive = GetDefiPlazaPositionsService.Default;

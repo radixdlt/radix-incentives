@@ -39,24 +39,24 @@ import { ConvertLsuToXrdLive } from "../../common/staking/convertLsuToXrd";
 import { GetLsulpValueLive } from "../../common/dapps/caviarnine/getLsulpValue";
 import { GetLsulpLive } from "../../common/dapps/caviarnine/getLsulp";
 import { GetUserStakingPositionsLive } from "../../common/staking/getUserStakingPositions";
-import { GetNonFungibleBalanceLive } from "../../common/gateway/getNonFungibleBalance";
+import { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
 import { EntityNonFungibleDataService } from "../../common/gateway/entityNonFungiblesData";
-import { EntityNonFungiblesPageLive } from "../../common/gateway/entityNonFungiblesPage";
-import { GetFungibleBalanceLive } from "../../common/gateway/getFungibleBalance";
-import { EntityFungiblesPageLive } from "../../common/gateway/entityFungiblesPage";
-import { GetAllValidatorsLive } from "../../common/gateway/getAllValidators";
-import { GetLedgerStateLive } from "../../common/gateway/getLedgerState";
-import { GetEntityDetailsServiceLive } from "../../common/gateway/getEntityDetails";
+import { EntityNonFungiblesPageService } from "../../common/gateway/entityNonFungiblesPage";
+import { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
+import { EntityFungiblesPageService } from "../../common/gateway/entityFungiblesPage";
+import { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
+import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
+import { GetEntityDetailsService } from "../../common/gateway/getEntityDetails";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 import { GetWeftFinancePositionsService } from "../../common/dapps/weftFinance/getWeftFinancePositions";
 import { GetRootFinancePositionsService } from "../../common/dapps/rootFinance/getRootFinancePositions";
-import { GetComponentStateLive } from "../../common/gateway/getComponentState";
+import { GetComponentStateService } from "../../common/gateway/getComponentState";
 import { GetKeyValueStoreService } from "../../common/gateway/getKeyValueStore";
-import { KeyValueStoreDataLive } from "../../common/gateway/keyValueStoreData";
-import { KeyValueStoreKeysLive } from "../../common/gateway/keyValueStoreKeys";
+import { KeyValueStoreDataService } from "../../common/gateway/keyValueStoreData";
+import { KeyValueStoreKeysService } from "../../common/gateway/keyValueStoreKeys";
 import { AddVotingPowerToDbService } from "../voting-power/addVotingPowerToDb";
-import { GetNftResourceManagersLive } from "../../common/gateway/getNftResourceManagers";
-import { GetNonFungibleIdsLive } from "../../common/gateway/getNonFungibleIds";
+import { GetNftResourceManagersService } from "../../common/gateway/getNftResourceManagers";
+import { GetNonFungibleIdsService } from "../../common/gateway/getNonFungibleIds";
 import { getDatesBetweenIntervals } from "../../common/helpers/getDatesBetweenIntervals";
 import { UnstakingReceiptProcessorService } from "../../common/staking/unstakingReceiptProcessor";
 import { CalculateTWAVotingPowerService } from "../voting-power/calculateVotingPowerTWA";
@@ -129,59 +129,62 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(appConfigServiceLive)
   );
 
-  const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+  const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
     Layer.provide(gatewayApiClientLive)
   );
 
-  const getLedgerStateLive = GetLedgerStateLive.pipe(
+  const getLedgerStateLive = GetLedgerStateService.Default.pipe(
     Layer.provide(gatewayApiClientLive)
   );
 
-  const getAllValidatorsServiceLive = GetAllValidatorsLive.pipe(
+  const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
     Layer.provide(gatewayApiClientLive)
   );
 
-  const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
-    Layer.provide(gatewayApiClientLive)
-  );
+  const entityFungiblesPageServiceLive =
+    EntityFungiblesPageService.Default.pipe(
+      Layer.provide(gatewayApiClientLive)
+    );
 
-  const stateEntityDetailsLive = GetFungibleBalanceLive.pipe(
+  const stateEntityDetailsLive = GetFungibleBalanceService.Default.pipe(
     Layer.provide(getEntityDetailsServiceLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
   );
 
-  const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
-    Layer.provide(gatewayApiClientLive)
-  );
+  const entityNonFungiblesPageServiceLive =
+    EntityNonFungiblesPageService.Default.pipe(
+      Layer.provide(gatewayApiClientLive)
+    );
 
   const entityNonFungibleDataServiceLive =
     EntityNonFungibleDataService.Default.pipe(
       Layer.provide(gatewayApiClientLive)
     );
 
-  const getNonFungibleIdsServiceLive = GetNonFungibleIdsLive.pipe(
+  const getNonFungibleIdsServiceLive = GetNonFungibleIdsService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(getLedgerStateLive),
     Layer.provide(entityNonFungibleDataServiceLive)
   );
 
-  const getNftResourceManagersServiceLive = GetNftResourceManagersLive.pipe(
-    Layer.provide(gatewayApiClientLive),
-    Layer.provide(entityNonFungiblesPageServiceLive),
-    Layer.provide(getLedgerStateLive),
-    Layer.provide(entityNonFungibleDataServiceLive),
-    Layer.provide(getNonFungibleIdsServiceLive)
-  );
+  const getNftResourceManagersServiceLive =
+    GetNftResourceManagersService.Default.pipe(
+      Layer.provide(gatewayApiClientLive),
+      Layer.provide(entityNonFungiblesPageServiceLive),
+      Layer.provide(getLedgerStateLive),
+      Layer.provide(entityNonFungibleDataServiceLive),
+      Layer.provide(getNonFungibleIdsServiceLive)
+    );
 
-  const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+  const getNonFungibleIdsLive = GetNonFungibleIdsService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(getLedgerStateLive),
     Layer.provide(entityNonFungibleDataServiceLive)
   );
 
-  const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+  const getNftResourceManagersLive = GetNftResourceManagersService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityNonFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive),
@@ -189,7 +192,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(getNonFungibleIdsLive)
   );
 
-  const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
+  const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
     Layer.provide(getEntityDetailsServiceLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
@@ -232,24 +235,24 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(getLedgerStateLive)
   );
 
-  const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+  const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
     Layer.provide(getEntityDetailsServiceLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityFungiblesPageServiceLive),
     Layer.provide(getLedgerStateLive)
   );
 
-  const getComponentStateServiceLive = GetComponentStateLive.pipe(
+  const getComponentStateServiceLive = GetComponentStateService.Default.pipe(
     Layer.provide(getEntityDetailsServiceLive),
     Layer.provide(gatewayApiClientLive),
     Layer.provide(appConfigServiceLive)
   );
 
-  const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
+  const keyValueStoreDataServiceLive = KeyValueStoreDataService.Default.pipe(
     Layer.provide(gatewayApiClientLive)
   );
 
-  const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
+  const keyValueStoreKeysServiceLive = KeyValueStoreKeysService.Default.pipe(
     Layer.provide(gatewayApiClientLive)
   );
 

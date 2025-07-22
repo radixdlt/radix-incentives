@@ -1,67 +1,35 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-  type InvalidInputError,
 } from "../gateway/getFungibleBalance";
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from "../gateway/getNonFungibleBalance";
 import {
-  type GetAllValidatorsError,
   GetAllValidatorsService,
   type Validator,
 } from "../gateway/getAllValidators";
 import { claimNftSchema } from "./schema";
 import { BigNumber } from "bignumber.js";
-import type { EntityNotFoundError, GatewayError } from "../gateway/errors";
 
-import type { GetEntityDetailsError } from "../gateway/getEntityDetails";
 import type { AtLedgerState } from "../gateway/schemas";
 
-export type UserStakingPositionsOutput = {
-  items: {
-    address: string;
-    staked: { resourceAddress: string; amount: BigNumber }[];
-    unstaked: {
-      resourceAddress: string;
-      id: string;
-      claimEpoch: number;
-      amount: BigNumber;
-    }[];
-  }[];
-};
-
-export class GetUserStakingPositionsService extends Context.Tag(
-  "GetUserStakingPositionsService"
-)<
-  GetUserStakingPositionsService,
-  (input: {
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-    nonFungibleBalance?: GetNonFungibleBalanceOutput;
-    fungibleBalance?: GetFungibleBalanceOutput;
-    validators?: Validator[];
-  }) => Effect.Effect<
-    UserStakingPositionsOutput,
-    | GetAllValidatorsError
-    | GetEntityDetailsError
-    | EntityNotFoundError
-    | InvalidInputError
-    | GatewayError
-  >
->() {}
-
-export const GetUserStakingPositionsLive = Layer.effect(
-  GetUserStakingPositionsService,
-  Effect.gen(function* () {
-    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
-    const getAllValidatorsService = yield* GetAllValidatorsService;
-    const getFungibleBalanceService = yield* GetFungibleBalanceService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetUserStakingPositionsService extends Effect.Service<GetUserStakingPositionsService>()(
+  "GetUserStakingPositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
+      const getAllValidatorsService = yield* GetAllValidatorsService;
+      const getFungibleBalanceService = yield* GetFungibleBalanceService;
+      return Effect.fn(function* (input: {
+        addresses: string[];
+        at_ledger_state: AtLedgerState;
+        nonFungibleBalance?: GetNonFungibleBalanceOutput;
+        fungibleBalance?: GetFungibleBalanceOutput;
+        validators?: Validator[];
+      }) {
         const validators =
           input.validators ?? (yield* getAllValidatorsService());
 
@@ -109,7 +77,6 @@ export const GetUserStakingPositionsLive = Layer.effect(
               const resourceAddress = nonFungibleResource.resourceAddress;
               return nonFungibleResource.items
                 .map((item) => {
-                  // biome-ignore lint/style/noNonNullAssertion: <explanation>
                   const claimNft = claimNftSchema.safeParse(item.sbor!);
 
                   if (claimNft.isErr()) {
@@ -151,6 +118,9 @@ export const GetUserStakingPositionsLive = Layer.effect(
           items: results,
         };
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetUserStakingPositionsLive =
+  GetUserStakingPositionsService.Default;

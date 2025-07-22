@@ -1,23 +1,14 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { Decimal } from "decimal.js";
 
 import type { AtLedgerState } from "../../gateway/schemas";
-import type { GetEntityDetailsError } from "../../gateway/getEntityDetails";
-import type { GatewayError, EntityNotFoundError } from "../../gateway/errors";
-import {
-  GetComponentStateService,
-  type InvalidComponentStateError,
-} from "../../gateway/getComponentState";
+
+import { GetComponentStateService } from "../../gateway/getComponentState";
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-  type InvalidInputError,
-  type GetNonFungibleBalanceServiceError,
 } from "../../gateway/getNonFungibleBalance";
-import {
-  type FailedToParseOciswapLiquidityPositionError,
-  GetOciswapLiquidityClaimsService,
-} from "./getOciswapLiquidityClaims";
+import { GetOciswapLiquidityClaimsService } from "./getOciswapLiquidityClaims";
 import { PrecisionPool, PrecisionPoolV2 } from "./schemas";
 import { tickToPriceSqrt, removableAmounts } from "./tickCalculator";
 
@@ -40,59 +31,39 @@ export type OciswapLiquidityAsset = {
   isActive: boolean;
 };
 
-export class GetOciswapLiquidityAssetsService extends Context.Tag(
-  "GetOciswapLiquidityAssetsService"
-)<
-  GetOciswapLiquidityAssetsService,
-  (input: {
-    componentAddress: string;
-    addresses: string[];
-    at_ledger_state: AtLedgerState;
-    nonFungibleBalance?: GetNonFungibleBalanceOutput;
-    lpResourceAddress: string;
-    tokenXAddress: string;
-    tokenYAddress: string;
-    tokenXDivisibility: number;
-    tokenYDivisibility: number;
-    schemaVersion?: "v1" | "v2";
-    priceBounds?: {
-      lower: number;
-      upper: number;
-    };
-  }) => Effect.Effect<
-    {
-      address: string;
-      items: OciswapLiquidityAsset[];
-    }[],
-    | FailedToParseOciswapComponentStateError
-    | GetEntityDetailsError
-    | GatewayError
-    | EntityNotFoundError
-    | InvalidInputError
-    | InvalidComponentStateError
-    | FailedToParseOciswapLiquidityPositionError
-    | GetNonFungibleBalanceServiceError
-  >
->() {}
+export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapLiquidityAssetsService>()(
+  "GetOciswapLiquidityAssetsService",
+  {
+    effect: Effect.gen(function* () {
+      const getComponentStateService = yield* GetComponentStateService;
+      const getOciswapLiquidityClaimsService =
+        yield* GetOciswapLiquidityClaimsService;
+      const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
 
-export const GetOciswapLiquidityAssetsLive = Layer.effect(
-  GetOciswapLiquidityAssetsService,
-  Effect.gen(function* () {
-    const getComponentStateService = yield* GetComponentStateService;
-    const getOciswapLiquidityClaimsService =
-      yield* GetOciswapLiquidityClaimsService;
-    const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+      return Effect.fn(function* (input: {
+        componentAddress: string;
+        addresses: string[];
+        at_ledger_state: AtLedgerState;
+        nonFungibleBalance?: GetNonFungibleBalanceOutput;
+        lpResourceAddress: string;
+        tokenXAddress: string;
+        tokenYAddress: string;
+        tokenXDivisibility: number;
+        tokenYDivisibility: number;
+        schemaVersion?: "v1" | "v2";
+        priceBounds?: {
+          lower: number;
+          upper: number;
+        };
+      }) {
         const componentStateResult =
           input.schemaVersion === "v2"
-            ? yield* getComponentStateService({
+            ? yield* getComponentStateService.run({
                 addresses: [input.componentAddress],
                 schema: PrecisionPoolV2,
                 at_ledger_state: input.at_ledger_state,
               })
-            : yield* getComponentStateService({
+            : yield* getComponentStateService.run({
                 addresses: [input.componentAddress],
                 schema: PrecisionPool,
                 at_ledger_state: input.at_ledger_state,
@@ -275,6 +246,9 @@ export const GetOciswapLiquidityAssetsLive = Layer.effect(
           })
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetOciswapLiquidityAssetsLive =
+  GetOciswapLiquidityAssetsService.Default;

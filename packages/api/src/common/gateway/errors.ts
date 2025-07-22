@@ -1,13 +1,5 @@
-export class GatewayError extends Error {
-  readonly _tag = "GatewayError";
-  constructor(readonly error: unknown) {
-    super(error instanceof Error ? error.message : String(error));
-  }
-}
+import { Data } from "effect";
 
-export class EntityNotFoundError extends Error {
-  readonly _tag = "EntityNotFoundError";
-  constructor(readonly error?: unknown) {
-    super(error instanceof Error ? error.message : String(error));
-  }
-}
+export class GatewayError extends Data.TaggedError("GatewayError")<{
+  error: unknown;
+}> {}

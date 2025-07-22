@@ -1,32 +1,32 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { GetLedgerStateLive } from "../../gateway/getLedgerState";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { GetLedgerStateService } from "../../gateway/getLedgerState";
 
-import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
+import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 
 import {
   GetDefiPlazaPositionsLive,
   GetDefiPlazaPositionsService,
 } from "./getDefiPlazaPositions";
-import { GetFungibleBalanceLive } from "../../gateway/getFungibleBalance";
+import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
 import { GetResourcePoolUnitsLive } from "../../resource-pool/getResourcePoolUnits";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getFungibleBalanceLive = GetFungibleBalanceLive.pipe(
+const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),

@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { flatTokenNameMap } from "data";
 
 export class UnknownTokenError extends Error {
@@ -8,23 +8,22 @@ export class UnknownTokenError extends Error {
   }
 }
 
-export class TokenNameService extends Context.Tag("TokenNameService")<
-  TokenNameService,
-  (resourceAddress: string) => Effect.Effect<string, UnknownTokenError>
->() {}
+export class GetTokenNameService extends Effect.Service<GetTokenNameService>()(
+  "GetTokenNameService",
+  {
+    effect: Effect.gen(function* () {
+      return Effect.fn(function* (resourceAddress: string) {
+        const tokenName =
+          flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
 
-export const TokenNameServiceLive = Layer.effect(
-  TokenNameService,
-  Effect.gen(function* () {
-    return (resourceAddress: string) => {
-      const tokenName =
-        flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
+        if (tokenName) {
+          return Effect.succeed(tokenName);
+        }
 
-      if (tokenName) {
-        return Effect.succeed(tokenName);
-      }
+        return Effect.fail(new UnknownTokenError(resourceAddress));
+      });
+    }),
+  }
+) {}
 
-      return Effect.fail(new UnknownTokenError(resourceAddress));
-    };
-  })
-);
+export const GetTokenNameLive = GetTokenNameService.Default;
