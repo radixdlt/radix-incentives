@@ -11,6 +11,7 @@ import { EmptyState } from "./empty-state";
 export function SeasonLeaderboard() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
   const persona = usePersona();
+  const utils = api.useUtils();
 
   // Fetch available seasons
   const { data: seasons, isLoading: seasonsLoading } =
@@ -32,8 +33,19 @@ export function SeasonLeaderboard() {
   const { data: leaderboardData, isLoading: leaderboardLoading } =
     api.leaderboard.getSeasonLeaderboard.useQuery(
       { seasonId: selectedSeasonId },
-      { enabled: !!selectedSeasonId }
+      { 
+        enabled: !!selectedSeasonId,
+        refetchOnMount: true,
+        refetchOnWindowFocus: false,
+      }
     );
+
+  // Invalidate queries when persona changes to ensure fresh data
+  useEffect(() => {
+    utils.leaderboard.getSeasonLeaderboard.invalidate({
+      seasonId: selectedSeasonId,
+    });
+  }, [persona, selectedSeasonId, utils]);
 
   if (seasonsLoading) {
     return <LoadingState message="Loading seasons..." />;

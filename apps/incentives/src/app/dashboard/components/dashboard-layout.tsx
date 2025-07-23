@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
-import { redirect, usePathname } from 'next/navigation';
-import { useState } from 'react';
-import { RadixConnectButton } from './RadixConnectButton';
-import { Sidebar, SidebarBody, SidebarLink } from '~/components/ui/sidebar';
-import Image from 'next/image';
+import Link from "next/link";
+import { redirect, usePathname } from "next/navigation";
+import { useState } from "react";
+import { RadixConnectButton } from "./RadixConnectButton";
+import { Sidebar, SidebarBody, SidebarLink } from "~/components/ui/sidebar";
+import Image from "next/image";
 import {
   Home,
   Activity,
@@ -16,21 +16,21 @@ import {
   Vote,
   HelpCircle,
   Target,
-} from 'lucide-react';
-import { Logo } from '~/components/Logo';
+} from "lucide-react";
+import { Logo } from "~/components/Logo";
 
 const navItems = [
   // TODO: Implement these
   {
-    label: 'Dashboard',
-    href: '/dashboard',
+    label: "Dashboard",
+    href: "/dashboard",
     icon: (
       <Home className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
   {
-    label: 'Earn',
-    href: '/dashboard/earn',
+    label: "Earn",
+    href: "/dashboard/earn",
     icon: (
       <Target className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
@@ -50,22 +50,22 @@ const navItems = [
   //   ),
   // },
   {
-    label: 'Leaderboard',
-    href: '/dashboard/leaderboard',
+    label: "Leaderboard",
+    href: "/dashboard/leaderboard",
     icon: (
       <List className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
   {
-    label: 'Accounts',
-    href: '/dashboard/accounts',
+    label: "Accounts",
+    href: "/dashboard/accounts",
     icon: (
       <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
   {
-    label: 'FAQ',
-    href: '/dashboard/faq',
+    label: "FAQ",
+    href: "/dashboard/faq",
     icon: (
       <HelpCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
@@ -108,7 +108,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
           </SidebarBody>
         </Sidebar>
-        <main className="flex-1 p-4 md:p-6 bg-muted/50 overflow-auto">
+        <main className="flex-1 p-4 md:p-6 bg-muted/50 overflow-x-hidden overflow-y-auto">
           {children}
         </main>
       </div>

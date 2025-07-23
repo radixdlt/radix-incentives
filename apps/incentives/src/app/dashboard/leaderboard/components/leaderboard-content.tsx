@@ -19,6 +19,11 @@ interface UserStatsData {
     accountLabel: string;
     points: string;
   }>;
+  activityBreakdown?: Array<{
+    activityId: string;
+    activityName: string;
+    points: string;
+  }>;
 }
 
 interface GlobalStats {
