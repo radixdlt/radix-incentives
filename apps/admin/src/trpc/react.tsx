@@ -6,9 +6,20 @@ import { createTRPCReact } from '@trpc/react-query';
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
 import { useState } from 'react';
 import SuperJSON from 'superjson';
+import { BigNumber } from 'bignumber.js';
 
 import type { AdminAppRouter } from 'api/incentives';
 import { createQueryClient } from './query-client';
+
+// Register BigNumber transformation with SuperJSON
+SuperJSON.registerCustom<BigNumber, string>(
+  {
+    isApplicable: (v): v is BigNumber => BigNumber.isBigNumber(v),
+    serialize: v => v.toString(),
+    deserialize: v => new BigNumber(v)
+  },
+  'BigNumber'
+);
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {

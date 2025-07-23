@@ -67,7 +67,6 @@ catalog:
   "inquirer": "^8.2.6"
   "@types/inquirer": "^9.0.7"
   "@types/node": "^20.0.0"
-  "date-fns": "^4.1.0"
   "@date-fns/utc": "^2.1.0"
   "hono": "^4.7.10"
   "@testcontainers/postgresql": "^11.2.1"
@@ -76,3 +75,6 @@ catalog:
   "sonner": "^2.0.3"
   "csv-writer": "^1.6.0"
   "@effect/opentelemetry": "^0.47.0"
+  "date-fns-tz": "^3.2.0"
+  "date-fns": "^4.1.0"
+  

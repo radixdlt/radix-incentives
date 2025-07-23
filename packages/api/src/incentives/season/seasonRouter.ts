@@ -2,6 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
+import { CreateSeasonSchema, EditSeasonSchema } from "./season";
 
 export const seasonRouter = createTRPCRouter({
   getSeasons: publicProcedure.query(async ({ ctx }) => {
@@ -106,20 +107,61 @@ export const adminSeasonRouter = createTRPCRouter({
       });
     }),
 
+  createSeason: publicProcedure
+    .input(CreateSeasonSchema)
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.createSeason(input);
+
+      return Exit.match(result, {
+        onSuccess: (value) => {
+          return value;
+        },
+        onFailure: (error) => {
+          if (error._tag === "Fail") {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+            });
+          }
+        },
+      });
+    }),
+
+  editSeason: publicProcedure
+    .input(EditSeasonSchema)
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.editSeason(input);
+
+      return Exit.match(result, {
+        onSuccess: (value) => {
+          return value;
+        },
+        onFailure: (error) => {
+          if (error._tag === "Fail") {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+            });
+          }
+        },
+      });
+    }),
+
   addCalculateSeasonPointsJob: publicProcedure
     .input(
       z.object({
-        seasonId: z.string(),
         weekId: z.string(),
         force: z.boolean().optional(),
       })
     )
     .mutation(async ({ input }) => {
       const response = await fetch(
-        `${process.env.WORKERS_API_BASE_URL}/queues/calculate-activity-points/add`,
+        `${process.env.WORKERS_API_BASE_URL}/queues/scheduled-calculations/add`,
         {
           method: "POST",
-          body: JSON.stringify(input),
+          body: JSON.stringify({
+            weekId: input.weekId,
+            force: input.force,
+            markAsProcessed: true,
+          }),
         }
       );
 

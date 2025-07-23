@@ -9,7 +9,7 @@ import { adminSeasonRouter } from "../season/seasonRouter";
 import { adminUserRouter, userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 import { configRouter } from "../config/configRouter";
-import { weekRouter } from "../week/weekRouter";
+import { weekAdminRouter, weekRouter } from "../week/weekRouter";
 import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
 
 /**
@@ -36,6 +36,7 @@ export const adminAppRouter = createTRPCRouter({
   user: adminUserRouter,
   leaderboard: leaderboardRouter,
   dapps: adminDappRouter,
+  week: weekAdminRouter,
 });
 
 // export type definition of API

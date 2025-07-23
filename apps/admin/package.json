@@ -36,10 +36,12 @@
     "@trpc/react-query": "catalog:",
     "@trpc/server": "catalog:",
     "api": "workspace:*",
+    "bignumber.js": "catalog:",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "date-fns": "^4.1.0",
+    "date-fns": "catalog:",
+    "date-fns-tz": "catalog:",
     "db": "workspace:*",
     "drizzle-orm": "catalog:",
     "framer-motion": "^12.6.3",
@@ -52,11 +54,11 @@
     "react-dom": "catalog:",
     "react-hook-form": "^7.55.0",
     "server-only": "catalog:",
+    "sonner": "catalog:",
     "superjson": "catalog:",
     "tailwind-merge": "^3.2.0",
     "tw-animate-css": "^1.2.5",
-    "zod": "catalog:",
-    "sonner": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

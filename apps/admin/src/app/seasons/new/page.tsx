@@ -1,67 +1,55 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { cn } from "~/lib/utils";
+import * as React from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 
-import { Button } from "~/components/ui/button";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+import { Button } from '~/components/ui/button';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from '~/components/ui/select';
 import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
-import { Textarea } from "~/components/ui/textarea";
-import { Separator } from "~/components/ui/separator";
-import { DatePicker } from "~/components/ui/date-picker"; // Assuming DatePicker exists
-
-// Define Season type based on expected data
-type Season = {
-  name: string;
-  startDate: Date;
-  endDate: Date;
-  description: string;
-  status: "active" | "upcoming" | "completed";
-};
+} from '~/components/ui/card';
+import { Textarea } from '~/components/ui/textarea';
+import { Separator } from '~/components/ui/separator';
+import { api } from '~/trpc/react';
+import type { Season } from 'db/incentives';
+import { toast } from 'sonner';
 
 interface CreateSeasonFormProps {
-  onSubmit: (data: Season) => void;
+  onSubmit: (data: Omit<Season, 'id'>) => void;
   isSubmitting?: boolean;
+  onCancel?: () => void;
 }
 
 function CreateSeasonForm({
   onSubmit,
   isSubmitting = false,
+  onCancel,
 }: CreateSeasonFormProps) {
-  const [name, setName] = React.useState("");
-  const [startDate, setStartDate] = React.useState<Date | undefined>(undefined);
-  const [endDate, setEndDate] = React.useState<Date | undefined>(undefined);
-  const [description, setDescription] = React.useState("");
+  const [name, setName] = React.useState('');
   const [status, setStatus] = React.useState<
-    "active" | "upcoming" | "completed"
-  >("upcoming");
+    'active' | 'upcoming' | 'completed'
+  >('upcoming');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (name && startDate && endDate) {
+    if (name) {
       onSubmit({
         name,
-        startDate,
-        endDate,
-        description,
-        status,
+        status: 'upcoming',
       });
     }
   };
@@ -79,57 +67,14 @@ function CreateSeasonForm({
             required
           />
         </div>
-
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <div className="grid gap-2">
-            <Label htmlFor="startDate">Start Date</Label>
-            {/* Assuming DatePicker component exists and accepts these props */}
-            <DatePicker date={startDate} setDate={setStartDate} />
-          </div>
-          <div className="grid gap-2">
-            <Label htmlFor="endDate">End Date</Label>
-            {/* Assuming DatePicker component exists and accepts these props */}
-            <DatePicker date={endDate} setDate={setEndDate} />
-          </div>
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="status">Status</Label>
-          <Select
-            value={status}
-            onValueChange={(value: "active" | "upcoming" | "completed") =>
-              setStatus(value)
-            }
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select status" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="upcoming">Upcoming</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid gap-2">
-          <Label htmlFor="description">Description</Label>
-          <Textarea
-            id="description"
-            placeholder="Enter season description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            className="min-h-[120px]"
-          />
-        </div>
       </div>
 
       <div className="flex justify-end space-x-2">
-        <Button type="button" variant="outline">
+        <Button type="button" variant="outline" onClick={onCancel}>
           Cancel
         </Button>
         <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? "Creating..." : "Create Season"}
+          {isSubmitting ? 'Creating...' : 'Create Season'}
         </Button>
       </div>
     </form>
@@ -137,26 +82,30 @@ function CreateSeasonForm({
 }
 
 function CreateSeasonPage() {
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const router = useRouter();
+  const utils = api.useUtils();
+  const createSeason = api.season.createSeason.useMutation();
 
-  // Placeholder function for handling form submission
-  // TODO: Replace with actual API call (e.g., tRPC mutation)
-  const handleCreateSeason = (data: Season) => {
-    setIsSubmitting(true);
-    console.log("Creating season:", data); // Log data for now
-    // Simulate API call latency
-    setTimeout(() => {
-      setIsSubmitting(false);
-      console.log("Season creation simulated.");
-      // TODO: Add success message/toast notification
-      // TODO: Potentially redirect user after successful creation
-    }, 1500);
+  const handleCreateSeason = async (data: Omit<Season, 'id'>) => {
+    try {
+      const newSeason = await createSeason.mutateAsync(data);
+      toast.success('Season created successfully!');
+      await utils.season.getSeasons.invalidate();
+      router.push('/seasons');
+    } catch (error) {
+      console.error('Failed to create season:', error);
+      toast.error('Failed to create season. Please try again.');
+    }
+  };
+
+  const handleCancel = () => {
+    router.push('/seasons');
   };
 
   return (
     <div className="container mx-auto py-6 pl-6">
       <div className="mb-6 flex items-center gap-4">
-        <Link href="/campaign">
+        <Link href="/seasons">
           <Button variant="ghost" size="icon" aria-label="Go back">
             <ArrowLeft className="h-5 w-5" />
           </Button>
@@ -185,7 +134,8 @@ function CreateSeasonPage() {
           <CardContent>
             <CreateSeasonForm
               onSubmit={handleCreateSeason}
-              isSubmitting={isSubmitting}
+              isSubmitting={createSeason.isPending}
+              onCancel={handleCancel}
             />
           </CardContent>
         </Card>
