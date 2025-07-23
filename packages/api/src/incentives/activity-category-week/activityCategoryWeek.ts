@@ -11,6 +11,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+
       return {
         getByWeekId: Effect.fn(function* (input: { weekId: string }) {
           const [activityCategories, activities] = yield* Effect.all([
@@ -96,6 +97,33 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                     )
                   )
                 ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        cloneByWeekId: Effect.fn(function* (input: {
+          fromWeekId: string;
+          toWeekId: string;
+        }) {
+          const activityCategories = yield* Effect.tryPromise({
+            try: () =>
+              db.query.activityCategoryWeeks.findMany({
+                where: and(eq(activityCategoryWeeks.weekId, input.fromWeekId)),
+              }),
+            catch: (error) => new DbError(error),
+          });
+
+          if (activityCategories.length === 0) {
+            return;
+          }
+
+          yield* Effect.tryPromise({
+            try: () =>
+              db.insert(activityCategoryWeeks).values(
+                activityCategories.map((item) => ({
+                  ...item,
+                  weekId: input.toWeekId,
+                }))
+              ),
             catch: (error) => new DbError(error),
           });
         }),

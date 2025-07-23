@@ -8,6 +8,15 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+      const getByWeekId = Effect.fn(function* (weekId: string) {
+        return yield* Effect.tryPromise({
+          try: () =>
+            db.query.activityWeeks.findMany({
+              where: eq(activityWeeks.weekId, weekId),
+            }),
+          catch: (error) => new DbError(error),
+        });
+      });
       return {
         updateMultiplier: Effect.fn(function* (input: {
           activityId: string;
@@ -20,6 +29,26 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
                 .update(activityWeeks)
                 .set({ multiplier: input.multiplier })
                 .where(eq(activityWeeks.weekId, input.weekId)),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        getByWeekId,
+        cloneByWeekId: Effect.fn(function* (input: {
+          fromWeekId: string;
+          toWeekId: string;
+        }) {
+          const values = yield* getByWeekId(input.fromWeekId);
+          if (values.length === 0) {
+            return;
+          }
+          yield* Effect.tryPromise({
+            try: () =>
+              db.insert(activityWeeks).values(
+                values.map((item) => ({
+                  ...item,
+                  weekId: input.toWeekId,
+                }))
+              ),
             catch: (error) => new DbError(error),
           });
         }),

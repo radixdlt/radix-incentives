@@ -85,4 +85,28 @@ export const weekAdminRouter = createTRPCRouter({
         },
       });
     }),
+
+  createWeek: publicProcedure
+    .input(
+      z.object({
+        seasonId: z.string(),
+        startDate: z.date(),
+        endDate: z.date(),
+      })
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.createWeek({
+        seasonId: input.seasonId,
+        startDate: input.startDate,
+        endDate: input.endDate,
+      });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
+      });
+    }),
 });

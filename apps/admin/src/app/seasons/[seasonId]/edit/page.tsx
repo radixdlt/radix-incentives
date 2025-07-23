@@ -121,7 +121,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
       toast.success('Season updated successfully!');
       await utils.season.getSeasons.invalidate();
       await utils.season.getSeasonById.invalidate({ id: params.seasonId });
-      router.push('/seasons');
+      router.push(`/seasons/${params.seasonId}`);
     } catch (error) {
       console.error('Failed to update season:', error);
       toast.error('Failed to update season. Please try again.');
@@ -129,7 +129,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
   };
 
   const handleCancel = () => {
-    router.push('/seasons');
+    router.push(`/seasons/${params.seasonId}`);
   };
 
   // Loading state
@@ -137,7 +137,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
     return (
       <div className="container mx-auto py-6 pl-6">
         <div className="mb-6 flex items-center gap-4">
-          <Link href="/seasons">
+          <Link href={`/seasons/${params.seasonId}`}>
             <Button variant="ghost" size="icon" aria-label="Go back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -175,7 +175,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
     return (
       <div className="container mx-auto py-6 pl-6">
         <div className="mb-6 flex items-center gap-4">
-          <Link href="/seasons">
+          <Link href={`/seasons/${params.seasonId}`}>
             <Button variant="ghost" size="icon" aria-label="Go back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
@@ -211,7 +211,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
   return (
     <div className="container mx-auto py-6 pl-6">
       <div className="mb-6 flex items-center gap-4">
-        <Link href="/seasons">
+        <Link href={`/seasons/${params.seasonId}`}>
           <Button variant="ghost" size="icon" aria-label="Go back">
             <ArrowLeft className="h-5 w-5" />
           </Button>

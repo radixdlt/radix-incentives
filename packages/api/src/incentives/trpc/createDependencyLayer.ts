@@ -60,8 +60,8 @@ import { AccountBalanceService } from "../account/accountBalance";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
-import { EditSeasonInput, SeasonService } from "../season/season";
-import { WeekService } from "../week/week";
+import { type EditSeasonInput, SeasonService } from "../season/season";
+import { type CreateWeekInput, WeekService } from "../week/week";
 import { LeaderboardService } from "../leaderboard/leaderboard";
 import { ActivityDataService } from "../activity/activityData";
 import {
@@ -333,7 +333,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const seasonLive = SeasonService.Default.pipe(Layer.provide(dbClientLive));
 
-  const weekLive = WeekService.Default.pipe(Layer.provide(dbClientLive));
+  const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const activityCategoryWeekServiceLive =
+    ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
+
+  const weekLive = WeekService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(activityCategoryWeekServiceLive),
+    Layer.provide(activityWeekServiceLive)
+  );
 
   const userLive = UserService.Default.pipe(
     Layer.provide(dbClientLive),
@@ -515,7 +526,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getWeekDetailsLive = Layer.mergeAll(
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
-    WeekService.Default.pipe(Layer.provide(dbClientLive)),
+    weekLive,
     ActivityCategoryService.Default.pipe(Layer.provide(dbClientLive)),
     ActivityService.Default.pipe(Layer.provide(dbClientLive))
   );
@@ -547,9 +558,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     return Effect.runPromiseExit(Effect.provide(runnable, getWeekDetailsLive));
   };
-
-  const activityCategoryWeekServiceLive =
-    ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
 
   const updateCategoryWeekPointsPool = (input: {
     weekId: string;
@@ -609,6 +617,17 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const createWeek = (input: CreateWeekInput) => {
+    const runnable = Effect.gen(function* () {
+      const weekService = yield* WeekService;
+      return yield* weekService.create(input);
+    });
+
+    const program = Effect.provide(runnable, weekLive);
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -639,5 +658,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateActivityWeekMultiplier,
     createSeason,
     editSeason,
+    createWeek,
   };
 };
