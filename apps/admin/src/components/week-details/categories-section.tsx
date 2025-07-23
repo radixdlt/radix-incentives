@@ -111,6 +111,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
       </h2>
 
       {categories
+        .filter((category) => category.categoryId !== 'common')
         .sort((a, b) => a.categoryId.localeCompare(b.categoryId))
         .map((category) => {
           const isExpanded = expandedCategories.has(category.categoryId);

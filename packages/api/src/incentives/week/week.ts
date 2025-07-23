@@ -80,25 +80,20 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
           catch: (error) => new DbError(error),
         });
 
-        if (lastWeekId) {
-          yield* Effect.log(
-            `Cloning activities from ${lastWeekId} to ${newWeek.id}`
-          );
-          yield* Effect.all([
-            activityCategoryWeekService.cloneByWeekId({
-              fromWeekId: lastWeekId,
-              toWeekId: newWeek.id,
-            }),
-            activityWeekService.cloneByWeekId({
-              fromWeekId: lastWeekId,
-              toWeekId: newWeek.id,
-            }),
-          ]);
-        } else {
-          yield* Effect.log(
-            `No previous week found, creating new week ${newWeek.id}`
-          );
-        }
+        yield* Effect.log(
+          `Cloning activities from ${lastWeekId} to ${newWeek.id}`
+        );
+
+        yield* Effect.all([
+          activityCategoryWeekService.cloneByWeekId({
+            fromWeekId: lastWeekId,
+            toWeekId: newWeek.id,
+          }),
+          activityWeekService.cloneByWeekId({
+            fromWeekId: lastWeekId,
+            toWeekId: newWeek.id,
+          }),
+        ]);
       }),
     };
   }),

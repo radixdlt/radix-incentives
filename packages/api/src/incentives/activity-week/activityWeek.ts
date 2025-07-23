@@ -1,7 +1,8 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { activityWeeks } from "db/incentives";
-import { eq, and } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
+import { ActivityId } from "data";
 
 export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
   "ActivityWeekService",
@@ -27,7 +28,7 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
             try: () =>
               db
                 .update(activityWeeks)
-                .set({ multiplier: input.multiplier })
+                .set({ multiplier: input.multiplier.toString() })
                 .where(
                   and(
                     eq(activityWeeks.weekId, input.weekId),
@@ -42,18 +43,40 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
           fromWeekId: string;
           toWeekId: string;
         }) {
-          const values = yield* getByWeekId(input.fromWeekId);
-          if (values.length === 0) {
-            return;
-          }
+          const values = input.fromWeekId
+            ? yield* getByWeekId(input.fromWeekId).pipe(
+                Effect.map((items) =>
+                  items.reduce(
+                    (acc, item) => {
+                      acc[item.activityId] = item;
+                      return acc;
+                    },
+                    {} as Record<
+                      string,
+                      { activityId: string; weekId: string; multiplier: string }
+                    >
+                  )
+                )
+              )
+            : {};
+
+          const items = Object.values(ActivityId).map((item) => ({
+            activityId: item,
+            weekId: input.toWeekId,
+            multiplier: values[item]?.multiplier ?? "1",
+          }));
+
           yield* Effect.tryPromise({
             try: () =>
-              db.insert(activityWeeks).values(
-                values.map((item) => ({
-                  ...item,
-                  weekId: input.toWeekId,
-                }))
-              ),
+              db
+                .insert(activityWeeks)
+                .values(items)
+                .onConflictDoUpdate({
+                  target: [activityWeeks.weekId, activityWeeks.activityId],
+                  set: {
+                    multiplier: sql`excluded.multiplier`,
+                  },
+                }),
             catch: (error) => new DbError(error),
           });
         }),
