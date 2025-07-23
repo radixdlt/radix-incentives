@@ -130,6 +130,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           return yield* Effect.fail(new Error("Week not found"));
         }
 
+        //TODO: Candidate for pre-aggregation
         // Query account activity points table for all activity types
         const getDataFromTable = () => {
           return db
@@ -165,11 +166,13 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           (user) => new BigNumber(user.totalPoints || "0")
         );
 
+        //TODO: Candidate for pre-aggregation
         const average = pointsArray
           .reduce((acc, points) => acc.plus(points), new BigNumber(0))
           .dividedBy(totalUsers || 1)
           .toFixed(6);
 
+        //TODO: Candidate for pre-aggregation
         // Calculate median
         const sortedPoints = pointsArray.sort((a, b) => a.comparedTo(b) || 0);
         let median: string;
@@ -284,6 +287,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           return yield* Effect.fail(new Error("Season not found"));
         }
 
+        //TODO: Candidate for pre-aggregation
         // Aggregate season points by user
         const userTotals = yield* Effect.tryPromise(() =>
           db

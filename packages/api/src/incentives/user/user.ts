@@ -38,6 +38,7 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
 
       const groupedByWeek = groupBy(result, (point) => point.weekId);
 
+      //TODO: It is returning all weekdata if when weekID is present
       return Object.entries(groupedByWeek).map(([weekId, points]) => {
         const groupedByActivity = groupBy(points, (point) => point.activityId);
         return {
@@ -84,12 +85,14 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
       userId: string;
       weekId: string;
     }) {
+      //TODO: Apply filter for seasonID
       const userSeasonPointsSQL = sql<number>`(
         SELECT SUM(${userSeasonPoints.points})
         FROM ${userSeasonPoints}
         WHERE ${userSeasonPoints.userId} = ${input.userId}
       )`;
 
+      //TODO: Candidate for pre-aggregation
       const result = yield* Effect.tryPromise({
         try: () =>
           db
