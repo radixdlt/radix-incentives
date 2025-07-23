@@ -1,6 +1,7 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import superjson from "superjson";
 import { ZodError } from "zod";
+import { BigNumber } from "bignumber.js";
 import {
   type DependencyLayer,
   createDependencyLayer,
@@ -9,6 +10,17 @@ import { Exit } from "effect";
 
 export type { DependencyLayer };
 export { createDependencyLayer };
+
+// Register BigNumber transformation with SuperJSON
+superjson.registerCustom<BigNumber, string>(
+  {
+    isApplicable: (v): v is BigNumber => BigNumber.isBigNumber(v),
+    serialize: v => v.toString(),
+    deserialize: v => new BigNumber(v)
+  },
+  'BigNumber'
+);
+
 /**
  * 1. CONTEXT
  *

@@ -17,10 +17,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             Effect.tryPromise({
               try: () =>
                 db.query.activityCategoryWeeks.findMany({
-                  where: and(
-                    eq(activityCategoryWeeks.weekId, input.weekId),
-                    gt(activityCategoryWeeks.pointsPool, 0)
-                  ),
+                  where: and(eq(activityCategoryWeeks.weekId, input.weekId)),
                   columns: {
                     activityCategoryId: true,
                     pointsPool: true,
@@ -65,10 +62,6 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 categoryPointsMap[categoryId]?.[0]?.pointsPool ?? 0
               );
 
-              if (pointsPool.isZero()) {
-                return;
-              }
-
               return {
                 categoryId: categoryId as ActivityCategoryId,
                 activities: activities.map((item) => ({
@@ -81,6 +74,30 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
           ).pipe(
             Effect.map((items) => items.filter((item) => item !== undefined))
           );
+        }),
+        updatePointsPool: Effect.fn(function* (input: {
+          weekId: string;
+          activityCategoryId: string;
+          pointsPool: number;
+        }) {
+          yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(activityCategoryWeeks)
+                .set({
+                  pointsPool: input.pointsPool,
+                })
+                .where(
+                  and(
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    eq(
+                      activityCategoryWeeks.activityCategoryId,
+                      input.activityCategoryId
+                    )
+                  )
+                ),
+            catch: (error) => new DbError(error),
+          });
         }),
       };
     }),

@@ -1,8 +1,8 @@
 import { describe, expect, expectTypeOf, it } from 'vitest';
 import { s } from './factory';
-import { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
-import { SborError, SborSchema } from './sborSchema';
-import { Result } from 'neverthrow';
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import type { SborError, SborSchema } from './sborSchema';
+import type { Result } from 'neverthrow';
 
 function evaluateResultHelper<T, E>(
     schema: SborSchema<T>,

@@ -287,6 +287,9 @@ importers:
       api:
         specifier: workspace:*
         version: link:../../packages/api
+      bignumber.js:
+        specifier: 'catalog:'
+        version: 9.3.0
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
