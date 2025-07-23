@@ -21,6 +21,7 @@ import {
   UserActivityPointsService,
   WeekService,
 } from "api/incentives";
+import { ActivityWeekService } from "../../../packages/api/src/incentives/activity-week/activityWeek";
 import fs from "node:fs";
 import { groupBy } from "effect/Array";
 import { GetUsersPaginatedLive } from "../../../packages/api/src/incentives/user/getUsersPaginated";
@@ -35,9 +36,18 @@ const runnable = Effect.gen(function* () {
   const dbLayer = createDbClientLive(db);
 
   const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLayer));
-  const weekServiceLive = WeekService.Default.pipe(Layer.provide(dbLayer));
+  
+  const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+    Layer.provide(dbLayer)
+  );
   const activityCategoryWeekServiceLive =
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLayer));
+    
+  const weekServiceLive = WeekService.Default.pipe(
+    Layer.provide(dbLayer),
+    Layer.provide(activityCategoryWeekServiceLive),
+    Layer.provide(activityWeekServiceLive)
+  );
   const userActivityPointsServiceLive = UserActivityPointsService.Default.pipe(
     Layer.provide(dbLayer)
   );
@@ -60,6 +70,7 @@ const runnable = Effect.gen(function* () {
       Layer.provide(seasonServiceLive),
       Layer.provide(weekServiceLive),
       Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive),
       Layer.provide(userActivityPointsServiceLive),
       Layer.provide(getSeasonPointMultiplierServiceLive),
       Layer.provide(addSeasonPointsToUserServiceLive),

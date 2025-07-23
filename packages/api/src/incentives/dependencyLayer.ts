@@ -92,6 +92,7 @@ import { GetSurgeLiquidityPositionsLive } from "../common/dapps/surge/getSurgeLi
 import { AggregateSurgePositionsLive } from "./account-balance/aggregateSurgePositions";
 import { GetTransactionFeesPaginatedLive } from "./transaction-fee/getTransactionFees";
 import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
+import { ComponentWhitelistService } from "./component/componentWhitelist";
 import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
 import { AddressValidationServiceLive } from "../common/address-validation/addressValidation";
 import {
@@ -467,9 +468,15 @@ const getAccountAddressByUserIdLive = GetAccountAddressByUserIdLive.pipe(
   Layer.provide(dbClientLive)
 );
 
+const componentWhitelistLive = ComponentWhitelistService.Default.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(createAppConfigLive())
+);
+
 const getComponentCallsPaginatedLive = GetComponentCallsPaginatedLive.pipe(
   Layer.provide(dbClientLive),
-  Layer.provide(getAccountAddressByUserIdLive)
+  Layer.provide(getAccountAddressByUserIdLive),
+  Layer.provide(componentWhitelistLive)
 );
 
 const getTradingVolumeLive = GetTradingVolumeLive.pipe(

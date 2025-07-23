@@ -169,6 +169,13 @@
       "when": 1753278261484,
       "tag": "0023_tan_colossus",
       "breakpoints": true
+    },
+    {
+      "idx": 24,
+      "version": "7",
+      "when": 1753310606499,
+      "tag": "0024_tranquil_hellion",
+      "breakpoints": true
     }
   ]
 }

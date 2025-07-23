@@ -72,6 +72,7 @@ import { DappService } from "../dapp/dapp";
 import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { ActivityWeekService } from "../activity-week/activityWeek";
+import { ComponentWhitelistService } from "../component/componentWhitelist";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -541,6 +542,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive)
   );
 
+  const componentWhitelistServiceLive = ComponentWhitelistService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(appConfigLive)
+  );
+
+
   const getActivityCategories = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -656,6 +663,30 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getComponentWhitelistCount = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const service = yield* ComponentWhitelistService;
+        return yield* service.getCount();
+      }),
+      componentWhitelistServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const uploadComponentWhitelistCsv = (componentAddresses: string[]) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const service = yield* ComponentWhitelistService;
+        return yield* service.uploadCsv(componentAddresses);
+      }),
+      componentWhitelistServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+
+
   return {
     createChallenge,
     signIn,
@@ -689,5 +720,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     createSeason,
     editSeason,
     createWeek,
+    getComponentWhitelistCount,
+    uploadComponentWhitelistCsv,
   };
 };

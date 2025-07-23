@@ -5,6 +5,7 @@ import { componentCalls } from "db/incentives";
 import { and, between } from "drizzle-orm";
 
 import { GetAccountAddressByUserIdService } from "../account/getAccountAddressByUserId";
+import { ComponentWhitelistService } from "./componentWhitelist";
 
 export type GetComponentCallsServiceInput = {
   endTimestamp: Date;
@@ -13,7 +14,6 @@ export type GetComponentCallsServiceInput = {
   addresses?: string[];
 };
 
-type UserId = string;
 type ComponentAddress = string;
 
 export type GetComponentCallsServiceOutput = {
@@ -35,6 +35,7 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
   Effect.gen(function* () {
     const db = yield* DbClientService;
     const getAccountAddressByUserId = yield* GetAccountAddressByUserIdService;
+    const componentWhitelistService = yield* ComponentWhitelistService;
 
     return (input) => {
       return Effect.gen(function* () {
@@ -56,27 +57,33 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
                 )
               ),
           catch: (error) => new DbError(error),
-        }).pipe(
-          Effect.map((items) => {
-            return items.reduce<{ userId: UserId; componentCalls: number }[]>(
-              (acc, curr) => {
-                const componentCalls = curr.data as ComponentAddress[];
-                acc.push({
-                  userId: curr.userId,
-                  componentCalls: componentCalls.length,
-                });
-                return acc;
-              },
-              []
-            );
-          })
+        });
+
+        // Process each user's component calls, filter with whitelist
+        const processedResult = yield* Effect.all(
+          result.map((item) =>
+            Effect.gen(function* () {
+              const allComponents = item.data as ComponentAddress[];
+
+              // Filter components using the efficient whitelist service
+              const validComponents =
+                yield* componentWhitelistService.filterComponents(
+                  allComponents
+                );
+
+              return {
+                userId: item.userId,
+                componentCalls: validComponents.length,
+              };
+            })
+          )
         );
 
         const userIdAccountAddressMap = yield* getAccountAddressByUserId(
-          result.map((item) => item.userId)
+          processedResult.map((item) => item.userId)
         );
 
-        return result
+        return processedResult
           .map((item) => {
             const accountAddresses = userIdAccountAddressMap.get(item.userId);
             if (!accountAddresses) return null;

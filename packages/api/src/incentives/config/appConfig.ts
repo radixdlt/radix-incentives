@@ -18,6 +18,7 @@ export type AppConfig = {
   redisPort: number;
   gatewayApiBaseUrl: string;
   otlpBaseUrl: string;
+  useComponentWhitelist: boolean;
 };
 
 const expectedOrigin =
@@ -44,6 +45,7 @@ export const defaultAppConfig: AppConfig = {
   gatewayApiBaseUrl:
     process.env.GATEWAY_URL ?? "https://mainnet-gateway.radixdlt.com",
   otlpBaseUrl: process.env.OTLP_BASE_URL ?? "http://127.0.0.1:4318",
+  useComponentWhitelist: process.env.USE_COMPONENT_WHITELIST === "true",
 };
 
 console.log("rolaConfig", {
