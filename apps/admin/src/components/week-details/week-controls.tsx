@@ -20,12 +20,12 @@ import type { WeekDetailsData } from './types';
 
 interface WeekControlsProps {
   weekData: WeekDetailsData;
-  onRecalculatePoints: () => void;
+  onProcessWeek: () => void;
 }
 
 export const WeekControls: React.FC<WeekControlsProps> = ({
   weekData,
-  onRecalculatePoints,
+  onProcessWeek,
 }) => {
   return (
     <Card className="p-6">
@@ -37,59 +37,29 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
           </p>
         </div>
         <ButtonGroup>
-          {!weekData.processed && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="default">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  End Week & Calculate Points
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>
-                    End Week & Calculate Points
-                  </AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will finalize the week, calculate all user points,
-                    apply multipliers, and convert weekly points to season
-                    points. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onRecalculatePoints}>
-                    End Week & Calculate
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
-          {!weekData.processed && (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="default">
-                  <CheckCircle className="h-4 w-4 mr-2" />
-                  Recalculate Points
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Recalculate Points</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will recalculate the points for all users in this
-                    week. This action cannot be undone.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={onRecalculatePoints}>
-                    Recalculate Points
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          )}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="default">
+                <CheckCircle className="h-4 w-4 mr-2" />
+                {weekData.processed ? 'Recalculate Points' : 'Close Week'}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Close Week</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action will trigger a flow to finalize the week and mark
+                  the week as processed.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onProcessWeek}>
+                  Continue
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </ButtonGroup>
       </div>
     </Card>

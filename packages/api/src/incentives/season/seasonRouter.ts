@@ -148,17 +148,20 @@ export const adminSeasonRouter = createTRPCRouter({
   addCalculateSeasonPointsJob: publicProcedure
     .input(
       z.object({
-        seasonId: z.string(),
         weekId: z.string(),
         force: z.boolean().optional(),
       })
     )
     .mutation(async ({ input }) => {
       const response = await fetch(
-        `${process.env.WORKERS_API_BASE_URL}/queues/calculate-activity-points/add`,
+        `${process.env.WORKERS_API_BASE_URL}/queues/scheduled-calculations/add`,
         {
           method: "POST",
-          body: JSON.stringify(input),
+          body: JSON.stringify({
+            weekId: input.weekId,
+            force: input.force,
+            markAsProcessed: true,
+          }),
         }
       );
 

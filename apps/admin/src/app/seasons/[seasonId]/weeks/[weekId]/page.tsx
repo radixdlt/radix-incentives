@@ -4,7 +4,7 @@ import type { FC } from 'react';
 import { use } from 'react';
 import AdminWeekDetails from './components/adminWeekDetailsPage';
 import { api } from '~/trpc/react';
-import type { Week } from 'db/incentives';
+import { toast } from 'sonner';
 
 type WeekPageProps = {
   params: Promise<{
@@ -17,51 +17,47 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   const params = use(paramsPromise);
   const recalculatePoints =
     api.season.addCalculateSeasonPointsJob.useMutation();
-  const updateWeekStatus = api.season.updateWeekStatus.useMutation();
   const updatePointsPool = api.week.updatePointsPool.useMutation();
   const updateMultiplier = api.week.updateActivityWeekMultiplier.useMutation();
-  const { 
-    data: seasonData, 
+  const {
+    data: seasonData,
     refetch: refetchSeason,
     isLoading: isSeasonLoading,
-    error: seasonError 
+    error: seasonError,
   } = api.season.getSeasonById.useQuery({
     id: params.seasonId,
   });
-  
-  const { 
-    data: weekData, 
+
+  const {
+    data: weekData,
     refetch: refetchWeek,
     isLoading: isWeekLoading,
-    error: weekError
+    error: weekError,
   } = api.week.getWeekDetails.useQuery({
     weekId: params.weekId,
   });
 
-  const handleActivityAction = (
-    activityId: string,
-    action: 'edit' | 'delete',
-  ) => {
-    console.log(`Activity ${activityId} ${action} action triggered`);
-    // TODO: Implement actual activity management actions
-  };
-
   const season = seasonData?.season;
   const week = weekData;
 
-  const handleRecalculatePoints = async () => {
-    console.log('Recalculate points action triggered');
-    // TODO: Implement actual recalculate points action
-    const result = await recalculatePoints.mutateAsync({
+  const handleProcessWeek = async () => {
+    await recalculatePoints.mutateAsync({
       seasonId: params.seasonId,
       weekId: params.weekId,
       force: week?.processed,
     });
 
+    toast.info('Processing week job started', {
+      description: 'This may take a moment to complete',
+    });
+
     await Promise.all([refetchSeason(), refetchWeek()]);
   };
 
-  const handleUpdatePointsPool = async (categoryId: string, newPointsPool: number) => {
+  const handleUpdatePointsPool = async (
+    categoryId: string,
+    newPointsPool: number,
+  ) => {
     try {
       await updatePointsPool.mutateAsync({
         weekId: params.weekId,
@@ -74,7 +70,10 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     }
   };
 
-  const handleUpdateMultiplier = async (activityId: string, newMultiplier: number) => {
+  const handleUpdateMultiplier = async (
+    activityId: string,
+    newMultiplier: number,
+  ) => {
     try {
       await updateMultiplier.mutateAsync({
         weekId: params.weekId,
@@ -101,7 +100,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
                 <div className="h-3 bg-gray-200 rounded w-32" />
               </div>
             </div>
-            
+
             {/* Controls skeleton */}
             <div className="bg-white rounded-lg border p-6 mb-6">
               <div className="flex justify-between items-center">
@@ -115,7 +114,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
                 </div>
               </div>
             </div>
-            
+
             {/* Categories skeleton */}
             <div className="space-y-4">
               <div className="h-8 bg-gray-200 rounded w-48" />
@@ -145,11 +144,15 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-2">Error Loading Week</h1>
+          <h1 className="text-2xl font-bold text-red-600 mb-2">
+            Error Loading Week
+          </h1>
           <p className="text-gray-600 mb-4">
-            {seasonError?.message || weekError?.message || 'An unexpected error occurred'}
+            {seasonError?.message ||
+              weekError?.message ||
+              'An unexpected error occurred'}
           </p>
-          <button 
+          <button
             type="button"
             onClick={() => {
               if (seasonError) refetchSeason();
@@ -173,10 +176,9 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
             {!week ? 'Week Not Found' : 'Season Not Found'}
           </h1>
           <p className="text-gray-600">
-            {!week 
-              ? 'The requested week could not be found.' 
-              : 'The requested season could not be found.'
-            }
+            {!week
+              ? 'The requested week could not be found.'
+              : 'The requested season could not be found.'}
           </p>
         </div>
       </div>
@@ -189,8 +191,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         seasonId={params.seasonId}
         weekId={params.weekId}
         weekData={week}
-        onActivityAction={handleActivityAction}
-        onRecalculatePoints={handleRecalculatePoints}
+        onProcessWeek={handleProcessWeek}
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}
       />

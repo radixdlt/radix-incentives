@@ -40,7 +40,7 @@
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
-    "date-fns": "catalog",
+    "date-fns": "catalog:",
     "date-fns-tz": "catalog:",
     "db": "workspace:*",
     "drizzle-orm": "catalog:",

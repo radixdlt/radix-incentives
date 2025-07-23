@@ -10,10 +10,7 @@ import {
 const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
   weekData,
   seasonId,
-  onActivityAction = (activityId, action) =>
-    console.log(`Activity ${activityId} ${action} action triggered`),
-  onRecalculatePoints = () =>
-    console.log('Recalculate points action triggered'),
+  onProcessWeek = () => console.log('Recalculate points action triggered'),
   onUpdatePointsPool = (categoryId, newPointsPool) =>
     console.log(`Update points pool for ${categoryId} to ${newPointsPool}`),
   onUpdateMultiplier = (activityId, newMultiplier) =>
@@ -23,14 +20,10 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
     <div className="max-w-7xl mx-auto p-6 space-y-6">
       <WeekHeader weekData={weekData} seasonId={seasonId} />
 
-      <WeekControls
-        weekData={weekData}
-        onRecalculatePoints={onRecalculatePoints}
-      />
+      <WeekControls weekData={weekData} onProcessWeek={onProcessWeek} />
 
       <CategoriesSection
         weekData={weekData}
-        onActivityAction={onActivityAction}
         onUpdatePointsPool={onUpdatePointsPool}
         onUpdateMultiplier={onUpdateMultiplier}
       />
