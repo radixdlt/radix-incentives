@@ -12,6 +12,10 @@ export const scheduledSnapshotQueue = createQueue({
   },
 });
 
-scheduledSnapshotQueue.queue.upsertJobScheduler("every_hour", {
-  pattern: "0 * * * *",
-});
+// Enable scheduled snapshots by default, disable only if explicitly set to 'true'
+if (process.env.DISABLE_SCHEDULED_SNAPSHOT !== 'true') {
+  scheduledSnapshotQueue.queue.upsertJobScheduler("every_hour", {
+    pattern: "0 * * * *",
+  });
+}
+

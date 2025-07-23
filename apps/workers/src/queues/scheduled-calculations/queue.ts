@@ -12,6 +12,8 @@ export const scheduledCalculationsQueue = createQueue({
   },
 });
 
-scheduledCalculationsQueue.queue.upsertJobScheduler("every_two_hours", {
-  pattern: "0 */2 * * *",
-});
+if (process.env.DISABLE_SCHEDULED_CALCULATIONS !== 'true') {
+  scheduledCalculationsQueue.queue.upsertJobScheduler("every_two_hours", {
+    pattern: "0 */2 * * *",
+  });
+}
