@@ -32,27 +32,25 @@ export function PersonaConnectionWarning({
         <AlertDialogHeader>
           <div className="flex items-center gap-3">
             <AlertTriangle className="h-6 w-6 text-orange-600" />
-            <AlertDialogTitle>Connect Persona</AlertDialogTitle>
+            <AlertDialogTitle>Persona Name is Public</AlertDialogTitle>
           </div>
           <AlertDialogDescription className="space-y-3 pt-2">
-            You are about to connect a Persona from your Radix Wallet. Please
-            note:
+            <span className="block">
+              You are about to connect a Persona from your Radix Wallet.
+            </span>
+            <span className="block">
+              Your Persona's name will be displayed publicly. We recommend using
+              an anonymous Persona name.
+            </span>
+            <span className="block">
+              Only Persona name is public, all account addresses are private.
+            </span>
           </AlertDialogDescription>
-          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground ml-2">
-            <li>
-              Your Persona's name will be displayed on the public leaderboards.
-            </li>
-            <li>To update the name, reconnect your renamed Persona.</li>
-            <li>Accounts linked to your Persona will remain private.</li>
-          </ul>
-          <div className="text-sm font-medium">
-            Do you want to continue connecting your Persona?
-          </div>
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel onClick={onCancel}>Cancel</AlertDialogCancel>
           <AlertDialogAction onClick={onConfirm}>
-            Yes, Connect Persona
+            I understand
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
