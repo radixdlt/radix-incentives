@@ -1,11 +1,17 @@
 import { Data, Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
-import { seasons, weeks } from "db/incentives";
+import { type Season, seasons, weeks } from "db/incentives";
 import { eq } from "drizzle-orm";
+import { z } from "zod";
 
 class NotFound extends Data.TaggedError("NotFound")<{
   message: string;
 }> {}
+
+export const CreateSeasonSchema = z.object({
+  name: z.string(),
+  status: z.enum(["upcoming", "active", "completed"]),
+});
 
 export class SeasonService extends Effect.Service<SeasonService>()(
   "SeasonService",
@@ -69,6 +75,14 @@ export class SeasonService extends Effect.Service<SeasonService>()(
               new NotFound({ message: `Season for week ${weekId} not found` })
             );
           }
+
+          return season;
+        }),
+        create: Effect.fn(function* (input: Omit<Season, "id">) {
+          const season = yield* Effect.tryPromise({
+            try: () => db.insert(seasons).values(input).returning(),
+            catch: (error) => new DbError(error),
+          });
 
           return season;
         }),

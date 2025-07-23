@@ -1,4 +1,4 @@
-import type { ActivityWeek, Db, Week } from "db/incentives";
+import type { ActivityWeek, Db, Season, Week } from "db/incentives";
 import {
   type AppConfig,
   createAppConfigLive,
@@ -581,6 +581,20 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const createSeason = (input: Omit<Season, "id">) => {
+    const runnable = Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      return yield* seasonService.create(input);
+    });
+
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive)))
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -609,5 +623,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getWeekDetails,
     updateCategoryWeekPointsPool,
     updateActivityWeekMultiplier,
+    createSeason,
   };
 };
