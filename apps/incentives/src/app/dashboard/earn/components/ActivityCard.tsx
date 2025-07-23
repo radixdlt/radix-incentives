@@ -25,42 +25,19 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import type { IconName } from '../utils/getActivityIcon';
+import type { Activity, ActivityCategory, Dapp } from 'api/incentives';
 
-export interface RadixActivity {
-  id: string;
-  title: string;
-  description: string;
-  category: 'passive' | 'active';
-  type: 'holding' | 'trading' | 'liquidity' | 'lending' | 'network';
-  icon: IconName;
-  requirements?: string[];
-  benefits: string[];
-}
-
-type ActivityData = {
-  id: string;
-  name: string | null;
-  description: string | null;
-  category: string;
-  activityCategories: {
-    id: string;
-    name: string;
-    description: string | null;
-  };
-  dApp?: {
-    website: string;
-    name: string;
-  };
-  ap?: boolean;
-  multiplier?: boolean;
-  hide?: boolean;
-};
-
-interface ActivityCardProps {
-  activity: ActivityData;
-}
-
-export const ActivityCard = ({ activity }: ActivityCardProps) => {
+export const ActivityCard = ({
+  activity,
+  dappMap,
+  activityCategoryMap,
+}: {
+  activity: Activity;
+  dappMap: Record<string, Dapp>;
+  activityCategoryMap: Record<string, ActivityCategory>;
+}) => {
+  const dapp = dappMap[activity.dapp];
+  const activityCategory = activityCategoryMap[activity.category];
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'lendingStables':
@@ -131,19 +108,19 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
               </CardTitle>
             </div>
           </div>
-          {activity.dApp?.name && (
+          {dapp && (
             <Badge variant="outline" className="text-xs">
-              {activity.dApp.name}
+              {dapp.name}
             </Badge>
           )}
         </div>
         <div className="flex gap-1 mt-2">
-          {activity.ap && (
+          {activity?.data?.ap && (
             <Badge variant="secondary" className="text-xs">
               AP
             </Badge>
           )}
-          {activity.multiplier && (
+          {activity?.data?.multiplier && (
             <Badge variant="default" className="text-xs">
               Multiplier
             </Badge>
@@ -161,27 +138,16 @@ export const ActivityCard = ({ activity }: ActivityCardProps) => {
             Category:
           </h4>
           <p className="text-xs text-muted-foreground">
-            {activity.activityCategories.name}
+            {activityCategory?.name}
           </p>
         </div>
-
-        {activity.activityCategories.description && (
-          <div>
-            <h4 className="text-sm font-medium text-foreground mb-2">
-              Details:
-            </h4>
-            <p className="text-xs text-muted-foreground">
-              {activity.activityCategories.description}
-            </p>
-          </div>
-        )}
       </CardContent>
 
-      {activity.dApp?.website && (
+      {dapp && (
         <CardFooter className="pt-3">
           <Button variant="outline" size="sm" className="w-full" asChild>
             <a
-              href={activity.dApp.website}
+              href={dapp.website}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2"

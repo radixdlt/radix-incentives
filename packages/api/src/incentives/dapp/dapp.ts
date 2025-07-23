@@ -1,5 +1,14 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
+import { z } from "zod";
+
+export const DappSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  website: z.string(),
+});
+
+export type Dapp = z.infer<typeof DappSchema>;
 
 export class DappService extends Effect.Service<DappService>()("DappService", {
   effect: Effect.gen(function* () {

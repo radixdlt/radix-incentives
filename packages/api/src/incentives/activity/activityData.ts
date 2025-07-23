@@ -1,9 +1,7 @@
 import { Effect, Cache, Duration } from "effect";
 import { groupBy } from "effect/Array";
 import { DbClientService, DbError } from "../db/dbClient";
-import { defaultActivitiesData } from "data";
-
-const defaultGroupedById = groupBy(defaultActivitiesData, (item) => item.id);
+import type { Activity } from "./activity";
 
 export class ActivityDataService extends Effect.Service<ActivityDataService>()(
   "ActivityDataService",
@@ -14,11 +12,13 @@ export class ActivityDataService extends Effect.Service<ActivityDataService>()(
       const getActivities = () =>
         Effect.tryPromise({
           try: () =>
-            db.query.activities.findMany({
-              with: {
-                activityCategories: true,
-              },
-            }),
+            db.query.activities
+              .findMany({
+                with: {
+                  activityCategories: true,
+                },
+              })
+              .then((activities) => activities as Activity[]),
           catch: (error) => new DbError(error),
         });
 
@@ -29,25 +29,14 @@ export class ActivityDataService extends Effect.Service<ActivityDataService>()(
           Effect.gen(function* () {
             const activities = yield* getActivities();
 
-            const withDefaultData = activities
-              .map((item) => {
-                const withDefault = defaultGroupedById[item.id]?.[0] || {};
-                return {
-                  ...item,
-                  ...withDefault,
-                };
-              })
-              // @ts-ignore - hide is not in the type
-              .filter((item) => !item?.hide);
-
-            const groupedById = groupBy(withDefaultData, (item) => item.id);
+            const groupedById = groupBy(activities, (item) => item.id);
             const groupedByCategory = groupBy(
-              withDefaultData,
+              activities,
               (item) => item.category
             );
 
             return {
-              list: withDefaultData,
+              list: activities,
               groupedById,
               groupedByCategory,
             };

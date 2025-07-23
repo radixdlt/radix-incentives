@@ -17,16 +17,14 @@ import {
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Textarea } from '~/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
+import { Switch } from '~/components/ui/switch';
 import { Separator } from '~/components/ui/separator';
-import type { UpdateActivityInput } from 'api/incentives';
-import type { Activity } from 'db/incentives';
+import type {
+  Activity,
+  ActivityCategory,
+  Dapp,
+  UpdateActivityInput,
+} from 'api/incentives';
 import { api } from '~/trpc/react';
 
 // Reusable form component (can be extracted later)
@@ -38,16 +36,12 @@ function ActivityForm({
   dapps,
   activityCategories,
 }: {
-  initialData: Activity & { dapp?: string };
+  initialData: Activity;
   onSubmit: (data: UpdateActivityInput) => void;
   isSubmitting: boolean;
   submitButtonText: string;
-  dapps?: Array<{ id: string; name: string; website: string }>;
-  activityCategories?: Array<{
-    id: string;
-    name: string;
-    description: string | null;
-  }>;
+  dapps: Dapp[];
+  activityCategories?: ActivityCategory[];
 }) {
   const [formData, setFormData] = React.useState<Activity>(initialData);
 
@@ -78,6 +72,8 @@ function ActivityForm({
         description: formData.description ?? undefined,
         category: formData.category ?? undefined,
         dapp: formData.dapp ?? undefined,
+        componentAddresses: formData.componentAddresses,
+        data: formData.data,
       },
     });
   };
@@ -122,41 +118,137 @@ function ActivityForm({
       {/* Category */}
       <div className="grid gap-2">
         <Label htmlFor="category">Category</Label>
-        <Select
-          value={formData.category || ''}
-          onValueChange={(value) => handleSelectChange('category', value)}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a category" />
-          </SelectTrigger>
-          <SelectContent>
-            {activityCategories?.map((category) => (
-              <SelectItem key={category.id} value={category.id}>
-                {category.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <Input
+          id="category"
+          name="category"
+          value={
+            activityCategories?.find((cat) => cat.id === formData.category)
+              ?.name ||
+            formData.category ||
+            ''
+          }
+          disabled={true}
+          readOnly={true}
+          className="bg-muted cursor-not-allowed opacity-60"
+          tabIndex={-1}
+          onFocus={(e) => e.target.blur()}
+          onClick={(e) => e.preventDefault()}
+        />
       </div>
 
       {/* Dapp */}
       <div className="grid gap-2">
         <Label htmlFor="dapp">Dapp</Label>
-        <Select
-          value={formData.dapp || ''}
-          onValueChange={(value) => handleSelectChange('dapp', value)}
+        <Input
+          id="dapp"
+          name="dapp"
+          value={
+            dapps?.find((dapp) => dapp.id === formData.dapp)?.name ||
+            formData.dapp ||
+            '-'
+          }
+          disabled={true}
+          readOnly={true}
+          className="bg-muted cursor-not-allowed opacity-60"
+          tabIndex={-1}
+          onFocus={(e) => e.target.blur()}
+          onClick={(e) => e.preventDefault()}
+        />
+      </div>
+
+      {/* Component Addresses */}
+      <div className="grid gap-2">
+        <Label htmlFor="componentAddresses">Component Addresses</Label>
+        <div className="space-y-2">
+          {formData.componentAddresses &&
+          formData.componentAddresses.length > 0 ? (
+            formData.componentAddresses.map((address) => (
+              <Input
+                key={address}
+                value={address}
+                disabled={true}
+                readOnly={true}
+                className="bg-muted cursor-not-allowed opacity-60 font-mono text-xs"
+                tabIndex={-1}
+                onFocus={(e) => e.target.blur()}
+                onClick={(e) => e.preventDefault()}
+              />
+            ))
+          ) : (
+            <Input
+              value="No component addresses configured"
+              disabled={true}
+              readOnly={true}
+              className="bg-muted cursor-not-allowed opacity-60 italic"
+              tabIndex={-1}
+              onFocus={(e) => e.target.blur()}
+              onClick={(e) => e.preventDefault()}
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Show on earn page */}
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="showOnEarnPage"
+          checked={formData.data?.showOnEarnPage ?? true}
+          disabled={isSubmitting}
+          onCheckedChange={(checked) =>
+            setFormData((prev) => ({
+              ...prev,
+              data: { ...prev.data, showOnEarnPage: checked },
+            }))
+          }
+        />
+        <Label
+          htmlFor="showOnEarnPage"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a dapp" />
-          </SelectTrigger>
-          <SelectContent>
-            {dapps?.map((dapp) => (
-              <SelectItem key={dapp.id} value={dapp.id}>
-                {dapp.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+          Show on earn page
+        </Label>
+      </div>
+
+      {/* Activity Points (AP) */}
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="ap"
+          checked={formData.data?.ap ?? false}
+          disabled={isSubmitting}
+          onCheckedChange={(checked) =>
+            setFormData((prev) => ({
+              ...prev,
+              data: { ...prev.data, ap: checked },
+            }))
+          }
+        />
+        <Label
+          htmlFor="ap"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Activity Points (AP)
+        </Label>
+      </div>
+
+      {/* Season Points (SP) */}
+      <div className="flex items-center space-x-2">
+        <Switch
+          id="sp"
+          checked={formData.data?.multiplier ?? false}
+          disabled={isSubmitting}
+          onCheckedChange={(checked) =>
+            setFormData((prev) => ({
+              ...prev,
+              data: { ...prev.data, sp: checked },
+            }))
+          }
+        />
+        <Label
+          htmlFor="sp"
+          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+        >
+          Season Points (SP)
+        </Label>
       </div>
       {/* Actions */}
       <div className="flex justify-end space-x-2">
@@ -177,6 +269,8 @@ function ActivityForm({
 // Main Page Component
 function EditActivityPage() {
   const { id: activityId } = useParams<{ id: string }>();
+  const router = useRouter();
+  const utils = api.useUtils();
   const { data, isLoading: loading } = api.activity.getActivityById.useQuery({
     id: activityId,
   });
@@ -194,6 +288,8 @@ function EditActivityPage() {
     updateActivity(data, {
       onSuccess: () => {
         toast.success('Activity updated successfully');
+        utils.activity.invalidate();
+        router.push('/activities');
       },
       onError: (error) => {
         toast.error(error.message);
@@ -251,19 +347,11 @@ function EditActivityPage() {
           </CardHeader>
           <CardContent>
             <ActivityForm
-              initialData={{
-                id: activity.id,
-                name: activity.name,
-                description: activity.description,
-                category: activity.category,
-                dapp: activity.dapp ?? '',
-                componentAddresses: activity.componentAddresses ?? [],
-                data: activity.data ?? {},
-              }}
+              initialData={activity}
               onSubmit={handleUpdateActivity}
               isSubmitting={isSubmitting}
               submitButtonText="Save Changes"
-              dapps={dapps}
+              dapps={dapps ?? []}
               activityCategories={activityCategories ?? []}
             />
           </CardContent>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import '../styles/globals.css';
 import { ThemeProvider } from '../components/theme-provider';
-import { Sidebar } from '../components/sidebar';
+import { Layout } from '../components/layout';
 import { TRPCReactProvider } from '~/trpc/react';
 import { Toaster } from 'sonner';
 
@@ -23,10 +23,7 @@ export default function RootLayout({
       <body className={inter.className}>
         <TRPCReactProvider>
           <ThemeProvider attribute="class" defaultTheme="dark">
-            <div className="flex h-screen">
-              <Sidebar />
-              <main className="ml-64 flex-1 overflow-auto">{children}</main>
-            </div>
+            <Layout>{children}</Layout>
             <Toaster richColors position="top-right" />
           </ThemeProvider>
         </TRPCReactProvider>

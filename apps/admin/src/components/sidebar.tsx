@@ -23,11 +23,13 @@ const navigationItems = [
   },
 ];
 
-export function Sidebar() {
+export function Sidebar({ isOpen }: { isOpen: boolean }) {
   const pathname = usePathname();
 
   return (
-    <aside className="fixed inset-y-0 left-0 z-10 flex h-full w-64 flex-col border-r bg-card">
+    <aside className={`fixed inset-y-0 left-0 z-30 flex h-full w-64 flex-col border-r bg-card transition-transform duration-300 ${
+      isOpen ? 'translate-x-0' : '-translate-x-full'
+    }`}>
       <div className="flex h-14 items-center border-b px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <div className="flex h-6 w-6 items-center justify-center rounded-md bg-primary text-primary-foreground">
