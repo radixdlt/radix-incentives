@@ -60,7 +60,7 @@ import { AccountBalanceService } from "../account/accountBalance";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
-import { SeasonService } from "../season/season";
+import { EditSeasonInput, SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
 import { LeaderboardService } from "../leaderboard/leaderboard";
 import { ActivityDataService } from "../activity/activityData";
@@ -595,6 +595,20 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const editSeason = (input: EditSeasonInput) => {
+    const runnable = Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      return yield* seasonService.edit(input);
+    });
+
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive)))
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -624,5 +638,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateCategoryWeekPointsPool,
     updateActivityWeekMultiplier,
     createSeason,
+    editSeason,
   };
 };

@@ -2,7 +2,7 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
-import { CreateSeasonSchema } from "./season";
+import { CreateSeasonSchema, EditSeasonSchema } from "./season";
 
 export const seasonRouter = createTRPCRouter({
   getSeasons: publicProcedure.query(async ({ ctx }) => {
@@ -111,6 +111,25 @@ export const adminSeasonRouter = createTRPCRouter({
     .input(CreateSeasonSchema)
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.createSeason(input);
+
+      return Exit.match(result, {
+        onSuccess: (value) => {
+          return value;
+        },
+        onFailure: (error) => {
+          if (error._tag === "Fail") {
+            throw new TRPCError({
+              code: "INTERNAL_SERVER_ERROR",
+            });
+          }
+        },
+      });
+    }),
+
+  editSeason: publicProcedure
+    .input(EditSeasonSchema)
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.editSeason(input);
 
       return Exit.match(result, {
         onSuccess: (value) => {

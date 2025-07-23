@@ -13,6 +13,14 @@ export const CreateSeasonSchema = z.object({
   status: z.enum(["upcoming", "active", "completed"]),
 });
 
+export const EditSeasonSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  status: z.enum(["upcoming", "active", "completed"]),
+});
+
+export type EditSeasonInput = z.infer<typeof EditSeasonSchema>;
+
 export class SeasonService extends Effect.Service<SeasonService>()(
   "SeasonService",
   {
@@ -85,6 +93,13 @@ export class SeasonService extends Effect.Service<SeasonService>()(
           });
 
           return season;
+        }),
+        edit: Effect.fn(function* (input: EditSeasonInput) {
+          yield* Effect.tryPromise({
+            try: () =>
+              db.update(seasons).set(input).where(eq(seasons.id, input.id)),
+            catch: (error) => new DbError(error),
+          });
         }),
       };
     }),
