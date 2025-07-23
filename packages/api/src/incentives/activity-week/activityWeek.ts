@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { activityWeeks } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { eq, and } from "drizzle-orm";
 
 export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
   "ActivityWeekService",
@@ -28,7 +28,12 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
               db
                 .update(activityWeeks)
                 .set({ multiplier: input.multiplier })
-                .where(eq(activityWeeks.weekId, input.weekId)),
+                .where(
+                  and(
+                    eq(activityWeeks.weekId, input.weekId),
+                    eq(activityWeeks.activityId, input.activityId)
+                  )
+                ),
             catch: (error) => new DbError(error),
           });
         }),

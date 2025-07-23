@@ -9,4 +9,5 @@ export interface AdminWeekDetailsProps {
   onActivityAction?: (activityId: string, action: 'edit' | 'delete') => void;
   onRecalculatePoints?: () => void;
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
+  onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
 }

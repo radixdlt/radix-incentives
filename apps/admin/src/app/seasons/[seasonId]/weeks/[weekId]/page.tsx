@@ -19,6 +19,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     api.season.addCalculateSeasonPointsJob.useMutation();
   const updateWeekStatus = api.season.updateWeekStatus.useMutation();
   const updatePointsPool = api.week.updatePointsPool.useMutation();
+  const updateMultiplier = api.week.updateActivityWeekMultiplier.useMutation();
   const { 
     data: seasonData, 
     refetch: refetchSeason,
@@ -70,6 +71,19 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
       await refetchWeek();
     } catch (error) {
       console.error('Failed to update points pool:', error);
+    }
+  };
+
+  const handleUpdateMultiplier = async (activityId: string, newMultiplier: number) => {
+    try {
+      await updateMultiplier.mutateAsync({
+        weekId: params.weekId,
+        activityId: activityId,
+        multiplier: newMultiplier,
+      });
+      await refetchWeek();
+    } catch (error) {
+      console.error('Failed to update multiplier:', error);
     }
   };
 
@@ -178,6 +192,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         onActivityAction={handleActivityAction}
         onRecalculatePoints={handleRecalculatePoints}
         onUpdatePointsPool={handleUpdatePointsPool}
+        onUpdateMultiplier={handleUpdateMultiplier}
       />
     </div>
   );

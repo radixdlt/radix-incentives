@@ -9,14 +9,14 @@ import type { WeekDetailsData } from './types';
 
 interface CategoriesSectionProps {
   weekData: WeekDetailsData;
-  onActivityAction: (activityId: string, action: 'edit' | 'delete') => void;
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
+  onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
 }
 
 export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   weekData,
-  onActivityAction,
   onUpdatePointsPool,
+  onUpdateMultiplier,
 }) => {
   const categories = weekData.activityCategories || [];
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -26,6 +26,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     null,
   );
   const [editingValue, setEditingValue] = useState<string>('');
+  const [editingMultiplier, setEditingMultiplier] = useState<string | null>(
+    null,
+  );
+  const [editingMultiplierValue, setEditingMultiplierValue] =
+    useState<string>('');
 
   const toggleCategory = (categoryId: string) => {
     setExpandedCategories((prev) => {
@@ -41,9 +46,10 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
 
   const startEditingPointsPool = (categoryId: string, currentValue: any) => {
     setEditingPointsPool(categoryId);
-    const valueString = typeof currentValue === 'object' && currentValue.toString 
-      ? currentValue.toString() 
-      : currentValue.toString();
+    const valueString =
+      typeof currentValue === 'object' && currentValue.toString
+        ? currentValue.toString()
+        : currentValue.toString();
     setEditingValue(Number(valueString).toLocaleString());
   };
 
@@ -61,6 +67,29 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     }
     setEditingPointsPool(null);
     setEditingValue('');
+  };
+
+  const startEditingMultiplier = (activityId: string, currentValue: any) => {
+    setEditingMultiplier(activityId);
+    const valueString =
+      typeof currentValue === 'object' && currentValue.toString
+        ? currentValue.toString()
+        : currentValue.toString();
+    setEditingMultiplierValue(valueString);
+  };
+
+  const cancelEditingMultiplier = () => {
+    setEditingMultiplier(null);
+    setEditingMultiplierValue('');
+  };
+
+  const saveMultiplier = (activityId: string) => {
+    const newValue = Number.parseFloat(editingMultiplierValue);
+    if (!Number.isNaN(newValue) && newValue >= 0 && onUpdateMultiplier) {
+      onUpdateMultiplier(activityId, newValue);
+    }
+    setEditingMultiplier(null);
+    setEditingMultiplierValue('');
   };
 
   if (categories.length === 0) {
@@ -81,26 +110,27 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
         Activity Categories
       </h2>
 
-      {categories.map((category) => {
-        const isExpanded = expandedCategories.has(category.categoryId);
+      {categories
+        .sort((a, b) => a.categoryId.localeCompare(b.categoryId))
+        .map((category) => {
+          const isExpanded = expandedCategories.has(category.categoryId);
 
-        return (
-          <Card key={category.categoryId} className="border">
-            <CardHeader
-              className="cursor-pointer"
-              onClick={() => toggleCategory(category.categoryId)}
-            >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <CardTitle className="text-lg">
-                    {category.categoryId}
-                  </CardTitle>
-                  <div className="text-sm text-muted-foreground">
-                    ({category.activities.length} activities)
+          return (
+            <Card key={category.categoryId} className="border">
+              <CardHeader
+                className="cursor-pointer"
+                onClick={() => toggleCategory(category.categoryId)}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <CardTitle className="text-lg">
+                      {category.categoryId}
+                    </CardTitle>
+                    <div className="text-sm text-muted-foreground">
+                      ({category.activities.length} activities)
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-3">
                     {editingPointsPool === category.categoryId ? (
                       <div className="flex items-center gap-1">
                         <span className="text-sm text-muted-foreground">
@@ -147,94 +177,144 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1">
-                        <span className="text-sm text-muted-foreground">
-                          Points Pool: {Number(category.pointsPool.toString()).toLocaleString()}
-                        </span>
-                        {onUpdatePointsPool && (
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            className="h-6 w-6 p-0"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              startEditingPointsPool(
-                                category.categoryId,
-                                category.pointsPool,
-                              );
-                            }}
-                          >
-                            <Edit className="h-3 w-3" />
-                          </Button>
-                        )}
-                      </div>
+                      <span className="text-sm text-muted-foreground">
+                        Points Pool:{' '}
+                        {Number(
+                          category.pointsPool.toString(),
+                        ).toLocaleString()}
+                      </span>
+                    )}
+                    {onUpdatePointsPool && editingPointsPool !== category.categoryId && (
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="h-8 w-8 p-0"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          startEditingPointsPool(
+                            category.categoryId,
+                            category.pointsPool,
+                          );
+                        }}
+                      >
+                        <Edit className="h-4 w-4" />
+                      </Button>
+                    )}
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
                     )}
                   </div>
-                  {isExpanded ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
                 </div>
-              </div>
-            </CardHeader>
-            {isExpanded && (
-              <CardContent>
-                {category.activities.length > 0 ? (
-                  <div className="space-y-2">
-                    <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
-                      Activities ({category.activities.length})
-                    </h4>
-                    <div className="border rounded-lg overflow-hidden">
-                      {category.activities.map((activity, index) => (
-                        <div
-                          key={activity.id}
-                          className={`p-3 flex items-center justify-between ${
-                            index !== category.activities.length - 1
-                              ? 'border-b'
-                              : ''
-                          }`}
-                        >
-                          <div>
-                            <div className="font-medium">{activity.id}</div>
-                            <div className="text-sm text-muted-foreground">
-                              Multiplier: {Number(activity.multiplier.toString()).toLocaleString()}x
+              </CardHeader>
+              {isExpanded && (
+                <CardContent>
+                  {category.activities.length > 0 ? (
+                    <div className="space-y-2">
+                      <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+                        Activities ({category.activities.length})
+                      </h4>
+                      <div className="border rounded-lg overflow-hidden">
+                        {category.activities
+                          .sort((a, b) => a.id.localeCompare(b.id))
+                          .map((activity, index) => (
+                            <div
+                              key={activity.id}
+                              className={`p-3 flex items-center justify-between ${
+                                index !== category.activities.length - 1
+                                  ? 'border-b'
+                                  : ''
+                              }`}
+                            >
+                              <div>
+                                <div className="font-medium">{activity.id}</div>
+                              </div>
+                              <div className="flex items-center gap-3">
+                                <div className="text-sm text-muted-foreground">
+                                  {editingMultiplier === activity.id ? (
+                                    <div className="flex items-center gap-1">
+                                      <span>Multiplier:</span>
+                                      <Input
+                                        type="number"
+                                        value={editingMultiplierValue}
+                                        onChange={(e) =>
+                                          setEditingMultiplierValue(
+                                            e.target.value,
+                                          )
+                                        }
+                                        className="w-20 h-6 text-sm"
+                                        min="0"
+                                        step="0.1"
+                                        onKeyDown={(e) => {
+                                          if (e.key === 'Enter') {
+                                            saveMultiplier(activity.id);
+                                          } else if (e.key === 'Escape') {
+                                            cancelEditingMultiplier();
+                                          }
+                                        }}
+                                      />
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-6 w-6 p-0"
+                                        onClick={() =>
+                                          saveMultiplier(activity.id)
+                                        }
+                                      >
+                                        <Check className="h-3 w-3" />
+                                      </Button>
+                                      <Button
+                                        size="sm"
+                                        variant="ghost"
+                                        className="h-6 w-6 p-0"
+                                        onClick={cancelEditingMultiplier}
+                                      >
+                                        <X className="h-3 w-3" />
+                                      </Button>
+                                    </div>
+                                  ) : (
+                                    <span>
+                                      Multiplier:{' '}
+                                      {Number(
+                                        activity.multiplier.toString(),
+                                      ).toLocaleString()}
+                                      x
+                                    </span>
+                                  )}
+                                </div>
+                                <div className="flex gap-2">
+                                  {onUpdateMultiplier && editingMultiplier !== activity.id && (
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      className="h-8 w-8 p-0"
+                                      onClick={() =>
+                                        startEditingMultiplier(
+                                          activity.id,
+                                          activity.multiplier,
+                                        )
+                                      }
+                                    >
+                                      <Edit className="h-4 w-4" />
+                                    </Button>
+                                  )}
+                                </div>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex gap-2">
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() =>
-                                onActivityAction(activity.id, 'edit')
-                              }
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              size="sm"
-                              variant="destructive"
-                              onClick={() =>
-                                onActivityAction(activity.id, 'delete')
-                              }
-                            >
-                              Exclude
-                            </Button>
-                          </div>
-                        </div>
-                      ))}
+                          ))}
+                      </div>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-muted-foreground text-sm">
-                    No activities assigned to this category.
-                  </div>
-                )}
-              </CardContent>
-            )}
-          </Card>
-        );
-      })}
+                  ) : (
+                    <div className="text-muted-foreground text-sm">
+                      No activities assigned to this category.
+                    </div>
+                  )}
+                </CardContent>
+              )}
+            </Card>
+          );
+        })}
     </div>
   );
 };
