@@ -20,60 +20,55 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
     const [isOpen, setIsOpen] = React.useState(false);
 
     return (
-      <motion.div
+      <div
         ref={ref}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.2, delay: index * 0.1 }}
         className={cn(
           'group rounded-lg w-full',
-          'transition-all duration-200 ease-in-out',
           'border border-border/50',
           isOpen
             ? 'bg-gradient-to-br from-background via-muted/50 to-background'
-            : 'hover:bg-muted/50',
+            : '',
         )}
       >
-        <Button
-          variant="ghost"
+        <button
+          type="button"
           onClick={() => setIsOpen(!isOpen)}
-          className="w-full px-3 sm:px-6 py-3 sm:py-4 h-auto hover:bg-transparent"
+          aria-expanded={isOpen}
+          className={cn(
+            "w-full px-3 sm:px-6 py-3 sm:py-4 cursor-pointer outline-none rounded-lg bg-transparent border-none text-left transition-colors duration-200",
+            isOpen 
+              ? "" 
+              : "hover:bg-white/5 focus:ring-2 focus:ring-primary/50 focus:ring-offset-2"
+          )}
         >
           <div className="flex items-start justify-between gap-3 w-full">
             <h3
               className={cn(
-                'text-sm sm:text-base font-medium transition-colors duration-200 text-left leading-relaxed',
-                'text-foreground/70',
-                'flex-1 min-w-0 max-w-full',
-                isOpen ? 'text-foreground' : '',
+                'text-sm sm:text-base font-medium text-left leading-relaxed',
+                'flex-1 min-w-0',
+                isOpen ? 'text-foreground' : 'text-foreground/70',
               )}
               style={{
                 whiteSpace: 'normal',
                 wordBreak: 'break-word',
                 overflowWrap: 'break-word',
                 hyphens: 'auto',
-                width: '100%',
-                maxWidth: 'calc(100% - 3rem)',
+                width: 'calc(100% - 3rem)',
+                flexShrink: 1,
               }}
             >
               {question}
             </h3>
-            <motion.div
-              animate={{
-                rotate: isOpen ? 180 : 0,
-                scale: isOpen ? 1.1 : 1,
-              }}
-              transition={{ duration: 0.2 }}
+            <div
               className={cn(
-                'p-0.5 rounded-full flex-shrink-0',
-                'transition-colors duration-200',
-                isOpen ? 'text-primary' : 'text-muted-foreground',
+                'p-0.5 rounded-full flex-shrink-0 w-6 h-6 flex items-center justify-center transition-transform duration-200',
+                isOpen ? 'text-primary rotate-180' : 'text-muted-foreground',
               )}
             >
               <ChevronDown className="h-4 w-4" />
-            </motion.div>
+            </div>
           </div>
-        </Button>
+        </button>
         <AnimatePresence initial={false}>
           {isOpen && (
             <motion.div
@@ -100,13 +95,14 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
                     overflowWrap: 'break-word',
                   }}
                 >
+                  {/* biome-ignore lint/security/noDangerouslySetInnerHtml: FAQ content is static and trusted */}
                   <div dangerouslySetInnerHTML={{ __html: answer }} />
                 </motion.p>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.div>
+      </div>
     );
   },
 );

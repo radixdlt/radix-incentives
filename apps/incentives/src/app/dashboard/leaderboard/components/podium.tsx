@@ -79,7 +79,7 @@ export function Podium({
               <div
                 className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
                   isCurrentUser(topThree[1])
-                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    ? "bg-primary/5 border-primary/30"
                     : "bg-card border-border"
                 }`}
               >
@@ -103,7 +103,7 @@ export function Podium({
               <div
                 className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
                   isCurrentUser(topThree[0])
-                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    ? "bg-primary/5 border-primary/30"
                     : "bg-card border-border"
                 }`}
               >
@@ -127,7 +127,7 @@ export function Podium({
               <div
                 className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
                   isCurrentUser(topThree[2])
-                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    ? "bg-primary/5 border-primary/30"
                     : "bg-card border-border"
                 }`}
               >
@@ -156,7 +156,7 @@ export function Podium({
               <div
                 className={`text-center mb-2 p-3 rounded-lg border ${
                   isCurrentUser(topThree[1])
-                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    ? "bg-primary/5 border-primary/30"
                     : "bg-card border-border"
                 }`}
               >
@@ -185,7 +185,7 @@ export function Podium({
               <div
                 className={`text-center mb-2 p-4 rounded-lg border ${
                   isCurrentUser(topThree[0])
-                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    ? "bg-primary/5 border-primary/30"
                     : "bg-card border-border"
                 }`}
               >
@@ -214,7 +214,7 @@ export function Podium({
               <div
                 className={`text-center mb-2 p-3 rounded-lg border ${
                   isCurrentUser(topThree[2])
-                    ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                    ? "bg-primary/5 border-primary/30"
                     : "bg-card border-border"
                 }`}
               >
@@ -247,7 +247,7 @@ export function Podium({
               key={user.userId}
               className={`flex items-center justify-between p-3 rounded-lg border ${
                 isCurrentUser(user)
-                  ? "bg-primary/10 border-primary ring-2 ring-primary/20"
+                  ? "bg-primary/5 border-primary/30"
                   : "bg-card border-border"
               }`}
             >
@@ -259,7 +259,7 @@ export function Podium({
                   <div className="font-medium">
                     {getDisplayName(user)}
                     {isCurrentUser(user) && (
-                      <span className="text-xs font-medium text-primary ml-2">
+                      <span className="text-xs font-medium text-white/70 ml-2">
                         (You)
                       </span>
                     )}
@@ -285,15 +285,15 @@ export function Podium({
           <div className="text-center text-sm text-muted-foreground">
             {userStats.rank > 5 ? "..." : ""}
           </div>
-          <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/10 border-primary ring-2 ring-primary/20">
+          <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5 border-primary/30 ring-2 ring-primary/20">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-sm font-medium text-primary">
+              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">
                 {userStats.rank}
               </div>
               <div>
                 <div className="font-medium">
                   Your Position
-                  <span className="text-xs font-medium text-primary ml-2">
+                  <span className="text-xs font-medium text-white/70 ml-2">
                     (You)
                   </span>
                 </div>

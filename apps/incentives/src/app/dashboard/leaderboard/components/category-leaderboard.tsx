@@ -62,7 +62,7 @@ export function CategoryLeaderboard() {
         categoryId: selectedCategoryId,
         weekId: selectedWeekId,
       },
-      { 
+      {
         enabled: !!selectedCategoryId && !!selectedWeekId,
         refetchOnMount: true,
         refetchOnWindowFocus: false,
@@ -77,7 +77,7 @@ export function CategoryLeaderboard() {
         weekId: selectedWeekId,
       });
     }
-  }, [persona, selectedCategoryId, selectedWeekId, utils]);
+  }, [selectedCategoryId, selectedWeekId, utils]);
 
   if (weeksLoading || categoriesLoading) {
     return <LoadingState message="Loading data..." />;

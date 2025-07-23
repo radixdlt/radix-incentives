@@ -81,14 +81,14 @@ export function CategorySelectors({
       {/* Header Section */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-600 flex items-center justify-center flex-shrink-0">
-            <Trophy className="h-4 w-4 text-white" />
+          <div className="h-8 w-8 rounded-lg gradient-brand flex items-center justify-center flex-shrink-0">
+            <Calendar className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="text-lg font-semibold text-white">
               Activity Points
             </h2>
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-white/60">
               Choose a week and activity category to view the leaderboard
             </p>
           </div>
@@ -101,7 +101,7 @@ export function CategorySelectors({
         <div className="flex-1">
           <div className="relative">
             <Select value={selectedWeekId} onValueChange={onWeekChange}>
-              <SelectTrigger className="w-full h-16 px-4 bg-gradient-to-r from-card to-card/50 border-2 border-border/50 hover:border-border transition-all duration-200 rounded-xl shadow-sm hover:shadow-md">
+              <SelectTrigger className="w-full h-16 px-4 glass-card border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl">
                 <div className="flex items-center w-full">
                   <div className="flex items-center gap-3">
                     {selectedWeekData && (
@@ -112,23 +112,23 @@ export function CategorySelectors({
                               selectedWeekData.startDate,
                               selectedWeekData.endDate
                             ) === "current"
-                              ? "bg-green-500 animate-pulse"
+                              ? "bg-green-400 animate-pulse"
                               : getWeekStatus(
                                     selectedWeekData.startDate,
                                     selectedWeekData.endDate
                                   ) === "past"
-                                ? "bg-blue-500"
-                                : "bg-amber-500"
+                                ? "bg-cyan-400"
+                                : "bg-pink-400"
                           }`}
                         />
                         <div className="text-left">
-                          <div className="text-base font-medium text-foreground text-left">
+                          <div className="text-base font-medium text-white text-left">
                             {formatWeekRange(
                               selectedWeekData.startDate,
                               selectedWeekData.endDate
                             )}
                           </div>
-                          <div className="text-sm text-muted-foreground flex items-center gap-2 text-left">
+                          <div className="text-sm text-white/60 flex items-center gap-2 text-left">
                             {selectedWeekData.seasonName}
                             <span className="text-xs px-2 py-0.5 rounded-full bg-muted">
                               {getWeekStatus(
@@ -146,30 +146,30 @@ export function CategorySelectors({
                   </div>
                 </div>
               </SelectTrigger>
-              <SelectContent className="w-full rounded-xl border-2 shadow-xl">
+              <SelectContent className="w-full rounded-xl border border-white/20 glass shadow-xl">
                 {weeks.map((week) => {
                   const status = getWeekStatus(week.startDate, week.endDate);
                   return (
                     <SelectItem
                       key={week.id}
                       value={week.id}
-                      className="h-16 px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-accent/50"
+                      className="h-16 px-4 py-3 cursor-pointer transition-all duration-300 hover:bg-white/10 text-white"
                     >
                       <div className="flex items-center gap-3 w-full">
                         <div
                           className={`h-3 w-3 rounded-full ${
                             status === "current"
-                              ? "bg-green-500 animate-pulse"
+                              ? "bg-green-400 animate-pulse"
                               : status === "past"
-                                ? "bg-blue-500"
-                                : "bg-amber-500"
+                                ? "bg-cyan-400"
+                                : "bg-pink-400"
                           }`}
                         />
                         <div className="flex-1 text-left">
-                          <div className="font-medium text-foreground text-left">
+                          <div className="font-medium text-left">
                             {formatWeekRange(week.startDate, week.endDate)}
                           </div>
-                          <div className="text-sm text-muted-foreground flex items-center gap-2 text-left">
+                          <div className="text-sm opacity-60 flex items-center gap-2 text-left">
                             {week.seasonName}
                             <span className="text-xs px-2 py-0.5 rounded-full bg-muted/50">
                               {status === "current" && "Active"}
@@ -189,14 +189,14 @@ export function CategorySelectors({
         <div className="flex-1">
           <div className="relative">
             <Select value={selectedCategoryId} onValueChange={onCategoryChange}>
-              <SelectTrigger className="w-full h-16 px-4 bg-gradient-to-r from-card to-card/50 border-2 border-border/50 hover:border-border transition-all duration-200 rounded-xl shadow-sm hover:shadow-md">
+              <SelectTrigger className="w-full h-16 px-4 glass-card border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl">
                 <div className="flex items-center w-full">
                   <div className="flex items-center gap-3">
                     {selectedCategoryData && (
                       <>
-                        <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                        <div className="h-3 w-3 rounded-full bg-cyan-400" />
                         <div className="text-left min-w-0 flex-1">
-                          <div className="text-base font-medium text-foreground text-left">
+                          <div className="text-base font-medium text-white text-left">
                             <span className="hidden sm:inline">
                               {selectedCategoryData.name}
                             </span>
@@ -204,7 +204,7 @@ export function CategorySelectors({
                               {truncateAfterWords(selectedCategoryData.name)}
                             </span>
                           </div>
-                          <div className="text-sm text-muted-foreground text-left">
+                          <div className="text-sm text-white/60 text-left">
                             Activity Category
                           </div>
                         </div>
@@ -216,20 +216,20 @@ export function CategorySelectors({
                   </div>
                 </div>
               </SelectTrigger>
-              <SelectContent className="w-full rounded-xl border-2 shadow-xl">
+              <SelectContent className="w-full rounded-xl border border-white/20 glass shadow-xl">
                 {categories.map((category) => (
                   <SelectItem
                     key={category.id}
                     value={category.id}
-                    className="h-16 px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-accent/50"
+                    className="h-16 px-4 py-3 cursor-pointer transition-all duration-300 hover:bg-white/10 text-white"
                   >
                     <div className="flex items-center gap-3 w-full">
-                      <div className="h-3 w-3 rounded-full bg-emerald-500" />
+                      <div className="h-3 w-3 rounded-full bg-cyan-400" />
                       <div className="flex-1 text-left min-w-0">
-                        <div className="font-medium text-foreground text-left">
+                        <div className="font-medium text-left">
                           {category.name}
                         </div>
-                        <div className="text-sm text-muted-foreground text-left">
+                        <div className="text-sm opacity-60 text-left">
                           Activity Category
                         </div>
                       </div>

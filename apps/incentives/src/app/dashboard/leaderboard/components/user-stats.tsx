@@ -104,30 +104,27 @@ export function UserStats({
     <div className="space-y-4 sm:space-y-6">
       {/* Main Stats Grid - Better mobile layout */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50 col-span-2 sm:col-span-1">
-          <div className="text-lg sm:text-2xl font-bold">
+        <div className="text-center p-3 sm:p-4 rounded-lg glass-card col-span-2 sm:col-span-1">
+          <div className="text-sm font-medium text-white/80 mb-2">Your {pointsLabel}</div>
+          <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
             {formatPoints(stats.totalPoints)}
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground">
-            Your {pointsLabel}
+        </div>
+
+        <div className="text-center p-3 sm:p-4 rounded-lg glass-card">
+          <div className="text-sm font-medium text-white/80 mb-2">Ranking</div>
+          <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
+            #{stats.rank}
+          </div>
+          <div className="text-xs text-white/60 mt-1">
+            of {globalStats.totalUsers.toLocaleString()}
           </div>
         </div>
 
-        <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
-          <div className="text-lg sm:text-2xl font-bold text-primary">
-            #{stats.rank} of {globalStats.totalUsers.toLocaleString()}
-          </div>
-          <div className="text-xs sm:text-sm text-muted-foreground">
-            Ranking
-          </div>
-        </div>
-
-        <div className="text-center p-3 sm:p-4 rounded-lg bg-muted/50">
-          <div className="text-lg sm:text-2xl font-bold text-green-600">
+        <div className="text-center p-3 sm:p-4 rounded-lg glass-card">
+          <div className="text-sm font-medium text-white/80 mb-2">Percentile</div>
+          <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
             {stats.percentile}%
-          </div>
-          <div className="text-xs sm:text-sm text-muted-foreground">
-            Percentile
           </div>
         </div>
       </div>
