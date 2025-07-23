@@ -101,7 +101,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
           });
         }),
         cloneByWeekId: Effect.fn(function* (input: {
-          fromWeekId: string;
+          fromWeekId: string | undefined;
           toWeekId: string;
         }) {
           const activityCategoriesMap = input.fromWeekId
@@ -110,7 +110,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   db.query.activityCategoryWeeks
                     .findMany({
                       where: and(
-                        eq(activityCategoryWeeks.weekId, input.fromWeekId)
+                        eq(activityCategoryWeeks.weekId, input.fromWeekId!)
                       ),
                     })
                     .then((items) =>

@@ -74,10 +74,10 @@ function ActivityForm({
         dapp: formData.dapp ?? undefined,
         componentAddresses: formData.componentAddresses,
         data: {
+          ...formData.data,
           showOnEarnPage: formData.data?.showOnEarnPage ?? true,
           multiplier: formData.data?.multiplier ?? false,
           ap: formData.data?.ap ?? false,
-          ...formData.data,
         },
       },
     });

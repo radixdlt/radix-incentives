@@ -40,7 +40,7 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
         }),
         getByWeekId,
         cloneByWeekId: Effect.fn(function* (input: {
-          fromWeekId: string;
+          fromWeekId: string | undefined;
           toWeekId: string;
         }) {
           const values = input.fromWeekId

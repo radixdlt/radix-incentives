@@ -42,7 +42,6 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
 
   const handleProcessWeek = async () => {
     await recalculatePoints.mutateAsync({
-      seasonId: params.seasonId,
       weekId: params.weekId,
       force: week?.processed,
     });

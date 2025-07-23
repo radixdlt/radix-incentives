@@ -80,8 +80,12 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
           catch: (error) => new DbError(error),
         });
 
+        if (!newWeek) {
+          return yield* Effect.fail(new DbError(new Error("Failed to create week")));
+        }
+
         yield* Effect.log(
-          `Cloning activities from ${lastWeekId} to ${newWeek.id}`
+          `Cloning activities from ${lastWeekId ?? 'none'} to ${newWeek.id}`
         );
 
         yield* Effect.all([
