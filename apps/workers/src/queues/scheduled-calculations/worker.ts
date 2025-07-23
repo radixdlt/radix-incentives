@@ -4,7 +4,7 @@ import { Exit } from "effect";
 import { QueueName } from "../types";
 import { redisClient } from "../../redis";
 import type { ScheduledCalculationsJob } from "./schemas";
-import type { Job } from "bullmq";
+import type { FlowJob, Job } from "bullmq";
 
 const flowProducer = new FlowProducer({ connection: redisClient });
 
@@ -77,26 +77,35 @@ export const scheduledCalculationsWorker = async (
 
   job.log(`starting scheduled calculations for weekId: ${weekId}`);
 
-  // Order: AP calculation -> SP multiplier calculation -> SP calculation
-  await flowProducer.add({
+  // Create base job configuration for seasonPointsMultiplier -> calculateActivityPoints
+  const baseJobConfig = {
     name: "scheduledJob",
-    data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
-    queueName: QueueName.calculateSeasonPoints,
+    data: { weekId },
+    queueName: QueueName.seasonPointsMultiplier,
     children: [
       {
         name: "scheduledJob",
         data: { weekId },
         opts: { failParentOnFailure: true },
-        queueName: QueueName.seasonPointsMultiplier,
-        children: [
-          {
-            name: "scheduledJob",
-            data: { weekId },
-            opts: { failParentOnFailure: true },
-            queueName: QueueName.calculateActivityPoints,
-          },
-        ],
+        queueName: QueueName.calculateActivityPoints,
       },
     ],
-  });
+  };
+
+  let jobConfig: FlowJob;
+
+  if (job.data.includeSPCalculations) {
+    // Wrap the base config inside calculateSeasonPoints
+    jobConfig = {
+      name: "scheduledJob",
+      data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
+      queueName: QueueName.calculateSeasonPoints,
+      children: [baseJobConfig],
+    };
+  } else {
+    // Use the base config directly
+    jobConfig = baseJobConfig;
+  }
+
+  await flowProducer.add(jobConfig);
 };
