@@ -77,34 +77,37 @@ export const scheduledCalculationsWorker = async (
 
   job.log(`starting scheduled calculations for weekId: ${weekId}`);
 
-  // Create base job configuration for seasonPointsMultiplier -> calculateActivityPoints
-  const baseJobConfig = {
+  const seasonPointsMultiplierJob: FlowJob = {
     name: "scheduledJob",
     data: { weekId },
     queueName: QueueName.seasonPointsMultiplier,
-    children: [
-      {
-        name: "scheduledJob",
-        data: { weekId },
-        opts: { failParentOnFailure: true },
-        queueName: QueueName.calculateActivityPoints,
-      },
-    ],
   };
+
+  const calculateActivityPointsJob: FlowJob = {
+    name: "scheduledJob",
+    data: { weekId },
+    opts: { failParentOnFailure: true },
+    queueName: QueueName.calculateActivityPoints,
+  };
+  seasonPointsMultiplierJob.children = [calculateActivityPointsJob];
+
+
+  const calculateSeasonPointsJob: FlowJob = {
+    name: "scheduledJob",
+    data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
+    queueName: QueueName.calculateSeasonPoints,
+  };
+
 
   let jobConfig: FlowJob;
 
   if (job.data.includeSPCalculations) {
-    // Wrap the base config inside calculateSeasonPoints
-    jobConfig = {
-      name: "scheduledJob",
-      data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
-      queueName: QueueName.calculateSeasonPoints,
-      children: [baseJobConfig],
-    };
+    seasonPointsMultiplierJob.opts = { failParentOnFailure: true };
+    calculateSeasonPointsJob.children = [seasonPointsMultiplierJob];
+    jobConfig = calculateSeasonPointsJob;
   } else {
     // Use the base config directly
-    jobConfig = baseJobConfig;
+    jobConfig = seasonPointsMultiplierJob;
   }
 
   await flowProducer.add(jobConfig);
