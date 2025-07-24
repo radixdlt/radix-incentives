@@ -12,7 +12,12 @@ export const scheduledCalculationsQueue = createQueue({
   },
 });
 
-if (process.env.DISABLE_SCHEDULED_CALCULATIONS !== 'true') {
+if (process.env.DISABLE_SCHEDULED_CALCULATIONS === 'true') {
+  const scheduler = await scheduledCalculationsQueue.queue.getJobScheduler("every_two_hours")
+  if (scheduler) {
+    await scheduledCalculationsQueue.queue.removeJobScheduler("every_two_hours")
+  }
+} else {
   scheduledCalculationsQueue.queue.upsertJobScheduler("every_two_hours", {
     pattern: "0 */2 * * *",
   });
