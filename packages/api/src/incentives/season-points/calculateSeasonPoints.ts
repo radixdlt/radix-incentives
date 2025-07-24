@@ -199,7 +199,6 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                         acc[item.userId] = new BigNumber(0);
                       }
 
-                      // biome-ignore lint/style/noNonNullAssertion: it is known
                       acc[item.userId] = acc[item.userId]!.plus(item.points);
 
                       return acc;
@@ -282,7 +281,6 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   acc[curr.userId] = new BigNumber(0);
                 }
 
-                // biome-ignore lint/style/noNonNullAssertion: it is known
                 acc[curr.userId] = acc[curr.userId]!.plus(curr.seasonPoints);
 
                 return acc;
