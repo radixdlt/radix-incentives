@@ -5,14 +5,16 @@ params:
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
-  LOG_LEVEL: trace
+  LOG_LEVEL: debug
   EVENT_WORKER_CONCURRENCY: 20
   TRANSACTION_WORKER_CONCURRENCY: 20
-  GATEWAY_URL: "https://mainnet.radixdlt.com"
+  GATEWAY_URL: "http://babylon-mainnet-active-ng.internal-dns:8080"
   OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
   NODE_MAX_OLD_SPACE_SIZE : "3072" 
+  DISABLE_SCHEDULED_CALCULATIONS=true
+  DISABLE_SCHEDULED_SNAPSHOT=true
 
   
 secrets:

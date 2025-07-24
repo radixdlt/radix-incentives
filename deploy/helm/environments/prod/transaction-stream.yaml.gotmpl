@@ -6,7 +6,7 @@ params:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   WORKERS_API_BASE_URL: "http://worker:3000"
-  GATEWAY_URL: "https://mainnet.radixdlt.com"
+  GATEWAY_URL: "http://babylon-mainnet-active-ng.internal-dns:8080"
   OTLP_BASE_URL: "http://opentelemetry-collector.monitoring:4318"
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"

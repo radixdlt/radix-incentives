@@ -306,7 +306,7 @@ jobs:
       secrets_account_id: ${{ secrets.SECRETS_ACCOUNT_ID }}
 
   deploy_prod:
-    if: github.event_name == 'release' && github.event.action == 'released'
+    if: github.event_name == 'release' && github.event.action == 'released' && github.ref == 'refs/heads/main'
     name: Deploy PROD
     needs:
       - push-incentives
