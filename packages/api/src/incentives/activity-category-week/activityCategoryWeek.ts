@@ -1,13 +1,13 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { activityCategoryWeeks, activityWeeks } from "db/incentives";
-import { eq, gt, and, sql } from "drizzle-orm";
-import { groupBy } from "effect/Array";
-import BigNumber from "bignumber.js";
-import { ActivityCategoryId } from "data";
+import BigNumber from 'bignumber.js';
+import { ActivityCategoryId } from 'data';
+import { activityCategoryWeeks, activityWeeks } from 'db/incentives';
+import { and, eq, gt, sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { groupBy } from 'effect/Array';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
-  "ActivityCategoryWeekService",
+  'ActivityCategoryWeekService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -46,34 +46,36 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             }),
           ]);
 
-          const categoryPointsMap = groupBy(
-            activityCategories,
-            (item) => item.activityCategoryId
-          );
-
           const groupedByCategory = groupBy(
             activities,
-            (item) => item.activity.category
+            (item) => item.activity.category,
           );
 
           return yield* Effect.forEach(
-            Object.entries(groupedByCategory),
-            Effect.fn(function* ([categoryId, activities]) {
-              const pointsPool = new BigNumber(
-                categoryPointsMap[categoryId]?.[0]?.pointsPool ?? 0
-              );
+            activityCategories,
+            Effect.fn(function* (categoryWeek) {
+              const pointsPool = new BigNumber(categoryWeek.pointsPool);
+
+              // Only include categories with points > 0
+              if (pointsPool.isLessThanOrEqualTo(0)) {
+                return undefined;
+              }
+
+              const categoryActivities =
+                groupedByCategory[categoryWeek.activityCategoryId] ?? [];
 
               return {
-                categoryId: categoryId as ActivityCategoryId,
-                activities: activities.map((item) => ({
+                categoryId:
+                  categoryWeek.activityCategoryId as ActivityCategoryId,
+                activities: categoryActivities.map((item) => ({
                   id: item.activityId,
                   multiplier: new BigNumber(item.multiplier),
                 })),
                 pointsPool,
               };
-            })
+            }),
           ).pipe(
-            Effect.map((items) => items.filter((item) => item !== undefined))
+            Effect.map((items) => items.filter((item) => item !== undefined)),
           );
         }),
         updatePointsPool: Effect.fn(function* (input: {
@@ -93,9 +95,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                     eq(activityCategoryWeeks.weekId, input.weekId),
                     eq(
                       activityCategoryWeeks.activityCategoryId,
-                      input.activityCategoryId
-                    )
-                  )
+                      input.activityCategoryId,
+                    ),
+                  ),
                 ),
             catch: (error) => new DbError(error),
           });
@@ -110,7 +112,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   db.query.activityCategoryWeeks
                     .findMany({
                       where: and(
-                        eq(activityCategoryWeeks.weekId, input.fromWeekId!)
+                        eq(activityCategoryWeeks.weekId, input.fromWeekId!),
                       ),
                     })
                     .then((items) =>
@@ -126,8 +128,8 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                             activityCategoryId: string;
                             pointsPool: number;
                           }
-                        >
-                      )
+                        >,
+                      ),
                     ),
                 catch: (error) => new DbError(error),
               })
@@ -158,5 +160,5 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
         }),
       };
     }),
-  }
+  },
 ) {}
