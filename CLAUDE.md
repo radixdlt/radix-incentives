@@ -16,7 +16,7 @@ This is a Turborepo monorepo for the Radix Incentives Campaign - a blockchain in
 - **`apps/streamer`** - Transaction stream processor that monitors Radix blockchain for relevant events
 
 ### Packages
-- **`packages/api`** - Shared tRPC API layer containing business logic for all applications
+- **`packages/api`** - Shared API layer containing business logic for all applications
 - **`packages/db`** - Drizzle ORM database schemas and migrations for both incentives and consultation systems
 - **`packages/data`** - Shared type definitions, constants, and validation schemas
 
@@ -101,8 +101,6 @@ pnpm build:clean
 ## Core Development Principles
 
 ### Context and Rules
-- **Context is King**: Always refer to `.cursor/rules/*.mdc` files as the primary source of truth for project context, rules, and guidelines
-- **Follow Plans**: Adhere strictly to implementation plans outlined in `.mdc` files and update plans after completing each step
 - **Incremental Changes**: Make changes file by file to allow for review
 - **No Assumptions**: Do not invent changes, make assumptions, or speculate without evidence from the context
 
