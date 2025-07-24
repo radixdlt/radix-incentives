@@ -1,48 +1,24 @@
-import { Context, Effect, Layer } from "effect";
+import { Data, Effect } from "effect";
 
 import type { AtLedgerState } from "../../gateway/schemas";
 import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
 import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
-import type { GatewayError } from "../../gateway/errors";
 import { LiquidityPosition } from "./schemas";
-import type { InvalidComponentStateError } from "../../gateway/getComponentState";
 
-export class FailedToParseOciswapLiquidityPositionError {
-  readonly _tag = "FailedToParseOciswapLiquidityPositionError";
-  constructor(readonly error: unknown) {}
-}
+export class FailedToParseOciswapLiquidityPositionError extends Data.TaggedError(
+  "FailedToParseOciswapLiquidityPositionError"
+)<{ error: unknown }> {}
 
-export class GetOciswapLiquidityClaimsService extends Context.Tag(
-  "GetOciswapLiquidityClaimsService"
-)<
-  GetOciswapLiquidityClaimsService,
-  (input: {
-    lpResourceAddress: string;
-    nonFungibleLocalIds: string[];
-    at_ledger_state: AtLedgerState;
-  }) => Effect.Effect<
-    {
-      nonFungibleId: string;
-      resourceAddress: string;
-      liquidityPosition: {
-        liquidity: string;
-        leftBound: number;
-        rightBound: number;
-      };
-    }[],
-    | FailedToParseOciswapLiquidityPositionError
-    | GatewayError
-    | InvalidComponentStateError
-  >
->() {}
-
-export const GetOciswapLiquidityClaimsLive = Layer.effect(
-  GetOciswapLiquidityClaimsService,
-  Effect.gen(function* () {
-    const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+export class GetOciswapLiquidityClaimsService extends Effect.Service<GetOciswapLiquidityClaimsService>()(
+  "GetOciswapLiquidityClaimsService",
+  {
+    effect: Effect.gen(function* () {
+      const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
+      return Effect.fn(function* (input: {
+        lpResourceAddress: string;
+        nonFungibleLocalIds: string[];
+        at_ledger_state: AtLedgerState;
+      }) {
         const nonFungibleDataResult = yield* entityNonFungibleDataService({
           resource_address: input.lpResourceAddress,
           non_fungible_ids: input.nonFungibleLocalIds,
@@ -59,9 +35,9 @@ export const GetOciswapLiquidityClaimsLive = Layer.effect(
 
             if (parsedLiquidityPosition.isErr()) {
               return yield* Effect.fail(
-                new FailedToParseOciswapLiquidityPositionError(
-                  parsedLiquidityPosition.error
-                )
+                new FailedToParseOciswapLiquidityPositionError({
+                  error: parsedLiquidityPosition.error,
+                })
               );
             }
 
@@ -79,6 +55,6 @@ export const GetOciswapLiquidityClaimsLive = Layer.effect(
           });
         });
       });
-    };
-  })
-);
+    }),
+  }
+) {}

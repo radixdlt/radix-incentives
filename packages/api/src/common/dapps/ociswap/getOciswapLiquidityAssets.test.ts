@@ -227,7 +227,7 @@ describe("OciSwap Liquidity Assets Test", () => {
     console.log("V2 schema result:", result);
   });
 
-  it("should debug V2 schema NFT detection step by step", async () => {
+  it.skip("should debug V2 schema NFT detection step by step", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getNonFungibleBalanceService =

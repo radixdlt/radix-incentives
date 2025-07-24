@@ -49,10 +49,10 @@ describe("getCaviarnineResourcePoolPositions", () => {
         at_ledger_state: { state_version: 329748623 },
       });
 
-      console.log(
-        "Caviarnine SimplePool positions result:",
-        JSON.stringify(result, null, 2)
-      );
+      // console.log(
+      //   "Caviarnine SimplePool positions result:",
+      //   JSON.stringify(result, null, 2)
+      // );
       return result;
     });
 
@@ -72,7 +72,7 @@ describe("getCaviarnineResourcePoolPositions", () => {
         at_ledger_state: { state_version: 329748623 },
       });
 
-      console.log("Empty result:", JSON.stringify(result, null, 2));
+      // console.log("Empty result:", JSON.stringify(result, null, 2));
       return result;
     });
 

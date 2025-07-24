@@ -165,7 +165,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         // convert timestamp to state version
         const ledgerState = yield* getLedgerStateService({
           at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("getLedgerStateService"));
+        });
 
         const state_version = ledgerState.state_version;
 
@@ -204,11 +204,11 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                     (validator) => validator.claimNftResourceAddress
                   ),
                 ],
-              }).pipe(Effect.withSpan("getNonFungibleBalanceService")),
+              }),
               getFungibleBalanceService({
                 addresses: input.addresses,
                 at_ledger_state: atLedgerState,
-              }).pipe(Effect.withSpan("getFungibleBalanceService")),
+              }),
             ],
             { concurrency: "unbounded" }
           );
@@ -243,7 +243,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
               at_ledger_state: atLedgerState,
               nonFungibleBalance: nonFungibleBalanceResults,
               fungibleBalance: fungibleBalanceResults,
-            }).pipe(Effect.withSpan("getUserStakingPositionsService")),
+            }),
             getLsulpService({
               addresses: input.addresses,
               at_ledger_state: atLedgerState,

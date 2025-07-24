@@ -39,7 +39,6 @@ describe("GetSurgeLiquidityPositionsService", () => {
       }).pipe(Effect.provide(fullLayer))
     );
 
-    console.log("=== Surge Liquidity Positions ===");
-    console.log(JSON.stringify(result, null, 2));
+    expect(result.length).toBeGreaterThan(0);
   });
 });

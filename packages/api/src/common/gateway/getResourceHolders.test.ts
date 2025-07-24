@@ -19,7 +19,7 @@ describe("getResourceHolders", () => {
           "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
       });
 
-      console.log(JSON.stringify(result, null, 2));
+      expect(result.length).toBeGreaterThan(0);
     })
   );
 });
