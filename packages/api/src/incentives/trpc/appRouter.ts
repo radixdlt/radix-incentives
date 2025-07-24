@@ -12,6 +12,7 @@ import { configRouter } from "../config/configRouter";
 import { weekAdminRouter, weekRouter } from "../week/weekRouter";
 import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
 import { componentWhitelistRouter } from "../component/componentWhitelistRouter";
+import { adminSeedRouter } from "../seed/seedRouter";
 
 /**
  * This is the primary router for your server.
@@ -39,6 +40,7 @@ export const adminAppRouter = createTRPCRouter({
   dapps: adminDappRouter,
   week: weekAdminRouter,
   componentWhitelist: componentWhitelistRouter,
+  seed: adminSeedRouter,
 });
 
 // export type definition of API
