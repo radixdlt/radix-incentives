@@ -1,4 +1,4 @@
-import type { Db, Week } from "db/incentives";
+import type { ActivityWeek, Db, Season, Week } from "db/incentives";
 import {
   type AppConfig,
   createAppConfigLive,
@@ -60,8 +60,8 @@ import { AccountBalanceService } from "../account/accountBalance";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { NodeSdk } from "@effect/opentelemetry";
-import { SeasonService } from "../season/season";
-import { WeekService } from "../week/week";
+import { type EditSeasonInput, SeasonService } from "../season/season";
+import { type CreateWeekInput, WeekService } from "../week/week";
 import { LeaderboardService } from "../leaderboard/leaderboard";
 import { ActivityDataService } from "../activity/activityData";
 import {
@@ -70,6 +70,8 @@ import {
 } from "../activity/activity";
 import { DappService } from "../dapp/dapp";
 import { ActivityCategoryService } from "../activity-category/activityCategory";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { ActivityWeekService } from "../activity-week/activityWeek";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -284,7 +286,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Layer.mergeAll(
         dbClientLive,
         getSeasonByIdLive,
-        getActivityWeeksByWeekIdsLive
+        getActivityWeeksByWeekIdsLive,
+        ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive))
       )
     );
 
@@ -330,7 +333,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const seasonLive = SeasonService.Default.pipe(Layer.provide(dbClientLive));
 
-  const weekLive = WeekService.Default.pipe(Layer.provide(dbClientLive));
+  const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const activityCategoryWeekServiceLive =
+    ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
+
+  const weekLive = WeekService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(activityCategoryWeekServiceLive),
+    Layer.provide(activityWeekServiceLive)
+  );
 
   const userLive = UserService.Default.pipe(
     Layer.provide(dbClientLive),
@@ -538,6 +552,110 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getWeekDetailsLive = Layer.mergeAll(
+    ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
+    weekLive,
+    ActivityCategoryService.Default.pipe(Layer.provide(dbClientLive)),
+    ActivityService.Default.pipe(Layer.provide(dbClientLive))
+  );
+
+  const getWeekDetails = (input: { weekId: string }) => {
+    const runnable = Effect.gen(function* () {
+      const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      const activityCategoryService = yield* ActivityCategoryService;
+      const weekService = yield* WeekService;
+      const activityService = yield* ActivityService;
+
+      const [categoryWeeks, week, activityCategories, activities] =
+        yield* Effect.all([
+          activityCategoryWeekService.getByWeekId({ weekId: input.weekId }),
+          weekService.getById(input.weekId),
+          activityCategoryService.list(),
+          activityService.list(),
+        ]);
+
+      const output = {
+        ...week,
+        activityCategories: categoryWeeks,
+        allActivityCategories: activityCategories,
+        allActivities: activities,
+      };
+
+      return output;
+    });
+
+    return Effect.runPromiseExit(Effect.provide(runnable, getWeekDetailsLive));
+  };
+
+  const updateCategoryWeekPointsPool = (input: {
+    weekId: string;
+    activityCategoryId: string;
+    pointsPool: number;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+        yield* activityCategoryWeekService.updatePointsPool(input);
+      }),
+      activityCategoryWeekServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateActivityWeekMultiplier = (input: {
+    weekId: string;
+    activityId: string;
+    multiplier: number;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityWeekService = yield* ActivityWeekService;
+        yield* activityWeekService.updateMultiplier(input);
+      }),
+      ActivityWeekService.Default.pipe(Layer.provide(dbClientLive))
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const createSeason = (input: Omit<Season, "id">) => {
+    const runnable = Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      return yield* seasonService.create(input);
+    });
+
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive)))
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const editSeason = (input: EditSeasonInput) => {
+    const runnable = Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      return yield* seasonService.edit(input);
+    });
+
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive)))
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const createWeek = (input: CreateWeekInput) => {
+    const runnable = Effect.gen(function* () {
+      const weekService = yield* WeekService;
+      return yield* weekService.create(input);
+    });
+
+    const program = Effect.provide(runnable, weekLive);
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -565,5 +683,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateActivity,
     getDapps,
     getActivityCategories,
+    getWeekDetails,
+    updateCategoryWeekPointsPool,
+    updateActivityWeekMultiplier,
+    createSeason,
+    editSeason,
+    createWeek,
   };
 };

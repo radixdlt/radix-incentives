@@ -39,6 +39,14 @@ export const activityCategoriesData: {
     name: "Lend stables",
   },
   {
+    id: ActivityCategoryId.lendingBlueChips,
+    name: "Lend blue chips",
+  },
+  {
+    id: ActivityCategoryId.lendingNative,
+    name: "Lend native tokens",
+  },
+  {
     id: ActivityCategoryId.transactionFees,
     name: "Paid transaction fees",
   },

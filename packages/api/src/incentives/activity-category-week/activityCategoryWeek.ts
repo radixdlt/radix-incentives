@@ -1,26 +1,24 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { activityCategoryWeeks, activityWeeks } from "db/incentives";
-import { eq, gt, and } from "drizzle-orm";
+import { eq, gt, and, sql } from "drizzle-orm";
 import { groupBy } from "effect/Array";
 import BigNumber from "bignumber.js";
-import type { ActivityCategoryId } from "data";
+import { ActivityCategoryId } from "data";
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
   "ActivityCategoryWeekService",
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+
       return {
         getByWeekId: Effect.fn(function* (input: { weekId: string }) {
           const [activityCategories, activities] = yield* Effect.all([
             Effect.tryPromise({
               try: () =>
                 db.query.activityCategoryWeeks.findMany({
-                  where: and(
-                    eq(activityCategoryWeeks.weekId, input.weekId),
-                    gt(activityCategoryWeeks.pointsPool, 0)
-                  ),
+                  where: and(eq(activityCategoryWeeks.weekId, input.weekId)),
                   columns: {
                     activityCategoryId: true,
                     pointsPool: true,
@@ -65,10 +63,6 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 categoryPointsMap[categoryId]?.[0]?.pointsPool ?? 0
               );
 
-              if (pointsPool.isZero()) {
-                return;
-              }
-
               return {
                 categoryId: categoryId as ActivityCategoryId,
                 activities: activities.map((item) => ({
@@ -81,6 +75,86 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
           ).pipe(
             Effect.map((items) => items.filter((item) => item !== undefined))
           );
+        }),
+        updatePointsPool: Effect.fn(function* (input: {
+          weekId: string;
+          activityCategoryId: string;
+          pointsPool: number;
+        }) {
+          yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(activityCategoryWeeks)
+                .set({
+                  pointsPool: input.pointsPool,
+                })
+                .where(
+                  and(
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    eq(
+                      activityCategoryWeeks.activityCategoryId,
+                      input.activityCategoryId
+                    )
+                  )
+                ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        cloneByWeekId: Effect.fn(function* (input: {
+          fromWeekId: string | undefined;
+          toWeekId: string;
+        }) {
+          const activityCategoriesMap = input.fromWeekId
+            ? yield* Effect.tryPromise({
+                try: () =>
+                  db.query.activityCategoryWeeks
+                    .findMany({
+                      where: and(
+                        eq(activityCategoryWeeks.weekId, input.fromWeekId!)
+                      ),
+                    })
+                    .then((items) =>
+                      items.reduce(
+                        (acc, item) => {
+                          acc[item.activityCategoryId] = item;
+                          return acc;
+                        },
+                        {} as Record<
+                          string,
+                          {
+                            weekId: string;
+                            activityCategoryId: string;
+                            pointsPool: number;
+                          }
+                        >
+                      )
+                    ),
+                catch: (error) => new DbError(error),
+              })
+            : {};
+
+          const items = Object.values(ActivityCategoryId).map((item) => ({
+            activityCategoryId: item,
+            weekId: input.toWeekId,
+            pointsPool: activityCategoriesMap[item]?.pointsPool ?? 0,
+          }));
+
+          yield* Effect.tryPromise({
+            try: () =>
+              db
+                .insert(activityCategoryWeeks)
+                .values(items)
+                .onConflictDoUpdate({
+                  target: [
+                    activityCategoryWeeks.weekId,
+                    activityCategoryWeeks.activityCategoryId,
+                  ],
+                  set: {
+                    pointsPool: sql`excluded.points_pool`,
+                  },
+                }),
+            catch: (error) => new DbError(error),
+          });
         }),
       };
     }),

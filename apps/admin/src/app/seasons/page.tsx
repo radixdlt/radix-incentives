@@ -40,6 +40,12 @@ function ManageSeasonsPage() {
   const router = useRouter();
   const { data: seasons } = api.season.getSeasons.useQuery();
 
+  // Sort seasons in ascending order by name
+  const sortedSeasons = React.useMemo(() => {
+    if (!seasons) return [];
+    return [...seasons].sort((a, b) => a.name.localeCompare(b.name));
+  }, [seasons]);
+
   const handleRowClick = (seasonId: string) => {
     router.push(`/seasons/${seasonId}`);
   };
@@ -78,8 +84,8 @@ function ManageSeasonsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {seasons && seasons.length > 0 ? (
-              seasons.map((season) => (
+            {sortedSeasons && sortedSeasons.length > 0 ? (
+              sortedSeasons.map((season) => (
                 <TableRow
                   key={season.id}
                   onClick={() => handleRowClick(season.id)}

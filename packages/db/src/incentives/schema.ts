@@ -206,7 +206,9 @@ export const activityWeeks = createTable(
     weekId: uuid("week_id")
       .notNull()
       .references(() => weeks.id, { onDelete: "cascade" }),
-    multiplier: integer("multiplier").notNull().default(1),
+    multiplier: decimal("multiplier", { precision: 18, scale: 6 })
+      .notNull()
+      .default("1"),
   },
   (table) => {
     return {

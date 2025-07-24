@@ -162,6 +162,13 @@
       "when": 1753188065407,
       "tag": "0022_nasty_electro",
       "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1753278261484,
+      "tag": "0023_tan_colossus",
+      "breakpoints": true
     }
   ]
 }

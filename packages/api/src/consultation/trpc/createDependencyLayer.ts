@@ -316,9 +316,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive)
   );
 
-  const calculateTWAVotingPowerLive = CalculateTWAVotingPowerService.Default.pipe(
-    Layer.provide(dbClientLive)
-  );
+  const calculateTWAVotingPowerLive =
+    CalculateTWAVotingPowerService.Default.pipe(Layer.provide(dbClientLive));
 
   const createChallenge = () =>
     Effect.runPromiseExit(
@@ -431,14 +430,15 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const calculateVotingPowerAtStateVersion = (input: {
     startDate: Date;
     endDate: Date;
-    accounts: { 
+    accounts: {
       account_address: string;
       selected_option: string;
       rola_proof: {
-      curve: string;
-      publicKey: string;
-      signature: string;
-    } }[];
+        curve: string;
+        publicKey: string;
+        signature: string;
+      };
+    }[];
   }) => {
     const runnable = Effect.gen(function* () {
       const getVotingPowerAtStateVersion =
@@ -467,13 +467,19 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
             votingPower: item.votingPower.toString(),
             balances: item.balances,
             timestamp: date,
-            selectedOption: input.accounts.find((account) => account.account_address === item.address)?.selected_option ?? "",
-            rolaProof: JSON.stringify(input.accounts.find((account) => account.account_address === item.address)?.rola_proof ?? {}),
+            selectedOption:
+              input.accounts.find(
+                (account) => account.account_address === item.address
+              )?.selected_option ?? "",
+            rolaProof: JSON.stringify(
+              input.accounts.find(
+                (account) => account.account_address === item.address
+              )?.rola_proof ?? {}
+            ),
           }));
           yield* addVotingPowerToDb.run(votingPower);
         });
       });
-
     });
 
     const program = Effect.provide(
@@ -483,7 +489,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     return Effect.runPromiseExit(program);
   };
-
 
   const calculateTWAVotingPower = () => {
     const runnable = Effect.gen(function* () {
@@ -498,7 +503,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     return Effect.runPromiseExit(program);
   };
-
 
   const listConsultations = () => {
     const runnable = Effect.gen(function* () {

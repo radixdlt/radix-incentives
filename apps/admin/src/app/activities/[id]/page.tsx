@@ -73,7 +73,12 @@ function ActivityForm({
         category: formData.category ?? undefined,
         dapp: formData.dapp ?? undefined,
         componentAddresses: formData.componentAddresses,
-        data: formData.data,
+        data: {
+          ...formData.data,
+          showOnEarnPage: formData.data?.showOnEarnPage ?? true,
+          multiplier: formData.data?.multiplier ?? false,
+          ap: formData.data?.ap ?? false,
+        },
       },
     });
   };
@@ -226,11 +231,11 @@ function ActivityForm({
           htmlFor="ap"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Activity Points (AP)
+          Activity Points
         </Label>
       </div>
 
-      {/* Season Points (SP) */}
+      {/* Multiplier */}
       <div className="flex items-center space-x-2">
         <Switch
           id="sp"
@@ -239,7 +244,7 @@ function ActivityForm({
           onCheckedChange={(checked) =>
             setFormData((prev) => ({
               ...prev,
-              data: { ...prev.data, sp: checked },
+              data: { ...prev.data, multiplier: checked },
             }))
           }
         />
@@ -247,7 +252,7 @@ function ActivityForm({
           htmlFor="sp"
           className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
-          Season Points (SP)
+          Multiplier
         </Label>
       </div>
       {/* Actions */}

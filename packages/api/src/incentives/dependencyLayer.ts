@@ -109,6 +109,7 @@ import { AccountAddressService } from "./account/accountAddressService";
 import { WeekService } from "./week/week";
 import { ActivityCategoryWeekService } from "./activity-category-week/activityCategoryWeek";
 import { SeasonService } from "./season/season";
+import { ActivityWeekService } from "./activity-week/activityWeek";
 const appConfig = createConfig();
 
 const dbClientLive = createDbClientLive(db);
@@ -531,7 +532,15 @@ const seasonServiceLive = SeasonService.Default.pipe(
   Layer.provide(dbClientLive)
 );
 
-const weekServiceLive = WeekService.Default.pipe(Layer.provide(dbClientLive));
+const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+  Layer.provide(dbClientLive)
+);
+
+const weekServiceLive = WeekService.Default.pipe(
+  Layer.provide(dbClientLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(activityWeekServiceLive)
+);
 
 const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
   Layer.provide(dbClientLive),
@@ -714,7 +723,7 @@ const getWeekByDate = (date: Date) => {
 
       return yield* weekService.getByDate(date);
     }),
-    WeekService.Default.pipe(Layer.provide(dbClientLive))
+    weekServiceLive
   );
 
   return Effect.runPromiseExit(program);
