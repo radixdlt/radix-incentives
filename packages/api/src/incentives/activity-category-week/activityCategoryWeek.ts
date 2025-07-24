@@ -56,11 +56,6 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             Effect.fn(function* (categoryWeek) {
               const pointsPool = new BigNumber(categoryWeek.pointsPool);
 
-              // Only include categories with points > 0
-              if (pointsPool.isLessThanOrEqualTo(0)) {
-                return undefined;
-              }
-
               const categoryActivities =
                 groupedByCategory[categoryWeek.activityCategoryId] ?? [];
 
@@ -74,8 +69,6 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 pointsPool,
               };
             }),
-          ).pipe(
-            Effect.map((items) => items.filter((item) => item !== undefined)),
           );
         }),
         updatePointsPool: Effect.fn(function* (input: {
