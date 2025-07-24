@@ -1,0 +1,1 @@
+Run pnpm test:ci #$ARGUMENTS and fix issues if any
