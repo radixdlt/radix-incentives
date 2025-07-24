@@ -4,27 +4,15 @@ import { sql } from "drizzle-orm";
 import { activityCategoriesData, dappsData, activitiesData } from "data";
 
 export const seedActivities = async () => {
-  await db
-    .insert(dapps)
-    .values(dappsData)
-    .onConflictDoUpdate({
-      target: [dapps.id],
-      set: {
-        name: sql`excluded.name`,
-        website: sql`excluded.website`,
-      },
-    });
+  await db.insert(dapps).values(dappsData).onConflictDoNothing();
+
+  console.log("Dapps seeded");
 
   await db
     .insert(activityCategories)
     .values(activityCategoriesData)
     .returning()
-    .onConflictDoUpdate({
-      target: [activityCategories.id],
-      set: {
-        name: sql`excluded.name`,
-      },
-    });
+    .onConflictDoNothing();
 
   console.log("Activity categories seeded");
 
@@ -42,7 +30,6 @@ export const seedActivities = async () => {
     .onConflictDoUpdate({
       target: [activities.id],
       set: {
-        name: sql`excluded.name`,
         category: sql`excluded.category`,
         dapp: sql`excluded.dapp`,
         componentAddresses: sql`excluded.component_addresses`,
