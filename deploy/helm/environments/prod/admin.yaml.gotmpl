@@ -32,8 +32,8 @@ ingress:
   enabled: true
   className: nginx-internal
   annotations:
-    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.radixdlt.com/oauth2/start
-    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.radixdlt.com/oauth2/auth
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rtlj-prod.extratools.works/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rtlj-prod.extratools.works/oauth2/auth
   hosts:
     - host: incentives-admin.rtlj-prod.extratools.works
       paths:
