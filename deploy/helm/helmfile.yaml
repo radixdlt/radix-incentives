@@ -3,6 +3,7 @@ environments:
   perftest: {}
   pr: {}
   preview: {}
+  prod: {}
 ---
 helmDefaults:
   verify: false

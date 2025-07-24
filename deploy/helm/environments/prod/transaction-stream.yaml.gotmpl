@@ -1,0 +1,59 @@
+image: 
+  tag: {{ .StateValues.ci.tag }}
+
+params:
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+  WORKERS_API_BASE_URL: "http://worker:3000"
+  GATEWAY_URL: "http://babylon-mainnet-active-ng.internal-dns:8080"
+  OTLP_BASE_URL: "http://opentelemetry-collector.monitoring:4318"
+  OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
+  TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
+
+secrets:
+  - external_secret_name: transaction-stream-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+  - external_secret_name: transaction-stream-postgres-read-url
+    env_variable: "DATABASE_READ_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/postgres"
+    aws_secret_key: "database-read-url"
+    secret_key: "database-read-url"
+  - external_secret_name: transaction-stream-token-price-service-key
+    env_variable: "TOKEN_PRICE_SERVICE_API_KEY"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/secrets"
+    aws_secret_key: "token_price_service_key"
+    secret_key: "token_price_service_key"
+
+
+ingress:
+  enabled: false
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 500m
+    memory: 1024Mi
+
+metrics:
+  enabled: false
+  port: 9210
+  alert_labels:
+    cluster: rtlj-prod
+    env: prod
+
+alerts:
+  aws_infrastructure_enabled: true
+  free_rds_ram_warning_threshold_in_bytes: "500000000"
+  free_rds_ram_warning_threshold: "500 MB"
+  free_rds_ram_critical_threshold_in_bytes: "250000000"
+  free_rds_ram_critical_threshold: "250 MB"

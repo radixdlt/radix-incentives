@@ -1,0 +1,8 @@
+alertmanager:
+  env: "prod"
+  nameOverride: "incentives-amcfg"
+  slackConfig:
+    channel: "feed--alerts-incentives-prod"
+  secrets:
+    region: eu-west-2
+    name: "rtlj-prod/eks/incentives/mainnet/alertmanager-integration-keys"
