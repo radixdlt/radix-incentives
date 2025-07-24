@@ -161,6 +161,7 @@ export const adminSeasonRouter = createTRPCRouter({
             weekId: input.weekId,
             force: input.force,
             markAsProcessed: true,
+            includeSPCalculations: true,
           }),
         }
       );
