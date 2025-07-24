@@ -13,8 +13,8 @@ params:
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
   NODE_MAX_OLD_SPACE_SIZE : "3072" 
-  DISABLE_SCHEDULED_CALCULATIONS=true
-  DISABLE_SCHEDULED_SNAPSHOT=true
+  DISABLE_SCHEDULED_CALCULATIONS: "true"
+  DISABLE_SCHEDULED_SNAPSHOT: "true"
 
   
 secrets:
