@@ -16,10 +16,12 @@ if (process.env.DISABLE_SCHEDULED_SNAPSHOT === 'true') {
   const scheduler = await scheduledSnapshotQueue.queue.getJobScheduler("every_hour")
   if (scheduler) {
     await scheduledSnapshotQueue.queue.removeJobScheduler("every_hour")
+    console.log("Disabled scheduled snapshots")
   }
 } else {
   scheduledSnapshotQueue.queue.upsertJobScheduler("every_hour", {
     pattern: "0 * * * *",
   });
+  console.log("Enabled scheduled snapshots")
 }
 
