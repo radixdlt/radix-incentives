@@ -7,7 +7,14 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "ignore": ["node_modules", "dist", "build", "coverage", "*.spec.ts"]
+    "ignore": [
+      "node_modules",
+      "dist",
+      "build",
+      "coverage",
+      "*.spec.ts",
+      "./packages/sbor-ez-mode/**/*"
+    ]
   },
   "formatter": {
     "enabled": true,
@@ -18,6 +25,7 @@
     "enabled": true
   },
   "linter": {
+    "ignore": ["./packages/sbor-ex-mode/**/*.*"],
     "enabled": true,
     "rules": {
       "recommended": true,

@@ -13,7 +13,7 @@
     "test": "turbo run test",
     "format": "biome format --write ./packages/**/**/*.ts",
     "lint": "biome lint --write ./packages/**/**/*.ts",
-    "check-types": "biome check --write ./packages/**/**/*.ts",
+    "check-types": "biome check .",
     "db:start": "docker compose -f docker-compose.yml up -d",
     "db:generate": "turbo run db:generate:incentives",
     "db:migrate": "turbo run db:migrate:incentives",
