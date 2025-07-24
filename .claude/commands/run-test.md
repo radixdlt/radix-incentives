@@ -1,1 +1,1 @@
-Run pnpm test:ci #$ARGUMENTS and fix issues if any
+Run pnpm test:ci #$ARGUMENTS in packages/api and fix issues if any

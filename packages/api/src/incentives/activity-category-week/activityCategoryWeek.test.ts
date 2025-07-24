@@ -13,11 +13,11 @@ import {
   activities,
   weeks,
   seasons,
-  ActivityCategoryKey,
 } from "db/incentives";
 import { drizzle } from "drizzle-orm/postgres-js";
 import postgres from "postgres";
 import { eq } from "drizzle-orm";
+import { ActivityCategoryId } from "data";
 
 describe("ActivityCategoryWeekService", () => {
   const dbUrl = inject("testDbUrl");
@@ -36,8 +36,6 @@ describe("ActivityCategoryWeekService", () => {
               .insert(seasons)
               .values({
                 name: "Test Season",
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-12-31"),
                 status: "active",
               })
               .returning({ id: seasons.id })
@@ -55,7 +53,6 @@ describe("ActivityCategoryWeekService", () => {
                 seasonId: testSeasonId,
                 startDate: new Date("2024-01-01"),
                 endDate: new Date("2024-01-07"),
-                status: "active",
               })
               .returning({ id: weeks.id })
           );
@@ -70,11 +67,11 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityCategories)
               .values([
                 {
-                  id: ActivityCategoryKey.tradingVolume,
+                  id: ActivityCategoryId.tradingVolume,
                   name: "Trading Volume",
                 },
                 {
-                  id: ActivityCategoryKey.lendingStables,
+                  id: ActivityCategoryId.lendingStables,
                   name: "Lending Stables",
                 },
               ])
@@ -89,17 +86,17 @@ describe("ActivityCategoryWeekService", () => {
                 {
                   id: "test-activity-1",
                   name: "Test Activity 1",
-                  category: ActivityCategoryKey.tradingVolume,
+                  category: ActivityCategoryId.tradingVolume,
                 },
                 {
                   id: "test-activity-2",
                   name: "Test Activity 2",
-                  category: ActivityCategoryKey.tradingVolume,
+                  category: ActivityCategoryId.tradingVolume,
                 },
                 {
                   id: "test-activity-3",
                   name: "Test Activity 3",
-                  category: ActivityCategoryKey.lendingStables,
+                  category: ActivityCategoryId.lendingStables,
                 },
               ])
               .onConflictDoNothing()
@@ -111,12 +108,12 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityCategoryWeeks)
               .values([
                 {
-                  activityCategoryId: ActivityCategoryKey.tradingVolume,
+                  activityCategoryId: ActivityCategoryId.tradingVolume,
                   weekId: testWeekId,
                   pointsPool: 1000,
                 },
                 {
-                  activityCategoryId: ActivityCategoryKey.lendingStables,
+                  activityCategoryId: ActivityCategoryId.lendingStables,
                   weekId: testWeekId,
                   pointsPool: 2000,
                 },
@@ -132,17 +129,17 @@ describe("ActivityCategoryWeekService", () => {
                 {
                   activityId: "test-activity-1",
                   weekId: testWeekId,
-                  multiplier: 2,
+                  multiplier: "2",
                 },
                 {
                   activityId: "test-activity-2",
                   weekId: testWeekId,
-                  multiplier: 3,
+                  multiplier: "3",
                 },
                 {
                   activityId: "test-activity-3",
                   weekId: testWeekId,
-                  multiplier: 1,
+                  multiplier: "1",
                 },
               ])
               .onConflictDoNothing()
@@ -169,10 +166,10 @@ describe("ActivityCategoryWeekService", () => {
 
           // Find specific categories
           const tradingVolumeCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryKey.tradingVolume
+            (c) => c.categoryId === ActivityCategoryId.tradingVolume
           );
           const lendingStablesCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryKey.lendingStables
+            (c) => c.categoryId === ActivityCategoryId.lendingStables
           );
 
           expect(tradingVolumeCategory).toBeDefined();
@@ -268,9 +265,6 @@ describe("ActivityCategoryWeekService", () => {
               .insert(seasons)
               .values({
                 name: "Test Season Zero Pool",
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-12-31"),
-                status: "active",
               })
               .returning({ id: seasons.id })
           );
@@ -287,7 +281,6 @@ describe("ActivityCategoryWeekService", () => {
                 seasonId: testSeasonId,
                 startDate: new Date("2024-01-01"),
                 endDate: new Date("2024-01-07"),
-                status: "active",
               })
               .returning({ id: weeks.id })
           );
@@ -302,11 +295,11 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityCategories)
               .values([
                 {
-                  id: ActivityCategoryKey.tradingVolume,
+                  id: ActivityCategoryId.tradingVolume,
                   name: "Trading Volume",
                 },
                 {
-                  id: ActivityCategoryKey.lendingStables,
+                  id: ActivityCategoryId.lendingStables,
                   name: "Lending Stables",
                 },
               ])
@@ -321,17 +314,17 @@ describe("ActivityCategoryWeekService", () => {
                 {
                   id: "test-activity-with-points",
                   name: "Test Activity With Points",
-                  category: ActivityCategoryKey.tradingVolume,
+                  category: ActivityCategoryId.tradingVolume,
                 },
                 {
                   id: "test-activity-zero-pool-1",
                   name: "Test Activity Zero Pool 1",
-                  category: ActivityCategoryKey.lendingStables,
+                  category: ActivityCategoryId.lendingStables,
                 },
                 {
                   id: "test-activity-zero-pool-2",
                   name: "Test Activity Zero Pool 2",
-                  category: ActivityCategoryKey.lendingStables,
+                  category: ActivityCategoryId.lendingStables,
                 },
               ])
               .onConflictDoNothing()
@@ -343,12 +336,12 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityCategoryWeeks)
               .values([
                 {
-                  activityCategoryId: ActivityCategoryKey.tradingVolume,
+                  activityCategoryId: ActivityCategoryId.tradingVolume,
                   weekId: testWeekId,
                   pointsPool: 1000, // This category has points
                 },
                 {
-                  activityCategoryId: ActivityCategoryKey.lendingStables,
+                  activityCategoryId: ActivityCategoryId.lendingStables,
                   weekId: testWeekId,
                   pointsPool: 0, // This category has zero points
                 },
@@ -364,17 +357,17 @@ describe("ActivityCategoryWeekService", () => {
                 {
                   activityId: "test-activity-with-points",
                   weekId: testWeekId,
-                  multiplier: 1,
+                  multiplier: "1",
                 },
                 {
                   activityId: "test-activity-zero-pool-1",
                   weekId: testWeekId,
-                  multiplier: 2,
+                  multiplier: "2",
                 },
                 {
                   activityId: "test-activity-zero-pool-2",
                   weekId: testWeekId,
-                  multiplier: 3,
+                  multiplier: "3",
                 },
               ])
               .onConflictDoNothing()
@@ -391,10 +384,10 @@ describe("ActivityCategoryWeekService", () => {
 
           // Verify the returned category is the one with points
           const tradingVolumeCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryKey.tradingVolume
+            (c) => c.categoryId === ActivityCategoryId.tradingVolume
           );
           const lendingStablesCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryKey.lendingStables
+            (c) => c.categoryId === ActivityCategoryId.lendingStables
           );
 
           expect(tradingVolumeCategory).toBeDefined();
