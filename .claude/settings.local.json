@@ -7,7 +7,8 @@
       "Bash(pnpm test:*)",
       "Bash(find:*)",
       "Bash(git add:*)",
-      "Bash(npx biome check:*)"
+      "Bash(npx biome check:*)",
+      "Bash(pnpm biome lint:*)"
     ],
     "deny": []
   }

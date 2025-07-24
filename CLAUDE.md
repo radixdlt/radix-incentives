@@ -192,9 +192,15 @@ When working with React components:
 - Database tests use Testcontainers for PostgreSQL
 - Individual test files are located next to source files with `.test.ts` extension
 - All functions should be covered by unit tests
+- **Test Implementation Guideline**:
+  - Don't use mock implementations of the db in tests
 
 ## Package Management
 - Use `pnpm` only (not npm or yarn)
 - Install dependencies within specific packages, not at root level
 - Reference the catalog when adding dependencies
 - Use workspace protocol for internal package dependencies
+- **Always use pnpm or pnpm dlx**
+
+## Linting 
+- Use pnpm biome lint to check for linting errors
