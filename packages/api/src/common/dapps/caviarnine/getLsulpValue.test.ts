@@ -48,8 +48,6 @@ describe("GetLsulpValueService", () => {
           },
         });
 
-        console.log(JSON.stringify(state, null, 2));
-
         return yield* getLsulpValue({
           at_ledger_state: {
             state_version: state.state_version,
@@ -67,6 +65,6 @@ describe("GetLsulpValueService", () => {
 
     const result = await Effect.runPromise(program);
 
-    console.log(result);
+    expect(result).toBeDefined();
   });
 });

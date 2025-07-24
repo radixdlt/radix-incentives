@@ -86,8 +86,8 @@ export const transformTransactions = (
 ) =>
   transactions
     .map((transaction) => {
-      // biome-ignore lint/style/noNonNullAssertion: <explanation>
-      const balanceChanges = transaction.balance_changes!;
+      const balanceChanges = transaction.balance_changes;
+      if (!balanceChanges) return undefined;
 
       const entityAddressSet = new Set<string>();
       const feeBalanceChangesMap = new Map<string, Bignumber>();
@@ -113,9 +113,11 @@ export const transformTransactions = (
         transaction?.manifest_instructions ?? ""
       );
 
+      const intentHash = transaction.intent_hash;
+      if (!intentHash) return undefined;
+
       return {
-        // biome-ignore lint/style/noNonNullAssertion:
-        transactionId: transaction.intent_hash!,
+        transactionId: intentHash,
         round_timestamp: transaction.round_timestamp,
         events,
         message: transaction.message as TransactionMessage | undefined,

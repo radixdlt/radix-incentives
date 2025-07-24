@@ -58,8 +58,9 @@ export const ProcessSwapEventTradingVolumeLive = Layer.effect(
             continue;
           }
 
-          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-          const timestamp = tradingEvents[0]!.timestamp;
+          const firstEvent = tradingEvents[0];
+          if (!firstEvent) continue;
+          const timestamp = firstEvent.timestamp;
           const accountAddress = input.highestFeePayerMap.get(transactionId);
           const data: {
             activityId: ActivityId;
@@ -77,8 +78,9 @@ export const ProcessSwapEventTradingVolumeLive = Layer.effect(
               continue;
             }
 
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            const activityId = groupedByActivityId[key]![0]!.activityId;
+            const firstActivityEvent = groupedByActivityId[key]?.[0];
+            if (!firstActivityEvent) continue;
+            const activityId = firstActivityEvent.activityId;
 
             const aggregatedUsdValue = tradingEventsForActivity.reduce(
               (acc, event) => acc.plus(event.usdValue),

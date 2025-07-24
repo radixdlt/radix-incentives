@@ -86,9 +86,7 @@ describe("getUserStakingPositions", () => {
             yield* GetUserStakingPositionsService;
 
           return yield* getUserStakingPositionsService({
-            addresses: accounts.map((account) =>
-              account.account_address.slice(0, 10)
-            ),
+            addresses: [accounts[0].account_address],
             at_ledger_state: {
               state_version: 283478629,
             },
@@ -98,6 +96,6 @@ describe("getUserStakingPositions", () => {
       )
     );
 
-    console.log(JSON.stringify(result, null, 2));
-  }, 60_000);
+    expect(result.items.length).toBeGreaterThan(0);
+  });
 });

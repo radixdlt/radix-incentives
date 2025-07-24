@@ -4,10 +4,15 @@ import {
 } from "./getTransactionFees";
 import { Effect, Layer } from "effect";
 import { createDbClientLive } from "../db/dbClient";
-import { db } from "db/incentives";
+import { inject } from "@effect/vitest";
+import { drizzle } from "drizzle-orm/postgres-js";
+import postgres from "postgres";
+import { schema } from "db/incentives";
 
 describe("GetTransactionFeesService", () => {
   it("should get transaction fees", async () => {
+    const dbUrl = inject("testDbUrl");
+    const db = drizzle(postgres(dbUrl), { schema });
     const dbLive = createDbClientLive(db);
 
     const getTransactionFeesLive = GetTransactionFeesPaginatedLive.pipe(
@@ -28,5 +33,9 @@ describe("GetTransactionFeesService", () => {
     const result = await Effect.runPromise(
       Effect.provide(program, Layer.mergeAll(dbLive, getTransactionFeesLive))
     );
+
+    // Just verify the result is defined and is an array
+    expect(result).toBeDefined();
+    expect(Array.isArray(result)).toBe(true);
   });
 });

@@ -32,7 +32,9 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
       const getNftResourceManagersService =
         yield* GetNftResourceManagersService;
 
-      return Effect.fn(function* (input: GetNonFungibleBalanceInput) {
+      return Effect.fn("getNonFungibleBalanceService")(function* (
+        input: GetNonFungibleBalanceInput
+      ) {
         const concurrency = input.concurrency ?? 10;
         const chunkSize = input.chunkSize ?? 20;
 
@@ -49,7 +51,7 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
             chunkSize,
             concurrency,
           }
-        ).pipe(Effect.withSpan("getNftResourceManagersService"));
+        );
 
         const result = yield* Effect.forEach(
           resourceManagersResults,

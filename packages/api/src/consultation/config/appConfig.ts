@@ -59,9 +59,3 @@ export class AppConfigService extends Context.Tag("AppConfigService")<
 export const createAppConfigLive = (input: AppConfig = defaultAppConfig) => {
   return Layer.effect(AppConfigService, Effect.succeed({ ...input }));
 };
-
-console.log("rolaConfig", {
-  expectedOrigin: defaultAppConfig.expectedOrigin,
-  dAppDefinitionAddress: defaultAppConfig.dAppDefinitionAddress,
-  networkId: defaultAppConfig.networkId,
-});

@@ -63,19 +63,15 @@ describe("GetFungibleBalanceService", () => {
 
     const result = await Effect.runPromiseExit(runnable);
 
-    Exit.match(result, {
+    const value = Exit.match(result, {
       onSuccess: (value) => {
-        for (const account of value) {
-          console.log(
-            account.address,
-            `${account.fungibleResources.length} fungible resources`
-          );
-        }
+        return value;
       },
       onFailure: (error) => {
         console.error(JSON.stringify(error, null, 2));
         throw error;
       },
     });
+    expect(value.length).toBeGreaterThan(0);
   });
 });

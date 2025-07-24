@@ -49,30 +49,6 @@ describe("getCaviarnineResourcePoolPositions", () => {
         at_ledger_state: { state_version: 329748623 },
       });
 
-      console.log(
-        "Caviarnine SimplePool positions result:",
-        JSON.stringify(result, null, 2)
-      );
-      return result;
-    });
-
-    await Effect.runPromise(
-      Effect.provide(program, getCaviarnineResourcePoolPositionsLive)
-    );
-  });
-
-  it("should handle empty results gracefully", async () => {
-    const program = Effect.gen(function* () {
-      const service = yield* GetCaviarnineResourcePoolPositionsService;
-
-      const result = yield* service.run({
-        addresses: [
-          "account_rdx1000000000000000000000000000000000000000000000000000000",
-        ],
-        at_ledger_state: { state_version: 329748623 },
-      });
-
-      console.log("Empty result:", JSON.stringify(result, null, 2));
       return result;
     });
 

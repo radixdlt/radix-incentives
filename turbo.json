@@ -15,6 +15,10 @@
     "test": {
       "persistent": true
     },
+    "test:ci": {
+      "persistent": true,
+      "cache": false
+    },
     "db:generate:incentives": {
       "cache": false,
       "persistent": true

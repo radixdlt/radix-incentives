@@ -55,7 +55,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
           catch: (error) => new GatewayError({ error }),
         }).pipe(Effect.withSpan("entityNonFungibleResourceVaultPage"));
 
-      const getNftIds = Effect.fn(function* ({
+      const getNftIds = Effect.fn("getNftIds")(function* ({
         resourceManager,
         optIns,
         at_ledger_state,
@@ -102,10 +102,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
 
             return nftIds;
           })
-        ).pipe(
-          Effect.withSpan("getNonFungibleResourceVaultPage"),
-          Effect.map((ids) => ids.flat())
-        );
+        ).pipe(Effect.map((ids) => ids.flat()));
 
         return {
           resourceAddress: resourceManager.resource_address,
@@ -132,7 +129,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
           catch: (error) => new GatewayError({ error }),
         }).pipe(Effect.withSpan("getStateEntityDetails"));
 
-      return Effect.fn(function* (
+      return Effect.fn("getNftResourceManagersService")(function* (
         input: GetNftResourceManagersInput,
         options?: {
           chunkSize?: number;

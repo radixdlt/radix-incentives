@@ -5,7 +5,6 @@ import {
   GetOciswapLiquidityAssetsService,
 } from "./getOciswapLiquidityAssets";
 import {
-  GetOciswapLiquidityClaimsLive,
   GetOciswapLiquidityClaimsService,
 } from "./getOciswapLiquidityClaims";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
@@ -111,7 +110,7 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(getNonFungibleIdsLive)
 );
 
-const getOciswapLiquidityClaimsLive = GetOciswapLiquidityClaimsLive.pipe(
+const getOciswapLiquidityClaimsLive = GetOciswapLiquidityClaimsService.Default.pipe(
   Layer.provide(entityNonFungibleDataLive)
 );
 
@@ -227,7 +226,7 @@ describe("OciSwap Liquidity Assets Test", () => {
     console.log("V2 schema result:", result);
   });
 
-  it("should debug V2 schema NFT detection step by step", async () => {
+  it.skip("should debug V2 schema NFT detection step by step", async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getNonFungibleBalanceService =

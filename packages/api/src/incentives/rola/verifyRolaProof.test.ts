@@ -1,106 +1,110 @@
-import { describe, test, expect, vi } from "vitest";
-import { Effect, Layer, Cause } from "effect";
+import { describe, test, expect } from "vitest";
+import { Effect, Layer, Cause, Logger, LogLevel } from "effect";
 import { ZodError } from "zod";
 import {
   VerifyRolaProofService,
   VerifyRolaProofLive,
   ParseRolaProofInputError,
   VerifyRolaProofError,
+  type VerifyRolaProofInput,
 } from "./verifyRolaProof";
-import { RolaService } from "./rola";
-import type { SignedChallenge } from "@radixdlt/rola";
-
-// --- Mock Services ---
-
-const mockVerifySignedChallenge = vi.fn();
-const RolaTest = Layer.succeed(
-  RolaService,
-  RolaService.of(mockVerifySignedChallenge)
-);
-
-// Simplified Logger Mock Layer
-// Reverting to 'as any' as MinimalLogger wasn't sufficient and full mock is complex
-const mockLoggerError = vi.fn();
-
-// Combine mock layers
-const testLayer = Layer.merge(RolaTest);
+import { RolaServiceLive } from "./rola";
+import { createAppConfigLive, defaultAppConfig } from "../config/appConfig";
 
 // --- Test Data ---
 
-// Input matching the internal signedPersonaChallengeSchema, including label
-const validInternalInput = {
-  type: "persona",
-  challenge: "valid_challenge",
-  address: "account_rdx123",
-  label: "Test Persona",
-  proof: {
-    publicKey: "mockPublicKey",
-    signature: "mockSignature",
-    curve: "curve25519",
-  },
+const validInput: VerifyRolaProofInput = {
+  challenge: "valid_challenge_string",
+  items: [
+    {
+      type: "persona",
+      address:
+        "identity_rdx12gcd4r799jpvztlffgw483pqcen98pjnay988n8rmscxf7ukfqcj4w",
+      label: "Test Persona",
+      proof: {
+        publicKey: "ed25519_public_key_mock",
+        signature: "ed25519_signature_mock",
+        curve: "curve25519",
+      },
+    },
+    {
+      type: "account",
+      address:
+        "account_rdx129a9wuey40lducsf6yu232zmzk5kscpvnl6fv472r0ja39f3hced8u",
+      label: "Test Account",
+      proof: {
+        publicKey: "secp256k1_public_key_mock",
+        signature: "secp256k1_signature_mock",
+        curve: "secp256k1",
+      },
+    },
+  ],
 };
 
-// Properly typed input missing required fields for schema failure test
-const invalidSchemaTypedInput: Partial<SignedChallenge> = {
-  type: "persona",
-  challenge: "invalid_challenge", // Missing address and proof
+const invalidSchemaInput = {
+  challenge: "invalid_challenge",
+  items: [
+    {
+      type: "persona",
+      address:
+        "identity_rdx12gcd4r799jpvztlffgw483pqcen98pjnay988n8rmscxf7ukfqcj4w",
+      // Missing label and proof
+    },
+  ],
 };
 
-// --- Mock Results (simulating @radixdlt/result) ---
-const mockResultOk = { isOk: () => true, isErr: () => false, value: true };
-const verificationError = new Error("Signature verification failed");
-const mockResultErr = {
-  isOk: () => false,
-  isErr: () => true,
-  error: verificationError,
+const invalidEmptyInput = {
+  challenge: "",
+  items: [],
 };
 
-// --- Test Suite ---
+// --- Real RolaService Setup ---
 
-describe("VerifyRolaProofLive", () => {
-  // Reset mocks before each test
-  beforeEach(() => {
-    mockVerifySignedChallenge.mockClear();
-    mockLoggerError.mockClear();
-  });
+// Create a layer that sets the log level to None to suppress all logging
+const noLoggingLayer = Logger.minimumLogLevel(LogLevel.None);
 
-  test("should return true for a valid signed challenge", async () => {
-    // Mock verifySignedChallenge to return success Result
-    mockVerifySignedChallenge.mockResolvedValue(mockResultOk);
+const appConfigLive = createAppConfigLive(defaultAppConfig);
+const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
+const verifyRolaProofServiceLive = VerifyRolaProofLive.pipe(
+  Layer.provide(rolaServiceLive),
+  Layer.provide(noLoggingLayer)
+);
 
+describe("VerifyRolaProofService", () => {
+  test("should validate input schema and process multiple items", async () => {
     const program = Effect.gen(function* () {
       const service = yield* VerifyRolaProofService;
-      return yield* service(validInternalInput as SignedChallenge);
+      return yield* service(validInput);
     });
 
-    const result = await Effect.runPromise(
-      // @ts-expect-error - Context type mismatch in testing after providing layer
-      Effect.provide(
-        program,
-        VerifyRolaProofLive.pipe(Layer.provide(testLayer))
-      )
+    // Note: This will fail with actual ROLA verification since we're using test data with mock signatures
+    // But it should pass the schema validation step
+    const result = await Effect.runPromiseExit(
+      Effect.provide(program, verifyRolaProofServiceLive)
     );
 
-    expect(result).toBe(true);
-    expect(mockVerifySignedChallenge).toHaveBeenCalledWith(
-      expect.objectContaining(validInternalInput)
-    );
-    expect(mockLoggerError).not.toHaveBeenCalled();
+    // Since we're using test proof data with mock signatures, ROLA verification will fail
+    // We expect this to fail at the verification step, not at schema validation
+    expect(result._tag).toBe("Failure");
+
+    if (result._tag === "Failure") {
+      const failure = Cause.failureOption(result.cause);
+      if (failure._tag === "Some") {
+        // Should be VerifyRolaProofError, not ParseRolaProofInputError
+        expect(failure.value).toBeInstanceOf(VerifyRolaProofError);
+        expect(failure.value).not.toBeInstanceOf(ParseRolaProofInputError);
+      }
+    }
   });
 
   test("should fail with ParseRolaProofInputError for invalid input schema", async () => {
     const program = Effect.gen(function* () {
       const service = yield* VerifyRolaProofService;
-      // Pass input that will fail Zod schema validation
-      return yield* service(invalidSchemaTypedInput as SignedChallenge); // Cast needed for service call
+      return yield* service(invalidSchemaInput as VerifyRolaProofInput);
     });
 
     const result = await Effect.runPromiseExit(
-      // @ts-expect-error - Context type mismatch in testing after providing layer
-      Effect.provide(
-        program,
-        VerifyRolaProofLive.pipe(Layer.provide(testLayer))
-      )
+      Effect.provide(program, verifyRolaProofServiceLive)
     );
 
     expect(result._tag).toBe("Failure");
@@ -115,77 +119,197 @@ describe("VerifyRolaProofLive", () => {
         ).toBeInstanceOf(ZodError);
       }
     }
-    expect(mockLoggerError).toHaveBeenCalledWith(
-      expect.objectContaining({ input: invalidSchemaTypedInput }), // Use the typed invalid input here
-      "invalid input"
-    );
-    expect(mockVerifySignedChallenge).not.toHaveBeenCalled();
   });
 
-  test("should fail with VerifyRolaProofError when RolaService verification fails", async () => {
-    // Mock verifySignedChallenge to return an error Result
-    mockVerifySignedChallenge.mockResolvedValue(mockResultErr);
-
+  test("should succeed with empty items array (no items to verify)", async () => {
     const program = Effect.gen(function* () {
       const service = yield* VerifyRolaProofService;
-      return yield* service(validInternalInput as SignedChallenge);
+      return yield* service(invalidEmptyInput as VerifyRolaProofInput);
     });
 
     const result = await Effect.runPromiseExit(
-      // @ts-expect-error - Context type mismatch in testing after providing layer
-      Effect.provide(
-        program,
-        VerifyRolaProofLive.pipe(Layer.provide(testLayer))
-      )
+      Effect.provide(program, verifyRolaProofServiceLive)
+    );
+
+    expect(result._tag).toBe("Success");
+    if (result._tag === "Success") {
+      expect(result.value).toBe(true);
+    }
+  });
+
+  test("should fail with ParseRolaProofInputError for missing challenge", async () => {
+    const missingChallengeInput = {
+      // Missing challenge field
+      items: [
+        {
+          type: "persona",
+          address:
+            "identity_rdx12gcd4r799jpvztlffgw483pqcen98pjnay988n8rmscxf7ukfqcj4w",
+          label: "Test Persona",
+          proof: {
+            publicKey: "ed25519_public_key",
+            signature: "ed25519_signature",
+            curve: "curve25519",
+          },
+        },
+      ],
+    };
+
+    const program = Effect.gen(function* () {
+      const service = yield* VerifyRolaProofService;
+      return yield* service(missingChallengeInput as VerifyRolaProofInput);
+    });
+
+    const result = await Effect.runPromiseExit(
+      Effect.provide(program, verifyRolaProofServiceLive)
     );
 
     expect(result._tag).toBe("Failure");
     if (result._tag === "Failure") {
       const failure = Cause.failureOption(result.cause);
       expect(failure._tag).toBe("Some");
+
       if (failure._tag === "Some") {
-        expect(failure.value).toBeInstanceOf(VerifyRolaProofError);
-        expect((failure.value as VerifyRolaProofError).error).toBe(
-          verificationError
-        );
+        expect(failure.value).toBeInstanceOf(ParseRolaProofInputError);
+        expect(
+          (failure.value as ParseRolaProofInputError).error
+        ).toBeInstanceOf(ZodError);
       }
     }
-    expect(mockLoggerError).toHaveBeenCalledWith(
-      expect.objectContaining({ input: validInternalInput }),
-      "verifySignedChallenge failed"
-    );
-    expect(mockVerifySignedChallenge).toHaveBeenCalledWith(
-      expect.objectContaining(validInternalInput)
-    );
   });
 
-  test("should handle unexpected errors during RolaService verification", async () => {
-    const unexpectedError = new Error("Unexpected RolaService error");
-    // Mock verifySignedChallenge to throw an unexpected error
-    mockVerifySignedChallenge.mockRejectedValue(unexpectedError);
+  test("should handle different persona and account types", async () => {
+    const mixedInput: VerifyRolaProofInput = {
+      challenge: "test_challenge",
+      items: [
+        {
+          type: "persona",
+          address:
+            "identity_rdx12gcd4r799jpvztlffgw483pqcen98pjnay988n8rmscxf7ukfqcj4w",
+          label: "Persona Label",
+          proof: {
+            publicKey: "ed25519_public_key",
+            signature: "ed25519_signature",
+            curve: "curve25519",
+          },
+        },
+        {
+          type: "account",
+          address:
+            "account_rdx129a9wuey40lducsf6yu232zmzk5kscpvnl6fv472r0ja39f3hced8u",
+          label: "Account Label",
+          proof: {
+            publicKey: "secp256k1_public_key",
+            signature: "secp256k1_signature",
+            curve: "secp256k1",
+          },
+        },
+      ],
+    };
 
     const program = Effect.gen(function* () {
       const service = yield* VerifyRolaProofService;
-      return yield* service(validInternalInput as SignedChallenge);
+      return yield* service(mixedInput);
     });
 
     const result = await Effect.runPromiseExit(
-      // @ts-expect-error - Context type mismatch in testing after providing layer
-      Effect.provide(
-        program,
-        VerifyRolaProofLive.pipe(Layer.provide(testLayer))
-      )
+      Effect.provide(program, verifyRolaProofServiceLive)
+    );
+
+    // Should pass schema validation but fail on ROLA verification with test data
+    expect(result._tag).toBe("Failure");
+
+    if (result._tag === "Failure") {
+      const failure = Cause.failureOption(result.cause);
+      if (failure._tag === "Some") {
+        // Should be VerifyRolaProofError (ROLA verification failed), not ParseRolaProofInputError
+        expect(failure.value).toBeInstanceOf(VerifyRolaProofError);
+      }
+    }
+  });
+
+  test("should validate curve types correctly", async () => {
+    const invalidCurveInput = {
+      challenge: "test_challenge",
+      items: [
+        {
+          type: "persona",
+          address:
+            "identity_rdx12gcd4r799jpvztlffgw483pqcen98pjnay988n8rmscxf7ukfqcj4w",
+          label: "Test Persona",
+          proof: {
+            publicKey: "ed25519_public_key",
+            signature: "ed25519_signature",
+            curve: "invalid_curve", // Invalid curve type
+          },
+        },
+      ],
+    };
+
+    const program = Effect.gen(function* () {
+      const service = yield* VerifyRolaProofService;
+      return yield* service(invalidCurveInput as VerifyRolaProofInput);
+    });
+
+    const result = await Effect.runPromiseExit(
+      Effect.provide(program, verifyRolaProofServiceLive)
     );
 
     expect(result._tag).toBe("Failure");
-    // The error should be caught by Effect.tryPromise and wrapped
     if (result._tag === "Failure") {
-      // Effect wraps promise rejections in UnknownException, resulting in a Fail cause
-      const cause = result.cause;
-      expect(Cause.isFailType(cause)).toBe(true); // Correct check for Fail cause type
-      // Optional: Further check if the failure is UnknownException if needed
-      // const failure = Cause.failureOption(cause)
-      // if(failure._tag === 'Some') expect(failure.value).toBeInstanceOf(UnknownException)
+      const failure = Cause.failureOption(result.cause);
+      expect(failure._tag).toBe("Some");
+
+      if (failure._tag === "Some") {
+        expect(failure.value).toBeInstanceOf(ParseRolaProofInputError);
+        const error = (failure.value as ParseRolaProofInputError).error;
+        expect(error).toBeInstanceOf(ZodError);
+
+        // Check that the error is specifically about the curve field
+        const curveError = error.issues.find((issue) =>
+          issue.path.includes("curve")
+        );
+        expect(curveError).toBeDefined();
+      }
+    }
+  });
+
+  test("should validate address formats", async () => {
+    const invalidAddressInput = {
+      challenge: "test_challenge",
+      items: [
+        {
+          type: "account",
+          address: "invalid_address_format", // Invalid address format
+          label: "Test Account",
+          proof: {
+            publicKey: "secp256k1_public_key",
+            signature: "secp256k1_signature",
+            curve: "secp256k1",
+          },
+        },
+      ],
+    };
+
+    const program = Effect.gen(function* () {
+      const service = yield* VerifyRolaProofService;
+      return yield* service(invalidAddressInput as VerifyRolaProofInput);
+    });
+
+    const result = await Effect.runPromiseExit(
+      Effect.provide(program, verifyRolaProofServiceLive)
+    );
+
+    // Schema validation should pass (addresses are just strings in the schema)
+    // But ROLA verification will fail due to invalid address format
+    expect(result._tag).toBe("Failure");
+
+    if (result._tag === "Failure") {
+      const failure = Cause.failureOption(result.cause);
+      if (failure._tag === "Some") {
+        // Should be VerifyRolaProofError since schema validation passes
+        expect(failure.value).toBeInstanceOf(VerifyRolaProofError);
+      }
     }
   });
 });

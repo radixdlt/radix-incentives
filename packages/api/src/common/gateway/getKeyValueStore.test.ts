@@ -38,7 +38,9 @@ describe("GetKeyValueStoreService", () => {
         },
       });
 
-      console.log(JSON.stringify(result, null, 2));
+      expect(result.entries.length).toBeGreaterThan(0);
+
+      // console.log(JSON.stringify(result, null, 2));
     })
   );
 });

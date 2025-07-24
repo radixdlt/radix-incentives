@@ -1,5 +1,5 @@
 import { BigNumber } from "bignumber.js";
-import { Effect } from "effect";
+import { Effect, Logger, LogLevel } from "effect";
 import { describe, it, expect } from "vitest";
 import { createUserBands } from "./createUserBands";
 
@@ -19,7 +19,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(6); // Only 6 bands for 6 users
 
@@ -50,7 +54,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(5); // Only 5 bands for 5 users
 
@@ -87,7 +95,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(4); // Only 4 bands for 4 users
 
@@ -107,7 +119,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(3); // Only 3 bands for 3 users
     // Users are placed in highest bands (18-20) since there are fewer users than bands
@@ -126,7 +142,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(1);
     // Single user gets placed in the highest band (20) since there are fewer users than bands
@@ -144,7 +164,11 @@ describe("createUserBands", () => {
       users: [],
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(0);
   });
@@ -158,7 +182,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(6); // Only 6 bands for 6 users
 
@@ -177,7 +205,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(3); // Only 3 bands for 3 users
 
@@ -202,7 +234,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(4); // Only 4 bands for 4 users
 
@@ -228,7 +264,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(4); // Only 4 bands for 4 users
 
@@ -253,7 +293,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(3); // Only 3 bands for 3 users
 
@@ -277,7 +321,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(3); // Only 3 bands for 3 users
 
@@ -296,7 +344,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     // Should only create bands for users that exist
     expect(result).toHaveLength(2);
@@ -313,7 +365,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(10); // Only 10 bands for 10 users
 
@@ -337,7 +393,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(5); // Only 5 bands for 5 users
 
@@ -358,7 +418,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(3); // Only 3 bands for 3 users
 
@@ -377,7 +441,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(3); // Only 3 bands for 3 users
 
@@ -401,7 +469,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(20);
 
@@ -457,7 +529,11 @@ describe("createUserBands", () => {
       users,
     };
 
-    const result = Effect.runSync(createUserBands(input));
+    const result = Effect.runSync(
+      createUserBands(input).pipe(
+        Effect.provide(Logger.minimumLogLevel(LogLevel.None))
+      )
+    );
 
     expect(result).toHaveLength(20);
 

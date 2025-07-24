@@ -1,6 +1,6 @@
 import { describe, test, expect, vi } from "vitest";
 import { Effect, Layer, Cause } from "effect";
-import { VerifyChallengeService, VerifyChallengeLive } from "./verifyChallenge";
+import { VerifyChallengeService } from "./verifyChallenge";
 import { createDbClientLive, DbClientService, DbError } from "../db/dbClient";
 import { AppConfigService, createAppConfigLive } from "../config/appConfig";
 import { challenge, type Db } from "db/consultation";
@@ -27,10 +27,9 @@ const AppConfigTest = Layer.succeed(AppConfigService, {
 
 const appConfigLive = createAppConfigLive();
 
-// @ts-expect-error - Mocking DB client
 const dbClientLive = createDbClientLive(mockDbClient as unknown as Db);
 
-const verifyChallengeLive = VerifyChallengeLive.pipe(
+const verifyChallengeLive = VerifyChallengeService.Default.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(appConfigLive)
 );
@@ -50,7 +49,7 @@ describe("VerifyChallengeLive", () => {
 
     const program = Effect.gen(function* () {
       const service = yield* VerifyChallengeService;
-      return yield* service(inputChallenge);
+      return yield* service.run(inputChallenge);
     });
 
     const result = await Effect.runPromise(
@@ -74,7 +73,7 @@ describe("VerifyChallengeLive", () => {
     }));
 
     const program = Effect.flatMap(VerifyChallengeService, (service) =>
-      service(inputChallenge)
+      service.run(inputChallenge)
     );
 
     const result = await Effect.runPromise(
@@ -97,7 +96,7 @@ describe("VerifyChallengeLive", () => {
     }));
 
     const program = Effect.flatMap(VerifyChallengeService, (service) =>
-      service(inputChallenge)
+      service.run(inputChallenge)
     );
 
     const result = await Effect.runPromise(
@@ -123,7 +122,7 @@ describe("VerifyChallengeLive", () => {
     }));
 
     const program = Effect.flatMap(VerifyChallengeService, (service) =>
-      service(inputChallenge)
+      service.run(inputChallenge)
     );
 
     const result = await Effect.runPromiseExit(

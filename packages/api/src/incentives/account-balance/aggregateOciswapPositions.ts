@@ -277,7 +277,22 @@ export const AggregateOciswapPositionsLive = Layer.effect(
           processedPools.add(nativeActivityId);
 
           // Create separate metadata for each pool using pre-calculated data
-          const poolMetadata: Record<string, any> = {};
+          const poolMetadata: Record<string, {
+            componentAddress: string;
+            tokenPair: string;
+            baseToken: {
+              resourceAddress: string;
+              amount: string;
+              outsidePriceBounds: string;
+              isNativeAsset: boolean;
+            };
+            quoteToken: {
+              resourceAddress: string;
+              amount: string;
+              outsidePriceBounds: string;
+              isNativeAsset: boolean;
+            };
+          }> = {};
           if (STORE_METADATA) {
             for (const { poolKey, poolAssets, poolTotals } of poolData) {
               poolMetadata[poolKey] = {

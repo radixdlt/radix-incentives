@@ -13,7 +13,9 @@ export class GetLedgerStateService extends Effect.Service<GetLedgerStateService>
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
-      return Effect.fn(function* (input: GetLedgerStateInput) {
+      return Effect.fn("getLedgerStateService")(function* (
+        input: GetLedgerStateInput
+      ) {
         const result = yield* Effect.tryPromise({
           try: () =>
             gatewayClient.stream.innerClient.streamTransactions({

@@ -23,7 +23,7 @@ export class GetUserStakingPositionsService extends Effect.Service<GetUserStakin
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
-      return Effect.fn(function* (input: {
+      return Effect.fn("getUserStakingPositionsService")(function* (input: {
         addresses: string[];
         at_ledger_state: AtLedgerState;
         nonFungibleBalance?: GetNonFungibleBalanceOutput;

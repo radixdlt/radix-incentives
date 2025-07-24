@@ -4,13 +4,13 @@ import {
   signInWithRolaProof,
   InvalidProofError,
   InvalidChallengeError,
+  type SignInWithRolaProofInput,
 } from "./signInWithRolaProof";
 import { VerifyRolaProofService } from "../rola/verifyRolaProof";
 import { VerifyChallengeService } from "../challenge/verifyChallenge";
 import { UpsertUserService } from "../user/upsertUser";
 import { CreateSessionService } from "../session/createSession";
 import { GenerateSessionTokenService } from "../session/generateSessionToken";
-import type { VerifyRolaProofInput } from "../rola/verifyRolaProof";
 
 // --- Mock Services ---
 
@@ -54,23 +54,17 @@ const testLayer = Layer.mergeAll(
 );
 
 // --- Test Input ---
-// Define a type for the expected proof structure
-type RolaProof = VerifyRolaProofInput["items"][number]["proof"];
 
-const validTestInput: VerifyRolaProofInput = {
+const validTestInput: SignInWithRolaProofInput = {
   challenge: "valid_challenge",
-  items: [
-    {
-      type: "persona",
-      address: "account_address",
-      label: "Test User",
-      proof: {
-        publicKey: "mockPublicKey",
-        signature: "mockSignature",
-        curve: "curve25519",
-      },
-    },
-  ],
+  type: "persona",
+  address: "account_address",
+  label: "Test User",
+  proof: {
+    publicKey: "mockPublicKey",
+    signature: "mockSignature",
+    curve: "curve25519",
+  },
 };
 
 // Import or define Session type if not already present
@@ -110,7 +104,10 @@ describe("signInWithRolaProof", () => {
 
     expect(result).toEqual({ session: expectedSession, token: expectedToken });
     expect(mockVerifyChallenge).toHaveBeenCalledWith(validTestInput.challenge);
-    expect(mockVerifyProof).toHaveBeenCalledWith(validTestInput);
+    expect(mockVerifyProof).toHaveBeenCalledWith({
+      challenge: validTestInput.challenge,
+      items: [validTestInput],
+    });
     expect(mockUpsertUser).toHaveBeenCalledWith({
       address: validTestInput.address,
       label: validTestInput.label,
@@ -122,19 +119,11 @@ describe("signInWithRolaProof", () => {
     });
   });
 
-  test("should fail with InvalidProofTypeError for non-persona proof type", async () => {
-    // Correct the proof structure even for the invalid type test
-    const invalidInput = {
-      ...validTestInput,
-      type: "other" as const,
-      proof: {
-        publicKey: "mockPublicKey",
-        signature: "mockSignature",
-        curve: "curve25519",
-      } as RolaProof, // Cast needed because base type expects 'persona'
-    } as unknown as VerifyRolaProofInput; // Cast needed because type is intentionally wrong
+  test("should fail with InvalidProofError when verifyProof returns false", async () => {
+    mockVerifyChallenge.mockReturnValue(Effect.succeed(true));
+    mockVerifyProof.mockReturnValue(Effect.succeed(false)); // Proof verification fails
 
-    const program = signInWithRolaProof(invalidInput);
+    const program = signInWithRolaProof(validTestInput);
     const result = await Effect.runPromiseExit(
       Effect.provide(
         program as unknown as Effect.Effect<
@@ -151,10 +140,7 @@ describe("signInWithRolaProof", () => {
       const failure = Cause.failureOption(result.cause);
       expect(failure._tag).toBe("Some");
       if (failure._tag === "Some") {
-        expect(failure.value).toBeInstanceOf(InvalidProofTypeError);
-        expect((failure.value as InvalidProofTypeError).proofType).toBe(
-          `expected proof type persona, got ${invalidInput.type}`
-        );
+        expect(failure.value).toBeInstanceOf(InvalidProofError);
       }
     }
   });
@@ -210,7 +196,10 @@ describe("signInWithRolaProof", () => {
       }
     }
     expect(mockVerifyChallenge).toHaveBeenCalledWith(validTestInput.challenge);
-    expect(mockVerifyProof).toHaveBeenCalledWith(validTestInput);
+    expect(mockVerifyProof).toHaveBeenCalledWith({
+      challenge: validTestInput.challenge,
+      items: [validTestInput],
+    });
   });
 
   test("should propagate errors from upsertUser", async () => {

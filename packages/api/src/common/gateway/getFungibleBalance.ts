@@ -78,7 +78,7 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
         };
       });
 
-      return Effect.fn(function* (
+      return Effect.fn("getFungibleBalanceService")(function* (
         input: Omit<
           StateEntityDetailsOperationRequest["stateEntityDetailsRequest"],
           "at_ledger_state"

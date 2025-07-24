@@ -24,6 +24,7 @@ import {
 import fs from "node:fs";
 import { groupBy } from "effect/Array";
 import { GetUsersPaginatedLive } from "../../../packages/api/src/incentives/user/getUsersPaginated";
+import { ActivityWeekService } from "../../../packages/api/src/incentives/activity-week/activityWeek";
 
 const WEEK_ID = "30da196b-7602-4b06-a558-bbb5b5441186";
 
@@ -55,6 +56,10 @@ const runnable = Effect.gen(function* () {
     Layer.provide(dbLayer)
   );
 
+  const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+    Layer.provide(dbLayer)
+  );
+
   const calculateSeasonPointsServiceLive =
     CalculateSeasonPointsService.Default.pipe(
       Layer.provide(seasonServiceLive),
@@ -64,7 +69,8 @@ const runnable = Effect.gen(function* () {
       Layer.provide(getSeasonPointMultiplierServiceLive),
       Layer.provide(addSeasonPointsToUserServiceLive),
       Layer.provide(updateWeekStatusServiceLive),
-      Layer.provide(getUsersPaginatedServiceLive)
+      Layer.provide(getUsersPaginatedServiceLive),
+      Layer.provide(activityWeekServiceLive)
     );
 
   const service = yield* Effect.provide(
