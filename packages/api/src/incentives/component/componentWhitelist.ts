@@ -54,35 +54,30 @@ export class ComponentWhitelistService extends Effect.Service<ComponentWhitelist
             return result.length;
           }),
 
-        uploadCsv: (componentAddresses: string[]) =>
-          Effect.gen(function* () {
-            yield* Effect.tryPromise({
-              try: () =>
-                db.transaction(async (tx) => {
-                  // Clear existing whitelist
-                  await tx.delete(componentWhitelist);
+        uploadCsv: Effect.fn(function* (componentAddresses: string[]) {
+          yield* Effect.tryPromise({
+            try: () =>
+              db.transaction(async (tx) => {
+                // Clear existing whitelist
+                await tx.delete(componentWhitelist);
 
-                  // Insert new whitelist entries
-                  const batchSize = 1000;
-                  for (
-                    let i = 0;
-                    i < componentAddresses.length;
-                    i += batchSize
-                  ) {
-                    const batch = componentAddresses.slice(i, i + batchSize);
-                    await tx
-                      .insert(componentWhitelist)
-                      .values(
-                        batch.map((address) => ({ componentAddress: address }))
-                      );
-                  }
-                }),
-              catch: (error) => new DbError(error),
-            });
+                // Insert new whitelist entries
+                const batchSize = 10000;
+                for (let i = 0; i < componentAddresses.length; i += batchSize) {
+                  const batch = componentAddresses.slice(i, i + batchSize);
+                  await tx
+                    .insert(componentWhitelist)
+                    .values(
+                      batch.map((address) => ({ componentAddress: address }))
+                    );
+                }
+              }),
+            catch: (error) => new DbError(error),
+          });
 
-            // Reload cache after updating
-            yield* loadWhitelist();
-          }),
+          // Reload cache after updating
+          yield* loadWhitelist();
+        }),
 
         isWhitelisted: (componentAddress: string) =>
           Effect.gen(function* () {

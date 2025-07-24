@@ -73,6 +73,7 @@ import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { ActivityWeekService } from "../activity-week/activityWeek";
 import { ComponentWhitelistService } from "../component/componentWhitelist";
+import { parseCsvWhitelist, type CsvParsingError } from "../component/parseCsvWhitelist";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -674,11 +675,23 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const uploadComponentWhitelistCsv = (componentAddresses: string[]) => {
+  const uploadComponentWhitelistCsv = (csvData: string) => {
     const program = Effect.provide(
       Effect.gen(function* () {
+        // Parse CSV first
+        const parseResult = yield* parseCsvWhitelist({ csvData });
+        
+        // Upload to database
         const service = yield* ComponentWhitelistService;
-        return yield* service.uploadCsv(componentAddresses);
+        yield* service.uploadCsv(parseResult.componentAddresses);
+        
+        return {
+          success: true,
+          count: parseResult.count,
+          message: parseResult.count === 0 
+            ? "Successfully cleared component whitelist"
+            : `Successfully updated whitelist with ${parseResult.count} components`,
+        };
       }),
       componentWhitelistServiceLive
     );
