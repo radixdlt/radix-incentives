@@ -31,7 +31,7 @@ export const createMockDb = () => {
       rightJoin: vi.fn().mockReturnThis(),
       fullJoin: vi.fn().mockReturnThis(),
       execute: vi.fn().mockResolvedValue([]),
-      then: vi.fn().mockResolvedValue([]), // For direct awaiting
+      // then: vi.fn().mockResolvedValue([]), // For direct awaiting - removed due to lint rule
     };
     return mockQueryBuilder;
   };
@@ -77,7 +77,7 @@ export const createMockDb = () => {
       returning: vi.fn().mockResolvedValue([]),
       execute: vi.fn().mockResolvedValue([]),
     })),
-  } as any;
+  } as unknown as typeof db;
 };
 
 export const mockDb = createMockDb();

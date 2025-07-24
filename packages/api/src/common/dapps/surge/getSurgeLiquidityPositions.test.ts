@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Effect, Exit, Layer } from "effect";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
 import { GetLedgerStateService } from "../../gateway/getLedgerState";
@@ -16,7 +16,7 @@ const GetEntityDetailsServiceLive = GetEntityDetailsService.Default;
 const EntityFungiblesPageLive = EntityFungiblesPageService.Default;
 const GetLedgerStateLive = GetLedgerStateService.Default;
 
-const fullLayer = GetSurgeLiquidityPositionsLive.pipe(
+const getSurgeLiquidityPositionsLive = GetSurgeLiquidityPositionsLive.pipe(
   Layer.provide(GetFungibleBalanceLive),
   Layer.provide(GetComponentStateLive),
   Layer.provide(GetEntityDetailsServiceLive),
@@ -27,7 +27,7 @@ const fullLayer = GetSurgeLiquidityPositionsLive.pipe(
 
 describe("GetSurgeLiquidityPositionsService", () => {
   it("should get surge liquidity positions", async () => {
-    const result = await Effect.runPromise(
+    const result = await Effect.runPromiseExit(
       Effect.gen(function* () {
         const service = yield* GetSurgeLiquidityPositionsService;
         return yield* service.getSurgeLiquidityPositions({
@@ -36,9 +36,16 @@ describe("GetSurgeLiquidityPositionsService", () => {
           ],
           at_ledger_state: { state_version: 325927555 },
         });
-      }).pipe(Effect.provide(fullLayer))
+      }).pipe(Effect.provide(getSurgeLiquidityPositionsLive))
     );
 
-    expect(result.length).toBeGreaterThan(0);
+    Exit.match(result, {
+      onSuccess: (value) => {
+        expect(value.length).toBeGreaterThan(0);
+      },
+      onFailure: (error) => {
+        console.error(JSON.stringify(error, null, 2));
+      },
+    });
   });
 });

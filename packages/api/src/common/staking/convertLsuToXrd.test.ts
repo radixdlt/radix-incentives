@@ -2,7 +2,6 @@ import { Effect, Layer } from "effect";
 import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from "./convertLsuToXrd";
 import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
 import { GetEntityDetailsService } from "../gateway/getEntityDetails";
-import { BigNumber } from "bignumber.js";
 import { GetLedgerStateService } from "../gateway/getLedgerState";
 import { GetAllValidatorsService } from "../gateway/getAllValidators";
 
@@ -26,14 +25,9 @@ const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
 
 describe("ConvertLsuToXrdService", () => {
   it("should convert lsu to xrd", async () => {
-    const lsuAmount = new BigNumber(1_000_000);
-
     const program = Effect.provide(
       Effect.gen(function* () {
         const convertLsuToXrd = yield* ConvertLsuToXrdService;
-        const getAllValidators = yield* GetAllValidatorsService;
-
-        const validators = yield* getAllValidators();
 
         return yield* convertLsuToXrd({
           addresses: [],
@@ -53,8 +47,6 @@ describe("ConvertLsuToXrdService", () => {
 
     const result = await Effect.runPromise(program);
 
-    console.log(result);
-
-    // expect(lsuAmount.lt(result)).toBe(true);
+    expect(result).toBeDefined();
   });
 });

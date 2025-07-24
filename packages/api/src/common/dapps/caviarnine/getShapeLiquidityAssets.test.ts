@@ -129,17 +129,12 @@ describe("getShapeLiquidityAssets", () => {
           yield* GetShapeLiquidityAssetsService;
         const getLedgerState = yield* GetLedgerStateService;
         const getResourceHoldersService = yield* GetResourceHoldersService;
-        const getNonfungibleBalance = yield* GetNonFungibleBalanceService;
 
         const state = yield* getLedgerState({
-          // timestamp: new Date(),
           at_ledger_state: {
             timestamp: new Date("2025-04-01T00:00:00.000Z"),
-            // state_version: 286058118,
           },
         });
-
-        console.log(JSON.stringify(state, null, 2));
 
         const {
           componentAddress,
@@ -152,23 +147,8 @@ describe("getShapeLiquidityAssets", () => {
 
         const addresses = resourceHolders
           .filter((item) => item.holder_address.startsWith("account_"))
-          .map((item) => item.holder_address);
-
-        const accountNonFungibleBalances = yield* getNonfungibleBalance({
-          addresses,
-          at_ledger_state: {
-            state_version: state.state_version,
-          },
-        });
-
-        const nftIds = accountNonFungibleBalances.items.flatMap((item) =>
-          item.nonFungibleResources
-            .filter(
-              (item) => item.resourceAddress === liquidityReceiptResourceAddress
-            )
-
-            .flatMap((item) => item.items.map((item) => item.id))
-        );
+          .map((item) => item.holder_address)
+          .slice(0, 3);
 
         const result = yield* getShapeLiquidityAssetsService({
           componentAddress,
@@ -203,6 +183,6 @@ describe("getShapeLiquidityAssets", () => {
       )
     );
 
-    console.log(JSON.stringify(result, null, 2));
+    expect(result.length).toBeGreaterThan(0);
   }, 300_000);
 });

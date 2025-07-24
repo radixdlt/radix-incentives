@@ -1,66 +1,65 @@
 import { Effect, Layer } from "effect";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetEntityDetailsServiceLive } from "../../gateway/getEntityDetails";
-import { GetLedgerStateLive } from "../../gateway/getLedgerState";
+import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { GetLedgerStateService } from "../../gateway/getLedgerState";
 
-import { EntityFungiblesPageLive } from "../../gateway/entityFungiblesPage";
+import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
 
-import {
-  GetRootFinancePositionsService,
-  GetRootFinancePositionsLive,
-} from "./getRootFinancePositions";
-import { GetNonFungibleBalanceLive } from "../../gateway/getNonFungibleBalance";
-import { EntityNonFungiblesPageLive } from "../../gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataLive } from "../../gateway/entityNonFungiblesData";
-import { KeyValueStoreDataLive } from "../../gateway/keyValueStoreData";
-import { KeyValueStoreKeysLive } from "../../gateway/keyValueStoreKeys";
-import { GetKeyValueStoreLive } from "../../gateway/getKeyValueStore";
-import { GetNftResourceManagersLive } from "../../gateway/getNftResourceManagers";
-import { GetNonFungibleIdsLive } from "../../gateway/getNonFungibleIds";
+import { GetRootFinancePositionsService } from "./getRootFinancePositions";
+import { GetNonFungibleBalanceService } from "../../gateway/getNonFungibleBalance";
+import { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
+import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
+import { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
+import { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
+import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
+import { GetNftResourceManagersService } from "../../gateway/getNftResourceManagers";
+import { GetNonFungibleIdsService } from "../../gateway/getNonFungibleIds";
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
-const getEntityDetailsServiceLive = GetEntityDetailsServiceLive.pipe(
+const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const getLedgerStateLive = GetLedgerStateLive.pipe(
+const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityFungiblesPageServiceLive = EntityFungiblesPageLive.pipe(
+const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungiblesPageServiceLive = EntityNonFungiblesPageLive.pipe(
+const entityNonFungiblesPageServiceLive =
+  EntityNonFungiblesPageService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+const entityNonFungibleDataServiceLive =
+  EntityNonFungibleDataService.Default.pipe(
+    Layer.provide(gatewayApiClientLive)
+  );
+
+const keyValueStoreDataServiceLive = KeyValueStoreDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const entityNonFungibleDataServiceLive = EntityNonFungibleDataLive.pipe(
+const keyValueStoreKeysServiceLive = KeyValueStoreKeysService.Default.pipe(
   Layer.provide(gatewayApiClientLive)
 );
 
-const keyValueStoreDataServiceLive = KeyValueStoreDataLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
-
-const keyValueStoreKeysServiceLive = KeyValueStoreKeysLive.pipe(
-  Layer.provide(gatewayApiClientLive)
-);
-
-const getKeyValueStoreServiceLive = GetKeyValueStoreLive.pipe(
+const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(keyValueStoreDataServiceLive),
   Layer.provide(keyValueStoreKeysServiceLive)
 );
 
-const getNonFungibleIdsLive = GetNonFungibleIdsLive.pipe(
+const getNonFungibleIdsLive = GetNonFungibleIdsService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getLedgerStateLive),
   Layer.provide(entityNonFungibleDataServiceLive)
 );
 
-const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
+const getNftResourceManagersLive = GetNftResourceManagersService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(getLedgerStateLive),
@@ -68,7 +67,7 @@ const getNftResourceManagersLive = GetNftResourceManagersLive.pipe(
   Layer.provide(getNonFungibleIdsLive)
 );
 
-const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
+const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
@@ -78,7 +77,7 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceLive.pipe(
   Layer.provide(getNftResourceManagersLive)
 );
 
-const getRootFinancePositionLive = GetRootFinancePositionsLive.pipe(
+const getRootFinancePositionLive = GetRootFinancePositionsService.Default.pipe(
   Layer.provide(getNonFungibleBalanceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(getKeyValueStoreServiceLive),
@@ -92,7 +91,7 @@ describe("GetRootFinancePositionService", () => {
       Effect.gen(function* () {
         const getRootFinancePositions = yield* GetRootFinancePositionsService;
 
-        const result = yield* getRootFinancePositions({
+        const result = yield* getRootFinancePositions.run({
           accountAddresses: [
             "account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew",
           ],
@@ -101,38 +100,13 @@ describe("GetRootFinancePositionService", () => {
           },
         });
 
-        console.log(
-          "Root Finance Positions for account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew:"
-        );
-        console.log(JSON.stringify(result, null, 2));
-
         return result;
       }),
-      Layer.mergeAll(
-        getRootFinancePositionLive,
-        gatewayApiClientLive,
-        getNonFungibleBalanceLive,
-        entityFungiblesPageServiceLive,
-        entityNonFungiblesPageServiceLive,
-        getLedgerStateLive,
-        getKeyValueStoreServiceLive,
-        keyValueStoreDataServiceLive,
-        keyValueStoreKeysServiceLive,
-        getEntityDetailsServiceLive,
-        entityNonFungibleDataServiceLive,
-        getNftResourceManagersLive,
-        getNonFungibleIdsLive
-      )
+      getRootFinancePositionLive
     );
 
-    try {
-      const result = await Effect.runPromise(program);
-      console.log("Test completed successfully");
-      console.log("Final result:", JSON.stringify(result, null, 2));
-    } catch (error) {
-      console.error("Effect execution error:", error);
+    const result = await Effect.runPromise(program);
 
-      throw error;
-    }
+    expect(result).toBeDefined();
   });
 });

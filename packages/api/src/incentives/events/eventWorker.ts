@@ -37,8 +37,8 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
         );
 
         for (const transactionId in groupedByTransactionId) {
-          // biome-ignore lint/style/noNonNullAssertion: <explanation>
-          const transactions = groupedByTransactionId[transactionId]!;
+          const transactions = groupedByTransactionId[transactionId];
+          if (!transactions || transactions.length === 0) continue;
           const addresses = Array.from(
             new Set(
               transactions
@@ -48,8 +48,9 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
           );
 
           if (addresses.length > 0) {
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            const timestamp = transactions[0]!.timestamp;
+            const firstTransaction = transactions[0];
+            if (!firstTransaction) continue;
+            const timestamp = firstTransaction.timestamp;
             yield* Effect.logDebug(
               `Adding ${addresses.length} accounts to snapshot queue for transaction ${transactionId} at ${timestamp}`
             );

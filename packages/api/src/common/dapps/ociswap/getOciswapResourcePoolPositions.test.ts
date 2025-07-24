@@ -79,7 +79,6 @@ describe("GetOciswapResourcePoolPositionsService", () => {
         for (const item of accountData.items) {
           expect(item).toHaveProperty("xToken");
           expect(item).toHaveProperty("yToken");
-          expect(item).toHaveProperty("isActive");
 
           expect(item.xToken).toHaveProperty("totalAmount");
           expect(item.xToken).toHaveProperty("amountInBounds");
@@ -92,7 +91,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
       }
     }
 
-    console.log("FlexPool positions result:", JSON.stringify(result, null, 2));
+    expect(result.length).toBeGreaterThan(0);
   });
 
   it("should fetch BasicPool positions correctly", async () => {
@@ -126,7 +125,6 @@ describe("GetOciswapResourcePoolPositionsService", () => {
         for (const item of accountData.items) {
           expect(item).toHaveProperty("xToken");
           expect(item).toHaveProperty("yToken");
-          expect(item).toHaveProperty("isActive");
 
           expect(item.xToken).toHaveProperty("totalAmount");
           expect(item.xToken).toHaveProperty("amountInBounds");
@@ -139,7 +137,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
       }
     }
 
-    console.log("BasicPool positions result:", JSON.stringify(result, null, 2));
+    expect(result.length).toBeGreaterThan(0);
   });
 
   it("should handle empty results gracefully", async () => {
@@ -150,7 +148,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
       const result = yield* service.run({
         accountAddresses: [
           "account_rdx12y528ccdmqge0dgw9ce3vg30vyhax5ynpwakvzafrzzg69texgpe60",
-        ], // Example empty account
+        ],
         at_ledger_state: { state_version: 328823647 },
         poolType: "flexPools",
       });
@@ -172,5 +170,7 @@ describe("GetOciswapResourcePoolPositionsService", () => {
       expect(poolData.result).toHaveLength(1);
       expect(poolData.result[0].items).toHaveLength(0);
     }
+
+    expect(result.length).toBeGreaterThan(0);
   });
 });

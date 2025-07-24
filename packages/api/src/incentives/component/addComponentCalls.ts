@@ -123,8 +123,8 @@ export const AddComponentCallsLive = Layer.effect(
           }
 
           for (const item of weekGroup.items) {
-            // biome-ignore lint/style/noNonNullAssertion: <explanation>
-            const userId = accountAddressUserIdMap.get(item.accountAddress)!;
+            const userId = accountAddressUserIdMap.get(item.accountAddress);
+            if (!userId) continue;
             let existing = componentCallMap.get(userId);
 
             if (!existing) {
@@ -138,8 +138,7 @@ export const AddComponentCallsLive = Layer.effect(
 
             dbEntries.push({
               userId,
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
-              data: Array.from(existing!),
+              data: Array.from(existing),
               timestamp: weekGroup.startDate,
             });
           }

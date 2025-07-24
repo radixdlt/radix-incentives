@@ -25,10 +25,13 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
        * - Uses exponential backoff with randomization
        * - Supports retrying POST requests (unlike make-fetch-happen)
        */
+
       const fetchImpl = fetchRetry(globalThis.fetch, {
-        retries: 3,
+        retries: 5,
         retryDelay: (attempt, error, response) => {
-          return 2 ** attempt * 1000; // 1000, 2000, 4000ms
+          const baseDelay = 2 ** attempt * 1000; // 1000, 2000, 4000ms
+          const jitter = Math.random() * 0.5 * baseDelay; // Add up to 50% jitter
+          return Math.floor(baseDelay + jitter);
         },
         retryOn: (attempt, error, response) => {
           // Retry on network errors
@@ -39,6 +42,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
           if (response && response.status >= 400) {
             return true;
           }
+
           return false;
         },
       }) as unknown as (typeof globalThis)["fetch"];

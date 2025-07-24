@@ -1,7 +1,7 @@
 import { NodeSdk } from "@effect/opentelemetry";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { Effect, Exit, Layer } from "effect";
+import { Effect, Exit, Layer, Logger, LogLevel } from "effect";
 import { describe, expect, it } from "vitest";
 
 // Test target
@@ -341,7 +341,8 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getOciswapLiquidityAssetsService),
     Layer.provide(getSurgeLiquidityPositionsLive),
     Layer.provide(getOciswapResourcePoolPositionsLive),
-    Layer.provide(getCaviarnineResourcePoolPositionsLive)
+    Layer.provide(getCaviarnineResourcePoolPositionsLive),
+    Layer.provide(Logger.minimumLogLevel(LogLevel.None))
   );
 
 const NodeSdkLive = NodeSdk.layer(() => ({

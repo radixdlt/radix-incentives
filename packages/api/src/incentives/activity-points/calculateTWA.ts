@@ -49,8 +49,8 @@ export const calculateTWA = ({
         let { totalWeightedValue, totalDurationInMilliseconds } =
           itemsSortedByTimestamp.slice(0, -1).reduce(
             (acc, currentItem, index) => {
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
-              const nextItem = itemsSortedByTimestamp[index + 1]!;
+              const nextItem = itemsSortedByTimestamp[index + 1];
+              if (!nextItem) return acc;
               const currentUsdValue = new BigNumber(currentItem.usdValue);
               const duration =
                 nextItem.timestamp.getTime() - currentItem.timestamp.getTime();

@@ -1,9 +1,7 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 
 import { z } from "zod";
 import { RolaService } from "./rola";
-
-import type { UnknownException } from "effect/Cause";
 
 export const signedChallengeSchema = z.object({
   challenge: z.string(),
@@ -37,26 +35,12 @@ export class VerifyRolaProofError {
   }
 }
 
-export class VerifyRolaProofService extends Context.Tag(
-  "VerifyRolaProofService"
-)<
-  VerifyRolaProofService,
-  (
-    input: VerifyRolaProofInput
-  ) => Effect.Effect<
-    boolean,
-    ParseRolaProofInputError | VerifyRolaProofError | UnknownException,
-    RolaService
-  >
->() {}
-
-export const VerifyRolaProofLive = Layer.effect(
-  VerifyRolaProofService,
-  Effect.gen(function* () {
-    const verifySignedChallenge = yield* RolaService;
-
-    return (input) =>
-      Effect.gen(function* () {
+export class VerifyRolaProofService extends Effect.Service<VerifyRolaProofService>()(
+  "VerifyRolaProofService",
+  {
+    effect: Effect.gen(function* () {
+      const verifySignedChallenge = yield* RolaService;
+      return Effect.fn(function* (input: VerifyRolaProofInput) {
         const verifyInputResult = yield* Effect.tryPromise(() =>
           signedChallengeSchema.safeParseAsync(input)
         );
@@ -104,5 +88,8 @@ export const VerifyRolaProofLive = Layer.effect(
 
         return true;
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const VerifyRolaProofLive = VerifyRolaProofService.Default;

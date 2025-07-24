@@ -148,10 +148,10 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
             let stakedXrd = new BigNumber(0);
 
             for (const stakedItem of staked) {
-              // biome-ignore lint/style/noNonNullAssertion: <explanation>
               const converter = convertLsuToXrdMap.get(
                 stakedItem.resourceAddress
-              )!;
+              );
+              if (!converter) continue;
               const xrdStaked = converter(stakedItem.amount);
               stakedXrd = stakedXrd.plus(xrdStaked);
             }

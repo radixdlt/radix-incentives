@@ -37,7 +37,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
+      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
     );
 
     const result = await Effect.runPromise(program);
@@ -76,7 +76,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
+      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
     );
 
     const result = await Effect.runPromise(program);
@@ -98,7 +98,7 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
+      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
     );
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
@@ -123,11 +123,11 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
+      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
     );
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining("Failed to get USD value"),
+      message: expect.stringContaining("PriceServiceApiError"),
     });
   });
 
@@ -152,11 +152,11 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      Layer.mergeAll(GetUsdValueLive, AddressValidationServiceLive)
+      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
     );
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining("Failed to get USD value"),
+      message: expect.stringContaining("PriceServiceApiError"),
     });
   });
 });
