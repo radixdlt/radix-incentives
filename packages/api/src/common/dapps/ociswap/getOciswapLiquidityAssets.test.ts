@@ -5,7 +5,6 @@ import {
   GetOciswapLiquidityAssetsService,
 } from "./getOciswapLiquidityAssets";
 import {
-  GetOciswapLiquidityClaimsLive,
   GetOciswapLiquidityClaimsService,
 } from "./getOciswapLiquidityClaims";
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
@@ -111,7 +110,7 @@ const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(getNonFungibleIdsLive)
 );
 
-const getOciswapLiquidityClaimsLive = GetOciswapLiquidityClaimsLive.pipe(
+const getOciswapLiquidityClaimsLive = GetOciswapLiquidityClaimsService.Default.pipe(
   Layer.provide(entityNonFungibleDataLive)
 );
 
