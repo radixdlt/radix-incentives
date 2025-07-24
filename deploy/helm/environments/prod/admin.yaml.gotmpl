@@ -1,0 +1,56 @@
+image: 
+    tag: {{ .StateValues.ci.tag }}
+
+params:
+  PORT: 3000
+  PUBLIC_INCENTIVES_API_URL: https://incentives.rtlj-prod.extratools.works
+  PUBLIC_LOG_LEVEL: debug
+  REDIS_HOST: "redis-master"
+  REDIS_PORT: "6379"
+  REDIS_PASSWORD: ""
+
+secrets:
+  - external_secret_name: admin-postgres-url
+    env_variable: "DATABASE_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/postgres"
+    aws_secret_key: "database-url"
+    secret_key: "database-url"
+  
+  - external_secret_name: admin-postgres-read-url
+    env_variable: "DATABASE_READ_URL"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/postgres"
+    aws_secret_key: "database-read-url"
+    secret_key: "database-read-url"
+
+  - external_secret_name: admin-jwt-secret
+    env_variable: "JWT_SECRET"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/secrets"
+    aws_secret_key: "admin_jwt_secret"
+    secret_key: "admin_jwt_secret"
+
+ingress:
+  enabled: true
+  className: nginx-internal
+  annotations:
+    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.radixdlt.com/oauth2/start
+    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.radixdlt.com/oauth2/auth
+  hosts:
+    - host: incentives-admin.rtlj-prod.extratools.works
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+
+replicaCount: 1
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 70
+  targetMemoryUtilizationPercentage: 70
+
+resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi
+
