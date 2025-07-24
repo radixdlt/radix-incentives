@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, LogOut, CalendarDays, Activity } from 'lucide-react';
+import { Users, LogOut, CalendarDays, Activity, Database } from 'lucide-react';
 import { cn } from '../lib/utils';
 
 const navigationItems = [
@@ -20,6 +20,11 @@ const navigationItems = [
     title: 'User Management',
     href: '/users',
     icon: <Users className="h-5 w-5" />,
+  },
+  {
+    title: 'Database Seed',
+    href: '/seed',
+    icon: <Database className="h-5 w-5" />,
   },
 ];
 

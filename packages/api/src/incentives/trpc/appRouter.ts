@@ -11,6 +11,7 @@ import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 import { configRouter } from "../config/configRouter";
 import { weekAdminRouter, weekRouter } from "../week/weekRouter";
 import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
+import { adminSeedRouter } from "../seed/seedRouter";
 
 /**
  * This is the primary router for your server.
@@ -37,6 +38,7 @@ export const adminAppRouter = createTRPCRouter({
   leaderboard: leaderboardRouter,
   dapps: adminDappRouter,
   week: weekAdminRouter,
+  seed: adminSeedRouter,
 });
 
 // export type definition of API
