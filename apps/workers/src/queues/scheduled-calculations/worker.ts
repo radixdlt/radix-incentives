@@ -4,7 +4,7 @@ import { Exit } from "effect";
 import { QueueName } from "../types";
 import { redisClient } from "../../redis";
 import type { ScheduledCalculationsJob } from "./schemas";
-import type { Job } from "bullmq";
+import type { FlowJob, Job } from "bullmq";
 
 const flowProducer = new FlowProducer({ connection: redisClient });
 
@@ -77,26 +77,38 @@ export const scheduledCalculationsWorker = async (
 
   job.log(`starting scheduled calculations for weekId: ${weekId}`);
 
-  // Order: AP calculation -> SP multiplier calculation -> SP calculation
-  await flowProducer.add({
+  const seasonPointsMultiplierJob: FlowJob = {
+    name: "scheduledJob",
+    data: { weekId },
+    queueName: QueueName.seasonPointsMultiplier,
+  };
+
+  const calculateActivityPointsJob: FlowJob = {
+    name: "scheduledJob",
+    data: { weekId },
+    opts: { failParentOnFailure: true },
+    queueName: QueueName.calculateActivityPoints,
+  };
+  seasonPointsMultiplierJob.children = [calculateActivityPointsJob];
+
+
+  const calculateSeasonPointsJob: FlowJob = {
     name: "scheduledJob",
     data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
     queueName: QueueName.calculateSeasonPoints,
-    children: [
-      {
-        name: "scheduledJob",
-        data: { weekId },
-        opts: { failParentOnFailure: true },
-        queueName: QueueName.seasonPointsMultiplier,
-        children: [
-          {
-            name: "scheduledJob",
-            data: { weekId },
-            opts: { failParentOnFailure: true },
-            queueName: QueueName.calculateActivityPoints,
-          },
-        ],
-      },
-    ],
-  });
+  };
+
+
+  let jobConfig: FlowJob;
+
+  if (job.data.includeSPCalculations) {
+    seasonPointsMultiplierJob.opts = { failParentOnFailure: true };
+    calculateSeasonPointsJob.children = [seasonPointsMultiplierJob];
+    jobConfig = calculateSeasonPointsJob;
+  } else {
+    // Use the base config directly
+    jobConfig = seasonPointsMultiplierJob;
+  }
+
+  await flowProducer.add(jobConfig);
 };
