@@ -484,6 +484,33 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const checkSeasonCacheAvailable = (input: { seasonId: string }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.checkSeasonCacheAvailable(input);
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const checkCategoryCacheAvailable = (input: {
+    categoryId: string;
+    weekId: string;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const leaderboardService = yield* LeaderboardService;
+        return yield* leaderboardService.checkCategoryCacheAvailable(input);
+      }),
+      leaderboardLive
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   const getUserCategoryBreakdown = (input: {
     weekId: string;
     userId: string;
@@ -723,6 +750,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getAvailableWeeks,
     getAvailableActivities,
     getAvailableCategories,
+    checkSeasonCacheAvailable,
+    checkCategoryCacheAvailable,
     getActivityData,
     updateActivity,
     getDapps,

@@ -20,6 +20,8 @@ import { calculateSeasonPointsQueue } from "../queues/calculate-season-points/qu
 import { seasonPointsMultiplierQueue } from "../queues/calculate-season-points-multiplier/queue";
 import { scheduledCalculationsQueue } from "../queues/scheduled-calculations/queue";
 import { snapshotJobSchema } from "../queues/snapshot/schemas";
+import { populateLeaderboardCacheQueue } from "../queues/populate-leaderboard-cache/queue";
+import { populateLeaderboardCacheSchema } from "../queues/populate-leaderboard-cache/schemas";
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -40,6 +42,8 @@ metricsApp.get("/metrics", async (c) => {
     await calculateActivityPointsQueue.queue.exportPrometheusMetrics();
   const scheduledCalculationsQueueMetrics =
     await scheduledCalculationsQueue.queue.exportPrometheusMetrics();
+  const populateLeaderboardCacheQueueMetrics =
+    await populateLeaderboardCacheQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -48,6 +52,7 @@ metricsApp.get("/metrics", async (c) => {
       snapshotDateRangeQueueMetrics,
       calculateActivityPointsQueueMetrics,
       scheduledCalculationsQueueMetrics,
+      populateLeaderboardCacheQueueMetrics,
     ].join("\n")
   );
 });
@@ -128,6 +133,19 @@ app.post("/queues/scheduled-calculations/add", async (c) => {
   return c.text("ok");
 });
 
+app.post("/queues/populate-leaderboard-cache/add", async (c) => {
+  const input = await c.req.json();
+  const parsedInput = populateLeaderboardCacheSchema.safeParse(input);
+  if (!parsedInput.success) {
+    return c.json({ error: parsedInput.error.message }, 400);
+  }
+  await populateLeaderboardCacheQueue.queue.add(
+    "populateLeaderboardCache",
+    parsedInput.data
+  );
+  return c.text("ok");
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
@@ -148,6 +166,7 @@ createBullBoard({
     new BullMQAdapter(calculateSeasonPointsQueue.queue),
     new BullMQAdapter(seasonPointsMultiplierQueue.queue),
     new BullMQAdapter(scheduledCalculationsQueue.queue),
+    new BullMQAdapter(populateLeaderboardCacheQueue.queue),
   ],
   serverAdapter,
 });

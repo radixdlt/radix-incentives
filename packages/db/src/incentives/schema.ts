@@ -482,6 +482,76 @@ export const componentWhitelist = createTable("component_whitelist", {
   componentAddressIdx: index("idx_component_whitelist_address").on(table.componentAddress),
 }));
 
+// Leaderboard pre-aggregation tables
+export const seasonLeaderboardCache = createTable(
+  "season_leaderboard_cache",
+  {
+    seasonId: uuid("season_id")
+      .notNull()
+      .references(() => seasons.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    totalPoints: decimal("total_points", { precision: 18, scale: 6 }).notNull(),
+    rank: integer("rank").notNull(),
+    lastUpdated: timestamp("last_updated", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.seasonId, table.userId] }),
+    rankIdx: index("idx_season_leaderboard_rank").on(table.seasonId, table.rank),
+    userIdx: index("idx_season_leaderboard_user").on(table.userId),
+  })
+);
+
+export const categoryLeaderboardCache = createTable(
+  "category_leaderboard_cache",
+  {
+    weekId: uuid("week_id")
+      .notNull()
+      .references(() => weeks.id, { onDelete: "cascade" }),
+    categoryId: varchar("category_id", { length: 255 }).notNull(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    totalPoints: decimal("total_points", { precision: 18, scale: 6 }).notNull(),
+    rank: integer("rank").notNull(),
+    activityBreakdown: jsonb("activity_breakdown").notNull(),
+    lastUpdated: timestamp("last_updated", {
+      mode: "date",
+      withTimezone: true,
+    })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.weekId, table.categoryId, table.userId] }),
+    rankIdx: index("idx_category_leaderboard_rank").on(
+      table.weekId,
+      table.categoryId,
+      table.rank
+    ),
+    userIdx: index("idx_category_leaderboard_user").on(table.userId),
+  })
+);
+
+export const leaderboardStatsCache = createTable("leaderboard_stats_cache", {
+  cacheKey: varchar("cache_key", { length: 255 }).primaryKey(),
+  totalUsers: integer("total_users").notNull(),
+  median: decimal("median", { precision: 18, scale: 6 }),
+  average: decimal("average", { precision: 18, scale: 6 }),
+  lastUpdated: timestamp("last_updated", {
+    mode: "date",
+    withTimezone: true,
+  })
+    .notNull()
+    .defaultNow(),
+});
+
 export type Config = InferSelectModel<typeof config>;
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
@@ -528,3 +598,8 @@ export type TradingVolume = InferSelectModel<typeof tradingVolume>;
 export type TransactionFee = InferSelectModel<typeof transactionFees>;
 export type ComponentCall = InferSelectModel<typeof componentCalls>;
 export type ComponentWhitelist = InferSelectModel<typeof componentWhitelist>;
+
+// Leaderboard cache types
+export type SeasonLeaderboardCache = InferSelectModel<typeof seasonLeaderboardCache>;
+export type CategoryLeaderboardCache = InferSelectModel<typeof categoryLeaderboardCache>;
+export type LeaderboardStatsCache = InferSelectModel<typeof leaderboardStatsCache>;

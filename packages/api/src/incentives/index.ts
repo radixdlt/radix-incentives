@@ -17,5 +17,6 @@ export { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToU
 export { UpdateWeekStatusService } from "./week/updateWeekStatus";
 export type { UpdateActivityInput, Activity } from "./activity/activity";
 export { SnapshotService, SnapshotLive } from "./snapshot/snapshot";
+export { LeaderboardCacheService } from "./leaderboard/leaderboardCache";
 export type { Dapp } from "./dapp/dapp";
 export type { ActivityCategory } from "./activity-category/activityCategory";

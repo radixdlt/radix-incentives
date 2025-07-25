@@ -5,11 +5,6 @@ interface UserStatsProps {
     rank: number;
     totalPoints: string;
     percentile: number;
-    accountContributions?: Array<{
-      accountAddress: string;
-      accountLabel: string;
-      points: string;
-    }>;
     activityBreakdown?: Array<{
       activityId: string;
       activityName: string;
@@ -36,9 +31,6 @@ export function UserStats({
     return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
   };
 
-  const truncateAddress = (address: string) => {
-    return `${address.slice(0, 10)}...${address.slice(-6)}`;
-  };
 
   const getRankSuffix = (rank: number) => {
     if (rank >= 11 && rank <= 13) return "th";
@@ -204,37 +196,6 @@ export function UserStats({
         </div>
       )}
 
-      {/* Account Contributions (for activity leaderboard) */}
-      {stats?.accountContributions && stats.accountContributions.length > 0 && (
-        <div className="space-y-3">
-          <h4 className="font-medium">Your Account Contributions</h4>
-          <div className="space-y-2">
-            {stats.accountContributions.map((account) => (
-              <div
-                key={account.accountAddress}
-                className="flex items-center justify-between p-3 rounded-lg border bg-card"
-              >
-                <div>
-                  <div className="font-medium text-sm">
-                    {account.accountLabel}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {truncateAddress(account.accountAddress)}
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="font-medium">
-                    {formatPoints(account.points)}
-                  </div>
-                  <div className="text-xs text-muted-foreground">
-                    {pointsLabel}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }
