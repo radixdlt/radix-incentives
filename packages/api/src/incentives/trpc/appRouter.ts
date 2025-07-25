@@ -11,6 +11,7 @@ import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
 import { configRouter } from "../config/configRouter";
 import { weekAdminRouter, weekRouter } from "../week/weekRouter";
 import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
+import { adminComponentWhitelistRouter } from "../component/componentWhitelistRouter";
 import { adminSeedRouter } from "../seed/seedRouter";
 
 /**
@@ -38,6 +39,7 @@ export const adminAppRouter = createTRPCRouter({
   leaderboard: leaderboardRouter,
   dapps: adminDappRouter,
   week: weekAdminRouter,
+  componentWhitelist: adminComponentWhitelistRouter,
   seed: adminSeedRouter,
 });
 

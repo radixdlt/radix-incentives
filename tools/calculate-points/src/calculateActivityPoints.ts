@@ -15,6 +15,8 @@ import { GetComponentCallsPaginatedLive } from "../../../packages/api/src/incent
 import { GetTradingVolumeLive } from "../../../packages/api/src/incentives/trading-volume/getTradingVolume";
 import { GetAccountAddressByUserIdLive } from "../../../packages/api/src/incentives/account/getAccountAddressByUserId";
 import { createDbReadOnlyClientLive } from "../../../packages/api/src/incentives/db/dbClient";
+import { ComponentWhitelistService } from "../../../packages/api/src/incentives/component/componentWhitelist";
+import { createAppConfigLive } from "../../../packages/api/src/incentives/config/appConfig";
 
 const WEEK_ID = "30da196b-7602-4b06-a558-bbb5b5441186";
 
@@ -32,19 +34,28 @@ const runnable = Effect.gen(function* () {
   const upsertAccountActivityPointsLive = UpsertAccountActivityPointsLive.pipe(
     Layer.provide(dbLayer)
   );
-  const getTransactionFeesLive = GetTransactionFeesPaginatedLive.pipe(
-    Layer.provide(dbLayer)
-  );
-  const getComponentCallsLive = GetComponentCallsPaginatedLive.pipe(
-    Layer.provide(dbLayer)
-  );
-  const getTradingVolumeLive = GetTradingVolumeLive.pipe(
-    Layer.provide(dbLayer)
-  );
   const getAccountAddressByUserIdService = GetAccountAddressByUserIdLive.pipe(
     Layer.provide(dbLayer)
   );
   const dbReadOnlyClientService = createDbReadOnlyClientLive(db);
+
+  const appConfigLayer = createAppConfigLive();
+  const componentWhitelistServiceLive = ComponentWhitelistService.Default.pipe(
+    Layer.provide(dbLayer),
+    Layer.provide(appConfigLayer)
+  );
+
+  const getTransactionFeesLive = GetTransactionFeesPaginatedLive.pipe(
+    Layer.provide(dbLayer)
+  );
+  const getComponentCallsLive = GetComponentCallsPaginatedLive.pipe(
+    Layer.provide(dbLayer),
+    Layer.provide(getAccountAddressByUserIdService),
+    Layer.provide(componentWhitelistServiceLive)
+  );
+  const getTradingVolumeLive = GetTradingVolumeLive.pipe(
+    Layer.provide(dbLayer)
+  );
 
   const calculateActivityPointsServiceLive = CalculateActivityPointsLive.pipe(
     Layer.provide(getWeekByIdService),
@@ -94,7 +105,10 @@ const runnable = Effect.gen(function* () {
 
   yield* service({
     weekId: week.id,
-    addresses: [],
+    addresses: [
+      "account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew",
+      "account_rdx16y4gqnchvxeszcpswg2zldgsle6uqvnl0znerne70tw9535njhkgzk",
+    ],
     useWeekEndDate: true,
   });
 

@@ -2,7 +2,9 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Users, LogOut, CalendarDays, Activity, Database } from 'lucide-react';
+
+import { Users, LogOut, CalendarDays, Activity, Database, Shield } from 'lucide-react';
+
 import { cn } from '../lib/utils';
 
 const navigationItems = [
@@ -15,6 +17,11 @@ const navigationItems = [
     title: 'Activities',
     href: '/activities',
     icon: <Activity className="h-5 w-5" />,
+  },
+  {
+    title: 'Component Whitelist',
+    href: '/component-whitelist',
+    icon: <Shield className="h-5 w-5" />,
   },
   {
     title: 'User Management',

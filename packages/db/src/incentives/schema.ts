@@ -476,6 +476,12 @@ export const config = createTable("config", {
   value: jsonb("value").notNull(),
 });
 
+export const componentWhitelist = createTable("component_whitelist", {
+  componentAddress: varchar("component_address", { length: 255 }).primaryKey(),
+}, (table) => ({
+  componentAddressIdx: index("idx_component_whitelist_address").on(table.componentAddress),
+}));
+
 export type Config = InferSelectModel<typeof config>;
 export type User = InferSelectModel<typeof users>;
 export type Challenge = InferSelectModel<typeof challenge>;
@@ -521,3 +527,4 @@ export type SeasonPointsMultiplier = InferSelectModel<
 export type TradingVolume = InferSelectModel<typeof tradingVolume>;
 export type TransactionFee = InferSelectModel<typeof transactionFees>;
 export type ComponentCall = InferSelectModel<typeof componentCalls>;
+export type ComponentWhitelist = InferSelectModel<typeof componentWhitelist>;
