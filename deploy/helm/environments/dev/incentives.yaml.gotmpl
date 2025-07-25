@@ -21,8 +21,6 @@ ingress:
   enabled: true
   annotations:
     kubernetes.io/ingress.class: nginx
-    nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
-    nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
   hosts:
     - host: incentives-dev.rdx-works-main.extratools.works
       paths:
