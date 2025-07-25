@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { OneTimeDataRequestBuilder } from "@radixdlt/radix-dapp-toolkit";
 import { useDappToolkit } from "~/lib/hooks/useRdt";
-import { StarBorder } from "~/components/ui/star-border";
+import { Button } from "~/components/ui/button";
 import { api } from "~/trpc/react";
 import { toast } from "sonner";
 
@@ -65,11 +65,10 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
   return (
     <div className="flex items-center justify-between">
       <h2 className="text-2xl font-bold tracking-tight">Account Management</h2>
-      <StarBorder
-        as="button"
-        type="button"
+      <Button
         onClick={connectAccount}
         disabled={isConnecting}
+        variant="gradient"
       >
         {isConnecting ? (
           <div className="inline-flex items-center">
@@ -79,7 +78,7 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
         ) : (
           "Connect New Account"
         )}
-      </StarBorder>
+      </Button>
     </div>
   );
 };

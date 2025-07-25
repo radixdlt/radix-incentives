@@ -27,14 +27,14 @@ export default function LeaderboardPage() {
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex space-x-1 rounded-lg bg-muted p-1">
+      <div className="flex space-x-1 glass rounded-xl p-1">
         <button
           type="button"
           onClick={() => setActiveTab("season")}
-          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
             activeTab === "season"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "glass-card text-white shadow-lg gradient-brand"
+              : "text-white/70 hover:text-white hover:bg-white/10"
           }`}
         >
           Season Points
@@ -42,10 +42,10 @@ export default function LeaderboardPage() {
         <button
           type="button"
           onClick={() => setActiveTab("category")}
-          className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
             activeTab === "category"
-              ? "bg-background text-foreground shadow-sm"
-              : "text-muted-foreground hover:text-foreground"
+              ? "glass-card text-white shadow-lg gradient-brand"
+              : "text-white/70 hover:text-white hover:bg-white/10"
           }`}
         >
           Activity Points

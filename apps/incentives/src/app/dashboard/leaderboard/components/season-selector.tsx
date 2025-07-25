@@ -64,7 +64,7 @@ export function SeasonSelector({
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-gradient-to-br from-amber-500 to-orange-600 flex items-center justify-center flex-shrink-0">
+          <div className="h-8 w-8 rounded-lg gradient-brand flex items-center justify-center flex-shrink-0">
             <Trophy className="h-4 w-4 text-white" />
           </div>
           <div>
@@ -78,7 +78,7 @@ export function SeasonSelector({
 
       <div className="relative">
         <Select value={selectedSeasonId || ""} onValueChange={onSeasonChange}>
-          <SelectTrigger className="w-full h-16 px-4 bg-gradient-to-r from-card to-card/50 border-2 border-border/50 hover:border-border transition-all duration-200 rounded-xl shadow-sm hover:shadow-md">
+          <SelectTrigger className="w-full h-16 px-4 glass-card border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl">
             <div className="flex items-center w-full">
               <div className="flex items-center gap-3">
                 {selectedSeasonData && (
@@ -90,21 +90,21 @@ export function SeasonSelector({
                           selectedSeasonData.startDate,
                           selectedSeasonData.endDate
                         ) === "current"
-                          ? "bg-green-500 animate-pulse"
+                          ? "bg-green-400 animate-pulse"
                           : getSeasonStatus(
                                 selectedSeasonData.status,
                                 selectedSeasonData.startDate,
                                 selectedSeasonData.endDate
                               ) === "past"
-                            ? "bg-blue-500"
-                            : "bg-amber-500"
+                            ? "bg-cyan-400"
+                            : "bg-pink-400"
                       }`}
                     />
                     <div className="text-left">
-                      <div className="text-base font-medium text-foreground text-left">
+                      <div className="text-base font-medium text-white text-left">
                         Season {getSeasonNumber(selectedSeasonData.name)}
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2 text-left">
+                      <div className="text-sm text-white/60 flex items-center gap-2 text-left">
                         {formatSeasonRange(
                           selectedSeasonData.startDate,
                           selectedSeasonData.endDate
@@ -119,7 +119,7 @@ export function SeasonSelector({
               </div>
             </div>
           </SelectTrigger>
-          <SelectContent className="w-full rounded-xl border-2 shadow-xl">
+          <SelectContent className="w-full rounded-xl border border-white/20 glass shadow-xl">
             {seasons.map((season) => {
               const status = getSeasonStatus(
                 season.status,
@@ -130,23 +130,23 @@ export function SeasonSelector({
                 <SelectItem
                   key={season.id}
                   value={season.id}
-                  className="h-16 px-4 py-3 cursor-pointer transition-all duration-200 hover:bg-accent/50"
+                  className="h-16 px-4 py-3 cursor-pointer transition-all duration-300 hover:bg-white/10 text-white"
                 >
                   <div className="flex items-center gap-3 w-full">
                     <div
                       className={`h-3 w-3 rounded-full ${
                         status === "current"
-                          ? "bg-green-500 animate-pulse"
+                          ? "bg-green-400 animate-pulse"
                           : status === "past"
-                            ? "bg-blue-500"
-                            : "bg-amber-500"
+                            ? "bg-cyan-400"
+                            : "bg-pink-400"
                       }`}
                     />
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-foreground text-left">
+                      <div className="font-medium text-left">
                         Season {getSeasonNumber(season.name)}
                       </div>
-                      <div className="text-sm text-muted-foreground flex items-center gap-2 text-left">
+                      <div className="text-sm opacity-60 flex items-center gap-2 text-left">
                         {formatSeasonRange(season.startDate, season.endDate)}
                       </div>
                     </div>

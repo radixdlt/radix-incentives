@@ -1,7 +1,7 @@
 "use client";
 
 import { MoveUpRight, Award, Zap, Wallet, Clock } from "lucide-react";
-import { MetricCard, AccountBalances } from "~/components/dashboard";
+import { MetricCard } from "~/components/dashboard";
 import { CategoryBreakdown } from "./components/category-breakdown";
 import { WeekSelector } from "~/components/dashboard/WeekSelector";
 import { api } from "~/trpc/react";
@@ -78,14 +78,6 @@ export default function DashboardPage() {
     }
   );
 
-  const accountBalances = api.account.getLatestAccountBalances.useQuery(
-    undefined,
-    {
-      refetchOnMount: true,
-      enabled: accounts.isSuccess && accounts.data?.length > 0,
-      retry: false,
-    }
-  );
 
   if (accounts.isLoading || weeks.isLoading) {
     return (
@@ -164,11 +156,6 @@ export default function DashboardPage() {
       </div>
 
       {selectedWeek && <CategoryBreakdown weekId={selectedWeek} />}
-
-      <AccountBalances
-        balances={accountBalances.data || []}
-        selectedAccounts={accounts.data || []}
-      />
     </div>
   );
 }

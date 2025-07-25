@@ -29,16 +29,16 @@ interface StackedProgressBarProps {
 }
 
 const defaultColors = [
-  "bg-blue-500",
-  "bg-green-500",
-  "bg-yellow-500",
-  "bg-purple-500",
-  "bg-red-500",
-  "bg-indigo-500",
-  "bg-pink-500",
-  "bg-orange-500",
-  "bg-cyan-500",
-  "bg-emerald-500",
+  "bg-gradient-to-r from-pink-500 to-pink-400",
+  "bg-gradient-to-r from-cyan-500 to-cyan-400", 
+  "bg-gradient-to-r from-blue-500 to-blue-400",
+  "bg-gradient-to-r from-purple-500 to-purple-400",
+  "bg-gradient-to-r from-emerald-500 to-emerald-400",
+  "bg-gradient-to-r from-orange-500 to-orange-400",
+  "bg-gradient-to-r from-rose-500 to-rose-400",
+  "bg-gradient-to-r from-violet-500 to-violet-400",
+  "bg-gradient-to-r from-teal-500 to-teal-400",
+  "bg-gradient-to-r from-amber-500 to-amber-400",
 ];
 
 export function StackedProgressBar({
@@ -73,32 +73,32 @@ export function StackedProgressBar({
     formattedValue: string
   ) => (
     <>
-      <div className="font-semibold">{item.name}</div>
-      <div className="text-gray-300 text-xs">
+      <div className="font-semibold text-white">{item.name}</div>
+      <div className="text-white/80 text-xs">
         {formattedValue}
         {valueSuffix} • {percentage.toFixed(1)}%
       </div>
       {onItemClick && (
-        <div className="text-gray-400 text-xs">Click to view leaderboard</div>
+        <div className="text-white/60 text-xs">Click to view leaderboard</div>
       )}
     </>
   );
 
   return (
-    <div className={`rounded-lg border bg-card p-6 ${className}`}>
+    <div className={`rounded-lg glass-card p-6 ${className}`}>
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold">{title}</h3>
-          <h3 className="text-lg font-semibold">
+          <h3 className="text-lg font-semibold text-white">{title}</h3>
+          <h3 className="text-lg font-semibold text-white">
             Total: {formatValue(total)}
             {valueSuffix}
           </h3>
         </div>
 
         {onItemClick && (
-          <div className="text-sm text-muted-foreground flex items-center gap-2">
-            <Trophy className="h-4 w-4" />
+          <div className="text-sm text-white/60 flex items-center gap-2">
+            <Trophy className="h-4 w-4 text-cyan-400" />
             Click any {title
               .toLowerCase()
               .replace(" categories", " category")}{" "}
@@ -111,7 +111,7 @@ export function StackedProgressBar({
           {/* Stacked Bar */}
           <div className="pt-1">
             <div
-              className={`w-full h-8 bg-gray-200 rounded-lg relative ${onItemClick ? "cursor-pointer hover:shadow-md" : ""} transition-shadow duration-200`}
+              className={`w-full h-8 bg-white/10 rounded-lg relative ${onItemClick ? "cursor-pointer hover:shadow-md" : ""} transition-shadow duration-200`}
             >
               {(() => {
                 let cumulativeValue = 0;
@@ -161,7 +161,7 @@ export function StackedProgressBar({
                     >
                       {/* Tooltip */}
                       <div
-                        className="absolute bottom-full mb-3 px-3 py-2 bg-black text-white text-xs rounded-md shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 pointer-events-none"
+                        className="absolute bottom-full mb-3 px-3 py-2 bg-black border border-white/30 text-white text-xs rounded-md shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 pointer-events-none"
                         style={{
                           left: "50%",
                           transform: "translateX(-50%)",
@@ -201,7 +201,7 @@ export function StackedProgressBar({
                     key={item.id}
                     role={onItemClick ? "button" : undefined}
                     tabIndex={onItemClick ? 0 : undefined}
-                    className={`group flex items-center gap-3 ${onItemClick ? "cursor-pointer hover:bg-muted/50 hover:shadow-sm" : ""} p-2 rounded-md transition-all duration-200 ${onItemClick ? "border border-transparent hover:border-muted-foreground/20" : ""}`}
+                    className={`group flex items-center gap-3 ${onItemClick ? "cursor-pointer hover:bg-white/10 hover:shadow-sm" : ""} p-2 rounded-md transition-all duration-200 ${onItemClick ? "border border-transparent hover:border-white/20" : ""}`}
                     onClick={() => onItemClick?.(item)}
                     onKeyDown={(e) => {
                       if (onItemClick && (e.key === "Enter" || e.key === " ")) {
@@ -215,22 +215,22 @@ export function StackedProgressBar({
                       className={`w-4 h-4 rounded ${colorClass} flex-shrink-0`}
                     />
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">
+                      <div className="text-sm font-medium truncate text-white">
                         {item.name}
                       </div>
                     </div>
                     <div className="text-right flex-shrink-0 flex items-center gap-2">
                       <div>
-                        <div className="text-sm font-medium">
+                        <div className="text-sm font-medium text-white">
                           {formattedValue}
                           {valueSuffix}
                         </div>
-                        <div className="text-xs text-muted-foreground">
+                        <div className="text-xs text-white/60">
                           {widthPercentage.toFixed(1)}%
                         </div>
                       </div>
                       {showNavigationIndicators && onItemClick && (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
+                        <ChevronRight className="h-4 w-4 text-white/60 group-hover:text-cyan-400 transition-colors" />
                       )}
                     </div>
                   </div>

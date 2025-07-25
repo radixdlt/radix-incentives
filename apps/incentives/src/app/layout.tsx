@@ -22,20 +22,14 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={`dark ${geist.variable}`}>
+    <html lang="en" className={geist.variable}>
       <head>
         <meta name="color-scheme" content="dark light" />
       </head>
       <body className="bg-background text-foreground min-h-screen antialiased">
         <TRPCReactProvider>
           <RadixDappToolkitProvider>
-            <>
-              <div className="text-center font-bold bg-white text-black sticky top-0 z-50">
-                ⚠️ PREVIEW TEST ⚠️
-              </div>
-
-              {children}
-            </>
+            {children}
             <Toaster richColors position="top-right" />
           </RadixDappToolkitProvider>
         </TRPCReactProvider>

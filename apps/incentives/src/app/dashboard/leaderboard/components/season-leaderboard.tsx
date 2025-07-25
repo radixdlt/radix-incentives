@@ -33,7 +33,7 @@ export function SeasonLeaderboard() {
   const { data: leaderboardData, isLoading: leaderboardLoading } =
     api.leaderboard.getSeasonLeaderboard.useQuery(
       { seasonId: selectedSeasonId },
-      { 
+      {
         enabled: !!selectedSeasonId,
         refetchOnMount: true,
         refetchOnWindowFocus: false,
@@ -45,7 +45,7 @@ export function SeasonLeaderboard() {
     utils.leaderboard.getSeasonLeaderboard.invalidate({
       seasonId: selectedSeasonId,
     });
-  }, [persona, selectedSeasonId, utils]);
+  }, [selectedSeasonId, utils]);
 
   if (seasonsLoading) {
     return <LoadingState message="Loading seasons..." />;

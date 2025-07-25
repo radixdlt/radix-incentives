@@ -21,33 +21,33 @@ export const MetricCard = ({
   trend,
   icon: Icon,
   description,
-  iconColor = 'text-green-500',
+  iconColor = 'text-cyan-400',
 }: MetricCardProps) => {
   return (
-    <Card className="overflow-hidden">
+    <Card className="overflow-hidden group">
       <div className="p-6 flex flex-col space-y-4">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium">{title}</span>
-          {/* {subtitle && (
-            <span className="text-xs text-muted-foreground hidden">
-              {subtitle}
-            </span>
-          )} */}
+          <span className="text-sm font-medium text-white/80">{title}</span>
+          {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
         </div>
-        <div className="flex items-end gap-2">
-          <span className="text-3xl font-bold tracking-tight">{value}</span>
-          {Icon && <Icon className={`h-4 w-4 ${iconColor} mb-1`} />}
+        
+        <div className="flex items-end gap-3">
+          <span className="text-4xl font-bold tracking-tight text-white gradient-text">
+            {value}
+          </span>
           {trend && (
-            <span
-              className={`text-xs mb-1 ${
-                trend.isPositive ? 'text-green-500' : 'text-red-500'
-              }`}
-            >
-              {trend.value}
-            </span>
+            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-xs font-medium mb-1 ${
+              trend.isPositive 
+                ? 'text-green-400' 
+                : 'text-red-400'
+            }`}>
+              <span>{trend.isPositive ? '↗' : '↘'}</span>
+              <span>{trend.value}</span>
+            </div>
           )}
         </div>
-        <div className="text-xs text-muted-foreground">{description}</div>
+        
+        <div className="text-sm text-white/60">{description}</div>
       </div>
     </Card>
   );
