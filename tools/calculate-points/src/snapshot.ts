@@ -9,7 +9,7 @@ export const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: "snapshot" },
   spanProcessor: new BatchSpanProcessor(
     new OTLPTraceExporter({
-      url: `http://127.0.0.1:4318/v1/traces`,
+      url: "http://127.0.0.1:4318/v1/traces",
     })
   ),
 }));
@@ -45,7 +45,7 @@ import { GetQuantaSwapBinMapLive } from "../../../packages/api/src/common/dapps/
 import { GetShapeLiquidityClaimsLive } from "../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityClaims";
 import { GetShapeLiquidityAssetsLive } from "../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityAssets";
 import { GetOciswapLiquidityAssetsLive } from "../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityAssets";
-import { GetOciswapLiquidityClaimsLive } from "../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityClaims";
+import { GetOciswapLiquidityClaimsService } from "../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityClaims";
 import { GetOciswapResourcePoolPositionsLive } from "../../../packages/api/src/common/dapps/ociswap/getOciswapResourcePoolPositions";
 import { GetCaviarnineResourcePoolPositionsLive } from "../../../packages/api/src/common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
 import { GetDefiPlazaPositionsLive } from "../../../packages/api/src/common/dapps/defiplaza/getDefiPlazaPositions";
@@ -202,9 +202,10 @@ const runnable = Effect.gen(function* () {
     Layer.provide(getNonFungibleBalanceLive)
   );
 
-  const getOciswapLiquidityClaimsLive = GetOciswapLiquidityClaimsLive.pipe(
-    Layer.provide(entityNonFungibleDataServiceLive)
-  );
+  const getOciswapLiquidityClaimsLive =
+    GetOciswapLiquidityClaimsService.Default.pipe(
+      Layer.provide(entityNonFungibleDataServiceLive)
+    );
 
   const getOciswapLiquidityAssetsLive = GetOciswapLiquidityAssetsLive.pipe(
     Layer.provide(getComponentStateServiceLive),
@@ -383,7 +384,9 @@ const runnable = Effect.gen(function* () {
   yield* service({
     timestamp: new Date(),
     batchSize: 10000,
-    addresses,
+    addresses: [
+      "account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew",
+    ],
   }).pipe(Effect.provide(NodeSdkLive));
 });
 

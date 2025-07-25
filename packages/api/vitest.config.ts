@@ -9,6 +9,7 @@ export default defineConfig({
     retry: 3, // Retry failed tests up to 3 times
     // Run tests sequentially to avoid database conflicts and race conditions
     pool: "forks",
+    fileParallelism: false,
     poolOptions: {
       forks: {
         singleFork: true, // Run all tests in a single fork (sequential)

@@ -17,6 +17,8 @@ import type { SborError } from "sbor-ez-mode";
 import type { AtLedgerState } from "../../gateway/schemas";
 import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
 import { BigNumber } from "bignumber.js";
+import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
+import { groupBy } from "effect/Array";
 
 export class ParseSborError {
   readonly _tag = "ParseSborError";
@@ -78,10 +80,57 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
       const getKeyValueStoreService = yield* GetKeyValueStoreService;
 
-      const accountCollateralMap = new Map<
-        AccountAddress,
-        CollaterizedDebtPosition[]
-      >();
+      const parseRootReceipt = Effect.fn(function* (input: {
+        sbor?: ProgrammaticScryptoSborValue;
+      }) {
+        const rootReceiptItemSbor = input.sbor;
+
+        if (!rootReceiptItemSbor) {
+          return yield* Effect.fail(new InvalidRootReceiptItemError());
+        }
+
+        const parsed =
+          CollaterizedDebtPositionData.safeParse(rootReceiptItemSbor);
+
+        if (parsed.isErr()) {
+          return yield* Effect.fail(new ParseSborError(parsed.error));
+        }
+
+        return parsed.value;
+      });
+
+      const parsePoolState = Effect.fn(function* (item: {
+        value: { programmatic_json: ProgrammaticScryptoSborValue };
+      }) {
+        const poolState = LendingPoolState.safeParse(
+          item.value.programmatic_json
+        );
+
+        if (poolState.isErr()) {
+          return yield* Effect.fail(
+            new FailedToParseLendingPoolStateError(poolState.error)
+          );
+        }
+
+        return poolState.value;
+      });
+
+      const parsePoolStateKey = Effect.fn(function* (item: {
+        key: { programmatic_json: ProgrammaticScryptoSborValue };
+      }) {
+        const key = PoolStatesKeyValueStoreKeySchema.safeParse(
+          item.key.programmatic_json
+        );
+
+        if (key.isErr()) {
+          return yield* Effect.fail(
+            new FailedToParsePoolStatesKeyError(key.error)
+          );
+        }
+
+        return key.value;
+      });
+
       return {
         run: Effect.fn(function* (input: GetRootFinancePositionsServiceInput) {
           const poolStatesKvs = yield* getKeyValueStoreService({
@@ -96,61 +145,87 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
             })
           );
 
-          // Create maps for conversion ratios: pool units -> real amounts
-          const collateralConversionRatios = new Map<
-            ResourceAddress,
-            BigNumber
-          >();
-          const loanConversionRatios = new Map<ResourceAddress, BigNumber>();
+          const { collateralConversionRatios, loanConversionRatios } =
+            yield* Effect.forEach(
+              poolStatesKvs.entries,
+              Effect.fn(function* (item) {
+                const poolState = yield* parsePoolState(item);
 
-          for (const item of poolStatesKvs.entries) {
-            const poolState = LendingPoolState.safeParse(
-              item.value.programmatic_json
-            );
-
-            if (poolState.isOk()) {
-              // Extract resource address from the key using SBOR EZ Mode
-              const keyParseResult = PoolStatesKeyValueStoreKeySchema.safeParse(
-                item.key.programmatic_json
-              );
-
-              if (keyParseResult.isOk()) {
-                const resourceAddress = keyParseResult.value;
-                const state = poolState.value;
+                // Extract resource address from the key
+                const resourceAddress = yield* parsePoolStateKey(item);
 
                 // For collaterals: multiply by total_deposit / total_deposit_unit
                 const totalDepositUnit = new BigNumber(
-                  state.total_deposit_unit
+                  poolState.total_deposit_unit
                 );
-                if (state.total_deposit_unit && totalDepositUnit.gt(0)) {
+
+                const output: {
+                  resourceAddress: ResourceAddress;
+                  collateralRatio?: BigNumber;
+                  loanRatio?: BigNumber;
+                }[] = [];
+
+                if (poolState.total_deposit_unit && totalDepositUnit.gt(0)) {
                   const collateralRatio = new BigNumber(
-                    state.total_deposit
+                    poolState.total_deposit
                   ).div(totalDepositUnit);
-                  collateralConversionRatios.set(
+
+                  output.push({
                     resourceAddress,
-                    collateralRatio
-                  );
+                    collateralRatio,
+                  });
                 }
 
                 // For loans: multiply by total_loan / total_loan_unit
-                const totalLoanUnit = new BigNumber(state.total_loan_unit);
-                if (state.total_loan_unit && totalLoanUnit.gt(0)) {
-                  const loanRatio = new BigNumber(state.total_loan).div(
+                const totalLoanUnit = new BigNumber(poolState.total_loan_unit);
+                if (poolState.total_loan_unit && totalLoanUnit.gt(0)) {
+                  const loanRatio = new BigNumber(poolState.total_loan).div(
                     totalLoanUnit
                   );
-                  loanConversionRatios.set(resourceAddress, loanRatio);
+                  output.push({
+                    resourceAddress,
+                    loanRatio,
+                  });
                 }
-              } else {
-                return yield* Effect.fail(
-                  new FailedToParsePoolStatesKeyError(keyParseResult.error)
-                );
-              }
-            } else {
-              return yield* Effect.fail(
-                new FailedToParseLendingPoolStateError(poolState.error)
-              );
-            }
-          }
+
+                return output;
+              }),
+              { concurrency: "unbounded" }
+            ).pipe(
+              Effect.map((items) => {
+                const flatItems = items.flat();
+
+                const collateralConversionRatios = new Map<
+                  ResourceAddress,
+                  BigNumber
+                >();
+
+                const loanConversionRatios = new Map<
+                  ResourceAddress,
+                  BigNumber
+                >();
+
+                for (const item of flatItems) {
+                  if (item?.collateralRatio) {
+                    collateralConversionRatios.set(
+                      item.resourceAddress,
+                      item.collateralRatio
+                    );
+                  }
+                  if (item?.loanRatio) {
+                    loanConversionRatios.set(
+                      item.resourceAddress,
+                      item.loanRatio
+                    );
+                  }
+                }
+
+                return {
+                  collateralConversionRatios,
+                  loanConversionRatios,
+                };
+              })
+            );
 
           const result = input.nonFungibleBalance
             ? input.nonFungibleBalance
@@ -160,48 +235,56 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                 options: {
                   non_fungible_include_nfids: true,
                 },
-              }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
+                resourceAddresses: [
+                  RootFinanceConstants.receiptResourceAddress,
+                ],
+              });
 
-          for (const account of result.items) {
-            const collaterizedDebtPositionList: CollaterizedDebtPosition[] = [];
+          const collaterizedDebtPositions = yield* Effect.forEach(
+            result.items,
+            Effect.fn(function* (nftResult) {
+              const rootReceipts = nftResult.nonFungibleResources.flatMap(
+                (resource) =>
+                  resource.items.map((item) => ({
+                    ...item,
+                    resourceAddress: resource.resourceAddress,
+                    accountAddress: nftResult.address,
+                  }))
+              );
 
-            const rootReceipts = account.nonFungibleResources.filter(
-              (resource) =>
-                resource.resourceAddress ===
-                RootFinanceConstants.receiptResourceAddress
-            );
+              return yield* Effect.forEach(
+                rootReceipts,
+                Effect.fn(function* (rootReceipt) {
+                  const collaterizedDebtPosition =
+                    yield* parseRootReceipt(rootReceipt);
 
-            for (const rootReceipt of rootReceipts) {
-              const rootReceiptItems = rootReceipt.items;
+                  return {
+                    ...rootReceipt,
+                    collaterizedDebtPosition,
+                  };
+                })
+              );
+            })
+          ).pipe(Effect.map((items) => items.flat()));
 
-              for (const rootReceiptItem of rootReceiptItems) {
-                const rootReceiptItemSbor = rootReceiptItem.sbor;
-
-                if (!rootReceiptItemSbor) {
-                  return yield* Effect.fail(new InvalidRootReceiptItemError());
-                }
-
-                const parsed =
-                  CollaterizedDebtPositionData.safeParse(rootReceiptItemSbor);
-
-                if (parsed.isErr()) {
-                  return yield* Effect.fail(new ParseSborError(parsed.error));
-                }
-
-                const collaterizedDebtPosition = parsed.value;
-
+          const collaterizedDebtPositionsWithRealAmounts =
+            yield* Effect.forEach(
+              collaterizedDebtPositions,
+              Effect.fn(function* ({
+                collaterizedDebtPosition,
+                resourceAddress,
+                id,
+                accountAddress,
+              }) {
                 // Convert pool units to real amounts for collaterals
                 const collaterals: Record<ResourceAddress, Value> = {};
                 for (const [
                   resourceAddress,
                   unitAmount,
                 ] of collaterizedDebtPosition.collaterals.entries()) {
-                  if (!unitAmount) {
-                    continue; // Skip empty amounts
-                  }
-
                   const conversionRatio =
                     collateralConversionRatios.get(resourceAddress);
+
                   if (!conversionRatio) {
                     return yield* Effect.fail(
                       new MissingConversionRatioError(
@@ -241,32 +324,37 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                   loans[resourceAddress] = realAmount.toString();
                 }
 
-                collaterizedDebtPositionList.push({
+                return {
+                  accountAddress,
                   nft: {
-                    resourceAddress: rootReceipt.resourceAddress,
-                    localId: rootReceiptItem.id,
+                    resourceAddress,
+                    localId: id,
                   },
                   collaterals,
                   loans,
-                });
-              }
-            }
-
-            accountCollateralMap.set(
-              account.address,
-              collaterizedDebtPositionList
+                };
+              }),
+              { concurrency: "unbounded" }
             );
-          }
 
-          const items = Array.from(accountCollateralMap.entries()).map(
-            ([accountAddress, value]) => ({
+          const groupedByAccountAddress = groupBy(
+            collaterizedDebtPositionsWithRealAmounts,
+            (item) => item.accountAddress
+          );
+
+          const output = Object.entries(groupedByAccountAddress).map(
+            ([accountAddress, items]) => ({
               accountAddress,
-              collaterizedDebtPositions: value,
+              collaterizedDebtPositions: items.map(
+                ({ accountAddress, ...rest }) => ({
+                  ...rest,
+                })
+              ),
             })
           );
 
           return {
-            items,
+            items: output,
           };
         }),
       };
