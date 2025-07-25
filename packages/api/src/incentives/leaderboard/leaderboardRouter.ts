@@ -2,12 +2,15 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
+import { CacheNotAvailableError } from "./leaderboard";
 
 // Helper function to get user ID from session token
 const getUserId = async (ctx: {
   sessionToken: string | null;
   dependencyLayer: {
-    validateSessionToken: (token: string) => Promise<Exit.Exit<{ user: { id: string } }, unknown>>;
+    validateSessionToken: (
+      token: string
+    ) => Promise<Exit.Exit<{ user: { id: string } }, unknown>>;
   };
 }): Promise<string | undefined> => {
   if (!ctx.sessionToken) {
@@ -15,8 +18,10 @@ const getUserId = async (ctx: {
   }
 
   try {
-    const result = await ctx.dependencyLayer.validateSessionToken(ctx.sessionToken);
-    
+    const result = await ctx.dependencyLayer.validateSessionToken(
+      ctx.sessionToken
+    );
+
     if (Exit.isSuccess(result)) {
       const validatedSession = result.value as { user: { id: string } };
       return validatedSession.user.id;
@@ -25,8 +30,28 @@ const getUserId = async (ctx: {
     // Silently ignore session validation errors for public procedures
     console.log("Session validation failed for public procedure:", error);
   }
-  
+
   return undefined;
+};
+
+// Helper function to handle errors consistently
+const handleServiceError = (cause: unknown): never => {
+  // Extract the actual error from Effect's Cause wrapper
+  let error = cause;
+  if (cause && typeof cause === "object" && "error" in cause) {
+    error = (cause as { error: unknown }).error;
+  }
+
+  // Check for CacheNotAvailableError by _tag property in the extracted error
+  if (error && typeof error === "object" && "_tag" in error && error._tag === "CacheNotAvailableError") {
+    throw new TRPCError({
+      code: "PRECONDITION_FAILED", 
+      message: "Leaderboard is still being built. Please check back in a few minutes.",
+    });
+  }
+
+  console.error(cause);
+  throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
 };
 
 export const leaderboardRouter = createTRPCRouter({
@@ -38,7 +63,7 @@ export const leaderboardRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const userId = await getUserId(ctx);
-      
+
       const result = await ctx.dependencyLayer.getSeasonLeaderboard({
         seasonId: input.seasonId,
         userId,
@@ -46,13 +71,9 @@ export const leaderboardRouter = createTRPCRouter({
 
       return Exit.match(result, {
         onSuccess: (value) => value,
-        onFailure: (error) => {
-          console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-        },
+        onFailure: handleServiceError,
       });
     }),
-
 
   getAvailableSeasons: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getAvailableSeasons();
@@ -79,10 +100,7 @@ export const leaderboardRouter = createTRPCRouter({
 
       return Exit.match(result, {
         onSuccess: (value) => value,
-        onFailure: (error) => {
-          console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-        },
+        onFailure: handleServiceError,
       });
     }),
 
@@ -107,7 +125,7 @@ export const leaderboardRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const userId = await getUserId(ctx);
-      
+
       const result = await ctx.dependencyLayer.getActivityCategoryLeaderboard({
         categoryId: input.categoryId,
         weekId: input.weekId,
@@ -116,10 +134,7 @@ export const leaderboardRouter = createTRPCRouter({
 
       return Exit.match(result, {
         onSuccess: (value) => value,
-        onFailure: (error) => {
-          console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-        },
+        onFailure: handleServiceError,
       });
     }),
 
@@ -134,5 +149,4 @@ export const leaderboardRouter = createTRPCRouter({
       },
     });
   }),
-
 });

@@ -55,29 +55,60 @@ export function CategoryLeaderboard() {
     }
   }, [categories, selectedCategoryId, searchParams]);
 
-  // Fetch category leaderboard data
-  const { data: leaderboardData, isLoading: leaderboardLoading } =
-    api.leaderboard.getActivityCategoryLeaderboard.useQuery(
-      {
-        categoryId: selectedCategoryId,
-        weekId: selectedWeekId,
-      },
-      {
-        enabled: !!selectedCategoryId && !!selectedWeekId,
-        refetchOnMount: true,
-        refetchOnWindowFocus: false,
-      }
-    );
-
-  // Invalidate queries when persona changes to ensure fresh data
+  // Prefetch category leaderboard data for other categories
   useEffect(() => {
-    if (selectedCategoryId && selectedWeekId) {
-      utils.leaderboard.getActivityCategoryLeaderboard.invalidate({
-        categoryId: selectedCategoryId,
-        weekId: selectedWeekId,
-      });
+    if (selectedWeekId && categories && categories.length > 0) {
+      // Prefetch data for other categories - if cache isn't available, it will fail gracefully
+      for (const category of categories) {
+        if (category.id !== selectedCategoryId) {
+          utils.leaderboard.getActivityCategoryLeaderboard
+            .prefetch({
+              categoryId: category.id,
+              weekId: selectedWeekId,
+            })
+            .catch(() => {
+              // Silently ignore prefetch errors (cache not available)
+            });
+        }
+      }
     }
-  }, [selectedCategoryId, selectedWeekId, utils]);
+  }, [selectedWeekId, categories, selectedCategoryId, utils]);
+
+  // Fetch category leaderboard data directly - cache check now happens in backend
+  const {
+    data: leaderboardData,
+    isLoading: leaderboardLoading,
+    error: leaderboardError,
+    refetch: refetchLeaderboard,
+  } = api.leaderboard.getActivityCategoryLeaderboard.useQuery(
+    {
+      categoryId: selectedCategoryId,
+      weekId: selectedWeekId,
+    },
+    {
+      enabled: !!selectedCategoryId && !!selectedWeekId,
+      refetchOnWindowFocus: false,
+      retry: (failureCount, error) => {
+        // Don't retry if it's a cache building error
+        if (error?.data?.code === "PRECONDITION_FAILED") {
+          return false;
+        }
+        return failureCount < 2;
+      },
+    }
+  );
+
+  // Refetch leaderboard data when persona changes to ensure fresh data
+  useEffect(() => {
+    // Force invalidation and refetch when user connects/disconnects
+    if (selectedCategoryId && selectedWeekId) {
+      utils.leaderboard.getActivityCategoryLeaderboard
+        .invalidate()
+        .then(() => {
+          refetchLeaderboard();
+        });
+    }
+  }, [persona, refetchLeaderboard, selectedCategoryId, selectedWeekId, utils]);
 
   if (weeksLoading || categoriesLoading) {
     return <LoadingState message="Loading data..." />;
@@ -113,17 +144,26 @@ export function CategoryLeaderboard() {
 
       {leaderboardLoading ? (
         <LoadingState message="Loading leaderboard..." />
+      ) : leaderboardError ? (
+        <EmptyState
+          message={
+            leaderboardError.data?.code === "PRECONDITION_FAILED"
+              ? leaderboardError.message ||
+                "Leaderboard data is being processed. Please check back in a few minutes."
+              : "Failed to load leaderboard data. Please try again later."
+          }
+        />
       ) : leaderboardData ? (
         <LeaderboardContent
           topUsers={leaderboardData.topUsers}
           userStats={leaderboardData.userStats}
           globalStats={leaderboardData.globalStats}
           pointsLabel="activity points"
-          emptyMessage="No activity data available for this week and activity combination."
+          emptyMessage="Leaderboard data is being processed. Please check back later."
           isUserConnected={!!persona}
         />
       ) : (
-        <EmptyState message="No activity data available for this week and activity combination." />
+        <LoadingState message="Loading leaderboard..." />
       )}
     </div>
   );

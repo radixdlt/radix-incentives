@@ -1,17 +1,176 @@
 import { Effect } from "effect";
 import { DbClientService } from "../db/dbClient";
+import type { Db } from "db/incentives";
 import {
-  accountActivityPoints,
-  accounts,
   users,
   activities,
   activityCategories,
   weeks,
   seasons,
-  userSeasonPoints,
+  seasonLeaderboardCache,
+  categoryLeaderboardCache,
+  leaderboardStatsCache,
 } from "db/incentives";
-import { eq, desc, asc, sum, sql, and, not, inArray } from "drizzle-orm";
-import { BigNumber } from "bignumber.js";
+import { eq, desc, asc, sql, and, inArray, lte } from "drizzle-orm";
+
+// Custom error for when cache is being built
+export class CacheNotAvailableError extends Error {
+  readonly _tag = "CacheNotAvailableError";
+  constructor(message: string) {
+    super(message);
+    this.name = "CacheNotAvailableError";
+  }
+}
+
+// Type for cached season leaderboard data from database query
+type CachedSeasonLeaderboardEntry = {
+  userId: string;
+  label: string | null;
+  totalPoints: string;
+  rank: number;
+};
+
+// Type for cached category leaderboard data from database query
+type CachedCategoryLeaderboardEntry = {
+  userId: string;
+  label: string | null;
+  totalPoints: string;
+  rank: number;
+  activityBreakdown: Record<string, number> | unknown;
+};
+
+// Common leaderboard response builder to avoid duplication
+interface LeaderboardUser {
+  userId: string;
+  label: string | null;
+  totalPoints: string;
+  rank: number;
+}
+
+interface BuildLeaderboardResponseParams {
+  cachedData: LeaderboardUser[];
+  statsCache: {
+    totalUsers?: number;
+    median?: string | null;
+    average?: string | null;
+  } | null;
+  userId?: string;
+  additionalUserData?: Record<string, unknown>;
+}
+
+const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
+  const { cachedData, statsCache, userId, additionalUserData } = params;
+
+  // Get top 5 users
+  const topUsers = cachedData.slice(0, 5).map((user) => ({
+    userId: user.userId,
+    label: user.label,
+    totalPoints: user.totalPoints,
+    rank: user.rank,
+  }));
+
+  // Get user stats if userId provided
+  let userStats = null;
+  if (userId) {
+    const userEntry = cachedData.find((user) => user.userId === userId);
+    if (userEntry) {
+      const percentile = Math.round(
+        (1 - (userEntry.rank - 1) / cachedData.length) * 100
+      );
+      userStats = {
+        rank: userEntry.rank,
+        totalPoints: userEntry.totalPoints,
+        percentile,
+        // Merge any additional user-specific data (like activityBreakdown)
+        ...additionalUserData,
+      };
+    }
+  }
+
+  const globalStats = {
+    totalUsers: statsCache?.totalUsers || cachedData.length,
+    median: statsCache?.median || "0",
+    average: statsCache?.average || "0",
+  };
+
+  return { topUsers, userStats, globalStats };
+};
+
+// Helper to get activity breakdown for category leaderboards
+const getActivityBreakdown = function* (params: {
+  db: Db;
+  userEntry: { activityBreakdown: Record<string, number> | unknown };
+  activityIds: string[];
+  weekId: string;
+  userId: string;
+}) {
+  const { db, userEntry } = params;
+
+  // Parse activity breakdown from cached JSONB - should be Record<string, number>
+  const activityBreakdown =
+    userEntry.activityBreakdown &&
+    typeof userEntry.activityBreakdown === "object" &&
+    userEntry.activityBreakdown !== null &&
+    !Array.isArray(userEntry.activityBreakdown)
+      ? (userEntry.activityBreakdown as Record<string, number>)
+      : {};
+
+  let activityBreakdownData: Array<{
+    activityId: string;
+    activityName: string;
+    points: string;
+  }> = [];
+
+  // If we have cached breakdown data, use it
+  if (Object.keys(activityBreakdown).length > 0) {
+    const breakdown = yield* Effect.tryPromise(() =>
+      db
+        .select({
+          activityId: activities.id,
+          activityName: activities.name,
+        })
+        .from(activities)
+        .where(inArray(activities.id, Object.keys(activityBreakdown)))
+    ).pipe(
+      Effect.catchAll((error) =>
+        Effect.gen(function* () {
+          yield* Effect.logError(
+            "Failed to fetch activity breakdown for activity names",
+            error
+          );
+          return [];
+        })
+      )
+    );
+
+    // Create a map of activity ID to name for quick lookup
+    const activityNameMap = breakdown.reduce(
+      (
+        acc: Record<string, string>,
+        activity: { activityId: string; activityName: string | null }
+      ) => {
+        acc[activity.activityId] = activity.activityName || activity.activityId;
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+
+    // Map the breakdown data, using activity ID as fallback if name not found
+    activityBreakdownData = Object.entries(activityBreakdown)
+      .filter(([_, points]) => points > 0) // Only show activities with points
+      .map(([activityId, points]) => ({
+        activityId,
+        activityName: activityNameMap[activityId] || activityId,
+        points: points.toString(),
+      }));
+  } else {
+    // No cached breakdown data available - return empty array for MVP
+    // Real-time calculations are intentionally disabled for performance reasons
+    activityBreakdownData = [];
+  }
+
+  return activityBreakdownData;
+};
 
 export interface ActivityCategoryLeaderboardData {
   topUsers: Array<{
@@ -57,11 +216,6 @@ export interface SeasonLeaderboardData {
     rank: number;
     totalPoints: string;
     percentile: number;
-    accountContributions?: Array<{
-      accountAddress: string;
-      accountLabel: string;
-      points: string;
-    }>;
   } | null;
   globalStats: {
     totalUsers: number;
@@ -101,87 +255,89 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           return yield* Effect.fail(new Error("Season not found"));
         }
 
-        // Aggregate season points by user
-        const userTotals = yield* Effect.tryPromise(() =>
+        // Check cache availability first - this eliminates the frontend waterfall request
+        const cacheCount = yield* Effect.tryPromise(() =>
+          db
+            .select({ count: sql<number>`count(*)` })
+            .from(seasonLeaderboardCache)
+            .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+            .then((result) => result[0]?.count || 0)
+        ).pipe(Effect.catchAll(() => Effect.succeed(0)));
+
+        if (cacheCount === 0) {
+          yield* Effect.log(`No cache available for season ${input.seasonId}`);
+          return yield* Effect.fail(
+            new CacheNotAvailableError(
+              `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
+            )
+          );
+        }
+
+        // Get cached data - we know it exists at this point
+        const cachedData = yield* Effect.tryPromise(() =>
           db
             .select({
-              userId: userSeasonPoints.userId,
+              userId: seasonLeaderboardCache.userId,
               label: users.label,
-              totalPoints: sum(userSeasonPoints.points).as("totalPoints"),
+              totalPoints: seasonLeaderboardCache.totalPoints,
+              rank: seasonLeaderboardCache.rank,
             })
-            .from(userSeasonPoints)
-            .innerJoin(users, eq(userSeasonPoints.userId, users.id))
-            .where(eq(userSeasonPoints.seasonId, input.seasonId))
-            .groupBy(userSeasonPoints.userId, users.label)
-            .orderBy(desc(sum(userSeasonPoints.points)))
+            .from(seasonLeaderboardCache)
+            .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
+            .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+            .orderBy(asc(seasonLeaderboardCache.rank))
         );
 
-        // Calculate statistics
-        const totalUsers = userTotals.length;
-        const pointsArray = userTotals.map(
-          (user) => new BigNumber(user.totalPoints || "0")
-        );
-
-        const average = pointsArray
-          .reduce((acc, points) => acc.plus(points), new BigNumber(0))
-          .dividedBy(totalUsers || 1)
-          .toFixed(6);
-
-        // Calculate median
-        const sortedPoints = pointsArray.sort((a, b) => a.comparedTo(b) || 0);
-        let median: string;
-        if (totalUsers > 0) {
-          if (totalUsers % 2 === 0) {
-            const left = sortedPoints[Math.floor(totalUsers / 2) - 1];
-            const right = sortedPoints[Math.floor(totalUsers / 2)];
-            if (left !== undefined && right !== undefined) {
-              median = left.plus(right).dividedBy(2).toFixed(6);
-            } else {
-              median = "0";
-            }
-          } else {
-            const mid = sortedPoints[Math.floor(totalUsers / 2)];
-            median = mid !== undefined ? mid.toFixed(6) : "0";
-          }
-        } else {
-          median = "0";
-        }
-
-        // Get top 5 users
-        const topUsers = userTotals.slice(0, 5).map((user, index) => ({
-          userId: user.userId,
-          label: user.label,
-          totalPoints: user.totalPoints || "0",
-          rank: index + 1,
-        }));
-
-        // Get user stats if userId provided
-        let userStats = null;
-        if (input.userId) {
-          const userIndex = userTotals.findIndex(
-            (user) => user.userId === input.userId
+        // Check if cache is empty (which shouldn't happen in normal operation)
+        if (cachedData.length === 0) {
+          yield* Effect.log(
+            `No cached data found for season ${input.seasonId}`
           );
-          if (userIndex !== -1) {
-            const userTotal = userTotals[userIndex];
-            const rank = userIndex + 1;
-            const percentile = Math.round((1 - (rank - 1) / totalUsers) * 100);
 
-            userStats = {
-              rank,
-              totalPoints: userTotal?.totalPoints || "0",
-              percentile,
-            };
-          }
+          // real-time calculation would go here as a fallback, e.g.:
+          //
+          // const realTimeData = yield* calculateSeasonLeaderboardRealTime({
+          //   seasonId: input.seasonId,
+          //   userId: input.userId
+          // });
+          //
+          // this would involve complex aggregations across userSeasonPoints table
+          // very expensive for large datasets I assume
+
+          return yield* Effect.fail(
+            new CacheNotAvailableError(
+              `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
+            )
+          );
         }
+
+        yield* Effect.log(
+          `Using cached season leaderboard data (${cachedData.length} users)`
+        );
+
+        // Get global stats from cache
+        const statsCache = yield* Effect.tryPromise(() =>
+          db
+            .select()
+            .from(leaderboardStatsCache)
+            .where(
+              eq(leaderboardStatsCache.cacheKey, `season_${input.seasonId}`)
+            )
+            .limit(1)
+            .then((result) => result[0])
+        ).pipe(Effect.catchAll(() => Effect.succeed(null)));
+
+        // Build common leaderboard response
+        const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
+          cachedData: cachedData as CachedSeasonLeaderboardEntry[],
+          statsCache,
+          userId: input.userId,
+        });
 
         return {
           topUsers,
           userStats,
-          globalStats: {
-            totalUsers,
-            median,
-            average,
-          },
+          globalStats,
           seasonInfo,
         };
       });
@@ -189,6 +345,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const getAvailableWeeks = Effect.fn(function* (input: {
         seasonId?: string;
       }) {
+        const now = new Date();
         const query = db
           .select({
             id: weeks.id,
@@ -198,11 +355,15 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             seasonName: seasons.name,
           })
           .from(weeks)
-          .innerJoin(seasons, eq(weeks.seasonId, seasons.id));
-
-        if (input.seasonId) {
-          query.where(eq(weeks.seasonId, input.seasonId));
-        }
+          .innerJoin(seasons, eq(weeks.seasonId, seasons.id))
+          .where(
+            and(
+              // Only show weeks that have started (using UTC time)
+              lte(weeks.startDate, now),
+              // Add seasonId filter if provided
+              input.seasonId ? eq(weeks.seasonId, input.seasonId) : undefined
+            )
+          );
 
         return yield* Effect.tryPromise(() =>
           query.orderBy(desc(weeks.startDate))
@@ -337,133 +498,129 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
         const activityIds = categoryActivities.map((a) => a.id);
 
-        // Query account activity points for all activities in this category
-        const userTotals = yield* Effect.tryPromise(() =>
+        // Check cache availability first - this eliminates the frontend waterfall request
+        const cacheCount = yield* Effect.tryPromise(() =>
           db
-            .select({
-              userId: accounts.userId,
-              label: users.label,
-              totalPoints: sum(accountActivityPoints.activityPoints).as(
-                "totalPoints"
-              ),
-            })
-            .from(accountActivityPoints)
-            .innerJoin(
-              accounts,
-              eq(accountActivityPoints.accountAddress, accounts.address)
-            )
-            .innerJoin(users, eq(accounts.userId, users.id))
+            .select({ count: sql<number>`count(*)` })
+            .from(categoryLeaderboardCache)
             .where(
               and(
-                inArray(accountActivityPoints.activityId, activityIds),
-                eq(accountActivityPoints.weekId, input.weekId)
+                eq(categoryLeaderboardCache.weekId, input.weekId),
+                eq(categoryLeaderboardCache.categoryId, input.categoryId)
               )
             )
-            .groupBy(accounts.userId, users.label)
-            .orderBy(desc(sum(accountActivityPoints.activityPoints)))
-        );
+            .then((result) => result[0]?.count || 0)
+        ).pipe(Effect.catchAll(() => Effect.succeed(0)));
 
-        // Calculate statistics
-        const totalUsers = userTotals.length;
-        const pointsArray = userTotals.map(
-          (user) => new BigNumber(user.totalPoints || "0")
-        );
-
-        const average = pointsArray
-          .reduce((acc, points) => acc.plus(points), new BigNumber(0))
-          .dividedBy(totalUsers || 1)
-          .toFixed(6);
-
-        // Calculate median
-        const sortedPoints = pointsArray.sort((a, b) => a.comparedTo(b) || 0);
-        let median: string;
-
-        if (totalUsers > 0) {
-          if (totalUsers % 2 === 0) {
-            const mid1 =
-              sortedPoints[Math.floor(totalUsers / 2) - 1] ?? new BigNumber(0);
-            const mid2 =
-              sortedPoints[Math.floor(totalUsers / 2)] ?? new BigNumber(0);
-            median = mid1.plus(mid2).dividedBy(2).toFixed(6);
-          } else {
-            const mid =
-              sortedPoints[Math.floor(totalUsers / 2)] ?? new BigNumber(0);
-            median = mid.toFixed(6);
-          }
-        } else {
-          median = "0";
-        }
-
-        // Get top 5 users
-        const topUsers = userTotals.slice(0, 5).map((user, index) => ({
-          userId: user.userId,
-          label: user.label,
-          totalPoints: user.totalPoints?.toString() || "0",
-          rank: index + 1,
-        }));
-
-        // Get user stats if userId provided
-        let userStats = null;
-        if (input.userId) {
-          const userIndex = userTotals.findIndex(
-            (user) => user.userId === input.userId
+        if (cacheCount === 0) {
+          yield* Effect.log(
+            `No cache available for week ${input.weekId}, category ${input.categoryId}`
           );
-          if (userIndex !== -1) {
-            const userTotal = userTotals[userIndex];
-            const rank = userIndex + 1;
-            const percentile = Math.round((1 - (rank - 1) / totalUsers) * 100);
+          return yield* Effect.fail(
+            new CacheNotAvailableError(
+              `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
+            )
+          );
+        }
 
-            // Get activity breakdown for this user
-            const activityBreakdown = yield* Effect.tryPromise(() =>
-              db
-                .select({
-                  activityId: accountActivityPoints.activityId,
-                  activityName: activities.name,
-                  points: sum(accountActivityPoints.activityPoints).as(
-                    "points"
-                  ),
-                })
-                .from(accountActivityPoints)
-                .innerJoin(
-                  accounts,
-                  eq(accountActivityPoints.accountAddress, accounts.address)
-                )
-                .innerJoin(
-                  activities,
-                  eq(accountActivityPoints.activityId, activities.id)
-                )
-                .where(
-                  and(
-                    inArray(accountActivityPoints.activityId, activityIds),
-                    eq(accountActivityPoints.weekId, input.weekId),
-                    eq(accounts.userId, input.userId!)
-                  )
-                )
-                .groupBy(accountActivityPoints.activityId, activities.name)
-                .orderBy(desc(sum(accountActivityPoints.activityPoints)))
-            );
+        // Get cached data - we know it exists at this point
+        const cachedData = yield* Effect.tryPromise(() =>
+          db
+            .select({
+              userId: categoryLeaderboardCache.userId,
+              label: users.label,
+              totalPoints: categoryLeaderboardCache.totalPoints,
+              rank: categoryLeaderboardCache.rank,
+              activityBreakdown: categoryLeaderboardCache.activityBreakdown,
+            })
+            .from(categoryLeaderboardCache)
+            .innerJoin(users, eq(categoryLeaderboardCache.userId, users.id))
+            .where(
+              and(
+                eq(categoryLeaderboardCache.weekId, input.weekId),
+                eq(categoryLeaderboardCache.categoryId, input.categoryId)
+              )
+            )
+            .orderBy(asc(categoryLeaderboardCache.rank))
+        );
 
-            userStats = {
-              rank,
-              totalPoints: userTotal?.totalPoints?.toString() || "0",
-              percentile,
-              activityBreakdown: activityBreakdown.map((breakdown) => ({
-                activityId: breakdown.activityId,
-                activityName: breakdown.activityName || breakdown.activityId,
-                points: (breakdown.points || 0).toString(),
-              })),
-            };
+        // Check if cache is empty (which shouldn't happen in normal operation)
+        if (cachedData.length === 0) {
+          yield* Effect.log(
+            `No cached data found for week ${input.weekId}, category ${input.categoryId}`
+          );
+
+          // NOTE: Real-time calculation would go here as a fallback, but it's disabled for MVP
+          // to avoid expensive queries that could impact performance. In a future version,
+          // we could implement:
+          //
+          // const realTimeData = yield* calculateCategoryLeaderboardRealTime({
+          //   weekId: input.weekId,
+          //   categoryId: input.categoryId,
+          //   userId: input.userId,
+          //   activityIds
+          // });
+          //
+          // This would involve complex aggregations across accountActivityPoints table
+          // with grouping by userId and activity breakdown calculations, which could be
+          // very expensive for large datasets and many activities.
+
+          return yield* Effect.fail(
+            new CacheNotAvailableError(
+              `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
+            )
+          );
+        }
+
+        yield* Effect.log(
+          `Using cached category leaderboard data (${cachedData.length} users)`
+        );
+
+        // Get global stats from cache
+        const statsCache = yield* Effect.tryPromise(() =>
+          db
+            .select()
+            .from(leaderboardStatsCache)
+            .where(
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `category_${input.weekId}_${input.categoryId}`
+              )
+            )
+            .limit(1)
+            .then((result) => result[0])
+        ).pipe(Effect.catchAll(() => Effect.succeed(null)));
+
+        // Get activity breakdown for user if needed
+        let additionalUserData: Record<string, unknown> = {};
+        if (input.userId) {
+          const userEntry = (
+            cachedData as CachedCategoryLeaderboardEntry[]
+          ).find((user) => user.userId === input.userId);
+          if (userEntry) {
+            const activityBreakdownData = yield* getActivityBreakdown({
+              db,
+              userEntry: { activityBreakdown: userEntry.activityBreakdown },
+              activityIds,
+              weekId: input.weekId,
+              userId: input.userId,
+            });
+            additionalUserData = { activityBreakdown: activityBreakdownData };
           }
         }
+
+        // Build common leaderboard response
+        const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
+          cachedData: cachedData as CachedCategoryLeaderboardEntry[],
+          statsCache,
+          userId: input.userId,
+          additionalUserData,
+        });
 
         return {
           topUsers,
           userStats,
-          globalStats: {
-            totalUsers,
-            median,
-            average,
-          },
+          globalStats,
           categoryInfo: {
             id: input.categoryId,
             name: categoryInfo.name || input.categoryId,
@@ -471,7 +628,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           weekInfo,
         };
       });
-
 
       return {
         getSeasonLeaderboard,
