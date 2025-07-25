@@ -227,8 +227,8 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
               })
             );
 
-          const result = input.nonFungibleBalance
-            ? input.nonFungibleBalance
+          const nonFungibleBalanceItems = input.nonFungibleBalance
+            ? input.nonFungibleBalance.items
             : yield* getNonFungibleBalanceService({
                 addresses: input.accountAddresses,
                 at_ledger_state: input.at_ledger_state,
@@ -238,18 +238,24 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                 resourceAddresses: [
                   RootFinanceConstants.receiptResourceAddress,
                 ],
-              });
+              }).pipe(Effect.map((res) => res.items));
 
           const collaterizedDebtPositions = yield* Effect.forEach(
-            result.items,
+            nonFungibleBalanceItems,
             Effect.fn(function* (nftResult) {
               const rootReceipts = nftResult.nonFungibleResources.flatMap(
                 (resource) =>
-                  resource.items.map((item) => ({
-                    ...item,
-                    resourceAddress: resource.resourceAddress,
-                    accountAddress: nftResult.address,
-                  }))
+                  resource.items
+                    .map((item) => ({
+                      ...item,
+                      resourceAddress: resource.resourceAddress,
+                      accountAddress: nftResult.address,
+                    }))
+                    .filter(
+                      (item) =>
+                        item.resourceAddress ===
+                        RootFinanceConstants.receiptResourceAddress
+                    )
               );
 
               return yield* Effect.forEach(
