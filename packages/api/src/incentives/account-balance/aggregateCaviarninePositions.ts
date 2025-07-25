@@ -12,6 +12,7 @@ import {
 
 import type { ShapeLiquidityAsset } from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
 import type { CaviarnineSimplePoolLiquidityAsset } from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
+import { determineLpActivityId } from "./determineLpActivityId";
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
@@ -46,30 +47,6 @@ export class AggregateCaviarninePositionsService extends Effect.Service<Aggregat
       const DEBUG_ENABLED = Config.boolean("debug").pipe(
         Config.withDefault(false)
       );
-
-      const determineLpActivityId = Effect.fn(function* (
-        dapp: string,
-        tokenPair: string
-      ) {
-        const lpActivityId = `${dapp}_lp_${tokenPair}` as ActivityId;
-        const nativeLpActivityId =
-          `${dapp}_nativeLp_${tokenPair}` as ActivityId;
-
-        const isLpActivity = matchActivityId(lpActivityId);
-        const isNativeLpActivity = matchActivityId(nativeLpActivityId);
-
-        if (!isLpActivity && !isNativeLpActivity) {
-          return yield* Effect.fail(
-            new ActivityNotSupportedError({
-              message: `${tokenPair} is not a valid token pair`,
-            })
-          );
-        }
-
-        return isLpActivity
-          ? { activityId: lpActivityId, isNativeLp: false }
-          : { activityId: nativeLpActivityId, isNativeLp: true };
-      });
 
       const aggregatePools = Effect.fn(function* (
         input: AggregateCaviarninePositionsInput
@@ -340,22 +317,25 @@ export class AggregateCaviarninePositionsService extends Effect.Service<Aggregat
           processedPools.add(activityId);
 
           // Create separate metadata for each pool using pre-calculated data
-          const poolMetadata: Record<string, {
-            componentAddress: string;
-            tokenPair: string;
-            baseToken: {
-              resourceAddress: string;
-              amount: string;
-              outsidePriceBounds: string;
-              isNativeAsset: boolean;
-            };
-            quoteToken: {
-              resourceAddress: string;
-              amount: string;
-              outsidePriceBounds: string;
-              isNativeAsset: boolean;
-            };
-          }> = {};
+          const poolMetadata: Record<
+            string,
+            {
+              componentAddress: string;
+              tokenPair: string;
+              baseToken: {
+                resourceAddress: string;
+                amount: string;
+                outsidePriceBounds: string;
+                isNativeAsset: boolean;
+              };
+              quoteToken: {
+                resourceAddress: string;
+                amount: string;
+                outsidePriceBounds: string;
+                isNativeAsset: boolean;
+              };
+            }
+          > = {};
           for (const { poolKey, poolAssets, poolTotals } of poolData) {
             poolMetadata[poolKey] = {
               componentAddress: poolKey,

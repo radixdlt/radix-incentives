@@ -1,10 +1,6 @@
-import { Effect, Layer } from "effect";
+import { Config, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Context } from "effect";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import {
   DappConstants,
@@ -15,441 +11,526 @@ import {
 } from "data";
 import {
   AddressValidationService,
-  type UnknownTokenError,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
 
 import type { OciswapLiquidityAsset } from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
 import type { OciswapResourcePoolLiquidityAsset } from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import { determineLpActivityId } from "./determineLpActivityId";
 
 const OciswapConstants = DappConstants.Ociswap.constants;
 
-// Only include metadata if STORE_METADATA is not set to 'false' (defaults to true then)
-const STORE_METADATA = process.env.STORE_METADATA !== "false";
+export type AggregateOciswapPositionsOutput = Effect.Effect.Success<
+  ReturnType<typeof AggregateOciswapPositionsService.Service>
+>;
 
-export type AggregateOciswapPositionsInput = {
-  accountBalance: AccountBalanceFromSnapshot;
-  timestamp: Date;
+type OciswapPool = OciswapLiquidityAsset | OciswapResourcePoolLiquidityAsset;
+
+type OciswapPoolEntity = {
+  poolKey: string;
+  poolAssets: OciswapPool[];
 };
 
-export type AggregateOciswapPositionsOutput = AccountBalanceData;
+const allOciswapPools = [
+  ...Object.values(OciswapConstants.pools),
+  ...Object.values(OciswapConstants.poolsV2),
+  ...Object.values(OciswapConstants.flexPools),
+  ...Object.values(OciswapConstants.basicPools),
+];
 
-export class AggregateOciswapPositionsService extends Context.Tag(
-  "AggregateOciswapPositionsService"
-)<
-  AggregateOciswapPositionsService,
-  (
-    input: AggregateOciswapPositionsInput
-  ) => Effect.Effect<
-    AggregateOciswapPositionsOutput[],
-    GetUsdValueServiceError | UnknownTokenError
-  >
->() {}
+type TokenPair = string;
 
-export const AggregateOciswapPositionsLive = Layer.effect(
-  AggregateOciswapPositionsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const addressValidationService = yield* AddressValidationService;
-    return (input) =>
-      Effect.gen(function* () {
-        const results: AccountBalanceData[] = [];
-        const processedPools = new Set<string>();
+type TokenInfo = {
+  name: string;
+  isNativeAsset: boolean;
+  resourceAddress: string;
+};
 
-        // Aggregate pools by token pair
-        const poolsByTokenPair = new Map<
-          string,
-          {
-            pools: {
-              poolKey: string;
-              poolAssets:
-                | OciswapLiquidityAsset[]
-                | OciswapResourcePoolLiquidityAsset[];
-            }[];
-            xTokenInfo: { name: string; isNativeAsset: boolean };
-            yTokenInfo: { name: string; isNativeAsset: boolean };
-          }
-        >();
+type AggregatedPoolItem = {
+  tokenPair: TokenPair;
+  activityId: ActivityId;
+  isNativeLp: boolean;
+  pools: OciswapPoolEntity[];
+  xTokenInfo: TokenInfo;
+  yTokenInfo: TokenInfo;
+};
 
-        // First pass: group pools by token pair
-        for (const [poolKey, poolAssets] of Object.entries(
-          input.accountBalance.ociswapPositions
-        )) {
-          const firstAsset = poolAssets[0];
+type PoolData = {
+  poolKey: string;
+  poolAssets: OciswapPool[];
+  poolTotals: {
+    totalXToken: BigNumber;
+    totalYToken: BigNumber;
+    totalXTokenOutsidePriceBounds: BigNumber;
+    totalYTokenOutsidePriceBounds: BigNumber;
+  };
+  xTokenUsdValue: BigNumber;
+  yTokenUsdValue: BigNumber;
+  poolMultiplier: number;
+  poolUsdValue: BigNumber;
+};
 
-          if (!firstAsset || poolAssets.length === 0) {
-            continue;
-          }
+type Metadata = {
+  componentAddress: string;
+  tokenPair: string;
+  baseToken: {
+    resourceAddress: string;
+    amount: string;
+    outsidePriceBounds: string;
+    isNativeAsset: boolean;
+  };
+  quoteToken: {
+    resourceAddress: string;
+    amount: string;
+    outsidePriceBounds: string;
+    isNativeAsset: boolean;
+  };
+};
 
-          const { xToken, yToken } = firstAsset;
+export class AggregateOciswapPositionsService extends Effect.Service<AggregateOciswapPositionsService>()(
+  "AggregateOciswapPositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const STORE_METADATA = Config.boolean("storeMetadata").pipe(
+        Config.withDefault(true)
+      );
+      const getUsdValueService = yield* GetUsdValueService;
+      const addressValidationService = yield* AddressValidationService;
 
-          // Get token info including XRD derivative status
-          const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
-              xToken.resourceAddress
+      const createDefaultValues = Effect.fn(function* () {
+        return yield* Effect.forEach(
+          allOciswapPools,
+          Effect.fn(function* (pool) {
+            const xTokenInfo =
+              yield* addressValidationService.getTokenNameAndNativeAssetStatus(
+                pool.token_x
+              );
+
+            const yTokenInfo =
+              yield* addressValidationService.getTokenNameAndNativeAssetStatus(
+                pool.token_y
+              );
+
+            const tokenPair = getTokenPair(xTokenInfo.name, yTokenInfo.name);
+
+            const { activityId, isNativeLp } = yield* determineLpActivityId(
+              "oci",
+              tokenPair
             );
-          const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
-              yToken.resourceAddress
+
+            // Get XRD derivative status from the centralized function
+            const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
+            const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
+
+            return STORE_METADATA
+              ? {
+                  activityId,
+                  isNativeLp,
+                  usdValue: "0",
+                  metadata: {
+                    tokenPair,
+                    baseToken: {
+                      resourceAddress: pool.token_x,
+                      amount: "0",
+                      outsidePriceBounds: "0",
+                      isNativeAsset: isXTokenNativeAsset,
+                    },
+                    quoteToken: {
+                      resourceAddress: pool.token_y,
+                      amount: "0",
+                      outsidePriceBounds: "0",
+                      isNativeAsset: isYTokenNativeAsset,
+                    },
+                  },
+                }
+              : {
+                  activityId,
+                  isNativeLp,
+                  usdValue: "0",
+                };
+          }),
+          { concurrency: "unbounded" }
+        ).pipe(
+          Effect.map((a) =>
+            a.reduce((acc, curr) => {
+              acc.set(curr.activityId, curr);
+              return acc;
+            }, new Map<ActivityId, AccountBalanceData>())
+          )
+        );
+      });
+
+      const aggregatePools = Effect.fn(function* (
+        input: AccountBalanceFromSnapshot
+      ) {
+        const poolsByTokenPair = yield* Effect.forEach(
+          Object.entries(input.ociswapPositions),
+          Effect.fn(function* ([poolKey, poolAssets]) {
+            const firstAsset = poolAssets[0];
+
+            if (!firstAsset || poolAssets.length === 0) {
+              return;
+            }
+
+            const { xToken, yToken } = firstAsset;
+
+            // Get token info including XRD derivative status
+            const xTokenInfo =
+              yield* addressValidationService.getTokenNameAndNativeAssetStatus(
+                xToken.resourceAddress
+              );
+
+            const yTokenInfo =
+              yield* addressValidationService.getTokenNameAndNativeAssetStatus(
+                yToken.resourceAddress
+              );
+
+            const tokenPair = getTokenPair(xTokenInfo.name, yTokenInfo.name);
+
+            const { activityId, isNativeLp } = yield* determineLpActivityId(
+              "oci",
+              tokenPair
             );
 
-          const tokenPairKey = getTokenPair(
-            xTokenInfo.name as Token,
-            yTokenInfo.name as Token
-          );
+            return {
+              tokenPair,
+              activityId,
+              isNativeLp,
+              pool: { poolKey, poolAssets },
+              xTokenInfo: {
+                ...xTokenInfo,
+                resourceAddress: xToken.resourceAddress,
+              },
+              yTokenInfo: {
+                ...yTokenInfo,
+                resourceAddress: yToken.resourceAddress,
+              },
+            };
+          }),
+          { concurrency: "unbounded" }
+        ).pipe(
+          Effect.map((pools) =>
+            pools.reduce((acc, pool) => {
+              if (!pool) {
+                return acc;
+              }
 
-          if (!poolsByTokenPair.has(tokenPairKey)) {
-            poolsByTokenPair.set(tokenPairKey, {
-              pools: [],
-              xTokenInfo,
-              yTokenInfo,
-            });
-          }
+              const existingPool = acc.get(pool.tokenPair);
 
-          poolsByTokenPair
-            .get(tokenPairKey)!
-            .pools.push({ poolKey, poolAssets });
-        }
+              if (!existingPool) {
+                acc.set(pool.tokenPair, {
+                  tokenPair: pool.tokenPair,
+                  activityId: pool.activityId,
+                  isNativeLp: pool.isNativeLp,
+                  pools: [pool.pool],
+                  xTokenInfo: pool.xTokenInfo,
+                  yTokenInfo: pool.yTokenInfo,
+                });
+              } else {
+                existingPool.pools.push(pool.pool);
+              }
+              return acc;
+            }, new Map<TokenPair, AggregatedPoolItem>())
+          )
+        );
 
-        // Second pass: process each token pair
-        for (const [
-          _tokenPairKey,
-          { pools, xTokenInfo, yTokenInfo },
-        ] of poolsByTokenPair) {
-          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
-          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
-          const xTokenName = xTokenInfo.name;
-          const yTokenName = yTokenInfo.name;
+        return poolsByTokenPair;
+      });
 
-          // Aggregate totals across all pools for this token pair
-          let totalXToken = new BigNumber(0);
-          let totalYToken = new BigNumber(0);
-          let totalXTokenOutsidePriceBounds = new BigNumber(0);
-          let totalYTokenOutsidePriceBounds = new BigNumber(0);
+      const calculatePoolTotals = Effect.fn(function* (
+        poolAssets: OciswapPool[]
+      ) {
+        return yield* Effect.forEach(
+          poolAssets,
+          Effect.fn(function* (poolAsset) {
+            const { xToken, yToken } = poolAsset;
 
-          const poolShares: Record<string, number> = {};
-          let totalUsdValue = new BigNumber(0);
+            const xTokenAmountInBounds = xToken.amountInBounds;
+            const yTokenAmountInBounds = yToken.amountInBounds;
 
-          // Pre-calculate all pool data in single pass to avoid redundant calculations
-          const poolData = [];
-          for (const { poolKey, poolAssets } of pools) {
-            const poolTotals = poolAssets.reduce(
-              (acc, item) => {
-                // Use amountInBounds for LP tracking (within price bounds)
+            const xTokenOutsidePriceBounds = new BigNumber(
+              xToken.totalAmount
+            ).minus(xTokenAmountInBounds);
+            const yTokenOutsidePriceBounds = new BigNumber(
+              yToken.totalAmount
+            ).minus(yTokenAmountInBounds);
+
+            return {
+              xTokenAmountInBounds,
+              yTokenAmountInBounds,
+              xTokenOutsidePriceBounds,
+              yTokenOutsidePriceBounds,
+            };
+          })
+        ).pipe(
+          Effect.map((items) =>
+            items.reduce(
+              (acc, curr) => {
                 acc.totalXToken = acc.totalXToken.plus(
-                  item.xToken.amountInBounds
+                  curr.xTokenAmountInBounds
                 );
                 acc.totalXTokenOutsidePriceBounds =
                   acc.totalXTokenOutsidePriceBounds.plus(
-                    new BigNumber(item.xToken.totalAmount).minus(
-                      item.xToken.amountInBounds
-                    )
+                    curr.xTokenOutsidePriceBounds
                   );
                 acc.totalYToken = acc.totalYToken.plus(
-                  item.yToken.amountInBounds
+                  curr.yTokenAmountInBounds
                 );
                 acc.totalYTokenOutsidePriceBounds =
                   acc.totalYTokenOutsidePriceBounds.plus(
-                    new BigNumber(item.yToken.totalAmount).minus(
-                      item.yToken.amountInBounds
-                    )
+                    curr.yTokenOutsidePriceBounds
                   );
                 return acc;
               },
               {
                 totalXToken: new BigNumber(0),
-                totalYToken: new BigNumber(0),
                 totalXTokenOutsidePriceBounds: new BigNumber(0),
+                totalYToken: new BigNumber(0),
                 totalYTokenOutsidePriceBounds: new BigNumber(0),
               }
-            );
+            )
+          )
+        );
+      });
 
-            // Calculate USD values for this pool
-            const xTokenUsdValue = poolTotals.totalXToken.gt(0)
-              ? yield* getUsdValueService({
-                  amount: poolTotals.totalXToken,
-                  resourceAddress: poolAssets[0]!.xToken.resourceAddress,
-                  timestamp: input.timestamp,
-                })
-              : new BigNumber(0);
+      const getPoolData = Effect.fn(function* (
+        pool: OciswapPoolEntity,
+        xTokenInfo: TokenInfo,
+        yTokenInfo: TokenInfo,
+        timestamp: Date
+      ) {
+        const { poolKey, poolAssets } = pool;
 
-            const yTokenUsdValue = poolTotals.totalYToken.gt(0)
-              ? yield* getUsdValueService({
-                  amount: poolTotals.totalYToken,
-                  resourceAddress: poolAssets[0]!.yToken.resourceAddress,
-                  timestamp: input.timestamp,
-                })
-              : new BigNumber(0);
+        const poolTotals = yield* calculatePoolTotals(poolAssets);
 
-            // Check if this specific pool is constant product and apply multiplier
-            const isPoolConstantProduct =
-              addressValidationService.isConstantProductPool(poolKey);
-            const poolMultiplier = isPoolConstantProduct
-              ? CONSTANT_PRODUCT_MULTIPLIER
-              : 1;
+        const isPoolConstantProduct =
+          addressValidationService.isConstantProductPool(poolKey);
 
-            const poolUsdValue = xTokenUsdValue
-              .plus(yTokenUsdValue)
-              .multipliedBy(poolMultiplier);
-            totalUsdValue = totalUsdValue.plus(poolUsdValue);
+        const poolMultiplier = isPoolConstantProduct
+          ? CONSTANT_PRODUCT_MULTIPLIER
+          : 1;
 
-            // Store all calculated values for later use
-            poolData.push({
-              poolKey,
-              poolAssets,
-              poolTotals,
-              xTokenUsdValue,
-              yTokenUsdValue,
-              poolMultiplier,
-              poolUsdValue,
+        // Calculate USD values for this pool
+        const xTokenUsdValue = poolTotals.totalXToken.isZero()
+          ? new BigNumber(0)
+          : yield* getUsdValueService({
+              amount: poolTotals.totalXToken,
+              resourceAddress: xTokenInfo.resourceAddress,
+              timestamp,
             });
 
-            // Add to overall totals
-            totalXToken = totalXToken.plus(poolTotals.totalXToken);
-            totalYToken = totalYToken.plus(poolTotals.totalYToken);
-            totalXTokenOutsidePriceBounds = totalXTokenOutsidePriceBounds.plus(
-              poolTotals.totalXTokenOutsidePriceBounds
-            );
-            totalYTokenOutsidePriceBounds = totalYTokenOutsidePriceBounds.plus(
-              poolTotals.totalYTokenOutsidePriceBounds
-            );
-          }
+        const yTokenUsdValue = poolTotals.totalYToken.isZero()
+          ? new BigNumber(0)
+          : yield* getUsdValueService({
+              amount: poolTotals.totalYToken,
+              resourceAddress: yTokenInfo.resourceAddress,
+              timestamp,
+            });
 
-          // Calculate pool shares using pre-calculated values
-          for (const { poolKey, poolUsdValue } of poolData) {
-            if (totalUsdValue.gt(0)) {
-              poolShares[poolKey] = poolUsdValue
-                .dividedBy(totalUsdValue)
-                .toNumber();
-            }
-          }
+        const poolUsdValue = xTokenUsdValue
+          .plus(yTokenUsdValue)
+          .multipliedBy(poolMultiplier);
 
-          // Calculate individual token USD values for proper split
-          const xTokenUsdValue = totalXToken.gt(0)
-            ? yield* getUsdValueService({
-                amount: totalXToken,
-                resourceAddress:
-                  pools[0]!.poolAssets[0]!.xToken.resourceAddress,
-                timestamp: input.timestamp,
-              })
-            : new BigNumber(0);
-
-          const yTokenUsdValue = totalYToken.gt(0)
-            ? yield* getUsdValueService({
-                amount: totalYToken,
-                resourceAddress:
-                  pools[0]!.poolAssets[0]!.yToken.resourceAddress,
-                timestamp: input.timestamp,
-              })
-            : new BigNumber(0);
-
-          // Calculate wrapped and native asset portions from the totalUsdValue
-          const wrappedAssetPortion = new BigNumber(0)
-            .plus(isXTokenNativeAsset ? 0 : xTokenUsdValue)
-            .plus(isYTokenNativeAsset ? 0 : yTokenUsdValue);
-
-          const nativeAssetPortion = new BigNumber(0)
-            .plus(isXTokenNativeAsset ? xTokenUsdValue : 0)
-            .plus(isYTokenNativeAsset ? yTokenUsdValue : 0);
-
-          const totalPortion = wrappedAssetPortion.plus(nativeAssetPortion);
-
-          // Calculate final USD values using the already-multiplied totalUsdValue
-          const finalNonXrdUsdValue = totalPortion.gt(0)
-            ? totalUsdValue
-                .multipliedBy(wrappedAssetPortion)
-                .dividedBy(totalPortion)
-            : new BigNumber(0);
-
-          const finalNativeAssetUsdValue = totalPortion.gt(0)
-            ? totalUsdValue
-                .multipliedBy(nativeAssetPortion)
-                .dividedBy(totalPortion)
-            : new BigNumber(0);
-
-          // Generate activity IDs based on token pair
-          const nonNativeActivityId =
-            `oci_lp_${getTokenPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
-          const nativeActivityId =
-            `oci_nativeLp_${getTokenPair(xTokenName as Token, yTokenName as Token)}` as ActivityId;
-
-          processedPools.add(nonNativeActivityId);
-          processedPools.add(nativeActivityId);
-
-          // Create separate metadata for each pool using pre-calculated data
-          const poolMetadata: Record<string, {
-            componentAddress: string;
-            tokenPair: string;
-            baseToken: {
-              resourceAddress: string;
-              amount: string;
-              outsidePriceBounds: string;
-              isNativeAsset: boolean;
-            };
-            quoteToken: {
-              resourceAddress: string;
-              amount: string;
-              outsidePriceBounds: string;
-              isNativeAsset: boolean;
-            };
-          }> = {};
-          if (STORE_METADATA) {
-            for (const { poolKey, poolAssets, poolTotals } of poolData) {
-              poolMetadata[poolKey] = {
-                componentAddress: poolKey,
-                tokenPair: getTokenPair(
-                  xTokenName as Token,
-                  yTokenName as Token
-                ),
-                baseToken: {
-                  resourceAddress: poolAssets[0]!.xToken.resourceAddress,
-                  amount: poolTotals.totalXToken.toString(),
-                  outsidePriceBounds:
-                    poolTotals.totalXTokenOutsidePriceBounds.toString(),
-                  isNativeAsset: isXTokenNativeAsset,
-                },
-                quoteToken: {
-                  resourceAddress: poolAssets[0]!.yToken.resourceAddress,
-                  amount: poolTotals.totalYToken.toString(),
-                  outsidePriceBounds:
-                    poolTotals.totalYTokenOutsidePriceBounds.toString(),
-                  isNativeAsset: isYTokenNativeAsset,
-                },
-              };
-            }
-          }
-
-          // Add non-native LP activity (non-XRD tokens only)
-          results.push(
-            STORE_METADATA
-              ? {
-                  activityId: nonNativeActivityId,
-                  usdValue: finalNonXrdUsdValue.toString(),
-                  poolShare:
-                    Object.keys(poolShares).length > 1 ? poolShares : undefined,
-                  metadata: poolMetadata,
-                }
-              : {
-                  activityId: nonNativeActivityId,
-                  usdValue: finalNonXrdUsdValue.toString(),
-                  poolShare:
-                    Object.keys(poolShares).length > 1 ? poolShares : undefined,
-                }
-          );
-
-          // Add native LP activity (XRD derivatives only)
-          results.push(
-            STORE_METADATA
-              ? {
-                  activityId: nativeActivityId,
-                  usdValue: finalNativeAssetUsdValue.toString(),
-                  poolShare:
-                    Object.keys(poolShares).length > 1 ? poolShares : undefined,
-                  metadata: poolMetadata,
-                }
-              : {
-                  activityId: nativeActivityId,
-                  usdValue: finalNativeAssetUsdValue.toString(),
-                  poolShare:
-                    Object.keys(poolShares).length > 1 ? poolShares : undefined,
-                }
-          );
-        }
-
-        // Add zero entries for all OciSwap pool types with no positions
-        const allPools = [
-          ...Object.values(OciswapConstants.pools),
-          ...Object.values(OciswapConstants.poolsV2),
-          ...Object.values(OciswapConstants.flexPools),
-          ...Object.values(OciswapConstants.basicPools),
-        ];
-
-        for (const pool of allPools) {
-          const xTokenInfo =
-            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
-              pool.token_x
-            );
-          const yTokenInfo =
-            yield* addressValidationService.getTokenNameAndNativeAssetStatus(
-              pool.token_y
-            );
-          const nonNativeActivityId =
-            `oci_lp_${getTokenPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
-          const nativeActivityId =
-            `oci_nativeLp_${getTokenPair(xTokenInfo.name as Token, yTokenInfo.name as Token)}` as ActivityId;
-
-          // Get XRD derivative status from the centralized function
-          const isXTokenNativeAsset = xTokenInfo.isNativeAsset;
-          const isYTokenNativeAsset = yTokenInfo.isNativeAsset;
-
-          // Add zero entry for non-native LP if not processed
-          if (!processedPools.has(nonNativeActivityId)) {
-            results.push(
-              STORE_METADATA
-                ? {
-                    activityId: nonNativeActivityId,
-                    usdValue: "0",
-                    metadata: {
-                      tokenPair: getTokenPair(
-                        xTokenInfo.name as Token,
-                        yTokenInfo.name as Token
-                      ),
-                      baseToken: {
-                        resourceAddress: pool.token_x,
-                        amount: "0",
-                        outsidePriceBounds: "0",
-                        isNativeAsset: isXTokenNativeAsset,
-                      },
-                      quoteToken: {
-                        resourceAddress: pool.token_y,
-                        amount: "0",
-                        outsidePriceBounds: "0",
-                        isNativeAsset: isYTokenNativeAsset,
-                      },
-                    },
-                  }
-                : {
-                    activityId: nonNativeActivityId,
-                    usdValue: "0",
-                  }
-            );
-          }
-
-          // Add zero entry for native LP if not processed
-          if (!processedPools.has(nativeActivityId)) {
-            results.push(
-              STORE_METADATA
-                ? {
-                    activityId: nativeActivityId,
-                    usdValue: "0",
-                    metadata: {
-                      tokenPair: getTokenPair(
-                        xTokenInfo.name as Token,
-                        yTokenInfo.name as Token
-                      ),
-                      baseToken: {
-                        resourceAddress: pool.token_x,
-                        amount: "0",
-                        outsidePriceBounds: "0",
-                        isNativeAsset: isXTokenNativeAsset,
-                      },
-                      quoteToken: {
-                        resourceAddress: pool.token_y,
-                        amount: "0",
-                        outsidePriceBounds: "0",
-                        isNativeAsset: isYTokenNativeAsset,
-                      },
-                    },
-                  }
-                : {
-                    activityId: nativeActivityId,
-                    usdValue: "0",
-                  }
-            );
-          }
-        }
-
-        return results;
+        return {
+          poolKey,
+          poolAssets,
+          poolTotals,
+          poolMultiplier,
+          xTokenUsdValue,
+          yTokenUsdValue,
+          poolUsdValue,
+        } satisfies PoolData;
       });
-  })
-);
+
+      const precalculatePoolData = Effect.fn(function* (input: {
+        item: AggregatedPoolItem;
+        timestamp: Date;
+      }) {
+        const { item, timestamp } = input;
+
+        const { pools, xTokenInfo, yTokenInfo } = item;
+
+        const poolData = yield* Effect.forEach(
+          pools,
+          Effect.fn(function* (pool) {
+            return yield* getPoolData(pool, xTokenInfo, yTokenInfo, timestamp);
+          })
+        );
+
+        const totalsAcrossPools = poolData.reduce(
+          (acc, curr) => {
+            acc.totalUsdValue = acc.totalUsdValue.plus(curr.poolUsdValue);
+            acc.totalXToken = acc.totalXToken.plus(curr.poolTotals.totalXToken);
+            acc.totalYToken = acc.totalYToken.plus(curr.poolTotals.totalYToken);
+            acc.totalXTokenOutsidePriceBounds =
+              acc.totalXTokenOutsidePriceBounds.plus(
+                curr.poolTotals.totalXTokenOutsidePriceBounds
+              );
+            acc.totalYTokenOutsidePriceBounds =
+              acc.totalYTokenOutsidePriceBounds.plus(
+                curr.poolTotals.totalYTokenOutsidePriceBounds
+              );
+
+            return acc;
+          },
+          {
+            totalUsdValue: new BigNumber(0),
+            totalXToken: new BigNumber(0),
+            totalYToken: new BigNumber(0),
+            totalXTokenOutsidePriceBounds: new BigNumber(0),
+            totalYTokenOutsidePriceBounds: new BigNumber(0),
+          }
+        );
+
+        return {
+          ...totalsAcrossPools,
+          poolData,
+        };
+      });
+
+      const processAggregatedPoolItem = Effect.fn(function* (input: {
+        aggregatedPoolItem: AggregatedPoolItem;
+        timestamp: Date;
+      }) {
+        const { aggregatedPoolItem } = input;
+        const isXTokenNativeAsset = aggregatedPoolItem.xTokenInfo.isNativeAsset;
+        const isYTokenNativeAsset = aggregatedPoolItem.yTokenInfo.isNativeAsset;
+        const xTokenName = aggregatedPoolItem.xTokenInfo.name;
+        const yTokenName = aggregatedPoolItem.yTokenInfo.name;
+
+        const { poolData, totalUsdValue, totalXToken, totalYToken } =
+          yield* precalculatePoolData({
+            item: aggregatedPoolItem,
+            timestamp: input.timestamp,
+          });
+
+        const poolShares: Record<string, number> = {};
+
+        // Calculate pool shares using pre-calculated values
+        for (const { poolKey, poolUsdValue } of poolData) {
+          if (totalUsdValue.gt(0)) {
+            poolShares[poolKey] = poolUsdValue
+              .dividedBy(totalUsdValue)
+              .toNumber();
+          }
+        }
+
+        // Calculate individual token USD values for proper split
+        const xTokenUsdValue = totalXToken.gt(0)
+          ? yield* getUsdValueService({
+              amount: totalXToken,
+              resourceAddress: aggregatedPoolItem.xTokenInfo.resourceAddress,
+              timestamp: input.timestamp,
+            })
+          : new BigNumber(0);
+
+        const yTokenUsdValue = totalYToken.gt(0)
+          ? yield* getUsdValueService({
+              amount: totalYToken,
+              resourceAddress: aggregatedPoolItem.yTokenInfo.resourceAddress,
+              timestamp: input.timestamp,
+            })
+          : new BigNumber(0);
+
+        // Calculate wrapped and native asset portions from the totalUsdValue
+        const wrappedAssetPortion = new BigNumber(0)
+          .plus(isXTokenNativeAsset ? 0 : xTokenUsdValue)
+          .plus(isYTokenNativeAsset ? 0 : yTokenUsdValue);
+
+        const nativeAssetPortion = new BigNumber(0)
+          .plus(isXTokenNativeAsset ? xTokenUsdValue : 0)
+          .plus(isYTokenNativeAsset ? yTokenUsdValue : 0);
+
+        const totalPortion = wrappedAssetPortion.plus(nativeAssetPortion);
+
+        // Calculate final USD values using the already-multiplied totalUsdValue
+        const finalNonXrdUsdValue = totalPortion.gt(0)
+          ? totalUsdValue
+              .multipliedBy(wrappedAssetPortion)
+              .dividedBy(totalPortion)
+          : new BigNumber(0);
+
+        const finalNativeAssetUsdValue = totalPortion.gt(0)
+          ? totalUsdValue
+              .multipliedBy(nativeAssetPortion)
+              .dividedBy(totalPortion)
+          : new BigNumber(0);
+
+        // Create separate metadata for each pool using pre-calculated data
+        const poolMetadata: Record<string, Metadata> = {};
+
+        if (STORE_METADATA) {
+          for (const { poolKey, poolAssets, poolTotals } of poolData) {
+            poolMetadata[poolKey] = {
+              componentAddress: poolKey,
+              tokenPair: getTokenPair(xTokenName as Token, yTokenName as Token),
+              baseToken: {
+                resourceAddress: poolAssets[0]!.xToken.resourceAddress,
+                amount: poolTotals.totalXToken.toString(),
+                outsidePriceBounds:
+                  poolTotals.totalXTokenOutsidePriceBounds.toString(),
+                isNativeAsset: isXTokenNativeAsset,
+              },
+              quoteToken: {
+                resourceAddress: poolAssets[0]!.yToken.resourceAddress,
+                amount: poolTotals.totalYToken.toString(),
+                outsidePriceBounds:
+                  poolTotals.totalYTokenOutsidePriceBounds.toString(),
+                isNativeAsset: isYTokenNativeAsset,
+              },
+            };
+          }
+        }
+
+        const activityId = aggregatedPoolItem.activityId;
+        const isNativeLp = aggregatedPoolItem.isNativeLp;
+        const usdValue = (
+          isNativeLp ? finalNativeAssetUsdValue : finalNonXrdUsdValue
+        ).toString();
+        const poolShare =
+          Object.keys(poolShares).length > 1 ? poolShares : undefined;
+        const metadata = STORE_METADATA ? poolMetadata : undefined;
+
+        return {
+          activityId,
+          usdValue,
+          poolShare,
+          metadata,
+        };
+      });
+
+      return Effect.fn("AggregateOciswapPositionsService")(function* (input: {
+        accountBalance: AccountBalanceFromSnapshot;
+        timestamp: Date;
+      }) {
+        // Aggregate pools by token pair
+        const poolsByTokenPair = yield* aggregatePools(input.accountBalance);
+
+        const defaults = yield* createDefaultValues();
+
+        // Second pass: process each token pair
+        const processedItems = yield* Effect.forEach(
+          poolsByTokenPair.values(),
+          Effect.fn(function* (aggregatedPoolItem) {
+            return yield* processAggregatedPoolItem({
+              aggregatedPoolItem,
+              timestamp: input.timestamp,
+            });
+          })
+        ).pipe(
+          Effect.map((item) =>
+            item.reduce((acc, curr) => {
+              acc.set(curr.activityId, curr);
+              return acc;
+            }, defaults)
+          )
+        );
+
+        return processedItems;
+      });
+    }),
+  }
+) {}
+
+export const AggregateOciswapPositionsLive =
+  AggregateOciswapPositionsService.Default;
