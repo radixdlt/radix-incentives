@@ -1,17 +1,17 @@
 import { Effect } from "effect";
 import { DbClientService } from "../db/dbClient";
+import { WeekService } from "../week/week";
+import { SeasonService } from "../season/season";
+import { ActivityCategoryService } from "../activity-category/activityCategory";
 import type { Db } from "db/incentives";
 import {
   users,
   activities,
-  activityCategories,
-  weeks,
-  seasons,
   seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
 } from "db/incentives";
-import { eq, desc, asc, sql, and, inArray, lte } from "drizzle-orm";
+import { eq, asc, sql, and, inArray } from "drizzle-orm";
 
 // Custom error for when cache is being built
 export class CacheNotAvailableError extends Error {
@@ -106,7 +106,7 @@ const getActivityBreakdown = function* (params: {
 }) {
   const { db, userEntry } = params;
 
-  // Parse activity breakdown from cached JSONB - should be Record<string, number>
+  // Parse activity breakdown from cached JSONB, should be Record<string, number>
   const activityBreakdown =
     userEntry.activityBreakdown &&
     typeof userEntry.activityBreakdown === "object" &&
@@ -164,8 +164,8 @@ const getActivityBreakdown = function* (params: {
         points: points.toString(),
       }));
   } else {
-    // No cached breakdown data available - return empty array for MVP
-    // Real-time calculations are intentionally disabled for performance reasons
+    // No cached breakdown data available, return empty array
+    // We intentionally don't do real-time calcs, but only show data if there's a cache
     activityBreakdownData = [];
   }
 
@@ -233,29 +233,18 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+      const weekService = yield* WeekService;
+      const seasonService = yield* SeasonService;
+      const activityCategoryService = yield* ActivityCategoryService;
 
       const getSeasonLeaderboard = Effect.fn(function* (input: {
         seasonId: string;
         userId?: string;
       }) {
         // Get season info
-        const seasonInfo = yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: seasons.id,
-              name: seasons.name,
-            })
-            .from(seasons)
-            .where(eq(seasons.id, input.seasonId))
-            .limit(1)
-            .then((result) => result[0])
-        );
+        const seasonInfo = yield* seasonService.getById(input.seasonId);
 
-        if (!seasonInfo) {
-          return yield* Effect.fail(new Error("Season not found"));
-        }
-
-        // Check cache availability first - this eliminates the frontend waterfall request
+        // Check cache availability first
         const cacheCount = yield* Effect.tryPromise(() =>
           db
             .select({ count: sql<number>`count(*)` })
@@ -273,7 +262,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           );
         }
 
-        // Get cached data - we know it exists at this point
+        // Get cached data, which we know exists now
         const cachedData = yield* Effect.tryPromise(() =>
           db
             .select({
@@ -345,90 +334,15 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const getAvailableWeeks = Effect.fn(function* (input: {
         seasonId?: string;
       }) {
-        const now = new Date();
-        const query = db
-          .select({
-            id: weeks.id,
-            seasonId: weeks.seasonId,
-            startDate: weeks.startDate,
-            endDate: weeks.endDate,
-            seasonName: seasons.name,
-          })
-          .from(weeks)
-          .innerJoin(seasons, eq(weeks.seasonId, seasons.id))
-          .where(
-            and(
-              // Only show weeks that have started (using UTC time)
-              lte(weeks.startDate, now),
-              // Add seasonId filter if provided
-              input.seasonId ? eq(weeks.seasonId, input.seasonId) : undefined
-            )
-          );
-
-        return yield* Effect.tryPromise(() =>
-          query.orderBy(desc(weeks.startDate))
-        );
-      });
-
-      const getAvailableActivities = Effect.fn(function* () {
-        return yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: activities.id,
-              name: activities.name,
-              description: activities.description,
-              category: activities.category,
-            })
-            .from(activities)
-            .where(
-              and(
-                // Exclude hold_ activities (they're for multiplier calculation, not leaderboards)
-                sql`${activities.id} NOT LIKE '%hold_%'`,
-                // Exclude common activity (not rewarded)
-                sql`${activities.id} != 'common'`
-              )
-            )
-            .orderBy(asc(activities.id))
-        );
+        return yield* weekService.getAvailable(input);
       });
 
       const getAvailableSeasons = Effect.fn(function* () {
-        return yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: seasons.id,
-              name: seasons.name,
-              status: seasons.status,
-              startDate: sql<Date>`MIN(${weeks.startDate})`.as("startDate"),
-              endDate: sql<Date>`MAX(${weeks.endDate})`.as("endDate"),
-            })
-            .from(seasons)
-            .leftJoin(weeks, eq(seasons.id, weeks.seasonId))
-            .groupBy(seasons.id, seasons.name, seasons.status)
-            .orderBy(desc(sql`MIN(${weeks.startDate})`))
-        );
+        return yield* seasonService.getAvailable();
       });
 
       const getAvailableCategories = Effect.fn(function* () {
-        return yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: activityCategories.id,
-              name: activityCategories.name,
-              description: activityCategories.description,
-            })
-            .from(activityCategories)
-            .where(
-              // Exclude categories that don't have any non-hold, non-common activities
-              sql`EXISTS (
-                SELECT 1 FROM ${activities}
-                WHERE ${activities.category} = ${activityCategories.id}
-                AND ${activities.id} NOT LIKE '%hold_%'
-                AND ${activities.id} != 'common'
-              )`
-            )
-            .orderBy(asc(activityCategories.name))
-        );
+        return yield* activityCategoryService.getAvailable();
       });
 
       const getActivityCategoryLeaderboard = Effect.fn(function* (input: {
@@ -437,39 +351,12 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         userId?: string;
       }) {
         // Get category info
-        const categoryInfo = yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: activityCategories.id,
-              name: activityCategories.name,
-            })
-            .from(activityCategories)
-            .where(eq(activityCategories.id, input.categoryId))
-            .limit(1)
-            .then((result) => result[0])
+        const categoryInfo = yield* activityCategoryService.getById(
+          input.categoryId
         );
-
-        if (!categoryInfo) {
-          return yield* Effect.fail(new Error("Activity category not found"));
-        }
 
         // Get week info
-        const weekInfo = yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: weeks.id,
-              startDate: weeks.startDate,
-              endDate: weeks.endDate,
-            })
-            .from(weeks)
-            .where(eq(weeks.id, input.weekId))
-            .limit(1)
-            .then((result) => result[0])
-        );
-
-        if (!weekInfo) {
-          return yield* Effect.fail(new Error("Week not found"));
-        }
+        const weekInfo = yield* weekService.getById(input.weekId);
 
         // Get all activities in this category
         const categoryActivities = yield* Effect.tryPromise(() =>
@@ -498,7 +385,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
         const activityIds = categoryActivities.map((a) => a.id);
 
-        // Check cache availability first - this eliminates the frontend waterfall request
+        // Check cache availability first
         const cacheCount = yield* Effect.tryPromise(() =>
           db
             .select({ count: sql<number>`count(*)` })
@@ -523,7 +410,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           );
         }
 
-        // Get cached data - we know it exists at this point
+        // Get cached data, which we know exists here
         const cachedData = yield* Effect.tryPromise(() =>
           db
             .select({
@@ -550,20 +437,8 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             `No cached data found for week ${input.weekId}, category ${input.categoryId}`
           );
 
-          // NOTE: Real-time calculation would go here as a fallback, but it's disabled for MVP
-          // to avoid expensive queries that could impact performance. In a future version,
-          // we could implement:
-          //
-          // const realTimeData = yield* calculateCategoryLeaderboardRealTime({
-          //   weekId: input.weekId,
-          //   categoryId: input.categoryId,
-          //   userId: input.userId,
-          //   activityIds
-          // });
-          //
-          // This would involve complex aggregations across accountActivityPoints table
-          // with grouping by userId and activity breakdown calculations, which could be
-          // very expensive for large datasets and many activities.
+          // note, we don't do real-time calculation as a fall-back for no cache here
+          // we could, but it would be expensive
 
           return yield* Effect.fail(
             new CacheNotAvailableError(
@@ -633,7 +508,6 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         getSeasonLeaderboard,
         getActivityCategoryLeaderboard,
         getAvailableWeeks,
-        getAvailableActivities,
         getAvailableSeasons,
         getAvailableCategories,
       };

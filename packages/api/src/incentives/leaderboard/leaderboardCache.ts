@@ -17,7 +17,6 @@ import { eq, and, sql, desc, inArray } from "drizzle-orm";
 export type PopulateLeaderboardCacheInput = {
   seasonId?: string;
   weekId?: string;
-  force?: boolean;
 };
 
 export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheService>()(
@@ -86,14 +85,14 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           );
 
           // Populate season leaderboard cache
-          // NOTE: Sequential processing to avoid overwhelming database connections
+          // Sequential processing to avoid overwhelming database connections
           // Could be optimized with parallel processing if rebuild times become too long
           for (const season of seasonsToProcess) {
             yield* populateSeasonLeaderboard({ seasonId: season.id });
           }
 
           // Populate category leaderboard cache
-          // NOTE: Sequential processing to avoid overwhelming database connections
+          // Sequential processing to avoid overwhelming database connections
           // Could be optimized with parallel processing if rebuild times become too long
           for (const week of weeksToProcess) {
             yield* populateCategoryLeaderboards({ weekId: week.id });
@@ -284,7 +283,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           catch: (error) => new DbError(error),
         });
 
-        // Calculate category stats using SQL aggregation - no memory loading
+        // Calculate category stats using SQL aggregation, no memory loading to avoid out of memory issues
         const categoryStats = yield* Effect.tryPromise({
           try: () =>
             db

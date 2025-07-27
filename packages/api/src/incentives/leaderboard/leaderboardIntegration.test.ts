@@ -4,6 +4,11 @@ import { it } from "@effect/vitest";
 import { createDbClientLive } from "../db/dbClient";
 import { LeaderboardCacheService } from "./leaderboardCache";
 import { LeaderboardService } from "./leaderboard";
+import { WeekService } from "../week/week";
+import { ActivityWeekService } from "../activity-week/activityWeek";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { SeasonService } from "../season/season";
+import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { drizzle } from "drizzle-orm/postgres-js";
 
 import {
@@ -29,12 +34,38 @@ describe(
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
+    
+    const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
+    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
+    const weekLive = WeekService.Default.pipe(
+      Layer.provide(dbLive),
+      Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive)
+    );
+    
+    const seasonLive = SeasonService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
+    const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
     const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
+      Layer.provide(weekLive),
+      Layer.provide(seasonLive),
+      Layer.provide(activityCategoryServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 

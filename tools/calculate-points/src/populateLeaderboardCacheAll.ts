@@ -10,9 +10,7 @@ const program = Effect.gen(function* () {
   
   const leaderboardCacheService = yield* LeaderboardCacheService;
   
-  yield* leaderboardCacheService.populateAll({
-    force: true
-  });
+  yield* leaderboardCacheService.populateAll({});
   
   console.log("✅ Leaderboard cache population completed successfully!");
 });

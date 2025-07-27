@@ -34,8 +34,7 @@ const program = Effect.gen(function* () {
   const leaderboardCacheService = yield* LeaderboardCacheService;
   
   yield* leaderboardCacheService.populateAll({
-    seasonId,
-    force: true
+    seasonId
   });
   
   console.log("✅ Season leaderboard cache population completed successfully!");

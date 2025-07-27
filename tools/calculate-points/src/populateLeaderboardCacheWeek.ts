@@ -34,8 +34,7 @@ const program = Effect.gen(function* () {
   const leaderboardCacheService = yield* LeaderboardCacheService;
   
   yield* leaderboardCacheService.populateAll({
-    weekId,
-    force: true
+    weekId
   });
   
   console.log("✅ Week leaderboard cache population completed successfully!");

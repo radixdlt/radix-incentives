@@ -2,7 +2,6 @@ import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { TRPCError } from "@trpc/server";
 import { Exit } from "effect";
-import { CacheNotAvailableError } from "./leaderboard";
 
 // Helper function to get user ID from session token
 const getUserId = async (ctx: {
@@ -43,10 +42,16 @@ const handleServiceError = (cause: unknown): never => {
   }
 
   // Check for CacheNotAvailableError by _tag property in the extracted error
-  if (error && typeof error === "object" && "_tag" in error && error._tag === "CacheNotAvailableError") {
+  if (
+    error &&
+    typeof error === "object" &&
+    "_tag" in error &&
+    error._tag === "CacheNotAvailableError"
+  ) {
     throw new TRPCError({
-      code: "PRECONDITION_FAILED", 
-      message: "Leaderboard is still being built. Please check back in a few minutes.",
+      code: "PRECONDITION_FAILED",
+      message:
+        "Leaderboard is still being built. Please check back in a few minutes.",
     });
   }
 
@@ -104,17 +109,6 @@ export const leaderboardRouter = createTRPCRouter({
       });
     }),
 
-  getAvailableActivities: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.dependencyLayer.getAvailableActivities();
-
-    return Exit.match(result, {
-      onSuccess: (value) => value,
-      onFailure: (error) => {
-        console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-      },
-    });
-  }),
 
   getActivityCategoryLeaderboard: publicProcedure
     .input(

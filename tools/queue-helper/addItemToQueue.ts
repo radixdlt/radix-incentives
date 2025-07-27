@@ -299,12 +299,6 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: "list",
         message: "Select a week:",
       },
-      {
-        name: "force",
-        type: "confirm",
-        message: "Force recalculation (overwrite existing cache)?",
-        default: true,
-      },
     ],
   },
 };
@@ -368,7 +362,7 @@ const buildPayload = (
       };
 
     case "populate-leaderboard-cache": {
-      const payload: Record<string, unknown> = { force: answers.force };
+      const payload: Record<string, unknown> = {};
       
       if (answers.scope === "season" && answers.seasonId) {
         payload.seasonId = answers.seasonId;
@@ -556,20 +550,14 @@ const main = async (): Promise<void> => {
       
       if (scopeAnswer.scope === "season") {
         additionalFields.push(
-          promptFields.find(field => field.name === "seasonId")!,
-          promptFields.find(field => field.name === "force")!
+          promptFields.find(field => field.name === "seasonId")!
         );
       } else if (scopeAnswer.scope === "week") {
         additionalFields.push(
-          promptFields.find(field => field.name === "weekId")!,
-          promptFields.find(field => field.name === "force")!
-        );
-      } else {
-        // For "all", only ask for force
-        additionalFields.push(
-          promptFields.find(field => field.name === "force")!
+          promptFields.find(field => field.name === "weekId")!
         );
       }
+      // For "all", no additional fields needed
       
       const additionalAnswers = await inquirer.prompt(additionalFields);
       answers = { ...scopeAnswer, ...additionalAnswers };

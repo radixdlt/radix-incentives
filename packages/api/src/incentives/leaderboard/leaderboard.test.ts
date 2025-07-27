@@ -3,6 +3,11 @@ import { Effect, Layer, Logger, LogLevel } from "effect";
 import { it } from "@effect/vitest";
 import { createDbClientLive } from "../db/dbClient";
 import { LeaderboardService, CacheNotAvailableError } from "./leaderboard";
+import { WeekService } from "../week/week";
+import { ActivityWeekService } from "../activity-week/activityWeek";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { SeasonService } from "../season/season";
+import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { drizzle } from "drizzle-orm/postgres-js";
 
 import {
@@ -29,8 +34,34 @@ describe(
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
+    
+    const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
+    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
+    const weekLive = WeekService.Default.pipe(
+      Layer.provide(dbLive),
+      Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive)
+    );
+    
+    const seasonLive = SeasonService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
+    const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
+      Layer.provide(dbLive)
+    );
+    
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
+      Layer.provide(weekLive),
+      Layer.provide(seasonLive),
+      Layer.provide(activityCategoryServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 
@@ -495,24 +526,6 @@ describe(
         }).pipe(Effect.provide(leaderboardServiceLive))
       );
 
-      it.effect("should return available activities", () =>
-        Effect.gen(function* () {
-          yield* setupTestData;
-
-          const leaderboardService = yield* LeaderboardService;
-          const activities = yield* leaderboardService.getAvailableActivities();
-
-          // Should exclude hold_ activities and common activity
-          const holdActivities = activities.filter((a) =>
-            a.id.includes("hold_")
-          );
-          const commonActivities = activities.filter((a) => a.id === "common");
-
-          expect(holdActivities).toHaveLength(0);
-          expect(commonActivities).toHaveLength(0);
-          expect(activities.length).toBeGreaterThan(0);
-        }).pipe(Effect.provide(leaderboardServiceLive))
-      );
     });
   }
 );
