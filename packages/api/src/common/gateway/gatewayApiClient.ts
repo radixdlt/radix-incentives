@@ -19,6 +19,10 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
         Config.withDefault(undefined)
       );
 
+      const gatewayRetryAttempts = yield* Config.number(
+        "GATEWAY_RETRY_ATTEMPTS"
+      ).pipe(Config.withDefault(5));
+
       /**
        * Enable retries for ALL requests including POST
        * - Retry on network errors and 4xx/5xx status codes
@@ -27,19 +31,19 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
        */
 
       const fetchImpl = fetchRetry(globalThis.fetch, {
-        retries: 5,
+        retries: gatewayRetryAttempts,
         retryDelay: (attempt, error, response) => {
-          const baseDelay = 2 ** attempt * 1000; // 1000, 2000, 4000ms
-          const jitter = Math.random() * 0.5 * baseDelay; // Add up to 50% jitter
-          return Math.floor(baseDelay + jitter);
+          const maxDelay = 30_000; // 30 seconds max
+          const baseDelay = Math.min(2 ** attempt * 1000, maxDelay); // 1000, 2000, 4000ms etc up to max
+          return Math.floor(baseDelay);
         },
         retryOn: (attempt, error, response) => {
           // Retry on network errors
           if (error !== null) {
-            return true;
+            return false;
           }
           // Retry on 4xx/5xx status codes (including for POST requests)
-          if (response && response.status >= 400) {
+          if (response && response.status > 400) {
             return true;
           }
 

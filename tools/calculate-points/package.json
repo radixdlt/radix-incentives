@@ -6,7 +6,9 @@
     "calc:sp": "tsx --watch src/calculateSeasonPoints.ts",
     "calc:ap": "tsx --watch src/calculateActivityPoints.ts",
     "snapshot": "tsx --watch src/snapshot.ts",
-    "snapshot:inspect": "tsx --inspect-brk src/snapshot.ts"
+    "snapshot:inspect": "tsx --inspect-brk src/snapshot.ts",
+    "nft-balance": "tsx --watch src/getNonFungibleBalance.ts",
+    "nft-balance:inspect": "tsx --inspect-brk src/getNonFungibleBalance.ts"
   },
   "devDependencies": {
     "tsup": "catalog:",
