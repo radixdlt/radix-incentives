@@ -2,7 +2,6 @@ import { dependencyLayer } from "api/incentives";
 import type { CalculateActivityPointsJob } from "./schemas";
 import type { Job } from "bullmq";
 import { Exit } from "effect";
-import { populateLeaderboardCacheQueue } from "../populate-leaderboard-cache/queue";
 
 export const calculateActivityPointsWorker = async (
   input: Job<CalculateActivityPointsJob>
@@ -34,20 +33,4 @@ export const calculateActivityPointsWorker = async (
 
     throw new Error(JSON.stringify(result.cause, null, 2));
   }
-
-  // Succesfully calculated AP,
-  // queue leaderboard cache population for this week's activity categories
-  await populateLeaderboardCacheQueue.queue.add(
-    "cache-after-activity-points",
-    {
-      weekId: input.data.weekId,
-    },
-    {
-      attempts: 3,
-      backoff: {
-        type: "exponential",
-        delay: 5000,
-      },
-    }
-  );
 };

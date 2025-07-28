@@ -1,13 +1,19 @@
-import BigNumber from 'bignumber.js';
-import { ActivityCategoryId } from 'data';
-import { activityCategoryWeeks, activityWeeks } from 'db/incentives';
-import { and, eq, gt, sql } from 'drizzle-orm';
-import { Effect } from 'effect';
-import { groupBy } from 'effect/Array';
-import { DbClientService, DbError } from '../db/dbClient';
+import BigNumber from "bignumber.js";
+import { ActivityCategoryId } from "data";
+import {
+  activityCategoryWeeks,
+  activityWeeks,
+  activities,
+  activityCategories,
+  accountActivityPoints,
+} from "db/incentives";
+import { and, eq, sql, asc } from "drizzle-orm";
+import { Effect } from "effect";
+import { groupBy } from "effect/Array";
+import { DbClientService, DbError } from "../db/dbClient";
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
-  'ActivityCategoryWeekService',
+  "ActivityCategoryWeekService",
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -48,7 +54,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
 
           const groupedByCategory = groupBy(
             activities,
-            (item) => item.activity.category,
+            (item) => item.activity.category
           );
 
           return yield* Effect.forEach(
@@ -68,7 +74,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 })),
                 pointsPool,
               };
-            }),
+            })
           );
         }),
         updatePointsPool: Effect.fn(function* (input: {
@@ -88,9 +94,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                     eq(activityCategoryWeeks.weekId, input.weekId),
                     eq(
                       activityCategoryWeeks.activityCategoryId,
-                      input.activityCategoryId,
-                    ),
-                  ),
+                      input.activityCategoryId
+                    )
+                  )
                 ),
             catch: (error) => new DbError(error),
           });
@@ -105,7 +111,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   db.query.activityCategoryWeeks
                     .findMany({
                       where: and(
-                        eq(activityCategoryWeeks.weekId, input.fromWeekId!),
+                        eq(activityCategoryWeeks.weekId, input.fromWeekId!)
                       ),
                     })
                     .then((items) =>
@@ -121,8 +127,8 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                             activityCategoryId: string;
                             pointsPool: number;
                           }
-                        >,
-                      ),
+                        >
+                      )
                     ),
                 catch: (error) => new DbError(error),
               })
@@ -151,7 +157,33 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             catch: (error) => new DbError(error),
           });
         }),
+        getAvailableForWeek: Effect.fn(function* (input: { weekId: string }) {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  id: activityCategories.id,
+                  name: activityCategories.name,
+                  description: activityCategories.description,
+                })
+                .from(activityCategories)
+                .where(
+                  // Only include categories that have activities with points for this specific week
+                  sql`EXISTS (
+                    SELECT 1 FROM ${activities}
+                    INNER JOIN ${activityWeeks} ON ${activities.id} = ${activityWeeks.activityId}
+                    INNER JOIN ${accountActivityPoints} ON ${activities.id} = ${accountActivityPoints.activityId}
+                    WHERE ${activities.category} = ${activityCategories.id}
+                    AND ${activityWeeks.weekId} = ${input.weekId}
+                    AND ${accountActivityPoints.weekId} = ${input.weekId}
+                    AND ${accountActivityPoints.activityPoints} > 0
+                  )`
+                )
+                .orderBy(asc(activityCategories.name)),
+            catch: (error) => new DbError(error),
+          });
+        }),
       };
     }),
-  },
+  }
 ) {}

@@ -18,6 +18,7 @@ import { GetLsulpLive } from "../common/dapps/caviarnine/getLsulp";
 import { GetLsulpValueLive } from "../common/dapps/caviarnine/getLsulpValue";
 import { ConvertLsuToXrdLive } from "../common/staking/convertLsuToXrd";
 import { GetWeftFinancePositionsService } from "../common/dapps/weftFinance/getWeftFinancePositions";
+import { LeaderboardCacheService } from "./leaderboard/leaderboardCache";
 import { UnstakingReceiptProcessorLive } from "../common/staking/unstakingReceiptProcessor";
 import { GetComponentStateService } from "../common/gateway/getComponentState";
 import { KeyValueStoreDataService } from "../common/gateway/keyValueStoreData";
@@ -752,6 +753,25 @@ const getSeasonByWeekId = (weekId: string) => {
   return Effect.runPromiseExit(program);
 };
 
+const populateLeaderboardCache = (input: { weekId?: string }) => {
+  const program = Effect.provide(
+    Effect.gen(function* () {
+      const leaderboardCacheService = yield* LeaderboardCacheService;
+      return yield* leaderboardCacheService.populateAll(input);
+    }),
+    LeaderboardCacheService.Default.pipe(
+      Layer.provide(dbClientLive),
+      Layer.provide(SeasonService.Default.pipe(Layer.provide(dbClientLive))),
+      Layer.provide(weekServiceLive),
+      Layer.provide(
+        ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive))
+      )
+    )
+  );
+
+  return Effect.runPromiseExit(program);
+};
+
 export const dependencyLayer = {
   snapshotWorker,
   getLedgerState,
@@ -762,4 +782,5 @@ export const dependencyLayer = {
   eventWorkerHandler,
   getWeekByDate,
   getSeasonByWeekId,
+  populateLeaderboardCache,
 };

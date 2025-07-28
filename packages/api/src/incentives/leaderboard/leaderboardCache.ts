@@ -1,5 +1,8 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
+import { SeasonService } from "../season/season";
+import { WeekService } from "../week/week";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import {
   seasonLeaderboardCache,
   categoryLeaderboardCache,
@@ -7,15 +10,12 @@ import {
   userSeasonPoints,
   accountActivityPoints,
   accounts,
-  seasons,
-  weeks,
   activities,
-  activityCategories,
+  activityWeeks,
 } from "db/incentives";
 import { eq, and, sql, desc, inArray } from "drizzle-orm";
 
 export type PopulateLeaderboardCacheInput = {
-  seasonId?: string;
   weekId?: string;
 };
 
@@ -24,6 +24,9 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+      const seasonService = yield* SeasonService;
+      const weekService = yield* WeekService;
+      const activityCategoryWeekService = yield* ActivityCategoryWeekService;
 
       return {
         populateAll: Effect.fn(function* (
@@ -31,54 +34,26 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         ) {
           yield* Effect.log("Starting leaderboard cache population");
 
-          // Handle specific season
-          if (input.seasonId && !input.weekId) {
-            yield* Effect.log(
-              `Populating cache for specific season: ${input.seasonId}`
-            );
-            yield* populateSeasonLeaderboard({ seasonId: input.seasonId });
-            yield* populateGlobalStats();
-            yield* Effect.log("Season leaderboard cache population completed");
-            return;
-          }
-
           // Handle specific week
-          if (input.weekId && !input.seasonId) {
+          if (input.weekId) {
             yield* Effect.log(
               `Populating cache for specific week: ${input.weekId}`
             );
+
+            const season = yield* seasonService.getByWeekId(input.weekId!);
+            yield* populateSeasonLeaderboard({ seasonId: season.id });
+
             yield* populateCategoryLeaderboards({ weekId: input.weekId });
             yield* populateGlobalStats();
             yield* Effect.log("Week leaderboard cache population completed");
             return;
           }
 
-          // Handle both specific season and week
-          if (input.seasonId && input.weekId) {
-            yield* Effect.log(
-              `Populating cache for season ${input.seasonId} and week ${input.weekId}`
-            );
-            yield* populateSeasonLeaderboard({ seasonId: input.seasonId });
-            yield* populateCategoryLeaderboards({ weekId: input.weekId });
-            yield* populateGlobalStats();
-            yield* Effect.log(
-              "Specific season and week leaderboard cache population completed"
-            );
-            return;
-          }
-
           // Handle all seasons and weeks (default behavior)
           yield* Effect.log("Populating cache for ALL seasons and weeks");
 
-          const seasonsToProcess = yield* Effect.tryPromise({
-            try: () => db.select().from(seasons),
-            catch: (error) => new DbError(error),
-          });
-
-          const weeksToProcess = yield* Effect.tryPromise({
-            try: () => db.select().from(weeks),
-            catch: (error) => new DbError(error),
-          });
+          const seasonsToProcess = yield* seasonService.list();
+          const weeksToProcess = yield* weekService.list({});
 
           yield* Effect.log(
             `Processing ${seasonsToProcess.length} seasons and ${weeksToProcess.length} weeks`
@@ -87,6 +62,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           // Populate season leaderboard cache
           // Sequential processing to avoid overwhelming database connections
           // Could be optimized with parallel processing if rebuild times become too long
+          // But we should really never populate the entire cache anyways... maybe it's redudant
           for (const season of seasonsToProcess) {
             yield* populateSeasonLeaderboard({ seasonId: season.id });
           }
@@ -94,11 +70,11 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           // Populate category leaderboard cache
           // Sequential processing to avoid overwhelming database connections
           // Could be optimized with parallel processing if rebuild times become too long
+          // But we should really never populate the entire cache anyways... maybe it's redudant
           for (const week of weeksToProcess) {
             yield* populateCategoryLeaderboards({ weekId: week.id });
           }
 
-          // Populate global statistics
           yield* populateGlobalStats();
 
           yield* Effect.log("All leaderboard cache population completed");
@@ -173,20 +149,29 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           catch: (error) => new DbError(error),
         });
 
-        // Get all activity categories
-        const categories = yield* Effect.tryPromise({
-          try: () => db.select().from(activityCategories),
-          catch: (error) => new DbError(error),
-        });
+        // Get all activity categories that have activities with points for this week
+        const categories =
+          yield* activityCategoryWeekService.getAvailableForWeek({
+            weekId: input.weekId,
+          });
 
         for (const category of categories) {
-          // Get activities for this category
+          // Get activities that are included in the provided week ID for this category
           const categoryActivities = yield* Effect.tryPromise({
             try: () =>
               db
                 .select({ id: activities.id })
                 .from(activities)
-                .where(eq(activities.category, category.id)),
+                .innerJoin(
+                  activityWeeks,
+                  eq(activities.id, activityWeeks.activityId)
+                )
+                .where(
+                  and(
+                    eq(activities.category, category.id),
+                    eq(activityWeeks.weekId, input.weekId)
+                  )
+                ),
             catch: (error) => new DbError(error),
           });
 

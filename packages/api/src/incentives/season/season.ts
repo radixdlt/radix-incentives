@@ -101,7 +101,7 @@ export class SeasonService extends Effect.Service<SeasonService>()(
             catch: (error) => new DbError(error),
           });
         }),
-        getAvailable: Effect.fn(function* () {
+        list: Effect.fn(function* () {
           return yield* Effect.tryPromise({
             try: () =>
               db

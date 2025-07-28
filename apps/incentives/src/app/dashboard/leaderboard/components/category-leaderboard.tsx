@@ -21,7 +21,10 @@ export function CategoryLeaderboard() {
   const { data: weeks, isLoading: weeksLoading } =
     api.leaderboard.getAvailableWeeks.useQuery({});
   const { data: categories, isLoading: categoriesLoading } =
-    api.leaderboard.getAvailableCategories.useQuery();
+    api.leaderboard.getAvailableCategories.useQuery(
+      { weekId: selectedWeekId! },
+      { enabled: !!selectedWeekId }
+    );
 
   // Set defaults when data loads, or use URL parameters
   useEffect(() => {

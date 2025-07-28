@@ -62,6 +62,7 @@ describe(
       Layer.provide(weekLive),
       Layer.provide(seasonLive),
       Layer.provide(activityCategoryServiceLive),
+      Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 
@@ -516,7 +517,7 @@ describe(
           yield* setupTestData;
 
           const leaderboardService = yield* LeaderboardService;
-          const categories = yield* leaderboardService.getAvailableCategories();
+          const categories = yield* leaderboardService.getAvailableCategories({ weekId: WEEK_ID });
 
           // Should return categories that have non-hold, non-common activities
           expect(categories.length).toBeGreaterThan(0);

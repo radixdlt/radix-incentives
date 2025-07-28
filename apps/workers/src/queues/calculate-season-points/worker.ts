@@ -5,7 +5,6 @@ import {
 } from "./schemas";
 import type { Job } from "bullmq";
 import { Exit } from "effect";
-import { populateLeaderboardCacheQueue } from "../populate-leaderboard-cache/queue";
 
 export const calculateSeasonPointsWorker = async (
   input: Job<CalculateSeasonPointsJob>
@@ -35,37 +34,5 @@ export const calculateSeasonPointsWorker = async (
     }
 
     throw new Error(JSON.stringify(result.cause, null, 2));
-  }
-
-  // Succesfully calculated SP, if markAsProcessed is true
-  // queue season leaderboard cache population
-  if (parsedInput.markAsProcessed) {
-    // Get seasonId from weekId
-    const seasonResult = await dependencyLayer.getSeasonByWeekId(
-      parsedInput.weekId
-    );
-
-    if (Exit.isSuccess(seasonResult)) {
-      await populateLeaderboardCacheQueue.queue.add(
-        "cache-after-season-points",
-        {
-          seasonId: seasonResult.value.id,
-        },
-        {
-          removeOnComplete: 10,
-          removeOnFail: 5,
-          attempts: 3,
-          backoff: {
-            type: "exponential",
-            delay: 5000,
-          },
-        }
-      );
-    } else {
-      console.error(
-        "Failed to get season for cache population:",
-        seasonResult.cause
-      );
-    }
   }
 };

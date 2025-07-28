@@ -28,6 +28,6 @@ export const populateLeaderboardCacheQueue = createQueue<
   },
   workerOptions: {
     connection: redisClient,
-    concurrency: 1, // Process one job at a time to prevent overload
+    concurrency: 1, // Process one job at a time to prevent overload and race conditions
   },
 });

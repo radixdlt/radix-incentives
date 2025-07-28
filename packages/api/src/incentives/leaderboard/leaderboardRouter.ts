@@ -33,32 +33,6 @@ const getUserId = async (ctx: {
   return undefined;
 };
 
-// Helper function to handle errors consistently
-const handleServiceError = (cause: unknown): never => {
-  // Extract the actual error from Effect's Cause wrapper
-  let error = cause;
-  if (cause && typeof cause === "object" && "error" in cause) {
-    error = (cause as { error: unknown }).error;
-  }
-
-  // Check for CacheNotAvailableError by _tag property in the extracted error
-  if (
-    error &&
-    typeof error === "object" &&
-    "_tag" in error &&
-    error._tag === "CacheNotAvailableError"
-  ) {
-    throw new TRPCError({
-      code: "PRECONDITION_FAILED",
-      message:
-        "Leaderboard is still being built. Please check back in a few minutes.",
-    });
-  }
-
-  console.error(cause);
-  throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-};
-
 export const leaderboardRouter = createTRPCRouter({
   getSeasonLeaderboard: publicProcedure
     .input(
@@ -76,7 +50,26 @@ export const leaderboardRouter = createTRPCRouter({
 
       return Exit.match(result, {
         onSuccess: (value) => value,
-        onFailure: handleServiceError,
+        onFailure: (error) => {
+          const isCacheNotAvailableError =
+            error._tag === "Fail" &&
+            "error" in error &&
+            typeof error.error === "object" &&
+            error.error !== null &&
+            "_tag" in error.error &&
+            (error.error as { _tag: string })._tag === "CacheNotAvailableError";
+
+          if (isCacheNotAvailableError) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Leaderboard is still being built. Please check back in a few minutes.",
+            });
+          }
+
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
       });
     }),
 
@@ -105,10 +98,28 @@ export const leaderboardRouter = createTRPCRouter({
 
       return Exit.match(result, {
         onSuccess: (value) => value,
-        onFailure: handleServiceError,
+        onFailure: (error) => {
+          const isCacheNotAvailableError =
+            error._tag === "Fail" &&
+            "error" in error &&
+            typeof error.error === "object" &&
+            error.error !== null &&
+            "_tag" in error.error &&
+            (error.error as { _tag: string })._tag === "CacheNotAvailableError";
+
+          if (isCacheNotAvailableError) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Leaderboard is still being built. Please check back in a few minutes.",
+            });
+          }
+
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
       });
     }),
-
 
   getActivityCategoryLeaderboard: publicProcedure
     .input(
@@ -128,12 +139,33 @@ export const leaderboardRouter = createTRPCRouter({
 
       return Exit.match(result, {
         onSuccess: (value) => value,
-        onFailure: handleServiceError,
+        onFailure: (error) => {
+          const isCacheNotAvailableError =
+            error._tag === "Fail" &&
+            "error" in error &&
+            typeof error.error === "object" &&
+            error.error !== null &&
+            "_tag" in error.error &&
+            (error.error as { _tag: string })._tag === "CacheNotAvailableError";
+
+          if (isCacheNotAvailableError) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Leaderboard is still being built. Please check back in a few minutes.",
+            });
+          }
+
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
       });
     }),
 
-  getAvailableCategories: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.dependencyLayer.getAvailableCategories();
+  getAvailableCategories: publicProcedure
+    .input(z.object({ weekId: z.string() }))
+    .query(async ({ ctx, input }) => {
+    const result = await ctx.dependencyLayer.getAvailableCategories(input);
 
     return Exit.match(result, {
       onSuccess: (value) => value,

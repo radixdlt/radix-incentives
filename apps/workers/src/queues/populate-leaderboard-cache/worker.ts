@@ -1,49 +1,64 @@
-import { Effect, Layer } from "effect";
+import { dependencyLayer } from "api/incentives";
 import type { Job } from "bullmq";
 import { Exit } from "effect";
 import {
   populateLeaderboardCacheSchema,
   type PopulateLeaderboardCacheInput,
 } from "./schemas";
-import { LeaderboardCacheService, createDbClientLive } from "api/incentives";
-import { db } from "db/incentives";
 
 export const populateLeaderboardCacheWorker = async (
   input: Job<PopulateLeaderboardCacheInput>
 ) => {
   const parsedInput = populateLeaderboardCacheSchema.parse(input.data);
 
-  const dbClientLive = createDbClientLive(db);
-  const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
-    Layer.provide(dbClientLive)
-  );
-
-  const program = Effect.provide(
-    Effect.gen(function* () {
-      const leaderboardCacheService = yield* LeaderboardCacheService;
-      return yield* leaderboardCacheService.populateAll(parsedInput);
-    }),
-    leaderboardCacheServiceLive
-  );
-
-  const result = await Effect.runPromiseExit(program);
+  const result = await dependencyLayer.populateLeaderboardCache(parsedInput);
 
   if (Exit.isFailure(result)) {
     if (result.cause._tag === "Fail") {
-      const enhancedError = new Error(result.cause.error._tag);
-      console.error(result.cause.error);
-      if ("stack" in result.cause.error)
-        enhancedError.stack = `${result.cause.error.stack}`;
+      const error = result.cause.error;
+      const enhancedError = new Error(
+        typeof error === "object" && error !== null && "_tag" in error
+          ? (error._tag as string)
+          : "Unknown error"
+      );
+      console.error(error);
+      
+      if (
+        typeof error === "object" && 
+        error !== null && 
+        "stack" in error && 
+        typeof error.stack === "string"
+      ) {
+        enhancedError.stack = error.stack;
+      }
 
-      enhancedError.cause = result.cause.error._tag;
+      enhancedError.cause = 
+        typeof error === "object" && error !== null && "_tag" in error
+          ? (error._tag as string)
+          : "unknown";
       throw enhancedError;
     }
 
     if (result.cause._tag === "Die") {
-      // @ts-ignore
-      const enhancedError = new Error(result.cause.defect.message);
-      // @ts-ignore
-      enhancedError.stack = result.cause.defect.stack as string;
+      const defect = result.cause.defect;
+      const enhancedError = new Error(
+        typeof defect === "object" && 
+        defect !== null && 
+        "message" in defect &&
+        typeof defect.message === "string"
+          ? defect.message
+          : "Unhandled error"
+      );
+      
+      if (
+        typeof defect === "object" && 
+        defect !== null && 
+        "stack" in defect &&
+        typeof defect.stack === "string"
+      ) {
+        enhancedError.stack = defect.stack;
+      }
+      
       enhancedError.cause = "unhandled error";
       throw enhancedError;
     }

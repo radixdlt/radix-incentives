@@ -99,7 +99,7 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
           }),
         ]);
       }),
-      getAvailable: Effect.fn(function* (input: { seasonId?: string }) {
+      list: Effect.fn(function* (input: { seasonId?: string }) {
         const now = new Date();
         const query = db
           .select({

@@ -384,7 +384,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive),
     Layer.provide(weekLive),
     Layer.provide(seasonLive),
-    Layer.provide(activityCategoryServiceLive)
+    Layer.provide(activityCategoryServiceLive),
+    Layer.provide(activityCategoryWeekServiceLive)
   );
 
   const getLatestAccountBalances = ({ userId }: { userId: string }) => {
@@ -466,11 +467,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getAvailableCategories = () => {
+  const getAvailableCategories = (input: { weekId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const leaderboardService = yield* LeaderboardService;
-        return yield* leaderboardService.getAvailableCategories();
+        return yield* leaderboardService.getAvailableCategories(input);
       }),
       leaderboardLive
     );

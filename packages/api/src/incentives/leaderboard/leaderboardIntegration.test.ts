@@ -34,31 +34,31 @@ describe(
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
-    
+
     const activityWeekServiceLive = ActivityWeekService.Default.pipe(
       Layer.provide(dbLive)
     );
-    
-    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const activityCategoryWeekServiceLive =
+      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+
     const weekLive = WeekService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(activityWeekServiceLive)
     );
-    
-    const seasonLive = SeasonService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const seasonLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+
     const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
       Layer.provide(dbLive)
     );
-    
+
     const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
       Layer.provide(dbLive),
+      Layer.provide(seasonLive),
+      Layer.provide(weekLive),
+      Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
@@ -66,6 +66,7 @@ describe(
       Layer.provide(weekLive),
       Layer.provide(seasonLive),
       Layer.provide(activityCategoryServiceLive),
+      Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 
@@ -86,15 +87,13 @@ describe(
 
       // Insert test data
       yield* Effect.promise(() =>
-        db
-          .insert(seasons)
-          .values([
-            {
-              id: SEASON_ID,
-              name: "Integration Test Season",
-              status: "active",
-            },
-          ])
+        db.insert(seasons).values([
+          {
+            id: SEASON_ID,
+            name: "Integration Test Season",
+            status: "active",
+          },
+        ])
       );
 
       yield* Effect.promise(() =>
@@ -173,7 +172,6 @@ describe(
         // Step 2: Populate cache
         const cacheService = yield* LeaderboardCacheService;
         yield* cacheService.populateAll({
-          seasonId: SEASON_ID,
           weekId: WEEK_ID,
         });
 
@@ -269,23 +267,21 @@ describe(
 
         // Initial data
         yield* Effect.promise(() =>
-          db
-            .insert(userSeasonPoints)
-            .values([
-              {
-                userId: USER_ID_1,
-                seasonId: SEASON_ID,
-                weekId: WEEK_ID,
-                points: "100.0",
-              },
-            ])
+          db.insert(userSeasonPoints).values([
+            {
+              userId: USER_ID_1,
+              seasonId: SEASON_ID,
+              weekId: WEEK_ID,
+              points: "100.0",
+            },
+          ])
         );
 
         const cacheService = yield* LeaderboardCacheService;
         const leaderboardService = yield* LeaderboardService;
 
         // First cache build
-        yield* cacheService.populateAll({ seasonId: SEASON_ID });
+        yield* cacheService.populateAll({});
 
         let result = yield* leaderboardService.getSeasonLeaderboard({
           seasonId: SEASON_ID,
@@ -296,20 +292,18 @@ describe(
 
         // Add more data
         yield* Effect.promise(() =>
-          db
-            .insert(userSeasonPoints)
-            .values([
-              {
-                userId: USER_ID_2,
-                seasonId: SEASON_ID,
-                weekId: WEEK_ID,
-                points: "200.0",
-              },
-            ])
+          db.insert(userSeasonPoints).values([
+            {
+              userId: USER_ID_2,
+              seasonId: SEASON_ID,
+              weekId: WEEK_ID,
+              points: "200.0",
+            },
+          ])
         );
 
         // Rebuild cache
-        yield* cacheService.populateAll({ seasonId: SEASON_ID });
+        yield* cacheService.populateAll({});
 
         // Verify updated results
         result = yield* leaderboardService.getSeasonLeaderboard({
@@ -396,8 +390,8 @@ describe(
 
         // Populate caches for specific seasons/weeks
         yield* Effect.all([
-          cacheService.populateAll({ seasonId: SEASON_ID }),
-          cacheService.populateAll({ seasonId: SEASON_ID_2 }),
+          cacheService.populateAll({}),
+          cacheService.populateAll({}),
           cacheService.populateAll({ weekId: WEEK_ID }),
           cacheService.populateAll({ weekId: WEEK_ID_2 }),
         ]);

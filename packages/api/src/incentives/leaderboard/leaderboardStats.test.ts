@@ -3,6 +3,10 @@ import { Effect, Layer, Logger, LogLevel } from "effect";
 import { it } from "@effect/vitest";
 import { createDbClientLive } from "../db/dbClient";
 import { LeaderboardCacheService } from "./leaderboardCache";
+import { SeasonService } from "../season/season";
+import { WeekService } from "../week/week";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { ActivityWeekService } from "../activity-week/activityWeek";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { eq } from "drizzle-orm";
 
@@ -32,8 +36,19 @@ describe(
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
+    const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+    const activityWeekServiceLive = ActivityWeekService.Default.pipe(Layer.provide(dbLive));
+    const weekServiceLive = WeekService.Default.pipe(
+      Layer.provide(dbLive),
+      Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive)
+    );
     const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
       Layer.provide(dbLive),
+      Layer.provide(seasonServiceLive),
+      Layer.provide(weekServiceLive),
+      Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 
@@ -129,7 +144,7 @@ describe(
           const leaderboardCacheService = yield* LeaderboardCacheService;
 
           // Populate cache (this will use SQL aggregation for stats)
-          yield* leaderboardCacheService.populateAll({ seasonId: SEASON_ID });
+          yield* leaderboardCacheService.populateAll({});
 
           // Verify stats were calculated correctly with SQL
           const statsCache = yield* Effect.promise(() =>
@@ -188,7 +203,7 @@ describe(
         );
 
         const leaderboardCacheService = yield* LeaderboardCacheService;
-        yield* leaderboardCacheService.populateAll({ seasonId: SEASON_ID });
+        yield* leaderboardCacheService.populateAll({});
 
         const statsCache = yield* Effect.promise(() =>
           db
@@ -257,7 +272,7 @@ describe(
         );
 
         const leaderboardCacheService = yield* LeaderboardCacheService;
-        yield* leaderboardCacheService.populateAll({ seasonId: SEASON_ID });
+        yield* leaderboardCacheService.populateAll({});
 
         const statsCache = yield* Effect.promise(() =>
           db
@@ -362,7 +377,7 @@ describe(
         const leaderboardCacheService = yield* LeaderboardCacheService;
 
         // Populate cache with no data
-        yield* leaderboardCacheService.populateAll({ seasonId: SEASON_ID });
+        yield* leaderboardCacheService.populateAll({});
 
         // Should not create stats entries for empty datasets
         const statsCache = yield* Effect.promise(() =>

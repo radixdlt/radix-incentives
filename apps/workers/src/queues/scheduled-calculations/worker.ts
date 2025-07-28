@@ -83,6 +83,20 @@ export const scheduledCalculationsWorker = async (
     queueName: QueueName.seasonPointsMultiplier,
   };
 
+  // Cache population job (runs after all calculations are complete)
+  const cachePopulationJob: FlowJob = {
+    name: "populate-cache",
+    data: { weekId },
+    queueName: QueueName.populateLeaderboardCache,
+    opts: {
+      attempts: 3,
+      backoff: {
+        type: "exponential",
+        delay: 5000,
+      },
+    },
+  };
+
   const calculateActivityPointsJob: FlowJob = {
     name: "scheduledJob",
     data: { weekId },
@@ -91,23 +105,22 @@ export const scheduledCalculationsWorker = async (
   };
   seasonPointsMultiplierJob.children = [calculateActivityPointsJob];
 
-
   const calculateSeasonPointsJob: FlowJob = {
     name: "scheduledJob",
     data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
     queueName: QueueName.calculateSeasonPoints,
   };
 
-
   let jobConfig: FlowJob;
 
   if (job.data.includeSPCalculations) {
     seasonPointsMultiplierJob.opts = { failParentOnFailure: true };
     calculateSeasonPointsJob.children = [seasonPointsMultiplierJob];
-    jobConfig = calculateSeasonPointsJob;
+    cachePopulationJob.children = [calculateSeasonPointsJob];
+    jobConfig = cachePopulationJob;
   } else {
-    // Use the base config directly
-    jobConfig = seasonPointsMultiplierJob;
+    cachePopulationJob.children = [seasonPointsMultiplierJob];
+    jobConfig = cachePopulationJob;
   }
 
   await flowProducer.add(jobConfig);

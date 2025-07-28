@@ -3,10 +3,12 @@ import { DbClientService } from "../db/dbClient";
 import { WeekService } from "../week/week";
 import { SeasonService } from "../season/season";
 import { ActivityCategoryService } from "../activity-category/activityCategory";
+import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import type { Db } from "db/incentives";
 import {
   users,
   activities,
+  activityWeeks,
   seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
@@ -21,23 +23,6 @@ export class CacheNotAvailableError extends Error {
     this.name = "CacheNotAvailableError";
   }
 }
-
-// Type for cached season leaderboard data from database query
-type CachedSeasonLeaderboardEntry = {
-  userId: string;
-  label: string | null;
-  totalPoints: string;
-  rank: number;
-};
-
-// Type for cached category leaderboard data from database query
-type CachedCategoryLeaderboardEntry = {
-  userId: string;
-  label: string | null;
-  totalPoints: string;
-  rank: number;
-  activityBreakdown: Record<string, number> | unknown;
-};
 
 // Common leaderboard response builder to avoid duplication
 interface LeaderboardUser {
@@ -236,6 +221,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const weekService = yield* WeekService;
       const seasonService = yield* SeasonService;
       const activityCategoryService = yield* ActivityCategoryService;
+      const activityCategoryWeekService = yield* ActivityCategoryWeekService;
 
       const getSeasonLeaderboard = Effect.fn(function* (input: {
         seasonId: string;
@@ -318,7 +304,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
         // Build common leaderboard response
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
-          cachedData: cachedData as CachedSeasonLeaderboardEntry[],
+          cachedData: cachedData,
           statsCache: statsCache ?? null,
           userId: input.userId,
         });
@@ -334,15 +320,17 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const getAvailableWeeks = Effect.fn(function* (input: {
         seasonId?: string;
       }) {
-        return yield* weekService.getAvailable(input);
+        return yield* weekService.list(input);
       });
 
       const getAvailableSeasons = Effect.fn(function* () {
-        return yield* seasonService.getAvailable();
+        return yield* seasonService.list();
       });
 
-      const getAvailableCategories = Effect.fn(function* () {
-        return yield* activityCategoryService.getAvailable();
+      const getAvailableCategories = Effect.fn(function* (input: {
+        weekId: string;
+      }) {
+        return yield* activityCategoryWeekService.getAvailableForWeek(input);
       });
 
       const getActivityCategoryLeaderboard = Effect.fn(function* (input: {
@@ -358,7 +346,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Get week info
         const weekInfo = yield* weekService.getById(input.weekId);
 
-        // Get all activities in this category
+        // Get activities that are included in the provided week ID for this category
         const categoryActivities = yield* Effect.tryPromise(() =>
           db
             .select({
@@ -366,9 +354,14 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
               name: activities.name,
             })
             .from(activities)
+            .innerJoin(
+              activityWeeks,
+              eq(activities.id, activityWeeks.activityId)
+            )
             .where(
               and(
                 eq(activities.category, input.categoryId),
+                eq(activityWeeks.weekId, input.weekId),
                 // Exclude hold_ activities (they're for multiplier calculation, not leaderboards)
                 sql`${activities.id} NOT LIKE '%hold_%'`,
                 // Exclude common activity (not rewarded)
@@ -469,9 +462,9 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Get activity breakdown for user if needed
         let additionalUserData: Record<string, unknown> = {};
         if (input.userId) {
-          const userEntry = (
-            cachedData as CachedCategoryLeaderboardEntry[]
-          ).find((user) => user.userId === input.userId);
+          const userEntry = cachedData.find(
+            (user) => user.userId === input.userId
+          );
           if (userEntry) {
             const activityBreakdownData = yield* getActivityBreakdown({
               db,
@@ -486,7 +479,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
         // Build common leaderboard response
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
-          cachedData: cachedData as CachedCategoryLeaderboardEntry[],
+          cachedData: cachedData,
           statsCache: statsCache ?? null,
           userId: input.userId,
           additionalUserData,
