@@ -43,7 +43,6 @@ export const calculateActivityPointsWorker = async (
       weekId: input.data.weekId,
     },
     {
-      jobId: `week-cache-${input.data.weekId}`,
       attempts: 3,
       backoff: {
         type: "exponential",

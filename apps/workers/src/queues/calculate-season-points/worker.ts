@@ -52,7 +52,6 @@ export const calculateSeasonPointsWorker = async (
           seasonId: seasonResult.value.id,
         },
         {
-          jobId: `season-cache-${seasonResult.value.id}`,
           removeOnComplete: 10,
           removeOnFail: 5,
           attempts: 3,
