@@ -8,7 +8,7 @@ params:
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
   PORT: 3000
-  APP_URL: https://incentives.rtlj-prod.extratools.works
+  APP_URL: https://incentives.radixdlt.com
   NEXT_PUBLIC_LIMIT_ACCESS_ENABLED: "true"
 
 secrets:
@@ -26,9 +26,9 @@ secrets:
 ingress:
   enabled: true
   annotations:
-    kubernetes.io/ingress.class: nginx-internal
+    kubernetes.io/ingress.class: nginx
   hosts:
-    - host: incentives.rtlj-prod.extratools.works
+    - host: incentives.radixdlt.com
       paths:
         - path: /
           pathType: ImplementationSpecific
