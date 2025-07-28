@@ -376,17 +376,15 @@ const runnable = Effect.gen(function* () {
   const addresses = yield* Effect.tryPromise(() =>
     db.query.accounts
       .findMany({
-        limit: 100,
+        // limit: 100,
       })
       .then((res) => res.map((r) => r.address))
   );
 
   yield* service({
     timestamp: new Date(),
-    batchSize: 10000,
-    addresses: [
-      "account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew",
-    ],
+    batchSize: 10_000,
+    // addresses: [],
   }).pipe(Effect.provide(NodeSdkLive));
 });
 
