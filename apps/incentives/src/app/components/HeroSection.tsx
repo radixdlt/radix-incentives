@@ -1,7 +1,6 @@
 import { motion } from 'framer-motion';
 import { TrophyIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
-import { CosmicGlowButton } from './CosmicGlowButton';
 import Link from 'next/link';
 
 export const HeroSection = () => {
@@ -27,7 +26,7 @@ export const HeroSection = () => {
         animate="visible"
         className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.1] mb-8"
       >
-        <TrophyIcon className="h-4 w-4 text-blue-400" />
+        <TrophyIcon className="h-4 w-4 text-brand-cyan" />
         <span className="text-sm text-white/80 tracking-wide">
           Radix Incentives Campaign Platform
         </span>
@@ -44,7 +43,7 @@ export const HeroSection = () => {
             Earn Rewards on
           </span>
           <br />
-          <span className="bg-clip-text">Radix Network</span>
+          <span className="gradient-text">Radix Network</span>
         </h1>
       </motion.div>
 
@@ -67,16 +66,11 @@ export const HeroSection = () => {
         animate="visible"
         className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
       >
-        <CosmicGlowButton
-          color="hsl(220, 80%, 60%)"
-          speed="6s"
-          className="px-8 py-4 text-lg"
-          onClick={() => {
-            window.location.href = '/dashboard';
-          }}
-        >
-          Enroll in Campaign
-        </CosmicGlowButton>
+        <Link href="/dashboard">
+          <Button size="xl" className="btn-gradient">
+            Enroll in Campaign
+          </Button>
+        </Link>
         <Link href="/dashboard/faq">
           <Button
             variant="outline"

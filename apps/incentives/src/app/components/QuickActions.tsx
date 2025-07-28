@@ -5,7 +5,6 @@ import {
   ArrowLeftRightIcon,
   TrophyIcon,
 } from 'lucide-react';
-import { Card } from '~/components/ui/card';
 
 export const QuickActions = () => {
   const actions = [
@@ -15,7 +14,7 @@ export const QuickActions = () => {
       icon: CreditCardIcon,
       href: 'https://radixdlt.com/tokens',
       target: '_blank',
-      color: 'from-green-500 to-emerald-600',
+      color: { from: 'rgba(225, 52, 176, 0.4)', to: 'rgba(217, 0, 122, 0.4)' }, // Pink gradient
     },
     {
       title: 'Bridge Assets',
@@ -23,7 +22,7 @@ export const QuickActions = () => {
       icon: ArrowLeftRightIcon,
       href: 'https://www.instabridge.io',
       target: '_blank',
-      color: 'from-blue-500 to-cyan-600',
+      color: { from: 'rgba(30, 249, 186, 0.4)', to: 'rgba(0, 194, 168, 0.4)' }, // Cyan gradient
     },
     {
       title: 'View Points',
@@ -31,7 +30,7 @@ export const QuickActions = () => {
       icon: TrophyIcon,
       href: '/dashboard',
       target: '_self',
-      color: 'from-purple-500 to-violet-600',
+      color: { from: 'rgba(6, 44, 192, 0.4)', to: 'rgba(0, 31, 143, 0.4)' }, // Blue gradient
     },
   ];
 
@@ -43,9 +42,9 @@ export const QuickActions = () => {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 + index * 0.1 }}
-          className="h-full"
+          className="h-full group"
         >
-          <Card className="p-6 bg-white/5 border-white/10 backdrop-blur-sm hover:bg-white/10 transition-all duration-300 cursor-pointer group h-full">
+          <div className="glass-card p-6 rounded-lg h-full flex flex-col hover-lift transition-all duration-300 group-hover:border-white/15">
             <a
               href={action.href}
               target={action.target}
@@ -54,7 +53,10 @@ export const QuickActions = () => {
               <div className="flex flex-col h-full">
                 <div className="flex items-start space-x-4 flex-1">
                   <div
-                    className={`p-3 rounded-lg bg-gradient-to-r ${action.color} flex-shrink-0`}
+                    className="p-3 rounded-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+                    style={{
+                      background: `linear-gradient(to right, ${action.color.from}, ${action.color.to})`,
+                    }}
                   >
                     <action.icon className="h-6 w-6 text-white" />
                   </div>
@@ -67,13 +69,13 @@ export const QuickActions = () => {
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center text-blue-400 text-sm group-hover:text-blue-300 transition-colors mt-auto">
+                <div className="flex items-center text-brand-cyan text-sm group-hover:text-brand-pink transition-colors mt-auto">
                   Get Started
                   <ArrowRightIcon className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
             </a>
-          </Card>
+          </div>
         </motion.div>
       ))}
     </div>
