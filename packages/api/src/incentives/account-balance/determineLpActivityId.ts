@@ -20,7 +20,7 @@ export const determineLpActivityId = Effect.fn(function* (
   if (!isLpActivity && !isNativeLpActivity) {
     return yield* Effect.fail(
       new ActivityNotSupportedError({
-        message: `${tokenPair} is not a valid token pair`,
+        message: `${tokenPair} is not a valid token pair for ${dapp}`,
       })
     );
   }

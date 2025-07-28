@@ -87,6 +87,8 @@ type Metadata = {
   };
 };
 
+type OciswapPositions = AccountBalanceFromSnapshot["ociswapPositions"];
+
 export class AggregateOciswapPositionsService extends Effect.Service<AggregateOciswapPositionsService>()(
   "AggregateOciswapPositionsService",
   {
@@ -160,11 +162,9 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
         );
       });
 
-      const aggregatePools = Effect.fn(function* (
-        input: AccountBalanceFromSnapshot
-      ) {
+      const aggregatePools = Effect.fn(function* (input: OciswapPositions) {
         const poolsByTokenPair = yield* Effect.forEach(
-          Object.entries(input.ociswapPositions),
+          Object.entries(input),
           Effect.fn(function* ([poolKey, poolAssets]) {
             const firstAsset = poolAssets[0];
 
@@ -500,7 +500,7 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
       });
 
       return Effect.fn("AggregateOciswapPositionsService")(function* (input: {
-        accountBalance: AccountBalanceFromSnapshot;
+        accountBalance: OciswapPositions;
         timestamp: Date;
       }) {
         // Aggregate pools by token pair

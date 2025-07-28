@@ -46,7 +46,7 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
                 timestamp: input.timestamp,
               });
             const ociswapPositions = yield* aggregateOciswapPositionsService({
-              accountBalance,
+              accountBalance: accountBalance.ociswapPositions,
               timestamp: input.timestamp,
             });
             const xrdBalance = yield* xrdBalanceService({
