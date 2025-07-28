@@ -272,6 +272,12 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         message: "Mark week as processed after calculation?",
         default: false,
       },
+      {
+        name: "includeSPCalculations",
+        type: "confirm",
+        message: "Include season points calculations (admin processing)?",
+        default: false,
+      },
     ],
   },
   "populate-leaderboard-cache": {
@@ -359,6 +365,7 @@ const buildPayload = (
           answers.weekId !== "" && { weekId: answers.weekId }),
         force: answers.force,
         markAsProcessed: answers.markAsProcessed,
+        includeSPCalculations: answers.includeSPCalculations,
       };
 
     case "populate-leaderboard-cache": {
