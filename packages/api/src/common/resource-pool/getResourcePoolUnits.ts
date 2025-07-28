@@ -19,15 +19,9 @@ export type GetResourcePoolInput = {
   at_ledger_state: AtLedgerState;
 };
 
-export type GetResourcePoolOutput = {
-  address: string;
-  lpResourceAddress: string;
-  totalSupply: BigNumber;
-  poolResources: {
-    resourceAddress: string;
-    poolUnitValue: BigNumber;
-  }[];
-}[];
+export type GetResourcePoolOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof GetResourcePoolUnitsService)["Service"]>>
+>;
 
 export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolUnitsService>()(
   "GetResourcePoolUnitsService",

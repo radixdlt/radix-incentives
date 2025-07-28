@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Data, Effect } from "effect";
 import BigNumber from "bignumber.js";
 
 import {
@@ -15,15 +15,6 @@ import {
   type GetResourcePoolOutput,
   GetResourcePoolUnitsService,
 } from "../../resource-pool/getResourcePoolUnits";
-
-export class InvalidPoolResourceError extends Error {
-  readonly _tag = "InvalidPoolResourceError";
-  constructor(error: unknown) {
-    super(
-      `Invalid pool resource: ${error instanceof Error ? error.message : error}`
-    );
-  }
-}
 
 type DefiPlazaPosition = {
   lpResourceAddress: string;
