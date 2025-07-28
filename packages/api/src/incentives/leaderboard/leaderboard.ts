@@ -319,7 +319,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Build common leaderboard response
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
           cachedData: cachedData as CachedSeasonLeaderboardEntry[],
-          statsCache,
+          statsCache: statsCache ?? null,
           userId: input.userId,
         });
 
@@ -487,7 +487,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Build common leaderboard response
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
           cachedData: cachedData as CachedCategoryLeaderboardEntry[],
-          statsCache,
+          statsCache: statsCache ?? null,
           userId: input.userId,
           additionalUserData,
         });
