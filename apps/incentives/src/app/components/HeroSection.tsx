@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { TrophyIcon } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import Link from 'next/link';
+import { TypewriterText } from './TypewriterText';
 
 export const HeroSection = () => {
   const fadeUpVariants = {
@@ -40,10 +41,12 @@ export const HeroSection = () => {
       >
         <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 tracking-tight">
           <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
-            Earn Rewards on
+            Use <span className="gradient-text">Radix Network</span>
           </span>
           <br />
-          <span className="gradient-text">Radix Network</span>
+          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
+            Earn <TypewriterText words={["Tokens", "XRD", "Rewards", "Yield", "Status", "Fame", "Prestige"]} />
+          </span>
         </h1>
       </motion.div>
 
