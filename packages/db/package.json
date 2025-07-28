@@ -26,6 +26,7 @@
     "db:seed:activityCategoryWeeks": "tsx src/incentives/seed/activityCategoryWeeks.ts",
     "db:seed:weeks": "tsx src/incentives/seed/weeks.ts",
     "db:seed": "tsx src/incentives/seed/seed.ts",
+    "db:seed:users": "tsx src/incentives/seed/users.ts",
     "db:reset": "./scripts/reset.sh"
   },
   "dependencies": {

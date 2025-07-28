@@ -464,12 +464,6 @@ export class AggregateCaviarninePositionsService extends Effect.Service<Aggregat
 
         const output = Array.from(accountBalanceMap.values());
 
-        if (DEBUG_ENABLED) {
-          yield* Effect.log({
-            input: input.accountBalance.caviarninePositions,
-            output,
-          });
-        }
 
         return output;
       });
