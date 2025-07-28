@@ -81,8 +81,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   return (
     <div className="flex min-h-screen flex-col">
       {/* Top Navigation Bar */}
-      <header className="sticky top-0 z-50 w-full glass border-b border-white/10">
-        <div className="flex h-16 items-center justify-between px-6">
+      <header 
+        className="sticky top-0 z-50 w-full border-b border-white/10"
+        style={{
+          background: 'rgba(255, 255, 255, 0.08)',
+          boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
+          borderTop: 'none'
+        }}
+      >
+        <div className="flex items-center justify-between px-6" style={{ height: '64px' }}>
           <div className="flex items-center gap-3">
             <Logo />
           </div>
@@ -94,7 +101,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       <div className="flex flex-1">
       {/* Desktop Sidebar */}
-      <aside className="hidden md:flex flex-col glass-card border-r border-white/10 grid-pattern-sm sticky top-16 h-[calc(100vh-4rem)]">
+      <aside className="hidden md:flex flex-col glass-card border-r border-white/10 grid-pattern-sm sticky top-[65px] h-[calc(100vh-65px)]">
         <div className={cn(
           "flex flex-col h-full transition-all duration-300 ease-in-out",
           isCollapsed ? "w-20" : "w-64"
@@ -105,7 +112,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
               variant="ghost"
               size="sm"
               className={cn(
-                "h-10 w-full transition-all duration-300 hover:bg-white/10 btn-glass",
+                "h-10 w-full transition-all duration-300 hover:bg-white/10 bg-white/5 border border-white/10",
                 isCollapsed ? "px-0 justify-center" : "justify-between px-3"
               )}
               onClick={() => setIsCollapsed(!isCollapsed)}

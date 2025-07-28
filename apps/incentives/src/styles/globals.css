@@ -55,7 +55,7 @@
   
   /* Gradients */
   --gradient-brand: linear-gradient(135deg, var(--brand-pink) 0%, var(--brand-cyan) 100%);
-  --gradient-background: radial-gradient(circle at 5% 85%, rgba(225, 52, 176, 0.18) 0%, transparent 25%), radial-gradient(circle at 95% 15%, rgba(30, 249, 186, 0.14) 0%, transparent 25%), #0a0a0a;
+  --gradient-background: radial-gradient(circle at 5% 85%, rgba(225, 52, 176, 0.25) 0%, transparent 35%), radial-gradient(circle at 95% 15%, rgba(30, 249, 186, 0.22) 0%, transparent 35%), #0a0a0a;
   --gradient-card: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 100%);
   --gradient-glow: radial-gradient(circle at center, var(--brand-pink) 0%, transparent 70%);
 }
