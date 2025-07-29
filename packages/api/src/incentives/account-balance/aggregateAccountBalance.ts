@@ -49,6 +49,7 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
               accountBalance: accountBalance.ociswapPositions,
               timestamp: input.timestamp,
             });
+
             const xrdBalance = yield* xrdBalanceService({
               accountBalance,
               timestamp: input.timestamp,
@@ -65,7 +66,7 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
               });
             const defiPlazaPositions =
               yield* aggregateDefiPlazaPositionsService({
-                accountBalance,
+                accountBalance: accountBalance.defiPlazaPositions,
                 timestamp: input.timestamp,
               });
             const surgePositions =
@@ -79,11 +80,11 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
               accountAddress: accountBalance.address,
               data: [
                 ...caviarninePositions,
-                ...ociswapPositions,
+                ...ociswapPositions.values(),
                 ...xrdBalance,
                 ...weftFinancePositions,
                 ...rootFinancePositions,
-                ...defiPlazaPositions,
+                ...defiPlazaPositions.values(),
                 ...surgePositions,
               ],
             };
