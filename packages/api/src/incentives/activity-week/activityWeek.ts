@@ -1,7 +1,7 @@
 import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
-import { activityWeeks } from "db/incentives";
-import { eq, and, sql } from "drizzle-orm";
+import { activityWeeks, activities, activityCategoryWeeks } from "db/incentives";
+import { eq, and, sql, asc } from "drizzle-orm";
 import { ActivityId } from "data";
 
 export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
@@ -77,6 +77,32 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
                     multiplier: sql`excluded.multiplier`,
                   },
                 }),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        getActivitiesWithPointsForWeek: Effect.fn(function* (input: { 
+          weekId: string; 
+          categoryId?: string; 
+        }) {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  id: activities.id,
+                  name: activities.name,
+                })
+                .from(activities)
+                .innerJoin(activityWeeks, eq(activities.id, activityWeeks.activityId))
+                .innerJoin(activityCategoryWeeks, eq(activities.category, activityCategoryWeeks.activityCategoryId))
+                .where(
+                  and(
+                    eq(activityWeeks.weekId, input.weekId),
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    sql`${activityCategoryWeeks.pointsPool} > 0`,
+                    input.categoryId ? eq(activities.category, input.categoryId) : undefined
+                  )
+                )
+                .orderBy(asc(activities.name)),
             catch: (error) => new DbError(error),
           });
         }),

@@ -53,11 +53,7 @@ export const leaderboardRouter = createTRPCRouter({
         onFailure: (error) => {
           const isCacheNotAvailableError =
             error._tag === "Fail" &&
-            "error" in error &&
-            typeof error.error === "object" &&
-            error.error !== null &&
-            "_tag" in error.error &&
-            (error.error as { _tag: string })._tag === "CacheNotAvailableError";
+            error.error._tag === "CacheNotAvailableError";
 
           if (isCacheNotAvailableError) {
             throw new TRPCError({
@@ -101,11 +97,7 @@ export const leaderboardRouter = createTRPCRouter({
         onFailure: (error) => {
           const isCacheNotAvailableError =
             error._tag === "Fail" &&
-            "error" in error &&
-            typeof error.error === "object" &&
-            error.error !== null &&
-            "_tag" in error.error &&
-            (error.error as { _tag: string })._tag === "CacheNotAvailableError";
+            error.error._tag === "CacheNotAvailableError";
 
           if (isCacheNotAvailableError) {
             throw new TRPCError({
@@ -142,11 +134,10 @@ export const leaderboardRouter = createTRPCRouter({
         onFailure: (error) => {
           const isCacheNotAvailableError =
             error._tag === "Fail" &&
-            "error" in error &&
+            error.error &&
             typeof error.error === "object" &&
-            error.error !== null &&
             "_tag" in error.error &&
-            (error.error as { _tag: string })._tag === "CacheNotAvailableError";
+            error.error._tag === "CacheNotAvailableError";
 
           if (isCacheNotAvailableError) {
             throw new TRPCError({
@@ -165,14 +156,14 @@ export const leaderboardRouter = createTRPCRouter({
   getAvailableCategories: publicProcedure
     .input(z.object({ weekId: z.string() }))
     .query(async ({ ctx, input }) => {
-    const result = await ctx.dependencyLayer.getAvailableCategories(input);
+      const result = await ctx.dependencyLayer.getAvailableCategories(input);
 
-    return Exit.match(result, {
-      onSuccess: (value) => value,
-      onFailure: (error) => {
-        console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-      },
-    });
-  }),
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
+      });
+    }),
 });

@@ -765,7 +765,8 @@ const populateLeaderboardCache = (input: { weekId?: string }) => {
       Layer.provide(weekServiceLive),
       Layer.provide(
         ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive))
-      )
+      ),
+      Layer.provide(activityWeekServiceLive)
     )
   );
 

@@ -63,6 +63,7 @@ describe(
       Layer.provide(seasonLive),
       Layer.provide(activityCategoryServiceLive),
       Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 

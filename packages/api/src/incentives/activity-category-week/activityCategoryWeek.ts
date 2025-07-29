@@ -3,9 +3,7 @@ import { ActivityCategoryId } from "data";
 import {
   activityCategoryWeeks,
   activityWeeks,
-  activities,
   activityCategories,
-  accountActivityPoints,
 } from "db/incentives";
 import { and, eq, sql, asc } from "drizzle-orm";
 import { Effect } from "effect";
@@ -167,17 +165,18 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   description: activityCategories.description,
                 })
                 .from(activityCategories)
+                .innerJoin(
+                  activityCategoryWeeks,
+                  eq(
+                    activityCategories.id,
+                    activityCategoryWeeks.activityCategoryId
+                  )
+                )
                 .where(
-                  // Only include categories that have activities with points for this specific week
-                  sql`EXISTS (
-                    SELECT 1 FROM ${activities}
-                    INNER JOIN ${activityWeeks} ON ${activities.id} = ${activityWeeks.activityId}
-                    INNER JOIN ${accountActivityPoints} ON ${activities.id} = ${accountActivityPoints.activityId}
-                    WHERE ${activities.category} = ${activityCategories.id}
-                    AND ${activityWeeks.weekId} = ${input.weekId}
-                    AND ${accountActivityPoints.weekId} = ${input.weekId}
-                    AND ${accountActivityPoints.activityPoints} > 0
-                  )`
+                  and(
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    sql`${activityCategoryWeeks.pointsPool} > 0`
+                  )
                 )
                 .orderBy(asc(activityCategories.name)),
             catch: (error) => new DbError(error),

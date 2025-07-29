@@ -1,14 +1,14 @@
-import { Effect } from "effect";
-import { DbClientService } from "../db/dbClient";
+import { Effect, Data } from "effect";
+import { DbClientService, DbError } from "../db/dbClient";
 import { WeekService } from "../week/week";
 import { SeasonService } from "../season/season";
 import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { ActivityWeekService } from "../activity-week/activityWeek";
 import type { Db } from "db/incentives";
 import {
   users,
   activities,
-  activityWeeks,
   seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
@@ -16,13 +16,9 @@ import {
 import { eq, asc, sql, and, inArray } from "drizzle-orm";
 
 // Custom error for when cache is being built
-export class CacheNotAvailableError extends Error {
-  readonly _tag = "CacheNotAvailableError";
-  constructor(message: string) {
-    super(message);
-    this.name = "CacheNotAvailableError";
-  }
-}
+export class CacheNotAvailableError extends Data.TaggedError("CacheNotAvailableError")<{
+  message: string;
+}> {}
 
 // Common leaderboard response builder to avoid duplication
 interface LeaderboardUser {
@@ -222,6 +218,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const seasonService = yield* SeasonService;
       const activityCategoryService = yield* ActivityCategoryService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      const activityWeekService = yield* ActivityWeekService;
 
       const getSeasonLeaderboard = Effect.fn(function* (input: {
         seasonId: string;
@@ -242,26 +239,28 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         if (cacheCount === 0) {
           yield* Effect.log(`No cache available for season ${input.seasonId}`);
           return yield* Effect.fail(
-            new CacheNotAvailableError(
-              `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
-            )
+            new CacheNotAvailableError({
+              message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
+            })
           );
         }
 
         // Get cached data, which we know exists now
-        const cachedData = yield* Effect.tryPromise(() =>
-          db
-            .select({
-              userId: seasonLeaderboardCache.userId,
-              label: users.label,
-              totalPoints: seasonLeaderboardCache.totalPoints,
-              rank: seasonLeaderboardCache.rank,
-            })
-            .from(seasonLeaderboardCache)
-            .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
-            .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
-            .orderBy(asc(seasonLeaderboardCache.rank))
-        );
+        const cachedData = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select({
+                userId: seasonLeaderboardCache.userId,
+                label: users.label,
+                totalPoints: seasonLeaderboardCache.totalPoints,
+                rank: seasonLeaderboardCache.rank,
+              })
+              .from(seasonLeaderboardCache)
+              .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
+              .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+              .orderBy(asc(seasonLeaderboardCache.rank)),
+          catch: (error) => new DbError(error),
+        });
 
         // Check if cache is empty (which shouldn't happen in normal operation)
         if (cachedData.length === 0) {
@@ -280,9 +279,9 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           // very expensive for large datasets I assume
 
           return yield* Effect.fail(
-            new CacheNotAvailableError(
-              `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
-            )
+            new CacheNotAvailableError({
+              message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
+            })
           );
         }
 
@@ -346,29 +345,12 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Get week info
         const weekInfo = yield* weekService.getById(input.weekId);
 
-        // Get activities that are included in the provided week ID for this category
-        const categoryActivities = yield* Effect.tryPromise(() =>
-          db
-            .select({
-              id: activities.id,
-              name: activities.name,
-            })
-            .from(activities)
-            .innerJoin(
-              activityWeeks,
-              eq(activities.id, activityWeeks.activityId)
-            )
-            .where(
-              and(
-                eq(activities.category, input.categoryId),
-                eq(activityWeeks.weekId, input.weekId),
-                // Exclude hold_ activities (they're for multiplier calculation, not leaderboards)
-                sql`${activities.id} NOT LIKE '%hold_%'`,
-                // Exclude common activity (not rewarded)
-                sql`${activities.id} != 'common'`
-              )
-            )
-        );
+        // Get activities that are included in the provided week ID for this category and have points
+        const categoryActivities =
+          yield* activityWeekService.getActivitiesWithPointsForWeek({
+            weekId: input.weekId,
+            categoryId: input.categoryId,
+          });
 
         if (categoryActivities.length === 0) {
           return yield* Effect.fail(
@@ -397,32 +379,34 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             `No cache available for week ${input.weekId}, category ${input.categoryId}`
           );
           return yield* Effect.fail(
-            new CacheNotAvailableError(
-              `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
-            )
+            new CacheNotAvailableError({
+              message: `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
+            })
           );
         }
 
         // Get cached data, which we know exists here
-        const cachedData = yield* Effect.tryPromise(() =>
-          db
-            .select({
-              userId: categoryLeaderboardCache.userId,
-              label: users.label,
-              totalPoints: categoryLeaderboardCache.totalPoints,
-              rank: categoryLeaderboardCache.rank,
-              activityBreakdown: categoryLeaderboardCache.activityBreakdown,
-            })
-            .from(categoryLeaderboardCache)
-            .innerJoin(users, eq(categoryLeaderboardCache.userId, users.id))
-            .where(
-              and(
-                eq(categoryLeaderboardCache.weekId, input.weekId),
-                eq(categoryLeaderboardCache.categoryId, input.categoryId)
+        const cachedData = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select({
+                userId: categoryLeaderboardCache.userId,
+                label: users.label,
+                totalPoints: categoryLeaderboardCache.totalPoints,
+                rank: categoryLeaderboardCache.rank,
+                activityBreakdown: categoryLeaderboardCache.activityBreakdown,
+              })
+              .from(categoryLeaderboardCache)
+              .innerJoin(users, eq(categoryLeaderboardCache.userId, users.id))
+              .where(
+                and(
+                  eq(categoryLeaderboardCache.weekId, input.weekId),
+                  eq(categoryLeaderboardCache.categoryId, input.categoryId)
+                )
               )
-            )
-            .orderBy(asc(categoryLeaderboardCache.rank))
-        );
+              .orderBy(asc(categoryLeaderboardCache.rank)),
+          catch: (error) => new DbError(error),
+        });
 
         // Check if cache is empty (which shouldn't happen in normal operation)
         if (cachedData.length === 0) {
@@ -434,9 +418,9 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           // we could, but it would be expensive
 
           return yield* Effect.fail(
-            new CacheNotAvailableError(
-              `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
-            )
+            new CacheNotAvailableError({
+              message: `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
+            })
           );
         }
 

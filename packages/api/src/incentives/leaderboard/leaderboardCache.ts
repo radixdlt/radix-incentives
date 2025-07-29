@@ -3,6 +3,7 @@ import { DbClientService, DbError } from "../db/dbClient";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
+import { ActivityWeekService } from "../activity-week/activityWeek";
 import {
   seasonLeaderboardCache,
   categoryLeaderboardCache,
@@ -10,8 +11,6 @@ import {
   userSeasonPoints,
   accountActivityPoints,
   accounts,
-  activities,
-  activityWeeks,
 } from "db/incentives";
 import { eq, and, sql, desc, inArray } from "drizzle-orm";
 
@@ -27,6 +26,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
       const seasonService = yield* SeasonService;
       const weekService = yield* WeekService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      const activityWeekService = yield* ActivityWeekService;
 
       return {
         populateAll: Effect.fn(function* (
@@ -156,24 +156,12 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           });
 
         for (const category of categories) {
-          // Get activities that are included in the provided week ID for this category
-          const categoryActivities = yield* Effect.tryPromise({
-            try: () =>
-              db
-                .select({ id: activities.id })
-                .from(activities)
-                .innerJoin(
-                  activityWeeks,
-                  eq(activities.id, activityWeeks.activityId)
-                )
-                .where(
-                  and(
-                    eq(activities.category, category.id),
-                    eq(activityWeeks.weekId, input.weekId)
-                  )
-                ),
-            catch: (error) => new DbError(error),
-          });
+          // Get activities that are included in the provided week ID for this category and have points
+          const categoryActivities =
+            yield* activityWeekService.getActivitiesWithPointsForWeek({
+              weekId: input.weekId,
+              categoryId: category.id,
+            });
 
           if (categoryActivities.length === 0) continue;
 

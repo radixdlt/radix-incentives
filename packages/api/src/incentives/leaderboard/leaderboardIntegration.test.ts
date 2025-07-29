@@ -59,6 +59,7 @@ describe(
       Layer.provide(seasonLive),
       Layer.provide(weekLive),
       Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
@@ -67,6 +68,7 @@ describe(
       Layer.provide(seasonLive),
       Layer.provide(activityCategoryServiceLive),
       Layer.provide(activityCategoryWeekServiceLive),
+      Layer.provide(activityWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None))
     );
 
