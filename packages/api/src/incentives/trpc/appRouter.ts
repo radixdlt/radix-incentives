@@ -8,7 +8,7 @@ import {
 import { adminSeasonRouter } from "../season/seasonRouter";
 import { adminUserRouter, userRouter } from "../user/userRouter";
 import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
-import { configRouter } from "../config/configRouter";
+import { configRouter, adminConfigRouter } from "../config/configRouter";
 import { weekAdminRouter, weekRouter } from "../week/weekRouter";
 import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
 import { adminComponentWhitelistRouter } from "../component/componentWhitelistRouter";
@@ -37,6 +37,7 @@ export const adminAppRouter = createTRPCRouter({
   season: adminSeasonRouter,
   user: adminUserRouter,
   leaderboard: leaderboardRouter,
+  config: adminConfigRouter,
   dapps: adminDappRouter,
   week: weekAdminRouter,
   componentWhitelist: adminComponentWhitelistRouter,

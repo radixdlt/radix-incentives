@@ -16,6 +16,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Logo } from "~/components/Logo";
+import { NotificationBar } from "~/components/NotificationBar";
 import { api } from '~/trpc/react';
 
 type DashboardLayoutProps = {
@@ -31,6 +32,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   const isLimitAccessEnabled =
     publicConfig?.NEXT_PUBLIC_LIMIT_ACCESS_ENABLED ?? false;
+  
+  const notification = publicConfig?.notification;
 
   const navItems = [
     {
@@ -80,6 +83,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="flex min-h-screen flex-col">
+      {/* Notification Bar */}
+      {notification?.enabled && (
+        <NotificationBar message={notification.message} />
+      )}
+
       {/* Top Navigation Bar */}
       <header 
         className="sticky top-0 z-50 w-full border-b border-white/10"
