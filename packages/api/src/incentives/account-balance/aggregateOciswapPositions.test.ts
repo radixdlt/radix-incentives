@@ -37,14 +37,15 @@ describe("AggregateOciswapPositionsService", () => {
       });
 
       // Check that defaults are returned for all expected activity ids
-      for (const [activityId, position] of result) {
-        expect(expectedActivityIds.has(activityId)).toBe(true);
+      for (const position of result) {
+        // @ts-expect-error
+        expect(expectedActivityIds.has(position.activityId)).toBe(true);
         expect(position.usdValue).toBe("0");
       }
 
       // Check that all expected activity ids are present
       for (const activityId of expectedActivityIds) {
-        const position = result.get(activityId);
+        const position = result.find((p) => p.activityId === activityId);
         expect(position).toBeDefined();
       }
     })
@@ -421,9 +422,9 @@ describe("AggregateOciswapPositionsService", () => {
 
       const result = yield* service(input);
 
-      for (const [key, value] of result) {
+      for (const position of result) {
         // @ts-expect-error
-        expect(value).toEqual(output[key]);
+        expect(position).toEqual(output[position.activityId]);
       }
     })
   );
