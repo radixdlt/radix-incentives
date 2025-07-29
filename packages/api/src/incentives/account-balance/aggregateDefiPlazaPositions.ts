@@ -1,18 +1,19 @@
-import { Effect, Layer } from "effect";
+import { Config, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Context } from "effect";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { DappConstants, getTokenPair } from "data";
-import type { AccountBalanceData, ActivityId, Token } from "data";
+import {
+  DappConstants,
+  type ActivityId,
+  type Token,
+  type AccountBalanceData,
+  getTokenPair,
+} from "data";
 import {
   AddressValidationService,
-  type UnknownTokenError,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
+import { determineLpActivityId } from "./determineLpActivityId";
 
 const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
 
@@ -24,39 +25,42 @@ export class InvalidDefiPlazaPositionError {
   ) {}
 }
 
-export type AggregateDefiPlazaPositionsInput = {
-  accountBalance: AccountBalanceFromSnapshot;
-  timestamp: Date;
+export type AggregateDefiPlazaPositionsOutput = Effect.Effect.Success<
+  ReturnType<typeof AggregateDefiPlazaPositionsService.Service>
+>;
+
+type DefiPlazaPositions = AccountBalanceFromSnapshot["defiPlazaPositions"];
+
+type Metadata = {
+  componentAddress: string;
+  tokenPair: string;
+  baseToken: {
+    resourceAddress: string;
+    amount: string;
+    isNativeAsset: boolean;
+  };
+  quoteToken: {
+    resourceAddress: string;
+    amount: string;
+    isNativeAsset: boolean;
+  };
+  note?: string;
 };
 
-export type AggregateDefiPlazaPositionsOutput = AccountBalanceData;
+export class AggregateDefiPlazaPositionsService extends Effect.Service<AggregateDefiPlazaPositionsService>()(
+  "AggregateDefiPlazaPositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const STORE_METADATA = Config.boolean("storeMetadata").pipe(
+        Config.withDefault(true)
+      );
+      const getUsdValueService = yield* GetUsdValueService;
+      const addressValidationService = yield* AddressValidationService;
 
-export class AggregateDefiPlazaPositionsService extends Context.Tag(
-  "AggregateDefiPlazaPositionsService"
-)<
-  AggregateDefiPlazaPositionsService,
-  (
-    input: AggregateDefiPlazaPositionsInput
-  ) => Effect.Effect<
-    AggregateDefiPlazaPositionsOutput[],
-    GetUsdValueServiceError | UnknownTokenError | InvalidDefiPlazaPositionError
-  >
->() {}
-
-export const AggregateDefiPlazaPositionsLive = Layer.effect(
-  AggregateDefiPlazaPositionsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const addressValidationService = yield* AddressValidationService;
-    return (input) =>
-      Effect.gen(function* () {
-        const defiPlazaPositions =
-          input.accountBalance.defiPlazaPositions.items;
-
-        if (defiPlazaPositions.length === 0) {
-          // Return zero entries for all supported pools (both native and non-native)
-          const results: AggregateDefiPlazaPositionsOutput[] = [];
-          for (const pool of Object.values(DefiPlazaConstants)) {
+      const createDefaultValues = Effect.fn(function* () {
+        return yield* Effect.forEach(
+          Object.values(DefiPlazaConstants),
+          Effect.fn(function* (pool) {
             const baseTokenInfo =
               yield* addressValidationService.getTokenNameAndNativeAssetStatus(
                 pool.baseResourceAddress
@@ -66,31 +70,65 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
                 pool.quoteResourceAddress
               );
 
-            // Add non-native LP zero entry
-            results.push({
-              activityId: `defiPlaza_lp_${getTokenPair(
-                baseTokenInfo.name as Token,
-                quoteTokenInfo.name as Token
-              )}` as ActivityId,
-              usdValue: new BigNumber(0).toString(),
-            });
+            const tokenPair = getTokenPair(
+              baseTokenInfo.name,
+              quoteTokenInfo.name
+            );
 
-            // Add native LP zero entry
-            results.push({
-              activityId: `defiPlaza_nativeLp_${getTokenPair(
-                baseTokenInfo.name as Token,
-                quoteTokenInfo.name as Token
-              )}` as ActivityId,
-              usdValue: new BigNumber(0).toString(),
-            });
-          }
-          return results;
-        }
+            const { activityId, isNativeLp } = yield* determineLpActivityId(
+              "defiPlaza",
+              tokenPair
+            );
 
-        const results: AggregateDefiPlazaPositionsOutput[] = [];
-        const processedActivityIds = new Set<string>();
+            const defaultMetadata = STORE_METADATA
+              ? {
+                  componentAddress: pool.componentAddress,
+                  tokenPair,
+                  baseToken: {
+                    resourceAddress: pool.baseResourceAddress,
+                    amount: "0",
+                    isNativeAsset: baseTokenInfo.isNativeAsset,
+                  },
+                  quoteToken: {
+                    resourceAddress: pool.quoteResourceAddress,
+                    amount: "0",
+                    isNativeAsset: quoteTokenInfo.isNativeAsset,
+                  },
+                }
+              : undefined;
 
-        for (const lpPosition of defiPlazaPositions) {
+            return [
+              {
+                activityId,
+                isNativeLp,
+                usdValue: "0",
+                metadata: defaultMetadata,
+              },
+            ];
+          }),
+          { concurrency: "unbounded" }
+        ).pipe(
+          Effect.map((results) =>
+            results.flat().reduce((acc, curr) => {
+              acc.set(curr.activityId, {
+                activityId: curr.activityId,
+                usdValue: curr.usdValue,
+                metadata: curr.metadata,
+              });
+              return acc;
+            }, new Map<ActivityId, AccountBalanceData>())
+          )
+        );
+      });
+
+      const processDefiPlazaPositions = Effect.fn(function* (input: {
+        positions: DefiPlazaPositions["items"];
+        timestamp: Date;
+      }) {
+        const { positions, timestamp } = input;
+        const aggregatedData = new Map<ActivityId, AccountBalanceData>();
+
+        for (const lpPosition of positions) {
           // DefiPlaza pools should have exactly 2 tokens
           if (lpPosition.position.length !== 2) {
             return yield* Effect.fail(
@@ -130,13 +168,13 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
           const token1UsdValue = yield* getUsdValueService({
             amount: new BigNumber(position1.amount),
             resourceAddress: position1.resourceAddress,
-            timestamp: input.timestamp,
+            timestamp,
           });
 
           const token2UsdValue = yield* getUsdValueService({
             amount: new BigNumber(position2.amount),
             resourceAddress: position2.resourceAddress,
-            timestamp: input.timestamp,
+            timestamp,
           });
 
           // Split values based on XRD derivative status
@@ -151,127 +189,139 @@ export const AggregateDefiPlazaPositionsLive = Layer.effect(
             .plus(isToken2NativeAsset ? token2UsdValue : 0)
             .multipliedBy(CONSTANT_PRODUCT_MULTIPLIER);
 
-          // Generate dynamic activity IDs based on token pair (alphabetical order for consistency)
-          const nonNativeActivityId = `defiPlaza_lp_${getTokenPair(
+          // Generate dynamic activity IDs based on token pair
+          const tokenPair = getTokenPair(
             token1Name as Token,
             token2Name as Token
-          )}` as ActivityId;
+          );
 
-          const nativeActivityId = `defiPlaza_nativeLp_${getTokenPair(
-            token1Name as Token,
-            token2Name as Token
-          )}` as ActivityId;
+          const nonNativeActivityId = `defiPlaza_lp_${tokenPair}` as ActivityId;
+          const nativeActivityId =
+            `defiPlaza_nativeLp_${tokenPair}` as ActivityId;
 
-          // Check for duplicate activity IDs and handle aggregation for non-native
-          if (processedActivityIds.has(nonNativeActivityId)) {
-            // Find existing result and add to it
-            const existingResultIndex = results.findIndex(
-              (r) => r.activityId === nonNativeActivityId
-            );
-            if (existingResultIndex >= 0) {
-              const existingResult = results[existingResultIndex];
-              if (existingResult) {
-                const newTotalValue = new BigNumber(
-                  existingResult.usdValue
-                ).plus(totalWrappedAssetUsdValue);
-                results[existingResultIndex] = {
-                  ...existingResult,
-                  usdValue: newTotalValue.toString(),
-                  metadata: {
-                    ...existingResult.metadata,
-                    note: "Aggregated from multiple positions",
+          // Find the pool configuration for this lpResourceAddress
+          const poolConfig = Object.values(DefiPlazaConstants).find(
+            (pool) =>
+              pool.baseLpResourceAddress === lpPosition.lpResourceAddress
+          );
+
+          const componentAddress =
+            poolConfig?.componentAddress ?? lpPosition.lpResourceAddress;
+
+          // Process non-native LP
+          if (totalWrappedAssetUsdValue.gt(0)) {
+            const existingNonNative = aggregatedData.get(nonNativeActivityId);
+            const metadata: Metadata | undefined = STORE_METADATA
+              ? {
+                  componentAddress,
+                  tokenPair,
+                  baseToken: {
+                    resourceAddress: position1.resourceAddress,
+                    amount: position1.amount.toString(),
+                    isNativeAsset: isToken1NativeAsset,
                   },
-                };
-              }
-            }
-          } else {
-            processedActivityIds.add(nonNativeActivityId);
-            // Find the pool configuration for this lpResourceAddress
-            const poolConfig = Object.values(DefiPlazaConstants).find(
-              (pool) =>
-                pool.baseLpResourceAddress === lpPosition.lpResourceAddress
-            );
+                  quoteToken: {
+                    resourceAddress: position2.resourceAddress,
+                    amount: position2.amount.toString(),
+                    isNativeAsset: isToken2NativeAsset,
+                  },
+                  ...(existingNonNative && {
+                    note: "Aggregated from multiple positions",
+                  }),
+                }
+              : undefined;
 
-            results.push({
-              activityId: nonNativeActivityId,
-              usdValue: totalWrappedAssetUsdValue.toString(),
-              metadata: {
-                componentAddress:
-                  poolConfig?.componentAddress ?? lpPosition.lpResourceAddress,
-                tokenPair: getTokenPair(
-                  token1Name as Token,
-                  token2Name as Token
-                ),
-                baseToken: {
-                  resourceAddress: position1.resourceAddress,
-                  amount: position1.amount.toString(),
-                  isNativeAsset: isToken1NativeAsset,
-                },
-                quoteToken: {
-                  resourceAddress: position2.resourceAddress,
-                  amount: position2.amount.toString(),
-                  isNativeAsset: isToken2NativeAsset,
-                },
-              },
-            });
+            if (existingNonNative) {
+              const newTotalValue = new BigNumber(
+                existingNonNative.usdValue
+              ).plus(totalWrappedAssetUsdValue);
+              aggregatedData.set(nonNativeActivityId, {
+                activityId: nonNativeActivityId,
+                usdValue: newTotalValue.toString(),
+                metadata,
+              });
+            } else {
+              aggregatedData.set(nonNativeActivityId, {
+                activityId: nonNativeActivityId,
+                usdValue: totalWrappedAssetUsdValue.toString(),
+                metadata,
+              });
+            }
           }
 
-          // Check for duplicate activity IDs and handle aggregation for native
-          if (processedActivityIds.has(nativeActivityId)) {
-            // Find existing result and add to it
-            const existingResultIndex = results.findIndex(
-              (r) => r.activityId === nativeActivityId
-            );
-            if (existingResultIndex >= 0) {
-              const existingResult = results[existingResultIndex];
-              if (existingResult) {
-                const newTotalValue = new BigNumber(
-                  existingResult.usdValue
-                ).plus(totalNativeAssetUsdValue);
-                results[existingResultIndex] = {
-                  ...existingResult,
-                  usdValue: newTotalValue.toString(),
-                  metadata: {
-                    ...existingResult.metadata,
-                    note: "Aggregated from multiple positions",
+          // Process native LP
+          if (totalNativeAssetUsdValue.gt(0)) {
+            const existingNative = aggregatedData.get(nativeActivityId);
+            const metadata: Metadata | undefined = STORE_METADATA
+              ? {
+                  componentAddress,
+                  tokenPair,
+                  baseToken: {
+                    resourceAddress: position1.resourceAddress,
+                    amount: position1.amount.toString(),
+                    isNativeAsset: isToken1NativeAsset,
                   },
-                };
-              }
-            }
-          } else {
-            processedActivityIds.add(nativeActivityId);
-            // Find the pool configuration for this lpResourceAddress
-            const poolConfig = Object.values(DefiPlazaConstants).find(
-              (pool) =>
-                pool.baseLpResourceAddress === lpPosition.lpResourceAddress
-            );
+                  quoteToken: {
+                    resourceAddress: position2.resourceAddress,
+                    amount: position2.amount.toString(),
+                    isNativeAsset: isToken2NativeAsset,
+                  },
+                  ...(existingNative && {
+                    note: "Aggregated from multiple positions",
+                  }),
+                }
+              : undefined;
 
-            results.push({
-              activityId: nativeActivityId,
-              usdValue: totalNativeAssetUsdValue.toString(),
-              metadata: {
-                componentAddress:
-                  poolConfig?.componentAddress ?? lpPosition.lpResourceAddress,
-                tokenPair: getTokenPair(
-                  token1Name as Token,
-                  token2Name as Token
-                ),
-                baseToken: {
-                  resourceAddress: position1.resourceAddress,
-                  amount: position1.amount.toString(),
-                  isNativeAsset: isToken1NativeAsset,
-                },
-                quoteToken: {
-                  resourceAddress: position2.resourceAddress,
-                  amount: position2.amount.toString(),
-                  isNativeAsset: isToken2NativeAsset,
-                },
-              },
-            });
+            if (existingNative) {
+              const newTotalValue = new BigNumber(existingNative.usdValue).plus(
+                totalNativeAssetUsdValue
+              );
+              aggregatedData.set(nativeActivityId, {
+                activityId: nativeActivityId,
+                usdValue: newTotalValue.toString(),
+                metadata,
+              });
+            } else {
+              aggregatedData.set(nativeActivityId, {
+                activityId: nativeActivityId,
+                usdValue: totalNativeAssetUsdValue.toString(),
+                metadata,
+              });
+            }
           }
         }
 
-        return results;
+        return aggregatedData;
       });
-  })
-);
+
+      return Effect.fn("AggregateDefiPlazaPositionsService")(function* (input: {
+        accountBalance: DefiPlazaPositions;
+        timestamp: Date;
+      }) {
+        // Create default values for all pools
+        const defaults = yield* createDefaultValues();
+
+        // If no positions, return defaults
+        if (input.accountBalance.items.length === 0) {
+          return defaults;
+        }
+
+        // Process positions
+        const processedPositions = yield* processDefiPlazaPositions({
+          positions: input.accountBalance.items,
+          timestamp: input.timestamp,
+        });
+
+        // Merge processed positions with defaults
+        for (const [activityId, data] of processedPositions) {
+          defaults.set(activityId, data);
+        }
+
+        return defaults;
+      });
+    }),
+  }
+) {}
+
+export const AggregateDefiPlazaPositionsLive =
+  AggregateDefiPlazaPositionsService.Default;
