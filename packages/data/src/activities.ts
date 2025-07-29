@@ -131,7 +131,7 @@ export const activitiesData: {
     componentAddresses: [DefiPlazaConstants.xwBTCPool.componentAddress],
   },
   {
-    id:"defiPlaza_nativeLp_xrd-xusdt",
+    id: "defiPlaza_nativeLp_xrd-xusdt",
     category: ActivityCategoryId.provideNativeLiquidityToDex,
     dApp: DappId.defiPlaza,
     componentAddresses: [DefiPlazaConstants.xUSDTPool.componentAddress],
@@ -148,7 +148,6 @@ export const activitiesData: {
     dApp: DappId.defiPlaza,
     componentAddresses: [DefiPlazaConstants.xUSDCPool.componentAddress],
   },
-
 
   /**
    * Ociswap LP activities

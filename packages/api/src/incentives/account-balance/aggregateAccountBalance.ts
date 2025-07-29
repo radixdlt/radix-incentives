@@ -80,11 +80,11 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
               accountAddress: accountBalance.address,
               data: [
                 ...caviarninePositions,
-                ...ociswapPositions.values(),
+                ...ociswapPositions,
                 ...xrdBalance,
                 ...weftFinancePositions,
                 ...rootFinancePositions,
-                ...defiPlazaPositions.values(),
+                ...defiPlazaPositions,
                 ...surgePositions,
               ],
             };

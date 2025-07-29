@@ -526,7 +526,7 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
           )
         );
 
-        return processedItems;
+        return Array.from(processedItems.values());
       });
     }),
   }
