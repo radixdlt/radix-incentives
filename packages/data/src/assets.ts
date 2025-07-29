@@ -32,10 +32,13 @@ export const Assets = {
 
 // Centralized token mapping with native and wrapped asset classification
 export const tokenNameMap = {
-  // Native Radix assets
-  nativeAssets: {
+  xrdDerivativeAssets: {
     [Assets.Fungible.XRD]: "xrd",
     [Assets.Fungible.LSULP]: "lsulp",
+    [Assets.Fungible.HLP]: "hlp",
+  },
+  // Native Radix assets
+  nativeAssets: {
     [Assets.Fungible.OCI]: "oci",
     [Assets.Fungible.EARLY]: "early",
     [Assets.Fungible.ILIS]: "ilis",
@@ -45,28 +48,39 @@ export const tokenNameMap = {
     [Assets.Fungible.REDDICKS]: "reddicks",
   },
   // Wrapped/bridged assets
-  wrappedAssets: {
-    [Assets.Fungible.xUSDC]: "xusdc",
-    [Assets.Fungible.xUSDT]: "xusdt",
+  bluechipAssets: {
     [Assets.Fungible.wxBTC]: "xwbtc",
     [Assets.Fungible.xETH]: "xeth",
+  },
+  stableAssets: {
+    [Assets.Fungible.xUSDC]: "xusdc",
+    [Assets.Fungible.xUSDT]: "xusdt",
   },
 } as const;
 
 export const flatTokenNameMap = {
   ...tokenNameMap.nativeAssets,
-  ...tokenNameMap.wrappedAssets,
+  ...tokenNameMap.bluechipAssets,
+  ...tokenNameMap.stableAssets,
+  ...tokenNameMap.xrdDerivativeAssets,
 } as const;
 
-// A set of native assets for quick lookup
-export const nativeAssets = new Set(Object.keys(tokenNameMap.nativeAssets));
+export const AssetType = {
+  XRD_DERIVATIVE: "xrdDerivative",
+  NATIVE: "native",
+  BLUECHIP: "bluechip",
+  STABLE: "stable",
+} as const;
 
-// A set of XRD derivatives for quick lookup (subset of native assets, used in aggregateXrdBalances.ts)
-export const xrdDerivatives = new Set([
-  Assets.Fungible.XRD,
-  Assets.Fungible.LSULP,
-  // LSUs and unstaking receipts would be added here when needed
-]);
+export type AssetType = (typeof AssetType)[keyof typeof AssetType];
+
+// A set of assets for quick lookup
+export const nativeAssets = new Set(Object.keys(tokenNameMap.nativeAssets));
+export const xrdDerivativeAssets = new Set(
+  Object.keys(tokenNameMap.xrdDerivativeAssets)
+);
+export const bluechipAssets = new Set(Object.keys(tokenNameMap.bluechipAssets));
+export const stableAssets = new Set(Object.keys(tokenNameMap.stableAssets));
 
 export type TokenInfo = {
   name: string;

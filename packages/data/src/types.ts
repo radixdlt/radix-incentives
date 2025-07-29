@@ -78,3 +78,8 @@ export type AccountBalanceData = Omit<
 > & {
   activityId: string;
 };
+
+export const Action = {
+  LP: "lp",
+  HOLD: "hold",
+};
