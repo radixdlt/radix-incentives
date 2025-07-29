@@ -38,7 +38,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
 
       const stateEntityDetailsConcurrency = yield* Config.number(
         "GATEWAY_STATE_ENTITY_DETAILS_CONCURRENCY"
-      ).pipe(Config.withDefault(20));
+      ).pipe(Config.withDefault(10));
 
       const getNftIdsConcurrency = yield* Config.number(
         "GET_NFT_IDS_CONCURRENCY"
