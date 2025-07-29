@@ -118,6 +118,36 @@ export const activitiesData: {
     dApp: DappId.defiPlaza,
     componentAddresses: [DefiPlazaConstants.ASTRLPool.componentAddress],
   },
+  {
+    id: "defiPlaza_nativeLp_dfp2-xrd",
+    category: ActivityCategoryId.provideNativeLiquidityToDex,
+    dApp: DappId.defiPlaza,
+    componentAddresses: [DefiPlazaConstants.XRDPool.componentAddress],
+  },
+  {
+    id: "defiPlaza_nativeLp_xrd-xwbtc",
+    category: ActivityCategoryId.provideNativeLiquidityToDex,
+    dApp: DappId.defiPlaza,
+    componentAddresses: [DefiPlazaConstants.xwBTCPool.componentAddress],
+  },
+  {
+    id: "defiPlaza_nativeLp_xrd-xusdt",
+    category: ActivityCategoryId.provideNativeLiquidityToDex,
+    dApp: DappId.defiPlaza,
+    componentAddresses: [DefiPlazaConstants.xUSDTPool.componentAddress],
+  },
+  {
+    id: "defiPlaza_nativeLp_xeth-xrd",
+    category: ActivityCategoryId.provideNativeLiquidityToDex,
+    dApp: DappId.defiPlaza,
+    componentAddresses: [DefiPlazaConstants.xETHPool.componentAddress],
+  },
+  {
+    id: "defiPlaza_nativeLp_xrd-xusdc",
+    category: ActivityCategoryId.provideNativeLiquidityToDex,
+    dApp: DappId.defiPlaza,
+    componentAddresses: [DefiPlazaConstants.xUSDCPool.componentAddress],
+  },
 
   /**
    * Ociswap LP activities
