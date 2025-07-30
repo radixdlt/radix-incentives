@@ -6,7 +6,6 @@ import {
   stableAssets,
   xrdDerivativeAssets,
 } from "../assets";
-import type { TokenPair, Token } from "../types";
 import { Data, Effect } from "effect";
 
 /**
@@ -57,6 +56,12 @@ export const getAssetTypeFromResourceAddress = Effect.fn(function* (
   );
 });
 
+export type TokenDetails = {
+  name: string;
+  resourceAddress: string;
+  assetType: AssetType;
+};
+
 export const getTokenDetailsFromResourceAddress = Effect.fn(function* (
   resourceAddress: string
 ) {
@@ -76,7 +81,7 @@ export const getTokenDetailsFromResourceAddress = Effect.fn(function* (
     name: maybeToken,
     resourceAddress,
     assetType,
-  };
+  } as TokenDetails;
 });
 
 export const getTokenPairFromResourceAddresses = Effect.fn(function* (

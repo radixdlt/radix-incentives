@@ -9,13 +9,13 @@ import {
 import { SurgeConstants } from "./surge/constants";
 
 export const DappId = {
-  caviarnine: "caviarnine",
-  defiPlaza: "defiPlaza",
-  ociswap: "ociswap",
-  root: "root",
-  weft: "weft",
-  surge: "surge",
-  radix: "radix",
+  caviarnine: "c9",
+  defiPlaza: "dp",
+  ociswap: "oc",
+  root: "ro",
+  weft: "we",
+  surge: "su",
+  radix: "ra",
 } as const;
 
 export type DappId = (typeof DappId)[keyof typeof DappId];

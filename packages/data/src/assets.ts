@@ -11,6 +11,9 @@ export const Assets = {
     xUSDT:
       "resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw",
 
+    // wrapped stable
+    sUSD: "resource_rdx1th3uhn6905l2vh49z2d83xgr45a08dkxn8ajxmt824ctpdu69msp89",
+
     //ecosystem
     OCI: "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8",
     EARLY:
@@ -55,6 +58,7 @@ export const tokenNameMap = {
   stableAssets: {
     [Assets.Fungible.xUSDC]: "xusdc",
     [Assets.Fungible.xUSDT]: "xusdt",
+    [Assets.Fungible.sUSD]: "susd",
   },
 } as const;
 
@@ -66,10 +70,10 @@ export const flatTokenNameMap = {
 } as const;
 
 export const AssetType = {
-  XRD_DERIVATIVE: "xrdDerivative",
-  NATIVE: "native",
-  BLUECHIP: "bluechip",
-  STABLE: "stable",
+  XRD_DERIVATIVE: "der",
+  NATIVE: "nat",
+  BLUECHIP: "blu",
+  STABLE: "sta",
 } as const;
 
 export type AssetType = (typeof AssetType)[keyof typeof AssetType];

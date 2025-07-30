@@ -8,6 +8,8 @@ import {
   nativeAssets,
   type TokenInfo,
   Assets,
+  matchComponentAddress,
+  getTradingActivityIdByComponentAddress,
 } from "data";
 
 // Multiplier for constant product market maker pools (less efficient than precision pools)
@@ -159,11 +161,6 @@ function extractProtocolValidations(
   return results;
 }
 
-// Helper function to get token name from resource address
-function getTokenNameSync(resourceAddress: string): string | undefined {
-  return flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
-}
-
 // Precompute sets for resource validation at module load
 const validResourceAddresses = new Set([
   ...extractPropertyValues(Assets, "resourceAddress"),
@@ -306,114 +303,6 @@ const constantProductPools = new Set([
 
 const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
 
-// Precompute pool trading map at module load
-const poolTradingMap = (() => {
-  const map = new Map<string, ActivityId>();
-  // CaviarNine Shape Liquidity Pools
-  for (const pool of Object.values(CaviarNineConstants.shapeLiquidityPools)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
-    if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      // TODO: improve this
-      const activityId = `c9_trade_${firstToken}-${secondToken}` as ActivityId;
-      map.set(pool.componentAddress, activityId);
-    }
-  }
-  // CaviarNine HLP (Hyperstake Liquidity Pool)
-  const hlpTokenX = getTokenNameSync(CaviarNineConstants.HLP.token_x);
-  const hlpTokenY = getTokenNameSync(CaviarNineConstants.HLP.token_y);
-  if (hlpTokenX && hlpTokenY) {
-    const activityId = "c9_trade_hyperstake" as ActivityId;
-    map.set(CaviarNineConstants.HLP.componentAddress, activityId);
-  }
-  // CaviarNine Simple Pools
-  for (const pool of Object.values(CaviarNineConstants.simplePools)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
-    if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      // TODO: improve this
-      const activityId = `c9_trade_${firstToken}-${secondToken}` as ActivityId;
-      map.set(pool.componentAddress, activityId);
-    }
-  }
-  // DefiPlaza Pools
-  for (const [_poolKey, pool] of Object.entries(DefiPlazaConstants)) {
-    if (pool.componentAddress && pool.componentAddress.length > 0) {
-      const baseToken = getTokenNameSync(pool.baseResourceAddress);
-      const quoteToken = getTokenNameSync(pool.quoteResourceAddress);
-      if (baseToken && quoteToken) {
-        const [firstToken, secondToken] = [baseToken, quoteToken].sort((a, b) =>
-          a.localeCompare(b)
-        );
-        // TODO: improve this
-        const activityId =
-          `defiPlaza_trade_${firstToken}-${secondToken}` as ActivityId;
-        map.set(pool.componentAddress, activityId);
-      }
-    }
-  }
-  // Ociswap Precision Pools (V1)
-  for (const pool of Object.values(OciswapConstants.pools)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
-    if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      // TODO: improve this
-      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
-      map.set(pool.componentAddress, activityId);
-    }
-  }
-  // Ociswap Precision Pools (V2)
-  for (const pool of Object.values(OciswapConstants.poolsV2)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
-    if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      // TODO: improve this
-      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
-      map.set(pool.componentAddress, activityId);
-    }
-  }
-  // Ociswap Flex Pools
-  for (const pool of Object.values(OciswapConstants.flexPools)) {
-    const tokenX = getTokenNameSync(pool.token_x) ?? "";
-    const tokenY = getTokenNameSync(pool.token_y) ?? "";
-
-    if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      // TODO: improve this
-      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
-      map.set(pool.componentAddress, activityId);
-    }
-  }
-  // Ociswap Basic Pools
-  for (const pool of Object.values(OciswapConstants.basicPools)) {
-    const tokenX = getTokenNameSync(pool.token_x);
-    const tokenY = getTokenNameSync(pool.token_y);
-    if (tokenX && tokenY) {
-      const [firstToken, secondToken] = [tokenX, tokenY].sort((a, b) =>
-        a.localeCompare(b)
-      );
-      // TODO: improve this
-      const activityId = `oci_trade_${firstToken}-${secondToken}` as ActivityId;
-      map.set(pool.componentAddress, activityId);
-    }
-  }
-  return map;
-})();
-
 // Standalone validation functions (can be used without service injection)
 export const isValidResourceAddress = (resourceAddress: string): boolean => {
   return validResourceAddresses.has(resourceAddress);
@@ -503,29 +392,7 @@ export const AddressValidationServiceLive = Layer.succeed(
   AddressValidationService,
   {
     // Generic validation methods (cases where any dApp is acceptable)
-    isValidPoolComponent: (componentAddress: string): boolean => {
-      const validPoolComponents = new Set([
-        ...extractPropertyValues(CaviarNineConstants, "componentAddress"),
-        ...extractPropertyValues(CaviarNineConstants, "component"),
-        ...extractPropertyValues(
-          CaviarNineConstants.simplePools,
-          "componentAddress"
-        ),
-        ...extractPropertyValues(DefiPlazaConstants, "componentAddress"),
-        ...extractPropertyValues(OciswapConstants.pools, "componentAddress"),
-        ...extractPropertyValues(OciswapConstants.poolsV2, "componentAddress"),
-        ...extractPropertyValues(
-          OciswapConstants.flexPools,
-          "componentAddress"
-        ),
-        ...extractPropertyValues(
-          OciswapConstants.basicPools,
-          "componentAddress"
-        ),
-      ]);
-
-      return validPoolComponents.has(componentAddress);
-    },
+    isValidPoolComponent: matchComponentAddress,
 
     // dApp-specific pool component validation
     isCaviarNinePoolComponent,
@@ -609,7 +476,7 @@ export const AddressValidationServiceLive = Layer.succeed(
     getTradingActivityIdForPool: (
       componentAddress: string
     ): ActivityId | undefined => {
-      return poolTradingMap.get(componentAddress);
+      return getTradingActivityIdByComponentAddress(componentAddress);
     },
 
     getTokenName: (

@@ -13,6 +13,6 @@
   },
   "scripts": {
     "verify:activities": "tsx ./src/verifyActivity.ts",
-    "generate:activity-ids": "tsx --watch ./src/generateActivityIds.ts"
+    "generate:activities": "tsx --watch ./src/generateActivities.ts"
   }
 }

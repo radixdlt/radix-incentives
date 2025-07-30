@@ -8,9 +8,10 @@ export type SimplePool =
 
 export const CaviarNineConstants = {
   LSULP: {
-    component:
+    componentAddress:
       "component_rdx1cppy08xgra5tv5melsjtj79c0ngvrlmzl8hhs7vwtzknp9xxs63mfp",
     resourceAddress: Assets.Fungible.LSULP,
+    token: Assets.Fungible.LSULP,
   },
   HLP: {
     resourceAddress: Assets.Fungible.HLP,

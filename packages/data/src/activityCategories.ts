@@ -3,9 +3,11 @@ export const ActivityCategoryId = {
   provideStablesLiquidityToDex: "provideStablesLiquidityToDex",
   provideBlueChipLiquidityToDex: "provideBlueChipLiquidityToDex",
   provideNativeLiquidityToDex: "provideNativeLiquidityToDex",
+  provideXrdDerivativeLiquidityToDex: "provideXrdDerivativeLiquidityToDex",
   lendingStables: "lendingStables",
   lendingBlueChips: "lendingBlueChips",
   lendingNative: "lendingNative",
+  lendingXrdDerivative: "lendingXrdDerivative",
   transactionFees: "transactionFees",
   componentCalls: "componentCalls",
   tradingVolume: "tradingVolume",
@@ -35,6 +37,10 @@ export const activityCategoriesData: {
     name: "Provide native liquidity to a DEX",
   },
   {
+    id: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
+    name: "Provide XRD derivative liquidity to a DEX",
+  },
+  {
     id: ActivityCategoryId.lendingStables,
     name: "Lend stables",
   },
@@ -45,6 +51,10 @@ export const activityCategoriesData: {
   {
     id: ActivityCategoryId.lendingNative,
     name: "Lend native tokens",
+  },
+  {
+    id: ActivityCategoryId.lendingXrdDerivative,
+    name: "Lend XRD derivatives",
   },
   {
     id: ActivityCategoryId.transactionFees,

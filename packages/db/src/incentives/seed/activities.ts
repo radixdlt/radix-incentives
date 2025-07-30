@@ -1,7 +1,7 @@
 import { activities, activityCategories, dapps } from "../schema";
 import { db } from "../client";
 import { sql } from "drizzle-orm";
-import { activityCategoriesData, dappsData, activitiesData } from "data";
+import { activityCategoriesData, dappsData, activityData } from "data";
 
 export const seedActivities = async () => {
   await db.insert(dapps).values(dappsData).onConflictDoNothing();
@@ -19,11 +19,11 @@ export const seedActivities = async () => {
   await db
     .insert(activities)
     .values(
-      activitiesData.map((activity) => ({
-        id: activity.id,
-        category: activity.category,
-        dapp: activity.dApp,
-        componentAddresses: activity.componentAddresses ?? [],
+      activityData.map((activity) => ({
+        id: activity.activityId,
+        category: activity.categoryId,
+        dapp: activity.dAppId,
+        componentAddresses: activity.componentAddresses,
       }))
     )
     .returning()

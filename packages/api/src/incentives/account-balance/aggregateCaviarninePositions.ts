@@ -3,8 +3,8 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 
-import { Assets, DappConstants, getTokenPair, matchActivityId } from "data";
-import { type AccountBalanceData, ActivityId, type Token } from "data";
+import { Assets, DappConstants, getTokenPair } from "data";
+import { type AccountBalanceData, ActivityId } from "data";
 import {
   AddressValidationService,
   CONSTANT_PRODUCT_MULTIPLIER,
@@ -153,7 +153,7 @@ export class AggregateCaviarninePositionsService extends Effect.Service<Aggregat
         }
 
         // Add zero entry for Hyperstake if not processed (now using nativeLp naming)
-        const hyperstakeActivityId = ActivityId.c9_nativeLp_hyperstake;
+        const hyperstakeActivityId = ActivityId.c9_lp_der_lsulp;
 
         output.set(hyperstakeActivityId, {
           activityId: hyperstakeActivityId,
@@ -339,7 +339,7 @@ export class AggregateCaviarninePositionsService extends Effect.Service<Aggregat
           for (const { poolKey, poolAssets, poolTotals } of poolData) {
             poolMetadata[poolKey] = {
               componentAddress: poolKey,
-              tokenPair: getTokenPair(xTokenName as Token, yTokenName as Token),
+              tokenPair: getTokenPair(xTokenName, yTokenName),
               baseToken: {
                 resourceAddress: poolAssets[0]!.xToken.resourceAddress,
                 amount: poolTotals.totalXToken.toString(),
@@ -463,7 +463,6 @@ export class AggregateCaviarninePositionsService extends Effect.Service<Aggregat
         });
 
         const output = Array.from(accountBalanceMap.values());
-
 
         return output;
       });
