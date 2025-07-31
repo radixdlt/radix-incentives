@@ -47,8 +47,8 @@ export class AggregateDefiPlazaPositionsService extends Effect.Service<Aggregate
   "AggregateDefiPlazaPositionsService",
   {
     effect: Effect.gen(function* () {
-      const STORE_METADATA = Config.boolean("storeMetadata").pipe(
-        Config.withDefault(true)
+      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+        Config.withDefault(false)
       );
       const getUsdValueService = yield* GetUsdValueService;
       const addressValidationService = yield* AddressValidationService;

@@ -47,6 +47,9 @@
     },
     "verify:activities": {
       "cache": false
+    },
+    "generate": {
+      "cache": false
     }
   }
 }

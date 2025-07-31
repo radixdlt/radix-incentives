@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Config, Effect } from "effect";
 import { BigNumber } from "bignumber.js";
 import { GatewayApiClientService } from "./gatewayApiClient";
 import { EntityFungiblesPageService } from "./entityFungiblesPage";
@@ -21,6 +21,14 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
+
+      const chunkSize = yield* Config.number(
+        "GATEWAY_GET_FUNGIBLE_BALANCE_CHUNK_SIZE"
+      ).pipe(Config.withDefault(20));
+
+      const concurrency = yield* Config.number(
+        "GATEWAY_GET_FUNGIBLE_BALANCE_CONCURRENCY"
+      ).pipe(Config.withDefault(5));
 
       const aggregationLevel = "Global";
 
@@ -85,15 +93,8 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
         > & {
           at_ledger_state: AtLedgerState;
           options?: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
-        },
-        options?: {
-          chunkSize?: number;
-          concurrency?: number;
         }
       ) {
-        const chunkSize = options?.chunkSize ?? 20;
-        const concurrency = options?.concurrency ?? 10;
-
         const stateEntityDetailsResults = yield* Effect.forEach(
           chunker(input.addresses, chunkSize),
           Effect.fn(function* (addresses) {

@@ -1,7 +1,18 @@
 import { z } from "zod";
 import type { ActivityCategoryId } from "./activityCategories";
 import type { TokenDetails } from "./helpers/getTokenPair";
-import type { DappId } from "./dapps/dapps";
+
+export const DappId = {
+  caviarnine: "c9",
+  defiPlaza: "dp",
+  ociswap: "oc",
+  root: "ro",
+  weft: "we",
+  surge: "su",
+  radix: "ra",
+} as const;
+
+export type DappId = (typeof DappId)[keyof typeof DappId];
 
 export const AccountBalanceData = z.object({
   activityId: z.string(),
@@ -35,4 +46,20 @@ export type ActivityData = {
   dAppId: DappId;
   tokenPair: string;
   assets: TokenDetails[];
+};
+
+export const deriveLpActivityId = (input: {
+  dAppId: DappId;
+  tokenPair: string;
+  tokenDetails: TokenDetails;
+
+  isSingleTokenPool: boolean;
+}) => {
+  const { dAppId, tokenPair, isSingleTokenPool, tokenDetails } = input;
+
+  const lpActivityId = isSingleTokenPool
+    ? `${dAppId}_${Action.LP}_${tokenDetails.assetType}_${tokenDetails.name}`
+    : `${dAppId}_${Action.LP}_${tokenDetails.assetType}_${tokenPair}`;
+
+  return lpActivityId;
 };

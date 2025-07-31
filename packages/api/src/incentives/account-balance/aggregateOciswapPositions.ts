@@ -5,7 +5,6 @@ import { BigNumber } from "bignumber.js";
 import {
   DappConstants,
   type ActivityId,
-  type Token,
   type AccountBalanceData,
   getTokenPair,
 } from "data";
@@ -93,8 +92,8 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
   "AggregateOciswapPositionsService",
   {
     effect: Effect.gen(function* () {
-      const STORE_METADATA = Config.boolean("storeMetadata").pipe(
-        Config.withDefault(true)
+      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+        Config.withDefault(false)
       );
       const getUsdValueService = yield* GetUsdValueService;
       const addressValidationService = yield* AddressValidationService;
@@ -463,7 +462,7 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
           for (const { poolKey, poolAssets, poolTotals } of poolData) {
             poolMetadata[poolKey] = {
               componentAddress: poolKey,
-              tokenPair: getTokenPair(xTokenName as Token, yTokenName as Token),
+              tokenPair: getTokenPair(xTokenName, yTokenName),
               baseToken: {
                 resourceAddress: poolAssets[0]!.xToken.resourceAddress,
                 amount: poolTotals.totalXToken.toString(),

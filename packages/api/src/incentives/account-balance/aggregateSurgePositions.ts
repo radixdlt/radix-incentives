@@ -1,4 +1,4 @@
-import { Effect } from "effect";
+import { Config, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
@@ -15,6 +15,9 @@ export class AggregateSurgePositionsService extends Effect.Service<AggregateSurg
   "AggregateSurgePositionsService",
   {
     effect: Effect.gen(function* () {
+      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+        Config.withDefault(false)
+      );
       const getUsdValueService = yield* GetUsdValueService;
 
       return {
