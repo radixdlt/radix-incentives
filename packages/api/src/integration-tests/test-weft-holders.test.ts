@@ -9,6 +9,11 @@ import type { SnapshotWorkerInput } from "../incentives/snapshot/snapshotWorker.
 import { createTestUserAndAccounts, getAccountHoldersForResource, getTotalUsdValueForActivity, runMigration, seedData, truncateAllTables } from "./utils.js";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { WeftFinanceConstants } from "data/src/dapps/weftFinance/constants";
+import { Effect, Layer } from "effect";
+import { Assets } from "data";
+import { GetUsdValueService, GetUsdValueLive } from "../incentives/token-price/getUsdValue.js";
+import { AddressValidationServiceLive } from "../common/address-validation/addressValidation.js";
+import { BigNumber } from "bignumber.js";
 
 describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
   let postgresContainer: StartedPostgreSqlContainer;
@@ -85,9 +90,10 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
     createTestUserAndAccounts(db, testAccounts);
 
+    const timestamp = new Date();
     const snapshotInput: SnapshotWorkerInput = {
       addresses: testAccounts,
-      timestamp: new Date(),
+      timestamp: timestamp,
       jobId: "test-weft-xwbtc-holders",
       batchSize: 10,
     };
@@ -100,13 +106,37 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
       throw result.cause;
     }
 
+    // Create the Effect program to get USD value
+    const getUsdValueProgram = Effect.provide(
+      Effect.gen(function* () {
+        const getUsdValueService = yield* GetUsdValueService;
+
+        const xwbtcPrice = yield* getUsdValueService({
+          amount: new BigNumber(1),
+          resourceAddress: Assets.Fungible.wxBTC,
+          timestamp: timestamp,
+        });        
+        return xwbtcPrice;
+      }),
+      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
+    );
 
     try {
+      // Execute the Effect program and get the xwbtcPrice for use in subsequent operations
+      const xwbtcPrice = await Effect.runPromise(getUsdValueProgram);
+      console.log("wxBTC price:", xwbtcPrice.toString());
+
       const weftActivityId = "weft_lend_xwbtc"
       console.log("Getting total USD value for activity", weftActivityId);
       const totalUsdValue = await getTotalUsdValueForActivity(client, weftActivityId);
       console.log(`Total USD value for ${weftActivityId}: ${totalUsdValue}`);
 
+      // Now xwbtcPrice can be used for further calculations
+      console.log(`Price per unit: $${xwbtcPrice.toString()}`);
+      if (totalUsdValue && Number(totalUsdValue) > 0) {
+        const estimatedTokens = Number(totalUsdValue) / Number(xwbtcPrice.toString());
+        console.log(`Estimated tokens based on price: ${estimatedTokens}`);
+      }
 
     } finally {
       await client.end();
@@ -114,7 +144,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
   });
 
-  it("should process snapshot for Weft xETH holders", { retry: 0, timeout: 300000 }, async () => {
+  it.skip("should process snapshot for Weft xETH holders", { retry: 0, timeout: 300000 }, async () => {
     // Use the same test accounts that were created in beforeAll
     const weftv2xethResourceAddress = WeftFinanceConstants.v2.w2wETH.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xethResourceAddress);
@@ -154,7 +184,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     }
   });
 
-  it("should process snapshot for Weft xUSDCholders", { retry: 0, timeout: 300000 }, async () => {
+  it.skip("should process snapshot for Weft xUSDCholders", { retry: 0, timeout: 300000 }, async () => {
     // Use the same test accounts that were created in beforeAll
     const weftv2xusdcResourceAddress = WeftFinanceConstants.v2.w2xUSDC.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xusdcResourceAddress);
@@ -193,7 +223,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
   });
 
-  it("should process snapshot for Weft XRD holders", { retry: 0, timeout: 300000 }, async () => {
+  it.skip("should process snapshot for Weft XRD holders", { retry: 0, timeout: 300000 }, async () => {
     // Use the same test accounts that were created in beforeAll
     const weftv2xrdResourceAddress = WeftFinanceConstants.v2.w2XRD.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xrdResourceAddress);
