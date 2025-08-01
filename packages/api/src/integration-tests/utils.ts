@@ -1,9 +1,4 @@
-import { activityCategoriesData, activityData } from "data";
-import type { Activity } from "db/incentives";
-import { sql } from "drizzle-orm";
-import { migrate } from "drizzle-orm/postgres-js/migrator";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+
 import { Effect, Layer } from "effect";
 import { GetResourceHoldersService } from "../common/gateway/getResourceHolders.js";
 import { GatewayApiClientLive } from "../common/gateway/gatewayApiClient.js";
@@ -12,115 +7,8 @@ import { GetUsdValueLive, GetUsdValueService } from "../incentives/token-price/g
 import { AddressValidationServiceLive } from "../common/address-validation/addressValidation.js";
 import { BigNumber } from "bignumber.js";
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const runMigration = async (db: any) => {
-
-    // Setup database and run migrations - use dynamic imports
 
 
-    const __filename = fileURLToPath(import.meta.url);
-    const __dirname = path.dirname(__filename);
-    const migrationFolderPath = path.join(
-        __dirname,
-        "../../../db/src/incentives/drizzle"
-    );
-
-    await migrate(db, { migrationsFolder: migrationFolderPath });
-}
-
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const seedData = async (db: any): Promise<boolean> => {
-
-    const {
-        activities,
-        activityCategories,
-        activityWeeks,
-        seasons,
-        weeks,
-    } = await import("db/incentives");
-    // Seed required data
-    await db
-        .insert(activityCategories)
-        .values(activityCategoriesData)
-        .returning()
-        .onConflictDoUpdate({
-            target: [activityCategories.id],
-            set: {
-                name: sql`excluded.name`,
-            },
-        });
-
-    //Activity data has activity_id as activityId
-
-    const activityResults = await db
-    .insert(activities)
-    .values(
-      activityData.map((activity) => ({
-        id: activity.activityId,
-        category: activity.categoryId,
-        dapp: activity.dAppId,
-        componentAddresses: activity.componentAddresses,
-      }))
-    )
-    .returning()
-    .onConflictDoUpdate({
-      target: [activities.id],
-      set: {
-        name: sql`excluded.name`,
-        category: sql`excluded.category`,
-      },
-    });
-
-    const SEASON_ID = "b8b73145-4d93-44eb-b2ba-01b079fd8a5c";
-
-    await db
-        .insert(seasons)
-        .values([
-            {
-                name: "Season 1",
-                status: "active",
-                id: SEASON_ID,
-            },
-        ])
-        .returning()
-        .onConflictDoNothing();
-
-    const weekResults = await db
-        .insert(weeks)
-        .values([
-            {
-                startDate: new Date("2025-07-07 00:00:00+00"),
-                endDate: new Date("2025-07-13 23:59:59+00"),
-                seasonId: SEASON_ID,
-                id: "30da196b-7602-4b06-a558-bbb5b5441186",
-            },
-        ])
-        .returning()
-        .onConflictDoNothing();
-
-    // Seed activity weeks
-    for (const week of weekResults) {
-        await db
-            .insert(activityWeeks)
-            .values(
-                activityResults
-                    .map((item) => ({
-                        activityId: item.id,
-                        weekId: week.id,
-                        pointsPool: 100_000,
-                        status: "active" as const,
-                    }))
-                    .filter(
-                        (item) =>
-                            item.activityId !== "common" && !item.activityId.includes("hold_")
-                    )
-            )
-            .returning()
-            .onConflictDoNothing();
-    }
-    return true;
-
-}
 
 /**
  * Truncates all tables in the database, respecting foreign key constraints
@@ -139,27 +27,18 @@ export const truncateAllTables = async (db: any, dbUrl: string) => {
     }
 
     const {
-        accounts,
         users,
-        activityWeeks,
         weeks,
         seasons,
-        activities,
         activityCategories,
-        accountBalances,
     } = await import("db/incentives");
 
     console.log("Truncating all tables...");
 
-    // Truncate in order to respect foreign key constraints
-    // Dependent tables first, then parent tables
-    await db.delete(accountBalances);
-    await db.delete(accounts);
+
     await db.delete(users);
-    await db.delete(activityWeeks);
     await db.delete(weeks);
     await db.delete(seasons);
-    await db.delete(activities);
     await db.delete(activityCategories);
 
     console.log("All tables truncated successfully");
@@ -256,17 +135,6 @@ export const getTotalUsdValueForActivity = async (client: any, weftActivityId: s
             `;
     console.log("Total records in account_balances:", accountBalanceCount[0]?.count);
 
-    type ActivityIdRow = { activity_id: string };
-
-    // Get list of all activity IDs in the database
-    const activityIds: ActivityIdRow[] = await client`
-            SELECT DISTINCT activity_item->>'activityId' AS activity_id
-            FROM account_balances ab
-            CROSS JOIN jsonb_array_elements(ab.data) AS activity_item
-            WHERE ab.data IS NOT NULL AND jsonb_typeof(ab.data) = 'array'
-            ORDER BY activity_id
-            `;
-    // console.log("Available activity IDs:", activityIds.map((row: ActivityIdRow) => row.activity_id));
 
     const accountBalanceRowCount = await client`
             SELECT COUNT(*) as count FROM account_balances

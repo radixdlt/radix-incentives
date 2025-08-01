@@ -20,37 +20,13 @@ describe("Weft Lending Holders Snapshot Test", () => {
   beforeAll(async () => {
     console.log("Setting up PostgreSQL container for snapshot test");
 
-    // Start PostgreSQL container
     dbUrl = inject("testDbUrl");
-    // postgresContainer = await new PostgreSqlContainer("postgres:17").start();
-    // dbUrl = postgresContainer.getConnectionUri();
 
     // Set the DATABASE_URL environment variable for the dependency layer
     process.env.DATABASE_URL = dbUrl;
     console.log("DATABASE_URL", process.env.DATABASE_URL);
 
-    // Wait for PostgreSQL to be ready
-    await new Promise(resolve => setTimeout(resolve, 2000));
 
-
-    const { schema } = await import("db/incentives");
-
-    const client = postgres(dbUrl);
-    const db = drizzle(client, { schema });
-
-    // await runMigration(db);
-    // console.log("Migration run");
-    await seedData(db);
-    console.log("Seed data run");
-
-    await client.end();
-
-
-    // teardownFn = async () => {
-    //   console.log("Stopping PostgreSQL container");
-    //   await postgresContainer.stop();
-
-    // };
   });
 
   afterEach(async () => {
@@ -62,11 +38,6 @@ describe("Weft Lending Holders Snapshot Test", () => {
     await client.end();
   });
 
-  // afterAll(async () => {
-  //   if (teardownFn) {
-  //     await teardownFn();
-  //   }
-  // });
 
   const runSnapshotWorker = async (input: SnapshotWorkerInput) => {
     // Use dynamic import to load dependency layer after DATABASE_URL is set
@@ -74,7 +45,7 @@ describe("Weft Lending Holders Snapshot Test", () => {
     return dependencyLayer.snapshotWorker(input);
   };
 
-  it.skip("should process snapshot for Weft xwbtc holders", { retry: 0, timeout: 300000 }, async () => {
+  it("should process snapshot for Weft xwbtc holders", { retry: 0, timeout: 300000 }, async () => {
     const weftv2xwbtcResourceAddress = WeftFinanceConstants.v2.w2xwBTC.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xwbtcResourceAddress);
 
