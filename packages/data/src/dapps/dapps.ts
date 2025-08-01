@@ -7,18 +7,7 @@ import {
   weftFungibleRecourceAddresses,
 } from "./weftFinance/constants";
 import { SurgeConstants } from "./surge/constants";
-
-export const DappId = {
-  caviarnine: "caviarnine",
-  defiPlaza: "defiPlaza",
-  ociswap: "ociswap",
-  root: "root",
-  weft: "weft",
-  surge: "surge",
-  radix: "radix",
-} as const;
-
-export type DappId = (typeof DappId)[keyof typeof DappId];
+import { DappId } from "../types";
 
 export const dappsData = [
   {

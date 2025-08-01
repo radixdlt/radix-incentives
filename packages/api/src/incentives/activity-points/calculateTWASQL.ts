@@ -1,5 +1,9 @@
 import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError, DbReadOnlyClientService } from "../db/dbClient";
+import {
+  DbClientService,
+  DbError,
+  DbReadOnlyClientService,
+} from "../db/dbClient";
 import { sql } from "drizzle-orm";
 import { z } from "zod";
 
@@ -8,14 +12,14 @@ export const calculateTWASQLInputSchema = z.object({
   addresses: z.array(z.string()),
   startDate: z.date(),
   endDate: z.date(),
-  calculationType: z.enum(["USDValue", "USDValueDurationMultiplied", "USDValueHighPrecision"]).default("USDValueDurationMultiplied"),
+  calculationType: z
+    .enum(["USDValue", "USDValueDurationMultiplied", "USDValueHighPrecision"])
+    .default("USDValueDurationMultiplied"),
   filterType: z.enum(["exclude_hold", "include_hold"]).default("exclude_hold"),
   filterZeroValues: z.boolean().default(true),
 });
 
-export type CalculateTWASQLInput = z.infer<
-  typeof calculateTWASQLInputSchema
->;
+export type CalculateTWASQLInput = z.infer<typeof calculateTWASQLInputSchema>;
 
 export type CalculateTWASQLOutput = {
   accountAddress: string;
@@ -28,10 +32,8 @@ export class CalculateTWASQLService extends Context.Tag(
   "CalculateTWASQLService"
 )<
   CalculateTWASQLService,
-  (
-    input: CalculateTWASQLInput
-  ) => Effect.Effect<CalculateTWASQLOutput, DbError>
->() { }
+  (input: CalculateTWASQLInput) => Effect.Effect<CalculateTWASQLOutput, DbError>
+>() {}
 
 const MAX_ADDRESSES_PER_BATCH = 1500; // Keep well below PostgreSQL's 1664 limit
 
@@ -46,7 +48,7 @@ export const CalculateTWASQLLive = Layer.effect(
         return Effect.tryPromise({
           try: async () => {
             // Debug log to ensure this code is being executed
-            console.log('Executing SQL query with read-only database client');
+            console.log("Executing SQL query with read-only database client");
             const effectiveDb = readOnlyDb || db;
             const result = await effectiveDb.execute(sql`
               WITH expanded_activities AS (
@@ -60,12 +62,17 @@ export const CalculateTWASQLLive = Layer.effect(
                 CROSS JOIN LATERAL jsonb_array_elements(ab.data) AS activity_item
                 WHERE ab.timestamp >= ${input.startDate.toISOString()}
                   AND ab.timestamp <= ${input.endDate.toISOString()}
-                  AND ab.account_address = ANY(ARRAY[${sql.join(addressBatch.map(addr => sql`${addr}`), sql`, `)}]::text[])
+                  AND ab.account_address = ANY(ARRAY[${sql.join(
+                    addressBatch.map((addr) => sql`${addr}`),
+                    sql`, `
+                  )}]::text[])
                   AND ab.data IS NOT NULL
                   AND jsonb_typeof(ab.data) = 'array'
-                  AND ${input.filterType === "exclude_hold" 
-                    ? sql`(activity_item->>'activityId') NOT LIKE '%hold_%'`
-                    : sql`(activity_item->>'activityId') LIKE '%hold_%'`}
+                  AND ${
+                    input.filterType === "exclude_hold"
+                      ? sql`(activity_item->>'activityId') NOT LIKE '%ho_%'`
+                      : sql`(activity_item->>'activityId') LIKE '%ho_%'`
+                  }
               ),
               activities_with_duration AS (
                 -- Calculate duration to next timestamp using LEAD window function
@@ -118,8 +125,9 @@ export const CalculateTWASQLLive = Layer.effect(
                     ROUND(twa_usd_value * total_duration_minutes, 0)::decimal(18,6)
                 END AS activity_points
               FROM twa_results
-              WHERE ${input.filterZeroValues 
-                ? sql`twa_usd_value > 0
+              WHERE ${
+                input.filterZeroValues
+                  ? sql`twa_usd_value > 0
                   AND CASE 
                     WHEN ${input.calculationType} = 'USDValue' THEN 
                       ROUND(twa_usd_value, 2)
@@ -128,7 +136,8 @@ export const CalculateTWASQLLive = Layer.effect(
                     ELSE 
                       ROUND(twa_usd_value * total_duration_minutes, 0)
                   END > 0`
-                : sql`1=1`}
+                  : sql`1=1`
+              }
               ORDER BY account_address, activity_id;
             `);
 
@@ -161,14 +170,23 @@ export const CalculateTWASQLLive = Layer.effect(
       return Effect.gen(function* () {
         // Split addresses into batches
         const batches: string[][] = [];
-        for (let i = 0; i < input.addresses.length; i += MAX_ADDRESSES_PER_BATCH) {
+        for (
+          let i = 0;
+          i < input.addresses.length;
+          i += MAX_ADDRESSES_PER_BATCH
+        ) {
           batches.push(input.addresses.slice(i, i + MAX_ADDRESSES_PER_BATCH));
         }
 
-        yield* Effect.log(`Processing ${input.addresses.length} addresses in ${batches.length} parallel batches`);
+        yield* Effect.log(
+          `Processing ${input.addresses.length} addresses in ${batches.length} parallel batches`
+        );
 
         // Process batches in parallel with controlled concurrency
-        const maxConcurrency = Number.parseInt(process.env.ACTIVITY_POINTS_SQL_CONCURRENCY || "5", 10);
+        const maxConcurrency = Number.parseInt(
+          process.env.ACTIVITY_POINTS_SQL_CONCURRENCY || "5",
+          10
+        );
         const concurrency = Math.min(batches.length, maxConcurrency);
 
         yield* Effect.log(`Using concurrency level: ${concurrency}`);
@@ -181,14 +199,20 @@ export const CalculateTWASQLLive = Layer.effect(
               const concurrentSlot = index % concurrency;
               if (concurrentSlot > 0) {
                 const delaySeconds = concurrentSlot * 3;
-                yield* Effect.log(`Batch ${index + 1} (slot ${concurrentSlot}): Waiting ${delaySeconds} seconds before starting...`);
+                yield* Effect.log(
+                  `Batch ${index + 1} (slot ${concurrentSlot}): Waiting ${delaySeconds} seconds before starting...`
+                );
                 yield* Effect.sleep(`${delaySeconds} seconds`);
               }
-              
-              yield* Effect.log(`Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`);
+
+              yield* Effect.log(
+                `Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`
+              );
               const batchResults = yield* executeQuery(addressBatch);
-              yield* Effect.log(`Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`);
-              
+              yield* Effect.log(
+                `Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`
+              );
+
               return batchResults;
             }),
           { concurrency }
@@ -197,7 +221,9 @@ export const CalculateTWASQLLive = Layer.effect(
         // Flatten all results
         const allResults = allBatchResults.flat();
 
-        yield* Effect.log(`Completed processing ${input.addresses.length} addresses in ${batches.length} parallel batches. Total results: ${allResults.length}`);
+        yield* Effect.log(
+          `Completed processing ${input.addresses.length} addresses in ${batches.length} parallel batches. Total results: ${allResults.length}`
+        );
 
         return allResults;
       });

@@ -41,3 +41,6 @@ yarn-error.log*
 .idea/*
 apps/vote-collector/src/data/*
 apps/vote-collector/time_weighted_averages.csv
+
+# Claude code artifacts
+requirements

@@ -8,9 +8,10 @@ export type SimplePool =
 
 export const CaviarNineConstants = {
   LSULP: {
-    component:
+    componentAddress:
       "component_rdx1cppy08xgra5tv5melsjtj79c0ngvrlmzl8hhs7vwtzknp9xxs63mfp",
     resourceAddress: Assets.Fungible.LSULP,
+    token: Assets.Fungible.LSULP,
   },
   HLP: {
     resourceAddress: Assets.Fungible.HLP,
@@ -18,7 +19,7 @@ export const CaviarNineConstants = {
       "pool_rdx1chmckjpr0ks5lk6h7mqvmrw56wt4w6tsuy6n2jhd8fhr8vc5en5e90",
     componentAddress:
       "component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf", //don't need to derive user's value, but important to check for SwapEvents!
-    token_x: Assets.Fungible.HLP,
+    token_x: Assets.Fungible.LSULP,
     token_y: Assets.Fungible.XRD,
   },
   shapeLiquidityPools: {

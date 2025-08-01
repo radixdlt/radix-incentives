@@ -59,10 +59,16 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
           calculationType: "USDValue",
           filterType: "include_hold",
           filterZeroValues: false,
-        }).pipe(
-          Effect.tap(() => Effect.log("Calculated TWA XRD balance using SQL")),
-          Effect.tap((items) => Effect.log(`Found ${items.length} hold activity entries`))
-        ).pipe(Effect.withSpan("calculateTWASQL"));
+        })
+          .pipe(
+            Effect.tap(() =>
+              Effect.log("Calculated TWA XRD balance using SQL")
+            ),
+            Effect.tap((items) =>
+              Effect.log(`Found ${items.length} hold activity entries`)
+            )
+          )
+          .pipe(Effect.withSpan("calculateTWASQL"));
 
         const getAccountsWithUserId = (createdAt: Date) => {
           return Effect.gen(function* () {
@@ -82,7 +88,7 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
             });
           }).pipe(Effect.withSpan("getAccountsWithUserId"));
         };
-        
+
         // accountsWithUserId is: Array<{ address: string, userId: string }>
         const accountsWithUserId = yield* getAccountsWithUserId(week.endDate);
 

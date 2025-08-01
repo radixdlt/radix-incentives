@@ -32,7 +32,7 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
 
       const getNonFungibleDataConcurrency = yield* Config.number(
         "GATEWAY_GET_NON_FUNGIBLE_DATA_CONCURRENCY"
-      ).pipe(Config.withDefault(20));
+      ).pipe(Config.withDefault(15));
 
       const getNonFungibleData = Effect.fn(function* (input: {
         items: {

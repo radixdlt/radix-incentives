@@ -4,12 +4,16 @@
   "private": true,
   "main": "./src/index.ts",
   "dependencies": {
+    "effect": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {
+    "@types/node": "^22.15.17",
     "tsx": "catalog:"
   },
   "scripts": {
-    "verify:activities": "tsx ./src/verifyActivity.ts"
+    "verify:activities": "tsx ./src/verifyActivity.ts",
+    "generate": "tsx ./src/generateActivities.ts",
+    "generate:watch": "tsx --watch ./src/generateActivities.ts"
   }
 }
