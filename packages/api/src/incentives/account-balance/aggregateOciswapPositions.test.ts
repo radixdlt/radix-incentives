@@ -3,9 +3,9 @@ import { Effect, Layer } from "effect";
 import { AggregateOciswapPositionsService } from "./aggregateOciswapPositions";
 import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
 import { GetUsdValueLive } from "../token-price/getUsdValue";
-import type { AccountBalanceData } from "data";
+import { Action, type AccountBalanceData } from "data";
 import { AggregatePoolPositionsService } from "./aggregatePoolPositions";
-import { getDefaultLpPositions } from "./getDefaultLpPositions";
+import { getDefaultPositions } from "./getDefaultPositions";
 
 const getUsdValueLive = GetUsdValueLive.pipe(
   Layer.provide(AddressValidationServiceLive)
@@ -22,271 +22,321 @@ const aggregateOciswapPositionsLive =
   );
 
 describe("AggregateOciswapPositionsService", () => {
-  it.effect("should return defaults when no positions are found", () =>
-    Effect.gen(function* () {
-      const ociswapLpActivityIds = yield* getDefaultLpPositions("oc").pipe(
-        Effect.map((items) => items.map((item) => item.activityId))
-      );
+  it.effect(
+    "should return defaults when no positions are found",
+    () =>
+      Effect.gen(function* () {
+        const ociswapLpActivityIds = yield* getDefaultPositions("oc", [
+          Action.HOLD,
+          Action.LP,
+        ]).pipe(Effect.map((items) => items.map((item) => item.activityId)));
 
-      const expectedActivityIds = new Set(ociswapLpActivityIds);
+        const expectedActivityIds = new Set(ociswapLpActivityIds);
 
-      const service = yield* Effect.provide(
-        AggregateOciswapPositionsService,
-        aggregateOciswapPositionsLive
-      );
+        const service = yield* Effect.provide(
+          AggregateOciswapPositionsService,
+          aggregateOciswapPositionsLive
+        );
 
-      const result = yield* service({
-        accountBalance: {
-          positions: [],
-        },
-        timestamp: new Date(),
-      });
+        const result = yield* service({
+          accountBalance: {
+            positions: [],
+          },
+          timestamp: new Date(),
+        });
 
-      // Check that defaults are returned for all expected activity ids
-      for (const position of result) {
-        expect(expectedActivityIds.has(position.activityId)).toBe(true);
-        expect(position.usdValue).toBe("0");
-      }
+        // Check that defaults are returned for all expected activity ids
+        for (const position of result) {
+          expect(
+            expectedActivityIds.has(position.activityId),
+            `expected activity id ${position.activityId} to be defined`
+          ).toBe(true);
+          expect(position.usdValue).toBe("0");
+        }
 
-      // Check that all expected activity ids are present
-      for (const activityId of expectedActivityIds) {
-        const position = result.find((p) => p.activityId === activityId);
-        expect(position).toBeDefined();
-      }
-    })
+        // Check that all expected activity ids are present
+        for (const activityId of expectedActivityIds) {
+          const position = result.find((p) => p.activityId === activityId);
+          expect(
+            position,
+            `expected activity id ${activityId} to be defined`
+          ).toBeDefined();
+        }
+      }),
+    { retry: 0 }
   );
 
-  it.effect("should return positions when they are found", () =>
-    Effect.gen(function* () {
-      const input = {
-        accountBalance: {
-          component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr:
-            [
-              {
-                xToken: {
-                  totalAmount: "0.00001745",
-                  amountInBounds: "0.00000645",
-                  resourceAddress:
-                    "resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75",
+  it.effect(
+    "should return positions when they are found",
+    () =>
+      Effect.gen(function* () {
+        const input = {
+          accountBalance: {
+            component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr:
+              [
+                {
+                  xToken: {
+                    totalAmount: "0.00001907",
+                    amountInBounds: "0.00000664",
+                    resourceAddress:
+                      "resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75",
+                  },
+                  yToken: {
+                    totalAmount: "169.30904980055631622",
+                    amountInBounds: "120.356564478853522749",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
+                  isActive: true,
                 },
-                yToken: {
-                  totalAmount: "192.01560585402385267",
-                  amountInBounds: "124.065452742129436395",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+              ],
+            component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm:
+              [
+                {
+                  xToken: {
+                    totalAmount: "236.193153989167066908",
+                    amountInBounds: "88.485432878916357568",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
+                  yToken: {
+                    totalAmount: "0.000434192411259383",
+                    amountInBounds: "0.000277434522842954",
+                    resourceAddress:
+                      "resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww",
+                  },
+                  isActive: true,
                 },
-                isActive: true,
-              },
-            ],
-          component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm:
-            [
-              {
-                xToken: {
-                  totalAmount: "262.935475887328954031",
-                  amountInBounds: "91.773186901405386137",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+              ],
+            component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f:
+              [
+                {
+                  xToken: {
+                    totalAmount: "4.248225",
+                    amountInBounds: "0.977414",
+                    resourceAddress:
+                      "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
+                  },
+                  yToken: {
+                    totalAmount: "631.970865015454801434",
+                    amountInBounds: "152.368778115657327807",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
+                  isActive: true,
                 },
-                yToken: {
-                  totalAmount: "0.000373343680204139",
-                  amountInBounds: "0.000267495492726955",
-                  resourceAddress:
-                    "resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww",
+              ],
+            component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g:
+              [
+                {
+                  xToken: {
+                    totalAmount: "166.939235877607691196",
+                    amountInBounds: "100.066885675859432595",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
+                  yToken: {
+                    totalAmount: "2.583447",
+                    amountInBounds: "1.137797",
+                    resourceAddress:
+                      "resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw",
+                  },
+                  isActive: true,
                 },
-                isActive: true,
-              },
-            ],
-          component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f:
-            [
-              {
-                xToken: {
-                  totalAmount: "4.061255",
-                  amountInBounds: "0.954428",
-                  resourceAddress:
-                    "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
+              ],
+            component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp:
+              [
+                {
+                  xToken: {
+                    totalAmount: "232.883965673937591809",
+                    amountInBounds: "96.2997800336819719",
+                    resourceAddress:
+                      "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8",
+                  },
+                  yToken: {
+                    totalAmount: "212.862210401318865367",
+                    amountInBounds: "121.494128932301811473",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
+                  isActive: true,
                 },
-                yToken: {
-                  totalAmount: "654.437237057678826637",
-                  amountInBounds: "156.038434728909787027",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+              ],
+            component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
+              [
+                {
+                  xToken: {
+                    totalAmount: "286.78361117925567465544897935822220277365",
+                    amountInBounds:
+                      "286.78361117925567465544897935822220277365",
+                    resourceAddress:
+                      "resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2",
+                  },
+                  yToken: {
+                    totalAmount: "248.3925710476777195290837035468975838975",
+                    amountInBounds: "248.3925710476777195290837035468975838975",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
                 },
-                isActive: true,
-              },
-            ],
-          component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g:
-            [
-              {
-                xToken: {
-                  totalAmount: "189.642389971135403843",
-                  amountInBounds: "102.858056408095457293",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+              ],
+            component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p:
+              [
+                {
+                  xToken: {
+                    totalAmount: "768.02507669935598006464156597557261955444",
+                    amountInBounds:
+                      "768.02507669935598006464156597557261955444",
+                    resourceAddress:
+                      "resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s",
+                  },
+                  yToken: {
+                    totalAmount: "91.12083884120455283137271359688668653964",
+                    amountInBounds: "91.12083884120455283137271359688668653964",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
                 },
-                yToken: {
-                  totalAmount: "2.394421",
-                  amountInBounds: "1.106921",
-                  resourceAddress:
-                    "resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw",
+              ],
+            component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw:
+              [
+                {
+                  xToken: {
+                    totalAmount: "109.7781300978726184248244827271419103956",
+                    amountInBounds: "109.7781300978726184248244827271419103956",
+                    resourceAddress:
+                      "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8",
+                  },
+                  yToken: {
+                    totalAmount: "104.4638562598827175039440482459080632404",
+                    amountInBounds: "104.4638562598827175039440482459080632404",
+                    resourceAddress:
+                      "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+                  },
                 },
-                isActive: true,
-              },
-            ],
-          component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp:
-            [
-              {
-                xToken: {
-                  totalAmount: "225.62161115129308196",
-                  amountInBounds: "95.406931784173501506",
-                  resourceAddress:
-                    "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8",
-                },
-                yToken: {
-                  totalAmount: "219.82303247658630923",
-                  amountInBounds: "122.631109425377016933",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                },
-                isActive: true,
-              },
-            ],
-          component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
-            [
-              {
-                xToken: {
-                  totalAmount: "295.39039885146696781200638650391476665835",
-                  amountInBounds: "295.39039885146696781200638650391476665835",
-                  resourceAddress:
-                    "resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2",
-                },
-                yToken: {
-                  totalAmount: "241.3223084393149584691523569483273188951",
-                  amountInBounds: "241.3223084393149584691523569483273188951",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                },
-              },
-            ],
-          component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p:
-            [
-              {
-                xToken: {
-                  totalAmount: "800.31048567353294943932607671780543697108",
-                  amountInBounds: "800.31048567353294943932607671780543697108",
-                  resourceAddress:
-                    "resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s",
-                },
-                yToken: {
-                  totalAmount: "87.55060125482761792367960893507371293368",
-                  amountInBounds: "87.55060125482761792367960893507371293368",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                },
-              },
-            ],
-          component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw:
-            [
-              {
-                xToken: {
-                  totalAmount: "108.86684748897750486997876748204838537152",
-                  amountInBounds: "108.86684748897750486997876748204838537152",
-                  resourceAddress:
-                    "resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8",
-                },
-                yToken: {
-                  totalAmount: "105.3531839176594986465481234028185276904",
-                  amountInBounds: "105.3531839176594986465481234028185276904",
-                  resourceAddress:
-                    "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
-                },
-              },
-            ],
-        },
-        timestamp: new Date("2025-07-20T00:00:00.000Z"),
-      };
+              ],
+          },
+          timestamp: new Date("2025-07-20T00:00:00.000Z"),
+        };
 
-      const expected: Record<string, AccountBalanceData> = [
-        {
-          activityId: "oc_lp_nat_early-xrd",
-          usdValue:
-            "0.400855957897505699727552608912803372022294061177484758648",
-        },
-        {
-          activityId: "oc_lp_der_early-xrd",
-          usdValue: "0.3698820291693706236516031382367207209279525904",
-        },
-        {
-          activityId: "oc_lp_nat_oci-xrd",
-          usdValue: "1.203046698603362023010370965932697348431681229275776",
-        },
-        {
-          activityId: "oc_lp_der_oci-xrd",
-          usdValue: "1.481272941307938123888363060789759659415848112",
-        },
-        {
-          activityId: "oc_lp_nat_ilis-xrd",
-          usdValue:
-            "1.07619306210764290397515540327189190045078699969233869435",
-        },
-        {
-          activityId: "oc_lp_der_ilis-xrd",
-          usdValue: "1.019533662248249050241305494588154290321640578",
-        },
-        {
-          activityId: "oc_lp_blu_xrd-xwbtc",
-          usdValue: "0.742612394412",
-        },
-        {
-          activityId: "oc_lp_der_xrd-xwbtc",
-          usdValue: "1.0482984868717872005857362",
-        },
-        {
-          activityId: "oc_lp_der_xeth-xrd",
-          usdValue: "0.77544304911463889448774972",
-        },
-        {
-          activityId: "oc_lp_blu_xeth-xrd",
-          usdValue: "0.9577543114972802882851923566075",
-        },
-        {
-          activityId: "oc_lp_sta_xrd-xusdc",
-          usdValue: "0.946241820255333738984",
-        },
-        {
-          activityId: "oc_lp_der_xrd-xusdc",
-          usdValue: "1.31845611654800698007185812",
-        },
-        {
-          activityId: "oc_lp_der_xrd-xusdt",
-          usdValue: "0.86910531910358705212464108",
-        },
-        {
-          activityId: "oc_lp_sta_xrd-xusdt",
-          usdValue: "1.0960775314838244",
-        },
-      ].reduce(
-        (acc, item) => {
-          acc[item.activityId] = item;
-          return acc;
-        },
-        {} as Record<string, AccountBalanceData>
-      );
+        const expected: Record<string, AccountBalanceData> = [
+          {
+            activityId: "oc_lp_nat_early-xrd",
+            usdValue:
+              "0.384684985790892910092365242640142360006280802559668100664",
+          },
+          {
+            activityId: "oc_lp_der_early-xrd",
+            usdValue: "0.3849654975195441707109268129498549355589402792",
+          },
+          {
+            activityId: "oc_ho_early-xrd",
+            usdValue:
+              "0.769650483310437080803292055589997295565221081759668100664",
+          },
+          {
+            activityId: "oc_lp_nat_oci-xrd",
+            usdValue: "1.21387352759922353769428907996458442485710905542328",
+          },
+          {
+            activityId: "oc_lp_der_oci-xrd",
+            usdValue: "1.467908742710847401406114616148347467416777112",
+          },
+          {
+            activityId: "oc_ho_oci-xrd",
+            usdValue: "4.55041717082201291940927511502133189227388616742328",
+          },
+          {
+            activityId: "oc_lp_nat_ilis-xrd",
+            usdValue:
+              "1.04483603352485224242803777337327010427310395811140385765",
+          },
+          {
+            activityId: "oc_lp_der_ilis-xrd",
+            usdValue: "1.04940396631080787591208224907086197449848005",
+          },
+          {
+            activityId: "oc_ho_ilis-xrd",
+            usdValue:
+              "2.09423999983566011834012002244413207877158400811140385765",
+          },
+          {
+            activityId: "oc_lp_blu_xrd-xwbtc",
+            usdValue: "0.7644877982784",
+          },
+          {
+            activityId: "oc_lp_der_xrd-xwbtc",
+            usdValue: "1.01696001295794157167904044",
+          },
+          {
+            activityId: "oc_ho_xrd-xwbtc",
+            usdValue: "3.6261867207919886272798632",
+          },
+          {
+            activityId: "oc_lp_der_xeth-xrd",
+            usdValue: "0.74766297423637649825227008",
+          },
+          {
+            activityId: "oc_ho_xeth-xrd",
+            usdValue: "3.5503325661433655783534487516295",
+          },
+          {
+            activityId: "oc_lp_blu_xeth-xrd",
+            usdValue: "0.993340514646564717245438645521",
+          },
+          {
+            activityId: "oc_lp_sta_xrd-xusdc",
+            usdValue: "0.969030668110163125092",
+          },
+          {
+            activityId: "oc_lp_der_xrd-xusdc",
+            usdValue: "1.28744913281493353074491492",
+          },
+          {
+            activityId: "oc_ho_xrd-xusdc",
+            usdValue: "9.55166349031112212855466904",
+          },
+          {
+            activityId: "oc_lp_der_xrd-xusdt",
+            usdValue: "0.8455211545313148272774082",
+          },
+          {
+            activityId: "oc_ho_xrd-xusdt",
+            usdValue: "3.96870247878276964322207376",
+          },
+          {
+            activityId: "oc_lp_sta_xrd-xusdt",
+            usdValue: "1.1266510682241108",
+          },
+        ].reduce(
+          (acc, item) => {
+            acc[item.activityId] = item;
+            return acc;
+          },
+          {} as Record<string, AccountBalanceData>
+        );
 
-      const service = yield* Effect.provide(
-        AggregateOciswapPositionsService,
-        aggregateOciswapPositionsLive
-      );
+        const service = yield* Effect.provide(
+          AggregateOciswapPositionsService,
+          aggregateOciswapPositionsLive
+        );
 
-      const result = yield* service(input);
+        const result = yield* service(input);
 
-      for (const position of result) {
-        const expectedPosition = expected[position.activityId];
+        for (const position of result) {
+          const expectedPosition = expected[position.activityId];
 
-        expect(
-          position.usdValue,
-          `usdValue for ${position.activityId}`
-        ).toEqual(expectedPosition.usdValue);
-      }
-    })
+          expect(
+            expectedPosition,
+            `expected position for ${position.activityId}`
+          ).toBeDefined();
+
+          expect(
+            position.usdValue,
+            `usdValue for ${position.activityId}`
+          ).toEqual(expectedPosition.usdValue);
+        }
+      }),
+    { retry: 0 }
   );
 });

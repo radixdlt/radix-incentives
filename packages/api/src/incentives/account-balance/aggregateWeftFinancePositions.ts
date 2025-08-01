@@ -39,13 +39,13 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
         // Note: LSULP is excluded as it's only used as collateral on Weft, not for earning interest
         const supportedAssets = {
           // Stables
-          [Assets.Fungible.xUSDC]: ActivityId.we_lp_sta_xusdc,
-          [Assets.Fungible.xUSDT]: ActivityId.we_lp_sta_xusdt,
+          [Assets.Fungible.xUSDC]: ActivityId.we_le_sta_xusdc,
+          [Assets.Fungible.xUSDT]: ActivityId.we_le_sta_xusdt,
           // Blue chips
-          [Assets.Fungible.wxBTC]: ActivityId.we_lp_blu_xwbtc,
-          [Assets.Fungible.xETH]: ActivityId.we_lp_blu_xeth,
+          [Assets.Fungible.wxBTC]: ActivityId.we_le_blu_xwbtc,
+          [Assets.Fungible.xETH]: ActivityId.we_le_blu_xeth,
           // Native assets (XRD only, LSULP excluded)
-          [Assets.Fungible.XRD]: ActivityId.we_lp_der_xrd,
+          [Assets.Fungible.XRD]: ActivityId.we_le_der_xrd,
         } as const;
 
         if (accountBalance.weftFinancePositions.lending.length === 0) {

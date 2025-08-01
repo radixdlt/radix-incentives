@@ -45,15 +45,15 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
         // Define supported assets and their activity IDs
         const supportedAssets = {
           // Stables
-          [Assets.Fungible.xUSDC]: ActivityId.ro_lp_sta_xusdc,
-          [Assets.Fungible.xUSDT]: ActivityId.ro_lp_sta_xusdt,
+          [Assets.Fungible.xUSDC]: ActivityId.ro_le_sta_xusdc,
+          [Assets.Fungible.xUSDT]: ActivityId.ro_le_sta_xusdt,
           // Blue chips
-          [Assets.Fungible.wxBTC]: ActivityId.ro_lp_blu_xwbtc,
-          [Assets.Fungible.xETH]: ActivityId.ro_lp_blu_xeth,
+          [Assets.Fungible.wxBTC]: ActivityId.ro_le_blu_xwbtc,
+          [Assets.Fungible.xETH]: ActivityId.ro_le_blu_xeth,
           // Native assets
-          [Assets.Fungible.XRD]: ActivityId.ro_lp_der_xrd,
+          [Assets.Fungible.XRD]: ActivityId.ro_le_der_xrd,
           [CaviarNineConstants.LSULP.resourceAddress]:
-            ActivityId.ro_lp_der_lsulp,
+            ActivityId.ro_le_der_lsulp,
         } as const;
 
         if (accountBalance.rootFinancePositions.length === 0) {

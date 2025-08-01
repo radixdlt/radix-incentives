@@ -3,7 +3,9 @@ import { Config, Effect } from "effect";
 import { groupBy } from "effect/Array";
 import {
   type AccountBalanceData,
+  Action,
   type DappId,
+  deriveHoldActivityId,
   deriveLpActivityId,
   getTokenDetailsFromResourceAddress,
   getTokenPairFromResourceAddresses,
@@ -16,7 +18,7 @@ import {
   AddressValidationService,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from "../../common/address-validation/addressValidation";
-import { getDefaultLpPositions } from "./getDefaultLpPositions";
+import { getDefaultPositions } from "./getDefaultPositions";
 
 export type LpPosition = {
   componentAddress: string;
@@ -109,23 +111,37 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
             const isSingleTokenPool =
               xTokenDetails.resourceAddress === yTokenDetails.resourceAddress;
 
-            const xTokenActivityId = deriveLpActivityId({
+            const xTokenLpActivityId = deriveLpActivityId({
               dAppId,
               tokenPair,
               tokenDetails: xTokenDetails,
               isSingleTokenPool,
             });
 
-            const yTokenActivityId = deriveLpActivityId({
+            const yTokenLpActivityId = deriveLpActivityId({
               dAppId,
               tokenPair,
               tokenDetails: yTokenDetails,
               isSingleTokenPool,
             });
 
-            return [
+            const xTokenHoldActivityId = deriveHoldActivityId({
+              dAppId,
+              tokenPair,
+              tokenDetails: xTokenDetails,
+              isSingleTokenPool,
+            });
+
+            const yTokenHoldActivityId = deriveHoldActivityId({
+              dAppId,
+              tokenPair,
+              tokenDetails: yTokenDetails,
+              isSingleTokenPool,
+            });
+
+            const lpActivities = [
               {
-                activityId: xTokenActivityId,
+                activityId: xTokenLpActivityId,
                 componentAddress,
                 token: xTokenDetails,
                 totalWithinPriceBounds: poolTotals.totalXTokenWithinPriceBounds,
@@ -133,7 +149,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                   poolTotals.totalXTokenOutsidePriceBounds,
               },
               {
-                activityId: yTokenActivityId,
+                activityId: yTokenLpActivityId,
                 componentAddress,
                 token: yTokenDetails,
                 totalWithinPriceBounds: poolTotals.totalYTokenWithinPriceBounds,
@@ -141,10 +157,46 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                   poolTotals.totalYTokenOutsidePriceBounds,
               },
             ];
+
+            const holdActivities = [
+              {
+                activityId: xTokenHoldActivityId,
+                componentAddress,
+                token: xTokenDetails,
+                totalWithinPriceBounds:
+                  poolTotals.totalXTokenWithinPriceBounds.plus(
+                    poolTotals.totalXTokenOutsidePriceBounds
+                  ),
+                totalOutsidePriceBounds: new BigNumber(0),
+              },
+              {
+                activityId: yTokenHoldActivityId,
+                componentAddress,
+                token: yTokenDetails,
+                totalWithinPriceBounds:
+                  poolTotals.totalYTokenWithinPriceBounds.plus(
+                    poolTotals.totalYTokenOutsidePriceBounds
+                  ),
+                totalOutsidePriceBounds: new BigNumber(0),
+              },
+            ];
+
+            return {
+              lpActivities,
+              holdActivities,
+            };
           })
         ).pipe(
+          Effect.map((items) => items.filter((item) => item !== undefined)),
           Effect.map((items) =>
-            items.flat().filter((item) => item !== undefined)
+            items.reduce(
+              (acc, item) => {
+                acc.lpActivities.push(...item.lpActivities);
+                acc.holdActivities.push(...item.holdActivities);
+                return acc;
+              },
+              { lpActivities: [], holdActivities: [] }
+            )
           )
         );
 
@@ -159,7 +211,8 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
           totalWithinPriceBounds: BigNumber;
           totalOutsidePriceBounds: BigNumber;
         }[],
-        timestamp: Date
+        timestamp: Date,
+        applyMultiplier: boolean
       ) {
         const groupedByActivityId = groupBy(items, (item) => item.activityId);
 
@@ -246,25 +299,42 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
         }) {
           const { positions, dAppId, timestamp } = input;
 
-          const defaultValues = yield* getDefaultLpPositions(dAppId);
+          const defaultValues = yield* getDefaultPositions(dAppId, [
+            Action.HOLD,
+            Action.LP,
+          ]);
 
           // aggregate pool positions by componentAddress, add pool totals and derive activityId
-          const aggregatedPoolPositions = yield* aggregatePoolPositions(
-            positions,
-            dAppId
-          );
+          const { lpActivities, holdActivities } =
+            yield* aggregatePoolPositions(positions, dAppId);
 
           // aggregate pool positions by activityId and calculate usd value
-          const processedPoolPositions = yield* processAggregatedPoolPositions(
-            aggregatedPoolPositions,
-            timestamp
+          const processedLpPoolPositions =
+            yield* processAggregatedPoolPositions(
+              lpActivities,
+              timestamp,
+              true
+            );
+
+          const processedHoldPositions = yield* processAggregatedPoolPositions(
+            holdActivities,
+            timestamp,
+            false
           );
 
           // add default values for positions that were not processed
           return defaultValues.map((item) => {
-            const processedItem = processedPoolPositions.get(item.activityId);
-            if (!processedItem) return item;
-            return processedItem;
+            const processedLpItem = processedLpPoolPositions.get(
+              item.activityId
+            );
+            if (processedLpItem) return processedLpItem;
+
+            const processedHoldItem = processedHoldPositions.get(
+              item.activityId
+            );
+            if (processedHoldItem) return processedHoldItem;
+
+            return item;
           });
         }),
       };

@@ -48,18 +48,48 @@ export type ActivityData = {
   assets: TokenDetails[];
 };
 
+export const deriveLpActionFromDappId = (dAppId: DappId) => {
+  switch (dAppId) {
+    case DappId.caviarnine:
+    case DappId.defiPlaza:
+    case DappId.ociswap:
+    case DappId.surge:
+      return Action.LP;
+
+    case DappId.root:
+    case DappId.weft:
+      return Action.LEND;
+  }
+};
+
 export const deriveLpActivityId = (input: {
   dAppId: DappId;
   tokenPair: string;
   tokenDetails: TokenDetails;
+  isSingleTokenPool: boolean;
+}) => {
+  const { dAppId, tokenPair, isSingleTokenPool, tokenDetails } = input;
 
+  const action = deriveLpActionFromDappId(dAppId);
+
+  const lpActivityId = isSingleTokenPool
+    ? `${dAppId}_${action}_${tokenDetails.assetType}_${tokenDetails.name}`
+    : `${dAppId}_${action}_${tokenDetails.assetType}_${tokenPair}`;
+
+  return lpActivityId;
+};
+
+export const deriveHoldActivityId = (input: {
+  dAppId: DappId;
+  tokenPair: string;
+  tokenDetails: TokenDetails;
   isSingleTokenPool: boolean;
 }) => {
   const { dAppId, tokenPair, isSingleTokenPool, tokenDetails } = input;
 
   const lpActivityId = isSingleTokenPool
-    ? `${dAppId}_${Action.LP}_${tokenDetails.assetType}_${tokenDetails.name}`
-    : `${dAppId}_${Action.LP}_${tokenDetails.assetType}_${tokenPair}`;
+    ? `${dAppId}_${Action.HOLD}_${tokenDetails.name}`
+    : `${dAppId}_${Action.HOLD}_${tokenPair}`;
 
   return lpActivityId;
 };

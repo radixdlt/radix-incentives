@@ -5,8 +5,8 @@ import { AddressValidationServiceLive } from "../../common/address-validation/ad
 import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { AggregateDefiPlazaPositionsService } from "./aggregateDefiPlazaPositions";
 import { AggregatePoolPositionsService } from "./aggregatePoolPositions";
-import { getDefaultLpPositions } from "./getDefaultLpPositions";
-import type { AccountBalanceData } from "data";
+import { getDefaultPositions } from "./getDefaultPositions";
+import { Action, type AccountBalanceData } from "data";
 import BigNumber from "bignumber.js";
 
 const getUsdValueLive = GetUsdValueLive.pipe(
@@ -28,9 +28,10 @@ describe("AggregateDefiPlazaPositionsService", () => {
     "should return defaults when no positions are found",
     () =>
       Effect.gen(function* () {
-        const defiPlazaLpActivityIds = yield* getDefaultLpPositions("dp").pipe(
-          Effect.map((items) => items.map((item) => item.activityId))
-        );
+        const defiPlazaLpActivityIds = yield* getDefaultPositions("dp", [
+          Action.HOLD,
+          Action.LP,
+        ]).pipe(Effect.map((items) => items.map((item) => item.activityId)));
 
         const expectedActivityIds = new Set(defiPlazaLpActivityIds);
 
@@ -76,12 +77,20 @@ describe("AggregateDefiPlazaPositionsService", () => {
           usdValue: "0.4497913456138135326409595090285959240072796448",
         },
         {
+          activityId: "dp_ho_xrd-xusdc",
+          usdValue: "0.46730979715957010396642630130255198658878336601515846",
+        },
+        {
           activityId: "dp_lp_sta_xrd-xusdt",
           usdValue: "0.268881428102894680225654190054115317346394002912",
         },
         {
           activityId: "dp_lp_der_xrd-xusdt",
           usdValue: "0.5889840574150880767959712252132446879854760252",
+        },
+        {
+          activityId: "dp_ho_xrd-xusdt",
+          usdValue: "0.857865485517982757021625415267360005331870028112",
         },
         {
           activityId: "dp_lp_blu_xeth-xrd",
@@ -92,6 +101,10 @@ describe("AggregateDefiPlazaPositionsService", () => {
           usdValue: "0.5124882479304346093078840030537102885638722784",
         },
         {
+          activityId: "dp_ho_xeth-xrd",
+          usdValue: "0.6686960101787274502679641357809700482219820705128",
+        },
+        {
           activityId: "dp_lp_blu_xrd-xwbtc",
           usdValue: "0.300621884523159643607733728509538747253288",
         },
@@ -100,12 +113,21 @@ describe("AggregateDefiPlazaPositionsService", () => {
           usdValue: "0.6349132477099749380156771409980890323186999474",
         },
         {
+          activityId: "dp_ho_xrd-xwbtc",
+          usdValue: "0.9355351322331345816234108695076277795719879474",
+        },
+        {
           activityId: "dp_lp_nat_astrl-dfp2",
           usdValue: "1.168604040275732055329504082241654729288785198161612364",
         },
         {
           activityId: "dp_lp_der_dfp2-xrd",
           usdValue: "0.4363159437378297727627358894388481016997883182",
+        },
+        {
+          activityId: "dp_ho_dfp2-xrd",
+          usdValue:
+            "0.86406061233969888533795633029580372606049529693196774025",
         },
         {
           activityId: "dp_lp_nat_dfp2-xrd",

@@ -5,7 +5,7 @@ import {
 } from "./helpers/getTokenPair";
 import { Effect, pipe } from "effect";
 import { Action, type ActivityData, DappId, deriveLpActivityId } from "./types";
-import { AssetType } from "./assets";
+import { Assets, AssetType } from "./assets";
 import fs from "node:fs";
 import path from "node:path";
 import { deduplicate, flatten, sort } from "./helpers/utils";
@@ -178,7 +178,6 @@ const deriveActivities = (
     const lpActivityId = deriveLpActivityId({
       dAppId,
       tokenPair,
-
       isSingleTokenPool,
       tokenDetails: asset,
     });
@@ -266,6 +265,54 @@ const runnable = Effect.gen(function* () {
   activities.push(
     {
       categoryId: ActivityCategoryId.maintainXrdBalance,
+      activityId: `${Action.HOLD}_xrd`,
+      componentAddress: "",
+      dAppId: DappId.radix,
+      tokenPair: "",
+      action: Action.HOLD,
+      assets: [
+        {
+          assetType: AssetType.NATIVE,
+          name: "xrd",
+          resourceAddress: Assets.Fungible.XRD,
+        },
+      ],
+    },
+    {
+      categoryId: ActivityCategoryId.maintainXrdBalance,
+      activityId: `${Action.HOLD}_lsulp`,
+      componentAddress: "",
+      dAppId: DappId.radix,
+      tokenPair: "",
+      action: Action.HOLD,
+      assets: [
+        {
+          assetType: AssetType.NATIVE,
+          name: "lsulp",
+          resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
+        },
+      ],
+    },
+    {
+      categoryId: ActivityCategoryId.maintainXrdBalance,
+      activityId: `${Action.HOLD}_stakedXrd`,
+      componentAddress: "",
+      dAppId: DappId.radix,
+      tokenPair: "",
+      action: Action.HOLD,
+      assets: [],
+    },
+    {
+      categoryId: ActivityCategoryId.maintainXrdBalance,
+      activityId: `${Action.HOLD}_unstakedXrd`,
+      componentAddress: "",
+      dAppId: DappId.radix,
+      tokenPair: "",
+      action: Action.HOLD,
+      assets: [],
+    },
+    {
+      categoryId: ActivityCategoryId.maintainXrdBalance,
       activityId: `${DappId.weft}_${Action.HOLD}_stakedXrd`,
       componentAddress: WeftFinanceConstants.v2.WeftyV2.componentAddress,
       dAppId: DappId.weft,
@@ -281,6 +328,21 @@ const runnable = Effect.gen(function* () {
       tokenPair: "unstakedXrd",
       action: Action.HOLD,
       assets: [],
+    },
+    {
+      categoryId: ActivityCategoryId.maintainXrdBalance,
+      activityId: `${DappId.weft}_${Action.HOLD}_lsulp`,
+      componentAddress: WeftFinanceConstants.v2.WeftyV2.componentAddress,
+      dAppId: DappId.weft,
+      tokenPair: "lsulp",
+      action: Action.HOLD,
+      assets: [
+        {
+          assetType: AssetType.NATIVE,
+          name: "lsulp",
+          resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
+        },
+      ],
     },
     {
       categoryId: ActivityCategoryId.componentCalls,

@@ -56,6 +56,10 @@ export const ActivityId = {
   "dp_tr_xrd-xusdc": "dp_tr_xrd-xusdc",
   "dp_tr_xrd-xusdt": "dp_tr_xrd-xusdt",
   "dp_tr_xrd-xwbtc": "dp_tr_xrd-xwbtc",
+  "ho_lsulp": "ho_lsulp",
+  "ho_stakedXrd": "ho_stakedXrd",
+  "ho_unstakedXrd": "ho_unstakedXrd",
+  "ho_xrd": "ho_xrd",
   "oc_ho_early-xrd": "oc_ho_early-xrd",
   "oc_ho_ilis-xrd": "oc_ho_ilis-xrd",
   "oc_ho_oci-xrd": "oc_ho_oci-xrd",
@@ -86,22 +90,23 @@ export const ActivityId = {
   "oc_tr_xrd-xwbtc": "oc_tr_xrd-xwbtc",
   "ro_ho_lsulp": "ro_ho_lsulp",
   "ro_ho_xrd": "ro_ho_xrd",
-  "ro_lp_blu_xeth": "ro_lp_blu_xeth",
-  "ro_lp_blu_xwbtc": "ro_lp_blu_xwbtc",
-  "ro_lp_der_lsulp": "ro_lp_der_lsulp",
-  "ro_lp_der_xrd": "ro_lp_der_xrd",
-  "ro_lp_sta_xusdc": "ro_lp_sta_xusdc",
-  "ro_lp_sta_xusdt": "ro_lp_sta_xusdt",
+  "ro_le_blu_xeth": "ro_le_blu_xeth",
+  "ro_le_blu_xwbtc": "ro_le_blu_xwbtc",
+  "ro_le_der_lsulp": "ro_le_der_lsulp",
+  "ro_le_der_xrd": "ro_le_der_xrd",
+  "ro_le_sta_xusdc": "ro_le_sta_xusdc",
+  "ro_le_sta_xusdt": "ro_le_sta_xusdt",
   "su_lp_sta_susd": "su_lp_sta_susd",
   "txFees": "txFees",
+  "we_ho_lsulp": "we_ho_lsulp",
   "we_ho_stakedXrd": "we_ho_stakedXrd",
   "we_ho_unstakedXrd": "we_ho_unstakedXrd",
   "we_ho_xrd": "we_ho_xrd",
-  "we_lp_blu_xeth": "we_lp_blu_xeth",
-  "we_lp_blu_xwbtc": "we_lp_blu_xwbtc",
-  "we_lp_der_xrd": "we_lp_der_xrd",
-  "we_lp_sta_xusdc": "we_lp_sta_xusdc",
-  "we_lp_sta_xusdt": "we_lp_sta_xusdt"
+  "we_le_blu_xeth": "we_le_blu_xeth",
+  "we_le_blu_xwbtc": "we_le_blu_xwbtc",
+  "we_le_der_xrd": "we_le_der_xrd",
+  "we_le_sta_xusdc": "we_le_sta_xusdc",
+  "we_le_sta_xusdt": "we_le_sta_xusdt"
 } as const
 
 export type ActivityId = (typeof ActivityId)[keyof typeof ActivityId];
@@ -1651,7 +1656,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
   "we": [
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "we_lp_der_xrd",
+      "activityId": "we_le_der_xrd",
       "dAppId": "we",
       "tokenPair": "xrd-xrd",
       "assets": [
@@ -1685,7 +1690,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "we_lp_sta_xusdc",
+      "activityId": "we_le_sta_xusdc",
       "dAppId": "we",
       "tokenPair": "xusdc-xusdc",
       "assets": [
@@ -1702,7 +1707,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "we_lp_sta_xusdt",
+      "activityId": "we_le_sta_xusdt",
       "dAppId": "we",
       "tokenPair": "xusdt-xusdt",
       "assets": [
@@ -1719,7 +1724,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "we_lp_blu_xwbtc",
+      "activityId": "we_le_blu_xwbtc",
       "dAppId": "we",
       "tokenPair": "xwbtc-xwbtc",
       "assets": [
@@ -1736,7 +1741,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "we_lp_blu_xeth",
+      "activityId": "we_le_blu_xeth",
       "dAppId": "we",
       "tokenPair": "xeth-xeth",
       "assets": [
@@ -1772,12 +1777,29 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       "componentAddresses": [
         "component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w"
       ]
+    },
+    {
+      "categoryId": "maintainXrdBalance",
+      "activityId": "we_ho_lsulp",
+      "dAppId": "we",
+      "tokenPair": "lsulp",
+      "action": "ho",
+      "assets": [
+        {
+          "assetType": "nat",
+          "name": "lsulp",
+          "resourceAddress": "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf"
+        }
+      ],
+      "componentAddresses": [
+        "component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w"
+      ]
     }
   ],
   "ro": [
     {
       "categoryId": "lendingStables",
-      "activityId": "ro_lp_sta_xusdc",
+      "activityId": "ro_le_sta_xusdc",
       "dAppId": "ro",
       "tokenPair": "xusdc-xusdc",
       "assets": [
@@ -1794,7 +1816,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "ro_lp_sta_xusdt",
+      "activityId": "ro_le_sta_xusdt",
       "dAppId": "ro",
       "tokenPair": "xusdt-xusdt",
       "assets": [
@@ -1811,7 +1833,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "ro_lp_blu_xwbtc",
+      "activityId": "ro_le_blu_xwbtc",
       "dAppId": "ro",
       "tokenPair": "xwbtc-xwbtc",
       "assets": [
@@ -1828,7 +1850,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "ro_lp_blu_xeth",
+      "activityId": "ro_le_blu_xeth",
       "dAppId": "ro",
       "tokenPair": "xeth-xeth",
       "assets": [
@@ -1845,7 +1867,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "ro_lp_der_xrd",
+      "activityId": "ro_le_der_xrd",
       "dAppId": "ro",
       "tokenPair": "xrd-xrd",
       "assets": [
@@ -1879,7 +1901,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "ro_lp_der_lsulp",
+      "activityId": "ro_le_der_lsulp",
       "dAppId": "ro",
       "tokenPair": "lsulp-lsulp",
       "assets": [
@@ -1913,6 +1935,54 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     }
   ],
   "ra": [
+    {
+      "categoryId": "maintainXrdBalance",
+      "activityId": "ho_xrd",
+      "dAppId": "ra",
+      "tokenPair": "",
+      "action": "ho",
+      "assets": [
+        {
+          "assetType": "nat",
+          "name": "xrd",
+          "resourceAddress": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
+        }
+      ],
+      "componentAddresses": []
+    },
+    {
+      "categoryId": "maintainXrdBalance",
+      "activityId": "ho_lsulp",
+      "dAppId": "ra",
+      "tokenPair": "",
+      "action": "ho",
+      "assets": [
+        {
+          "assetType": "nat",
+          "name": "lsulp",
+          "resourceAddress": "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf"
+        }
+      ],
+      "componentAddresses": []
+    },
+    {
+      "categoryId": "maintainXrdBalance",
+      "activityId": "ho_stakedXrd",
+      "dAppId": "ra",
+      "tokenPair": "",
+      "action": "ho",
+      "assets": [],
+      "componentAddresses": []
+    },
+    {
+      "categoryId": "maintainXrdBalance",
+      "activityId": "ho_unstakedXrd",
+      "dAppId": "ra",
+      "tokenPair": "",
+      "action": "ho",
+      "assets": [],
+      "componentAddresses": []
+    },
     {
       "categoryId": "componentCalls",
       "activityId": "componentCalls",
@@ -3383,7 +3453,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingXrdDerivative",
-    "activityId": "we_lp_der_xrd",
+    "activityId": "we_le_der_xrd",
     "dAppId": "we",
     "tokenPair": "xrd-xrd",
     "assets": [
@@ -3417,7 +3487,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingStables",
-    "activityId": "we_lp_sta_xusdc",
+    "activityId": "we_le_sta_xusdc",
     "dAppId": "we",
     "tokenPair": "xusdc-xusdc",
     "assets": [
@@ -3434,7 +3504,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingStables",
-    "activityId": "we_lp_sta_xusdt",
+    "activityId": "we_le_sta_xusdt",
     "dAppId": "we",
     "tokenPair": "xusdt-xusdt",
     "assets": [
@@ -3451,7 +3521,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingBlueChips",
-    "activityId": "we_lp_blu_xwbtc",
+    "activityId": "we_le_blu_xwbtc",
     "dAppId": "we",
     "tokenPair": "xwbtc-xwbtc",
     "assets": [
@@ -3468,7 +3538,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingBlueChips",
-    "activityId": "we_lp_blu_xeth",
+    "activityId": "we_le_blu_xeth",
     "dAppId": "we",
     "tokenPair": "xeth-xeth",
     "assets": [
@@ -3485,7 +3555,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingStables",
-    "activityId": "ro_lp_sta_xusdc",
+    "activityId": "ro_le_sta_xusdc",
     "dAppId": "ro",
     "tokenPair": "xusdc-xusdc",
     "assets": [
@@ -3502,7 +3572,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingStables",
-    "activityId": "ro_lp_sta_xusdt",
+    "activityId": "ro_le_sta_xusdt",
     "dAppId": "ro",
     "tokenPair": "xusdt-xusdt",
     "assets": [
@@ -3519,7 +3589,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingBlueChips",
-    "activityId": "ro_lp_blu_xwbtc",
+    "activityId": "ro_le_blu_xwbtc",
     "dAppId": "ro",
     "tokenPair": "xwbtc-xwbtc",
     "assets": [
@@ -3536,7 +3606,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingBlueChips",
-    "activityId": "ro_lp_blu_xeth",
+    "activityId": "ro_le_blu_xeth",
     "dAppId": "ro",
     "tokenPair": "xeth-xeth",
     "assets": [
@@ -3553,7 +3623,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingXrdDerivative",
-    "activityId": "ro_lp_der_xrd",
+    "activityId": "ro_le_der_xrd",
     "dAppId": "ro",
     "tokenPair": "xrd-xrd",
     "assets": [
@@ -3587,7 +3657,7 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "lendingXrdDerivative",
-    "activityId": "ro_lp_der_lsulp",
+    "activityId": "ro_le_der_lsulp",
     "dAppId": "ro",
     "tokenPair": "lsulp-lsulp",
     "assets": [
@@ -3621,6 +3691,54 @@ export const activityData: ActivityData[] = [
   },
   {
     "categoryId": "maintainXrdBalance",
+    "activityId": "ho_xrd",
+    "dAppId": "ra",
+    "tokenPair": "",
+    "action": "ho",
+    "assets": [
+      {
+        "assetType": "nat",
+        "name": "xrd",
+        "resourceAddress": "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd"
+      }
+    ],
+    "componentAddresses": []
+  },
+  {
+    "categoryId": "maintainXrdBalance",
+    "activityId": "ho_lsulp",
+    "dAppId": "ra",
+    "tokenPair": "",
+    "action": "ho",
+    "assets": [
+      {
+        "assetType": "nat",
+        "name": "lsulp",
+        "resourceAddress": "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf"
+      }
+    ],
+    "componentAddresses": []
+  },
+  {
+    "categoryId": "maintainXrdBalance",
+    "activityId": "ho_stakedXrd",
+    "dAppId": "ra",
+    "tokenPair": "",
+    "action": "ho",
+    "assets": [],
+    "componentAddresses": []
+  },
+  {
+    "categoryId": "maintainXrdBalance",
+    "activityId": "ho_unstakedXrd",
+    "dAppId": "ra",
+    "tokenPair": "",
+    "action": "ho",
+    "assets": [],
+    "componentAddresses": []
+  },
+  {
+    "categoryId": "maintainXrdBalance",
     "activityId": "we_ho_stakedXrd",
     "dAppId": "we",
     "tokenPair": "stakedXrd",
@@ -3637,6 +3755,23 @@ export const activityData: ActivityData[] = [
     "tokenPair": "unstakedXrd",
     "action": "ho",
     "assets": [],
+    "componentAddresses": [
+      "component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w"
+    ]
+  },
+  {
+    "categoryId": "maintainXrdBalance",
+    "activityId": "we_ho_lsulp",
+    "dAppId": "we",
+    "tokenPair": "lsulp",
+    "action": "ho",
+    "assets": [
+      {
+        "assetType": "nat",
+        "name": "lsulp",
+        "resourceAddress": "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf"
+      }
+    ],
     "componentAddresses": [
       "component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w"
     ]
@@ -5604,7 +5739,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
   "component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w": [
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "we_lp_der_xrd",
+      "activityId": "we_le_der_xrd",
       "dAppId": "we",
       "tokenPair": "xrd-xrd",
       "assets": [
@@ -5632,7 +5767,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "we_lp_der_xrd",
+      "activityId": "we_le_der_xrd",
       "dAppId": "we",
       "tokenPair": "xrd-xrd",
       "assets": [
@@ -5660,7 +5795,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "we_lp_sta_xusdc",
+      "activityId": "we_le_sta_xusdc",
       "dAppId": "we",
       "tokenPair": "xusdc-xusdc",
       "assets": [
@@ -5674,7 +5809,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "we_lp_sta_xusdc",
+      "activityId": "we_le_sta_xusdc",
       "dAppId": "we",
       "tokenPair": "xusdc-xusdc",
       "assets": [
@@ -5688,7 +5823,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "we_lp_sta_xusdt",
+      "activityId": "we_le_sta_xusdt",
       "dAppId": "we",
       "tokenPair": "xusdt-xusdt",
       "assets": [
@@ -5702,7 +5837,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "we_lp_sta_xusdt",
+      "activityId": "we_le_sta_xusdt",
       "dAppId": "we",
       "tokenPair": "xusdt-xusdt",
       "assets": [
@@ -5716,7 +5851,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "we_lp_blu_xwbtc",
+      "activityId": "we_le_blu_xwbtc",
       "dAppId": "we",
       "tokenPair": "xwbtc-xwbtc",
       "assets": [
@@ -5730,7 +5865,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "we_lp_blu_xwbtc",
+      "activityId": "we_le_blu_xwbtc",
       "dAppId": "we",
       "tokenPair": "xwbtc-xwbtc",
       "assets": [
@@ -5744,7 +5879,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "we_lp_blu_xeth",
+      "activityId": "we_le_blu_xeth",
       "dAppId": "we",
       "tokenPair": "xeth-xeth",
       "assets": [
@@ -5758,7 +5893,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "we_lp_blu_xeth",
+      "activityId": "we_le_blu_xeth",
       "dAppId": "we",
       "tokenPair": "xeth-xeth",
       "assets": [
@@ -5785,12 +5920,26 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
       "tokenPair": "unstakedXrd",
       "action": "ho",
       "assets": []
+    },
+    {
+      "categoryId": "maintainXrdBalance",
+      "activityId": "we_ho_lsulp",
+      "dAppId": "we",
+      "tokenPair": "lsulp",
+      "action": "ho",
+      "assets": [
+        {
+          "assetType": "nat",
+          "name": "lsulp",
+          "resourceAddress": "resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf"
+        }
+      ]
     }
   ],
   "component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq": [
     {
       "categoryId": "lendingStables",
-      "activityId": "ro_lp_sta_xusdc",
+      "activityId": "ro_le_sta_xusdc",
       "dAppId": "ro",
       "tokenPair": "xusdc-xusdc",
       "assets": [
@@ -5804,7 +5953,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "ro_lp_sta_xusdc",
+      "activityId": "ro_le_sta_xusdc",
       "dAppId": "ro",
       "tokenPair": "xusdc-xusdc",
       "assets": [
@@ -5818,7 +5967,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "ro_lp_sta_xusdt",
+      "activityId": "ro_le_sta_xusdt",
       "dAppId": "ro",
       "tokenPair": "xusdt-xusdt",
       "assets": [
@@ -5832,7 +5981,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingStables",
-      "activityId": "ro_lp_sta_xusdt",
+      "activityId": "ro_le_sta_xusdt",
       "dAppId": "ro",
       "tokenPair": "xusdt-xusdt",
       "assets": [
@@ -5846,7 +5995,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "ro_lp_blu_xwbtc",
+      "activityId": "ro_le_blu_xwbtc",
       "dAppId": "ro",
       "tokenPair": "xwbtc-xwbtc",
       "assets": [
@@ -5860,7 +6009,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "ro_lp_blu_xwbtc",
+      "activityId": "ro_le_blu_xwbtc",
       "dAppId": "ro",
       "tokenPair": "xwbtc-xwbtc",
       "assets": [
@@ -5874,7 +6023,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "ro_lp_blu_xeth",
+      "activityId": "ro_le_blu_xeth",
       "dAppId": "ro",
       "tokenPair": "xeth-xeth",
       "assets": [
@@ -5888,7 +6037,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingBlueChips",
-      "activityId": "ro_lp_blu_xeth",
+      "activityId": "ro_le_blu_xeth",
       "dAppId": "ro",
       "tokenPair": "xeth-xeth",
       "assets": [
@@ -5902,7 +6051,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "ro_lp_der_xrd",
+      "activityId": "ro_le_der_xrd",
       "dAppId": "ro",
       "tokenPair": "xrd-xrd",
       "assets": [
@@ -5930,7 +6079,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "ro_lp_der_xrd",
+      "activityId": "ro_le_der_xrd",
       "dAppId": "ro",
       "tokenPair": "xrd-xrd",
       "assets": [
@@ -5958,7 +6107,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "ro_lp_der_lsulp",
+      "activityId": "ro_le_der_lsulp",
       "dAppId": "ro",
       "tokenPair": "lsulp-lsulp",
       "assets": [
@@ -5986,7 +6135,7 @@ export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, 
     },
     {
       "categoryId": "lendingXrdDerivative",
-      "activityId": "ro_lp_der_lsulp",
+      "activityId": "ro_le_der_lsulp",
       "dAppId": "ro",
       "tokenPair": "lsulp-lsulp",
       "assets": [
