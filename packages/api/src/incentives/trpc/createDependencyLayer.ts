@@ -73,7 +73,14 @@ import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { ActivityWeekService } from "../activity-week/activityWeek";
 import { ComponentWhitelistService } from "../component/componentWhitelist";
-import { parseCsvWhitelist } from "../component/parseCsvWhitelist";
+import {
+  parseCsvWhitelist,
+  type CsvParsingError,
+} from "../component/parseCsvWhitelist";
+import {
+  NotificationService,
+  type NotificationSettings,
+} from "../config/notificationService";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -480,7 +487,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-
   const getUserCategoryBreakdown = (input: {
     weekId: string;
     userId: string;
@@ -691,6 +697,32 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const notificationServiceLive = NotificationService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
+  const getNotificationSettings = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const notificationService = yield* NotificationService;
+        return yield* notificationService.getNotificationSettings();
+      }),
+      notificationServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateNotificationSettings = (settings: NotificationSettings) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const notificationService = yield* NotificationService;
+        return yield* notificationService.updateNotificationSettings(settings);
+      }),
+      notificationServiceLive
+    );
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -725,5 +757,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     createWeek,
     getComponentWhitelistCount,
     uploadComponentWhitelistCsv,
+    getNotificationSettings,
+    updateNotificationSettings,
   };
 };
