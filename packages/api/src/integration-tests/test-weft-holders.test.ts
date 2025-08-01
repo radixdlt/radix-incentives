@@ -13,20 +13,20 @@ import { Assets } from "data";
 
 describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
   // let postgresContainer: StartedPostgreSqlContainer;
-  // let dbUrl: string;
+  let dbUrl: string;
+  process.env.SNAPSHOT_BATCH_SIZE = "1000";
   // let teardownFn: (() => Promise<void>) | null = null;
-
 
   beforeAll(async () => {
     console.log("Setting up PostgreSQL container for snapshot test");
 
     // Start PostgreSQL container
-    // dbUrl = inject("testDbUrl");
+    dbUrl = inject("testDbUrl");
     // postgresContainer = await new PostgreSqlContainer("postgres:17").start();
     // dbUrl = postgresContainer.getConnectionUri();
 
     // Set the DATABASE_URL environment variable for the dependency layer
-    process.env.DATABASE_URL = inject("testDbUrl");
+    process.env.DATABASE_URL = dbUrl;
     console.log("DATABASE_URL", process.env.DATABASE_URL);
 
     // Wait for PostgreSQL to be ready
@@ -35,7 +35,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
     const { schema } = await import("db/incentives");
 
-    const client = postgres(inject("testDbUrl"));
+    const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
     await runMigration(db);
@@ -56,9 +56,9 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
   afterEach(async () => {
     const { schema } = await import("db/incentives");
 
-    const client = postgres(inject("testDbUrl"));
+    const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
-    await truncateAllTables(db, inject("testDbUrl"));
+    await truncateAllTables(db, dbUrl);
     await client.end();
   });
 
@@ -74,28 +74,25 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     return dependencyLayer.snapshotWorker(input);
   };
 
-  it.skip("should process snapshot for Weft xwbtc holders", { retry: 0, timeout: 300000 }, async () => {
+  it("should process snapshot for Weft xwbtc holders", { retry: 0, timeout: 300000 }, async () => {
     const weftv2xwbtcResourceAddress = WeftFinanceConstants.v2.w2xwBTC.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xwbtcResourceAddress);
 
     const weftV2ResourceAddresses = WeftFinanceConstants.v2.WeftyV2.resourceAddress;
     const testWeftyAccounts = await getAccountHoldersForResource(weftV2ResourceAddresses);
 
-    const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
+    const mergedAccounts = [...new Set([...testAccounts, ...testWeftyAccounts])];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(inject("testDbUrl"));
+    const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
-
-    createTestUserAndAccounts(db, mergedAccounts);
+    await createTestUserAndAccounts(db, mergedAccounts);
 
     const timestamp = new Date();
     const snapshotInput: SnapshotWorkerInput = {
-      addresses: mergedAccounts,
       timestamp: timestamp,
-      jobId: "test-weft-xwbtc-holders",
-      batchSize: 10,
+      jobId: "test-weft-xwbtc-holders"
     };
 
     const result = await runSnapshotWorker(snapshotInput);
@@ -128,29 +125,26 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
   });
 
-  it.skip("should process snapshot for Weft xETH holders", { retry: 0, timeout: 300000 }, async () => {
+  it("should process snapshot for Weft xETH holders", { retry: 0, timeout: 300000 }, async () => {
     const weftv2xethResourceAddress = WeftFinanceConstants.v2.w2wETH.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xethResourceAddress);
 
     const weftV2ResourceAddresses = WeftFinanceConstants.v2.WeftyV2.resourceAddress;
     const testWeftyAccounts = await getAccountHoldersForResource(weftV2ResourceAddresses);
 
-    const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
+    const mergedAccounts = [...new Set([...testAccounts, ...testWeftyAccounts])];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(inject("testDbUrl"));
+    const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
     console.log("Creating test user and accounts");
     await createTestUserAndAccounts(db, mergedAccounts);
-
     console.log("Database url", process.env.DATABASE_URL);
     const timestamp = new Date();
     const snapshotInput: SnapshotWorkerInput = {
-      addresses: mergedAccounts,
       timestamp: timestamp,
-      jobId: "test-weft-xeth-holders",
-      batchSize: 10,
+      jobId: "test-weft-xeth-holders"
     };
 
     const result = await runSnapshotWorker(snapshotInput);
@@ -179,27 +173,25 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     }
   });
 
-  it.skip("should process snapshot for Weft xUSDCholders", { retry: 0, timeout: 300000 }, async () => {
+  it("should process snapshot for Weft xUSDCholders", { retry: 0, timeout: 300000 }, async () => {
     const weftv2xusdcResourceAddress = WeftFinanceConstants.v2.w2xUSDC.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xusdcResourceAddress);
 
     const weftV2ResourceAddresses = WeftFinanceConstants.v2.WeftyV2.resourceAddress;
     const testWeftyAccounts = await getAccountHoldersForResource(weftV2ResourceAddresses);
 
-    const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
+    const mergedAccounts = [...new Set([...testAccounts, ...testWeftyAccounts])];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(inject("testDbUrl"));
+    const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
-    createTestUserAndAccounts(db, mergedAccounts);
+    await createTestUserAndAccounts(db, mergedAccounts);
 
     const timestamp = new Date();
     const snapshotInput: SnapshotWorkerInput = {
-      addresses: mergedAccounts,
       timestamp: timestamp,
       jobId: "test-weft-xrd-xusdc-holders",
-      batchSize: 10,
     };
 
     const result = await runSnapshotWorker(snapshotInput);
@@ -237,21 +229,19 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     const weftV2ResourceAddresses = WeftFinanceConstants.v2.WeftyV2.resourceAddress;
     const testWeftyAccounts = await getAccountHoldersForResource(weftV2ResourceAddresses);
 
-    const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
+    const mergedAccounts = [...new Set([...testAccounts, ...testWeftyAccounts])];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(inject("testDbUrl"));
+    const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
 
-    createTestUserAndAccounts(db, mergedAccounts);
+    await createTestUserAndAccounts(db, mergedAccounts);
 
     const timestamp = new Date();
     const snapshotInput: SnapshotWorkerInput = {
-      addresses: mergedAccounts,
       timestamp: timestamp,
-      jobId: "test-weft-xrd-xusdc-holders",
-      batchSize: 10,
+      jobId: "test-weft-xrd-xusdc-holders"
     };
 
     const result = await runSnapshotWorker(snapshotInput);

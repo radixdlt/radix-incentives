@@ -189,7 +189,7 @@ export const createTestUserAndAccounts = async (db: any, accountAddresses: strin
             }))
         )
         .onConflictDoNothing();
-
+    await new Promise(resolve => setTimeout(resolve, 3000));
     console.log("Test user and accounts created");
 }
 
@@ -257,7 +257,7 @@ export const getTotalUsdValueForActivity = async (client: any, weftActivityId: s
             WHERE ab.data IS NOT NULL AND jsonb_typeof(ab.data) = 'array'
             ORDER BY activity_id
             `;
-    console.log("Available activity IDs:", activityIds.map((row: ActivityIdRow) => row.activity_id));
+    // console.log("Available activity IDs:", activityIds.map((row: ActivityIdRow) => row.activity_id));
 
     const accountBalanceRowCount = await client`
             SELECT COUNT(*) as count FROM account_balances
