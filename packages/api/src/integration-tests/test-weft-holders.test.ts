@@ -1,9 +1,9 @@
 // Set a placeholder DATABASE_URL before any imports to prevent drizzle config errors
 process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
-import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+// import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres from "postgres";
-import { describe, it, afterEach, beforeAll, afterAll } from "vitest";
+import { describe, it, afterEach, beforeAll, inject } from "vitest";
 
 import type { SnapshotWorkerInput } from "../incentives/snapshot/snapshotWorker.js";
 import { createTestUserAndAccounts, getAccountHoldersForResource, getPriceForResource, getTotalUsdValueForActivity, runMigration, seedData, truncateAllTables } from "./utils.js";
@@ -12,20 +12,21 @@ import { WeftFinanceConstants } from "data/src/dapps/weftFinance/constants";
 import { Assets } from "data";
 
 describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
-  let postgresContainer: StartedPostgreSqlContainer;
-  let dbUrl: string;
-  let teardownFn: (() => Promise<void>) | null = null;
+  // let postgresContainer: StartedPostgreSqlContainer;
+  // let dbUrl: string;
+  // let teardownFn: (() => Promise<void>) | null = null;
 
 
   beforeAll(async () => {
     console.log("Setting up PostgreSQL container for snapshot test");
 
     // Start PostgreSQL container
-    postgresContainer = await new PostgreSqlContainer("postgres:17").start();
-    dbUrl = postgresContainer.getConnectionUri();
+    // dbUrl = inject("testDbUrl");
+    // postgresContainer = await new PostgreSqlContainer("postgres:17").start();
+    // dbUrl = postgresContainer.getConnectionUri();
 
     // Set the DATABASE_URL environment variable for the dependency layer
-    process.env.DATABASE_URL = dbUrl;
+    process.env.DATABASE_URL = inject("testDbUrl");
     console.log("DATABASE_URL", process.env.DATABASE_URL);
 
     // Wait for PostgreSQL to be ready
@@ -34,7 +35,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
     const { schema } = await import("db/incentives");
 
-    const client = postgres(dbUrl);
+    const client = postgres(inject("testDbUrl"));
     const db = drizzle(client, { schema });
 
     await runMigration(db);
@@ -45,27 +46,27 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     await client.end();
 
 
-    teardownFn = async () => {
-      console.log("Stopping PostgreSQL container");
-      await postgresContainer.stop();
+    // teardownFn = async () => {
+    //   console.log("Stopping PostgreSQL container");
+    //   await postgresContainer.stop();
 
-    };
+    // };
   });
 
   afterEach(async () => {
     const { schema } = await import("db/incentives");
 
-    const client = postgres(dbUrl);
+    const client = postgres(inject("testDbUrl"));
     const db = drizzle(client, { schema });
-    await truncateAllTables(db, dbUrl);
+    await truncateAllTables(db, inject("testDbUrl"));
     await client.end();
   });
 
-  afterAll(async () => {
-    if (teardownFn) {
-      await teardownFn();
-    }
-  });
+  // afterAll(async () => {
+  //   if (teardownFn) {
+  //     await teardownFn();
+  //   }
+  // });
 
   const runSnapshotWorker = async (input: SnapshotWorkerInput) => {
     // Use dynamic import to load dependency layer after DATABASE_URL is set
@@ -83,7 +84,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(dbUrl);
+    const client = postgres(inject("testDbUrl"));
     const db = drizzle(client, { schema });
 
 
@@ -137,7 +138,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(dbUrl);
+    const client = postgres(inject("testDbUrl"));
     const db = drizzle(client, { schema });
 
     console.log("Creating test user and accounts");
@@ -188,7 +189,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(dbUrl);
+    const client = postgres(inject("testDbUrl"));
     const db = drizzle(client, { schema });
 
     createTestUserAndAccounts(db, mergedAccounts);
@@ -239,7 +240,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     const mergedAccounts = [...testAccounts, ...testWeftyAccounts];
     const { schema } = await import("db/incentives");
 
-    const client = postgres(dbUrl);
+    const client = postgres(inject("testDbUrl"));
     const db = drizzle(client, { schema });
 
 
