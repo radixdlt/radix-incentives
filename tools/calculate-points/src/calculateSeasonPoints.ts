@@ -25,7 +25,6 @@ import { ActivityWeekService } from "../../../packages/api/src/incentives/activi
 import fs from "node:fs";
 import { groupBy } from "effect/Array";
 import { GetUsersPaginatedLive } from "../../../packages/api/src/incentives/user/getUsersPaginated";
-import { ActivityWeekService } from "../../../packages/api/src/incentives/activity-week/activityWeek";
 
 const WEEK_ID = "30da196b-7602-4b06-a558-bbb5b5441186";
 
@@ -37,13 +36,13 @@ const runnable = Effect.gen(function* () {
   const dbLayer = createDbClientLive(db);
 
   const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLayer));
-  
+
   const activityWeekServiceLive = ActivityWeekService.Default.pipe(
     Layer.provide(dbLayer)
   );
   const activityCategoryWeekServiceLive =
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLayer));
-    
+
   const weekServiceLive = WeekService.Default.pipe(
     Layer.provide(dbLayer),
     Layer.provide(activityCategoryWeekServiceLive),
@@ -63,10 +62,6 @@ const runnable = Effect.gen(function* () {
   );
 
   const getUsersPaginatedServiceLive = GetUsersPaginatedLive.pipe(
-    Layer.provide(dbLayer)
-  );
-
-  const activityWeekServiceLive = ActivityWeekService.Default.pipe(
     Layer.provide(dbLayer)
   );
 

@@ -2,12 +2,13 @@ import { PostgreSqlContainer } from "@testcontainers/postgresql";
 import { drizzle } from "drizzle-orm/postgres-js";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
 
-import { activityCategoriesData, activitiesData } from "data";
+import { activityCategoriesData, activityData, dappsData } from "data";
 
 import {
   activities,
   activityCategories,
   activityWeeks,
+  dapps,
   schema,
   seasons,
   weeks,
@@ -41,6 +42,8 @@ export default async function setup({ provide }) {
 
   await migrate(db, { migrationsFolder: migrationFolderPath });
 
+  await db.insert(dapps).values(dappsData).onConflictDoNothing();
+
   await db
     .insert(activityCategories)
     .values(activityCategoriesData)
@@ -54,7 +57,14 @@ export default async function setup({ provide }) {
 
   const activityResults = await db
     .insert(activities)
-    .values(activitiesData)
+    .values(
+      activityData.map((activity) => ({
+        id: activity.activityId,
+        category: activity.categoryId,
+        dapp: activity.dAppId,
+        componentAddresses: activity.componentAddresses,
+      }))
+    )
     .returning()
     .onConflictDoUpdate({
       target: [activities.id],

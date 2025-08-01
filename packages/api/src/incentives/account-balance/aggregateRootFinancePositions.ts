@@ -6,7 +6,12 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { DappConstants, Assets, type AccountBalanceData } from "data";
+import {
+  DappConstants,
+  Assets,
+  type AccountBalanceData,
+  ActivityId,
+} from "data";
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
@@ -40,14 +45,15 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
         // Define supported assets and their activity IDs
         const supportedAssets = {
           // Stables
-          [Assets.Fungible.xUSDC]: "root_lend_xusdc",
-          [Assets.Fungible.xUSDT]: "root_lend_xusdt",
+          [Assets.Fungible.xUSDC]: ActivityId.ro_lp_sta_xusdc,
+          [Assets.Fungible.xUSDT]: ActivityId.ro_lp_sta_xusdt,
           // Blue chips
-          [Assets.Fungible.wxBTC]: "root_lend_xwbtc",
-          [Assets.Fungible.xETH]: "root_lend_xeth",
+          [Assets.Fungible.wxBTC]: ActivityId.ro_lp_blu_xwbtc,
+          [Assets.Fungible.xETH]: ActivityId.ro_lp_blu_xeth,
           // Native assets
-          [Assets.Fungible.XRD]: "root_lend_xrd",
-          [CaviarNineConstants.LSULP.resourceAddress]: "root_lend_lsulp",
+          [Assets.Fungible.XRD]: ActivityId.ro_lp_der_xrd,
+          [CaviarNineConstants.LSULP.resourceAddress]:
+            ActivityId.ro_lp_der_lsulp,
         } as const;
 
         if (accountBalance.rootFinancePositions.length === 0) {

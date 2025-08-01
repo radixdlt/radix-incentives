@@ -6,7 +6,7 @@ import {
   type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
-import { Assets, type AccountBalanceData } from "data";
+import { ActivityId, Assets, type AccountBalanceData } from "data";
 
 export type AggregateWeftFinancePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -39,13 +39,13 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
         // Note: LSULP is excluded as it's only used as collateral on Weft, not for earning interest
         const supportedAssets = {
           // Stables
-          [Assets.Fungible.xUSDC]: "weft_lend_xusdc",
-          [Assets.Fungible.xUSDT]: "weft_lend_xusdt",
+          [Assets.Fungible.xUSDC]: ActivityId.we_lp_sta_xusdc,
+          [Assets.Fungible.xUSDT]: ActivityId.we_lp_sta_xusdt,
           // Blue chips
-          [Assets.Fungible.wxBTC]: "weft_lend_xwbtc",
-          [Assets.Fungible.xETH]: "weft_lend_xeth",
+          [Assets.Fungible.wxBTC]: ActivityId.we_lp_blu_xwbtc,
+          [Assets.Fungible.xETH]: ActivityId.we_lp_blu_xeth,
           // Native assets (XRD only, LSULP excluded)
-          [Assets.Fungible.XRD]: "weft_lend_xrd",
+          [Assets.Fungible.XRD]: ActivityId.we_lp_der_xrd,
         } as const;
 
         if (accountBalance.weftFinancePositions.lending.length === 0) {
