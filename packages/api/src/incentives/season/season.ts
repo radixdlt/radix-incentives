@@ -1,7 +1,7 @@
 import { Data, Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { type Season, seasons, weeks } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { eq, desc, sql } from "drizzle-orm";
 import { z } from "zod";
 
 class NotFound extends Data.TaggedError("NotFound")<{
@@ -98,6 +98,24 @@ export class SeasonService extends Effect.Service<SeasonService>()(
           yield* Effect.tryPromise({
             try: () =>
               db.update(seasons).set(input).where(eq(seasons.id, input.id)),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        list: Effect.fn(function* () {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  id: seasons.id,
+                  name: seasons.name,
+                  status: seasons.status,
+                  startDate: sql<Date>`MIN(${weeks.startDate})`.as("startDate"),
+                  endDate: sql<Date>`MAX(${weeks.endDate})`.as("endDate"),
+                })
+                .from(seasons)
+                .leftJoin(weeks, eq(seasons.id, weeks.seasonId))
+                .groupBy(seasons.id, seasons.name, seasons.status)
+                .orderBy(desc(sql`MIN(${weeks.startDate})`)),
             catch: (error) => new DbError(error),
           });
         }),

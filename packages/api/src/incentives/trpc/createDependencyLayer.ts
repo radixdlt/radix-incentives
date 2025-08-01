@@ -1,4 +1,4 @@
-import type { ActivityWeek, Db, Season, Week } from "db/incentives";
+import type { Db, Season } from "db/incentives";
 import {
   type AppConfig,
   createAppConfigLive,
@@ -73,7 +73,7 @@ import { ActivityCategoryService } from "../activity-category/activityCategory";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { ActivityWeekService } from "../activity-week/activityWeek";
 import { ComponentWhitelistService } from "../component/componentWhitelist";
-import { parseCsvWhitelist, type CsvParsingError } from "../component/parseCsvWhitelist";
+import { parseCsvWhitelist } from "../component/parseCsvWhitelist";
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -342,6 +342,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const activityCategoryWeekServiceLive =
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
 
+  const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
+    Layer.provide(dbClientLive)
+  );
+
   const weekLive = WeekService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(activityCategoryWeekServiceLive),
@@ -377,7 +381,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
 
   const leaderboardLive = LeaderboardService.Default.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
+    Layer.provide(weekLive),
+    Layer.provide(seasonLive),
+    Layer.provide(activityCategoryServiceLive),
+    Layer.provide(activityCategoryWeekServiceLive),
+    Layer.provide(activityWeekServiceLive)
   );
 
   const getLatestAccountBalances = ({ userId }: { userId: string }) => {
@@ -419,7 +428,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-
   const getAvailableSeasons = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -444,18 +452,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getAvailableActivities = () => {
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const leaderboardService = yield* LeaderboardService;
-        return yield* leaderboardService.getAvailableActivities();
-      }),
-      leaderboardLive
-    );
-
-    return Effect.runPromiseExit(program);
-  };
-
   const getActivityCategoryLeaderboard = (input: {
     categoryId: string;
     weekId: string;
@@ -472,17 +468,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getAvailableCategories = () => {
+  const getAvailableCategories = (input: { weekId: string }) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const leaderboardService = yield* LeaderboardService;
-        return yield* leaderboardService.getAvailableCategories();
+        return yield* leaderboardService.getAvailableCategories(input);
       }),
       leaderboardLive
     );
 
     return Effect.runPromiseExit(program);
   };
+
 
   const getUserCategoryBreakdown = (input: {
     weekId: string;
@@ -539,15 +536,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
-    Layer.provide(dbClientLive)
-  );
-
   const componentWhitelistServiceLive = ComponentWhitelistService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(appConfigLive)
   );
-
 
   const getActivityCategories = () => {
     const program = Effect.provide(
@@ -680,25 +672,24 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Effect.gen(function* () {
         // Parse CSV first
         const parseResult = yield* parseCsvWhitelist({ csvData });
-        
+
         // Upload to database
         const service = yield* ComponentWhitelistService;
         yield* service.uploadCsv(parseResult.componentAddresses);
-        
+
         return {
           success: true,
           count: parseResult.count,
-          message: parseResult.count === 0 
-            ? "Successfully cleared component whitelist"
-            : `Successfully updated whitelist with ${parseResult.count} components`,
+          message:
+            parseResult.count === 0
+              ? "Successfully cleared component whitelist"
+              : `Successfully updated whitelist with ${parseResult.count} components`,
         };
       }),
       componentWhitelistServiceLive
     );
     return Effect.runPromiseExit(program);
   };
-
-
 
   return {
     createChallenge,
@@ -721,7 +712,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getUserCategoryBreakdown,
     getAvailableSeasons,
     getAvailableWeeks,
-    getAvailableActivities,
     getAvailableCategories,
     getActivityData,
     updateActivity,

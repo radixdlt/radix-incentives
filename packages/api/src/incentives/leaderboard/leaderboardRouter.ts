@@ -7,7 +7,9 @@ import { Exit } from "effect";
 const getUserId = async (ctx: {
   sessionToken: string | null;
   dependencyLayer: {
-    validateSessionToken: (token: string) => Promise<Exit.Exit<{ user: { id: string } }, unknown>>;
+    validateSessionToken: (
+      token: string
+    ) => Promise<Exit.Exit<{ user: { id: string } }, unknown>>;
   };
 }): Promise<string | undefined> => {
   if (!ctx.sessionToken) {
@@ -15,8 +17,10 @@ const getUserId = async (ctx: {
   }
 
   try {
-    const result = await ctx.dependencyLayer.validateSessionToken(ctx.sessionToken);
-    
+    const result = await ctx.dependencyLayer.validateSessionToken(
+      ctx.sessionToken
+    );
+
     if (Exit.isSuccess(result)) {
       const validatedSession = result.value as { user: { id: string } };
       return validatedSession.user.id;
@@ -25,7 +29,7 @@ const getUserId = async (ctx: {
     // Silently ignore session validation errors for public procedures
     console.log("Session validation failed for public procedure:", error);
   }
-  
+
   return undefined;
 };
 
@@ -38,7 +42,7 @@ export const leaderboardRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const userId = await getUserId(ctx);
-      
+
       const result = await ctx.dependencyLayer.getSeasonLeaderboard({
         seasonId: input.seasonId,
         userId,
@@ -47,12 +51,23 @@ export const leaderboardRouter = createTRPCRouter({
       return Exit.match(result, {
         onSuccess: (value) => value,
         onFailure: (error) => {
+          const isCacheNotAvailableError =
+            error._tag === "Fail" &&
+            error.error._tag === "CacheNotAvailableError";
+
+          if (isCacheNotAvailableError) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Leaderboard is still being built. Please check back in a few minutes.",
+            });
+          }
+
           console.error(error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         },
       });
     }),
-
 
   getAvailableSeasons: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getAvailableSeasons();
@@ -80,23 +95,23 @@ export const leaderboardRouter = createTRPCRouter({
       return Exit.match(result, {
         onSuccess: (value) => value,
         onFailure: (error) => {
+          const isCacheNotAvailableError =
+            error._tag === "Fail" &&
+            error.error._tag === "CacheNotAvailableError";
+
+          if (isCacheNotAvailableError) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Leaderboard is still being built. Please check back in a few minutes.",
+            });
+          }
+
           console.error(error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         },
       });
     }),
-
-  getAvailableActivities: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.dependencyLayer.getAvailableActivities();
-
-    return Exit.match(result, {
-      onSuccess: (value) => value,
-      onFailure: (error) => {
-        console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-      },
-    });
-  }),
 
   getActivityCategoryLeaderboard: publicProcedure
     .input(
@@ -107,7 +122,7 @@ export const leaderboardRouter = createTRPCRouter({
     )
     .query(async ({ ctx, input }) => {
       const userId = await getUserId(ctx);
-      
+
       const result = await ctx.dependencyLayer.getActivityCategoryLeaderboard({
         categoryId: input.categoryId,
         weekId: input.weekId,
@@ -117,22 +132,38 @@ export const leaderboardRouter = createTRPCRouter({
       return Exit.match(result, {
         onSuccess: (value) => value,
         onFailure: (error) => {
+          const isCacheNotAvailableError =
+            error._tag === "Fail" &&
+            error.error &&
+            typeof error.error === "object" &&
+            "_tag" in error.error &&
+            error.error._tag === "CacheNotAvailableError";
+
+          if (isCacheNotAvailableError) {
+            throw new TRPCError({
+              code: "PRECONDITION_FAILED",
+              message:
+                "Leaderboard is still being built. Please check back in a few minutes.",
+            });
+          }
+
           console.error(error);
           throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
         },
       });
     }),
 
-  getAvailableCategories: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.dependencyLayer.getAvailableCategories();
+  getAvailableCategories: publicProcedure
+    .input(z.object({ weekId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getAvailableCategories(input);
 
-    return Exit.match(result, {
-      onSuccess: (value) => value,
-      onFailure: (error) => {
-        console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
-      },
-    });
-  }),
-
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        },
+      });
+    }),
 });

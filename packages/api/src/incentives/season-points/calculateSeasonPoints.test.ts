@@ -34,7 +34,6 @@ import { ActivityCategoryWeekService } from "../activity-category-week/activityC
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
 import { ActivityWeekService } from "../activity-week/activityWeek";
-import { GetUsersPaginatedLive } from "../user/getUsersPaginated";
 
 describe(
   "CalculateSeasonPointsService",
@@ -441,9 +440,6 @@ describe(
       const activityWeekLayer = ActivityWeekService.Default.pipe(
         Layer.provide(dbLive)
       );
-      const getUsersPaginatedLayer = GetUsersPaginatedLive.pipe(
-        Layer.provide(dbLive)
-      );
 
       const testLayer = CalculateSeasonPointsService.Default.pipe(
         Layer.provide(dbLive),
@@ -455,7 +451,6 @@ describe(
         Layer.provide(updateWeekStatusLayer),
         Layer.provide(getSeasonPointMultiplierLayer),
         Layer.provide(activityWeekLayer),
-        Layer.provide(getUsersPaginatedLayer),
         Layer.provide(Logger.minimumLogLevel(LogLevel.None))
       );
 

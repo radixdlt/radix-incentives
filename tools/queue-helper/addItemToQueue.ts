@@ -11,7 +11,8 @@ type QueueType =
   | "calculate-activity-points"
   | "calculate-season-points"
   | "calculate-season-points-multiplier"
-  | "scheduled-calculations";
+  | "scheduled-calculations"
+  | "populate-leaderboard-cache";
 
 type PromptAnswer = string | number | boolean;
 
@@ -271,6 +272,39 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         message: "Mark week as processed after calculation?",
         default: false,
       },
+      {
+        name: "includeSPCalculations",
+        type: "confirm",
+        message: "Include season points calculations (admin processing)?",
+        default: false,
+      },
+    ],
+  },
+  "populate-leaderboard-cache": {
+    name: "Populate Leaderboard Cache Queue",
+    endpoint: "/queues/populate-leaderboard-cache/add",
+    description: "Populate leaderboard cache for specific season, week, or all data.",
+    promptFields: [
+      {
+        name: "scope",
+        type: "list",
+        message: "What would you like to populate?",
+        choices: [
+          { name: "All seasons and weeks", value: "all" },
+          { name: "Specific season", value: "season" },
+          { name: "Specific week", value: "week" },
+        ],
+      },
+      {
+        name: "seasonId",
+        type: "list",
+        message: "Select a season:",
+      },
+      {
+        name: "weekId",
+        type: "list",
+        message: "Select a week:",
+      },
     ],
   },
 };
@@ -328,10 +362,24 @@ const buildPayload = (
     case "scheduled-calculations":
       return {
         ...(answers.weekId &&
-          answers.weekId !== undefined && { weekId: answers.weekId }),
+          answers.weekId !== "" && { weekId: answers.weekId }),
         force: answers.force,
         markAsProcessed: answers.markAsProcessed,
+        includeSPCalculations: answers.includeSPCalculations,
       };
+
+    case "populate-leaderboard-cache": {
+      const payload: Record<string, unknown> = {};
+      
+      if (answers.scope === "season" && answers.seasonId) {
+        payload.seasonId = answers.seasonId;
+      } else if (answers.scope === "week" && answers.weekId) {
+        payload.weekId = answers.weekId;
+      }
+      // For "all", we don't add seasonId or weekId, so it processes everything
+      
+      return payload;
+    }
 
     default:
       throw new Error(`Unknown queue type: ${queueType}`);
@@ -409,11 +457,12 @@ const main = async (): Promise<void> => {
       "calculate-activity-points",
       "calculate-season-points",
       "calculate-season-points-multiplier",
+      "populate-leaderboard-cache",
     ];
 
     if (requiresDatabaseChoices.includes(queueType)) {
-      console.log("🔍 Fetching weeks from database...");
-      const { weeks: weeksData } = await fetchSeasonsAndWeeks();
+      console.log("🔍 Fetching seasons and weeks from database...");
+      const { seasons: seasonsData, weeks: weeksData } = await fetchSeasonsAndWeeks();
 
       const weekChoices = weeksData.map((week) => {
         const processingStatus = week.processed ? "processed" : "not processed";
@@ -422,6 +471,11 @@ const main = async (): Promise<void> => {
           value: week.id,
         };
       });
+
+      const seasonChoices = seasonsData.map((season) => ({
+        name: `${season.name} (${season.status})`,
+        value: season.id,
+      }));
 
       // Add "None" option for scheduled-calculations weekId (which is optional)
       if (queueType === "scheduled-calculations") {
@@ -437,6 +491,12 @@ const main = async (): Promise<void> => {
           return {
             ...field,
             choices: weekChoices,
+          };
+        }
+        if (field.name === "seasonId" && field.type === "list") {
+          return {
+            ...field,
+            choices: seasonChoices,
           };
         }
         return field;
@@ -476,13 +536,47 @@ const main = async (): Promise<void> => {
       }
     }
 
-    // Collect input data
-    const answers = await inquirer.prompt(promptFields);
+    // Handle dynamic prompting for populate-leaderboard-cache
+    let answers: Record<string, PromptAnswer>;
+    
+    if (queueType === "populate-leaderboard-cache") {
+      // First, ask for scope
+      const scopeAnswer = await inquirer.prompt([
+        promptFields.find(field => field.name === "scope")!
+      ]);
+      
+      // Then ask for additional fields based on scope
+      const additionalFields: Array<{
+        name: string;
+        type: string;
+        message: string;
+        validate?: (input: PromptAnswer) => boolean | string;
+        default?: PromptAnswer;
+        choices?: Array<{ name: string; value: string }>;
+      }> = [];
+      
+      if (scopeAnswer.scope === "season") {
+        additionalFields.push(
+          promptFields.find(field => field.name === "seasonId")!
+        );
+      } else if (scopeAnswer.scope === "week") {
+        additionalFields.push(
+          promptFields.find(field => field.name === "weekId")!
+        );
+      }
+      // For "all", no additional fields needed
+      
+      const additionalAnswers = await inquirer.prompt(additionalFields);
+      answers = { ...scopeAnswer, ...additionalAnswers };
+    } else {
+      // Collect input data normally for other queues
+      answers = await inquirer.prompt(promptFields);
+    }
 
     // Handle empty weekId for scheduled-calculations
-    const processedAnswers =
+    const processedAnswers: Record<string, PromptAnswer> =
       queueType === "scheduled-calculations" && answers.weekId === ""
-        ? { ...answers, weekId: undefined }
+        ? { ...answers, weekId: "" }
         : answers;
 
     // Build and send payload

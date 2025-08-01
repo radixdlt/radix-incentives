@@ -14,11 +14,6 @@ interface UserStatsData {
   rank: number;
   totalPoints: string;
   percentile: number;
-  accountContributions?: Array<{
-    accountAddress: string;
-    accountLabel: string;
-    points: string;
-  }>;
   activityBreakdown?: Array<{
     activityId: string;
     activityName: string;

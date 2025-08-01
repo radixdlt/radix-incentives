@@ -13,8 +13,9 @@ import { ActivityCategoryWeekService } from "../activity-category-week/activityC
 import { groupBy } from "effect/Array";
 import { SeasonService } from "../season/season";
 import { WeekService } from "../week/week";
-import { GetUsersPaginatedService } from "../user/getUsersPaginated";
 import { ActivityCategoryId } from "data";
+import { users } from "db/incentives";
+import { DbClientService, DbError } from "../db/dbClient";
 
 export const calculateSeasonPointsInputSchema = z.object({
   weekId: z.string(),
@@ -38,6 +39,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
   "CalculateSeasonPointsService",
   {
     effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
       const seasonService = yield* SeasonService;
       const weekService = yield* WeekService;
       const userActivityPointsService = yield* UserActivityPointsService;
@@ -45,7 +47,6 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const updateWeekStatus = yield* UpdateWeekStatusService;
       const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
-      const getUsersPaginated = yield* GetUsersPaginatedService;
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
       const lowerBoundsPercentage = 0.1;
@@ -116,20 +117,15 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       });
 
       const getAllUserIds = Effect.fn(function* () {
-        const allUserIds: string[] = [];
-        let page = 1;
-        const limit = 100;
-        let hasMore = true;
-
-        while (hasMore) {
-          const result = yield* getUsersPaginated({ page, limit });
-          allUserIds.push(...result.users.map((user) => user.id));
-
-          hasMore = result.users.length === limit;
-          page++;
-        }
-
-        return allUserIds;
+        // Get all user IDs directly from database
+        return yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select({ id: users.id })
+              .from(users)
+              .then((result) => result.map((row) => row.id)),
+          catch: (error) => new DbError(error),
+        });
       });
 
       const markAsProcessed = Effect.fn(function* (

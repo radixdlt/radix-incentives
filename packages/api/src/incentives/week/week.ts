@@ -1,7 +1,7 @@
 import { Data, Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import { and, desc, eq, gte, lte } from "drizzle-orm";
-import { weeks } from "db/incentives";
+import { weeks, seasons } from "db/incentives";
 import { z } from "zod";
 import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
 import { ActivityWeekService } from "../activity-week/activityWeek";
@@ -98,6 +98,32 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
             toWeekId: newWeek.id,
           }),
         ]);
+      }),
+      list: Effect.fn(function* (input: { seasonId?: string }) {
+        const now = new Date();
+        const query = db
+          .select({
+            id: weeks.id,
+            seasonId: weeks.seasonId,
+            startDate: weeks.startDate,
+            endDate: weeks.endDate,
+            seasonName: seasons.name,
+          })
+          .from(weeks)
+          .innerJoin(seasons, eq(weeks.seasonId, seasons.id))
+          .where(
+            and(
+              // Only show weeks that have started (using UTC time)
+              lte(weeks.startDate, now),
+              // Add seasonId filter if provided
+              input.seasonId ? eq(weeks.seasonId, input.seasonId) : undefined
+            )
+          );
+
+        return yield* Effect.tryPromise({
+          try: () => query.orderBy(desc(weeks.startDate)),
+          catch: (error) => new DbError(error),
+        });
       }),
     };
   }),
