@@ -1,6 +1,6 @@
 import { z } from "zod";
-import { activitiesData } from "./activities";
+import { activityData } from "./output/activities";
 
 export const ActivityIdSchema = z.enum(
-  activitiesData.map((activity) => activity.id) as [string, ...string[]]
+  activityData.map((activity) => activity.activityId) as [string, ...string[]]
 );

@@ -111,6 +111,7 @@ import { WeekService } from "./week/week";
 import { ActivityCategoryWeekService } from "./activity-category-week/activityCategoryWeek";
 import { SeasonService } from "./season/season";
 import { ActivityWeekService } from "./activity-week/activityWeek";
+import { AggregatePoolPositionsService } from "./account-balance/aggregatePoolPositions";
 const appConfig = createConfig();
 
 const dbClientLive = createDbClientLive(db);
@@ -293,14 +294,17 @@ const xrdBalanceLive = XrdBalanceLive.pipe(
   Layer.provide(addressValidationServiceLive)
 );
 
+const aggregatePoolPositionsLive = AggregatePoolPositionsService.Default.pipe(
+  Layer.provide(AddressValidationServiceLive),
+  Layer.provide(getUsdValueLive)
+);
+
 const aggregateCaviarninePositionsLive = AggregateCaviarninePositionsLive.pipe(
-  Layer.provide(getUsdValueLive),
-  Layer.provide(addressValidationServiceLive)
+  Layer.provide(aggregatePoolPositionsLive)
 );
 
 const aggregateOciswapPositionsLive = AggregateOciswapPositionsLive.pipe(
-  Layer.provide(getUsdValueLive),
-  Layer.provide(addressValidationServiceLive)
+  Layer.provide(aggregatePoolPositionsLive)
 );
 
 const aggregateWeftFinancePositionsLive =
@@ -315,8 +319,7 @@ const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
 );
 
 const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
-  Layer.provide(getFungibleBalanceLive),
-  Layer.provide(getResourcePoolUnitsLive)
+  Layer.provide(aggregatePoolPositionsLive)
 );
 
 const getHyperstakePositionsLive = GetHyperstakePositionsLive.pipe(
@@ -337,8 +340,7 @@ const getCaviarnineResourcePoolPositionsLive =
   );
 
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
-  Layer.provide(getUsdValueLive),
-  Layer.provide(addressValidationServiceLive)
+  Layer.provide(aggregatePoolPositionsLive)
 );
 
 const getSurgeLiquidityPositionsLive = GetSurgeLiquidityPositionsLive.pipe(
@@ -421,7 +423,8 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(getUsdValueLive),
   Layer.provide(aggregateAccountBalanceLive),
-  Layer.provide(getAllValidatorsServiceLive)
+  Layer.provide(getAllValidatorsServiceLive),
+  Layer.provide(getResourcePoolUnitsLive)
 );
 
 const getNonFungibleLocationLive = GetNonFungibleLocationService.Default.pipe(
@@ -595,8 +598,7 @@ export const NodeSdkLive = NodeSdk.layer(() => ({
 
 const snapshotWorkerLive = SnapshotWorkerLive.pipe(
   Layer.provide(dbClientLive),
-  Layer.provide(snapshotLive),
-  Layer.provide(calculateActivityPointsLive)
+  Layer.provide(snapshotLive)
 );
 
 const snapshotWorker = (input: SnapshotWorkerInput) => {

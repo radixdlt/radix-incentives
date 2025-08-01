@@ -1080,10 +1080,16 @@ importers:
 
   packages/data:
     dependencies:
+      effect:
+        specifier: 'catalog:'
+        version: 3.14.6
       zod:
         specifier: 'catalog:'
         version: 3.24.2
     devDependencies:
+      '@types/node':
+        specifier: ^22.15.17
+        version: 22.15.17
       tsx:
         specifier: 'catalog:'
         version: 4.19.3

@@ -30,7 +30,7 @@ export class GetLsulpValueService extends Effect.Service<GetLsulpValueService>()
         const [lsulpComponentResult, lsulpResourceResult] =
           yield* getFungibleBalanceService({
             addresses: [
-              CaviarNineConstants.LSULP.component,
+              CaviarNineConstants.LSULP.componentAddress,
               CaviarNineConstants.LSULP.resourceAddress,
             ],
             at_ledger_state: input.at_ledger_state,

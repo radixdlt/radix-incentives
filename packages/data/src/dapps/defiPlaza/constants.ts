@@ -99,3 +99,13 @@ export const defiPlazaComponentSet = new Map<
 >(
   Object.values(DefiPlazaConstants).map((pool) => [pool.componentAddress, pool])
 );
+
+export const defiPlazaLpResourceAddressToComponentAddress = new Map<
+  string,
+  string
+>(
+  Object.values(DefiPlazaConstants).flatMap((pool) => [
+    [pool.baseLpResourceAddress, pool.componentAddress],
+    [pool.quoteLpResourceAddress, pool.componentAddress],
+  ])
+);

@@ -24,7 +24,8 @@
     "db:create": "./postgres-init/init-db.sh",
     "db:reset": "./packages/db/scripts/reset.sh",
     "queue:add": "pnpm --filter queue-helper run queue",
-    "verify:activities": "turbo run verify:activities"
+    "verify:activities": "turbo run verify:activities",
+    "data:generate": "turbo run generate"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",

@@ -1,8 +1,7 @@
-import { Effect } from "effect";
+import { Config, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { GetUsdValueService } from "../token-price/getUsdValue";
-import { BigNumber } from "bignumber.js";
-import type { AccountBalanceData } from "data";
+import { ActivityId, type AccountBalanceData } from "data";
 
 export type AggregateSurgePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -15,6 +14,9 @@ export class AggregateSurgePositionsService extends Effect.Service<AggregateSurg
   "AggregateSurgePositionsService",
   {
     effect: Effect.gen(function* () {
+      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+        Config.withDefault(false)
+      );
       const getUsdValueService = yield* GetUsdValueService;
 
       return {
@@ -22,7 +24,7 @@ export class AggregateSurgePositionsService extends Effect.Service<AggregateSurg
           (input: AggregateSurgePositionsInput) =>
             Effect.gen(function* () {
               const accountBalance = input.accountBalance;
-              const activityId = "surge_lp_xusdc";
+              const activityId = ActivityId.su_lp_sta_susd;
 
               if (
                 !accountBalance.surgePositions.liquidityPosition.amount.isZero()
@@ -40,11 +42,13 @@ export class AggregateSurgePositionsService extends Effect.Service<AggregateSurg
                   {
                     activityId,
                     usdValue: usdValue.toString(),
-                    metadata: {
-                      [accountBalance.surgePositions.liquidityPosition
-                        .resourceAddress]:
-                        accountBalance.surgePositions.liquidityPosition.amount.toString(),
-                    },
+                    metadata: STORE_METADATA
+                      ? {
+                          [accountBalance.surgePositions.liquidityPosition
+                            .resourceAddress]:
+                            accountBalance.surgePositions.liquidityPosition.amount.toString(),
+                        }
+                      : undefined,
                   } satisfies AccountBalanceData,
                 ];
               }
@@ -53,7 +57,7 @@ export class AggregateSurgePositionsService extends Effect.Service<AggregateSurg
               return [
                 {
                   activityId,
-                  usdValue: new BigNumber(0).toString(),
+                  usdValue: "0",
                 } satisfies AccountBalanceData,
               ];
             })

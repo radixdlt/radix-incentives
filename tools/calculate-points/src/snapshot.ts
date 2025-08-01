@@ -75,6 +75,7 @@ import { UpdateSnapshotLive } from "../../../packages/api/src/incentives/snapsho
 // USD and validation services
 import { GetUsdValueLive } from "../../../packages/api/src/incentives/token-price/getUsdValue";
 import { AddressValidationServiceLive } from "../../../packages/api/src/common/address-validation/addressValidation";
+import { AggregatePoolPositionsService } from "../../../packages/api/src/incentives/account-balance/aggregatePoolPositions";
 
 const runnable = Effect.gen(function* () {
   const dbClientLive = createDbClientLive(db);
@@ -359,6 +360,11 @@ const runnable = Effect.gen(function* () {
       Layer.provide(getFungibleBalanceLive)
     );
 
+  const aggregatePoolPositionsLive = AggregatePoolPositionsService.Default.pipe(
+    Layer.provide(getUsdValueLive),
+    Layer.provide(addressValidationServiceLive)
+  );
+
   const snapshotLive = SnapshotService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(getAccountBalancesAtStateVersionLive),
@@ -368,7 +374,8 @@ const runnable = Effect.gen(function* () {
     Layer.provide(dbClientLive),
     Layer.provide(getUsdValueLive),
     Layer.provide(aggregateAccountBalanceLive),
-    Layer.provide(getAllValidatorsServiceLive)
+    Layer.provide(getAllValidatorsServiceLive),
+    Layer.provide(aggregatePoolPositionsLive)
   );
 
   const service = yield* Effect.provide(SnapshotService, snapshotLive);
@@ -376,15 +383,17 @@ const runnable = Effect.gen(function* () {
   const addresses = yield* Effect.tryPromise(() =>
     db.query.accounts
       .findMany({
-        // limit: 100,
+        limit: 10,
       })
       .then((res) => res.map((r) => r.address))
   );
 
+  const testAccountAddress = process.env.TEST_ACCOUNT_ADDRESS;
+
   yield* service({
-    timestamp: new Date(),
+    timestamp: new Date("2025-07-20T00:00:00.000Z"),
     batchSize: 10_000,
-    // addresses: [],
+    addresses: testAccountAddress ? [testAccountAddress] : addresses,
   }).pipe(Effect.provide(NodeSdkLive));
 });
 
