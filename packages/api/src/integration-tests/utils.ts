@@ -8,6 +8,9 @@ import { Effect, Layer } from "effect";
 import { GetResourceHoldersService } from "../common/gateway/getResourceHolders.js";
 import { GatewayApiClientLive } from "../common/gateway/gatewayApiClient.js";
 import type { ResourceHoldersCollectionItem } from "@radixdlt/babylon-gateway-api-sdk";
+import { GetUsdValueLive, GetUsdValueService } from "../incentives/token-price/getUsdValue.js";
+import { AddressValidationServiceLive } from "../common/address-validation/addressValidation.js";
+import { BigNumber } from "bignumber.js";
 
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const runMigration = async (db: any) => {
@@ -116,7 +119,7 @@ export const seedData = async (db: any): Promise<boolean> => {
  * @param dbUrl - Database URL
  */
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const truncateAllTables = async (db: any,dbUrl: string) => {
+export const truncateAllTables = async (db: any, dbUrl: string) => {
     // Safety check: only allow truncation on localhost
     const databaseUrl = dbUrl;
     const isLocalhost = databaseUrl.includes('@localhost:') ||
@@ -287,4 +290,24 @@ export const getTotalUsdValueForActivity = async (client: any, weftActivityId: s
     const totalUsdValue = weftQueryResult.reduce((acc: number, row: QueryResultRow) => acc + Number(row.usd_value), 0);
     console.log(`Total USD value for ${weftActivityId}: ${totalUsdValue}`);
     return totalUsdValue;
+}
+
+
+export const getPriceForResource = async ( resourceAddress: string, timestamp: Date) => {
+    const getUsdValueProgram = Effect.provide(
+        Effect.gen(function* () {
+            const getUsdValueService = yield* GetUsdValueService;
+
+            const xwbtcPrice = yield* getUsdValueService({
+                amount: new BigNumber(1),
+                resourceAddress: resourceAddress,
+                timestamp: timestamp,
+            });
+            return xwbtcPrice;
+        }),
+        GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
+    );
+
+    const price = await Effect.runPromise(getUsdValueProgram);
+    return price;
 }
