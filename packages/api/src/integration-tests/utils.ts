@@ -1,4 +1,4 @@
-import { activitiesData, activityCategoriesData } from "data";
+import { activityCategoriesData, activityData } from "data";
 import type { Activity } from "db/incentives";
 import { sql } from "drizzle-orm";
 import { migrate } from "drizzle-orm/postgres-js/migrator";
@@ -50,17 +50,26 @@ export const seedData = async (db: any): Promise<boolean> => {
             },
         });
 
-    const activityResults: Activity[] = await db
-        .insert(activities)
-        .values(activitiesData)
-        .returning()
-        .onConflictDoUpdate({
-            target: [activities.id],
-            set: {
-                name: sql`excluded.name`,
-                category: sql`excluded.category`,
-            },
-        });
+    //Activity data has activity_id as activityId
+
+    const activityResults = await db
+    .insert(activities)
+    .values(
+      activityData.map((activity) => ({
+        id: activity.activityId,
+        category: activity.categoryId,
+        dapp: activity.dAppId,
+        componentAddresses: activity.componentAddresses,
+      }))
+    )
+    .returning()
+    .onConflictDoUpdate({
+      target: [activities.id],
+      set: {
+        name: sql`excluded.name`,
+        category: sql`excluded.category`,
+      },
+    });
 
     const SEASON_ID = "b8b73145-4d93-44eb-b2ba-01b079fd8a5c";
 

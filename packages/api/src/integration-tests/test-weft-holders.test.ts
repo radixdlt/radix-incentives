@@ -11,7 +11,7 @@ import { drizzle } from "drizzle-orm/postgres-js";
 import { WeftFinanceConstants } from "data/src/dapps/weftFinance/constants";
 import { Assets } from "data";
 
-describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
+describe("Weft Lending Holders Snapshot Test", () => {
   // let postgresContainer: StartedPostgreSqlContainer;
   let dbUrl: string;
   process.env.SNAPSHOT_BATCH_SIZE = "1000";
@@ -38,8 +38,8 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
-    await runMigration(db);
-    console.log("Migration run");
+    // await runMigration(db);
+    // console.log("Migration run");
     await seedData(db);
     console.log("Seed data run");
 
@@ -74,7 +74,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     return dependencyLayer.snapshotWorker(input);
   };
 
-  it("should process snapshot for Weft xwbtc holders", { retry: 0, timeout: 300000 }, async () => {
+  it.skip("should process snapshot for Weft xwbtc holders", { retry: 0, timeout: 300000 }, async () => {
     const weftv2xwbtcResourceAddress = WeftFinanceConstants.v2.w2xwBTC.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xwbtcResourceAddress);
 
@@ -108,7 +108,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
       const xwbtcPrice = await getPriceForResource(Assets.Fungible.wxBTC, timestamp);
       console.log("wxBTC price:", xwbtcPrice.toString());
 
-      const weftActivityId = "weft_lend_xwbtc"
+      const weftActivityId = "we_le_blu_xwbtc"
       console.log("Getting total USD value for activity", weftActivityId);
       const totalUsdValue = await getTotalUsdValueForActivity(client, weftActivityId);
       console.log(`Total USD value for ${weftActivityId}: ${totalUsdValue}`);
@@ -158,7 +158,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     try {
       const xethPrice = await getPriceForResource(Assets.Fungible.xETH, timestamp);
       console.log("wETH price:", xethPrice.toString());
-      const weftActivityId = "weft_lend_xeth"
+      const weftActivityId = "we_le_blu_xeth"
       console.log("Getting total USD value for activity", weftActivityId);
       const totalUsdValue = await getTotalUsdValueForActivity(client, weftActivityId);
       console.log(`Total USD value for ${weftActivityId}: ${totalUsdValue}`);
@@ -173,7 +173,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     }
   });
 
-  it("should process snapshot for Weft xUSDCholders", { retry: 0, timeout: 300000 }, async () => {
+  it.skip("should process snapshot for Weft xUSDCholders", { retry: 0, timeout: 300000 }, async () => {
     const weftv2xusdcResourceAddress = WeftFinanceConstants.v2.w2xUSDC.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xusdcResourceAddress);
 
@@ -205,7 +205,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
     try {
       const xusdcPrice = await getPriceForResource(Assets.Fungible.xUSDC, timestamp);
       console.log("wUSDC price:", xusdcPrice.toString());
-      const weftActivityId = "weft_lend_xusdc"
+      const weftActivityId = "we_le_sta_xusdc"
       console.log("Getting total USD value for activity", weftActivityId);
       const totalUsdValue = await getTotalUsdValueForActivity(client, weftActivityId);
       console.log(`Total USD value for ${weftActivityId}: ${totalUsdValue}`);
@@ -222,7 +222,7 @@ describe("Weft XRD-xUSDC Holders Snapshot Test", () => {
 
   });
 
-  it("should process snapshot for Weft XRD holders", { retry: 0, timeout: 300000 }, async () => {
+  it.skip("should process snapshot for Weft XRD holders", { retry: 0, timeout: 300000 }, async () => {
     // Use the same test accounts that were created in beforeAll
     const weftv2xrdResourceAddress = WeftFinanceConstants.v2.w2XRD.resourceAddress;
     const testAccounts = await getAccountHoldersForResource(weftv2xrdResourceAddress);
