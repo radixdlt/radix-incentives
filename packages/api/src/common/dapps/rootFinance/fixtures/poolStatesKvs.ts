@@ -1,4 +1,4 @@
-import {
+import type {
   LedgerState,
   StateKeyValueStoreDataResponseItem,
 } from "@radixdlt/babylon-gateway-api-sdk";

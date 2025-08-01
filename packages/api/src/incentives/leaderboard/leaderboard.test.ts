@@ -19,6 +19,10 @@ import {
   seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
+  activities,
+  activityCategories,
+  activityWeeks,
+  activityCategoryWeeks,
 } from "db/incentives";
 
 import postgres from "postgres";
@@ -80,6 +84,10 @@ describe(
       // Clean up data tables
       yield* Effect.promise(() => db.delete(accounts));
       yield* Effect.promise(() => db.delete(users));
+      yield* Effect.promise(() => db.delete(activityWeeks));
+      yield* Effect.promise(() => db.delete(activityCategoryWeeks));
+      yield* Effect.promise(() => db.delete(activities));
+      yield* Effect.promise(() => db.delete(activityCategories));
       yield* Effect.promise(() => db.delete(weeks));
       yield* Effect.promise(() => db.delete(seasons));
 
@@ -117,6 +125,62 @@ describe(
             id: USER_ID_3,
             identityAddress: `identity_${USER_ID_3}`,
             label: "NewPlayer",
+          },
+        ])
+      );
+
+      // Insert activity categories
+      yield* Effect.promise(() =>
+        db.insert(activityCategories).values([
+          {
+            id: "tradingVolume",
+            name: "Trading volume",
+            description: "Total trading volume across all DEXs",
+          },
+        ])
+      );
+
+      // Insert activities
+      yield* Effect.promise(() =>
+        db.insert(activities).values([
+          {
+            id: "c9_trade_xrd-xusdc",
+            name: "c9_trade_xrd-xusdc",
+            category: "tradingVolume",
+            description: "CaviarNine XRD/XUSDC trading",
+          },
+          {
+            id: "c9_trade_xrd-xusdt",
+            name: "c9_trade_xrd-xusdt",
+            category: "tradingVolume",
+            description: "CaviarNine XRD/XUSDT trading",
+          },
+        ])
+      );
+
+      // Insert activity weeks
+      yield* Effect.promise(() =>
+        db.insert(activityWeeks).values([
+          {
+            activityId: "c9_trade_xrd-xusdc",
+            weekId: WEEK_ID,
+            multiplier: "1",
+          },
+          {
+            activityId: "c9_trade_xrd-xusdt",
+            weekId: WEEK_ID,
+            multiplier: "1",
+          },
+        ])
+      );
+
+      // Insert activity category weeks
+      yield* Effect.promise(() =>
+        db.insert(activityCategoryWeeks).values([
+          {
+            activityCategoryId: "tradingVolume",
+            weekId: WEEK_ID,
+            pointsPool: 10000,
           },
         ])
       );
@@ -461,7 +525,7 @@ describe(
           expect(categoryResult._tag).toBe("Left");
           if (categoryResult._tag === "Left") {
             expect(categoryResult.left.message).toBe(
-              "Activity category not found"
+              "Activity category non-existent not found"
             );
           }
 
@@ -475,7 +539,9 @@ describe(
 
           expect(weekResult._tag).toBe("Left");
           if (weekResult._tag === "Left") {
-            expect(weekResult.left.message).toBe("Week not found");
+            expect(weekResult.left.message).toBe(
+              "Week 99999999-9999-9999-9999-999999999999 not found"
+            );
           }
         }).pipe(Effect.provide(leaderboardServiceLive))
       );
