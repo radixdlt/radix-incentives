@@ -19,6 +19,10 @@ import {
   accounts,
   userSeasonPoints,
   accountActivityPoints,
+  activities,
+  activityCategories,
+  activityWeeks,
+  activityCategoryWeeks,
 } from "db/incentives";
 
 import postgres from "postgres";
@@ -27,6 +31,7 @@ describe(
   "Leaderboard Integration Tests",
   {
     timeout: 60_000,
+    retry: 0,
   },
   () => {
     const dbUrl = inject("testDbUrl");
@@ -84,6 +89,10 @@ describe(
       yield* Effect.promise(() => db.delete(userSeasonPoints));
       yield* Effect.promise(() => db.delete(accounts));
       yield* Effect.promise(() => db.delete(users));
+      yield* Effect.promise(() => db.delete(activityWeeks));
+      yield* Effect.promise(() => db.delete(activityCategoryWeeks));
+      yield* Effect.promise(() => db.delete(activities));
+      yield* Effect.promise(() => db.delete(activityCategories));
       yield* Effect.promise(() => db.delete(weeks));
       yield* Effect.promise(() => db.delete(seasons));
 
@@ -128,6 +137,51 @@ describe(
         db.insert(accounts).values([
           { userId: USER_ID_1, address: "account_rdx1111", label: "Account 1" },
           { userId: USER_ID_2, address: "account_rdx2222", label: "Account 2" },
+        ])
+      );
+
+      // Insert activity categories
+      yield* Effect.promise(() =>
+        db.insert(activityCategories).values([
+          {
+            id: "tradingVolume",
+            name: "Trading volume",
+            description: "Total trading volume across all DEXs",
+          },
+        ])
+      );
+
+      // Insert activities
+      yield* Effect.promise(() =>
+        db.insert(activities).values([
+          {
+            id: "c9_trade_xrd-xusdc",
+            name: "c9_trade_xrd-xusdc",
+            category: "tradingVolume",
+            description: "CaviarNine XRD/XUSDC trading",
+          },
+        ])
+      );
+
+      // Insert activity weeks
+      yield* Effect.promise(() =>
+        db.insert(activityWeeks).values([
+          {
+            activityId: "c9_trade_xrd-xusdc",
+            weekId: WEEK_ID,
+            multiplier: "1",
+          },
+        ])
+      );
+
+      // Insert activity category weeks
+      yield* Effect.promise(() =>
+        db.insert(activityCategoryWeeks).values([
+          {
+            activityCategoryId: "tradingVolume",
+            weekId: WEEK_ID,
+            pointsPool: 10000,
+          },
         ])
       );
     });
@@ -366,6 +420,27 @@ describe(
               seasonId: SEASON_ID_2,
               weekId: WEEK_ID_2,
               points: "200.0",
+            },
+          ])
+        );
+
+        // Set up activity weeks and category weeks for WEEK_ID_2
+        yield* Effect.promise(() =>
+          db.insert(activityWeeks).values([
+            {
+              activityId: "c9_trade_xrd-xusdc",
+              weekId: WEEK_ID_2,
+              multiplier: "1",
+            },
+          ])
+        );
+
+        yield* Effect.promise(() =>
+          db.insert(activityCategoryWeeks).values([
+            {
+              activityCategoryId: "tradingVolume",
+              weekId: WEEK_ID_2,
+              pointsPool: 10000,
             },
           ])
         );
