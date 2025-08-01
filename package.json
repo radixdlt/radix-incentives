@@ -2,7 +2,7 @@
   "name": "radix-incentives",
   "private": true,
   "scripts": {
-    "dev": "turbo run dev",
+    "dev": "turbo run dev --filter=streamer --filter=db --filter=workers --filter=incentives --filter=admin",
     "dev:streamer": "turbo run dev --filter=streamer --filter=db",
     "dev:workers": "turbo run dev --filter=workers --filter=db --filter=streamer",
     "dev:fe": "turbo run dev --filter=incentives --filter=db",

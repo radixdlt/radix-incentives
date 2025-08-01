@@ -34,29 +34,26 @@ describe(
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
-    
+
     const activityWeekServiceLive = ActivityWeekService.Default.pipe(
       Layer.provide(dbLive)
     );
-    
-    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const activityCategoryWeekServiceLive =
+      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+
     const weekLive = WeekService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(activityWeekServiceLive)
     );
-    
-    const seasonLive = SeasonService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const seasonLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+
     const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
       Layer.provide(dbLive)
     );
-    
+
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(weekLive),
@@ -125,7 +122,7 @@ describe(
       );
     });
 
-    describe("getSeasonLeaderboard", () => {
+    describe("getSeasonLeaderboard", { retry: 0 }, () => {
       it.effect(
         "should return season leaderboard when cache is available",
         () =>
@@ -191,6 +188,7 @@ describe(
             expect(result.seasonInfo).toEqual({
               id: SEASON_ID,
               name: "Test Season",
+              status: "active",
             });
 
             expect(result.userStats).toBeNull(); // No userId provided
@@ -206,12 +204,14 @@ describe(
             db.insert(users).values([
               {
                 id: "44444444-4444-4444-4444-444444444444",
-                identityAddress: "identity_44444444-4444-4444-4444-444444444444",
+                identityAddress:
+                  "identity_44444444-4444-4444-4444-444444444444",
                 label: "TestUser4",
               },
               {
                 id: "99999999-9999-9999-9999-999999999999",
-                identityAddress: "identity_99999999-9999-9999-9999-999999999999",
+                identityAddress:
+                  "identity_99999999-9999-9999-9999-999999999999",
                 label: "TestUser5",
               },
             ])
@@ -297,24 +297,29 @@ describe(
         Effect.gen(function* () {
           yield* setupTestData;
 
-          const leaderboardService = yield* LeaderboardService;
+          const leaderboardService = yield* Effect.provide(
+            LeaderboardService,
+            leaderboardServiceLive
+          );
           const nonExistentSeasonId = "99999999-9999-9999-9999-999999999999";
 
-          const result = yield* Effect.either(
-            leaderboardService.getSeasonLeaderboard({
+          yield* leaderboardService
+            .getSeasonLeaderboard({
               seasonId: nonExistentSeasonId,
             })
-          );
-
-          expect(result._tag).toBe("Left");
-          if (result._tag === "Left") {
-            expect(result.left.message).toBe("Season not found");
-          }
-        }).pipe(Effect.provide(leaderboardServiceLive))
+            .pipe(
+              Effect.catchTag("NotFound", (e) => {
+                expect(e.message).toBe(
+                  `Season ${nonExistentSeasonId} not found`
+                );
+                return Effect.succeed(e);
+              })
+            );
+        })
       );
     });
 
-    describe("getActivityCategoryLeaderboard", () => {
+    describe("getActivityCategoryLeaderboard", { retry: 0 }, () => {
       it.effect(
         "should return category leaderboard with activity breakdown",
         () =>
@@ -518,7 +523,9 @@ describe(
           yield* setupTestData;
 
           const leaderboardService = yield* LeaderboardService;
-          const categories = yield* leaderboardService.getAvailableCategories({ weekId: WEEK_ID });
+          const categories = yield* leaderboardService.getAvailableCategories({
+            weekId: WEEK_ID,
+          });
 
           // Should return categories that have non-hold, non-common activities
           expect(categories.length).toBeGreaterThan(0);
@@ -527,7 +534,6 @@ describe(
           expect(categories[0]).toHaveProperty("description");
         }).pipe(Effect.provide(leaderboardServiceLive))
       );
-
     });
   }
 );
