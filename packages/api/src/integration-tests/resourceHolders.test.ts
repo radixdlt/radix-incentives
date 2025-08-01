@@ -1,5 +1,3 @@
-// Set a placeholder DATABASE_URL before any imports to prevent drizzle config errors
-process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
 import { describe, it, expect } from "vitest";
 import { getAccountHoldersForResource } from "./utils.js";

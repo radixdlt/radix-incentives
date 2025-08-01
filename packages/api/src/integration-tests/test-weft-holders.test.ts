@@ -1,5 +1,4 @@
 // Set a placeholder DATABASE_URL before any imports to prevent drizzle config errors
-process.env.DATABASE_URL = process.env.DATABASE_URL || "postgresql://placeholder:placeholder@localhost:5432/placeholder";
 
 // import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
 import postgres from "postgres";
