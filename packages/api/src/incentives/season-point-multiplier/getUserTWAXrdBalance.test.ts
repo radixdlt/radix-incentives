@@ -14,6 +14,7 @@ import {
 } from "./getUserTWAXrdBalance";
 import { BigNumber } from "bignumber.js";
 import { eq } from "drizzle-orm";
+import { ActivityId } from "data";
 
 // Test data with proper UUIDs
 const testSeasonId = "550e8400-e29b-41d4-a716-446655440000";
@@ -99,7 +100,7 @@ const testData = {
       accountAddress: testAddresses[0],
       data: [
         {
-          activityId: "hold_maintainXrdBalance",
+          activityId: ActivityId.ho_xrd,
           usdValue: "1000.0",
         },
       ],
@@ -109,7 +110,7 @@ const testData = {
       accountAddress: testAddresses[0],
       data: [
         {
-          activityId: "hold_maintainXrdBalance",
+          activityId: ActivityId.ho_xrd,
           usdValue: "1500.0",
         },
       ],
@@ -120,7 +121,7 @@ const testData = {
       accountAddress: testAddresses[1],
       data: [
         {
-          activityId: "hold_maintainXrdBalance",
+          activityId: ActivityId.ho_xrd,
           usdValue: "500.0",
         },
       ],
@@ -130,7 +131,7 @@ const testData = {
       accountAddress: testAddresses[1],
       data: [
         {
-          activityId: "hold_maintainXrdBalance",
+          activityId: ActivityId.ho_xrd,
           usdValue: "750.0",
         },
       ],
@@ -141,7 +142,7 @@ const testData = {
       accountAddress: testAddresses[2],
       data: [
         {
-          activityId: "hold_maintainXrdBalance",
+          activityId: ActivityId.ho_xrd,
           usdValue: "2000.0",
         },
       ],

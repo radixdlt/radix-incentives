@@ -70,8 +70,8 @@ export const CalculateTWASQLLive = Layer.effect(
                   AND jsonb_typeof(ab.data) = 'array'
                   AND ${
                     input.filterType === "exclude_hold"
-                      ? sql`(activity_item->>'activityId') NOT LIKE '%_ho_%'`
-                      : sql`(activity_item->>'activityId') LIKE '%_ho_%'`
+                      ? sql`(activity_item->>'activityId') NOT LIKE '%ho_%'`
+                      : sql`(activity_item->>'activityId') LIKE '%ho_%'`
                   }
               ),
               activities_with_duration AS (
