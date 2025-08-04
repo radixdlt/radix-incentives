@@ -1,4 +1,4 @@
-import { Effect, Layer } from "effect";
+import { Config, Effect, Layer } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
 import { Context } from "effect";
 import {
@@ -31,6 +31,9 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
   AggregateWeftFinancePositionsService,
   Effect.gen(function* () {
     const getUsdValueService = yield* GetUsdValueService;
+    const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+      Config.withDefault(false)
+    );
     return (input) =>
       Effect.gen(function* () {
         const accountBalance = input.accountBalance;
@@ -95,9 +98,11 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
           results.push({
             activityId,
             usdValue: usdValue.toString(),
-            metadata: {
-              [resourceAddress]: amount.toString(),
-            },
+            metadata: STORE_METADATA
+              ? {
+                  [resourceAddress]: amount.toString(),
+                }
+              : undefined,
           });
         }
 
