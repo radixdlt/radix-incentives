@@ -477,7 +477,11 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             id: input.categoryId,
             name: categoryInfo.name || input.categoryId,
           },
-          weekInfo,
+          weekInfo: {
+            id: weekInfo.id,
+            startDate: weekInfo.startDate,
+            endDate: weekInfo.endDate,
+          },
         };
       });
 

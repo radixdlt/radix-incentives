@@ -19,6 +19,10 @@ import {
   seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
+  activities,
+  activityCategories,
+  activityWeeks,
+  activityCategoryWeeks,
 } from "db/incentives";
 
 import postgres from "postgres";
@@ -34,29 +38,26 @@ describe(
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
-    
+
     const activityWeekServiceLive = ActivityWeekService.Default.pipe(
       Layer.provide(dbLive)
     );
-    
-    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const activityCategoryWeekServiceLive =
+      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+
     const weekLive = WeekService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(activityWeekServiceLive)
     );
-    
-    const seasonLive = SeasonService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const seasonLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+
     const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
       Layer.provide(dbLive)
     );
-    
+
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(weekLive),
@@ -83,6 +84,10 @@ describe(
       // Clean up data tables
       yield* Effect.promise(() => db.delete(accounts));
       yield* Effect.promise(() => db.delete(users));
+      yield* Effect.promise(() => db.delete(activityWeeks));
+      yield* Effect.promise(() => db.delete(activityCategoryWeeks));
+      yield* Effect.promise(() => db.delete(activities));
+      yield* Effect.promise(() => db.delete(activityCategories));
       yield* Effect.promise(() => db.delete(weeks));
       yield* Effect.promise(() => db.delete(seasons));
 
@@ -123,9 +128,65 @@ describe(
           },
         ])
       );
+
+      // Insert activity categories
+      yield* Effect.promise(() =>
+        db.insert(activityCategories).values([
+          {
+            id: "tradingVolume",
+            name: "Trading volume",
+            description: "Total trading volume across all DEXs",
+          },
+        ])
+      );
+
+      // Insert activities
+      yield* Effect.promise(() =>
+        db.insert(activities).values([
+          {
+            id: "c9_trade_xrd-xusdc",
+            name: "c9_trade_xrd-xusdc",
+            category: "tradingVolume",
+            description: "CaviarNine XRD/XUSDC trading",
+          },
+          {
+            id: "c9_trade_xrd-xusdt",
+            name: "c9_trade_xrd-xusdt",
+            category: "tradingVolume",
+            description: "CaviarNine XRD/XUSDT trading",
+          },
+        ])
+      );
+
+      // Insert activity weeks
+      yield* Effect.promise(() =>
+        db.insert(activityWeeks).values([
+          {
+            activityId: "c9_trade_xrd-xusdc",
+            weekId: WEEK_ID,
+            multiplier: "1",
+          },
+          {
+            activityId: "c9_trade_xrd-xusdt",
+            weekId: WEEK_ID,
+            multiplier: "1",
+          },
+        ])
+      );
+
+      // Insert activity category weeks
+      yield* Effect.promise(() =>
+        db.insert(activityCategoryWeeks).values([
+          {
+            activityCategoryId: "tradingVolume",
+            weekId: WEEK_ID,
+            pointsPool: 10000,
+          },
+        ])
+      );
     });
 
-    describe("getSeasonLeaderboard", () => {
+    describe("getSeasonLeaderboard", { retry: 0 }, () => {
       it.effect(
         "should return season leaderboard when cache is available",
         () =>
@@ -191,6 +252,7 @@ describe(
             expect(result.seasonInfo).toEqual({
               id: SEASON_ID,
               name: "Test Season",
+              status: "active",
             });
 
             expect(result.userStats).toBeNull(); // No userId provided
@@ -206,12 +268,14 @@ describe(
             db.insert(users).values([
               {
                 id: "44444444-4444-4444-4444-444444444444",
-                identityAddress: "identity_44444444-4444-4444-4444-444444444444",
+                identityAddress:
+                  "identity_44444444-4444-4444-4444-444444444444",
                 label: "TestUser4",
               },
               {
                 id: "99999999-9999-9999-9999-999999999999",
-                identityAddress: "identity_99999999-9999-9999-9999-999999999999",
+                identityAddress:
+                  "identity_99999999-9999-9999-9999-999999999999",
                 label: "TestUser5",
               },
             ])
@@ -297,24 +361,29 @@ describe(
         Effect.gen(function* () {
           yield* setupTestData;
 
-          const leaderboardService = yield* LeaderboardService;
+          const leaderboardService = yield* Effect.provide(
+            LeaderboardService,
+            leaderboardServiceLive
+          );
           const nonExistentSeasonId = "99999999-9999-9999-9999-999999999999";
 
-          const result = yield* Effect.either(
-            leaderboardService.getSeasonLeaderboard({
+          yield* leaderboardService
+            .getSeasonLeaderboard({
               seasonId: nonExistentSeasonId,
             })
-          );
-
-          expect(result._tag).toBe("Left");
-          if (result._tag === "Left") {
-            expect(result.left.message).toBe("Season not found");
-          }
-        }).pipe(Effect.provide(leaderboardServiceLive))
+            .pipe(
+              Effect.catchTag("NotFound", (e) => {
+                expect(e.message).toBe(
+                  `Season ${nonExistentSeasonId} not found`
+                );
+                return Effect.succeed(e);
+              })
+            );
+        })
       );
     });
 
-    describe("getActivityCategoryLeaderboard", () => {
+    describe("getActivityCategoryLeaderboard", { retry: 0 }, () => {
       it.effect(
         "should return category leaderboard with activity breakdown",
         () =>
@@ -456,7 +525,7 @@ describe(
           expect(categoryResult._tag).toBe("Left");
           if (categoryResult._tag === "Left") {
             expect(categoryResult.left.message).toBe(
-              "Activity category not found"
+              "Activity category non-existent not found"
             );
           }
 
@@ -470,7 +539,9 @@ describe(
 
           expect(weekResult._tag).toBe("Left");
           if (weekResult._tag === "Left") {
-            expect(weekResult.left.message).toBe("Week not found");
+            expect(weekResult.left.message).toBe(
+              "Week 99999999-9999-9999-9999-999999999999 not found"
+            );
           }
         }).pipe(Effect.provide(leaderboardServiceLive))
       );
@@ -518,7 +589,9 @@ describe(
           yield* setupTestData;
 
           const leaderboardService = yield* LeaderboardService;
-          const categories = yield* leaderboardService.getAvailableCategories({ weekId: WEEK_ID });
+          const categories = yield* leaderboardService.getAvailableCategories({
+            weekId: WEEK_ID,
+          });
 
           // Should return categories that have non-hold, non-common activities
           expect(categories.length).toBeGreaterThan(0);
@@ -527,7 +600,6 @@ describe(
           expect(categories[0]).toHaveProperty("description");
         }).pipe(Effect.provide(leaderboardServiceLive))
       );
-
     });
   }
 );

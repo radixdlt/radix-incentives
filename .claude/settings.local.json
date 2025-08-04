@@ -11,7 +11,8 @@
       "Bash(pnpm biome lint:*)",
       "Bash(pnpm check-types:*)",
       "Bash(pnpm tsc:*)",
-      "Bash(pnpm biome format:*)"
+      "Bash(pnpm biome format:*)",
+      "Bash(grep:*)"
     ],
     "deny": []
   }

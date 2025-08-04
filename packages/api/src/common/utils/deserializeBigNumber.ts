@@ -31,9 +31,12 @@ export function deserializeBigNumber(
     const bn = new BigNumber(0);
     
     // Override the internal properties
-    (bn as any).s = value.s;
-    (bn as any).e = value.e;
-    (bn as any).c = value.c.slice(); // Copy the coefficient array
+    // @ts-expect-error Accessing private properties for reconstruction
+    bn.s = value.s;
+    // @ts-expect-error Accessing private properties for reconstruction
+    bn.e = value.e;
+    // @ts-expect-error Accessing private properties for reconstruction
+    bn.c = value.c.slice(); // Copy the coefficient array
     
     // Return the reconstructed BigNumber
     return bn;
