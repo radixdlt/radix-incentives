@@ -1,6 +1,15 @@
 import { Effect, Layer } from "effect";
 import { createDbClientLive, DbReadOnlyClientService } from "../db/dbClient";
-import { schema, weeks, accounts, activities, activityWeeks, seasons, activityCategories, users } from "db/incentives";
+import {
+  schema,
+  weeks,
+  accounts,
+  activities,
+  activityWeeks,
+  seasons,
+  activityCategories,
+  users,
+} from "db/incentives";
 import {
   CalculateActivityPointsLive,
   CalculateActivityPointsService,
@@ -13,6 +22,12 @@ import { GetTradingVolumeLive } from "../trading-volume/getTradingVolume";
 import { GetAccountAddressByUserIdLive } from "../account/getAccountAddressByUserId";
 import { AccountBalanceService } from "../account-balance/accountBalance";
 import { CalculateTWASQLLive } from "./calculateTWASQL";
+import {
+  AppConfigService,
+  createAppConfigLive,
+  defaultAppConfig,
+} from "../config/appConfig";
+import { ComponentWhitelistService } from "../component/componentWhitelist";
 import { describe, inject } from "vitest";
 import { it } from "@effect/vitest";
 import postgres from "postgres";
@@ -25,10 +40,7 @@ describe("calculateActivityPoints", () => {
   const dbClientLive = createDbClientLive(db);
 
   // Create a DbReadOnlyClientService that just reuses the same connection
-  const dbReadOnlyClientLive = Layer.succeed(
-    DbReadOnlyClientService,
-    db
-  );
+  const dbReadOnlyClientLive = Layer.succeed(DbReadOnlyClientService, db);
 
   const upsertAccountActivityPointsLive = UpsertAccountActivityPointsLive.pipe(
     Layer.provide(dbClientLive)
@@ -44,8 +56,16 @@ describe("calculateActivityPoints", () => {
 
   const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
 
+  const appConfigLive = createAppConfigLive(defaultAppConfig);
+
+  const componentWhitelistLive = ComponentWhitelistService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(appConfigLive)
+  );
+
   const getComponentCallsLive = GetComponentCallsPaginatedLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
+    Layer.provide(componentWhitelistLive)
   );
 
   const getTradingVolumeLive = GetTradingVolumeLive.pipe(
@@ -86,115 +106,142 @@ describe("calculateActivityPoints", () => {
   const setupTestData = Effect.gen(function* () {
     // Create test season
     yield* Effect.promise(() =>
-      db.insert(seasons).values({
-        id: TEST_SEASON_ID,
-        name: "Test Season",
-        status: "active",
-      }).onConflictDoNothing()
+      db
+        .insert(seasons)
+        .values({
+          id: TEST_SEASON_ID,
+          name: "Test Season",
+          status: "active",
+        })
+        .onConflictDoNothing()
     );
 
     // Create test activity category
     yield* Effect.promise(() =>
-      db.insert(activityCategories).values({
-        id: TEST_CATEGORY_ID,
-        name: "Test Category",
-        pointsPool: "1000",
-      }).onConflictDoNothing()
+      db
+        .insert(activityCategories)
+        .values({
+          id: TEST_CATEGORY_ID,
+          name: "Test Category",
+        })
+        .onConflictDoNothing()
     );
 
     // Create test week
     yield* Effect.promise(() =>
-      db.insert(weeks).values({
-        id: TEST_WEEK_ID,
-        seasonId: TEST_SEASON_ID,
-        startDate: new Date("2024-01-01"),
-        endDate: new Date("2024-01-07"),
-      }).onConflictDoNothing()
+      db
+        .insert(weeks)
+        .values({
+          id: TEST_WEEK_ID,
+          seasonId: TEST_SEASON_ID,
+          startDate: new Date("2024-01-01"),
+          endDate: new Date("2024-01-07"),
+        })
+        .onConflictDoNothing()
     );
 
     // Create test activity
     yield* Effect.promise(() =>
-      db.insert(activities).values({
-        id: TEST_ACTIVITY_ID,
-        name: "Test Activity",
-        activityCategoryId: TEST_CATEGORY_ID,
-        category: "test",
-      }).onConflictDoNothing()
+      db
+        .insert(activities)
+        .values({
+          id: TEST_ACTIVITY_ID,
+          name: "Test Activity",
+          category: TEST_CATEGORY_ID,
+          dapp: "test",
+        })
+        .onConflictDoNothing()
     );
 
     // Create activity week association
     yield* Effect.promise(() =>
-      db.insert(activityWeeks).values({
-        activityId: TEST_ACTIVITY_ID,
-        weekId: TEST_WEEK_ID,
-        multiplier: "1",
-      }).onConflictDoNothing()
+      db
+        .insert(activityWeeks)
+        .values({
+          activityId: TEST_ACTIVITY_ID,
+          weekId: TEST_WEEK_ID,
+          multiplier: "1",
+        })
+        .onConflictDoNothing()
     );
 
     // Create test users
     yield* Effect.promise(() =>
-      db.insert(users).values([
-        { id: TEST_USER_1, identityAddress: "identity_user1" },
-        { id: TEST_USER_2, identityAddress: "identity_user2" },
-      ]).onConflictDoNothing()
+      db
+        .insert(users)
+        .values([
+          { id: TEST_USER_1, identityAddress: "identity_user1" },
+          { id: TEST_USER_2, identityAddress: "identity_user2" },
+        ])
+        .onConflictDoNothing()
     );
 
     // Create test accounts
     yield* Effect.promise(() =>
-      db.insert(accounts).values([
-        { address: TEST_ACCOUNT_1, userId: TEST_USER_1, label: "Test Account 1" },
-        { address: TEST_ACCOUNT_2, userId: TEST_USER_2, label: "Test Account 2" },
-      ]).onConflictDoNothing()
+      db
+        .insert(accounts)
+        .values([
+          {
+            address: TEST_ACCOUNT_1,
+            userId: TEST_USER_1,
+            label: "Test Account 1",
+          },
+          {
+            address: TEST_ACCOUNT_2,
+            userId: TEST_USER_2,
+            label: "Test Account 2",
+          },
+        ])
+        .onConflictDoNothing()
     );
   });
 
   const cleanupTestData = Effect.gen(function* () {
-    yield* Effect.promise(() => 
-      db.delete(accounts).where(
-        eq(accounts.address, TEST_ACCOUNT_1)
-      )
+    yield* Effect.promise(() =>
+      db.delete(accounts).where(eq(accounts.address, TEST_ACCOUNT_1))
     );
-    yield* Effect.promise(() => 
-      db.delete(accounts).where(
-        eq(accounts.address, TEST_ACCOUNT_2)
-      )
+    yield* Effect.promise(() =>
+      db.delete(accounts).where(eq(accounts.address, TEST_ACCOUNT_2))
     );
-    yield* Effect.promise(() => 
+    yield* Effect.promise(() =>
       db.delete(users).where(eq(users.id, TEST_USER_1))
     );
-    yield* Effect.promise(() => 
+    yield* Effect.promise(() =>
       db.delete(users).where(eq(users.id, TEST_USER_2))
     );
-    yield* Effect.promise(() => 
+    yield* Effect.promise(() =>
       db.delete(activityWeeks).where(eq(activityWeeks.weekId, TEST_WEEK_ID))
     );
-    yield* Effect.promise(() => 
+    yield* Effect.promise(() =>
       db.delete(activities).where(eq(activities.id, TEST_ACTIVITY_ID))
     );
-    yield* Effect.promise(() => 
+    yield* Effect.promise(() =>
       db.delete(weeks).where(eq(weeks.id, TEST_WEEK_ID))
     );
-    yield* Effect.promise(() => 
-      db.delete(activityCategories).where(eq(activityCategories.id, TEST_CATEGORY_ID))
+    yield* Effect.promise(() =>
+      db
+        .delete(activityCategories)
+        .where(eq(activityCategories.id, TEST_CATEGORY_ID))
     );
-    yield* Effect.promise(() => 
+    yield* Effect.promise(() =>
       db.delete(seasons).where(eq(seasons.id, TEST_SEASON_ID))
     );
   });
 
-  it.effect("should calculate activity points for given accounts", () => 
+  it.effect("should calculate activity points for given accounts", () =>
     Effect.gen(function* () {
       // Use existing week from test setup instead of creating our own
       const existingWeek = yield* Effect.promise(() =>
         db.select().from(weeks).limit(1)
       );
-      
+
       if (existingWeek.length === 0) {
         yield* Effect.logInfo("No weeks found in database - skipping test");
         return;
       }
 
-      const calculateActivityPointsService = yield* CalculateActivityPointsService;
+      const calculateActivityPointsService =
+        yield* CalculateActivityPointsService;
 
       // Test calculation for a small set of test accounts
       // This mainly tests that the service can be instantiated and called without errors
@@ -204,11 +251,13 @@ describe("calculateActivityPoints", () => {
       });
 
       // The service should complete without errors
-      // Since we don't have real transaction data in the test, 
+      // Since we don't have real transaction data in the test,
       // we're mainly testing that the service wiring is correct
       // The result may be undefined if there's no activity data for the test accounts
-      
-      yield* Effect.logInfo("calculateActivityPoints service executed successfully");
+
+      yield* Effect.logInfo(
+        "calculateActivityPoints service executed successfully"
+      );
     }).pipe(
       Effect.provide(calculateActivityPointsLive),
       Effect.timeout("30 seconds")
