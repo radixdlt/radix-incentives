@@ -8,6 +8,9 @@ import {
 } from '../incentives/token-price/getUsdValue.js';
 import { AddressValidationServiceLive } from '../common/address-validation/addressValidation.js';
 import { BigNumber } from 'bignumber.js';
+import type { SnapshotWorkerInput } from '../incentives/snapshot/snapshotWorker.js';
+import postgres from 'postgres';
+import { drizzle } from 'drizzle-orm/postgres-js';
 
 /**
  * Truncates all tables in the database, respecting foreign key constraints
@@ -40,8 +43,16 @@ export const truncateAllTables = async (db: any, dbUrl: string) => {
     console.log('All tables truncated successfully');
 };
 
+export const runSnapshotWorker = async (input: SnapshotWorkerInput) => {
+    // Use dynamic import to load dependency layer after DATABASE_URL is set
+    const { dependencyLayer } = await import(
+        '../incentives/dependencyLayer.js'
+    );
+    return dependencyLayer.snapshotWorker(input);
+};
 // biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const createTestUserAndAccounts = async (
+    // biome-ignore lint/suspicious/noExplicitAny: <explanation>
     db: any,
     accountAddresses: string[],
 ) => {
@@ -205,3 +216,58 @@ export const getPriceForResource = async (
     const price = await Effect.runPromise(getUsdValueProgram);
     return price;
 };
+
+
+export const checkHolding = async (dbUrl: string, asset: string, activityId: ActivityId, testAccounts: string[]) => {
+
+    const { schema } = await import('db/incentives');
+
+    const client = postgres(dbUrl);
+    const db = drizzle(client, { schema });
+
+    await createTestUserAndAccounts(db, testAccounts);
+
+    const timestamp = new Date();
+    const snapshotInput: SnapshotWorkerInput = {
+        timestamp: timestamp,
+        jobId: `snapshot-holders-${activityId}`,
+    };
+    const result = await runSnapshotWorker(snapshotInput);
+
+    console.log('Snapshot worker result:', result);
+    if (result._tag === 'Failure') {
+        console.error('Snapshot worker failed:', result.cause);
+        throw result.cause;
+    }
+
+    try {
+        const price = await getPriceForResource(
+            asset,
+            timestamp,
+        );
+        console.log('price:', price.toString());
+
+        console.log('Getting total USD value for activity', activityId);
+        const totalUsdValue = await getTotalUsdValueForActivity(
+            client,
+            activityId,
+        );
+        console.log(`Total USD value for ${activityId}: ${totalUsdValue}`);
+
+        console.log(`Price per unit: $${price.toString()}`);
+        let estimatedTokens = 0;
+        if (totalUsdValue && Number(totalUsdValue) > 0) {
+            estimatedTokens =
+                Number(totalUsdValue) / Number(price.toString());
+            console.log(`Estimated tokens based on price: ${estimatedTokens}`);
+        }
+        return {
+            totalUsdValue,
+            price,
+            estimatedTokens,
+        }
+    } finally {
+        await client.end();
+    }
+
+}
