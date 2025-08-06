@@ -10,8 +10,8 @@ import { AddressValidationServiceLive } from "../../common/address-validation/ad
 import { AggregatePoolPositionsService } from "./aggregatePoolPositions";
 import { AggregateSurgePositionsLive } from "./aggregateSurgePositions";
 import { AggregateDefiPlazaPositionsLive } from "./aggregateDefiPlazaPositions";
-import { AggregateRootFinancePositionsLive } from "./aggregateRootFinancePositions";
-import { AggregateWeftFinancePositionsLive } from "./aggregateWeftFinancePositions";
+import { AggregateRootFinancePositionsServiceLive } from "./aggregateRootFinancePositions";
+import { AggregateWeftFinancePositionsServiceLive } from "./aggregateWeftFinancePositions";
 import { AggregateOciswapPositionsLive } from "./aggregateOciswapPositions";
 import { AggregateCaviarninePositionsLive } from "./aggregateCaviarninePositions";
 import { XrdBalanceLive } from "./aggregateXrdBalance";
@@ -40,10 +40,10 @@ const aggregateOciswapPositionsLive = AggregateOciswapPositionsLive.pipe(
 );
 
 const aggregateWeftFinancePositionsLive =
-  AggregateWeftFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+  AggregateWeftFinancePositionsServiceLive.pipe(Layer.provide(getUsdValueLive));
 
 const aggregateRootFinancePositionsLive =
-  AggregateRootFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+  AggregateRootFinancePositionsServiceLive.pipe(Layer.provide(getUsdValueLive));
 
 const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
   Layer.provide(getUsdValueLive),
