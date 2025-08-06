@@ -10,7 +10,7 @@
   "scripts": {
     "test": "vitest ",
     "test:inspect": "vitest --inspect-brk --poolOptions.threads.isolate false",
-    "test:ci": "vitest --run",
+    "test:ci": "vitest --run --coverage",
     "test:integration": "vitest --run ./src/integration-tests/*.test.ts"
   },
   "dependencies": {

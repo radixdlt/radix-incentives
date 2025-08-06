@@ -16,5 +16,16 @@ export default defineConfig({
         singleFork: true, // Run all tests in a single fork (sequential)
       },
     },
+    coverage: {
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/**',
+        'src/test-config/**',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        'coverage/**',
+      ],
+    },
   },
 });
