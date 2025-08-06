@@ -21,12 +21,17 @@ import { describe, inject } from "vitest";
 import { createDbClientLive } from "../db/dbClient";
 import { ActivityCategoryWeekService } from "./activityCategoryWeek";
 import { distributeWeightedPoints } from "./distributeWeightedPoints";
+import { truncateAllTables } from "../../integration-tests/utils";
 
 describe("ActivityCategoryWeekService", () => {
   const dbUrl = inject("testDbUrl");
   const client = postgres(dbUrl);
   const db = drizzle(client, { schema });
   const dbLive = createDbClientLive(db);
+
+  beforeEach(async () => {
+    await truncateAllTables(db, dbUrl);
+  });
 
   describe("getByWeekId", () => {
     it.effect(
@@ -688,6 +693,29 @@ describe("ActivityCategoryWeekService", () => {
               .onConflictDoNothing()
           );
 
+          yield* Effect.promise(() =>
+            db
+              .insert(activityCategoryWeeks)
+              .values([
+                {
+                  activityCategoryId: ActivityCategoryId.tradingVolume,
+                  weekId: testWeekId,
+                  pointsPool: 1000,
+                },
+                {
+                  activityCategoryId: ActivityCategoryId.lendingStables,
+                  weekId: testWeekId,
+                  pointsPool: 500,
+                },
+                {
+                  activityCategoryId: ActivityCategoryId.maintainXrdBalance,
+                  weekId: testWeekId,
+                  pointsPool: 0,
+                },
+              ])
+              .onConflictDoNothing()
+          );
+
           // Create activities
           yield* Effect.promise(() =>
             db
@@ -861,8 +889,8 @@ describe("ActivityCategoryWeekService", () => {
           expect(lendingCategory).toBeDefined();
 
           if (tradingCategory && lendingCategory) {
-            expect(tradingCategory.name).toBe("Trading volume");
-            expect(lendingCategory.name).toBe("Lend stables");
+            expect(tradingCategory.name).toBe("Trading Volume");
+            expect(lendingCategory.name).toBe("Lending Stables");
           }
 
           // Clean up test data

@@ -1,0 +1,4 @@
+- run lint and fix errors
+- run build and fix build errors, run lint after fixing build errors
+- commit all
+- push

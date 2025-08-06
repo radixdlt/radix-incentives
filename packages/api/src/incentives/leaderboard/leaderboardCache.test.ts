@@ -21,9 +21,105 @@ import {
   seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
+  activityCategoryWeeks,
+  activityWeeks,
 } from "db/incentives";
 
 import postgres from "postgres";
+import { truncateAllTables } from "../../integration-tests/utils";
+import { createActivities } from "../../test-config/helpers";
+import { ActivityCategoryId, ActivityId } from "data";
+
+const dbUrl = inject("testDbUrl");
+const client = postgres(dbUrl);
+const db = drizzle(client, { schema });
+
+const dbLive = createDbClientLive(db);
+const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+const activityCategoryWeekServiceLive =
+  ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+  Layer.provide(dbLive)
+);
+const weekServiceLive = WeekService.Default.pipe(
+  Layer.provide(dbLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(activityWeekServiceLive)
+);
+const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
+  Layer.provide(dbLive),
+  Layer.provide(seasonServiceLive),
+  Layer.provide(weekServiceLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(activityWeekServiceLive)
+);
+
+// Test data constants
+const SEASON_ID_1 = "11111111-1111-1111-1111-111111111111";
+const SEASON_ID_2 = "22222222-2222-2222-2222-222222222222";
+const WEEK_ID_1 = "33333333-3333-3333-3333-333333333333";
+const WEEK_ID_2 = "44444444-4444-4444-4444-444444444444";
+const USER_ID_1 = "55555555-5555-5555-5555-555555555555";
+const USER_ID_2 = "66666666-6666-6666-6666-666666666666";
+const USER_ID_3 = "77777777-7777-7777-7777-777777777777";
+
+const setupTestData = Effect.gen(function* () {
+  // Insert test seasons
+  yield* Effect.promise(() =>
+    db.insert(seasons).values([
+      { id: SEASON_ID_1, name: "Test Season 1", status: "active" },
+      { id: SEASON_ID_2, name: "Test Season 2", status: "completed" },
+    ])
+  );
+
+  // Insert test weeks
+  yield* Effect.promise(() =>
+    db.insert(weeks).values([
+      {
+        id: WEEK_ID_1,
+        seasonId: SEASON_ID_1,
+        startDate: new Date("2025-01-01"),
+        endDate: new Date("2025-01-07"),
+      },
+      {
+        id: WEEK_ID_2,
+        seasonId: SEASON_ID_1,
+        startDate: new Date("2025-01-08"),
+        endDate: new Date("2025-01-14"),
+      },
+    ])
+  );
+
+  // Insert test users
+  yield* Effect.promise(() =>
+    db.insert(users).values([
+      {
+        id: USER_ID_1,
+        identityAddress: `identity_${USER_ID_1}`,
+        label: "TestUser1",
+      },
+      {
+        id: USER_ID_2,
+        identityAddress: `identity_${USER_ID_2}`,
+        label: "TestUser2",
+      },
+      {
+        id: USER_ID_3,
+        identityAddress: `identity_${USER_ID_3}`,
+        label: "TestUser3",
+      },
+    ])
+  );
+
+  // Insert test accounts
+  yield* Effect.promise(() =>
+    db.insert(accounts).values([
+      { userId: USER_ID_1, address: "account_rdx1111", label: "Account 1" },
+      { userId: USER_ID_2, address: "account_rdx2222", label: "Account 2" },
+      { userId: USER_ID_3, address: "account_rdx3333", label: "Account 3" },
+    ])
+  );
+});
 
 describe(
   "LeaderboardCacheService",
@@ -31,106 +127,9 @@ describe(
     timeout: 60_000,
   },
   () => {
-    const dbUrl = inject("testDbUrl");
-    const client = postgres(dbUrl);
-    const db = drizzle(client, { schema });
-
-    const dbLive = createDbClientLive(db);
-    const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLive));
-    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
-    const activityWeekServiceLive = ActivityWeekService.Default.pipe(Layer.provide(dbLive));
-    const weekServiceLive = WeekService.Default.pipe(
-      Layer.provide(dbLive),
-      Layer.provide(activityCategoryWeekServiceLive),
-      Layer.provide(activityWeekServiceLive)
-    );
-    const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
-      Layer.provide(dbLive),
-      Layer.provide(seasonServiceLive),
-      Layer.provide(weekServiceLive),
-      Layer.provide(activityCategoryWeekServiceLive),
-      Layer.provide(activityWeekServiceLive),
-      Layer.provide(Logger.minimumLogLevel(LogLevel.None))
-    );
-
-    // Test data constants
-    const SEASON_ID_1 = "11111111-1111-1111-1111-111111111111";
-    const SEASON_ID_2 = "22222222-2222-2222-2222-222222222222";
-    const WEEK_ID_1 = "33333333-3333-3333-3333-333333333333";
-    const WEEK_ID_2 = "44444444-4444-4444-4444-444444444444";
-    const USER_ID_1 = "55555555-5555-5555-5555-555555555555";
-    const USER_ID_2 = "66666666-6666-6666-6666-666666666666";
-    const USER_ID_3 = "77777777-7777-7777-7777-777777777777";
-
-    const setupTestData = Effect.gen(function* () {
-      // Clean up cache tables
-      yield* Effect.promise(() => db.delete(seasonLeaderboardCache));
-      yield* Effect.promise(() => db.delete(categoryLeaderboardCache));
-      yield* Effect.promise(() => db.delete(leaderboardStatsCache));
-
-      // Clean up data tables
-      yield* Effect.promise(() => db.delete(accountActivityPoints));
-      yield* Effect.promise(() => db.delete(userSeasonPoints));
-      yield* Effect.promise(() => db.delete(accounts));
-      yield* Effect.promise(() => db.delete(users));
-      yield* Effect.promise(() => db.delete(weeks));
-      yield* Effect.promise(() => db.delete(seasons));
-
-      // Insert test seasons
-      yield* Effect.promise(() =>
-        db.insert(seasons).values([
-          { id: SEASON_ID_1, name: "Test Season 1", status: "active" },
-          { id: SEASON_ID_2, name: "Test Season 2", status: "completed" },
-        ])
-      );
-
-      // Insert test weeks
-      yield* Effect.promise(() =>
-        db.insert(weeks).values([
-          {
-            id: WEEK_ID_1,
-            seasonId: SEASON_ID_1,
-            startDate: new Date("2025-01-01"),
-            endDate: new Date("2025-01-07"),
-          },
-          {
-            id: WEEK_ID_2,
-            seasonId: SEASON_ID_1,
-            startDate: new Date("2025-01-08"),
-            endDate: new Date("2025-01-14"),
-          },
-        ])
-      );
-
-      // Insert test users
-      yield* Effect.promise(() =>
-        db.insert(users).values([
-          {
-            id: USER_ID_1,
-            identityAddress: `identity_${USER_ID_1}`,
-            label: "TestUser1",
-          },
-          {
-            id: USER_ID_2,
-            identityAddress: `identity_${USER_ID_2}`,
-            label: "TestUser2",
-          },
-          {
-            id: USER_ID_3,
-            identityAddress: `identity_${USER_ID_3}`,
-            label: "TestUser3",
-          },
-        ])
-      );
-
-      // Insert test accounts
-      yield* Effect.promise(() =>
-        db.insert(accounts).values([
-          { userId: USER_ID_1, address: "account_rdx1111", label: "Account 1" },
-          { userId: USER_ID_2, address: "account_rdx2222", label: "Account 2" },
-          { userId: USER_ID_3, address: "account_rdx3333", label: "Account 3" },
-        ])
-      );
+    beforeEach(async () => {
+      await truncateAllTables(db, dbUrl);
+      await createActivities(db);
     });
 
     it.effect("should populate season leaderboard cache correctly", () =>
@@ -220,37 +219,71 @@ describe(
       Effect.gen(function* () {
         yield* setupTestData;
 
+        yield* Effect.promise(() =>
+          db.insert(activityCategoryWeeks).values([
+            {
+              activityCategoryId: ActivityCategoryId.tradingVolume,
+              weekId: WEEK_ID_1,
+              pointsPool: 100,
+            },
+          ])
+        );
+
+        yield* Effect.promise(() =>
+          db.insert(activityWeeks).values([
+            {
+              activityId: ActivityId["c9_tr_xrd-xusdc"],
+              weekId: WEEK_ID_1,
+              multiplier: "1",
+            },
+            {
+              activityId: ActivityId["c9_tr_xrd-xusdt"],
+              weekId: WEEK_ID_1,
+              multiplier: "1",
+            },
+            {
+              activityId: ActivityId["c9_tr_xeth-xrd"],
+              weekId: WEEK_ID_1,
+              multiplier: "1",
+            },
+          ])
+        );
+
         // Insert test activity points data
         yield* Effect.promise(() =>
           db.insert(accountActivityPoints).values([
             {
               accountAddress: "account_rdx1111",
               weekId: WEEK_ID_1,
-              activityId: "c9_trade_xrd-xusdc",
+
+              activityId: ActivityId["c9_tr_xrd-xusdc"],
               activityPoints: "100.0",
             },
             {
               accountAddress: "account_rdx1111",
               weekId: WEEK_ID_1,
-              activityId: "c9_trade_xrd-xusdt",
+              activityId: ActivityId["c9_tr_xrd-xusdt"],
               activityPoints: "50.0",
             },
             {
               accountAddress: "account_rdx2222",
               weekId: WEEK_ID_1,
-              activityId: "c9_trade_xrd-xusdc",
+              activityId: ActivityId["c9_tr_xrd-xusdc"],
               activityPoints: "200.0",
             },
             {
               accountAddress: "account_rdx3333",
               weekId: WEEK_ID_1,
-              activityId: "c9_trade_xeth-xrd",
+              activityId: ActivityId["c9_tr_xeth-xrd"],
               activityPoints: "75.0",
             },
           ])
         );
 
-        const leaderboardCacheService = yield* LeaderboardCacheService;
+        const leaderboardCacheService = yield* Effect.provide(
+          LeaderboardCacheService,
+          leaderboardCacheServiceLive
+        );
 
         // Populate cache for specific week
         yield* leaderboardCacheService.populateAll({ weekId: WEEK_ID_1 });
@@ -263,7 +296,10 @@ describe(
             .where(
               and(
                 eq(categoryLeaderboardCache.weekId, WEEK_ID_1),
-                eq(categoryLeaderboardCache.categoryId, "tradingVolume")
+                eq(
+                  categoryLeaderboardCache.categoryId,
+                  ActivityCategoryId.tradingVolume
+                )
               )
             )
             .orderBy(categoryLeaderboardCache.rank)
@@ -285,8 +321,8 @@ describe(
 
         // Verify activity breakdown is stored correctly
         expect(categoryCache[1].activityBreakdown).toEqual({
-          "c9_trade_xrd-xusdc": 100,
-          "c9_trade_xrd-xusdt": 50,
+          [ActivityId["c9_tr_xrd-xusdc"]]: 100,
+          [ActivityId["c9_tr_xrd-xusdt"]]: 50,
         });
 
         // Verify stats cache for category
@@ -305,7 +341,7 @@ describe(
         expect(statsCache).toHaveLength(1);
         expect(statsCache[0].totalUsers).toBe(3);
         expect(Number.parseFloat(statsCache[0].median!)).toBeCloseTo(150); // Middle value
-      }).pipe(Effect.provide(leaderboardCacheServiceLive))
+      })
     );
 
     it.effect("should handle empty data gracefully", () =>
@@ -407,6 +443,46 @@ describe(
         Effect.gen(function* () {
           yield* setupTestData;
 
+          yield* Effect.promise(() =>
+            db.insert(activityCategoryWeeks).values([
+              {
+                activityCategoryId: ActivityCategoryId.tradingVolume,
+                weekId: WEEK_ID_1,
+                pointsPool: 100,
+              },
+              {
+                activityCategoryId: ActivityCategoryId.tradingVolume,
+                weekId: WEEK_ID_2,
+                pointsPool: 100,
+              },
+            ])
+          );
+
+          yield* Effect.promise(() =>
+            db.insert(activityWeeks).values([
+              {
+                activityId: ActivityId["c9_tr_xrd-xusdc"],
+                weekId: WEEK_ID_1,
+                multiplier: "1",
+              },
+              {
+                activityId: ActivityId["c9_tr_xrd-xusdt"],
+                weekId: WEEK_ID_1,
+                multiplier: "1",
+              },
+              {
+                activityId: ActivityId["c9_tr_xeth-xrd"],
+                weekId: WEEK_ID_1,
+                multiplier: "1",
+              },
+              {
+                activityId: ActivityId["c9_tr_xrd-xusdc"],
+                weekId: WEEK_ID_2,
+                multiplier: "1",
+              },
+            ])
+          );
+
           // Insert data for multiple seasons/weeks
           yield* Effect.promise(() =>
             db.insert(userSeasonPoints).values([
@@ -430,13 +506,13 @@ describe(
               {
                 accountAddress: "account_rdx1111",
                 weekId: WEEK_ID_1,
-                activityId: "c9_trade_xrd-xusdc",
+                activityId: ActivityId["c9_tr_xrd-xusdc"],
                 activityPoints: "50.0",
               },
               {
                 accountAddress: "account_rdx1111",
                 weekId: WEEK_ID_2,
-                activityId: "c9_trade_xrd-xusdc",
+                activityId: ActivityId["c9_tr_xrd-xusdc"],
                 activityPoints: "75.0",
               },
             ])
