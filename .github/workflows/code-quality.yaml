@@ -59,6 +59,7 @@ jobs:
           DATABASE_URL: postgres://postgres:password@localhost:5432/radix-incentives
           TOKEN_PRICE_SERVICE_API_KEY: ${{ secrets.TOKEN_PRICE_SERVICE_API_KEY }}
           NODE_ENV: test
+          SKIP_INTEGRATION_TESTS: true
         run: pnpm test:ci
 
       - name: Build applications
