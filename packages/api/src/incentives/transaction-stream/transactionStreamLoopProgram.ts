@@ -8,6 +8,7 @@ import { createAppConfigLive, createConfig } from "../config/appConfig";
 import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
 
 import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
+import { FetchService } from "../../common/helpers/fetch";
 
 import { createDbClientLive } from "../db/dbClient";
 import { db } from "db/incentives";
@@ -118,7 +119,8 @@ const transactionStreamLoopLive = TransactionStreamLoopService.Default.pipe(
   Layer.provide(addTransactionFeeLive),
   Layer.provide(addComponentCallsLive),
   Layer.provide(processSwapEventTradingVolumeLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(getLedgerStateLive),
+  Layer.provide(FetchService.Default)
 );
 
 export const transactionStreamLoopProgram = () => {

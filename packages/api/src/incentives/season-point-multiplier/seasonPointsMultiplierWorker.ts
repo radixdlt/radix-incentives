@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 import { DbClientService, DbError } from "../db/dbClient";
 import {
   GetUserTWAXrdBalanceService,
@@ -79,32 +79,21 @@ const applyMultiplierToUsers = (
   );
 };
 
-export class SeasonPointsMultiplierWorkerService extends Context.Tag(
-  "SeasonPointsMultiplierWorkerService"
-)<
-  SeasonPointsMultiplierWorkerService,
-  (
-    input: SeasonPointsMultiplierJob
-  ) => Effect.Effect<
-    void,
-    | InvalidInputError
-    | DbError
-    | WeekNotFoundError
-    | GetWeekByIdError
-  >
->() {}
+export type SeasonPointsMultiplierWorkerOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof SeasonPointsMultiplierWorkerService)["Service"]>>
+>;
 
-export const SeasonPointsMultiplierWorkerLive = Layer.effect(
-  SeasonPointsMultiplierWorkerService,
-  Effect.gen(function* () {
+export class SeasonPointsMultiplierWorkerService extends Effect.Service<SeasonPointsMultiplierWorkerService>()(
+  "SeasonPointsMultiplierWorkerService",
+  {
+    effect: Effect.gen(function* () {
     const db = yield* DbClientService;
     const getUserTWAXrdBalanceService = yield* GetUserTWAXrdBalanceService;
     const getWeekByIdService = yield* GetWeekByIdService;
     const upsertUserTwaWithMultiplier =
       yield* UpsertUserTwaWithMultiplierService;
     const getUsdValueService = yield* GetUsdValueService;
-    return (input) =>
-      Effect.gen(function* () {
+    return Effect.fn(function* (input: SeasonPointsMultiplierJob) {
         yield* Effect.log("Calculating season points multiplier");
         const parsedInput = seasonPointsMultiplierJobSchema.safeParse(input);
         if (!parsedInput.success) {
@@ -252,6 +241,10 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
           `Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`
         );
         yield* upsertUserTwaWithMultiplier(belowThresholdUsersWithDefaults);
-      });
-  })
-);
+    });
+    }),
+  }
+) {}
+
+export const SeasonPointsMultiplierWorkerServiceLive =
+  SeasonPointsMultiplierWorkerService.Default;

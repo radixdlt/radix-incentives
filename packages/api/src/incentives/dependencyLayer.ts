@@ -79,7 +79,7 @@ import { UpdateWeekStatusService } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import {
-  SeasonPointsMultiplierWorkerLive,
+  SeasonPointsMultiplierWorkerServiceLive,
   SeasonPointsMultiplierWorkerService,
 } from "./season-point-multiplier/seasonPointsMultiplierWorker";
 import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
@@ -579,7 +579,7 @@ const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
   Layer.provide(calculateTWASQLLive)
 );
 
-const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
+const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerServiceLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(calculateSPMultiplierLive),
   Layer.provide(getWeekByIdLive),
