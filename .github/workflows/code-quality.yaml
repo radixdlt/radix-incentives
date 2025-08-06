@@ -1,0 +1,72 @@
+name: Code Quality
+
+on:
+  pull_request:
+    branches:
+      - main
+      - release/**
+  push:
+    branches:
+      - main
+
+jobs:
+  lint-test-build:
+    name: Lint, Test, and Build
+    runs-on: ubuntu-latest
+    
+    services:
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9.15.0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run lint
+        run: pnpm biome lint
+
+      - name: Check formatting
+        run: pnpm biome format --check .
+
+      - name: Run type check
+        run: pnpm check-types
+
+      - name: Run tests
+        env:
+          REDIS_URL: redis://localhost:6379
+          NODE_ENV: test
+        run: pnpm test:ci
+
+      - name: Build applications
+        run: pnpm build
+
+      - name: Upload test coverage
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: packages/api/coverage
+          retention-days: 7
