@@ -1,12 +1,12 @@
-import type { TransactionMessage } from "@radixdlt/babylon-core-api-sdk";
+import type { TransactionMessage } from '@radixdlt/babylon-core-api-sdk';
 import type {
   CommittedTransactionInfo,
   DetailedEventIdentifier,
   DetailedEventsItem,
   ProgrammaticScryptoSborValue,
-} from "@radixdlt/babylon-gateway-api-sdk";
-import Bignumber from "bignumber.js";
-import { extractComponentAddressFromMethodCalls } from "./extractComponentAddressFromMethodCalls";
+} from '@radixdlt/babylon-gateway-api-sdk';
+import Bignumber from 'bignumber.js';
+import { extractComponentAddressFromMethodCalls } from './extractComponentAddressFromMethodCalls';
 
 export type TransformedEvent = {
   package: {
@@ -25,9 +25,9 @@ export type TransformedEvent = {
 };
 
 export const transformEvent = (
-  event: DetailedEventsItem
+  event: DetailedEventsItem,
 ): TransformedEvent | undefined => {
-  if (event.emitter.type === "EntityMethod") {
+  if (event.emitter.type === 'EntityMethod') {
     return {
       package: {
         // @ts-expect-error: invalid type from babylon-gateway-api-sdk
@@ -47,10 +47,10 @@ export const transformEvent = (
     } satisfies TransformedEvent;
   }
 
-  if (event.emitter.type === "PackageFunction") {
+  if (event.emitter.type === 'PackageFunction') {
     const packageAddress = (
       event.identifier as unknown as DetailedEventIdentifier & {
-        package: DetailedEventIdentifier["_package"];
+        package: DetailedEventIdentifier['_package'];
       }
     ).package;
 
@@ -82,7 +82,7 @@ export type TransformedTransaction = ReturnType<
 export type TransformTransactionsOutput = TransformedTransaction[];
 
 export const transformTransactions = (
-  transactions: CommittedTransactionInfo[]
+  transactions: CommittedTransactionInfo[],
 ) =>
   transactions
     .map((transaction) => {
@@ -93,14 +93,14 @@ export const transformTransactions = (
       const feeBalanceChangesMap = new Map<string, Bignumber>();
 
       for (const item of balanceChanges.fungible_fee_balance_changes) {
-        if (item.entity_address.startsWith("account_")) {
+        if (item.entity_address.startsWith('account_')) {
           entityAddressSet.add(item.entity_address);
           const amountBN =
             feeBalanceChangesMap.get(item.entity_address) ?? new Bignumber(0);
 
           feeBalanceChangesMap.set(
             item.entity_address,
-            amountBN.plus(item.balance_change)
+            amountBN.plus(item.balance_change),
           );
         }
       }
@@ -110,7 +110,7 @@ export const transformTransactions = (
         .filter((event) => event !== undefined);
 
       const componentAddresses = extractComponentAddressFromMethodCalls(
-        transaction?.manifest_instructions ?? ""
+        transaction?.manifest_instructions ?? '',
       );
 
       const intentHash = transaction.intent_hash;
@@ -124,7 +124,7 @@ export const transformTransactions = (
         balanceChanges,
         entityAddresses: entityAddressSet,
         feeBalanceChanges: Object.fromEntries(
-          Array.from(feeBalanceChangesMap.entries())
+          Array.from(feeBalanceChangesMap.entries()),
         ),
         stateVersion: transaction.state_version,
         status: transaction.transaction_status,
@@ -139,5 +139,5 @@ export const toEventMatcherFormat = (items: TransformTransactionsOutput) =>
     tx.events.map((event) => ({
       eventName: event.event.name,
       emitterAddress: event.emitter.globalEmitter,
-    }))
+    })),
   );

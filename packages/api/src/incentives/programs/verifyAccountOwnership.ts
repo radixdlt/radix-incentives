@@ -1,22 +1,22 @@
-import { Effect } from "effect";
-import { VerifyRolaProofService } from "../rola/verifyRolaProof";
+import { Effect } from 'effect';
+import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 
-import { VerifyChallengeService } from "../challenge/verifyChallenge";
-import { z } from "zod";
-import { UpsertAccountsService } from "../account/upsertAccounts";
-import { GetAccountsByAddressService } from "../account/getAccountsByAddress";
-import { checkForVirtualAccounts } from "../../common/gateway/checkAccountPersistence";
+import { z } from 'zod';
+import { checkForVirtualAccounts } from '../../common/gateway/checkAccountPersistence';
+import { GetAccountsByAddressService } from '../account/getAccountsByAddress';
+import { UpsertAccountsService } from '../account/upsertAccounts';
+import { VerifyChallengeService } from '../challenge/verifyChallenge';
 
 export class InvalidChallengeError {
-  readonly _tag = "InvalidChallengeError";
+  readonly _tag = 'InvalidChallengeError';
 }
 
 export class InvalidProofError {
-  readonly _tag = "InvalidProofError";
+  readonly _tag = 'InvalidProofError';
 }
 
 export class AccountAlreadyRegisteredError {
-  readonly _tag = "AccountAlreadyRegisteredError";
+  readonly _tag = 'AccountAlreadyRegisteredError';
   constructor(readonly error: string) {}
 }
 
@@ -25,15 +25,15 @@ export const verifyAccountOwnershipInputSchema = z.object({
   challenge: z.string(),
   items: z.array(
     z.object({
-      type: z.enum(["account"]),
+      type: z.enum(['account']),
       address: z.string(),
       label: z.string(),
       proof: z.object({
         publicKey: z.string(),
         signature: z.string(),
-        curve: z.enum(["curve25519", "secp256k1"]),
+        curve: z.enum(['curve25519', 'secp256k1']),
       }),
-    })
+    }),
   ),
 });
 
@@ -42,7 +42,7 @@ export type VerifyAccountOwnershipInput = z.infer<
 >;
 
 export const verifyAccountOwnershipProgram = (
-  input: VerifyAccountOwnershipInput
+  input: VerifyAccountOwnershipInput,
 ) =>
   Effect.gen(function* () {
     const verifyChallenge = yield* VerifyChallengeService;
@@ -72,16 +72,16 @@ export const verifyAccountOwnershipProgram = (
     });
 
     const existingAccountAddresses = existingAccounts.map(
-      (account) => account.address
+      (account) => account.address,
     );
 
     if (existingAccounts.length > 0) {
       return yield* Effect.fail(
         new AccountAlreadyRegisteredError(
           `accounts with addresses ${existingAccountAddresses.join(
-            ", "
-          )} already registered`
-        )
+            ', ',
+          )} already registered`,
+        ),
       );
     }
 

@@ -1,7 +1,7 @@
-import { Effect, Cache, Duration, Data } from "effect";
-import { BigNumber } from "bignumber.js";
-import { AddressValidationService } from "../../common/address-validation/addressValidation";
-import { FetchService } from "../../common/helpers";
+import { BigNumber } from 'bignumber.js';
+import { Cache, Config, Data, Duration, Effect } from 'effect';
+import { AddressValidationService } from '../../common/address-validation/addressValidation';
+import { FetchService } from '../../common/helpers';
 
 export type GetUsdValueInput = {
   amount: BigNumber;
@@ -10,11 +10,11 @@ export type GetUsdValueInput = {
 };
 
 export class InvalidResourceAddressError extends Data.TaggedError(
-  "InvalidResourceAddressError"
+  'InvalidResourceAddressError',
 )<{ message: string }> {}
 
 export class PriceServiceApiError extends Data.TaggedError(
-  "PriceServiceApiError"
+  'PriceServiceApiError',
 )<{
   message: string;
   status?: number;
@@ -22,38 +22,44 @@ export class PriceServiceApiError extends Data.TaggedError(
   timestamp: number;
 }> {}
 
-class MissingPriceError extends Data.TaggedError("MissingPriceError")<{
+class MissingPriceError extends Data.TaggedError('MissingPriceError')<{
   message: string;
   resourceAddress: string;
   timestamp: number;
 }> {}
 
-const TOKEN_PRICE_SERVICE_URL =
-  process.env.TOKEN_PRICE_SERVICE_URL ||
-  "https://token-price-service.radixdlt.com/price/historicalPrice";
-const TOKEN_PRICE_SERVICE_API_KEY =
-  process.env.TOKEN_PRICE_SERVICE_API_KEY || "dummy";
-
 type PriceCacheKey = `${string}:${number}`;
 
 export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
-  "GetUsdValueService",
+  'GetUsdValueService',
   {
     effect: Effect.gen(function* () {
       const addressValidationService = yield* AddressValidationService;
       const fetchImpl = yield* FetchService;
 
+      const TOKEN_PRICE_SERVICE_API_KEY = yield* Config.string(
+        'TOKEN_PRICE_SERVICE_API_KEY',
+      );
+
+      const TOKEN_PRICE_SERVICE_URL = yield* Config.string(
+        'TOKEN_PRICE_SERVICE_URL',
+      ).pipe(
+        Config.withDefault(
+          'https://token-price-service.radixdlt.com/price/historicalPrice',
+        ),
+      );
+
       const fetchTokenPriceFromAPI = Effect.fn(function* (
         resourceAddress: string,
-        timestamp: number
+        timestamp: number,
       ) {
         const response = yield* Effect.tryPromise({
           try: () =>
             fetchImpl(TOKEN_PRICE_SERVICE_URL, {
-              method: "POST",
+              method: 'POST',
               headers: {
-                "x-api-key": TOKEN_PRICE_SERVICE_API_KEY,
-                "Content-Type": "application/json",
+                'x-api-key': TOKEN_PRICE_SERVICE_API_KEY,
+                'Content-Type': 'application/json',
               },
               body: JSON.stringify({
                 tokens: [resourceAddress],
@@ -79,13 +85,13 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
               }),
           });
 
-          if (responseText.includes("Price missing for tokens")) {
+          if (responseText.includes('Price missing for tokens')) {
             return yield* Effect.fail(
               new MissingPriceError({
-                message: "Price missing for tokens",
+                message: 'Price missing for tokens',
                 resourceAddress,
                 timestamp,
-              })
+              }),
             );
           }
 
@@ -95,7 +101,7 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
               resourceAddress,
               timestamp,
               status: response.status,
-            })
+            }),
           );
         }
 
@@ -115,10 +121,10 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
         if (!data || !data.prices || !data.prices[resourceAddress]) {
           return yield* Effect.fail(
             new PriceServiceApiError({
-              message: "Invalid response format from price service",
+              message: 'Invalid response format from price service',
               resourceAddress,
               timestamp,
-            })
+            }),
           );
         }
 
@@ -130,7 +136,7 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
         capacity: 1000,
         timeToLive: Duration.minutes(5),
         lookup: (key: PriceCacheKey) => {
-          const [resourceAddress, roundedTimestamp] = key.split(":");
+          const [resourceAddress, roundedTimestamp] = key.split(':');
 
           const timestamp = Number.parseInt(roundedTimestamp!);
 
@@ -142,11 +148,11 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
           .getTokenName(input.resourceAddress)
           .pipe(Effect.either);
 
-        if (tokenNameResult._tag === "Left") {
+        if (tokenNameResult._tag === 'Left') {
           return yield* Effect.fail(
             new InvalidResourceAddressError({
               message: `Invalid resource address: ${input.resourceAddress}`,
-            })
+            }),
           );
         }
 
@@ -154,15 +160,15 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
         const roundedTimestamp = Math.floor(input.timestamp.getTime() / 1000);
 
         const price = yield* priceCache.get(
-          `${input.resourceAddress}:${roundedTimestamp}`
+          `${input.resourceAddress}:${roundedTimestamp}`,
         );
 
         return yield* Effect.succeed(
-          new BigNumber(price).multipliedBy(input.amount)
+          new BigNumber(price).multipliedBy(input.amount),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const GetUsdValueLive = GetUsdValueService.Default;

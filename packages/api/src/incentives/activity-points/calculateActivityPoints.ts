@@ -1,16 +1,16 @@
-import { Context, Effect, Layer } from "effect";
-import type { DbError } from "../db/dbClient";
-import { z } from "zod";
-import { UpsertAccountActivityPointsService } from "./upsertAccountActivityPoints";
-import { CalculateTWASQLService } from "./calculateTWASQL";
+import { Context, Effect, Layer } from 'effect';
+import { z } from 'zod';
+import { GetComponentCallsService } from '../component/getComponentCalls';
+import type { DbError } from '../db/dbClient';
+import { GetTradingVolumeService } from '../trading-volume/getTradingVolume';
+import { GetTransactionFeesService } from '../transaction-fee/getTransactionFees';
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
   type WeekNotFoundError,
-} from "../week/getWeekById";
-import { GetTransactionFeesService } from "../transaction-fee/getTransactionFees";
-import { GetComponentCallsService } from "../component/getComponentCalls";
-import { GetTradingVolumeService } from "../trading-volume/getTradingVolume";
+} from '../week/getWeekById';
+import { CalculateTWASQLService } from './calculateTWASQL';
+import { UpsertAccountActivityPointsService } from './upsertAccountActivityPoints';
 
 export const calculateActivityPointsInputSchema = z.object({
   weekId: z.string(),
@@ -28,13 +28,13 @@ export type CalculateActivityPointsError =
   | GetWeekByIdError;
 
 export class CalculateActivityPointsService extends Context.Tag(
-  "CalculateActivityPointsService"
+  'CalculateActivityPointsService',
 )<
   CalculateActivityPointsService,
   (
-    input: CalculateActivityPointsInput
+    input: CalculateActivityPointsInput,
   ) => Effect.Effect<void, CalculateActivityPointsError>
->() { }
+>() {}
 
 export const CalculateActivityPointsLive = Layer.effect(
   CalculateActivityPointsService,
@@ -58,7 +58,10 @@ export const CalculateActivityPointsLive = Layer.effect(
         // Otherwise, use the current date
         if (input.useWeekEndDate) {
           endDate = week.endDate;
-        } else if (currentDate <= week.startDate || currentDate >= week.endDate) {
+        } else if (
+          currentDate <= week.startDate ||
+          currentDate >= week.endDate
+        ) {
           endDate = week.endDate;
         } else {
           endDate = currentDate;
@@ -70,17 +73,19 @@ export const CalculateActivityPointsLive = Layer.effect(
           addresses: input.addresses,
           startDate: week.startDate,
           endDate: endDate,
-          calculationType: "USDValueHighPrecision",
-          filterType: "exclude_hold",
+          calculationType: 'USDValueHighPrecision',
+          filterType: 'exclude_hold',
           filterZeroValues: true,
         }).pipe(
-          Effect.tap(() => Effect.log("Calculated activity points using SQL")),
-          Effect.tap((items) => Effect.log(`Found ${items.length} activity point entries`))
+          Effect.tap(() => Effect.log('Calculated activity points using SQL')),
+          Effect.tap((items) =>
+            Effect.log(`Found ${items.length} activity point entries`),
+          ),
         );
 
         if (weekAccountBalances.length > 0) {
           yield* Effect.log(
-            `adding ${weekAccountBalances.length} activity points calculations`
+            `adding ${weekAccountBalances.length} activity points calculations`,
           );
           yield* upsertAccountActivityPoints(weekAccountBalances);
         }
@@ -90,20 +95,20 @@ export const CalculateActivityPointsLive = Layer.effect(
           startTimestamp: week.startDate,
           addresses: input.addresses,
         }).pipe(
-          Effect.withSpan("getTransactionFees"),
+          Effect.withSpan('getTransactionFees'),
           Effect.map((items) =>
             items.map(({ accountAddress, fee }) => ({
               weekId: week.id,
               accountAddress,
-              activityId: "txFees",
+              activityId: 'txFees',
               activityPoints: fee.decimalPlaces(0).toString(),
-            }))
-          )
+            })),
+          ),
         );
 
         if (transactionFees.length > 0) {
           yield* Effect.log(
-            `adding ${transactionFees.length} transaction fees calculations`
+            `adding ${transactionFees.length} transaction fees calculations`,
           );
           yield* upsertAccountActivityPoints(transactionFees);
         }
@@ -112,19 +117,19 @@ export const CalculateActivityPointsLive = Layer.effect(
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
           addresses: input.addresses,
-        }).pipe(Effect.withSpan("getComponentCalls"));
+        }).pipe(Effect.withSpan('getComponentCalls'));
 
         if (componentCalls.length > 0) {
           yield* Effect.log(
-            `adding ${componentCalls.length} component calls calculations`
+            `adding ${componentCalls.length} component calls calculations`,
           );
           yield* upsertAccountActivityPoints(
             componentCalls.map(({ accountAddress, componentCalls }) => ({
               weekId: week.id,
               accountAddress,
-              activityId: "componentCalls",
+              activityId: 'componentCalls',
               activityPoints: componentCalls.toString(),
-            }))
+            })),
           );
         }
 
@@ -132,11 +137,11 @@ export const CalculateActivityPointsLive = Layer.effect(
           endTimestamp: week.endDate,
           startTimestamp: week.startDate,
           addresses: input.addresses,
-        }).pipe(Effect.withSpan("getTradingVolume"));
+        }).pipe(Effect.withSpan('getTradingVolume'));
 
         if (tradingVolume.length > 0) {
           yield* Effect.log(
-            `adding ${tradingVolume.length} trading volume calculations`
+            `adding ${tradingVolume.length} trading volume calculations`,
           );
           yield* upsertAccountActivityPoints(
             tradingVolume.map(({ accountAddress, activityId, usdValue }) => ({
@@ -144,10 +149,10 @@ export const CalculateActivityPointsLive = Layer.effect(
               accountAddress,
               activityId,
               activityPoints: usdValue.decimalPlaces(0).toString(),
-            }))
+            })),
           );
         }
       });
     };
-  })
+  }),
 );

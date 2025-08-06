@@ -25,10 +25,10 @@ export const createUTCDate = (
   hour = 0,
   minute = 0,
   second = 0,
-  millisecond = 0
+  millisecond = 0,
 ): Date => {
   return new Date(
-    Date.UTC(year, month, day, hour, minute, second, millisecond)
+    Date.UTC(year, month, day, hour, minute, second, millisecond),
   );
 };
 

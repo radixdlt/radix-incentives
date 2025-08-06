@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { MoveUpRight, Award, Zap, Wallet, Clock } from "lucide-react";
-import { MetricCard } from "~/components/dashboard";
-import { CategoryBreakdown } from "./components/category-breakdown";
-import { WeekSelector } from "~/components/dashboard/WeekSelector";
-import { api } from "~/trpc/react";
-import { EmptyState } from "~/components/ui/empty-state";
-import { usePersona } from "~/lib/hooks/usePersona";
-import { useDappToolkit } from "~/lib/hooks/useRdt";
-import { useState, useEffect } from "react";
-import { getNextUpdateTime } from "~/lib/utils";
+import { Award, Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { MetricCard } from '~/components/dashboard';
+import { WeekSelector } from '~/components/dashboard/WeekSelector';
+import { EmptyState } from '~/components/ui/empty-state';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
+import { getNextUpdateTime } from '~/lib/utils';
+import { api } from '~/trpc/react';
+import { CategoryBreakdown } from './components/category-breakdown';
 
 const NextUpdateNotification = () => {
-  const [timeUntilUpdate, setTimeUntilUpdate] = useState("");
+  const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
 
   useEffect(() => {
     setTimeUntilUpdate(getNextUpdateTime());
@@ -29,7 +29,7 @@ const NextUpdateNotification = () => {
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <Clock className="h-4 w-4" />
         <span>
-          Points calculations update every 2 hours. Next update in{" "}
+          Points calculations update every 2 hours. Next update in{' '}
           <span className="font-semibold text-foreground">
             {timeUntilUpdate}
           </span>
@@ -60,7 +60,7 @@ export default function DashboardPage() {
       // Sort weeks by start date descending and select the most recent
       const sortedWeeks = [...weeks.data].sort(
         (a, b) =>
-          new Date(b.startDate).getTime() - new Date(a.startDate).getTime()
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
       );
       if (sortedWeeks[0]) {
         setSelectedWeek(sortedWeeks[0].id);
@@ -69,15 +69,14 @@ export default function DashboardPage() {
   }, [weeks.data, selectedWeek]);
 
   const userStats = api.user.getUserStats.useQuery(
-    { weekId: selectedWeek ?? "" },
+    { weekId: selectedWeek ?? '' },
     {
       refetchOnMount: true,
       enabled:
         accounts.isSuccess && accounts.data?.length > 0 && !!selectedWeek,
       retry: false,
-    }
+    },
   );
-
 
   if (accounts.isLoading || weeks.isLoading) {
     return (
@@ -133,22 +132,22 @@ export default function DashboardPage() {
         <MetricCard
           title={
             isWeekCompleted
-              ? "Activity Points Earned"
-              : "Activity Points Earned So Far"
+              ? 'Activity Points Earned'
+              : 'Activity Points Earned So Far'
           }
           value={latestWeeklyPoints.toLocaleString()}
           icon={MoveUpRight}
           description={
             isWeekCompleted
-              ? "Activity Points earned this week"
-              : "Activity Points earned so far this week"
+              ? 'Activity Points earned this week'
+              : 'Activity Points earned so far this week'
           }
           iconColor="text-green-500"
         />
 
         <MetricCard
           title="Multiplier"
-          value={userStats.data?.multiplier?.value ?? "0"}
+          value={userStats.data?.multiplier?.value ?? '0'}
           icon={Zap}
           description="Current points multiplier"
           iconColor="text-amber-500"

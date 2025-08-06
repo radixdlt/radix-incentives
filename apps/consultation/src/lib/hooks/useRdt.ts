@@ -1,5 +1,5 @@
-import { useContext } from "react";
-import { RadixContext } from "~/lib/providers/rdtProvider";
+import { useContext } from 'react';
+import { RadixContext } from '~/lib/providers/rdtProvider';
 
 export const useDappToolkit = () => {
   const context = useContext(RadixContext);

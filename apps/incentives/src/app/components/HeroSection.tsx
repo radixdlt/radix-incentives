@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { TrophyIcon } from 'lucide-react';
-import { Button } from '~/components/ui/button';
 import Link from 'next/link';
+import { Button } from '~/components/ui/button';
 
 export const HeroSection = () => {
   const fadeUpVariants = {

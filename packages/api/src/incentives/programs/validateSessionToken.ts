@@ -1,17 +1,17 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import { DbError } from "../db/dbClient";
-import { AppConfigService } from "../config/appConfig";
-import { DbClientService } from "../db/dbClient";
-import { InvalidateSessionService } from "../session/invalidateSession";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
-import { GetSessionService } from "../session/getSession";
-import { sessions } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { sessions } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { AppConfigService } from '../config/appConfig';
+import { DbError } from '../db/dbClient';
+import { DbClientService } from '../db/dbClient';
+import { GetSessionService } from '../session/getSession';
+import { InvalidateSessionService } from '../session/invalidateSession';
 
 class SessionExpiredError {
-  readonly _tag = "SessionExpiredError";
+  readonly _tag = 'SessionExpiredError';
 }
 
 export const validateSessionTokenProgram = (token: string) =>
@@ -22,10 +22,10 @@ export const validateSessionTokenProgram = (token: string) =>
     const getSession = yield* GetSessionService;
 
     const sessionId = encodeHexLowerCase(
-      sha256(new TextEncoder().encode(token))
+      sha256(new TextEncoder().encode(token)),
     );
 
-    yield* Effect.logDebug({ token, sessionId }, "Validating session token");
+    yield* Effect.logDebug({ token, sessionId }, 'Validating session token');
 
     const { user, session } = yield* getSession(sessionId);
 
@@ -47,7 +47,7 @@ export const validateSessionTokenProgram = (token: string) =>
             .update(sessions)
             .set({
               expiresAt: new Date(
-                session.expiresAt.getTime() + appConfig.sessionRefreshThreshold
+                session.expiresAt.getTime() + appConfig.sessionRefreshThreshold,
               ),
             })
             .where(eq(sessions.id, session.id))
@@ -57,7 +57,7 @@ export const validateSessionTokenProgram = (token: string) =>
         Effect.map(([updatedSession]) => ({
           session: updatedSession,
           user,
-        }))
+        })),
       );
       return updatedSession;
     }

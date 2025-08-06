@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Menu } from 'lucide-react';
-import { Button } from './ui/button';
+import { useState } from 'react';
 import { Sidebar } from './sidebar';
+import { Button } from './ui/button';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -23,16 +23,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
       {/* Sidebar */}
       <Sidebar isOpen={sidebarOpen} />
-      
+
       {/* Main Content */}
-      <main 
+      <main
         className={`flex-1 overflow-auto transition-all duration-300 ${
           sidebarOpen ? 'ml-64' : 'ml-0'
         }`}
       >
-        <div className="pt-16 px-4">
-          {children}
-        </div>
+        <div className="pt-16 px-4">{children}</div>
       </main>
 
       {/* Overlay for mobile */}

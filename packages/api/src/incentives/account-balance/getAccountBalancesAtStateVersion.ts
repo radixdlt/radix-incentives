@@ -1,54 +1,54 @@
-import { Effect } from "effect";
-import { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
+import { Effect } from 'effect';
+import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
 
-import { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
-import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
+import { GetLsulpService } from '../../common/dapps/caviarnine/getLsulp';
+import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
 
-import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
-import { GetNonFungibleBalanceService } from "../../common/gateway/getNonFungibleBalance";
-import type { Validator } from "../../common/gateway/getAllValidators";
-import { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
-import { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
-import {
-  type GetWeftFinancePositionsOutput,
-  GetWeftFinancePositionsService,
-} from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import { DappConstants, Assets } from "data";
-import {
-  type CollaterizedDebtPosition,
-  GetRootFinancePositionsService,
-} from "../../common/dapps/rootFinance/getRootFinancePositions";
-import { validateAtLedgerStateInput } from "../../common/gateway/schemas";
-import type { AtLedgerState } from "../../common/gateway/schemas";
+import { Assets, DappConstants } from 'data';
+import { GetLsulpValueService } from '../../common/dapps/caviarnine/getLsulpValue';
 import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
-} from "../../common/dapps/caviarnine/getShapeLiquidityAssets";
+} from '../../common/dapps/caviarnine/getShapeLiquidityAssets';
+import {
+  type CollaterizedDebtPosition,
+  GetRootFinancePositionsService,
+} from '../../common/dapps/rootFinance/getRootFinancePositions';
+import {
+  type GetWeftFinancePositionsOutput,
+  GetWeftFinancePositionsService,
+} from '../../common/dapps/weftFinance/getWeftFinancePositions';
+import type { Validator } from '../../common/gateway/getAllValidators';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
+import { validateAtLedgerStateInput } from '../../common/gateway/schemas';
+import type { AtLedgerState } from '../../common/gateway/schemas';
+import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
 
 import {
   GetOciswapLiquidityAssetsService,
   type OciswapLiquidityAsset,
-} from "../../common/dapps/ociswap/getOciswapLiquidityAssets";
+} from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
 
-import {
-  type GetDefiPlazaPositionsOutput,
-  GetDefiPlazaPositionsService,
-} from "../../common/dapps/defiplaza/getDefiPlazaPositions";
-import { GetHyperstakePositionsService } from "../../common/dapps/caviarnine/getHyperstakePositions";
-import {
-  type GetSurgeLiquidityPositionsOutput,
-  GetSurgeLiquidityPositionsService,
-} from "../../common/dapps/surge/getSurgeLiquidityPositions";
-import {
-  GetOciswapResourcePoolPositionsService,
-  type OciswapResourcePoolLiquidityAsset,
-} from "../../common/dapps/ociswap/getOciswapResourcePoolPositions";
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import BigNumber from 'bignumber.js';
 import {
   type CaviarnineSimplePoolLiquidityAsset,
   GetCaviarnineResourcePoolPositionsService,
-} from "../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
-import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
-import BigNumber from "bignumber.js";
+} from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
+import {
+  type GetDefiPlazaPositionsOutput,
+  GetDefiPlazaPositionsService,
+} from '../../common/dapps/defiplaza/getDefiPlazaPositions';
+import {
+  GetOciswapResourcePoolPositionsService,
+  type OciswapResourcePoolLiquidityAsset,
+} from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
+import {
+  type GetSurgeLiquidityPositionsOutput,
+  GetSurgeLiquidityPositionsService,
+} from '../../common/dapps/surge/getSurgeLiquidityPositions';
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;
@@ -103,7 +103,7 @@ type OciswapPosition = {
 type DefiPlazaPosition = GetDefiPlazaPositionsOutput[number];
 
 export type HyperstakePosition = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof GetHyperstakePositionsService)["Service"]>>
+  Awaited<ReturnType<(typeof GetHyperstakePositionsService)['Service']>>
 >[number];
 
 type SurgePosition = GetSurgeLiquidityPositionsOutput[number];
@@ -126,7 +126,7 @@ export type AccountBalance = {
 };
 
 export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetAccountBalancesAtStateVersionService>()(
-  "GetAccountBalancesAtStateVersionService",
+  'GetAccountBalancesAtStateVersionService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -178,10 +178,10 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           input.validators.map((validator) => [
             validator.address,
             validator.claimNftResourceAddress,
-          ])
+          ]),
         );
 
-        yield* Effect.log("getting non fungible and fungible balance");
+        yield* Effect.log('getting non fungible and fungible balance');
         const [nonFungibleBalanceResults, fungibleBalanceResults] =
           yield* Effect.all(
             [
@@ -190,18 +190,18 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 at_ledger_state: atLedgerState,
                 resourceAddresses: [
                   ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
-                    (pool) => pool.liquidity_receipt
+                    (pool) => pool.liquidity_receipt,
                   ),
                   ...Object.values(OciswapConstants.pools).map(
-                    (pool) => pool.lpResourceAddress
+                    (pool) => pool.lpResourceAddress,
                   ),
                   ...Object.values(OciswapConstants.poolsV2).map(
-                    (pool) => pool.lpResourceAddress
+                    (pool) => pool.lpResourceAddress,
                   ),
                   RootFinanceConstants.receiptResourceAddress,
                   WeftFinanceConstants.v2.WeftyV2.resourceAddress,
                   ...input.validators.map(
-                    (validator) => validator.claimNftResourceAddress
+                    (validator) => validator.claimNftResourceAddress,
                   ),
                 ],
               }),
@@ -210,18 +210,18 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 at_ledger_state: atLedgerState,
               }),
             ],
-            { concurrency: "unbounded" }
+            { concurrency: 'unbounded' },
           );
 
         const allCaviarNinePools = Object.values(
-          CaviarNineConstants.shapeLiquidityPools
+          CaviarNineConstants.shapeLiquidityPools,
         );
 
         const allOciswapPools = Object.values(OciswapConstants.pools);
         const allOciswapPoolsV2 = Object.values(OciswapConstants.poolsV2);
 
         yield* Effect.log(
-          "getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, lsulp value"
+          'getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, lsulp value',
         );
         const [
           userStakingPositions,
@@ -248,7 +248,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
               addresses: input.addresses,
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
-            }).pipe(Effect.withSpan("getLsulpService")),
+            }).pipe(Effect.withSpan('getLsulpService')),
             getWeftFinancePositionsService
               .run({
                 accountAddresses: input.addresses,
@@ -257,14 +257,14 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 nonFungibleBalance: nonFungibleBalanceResults,
                 validatorClaimNftMap: validatorClaimNftMap,
               })
-              .pipe(Effect.withSpan("getWeftFinancePositionsService")),
+              .pipe(Effect.withSpan('getWeftFinancePositionsService')),
             getRootFinancePositionsService
               .run({
                 accountAddresses: input.addresses,
                 at_ledger_state: atLedgerState,
                 nonFungibleBalance: nonFungibleBalanceResults,
               })
-              .pipe(Effect.withSpan("getRootFinancePositionsService")),
+              .pipe(Effect.withSpan('getRootFinancePositionsService')),
             Effect.all(
               allCaviarNinePools.map((pool) =>
                 getShapeLiquidityAssetsService({
@@ -278,12 +278,12 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                   nonFungibleBalance: nonFungibleBalanceResults,
                 }).pipe(
                   Effect.withSpan(
-                    `CaviarNine_${pool.name.replace("/", "_")}_getShapeLiquidityAssetsService`
+                    `CaviarNine_${pool.name.replace('/', '_')}_getShapeLiquidityAssetsService`,
                   ),
-                  Effect.map((result) => ({ pool, result }))
-                )
+                  Effect.map((result) => ({ pool, result })),
+                ),
               ),
-              { concurrency: "unbounded" }
+              { concurrency: 'unbounded' },
             ),
             Effect.all(
               [
@@ -297,7 +297,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                     tokenYAddress: pool.token_y,
                     tokenXDivisibility: pool.divisibility_x,
                     tokenYDivisibility: pool.divisibility_y,
-                    schemaVersion: "v1",
+                    schemaVersion: 'v1',
                     priceBounds: {
                       lower: 0.7,
                       upper: 1.3,
@@ -305,10 +305,10 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                     nonFungibleBalance: nonFungibleBalanceResults,
                   }).pipe(
                     Effect.withSpan(
-                      `OciSwap_${pool.name.replace("/", "_")}_getOciswapLiquidityAssetsService`
+                      `OciSwap_${pool.name.replace('/', '_')}_getOciswapLiquidityAssetsService`,
                     ),
-                    Effect.map((result) => ({ pool, result }))
-                  )
+                    Effect.map((result) => ({ pool, result })),
+                  ),
                 ),
                 ...allOciswapPoolsV2.map((pool) =>
                   getOciswapLiquidityAssetsService({
@@ -320,7 +320,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                     tokenYAddress: pool.token_y,
                     tokenXDivisibility: pool.divisibility_x,
                     tokenYDivisibility: pool.divisibility_y,
-                    schemaVersion: "v2",
+                    schemaVersion: 'v2',
                     priceBounds: {
                       lower: 0.7,
                       upper: 1.3,
@@ -328,31 +328,31 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                     nonFungibleBalance: nonFungibleBalanceResults,
                   }).pipe(
                     Effect.withSpan(
-                      `OciSwapV2_${pool.name.replace("/", "_")}_getOciswapLiquidityAssetsService`
+                      `OciSwapV2_${pool.name.replace('/', '_')}_getOciswapLiquidityAssetsService`,
                     ),
-                    Effect.map((result) => ({ pool, result }))
-                  )
+                    Effect.map((result) => ({ pool, result })),
+                  ),
                 ),
               ],
-              { concurrency: "unbounded" }
+              { concurrency: 'unbounded' },
             ),
             getDefiPlazaPositionsService({
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
-            }).pipe(Effect.withSpan("getDefiPlazaPositionsService")),
+            }).pipe(Effect.withSpan('getDefiPlazaPositionsService')),
             getHyperstakePositionsService({
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
               fungibleBalance: fungibleBalanceResults,
-            }).pipe(Effect.withSpan("getHyperstakePositionsService")),
+            }).pipe(Effect.withSpan('getHyperstakePositionsService')),
             getSurgeLiquidityPositionsService
               .getSurgeLiquidityPositions({
                 accountAddresses: input.addresses,
                 at_ledger_state: atLedgerState,
                 fungibleBalance: fungibleBalanceResults,
               })
-              .pipe(Effect.withSpan("getSurgeLiquidityPositionsService")),
+              .pipe(Effect.withSpan('getSurgeLiquidityPositionsService')),
             getOciswapResourcePoolPositionsService
               .run({
                 accountAddresses: input.addresses,
@@ -360,7 +360,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 fungibleBalance: fungibleBalanceResults,
                 // No poolType specified - will fetch both FlexPools and BasicPools
               })
-              .pipe(Effect.withSpan("getOciswapResourcePoolPositionsService")),
+              .pipe(Effect.withSpan('getOciswapResourcePoolPositionsService')),
             getCaviarnineResourcePoolPositionsService
               .run({
                 addresses: input.addresses,
@@ -368,23 +368,23 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 fungibleBalance: fungibleBalanceResults,
               })
               .pipe(
-                Effect.withSpan("getCaviarnineResourcePoolPositionsService")
+                Effect.withSpan('getCaviarnineResourcePoolPositionsService'),
               ),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
-            }).pipe(Effect.withSpan("getLsulpValueService")),
+            }).pipe(Effect.withSpan('getLsulpValueService')),
           ],
-          { concurrency: "unbounded" }
+          { concurrency: 'unbounded' },
         );
 
         // Create LSU resource address set from input validators
         const lsuResourceAddressSet = new Set(
-          input.validators.map((validator) => validator.lsuResourceAddress)
+          input.validators.map((validator) => validator.lsuResourceAddress),
         );
 
         // Collect LSU resource addresses from multiple sources
         const directStakingLsus = userStakingPositions.items.flatMap((item) =>
-          item.staked.map((item) => item.resourceAddress)
+          item.staked.map((item) => item.resourceAddress),
         );
 
         // Include potential LSUs from Weft Finance collaterals
@@ -396,8 +396,8 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
               (address) =>
                 address !== Assets.Fungible.XRD &&
                 address !== CaviarNineConstants.LSULP.resourceAddress &&
-                lsuResourceAddressSet.has(address)
-            )
+                lsuResourceAddressSet.has(address),
+            ),
         );
 
         const lsuResourceAddresses = [
@@ -408,59 +408,59 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         const validLsuConversions = yield* convertLsuToXrdService({
           addresses: lsuResourceAddresses,
           at_ledger_state: atLedgerState,
-        }).pipe(Effect.withSpan("convertLsuToXrdService"));
+        }).pipe(Effect.withSpan('convertLsuToXrdService'));
 
         const convertLsuToXrdMap = new Map(
           validLsuConversions.map((item) => [
             item.lsuResourceAddress,
             item.converter,
-          ])
+          ]),
         );
 
         // Create lookup maps for O(1) access instead of O(n) find operations
         const stakingPositionsMap = new Map(
-          userStakingPositions.items.map((item) => [item.address, item])
+          userStakingPositions.items.map((item) => [item.address, item]),
         );
 
         const lsulpMap = new Map(
-          lsulpResults.map((item) => [item.address, item.lsulp])
+          lsulpResults.map((item) => [item.address, item.lsulp]),
         );
 
         const fungibleBalanceMap = new Map(
           fungibleBalanceResults.map((item) => [
             item.address,
             item.fungibleResources,
-          ])
+          ]),
         );
 
         const nonFungibleBalanceMap = new Map(
           nonFungibleBalanceResults.items.map((item) => [
             item.address,
             item.nonFungibleResources,
-          ])
+          ]),
         );
 
         const weftFinanceMap = new Map(
-          allWeftFinancePositions.map((item) => [item.address, item])
+          allWeftFinancePositions.map((item) => [item.address, item]),
         );
 
         const rootFinanceMap = new Map(
           allRootFinancePositions.items.map((item) => [
             item.accountAddress,
             item.collaterizedDebtPositions,
-          ])
+          ]),
         );
 
         const defiPlazaMap = new Map(
-          allDefiPlazaPositions.map((item) => [item.address, item])
+          allDefiPlazaPositions.map((item) => [item.address, item]),
         );
 
         const caviarNineHyperstakePositions = new Map(
-          allHyperstakePositions.map((item) => [item.address, item])
+          allHyperstakePositions.map((item) => [item.address, item]),
         );
 
         const surgeLiquidityPositionsMap = new Map(
-          allSurgeLiquidityPositions.map((item) => [item.address, item])
+          allSurgeLiquidityPositions.map((item) => [item.address, item]),
         );
 
         // Create lookup maps for CaviarNine shape liquidity assets for O(1) access
@@ -468,10 +468,10 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           allCaviarNineShapeLiquidityAssets.map((poolData) => {
             const poolKey = poolData.pool.componentAddress;
             const addressToAssetsMap = new Map(
-              poolData.result.map((item) => [item.address, item.items])
+              poolData.result.map((item) => [item.address, item.items]),
             );
             return [poolKey, addressToAssetsMap];
-          })
+          }),
         );
 
         // Create lookup maps for OciSwap liquidity assets for O(1) access
@@ -479,10 +479,10 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           allOciswapLiquidityAssets.map((poolData) => {
             const poolKey = poolData.pool.componentAddress;
             const addressToAssetsMap = new Map(
-              poolData.result.map((item) => [item.address, item.items])
+              poolData.result.map((item) => [item.address, item.items]),
             );
             return [poolKey, addressToAssetsMap];
-          })
+          }),
         );
 
         // Create lookup maps for FlexPool and BasicPool positions (combined)
@@ -490,10 +490,10 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           allOciswapResourcePoolPositions.map((poolData) => {
             const poolKey = poolData.pool.componentAddress;
             const addressToAssetsMap = new Map(
-              poolData.result.map((item) => [item.address, item.items])
+              poolData.result.map((item) => [item.address, item.items]),
             );
             return [poolKey, addressToAssetsMap];
-          })
+          }),
         );
 
         const accountBalances = yield* Effect.forEach(
@@ -504,9 +504,13 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
 
               const staked: Lsu[] =
                 accountStakingPositions?.staked.map((item) => {
-                  const converter = convertLsuToXrdMap.get(item.resourceAddress);
+                  const converter = convertLsuToXrdMap.get(
+                    item.resourceAddress,
+                  );
                   if (!converter) {
-                    throw new Error(`Converter not found for ${item.resourceAddress}`);
+                    throw new Error(
+                      `Converter not found for ${item.resourceAddress}`,
+                    );
                   }
                   return {
                     resourceAddress: item.resourceAddress,
@@ -579,7 +583,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
               for (const poolData of allCaviarnineResourcePoolPositions) {
                 const pool = poolData.pool;
                 const addressResult = poolData.result.find(
-                  (r) => r.address === address
+                  (r) => r.address === address,
                 );
                 if (addressResult && addressResult.items.length > 0) {
                   const poolKey = pool.componentAddress;
@@ -622,15 +626,15 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 surgePositions: accountSurgePositions,
                 convertLsuToXrdMap,
               } satisfies AccountBalance;
-            })
-        ).pipe(Effect.withSpan("PositionsToAccountBalance"));
+            }),
+        ).pipe(Effect.withSpan('PositionsToAccountBalance'));
 
-        yield* Effect.log("account balances fetched");
+        yield* Effect.log('account balances fetched');
 
         return { items: accountBalances, ledgerState };
       });
     }),
-  }
+  },
 ) {}
 
 export const GetAccountBalancesAtStateVersionLive =

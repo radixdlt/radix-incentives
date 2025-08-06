@@ -1,37 +1,37 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import type { GetNonFungibleBalanceOutput } from "../../gateway/getNonFungibleBalance";
+import type { GetNonFungibleBalanceOutput } from '../../gateway/getNonFungibleBalance';
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
+} from '../../gateway/getFungibleBalance';
 
-import { BigNumber } from "bignumber.js";
-import { GetComponentStateService } from "../../gateway/getComponentState";
-import { LendingPoolSchema, SingleResourcePool, CDPData } from "./schemas";
-import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
+import { BigNumber } from 'bignumber.js';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { CDPData, LendingPoolSchema, SingleResourcePool } from './schemas';
 
-import { DappConstants } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+import { DappConstants } from 'data';
+import type { AtLedgerState } from '../../gateway/schemas';
 import {
-  UnstakingReceiptProcessorService,
   type UnstakingReceipt,
-} from "../../staking/unstakingReceiptProcessor";
+  UnstakingReceiptProcessorService,
+} from '../../staking/unstakingReceiptProcessor';
 
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;
 const weftFungibleRecourceAddresses =
   DappConstants.WeftFinance.weftFungibleRecourceAddresses;
 
 export class ValidatorNotFoundForClaimNftError {
-  readonly _tag = "ValidatorNotFoundForClaimNftError";
+  readonly _tag = 'ValidatorNotFoundForClaimNftError';
   constructor(readonly claimNftResourceAddress: string) {}
 }
 
 // Helper function for unstaking receipt processing
 const getValidatorFromClaimNft = (
   claimNftResourceAddress: string,
-  validatorClaimNftMap: Map<string, string>
+  validatorClaimNftMap: Map<string, string>,
 ): Effect.Effect<string, ValidatorNotFoundForClaimNftError> => {
   for (const [validatorAddress, claimNftResource] of validatorClaimNftMap) {
     if (claimNftResource === claimNftResourceAddress) {
@@ -39,20 +39,20 @@ const getValidatorFromClaimNft = (
     }
   }
   return Effect.fail(
-    new ValidatorNotFoundForClaimNftError(claimNftResourceAddress)
+    new ValidatorNotFoundForClaimNftError(claimNftResourceAddress),
   );
 };
 
 export class FailedToParseLendingPoolSchemaError {
-  readonly _tag = "FailedToParseLendingPoolSchemaError";
+  readonly _tag = 'FailedToParseLendingPoolSchemaError';
   constructor(readonly lendingPool: unknown) {}
 }
 
 export class FailedToParseCDPDataError {
-  readonly _tag = "FailedToParseCDPDataError";
+  readonly _tag = 'FailedToParseCDPDataError';
   constructor(
     readonly nftId: string,
-    readonly cdpData: unknown
+    readonly cdpData: unknown,
   ) {}
 }
 
@@ -71,11 +71,11 @@ type AccountAddress = string;
 type ResourceAddress = string;
 
 export type GetWeftFinancePositionsOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof GetWeftFinancePositionsService)["Service"]["run"]>>
+  Awaited<ReturnType<(typeof GetWeftFinancePositionsService)['Service']['run']>>
 >[number];
 
 export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinancePositionsService>()(
-  "GetWeftFinancePositionsService",
+  'GetWeftFinancePositionsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -119,24 +119,24 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                 Effect.succeed({
                   entries: [],
                 }),
-            })
+            }),
           );
 
           const poolToUnitToAssetRatio = new Map<ResourceAddress, BigNumber>();
 
           for (const item of lendingPoolV2KeyValueStore.entries) {
             const lendingPool = LendingPoolSchema.safeParse(
-              item.value.programmatic_json
+              item.value.programmatic_json,
             );
 
             if (lendingPool.isOk()) {
               poolToUnitToAssetRatio.set(
                 lendingPool.value.deposit_unit_res_address,
-                new BigNumber(lendingPool.value.deposit_state.unit_ratio)
+                new BigNumber(lendingPool.value.deposit_state.unit_ratio),
               );
             } else {
               return yield* Effect.fail(
-                new FailedToParseLendingPoolSchemaError(lendingPool.error)
+                new FailedToParseLendingPoolSchemaError(lendingPool.error),
               );
             }
           }
@@ -156,7 +156,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
           for (const item of lendingPoolV1ComponentStates) {
             poolToUnitToAssetRatio.set(
               item.state.pool_unit_res_manager,
-              new BigNumber(item.state.unit_to_asset_ratio)
+              new BigNumber(item.state.unit_to_asset_ratio),
             );
           }
 
@@ -170,7 +170,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
           for (const accountBalance of accountBalances) {
             const fungibleResources = accountBalance.fungibleResources;
             const weftFungibleResources = fungibleResources.filter((item) =>
-              weftFungibleRecourceAddresses.has(item.resourceAddress)
+              weftFungibleRecourceAddresses.has(item.resourceAddress),
             );
             const accountAddress = accountBalance.address;
 
@@ -217,7 +217,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                 lending: data.lending,
                 collateral: data.collateral,
                 unstakingReceipts: data.unstakingReceipts,
-              })
+              }),
             );
           }
 
@@ -243,7 +243,10 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                 const parseResult = CDPData.safeParse(nftItem.sbor);
                 if (parseResult.isErr()) {
                   return yield* Effect.fail(
-                    new FailedToParseCDPDataError(nftItem.id, parseResult.error)
+                    new FailedToParseCDPDataError(
+                      nftItem.id,
+                      parseResult.error,
+                    ),
                   );
                 }
 
@@ -273,7 +276,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                   const unwrappedAmount = amount.div(unitToAssetRatio);
                   const existingIndex = accountData.lending.findIndex(
                     (lending) =>
-                      lending.wrappedAsset.resourceAddress === resourceAddress
+                      lending.wrappedAsset.resourceAddress === resourceAddress,
                   );
 
                   if (existingIndex >= 0) {
@@ -283,7 +286,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                         existingPosition.wrappedAsset.amount.plus(amount);
                       existingPosition.unwrappedAsset.amount =
                         existingPosition.unwrappedAsset.amount.plus(
-                          unwrappedAmount
+                          unwrappedAmount,
                         );
                     }
                   } else {
@@ -300,11 +303,11 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
 
                 // Process NFT collaterals for unstaking receipts
                 const nftCollateralEntries = Array.from(
-                  cdpData.nft_collaterals.entries()
+                  cdpData.nft_collaterals.entries(),
                 ).filter(([resourceAddress]) =>
                   Array.from(input.validatorClaimNftMap.values()).includes(
-                    resourceAddress
-                  )
+                    resourceAddress,
+                  ),
                 );
 
                 if (nftCollateralEntries.length === 0) continue;
@@ -317,16 +320,16 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                         const validatorAddress =
                           yield* getValidatorFromClaimNft(
                             resourceAddress,
-                            input.validatorClaimNftMap
+                            input.validatorClaimNftMap,
                           );
                         return {
                           resourceAddress,
                           nftIds: nftCollateralInfo.nft_ids,
                           validatorAddress,
                         };
-                      })
+                      }),
                   ),
-                  "processNftCollaterals"
+                  'processNftCollaterals',
                 );
 
                 if (unstakingReceiptRequests.length > 0) {
@@ -335,7 +338,7 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
                       unstakingReceiptRequests,
                       at_ledger_state: input.at_ledger_state,
                     })
-                    .pipe(Effect.withSpan("processUnstakingReceipts"));
+                    .pipe(Effect.withSpan('processUnstakingReceipts'));
 
                   accountData.unstakingReceipts.push(...unstakingReceipts);
                 }
@@ -351,10 +354,10 @@ export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinanc
               lending: data.lending,
               collateral: data.collateral,
               unstakingReceipts: data.unstakingReceipts,
-            })
+            }),
           );
         }),
       };
     }),
-  }
+  },
 ) {}

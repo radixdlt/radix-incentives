@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { BigNumber } from "bignumber.js";
-import { EntityNonFungibleDataService } from "../gateway/entityNonFungiblesData";
-import { claimNftSchema } from "./schema";
-import type { AtLedgerState } from "../gateway/schemas";
-import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
+import { EntityNonFungibleDataService } from '../gateway/entityNonFungiblesData';
+import type { AtLedgerState } from '../gateway/schemas';
+import { claimNftSchema } from './schema';
 
 export type UnstakingReceipt = {
   resourceAddress: string;
@@ -14,15 +14,15 @@ export type UnstakingReceipt = {
 };
 
 export class FailedToParseUnstakingReceiptError {
-  readonly _tag = "FailedToParseUnstakingReceiptError";
+  readonly _tag = 'FailedToParseUnstakingReceiptError';
   constructor(
     readonly nftId: string,
-    readonly error: unknown
+    readonly error: unknown,
   ) {}
 }
 
 export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingReceiptProcessorService>()(
-  "UnstakingReceiptProcessorService",
+  'UnstakingReceiptProcessorService',
   {
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
@@ -45,7 +45,7 @@ export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingRe
               resource_address: request.resourceAddress,
               non_fungible_ids: request.nftIds,
               at_ledger_state: input.at_ledger_state,
-            }).pipe(Effect.withSpan("fetchUnstakingReceiptNftData"));
+            }).pipe(Effect.withSpan('fetchUnstakingReceiptNftData'));
 
             const relevantNftItems = specificNftData
               .filter((item) => request.nftIds.includes(item.non_fungible_id))
@@ -58,7 +58,7 @@ export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingRe
               request.resourceAddress,
               request.nftIds,
               request.validatorAddress,
-              relevantNftItems
+              relevantNftItems,
             );
 
             allUnstakingReceipts.push(...receipts);
@@ -68,7 +68,7 @@ export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingRe
         }),
       };
     }),
-  }
+  },
 ) {}
 
 const extractUnstakingReceiptData = (
@@ -78,7 +78,7 @@ const extractUnstakingReceiptData = (
   nftItems: Array<{
     id: string;
     data?: { programmatic_json?: ProgrammaticScryptoSborValue };
-  }>
+  }>,
 ): Effect.Effect<
   UnstakingReceipt[],
   FailedToParseUnstakingReceiptError,
@@ -95,8 +95,8 @@ const extractUnstakingReceiptData = (
             return yield* Effect.fail(
               new FailedToParseUnstakingReceiptError(
                 nft.id,
-                "Missing programmatic_json data"
-              )
+                'Missing programmatic_json data',
+              ),
             );
           }
 
@@ -104,7 +104,7 @@ const extractUnstakingReceiptData = (
 
           if (sborData.isErr()) {
             return yield* Effect.fail(
-              new FailedToParseUnstakingReceiptError(nft.id, sborData.error)
+              new FailedToParseUnstakingReceiptError(nft.id, sborData.error),
             );
           }
 
@@ -116,7 +116,7 @@ const extractUnstakingReceiptData = (
             validatorAddress,
           };
         }),
-      { concurrency: 10 }
+      { concurrency: 10 },
     );
 
     return results;

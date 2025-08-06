@@ -1,7 +1,7 @@
-import { z } from "zod";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { Exit } from "effect";
+import { TRPCError } from '@trpc/server';
+import { Exit } from 'effect';
+import { z } from 'zod';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 
 export const userRouter = createTRPCRouter({
   getUserStats: protectedProcedure
@@ -16,7 +16,7 @@ export const userRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -33,7 +33,7 @@ export const userRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -45,11 +45,11 @@ export const adminUserRouter = createTRPCRouter({
     .query(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.getUsersPaginated(input);
 
-      if (result._tag === "Failure") {
+      if (result._tag === 'Failure') {
         console.error(result.cause);
 
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: 'INTERNAL_SERVER_ERROR',
         });
       }
 

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, createContext, useEffect } from 'react';
 import {
   DataRequestBuilder,
-  RadixDappToolkit,
   Logger,
+  RadixDappToolkit,
 } from '@radixdlt/radix-dapp-toolkit';
-import { api } from '~/trpc/react';
+import { createContext, useEffect, useState } from 'react';
 import { toast } from 'sonner';
+import { api } from '~/trpc/react';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 

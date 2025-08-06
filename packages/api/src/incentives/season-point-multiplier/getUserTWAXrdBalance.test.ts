@@ -1,157 +1,157 @@
-import { describe, it, expect, beforeEach, afterEach } from "vitest";
-import { Effect, Layer, Logger, LogLevel } from "effect";
-import { inject } from "@effect/vitest";
-import { drizzle } from "drizzle-orm/postgres-js";
-import postgres from "postgres";
-import { schema } from "db/incentives";
-import * as consultationSchema from "db/consultation";
-import { createDbClientLive, createDbReadOnlyClientLive } from "../db/dbClient";
-import { GetWeekByIdLive } from "../week/getWeekById";
-import { CalculateTWASQLLive } from "../activity-points/calculateTWASQL";
+import { inject } from '@effect/vitest';
+import { BigNumber } from 'bignumber.js';
+import { ActivityId } from 'data';
+import * as consultationSchema from 'db/consultation';
+import { schema } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import postgres from 'postgres';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { CalculateTWASQLLive } from '../activity-points/calculateTWASQL';
+import { createDbClientLive, createDbReadOnlyClientLive } from '../db/dbClient';
+import { GetWeekByIdLive } from '../week/getWeekById';
 import {
-  GetUserTWAXrdBalanceService,
   GetUserTWAXrdBalanceLive,
-} from "./getUserTWAXrdBalance";
-import { BigNumber } from "bignumber.js";
-import { eq } from "drizzle-orm";
-import { ActivityId } from "data";
+  GetUserTWAXrdBalanceService,
+} from './getUserTWAXrdBalance';
 
 // Test data with proper UUIDs
-const testSeasonId = "550e8400-e29b-41d4-a716-446655440000";
-const testWeekId = "660e8400-e29b-41d4-a716-446655440001";
-const testUserId1 = "770e8400-e29b-41d4-a716-446655440002";
-const testUserId2 = "880e8400-e29b-41d4-a716-446655440003";
-const testUserId3 = "990e8400-e29b-41d4-a716-446655440004";
+const testSeasonId = '550e8400-e29b-41d4-a716-446655440000';
+const testWeekId = '660e8400-e29b-41d4-a716-446655440001';
+const testUserId1 = '770e8400-e29b-41d4-a716-446655440002';
+const testUserId2 = '880e8400-e29b-41d4-a716-446655440003';
+const testUserId3 = '990e8400-e29b-41d4-a716-446655440004';
 
 const testAddresses = [
-  "rdx1qsp8n0nx0muaewav2ksx99wwsu9swq5mlndjmn3gm9vl9q2mzmup0xw8ra",
-  "rdx1qspxpn9znvzgjv2p6w2snhj3mzx2j0c2hv7rfpz5kzq7j8c5l8qg5c8rl",
-  "rdx1qsp2m3kx8jt7v9y4w6h5z2l9c8f4n7q6r3x8m5p0t9j2k7v4b6x3z1c9e",
+  'rdx1qsp8n0nx0muaewav2ksx99wwsu9swq5mlndjmn3gm9vl9q2mzmup0xw8ra',
+  'rdx1qspxpn9znvzgjv2p6w2snhj3mzx2j0c2hv7rfpz5kzq7j8c5l8qg5c8rl',
+  'rdx1qsp2m3kx8jt7v9y4w6h5z2l9c8f4n7q6r3x8m5p0t9j2k7v4b6x3z1c9e',
 ];
 
 const testData = {
   season: {
     id: testSeasonId,
-    name: "Test Season 1",
-    status: "active" as const,
+    name: 'Test Season 1',
+    status: 'active' as const,
   },
   week: {
     id: testWeekId,
     seasonId: testSeasonId,
-    startDate: new Date("2025-01-01T00:00:00Z"),
-    endDate: new Date("2025-01-07T23:59:59Z"),
+    startDate: new Date('2025-01-01T00:00:00Z'),
+    endDate: new Date('2025-01-07T23:59:59Z'),
     processed: false,
   },
   users: [
     {
       id: testUserId1,
-      identityAddress: "identity_rdx12user1",
-      label: "Test User 1",
-      createdAt: new Date("2024-12-01T00:00:00Z"),
+      identityAddress: 'identity_rdx12user1',
+      label: 'Test User 1',
+      createdAt: new Date('2024-12-01T00:00:00Z'),
     },
     {
       id: testUserId2,
-      identityAddress: "identity_rdx12user2",
-      label: "Test User 2",
-      createdAt: new Date("2024-12-01T00:00:00Z"),
+      identityAddress: 'identity_rdx12user2',
+      label: 'Test User 2',
+      createdAt: new Date('2024-12-01T00:00:00Z'),
     },
     {
       id: testUserId3,
-      identityAddress: "identity_rdx12user3",
-      label: "Test User 3",
-      createdAt: new Date("2024-12-01T00:00:00Z"),
+      identityAddress: 'identity_rdx12user3',
+      label: 'Test User 3',
+      createdAt: new Date('2024-12-01T00:00:00Z'),
     },
   ],
   accounts: [
     {
       userId: testUserId1,
       address: testAddresses[0],
-      label: "Test Account 1",
-      createdAt: new Date("2024-12-01T00:00:00Z"),
+      label: 'Test Account 1',
+      createdAt: new Date('2024-12-01T00:00:00Z'),
     },
     {
       userId: testUserId2,
       address: testAddresses[1],
-      label: "Test Account 2",
-      createdAt: new Date("2024-12-01T00:00:00Z"),
+      label: 'Test Account 2',
+      createdAt: new Date('2024-12-01T00:00:00Z'),
     },
     {
       userId: testUserId3,
       address: testAddresses[2],
-      label: "Test Account 3",
-      createdAt: new Date("2024-12-01T00:00:00Z"),
+      label: 'Test Account 3',
+      createdAt: new Date('2024-12-01T00:00:00Z'),
     },
   ],
   activityCategory: {
-    id: "hold",
-    name: "Hold Activities",
-    description: "Activities for holding tokens",
+    id: 'hold',
+    name: 'Hold Activities',
+    description: 'Activities for holding tokens',
   },
   activity: {
-    id: "maintainXrdBalance",
-    name: "Maintain XRD Balance",
-    description: "Hold XRD balance",
-    category: "hold",
+    id: 'maintainXrdBalance',
+    name: 'Maintain XRD Balance',
+    description: 'Hold XRD balance',
+    category: 'hold',
   },
   accountBalances: [
     // User 1 - balance snapshots showing a hold activity
     {
-      timestamp: new Date("2025-01-02T00:00:00Z"),
+      timestamp: new Date('2025-01-02T00:00:00Z'),
       accountAddress: testAddresses[0],
       data: [
         {
           activityId: ActivityId.ho_xrd,
-          usdValue: "1000.0",
+          usdValue: '1000.0',
         },
       ],
     },
     {
-      timestamp: new Date("2025-01-04T00:00:00Z"),
+      timestamp: new Date('2025-01-04T00:00:00Z'),
       accountAddress: testAddresses[0],
       data: [
         {
           activityId: ActivityId.ho_xrd,
-          usdValue: "1500.0",
+          usdValue: '1500.0',
         },
       ],
     },
     // User 2 - balance snapshots
     {
-      timestamp: new Date("2025-01-02T00:00:00Z"),
+      timestamp: new Date('2025-01-02T00:00:00Z'),
       accountAddress: testAddresses[1],
       data: [
         {
           activityId: ActivityId.ho_xrd,
-          usdValue: "500.0",
+          usdValue: '500.0',
         },
       ],
     },
     {
-      timestamp: new Date("2025-01-05T00:00:00Z"),
+      timestamp: new Date('2025-01-05T00:00:00Z'),
       accountAddress: testAddresses[1],
       data: [
         {
           activityId: ActivityId.ho_xrd,
-          usdValue: "750.0",
+          usdValue: '750.0',
         },
       ],
     },
     // User 3 - single balance
     {
-      timestamp: new Date("2025-01-03T00:00:00Z"),
+      timestamp: new Date('2025-01-03T00:00:00Z'),
       accountAddress: testAddresses[2],
       data: [
         {
           activityId: ActivityId.ho_xrd,
-          usdValue: "2000.0",
+          usdValue: '2000.0',
         },
       ],
     },
   ],
 };
 
-describe("GetUserTWAXrdBalanceService", () => {
-  const dbUrl = inject("testDbUrl");
+describe('GetUserTWAXrdBalanceService', () => {
+  const dbUrl = inject('testDbUrl');
   const db = drizzle(postgres(dbUrl), { schema });
   const consultationDb = drizzle(postgres(dbUrl), {
     schema: consultationSchema,
@@ -163,13 +163,13 @@ describe("GetUserTWAXrdBalanceService", () => {
   const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbLive));
   const calculateTWASQLLive = CalculateTWASQLLive.pipe(
     Layer.provide(dbLive),
-    Layer.provide(readOnlyDbLive)
+    Layer.provide(readOnlyDbLive),
   );
   const getUserTWAXrdBalanceLive = GetUserTWAXrdBalanceLive.pipe(
     Layer.provide(getWeekByIdLive),
     Layer.provide(calculateTWASQLLive),
     Layer.provide(dbLive),
-    Layer.provide(Logger.minimumLogLevel(LogLevel.None))
+    Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
   );
 
   beforeEach(async () => {
@@ -200,7 +200,7 @@ describe("GetUserTWAXrdBalanceService", () => {
     await db.delete(schema.seasons);
   });
 
-  it("should calculate TWA XRD balance for users with multiple addresses", async () => {
+  it('should calculate TWA XRD balance for users with multiple addresses', async () => {
     const program = Effect.gen(function* () {
       const getUserTWAXrdBalance = yield* GetUserTWAXrdBalanceService;
 
@@ -211,7 +211,7 @@ describe("GetUserTWAXrdBalanceService", () => {
     });
 
     const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive)
+      Effect.provide(program, getUserTWAXrdBalanceLive),
     );
 
     // Should return 3 users with their TWA balances
@@ -220,7 +220,7 @@ describe("GetUserTWAXrdBalanceService", () => {
 
     // Sort by userId for consistent testing
     const sortedResult = result.sort((a, b) =>
-      a.userId.localeCompare(b.userId)
+      a.userId.localeCompare(b.userId),
     );
 
     // Verify each user's data - use actual TWA calculations, not simple averages
@@ -241,14 +241,14 @@ describe("GetUserTWAXrdBalanceService", () => {
 
     // Verify structure
     for (const userBalance of result) {
-      expect(userBalance).toHaveProperty("userId");
-      expect(userBalance).toHaveProperty("totalTWABalance");
+      expect(userBalance).toHaveProperty('userId');
+      expect(userBalance).toHaveProperty('totalTWABalance');
       expect(userBalance.totalTWABalance).toBeInstanceOf(BigNumber);
-      expect(typeof userBalance.userId).toBe("string");
+      expect(typeof userBalance.userId).toBe('string');
     }
   });
 
-  it("should handle empty addresses array", async () => {
+  it('should handle empty addresses array', async () => {
     const program = Effect.gen(function* () {
       const getUserTWAXrdBalance = yield* GetUserTWAXrdBalanceService;
 
@@ -259,15 +259,15 @@ describe("GetUserTWAXrdBalanceService", () => {
     });
 
     const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive)
+      Effect.provide(program, getUserTWAXrdBalanceLive),
     );
 
     expect(result).toHaveLength(0);
   });
 
-  it("should handle addresses with no matching accounts", async () => {
+  it('should handle addresses with no matching accounts', async () => {
     const unknownAddresses = [
-      "rdx1qsp0000000000000000000000000000000000000000000000000000000",
+      'rdx1qsp0000000000000000000000000000000000000000000000000000000',
     ];
 
     const program = Effect.gen(function* () {
@@ -280,14 +280,14 @@ describe("GetUserTWAXrdBalanceService", () => {
     });
 
     const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive)
+      Effect.provide(program, getUserTWAXrdBalanceLive),
     );
 
     // Should return empty array since no accounts match in the database
     expect(result).toHaveLength(0);
   });
 
-  it("should handle single address for single user", async () => {
+  it('should handle single address for single user', async () => {
     const singleAddress = [testAddresses[0]];
 
     const program = Effect.gen(function* () {
@@ -300,7 +300,7 @@ describe("GetUserTWAXrdBalanceService", () => {
     });
 
     const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive)
+      Effect.provide(program, getUserTWAXrdBalanceLive),
     );
 
     // Should return exactly 1 user
@@ -314,16 +314,16 @@ describe("GetUserTWAXrdBalanceService", () => {
     expect(result[0].totalTWABalance.toNumber()).toBeLessThan(1600);
 
     // Verify structure
-    expect(result[0]).toHaveProperty("userId");
-    expect(result[0]).toHaveProperty("totalTWABalance");
+    expect(result[0]).toHaveProperty('userId');
+    expect(result[0]).toHaveProperty('totalTWABalance');
     expect(result[0].totalTWABalance).toBeInstanceOf(BigNumber);
-    expect(typeof result[0].userId).toBe("string");
+    expect(typeof result[0].userId).toBe('string');
   });
 
-  it("should handle partial address matches", async () => {
+  it('should handle partial address matches', async () => {
     const mixedAddresses = [
       testAddresses[0], // This exists
-      "rdx1qsp0000000000000000000000000000000000000000000000000000000", // This doesn't exist
+      'rdx1qsp0000000000000000000000000000000000000000000000000000000', // This doesn't exist
       testAddresses[2], // This exists
     ];
 
@@ -337,7 +337,7 @@ describe("GetUserTWAXrdBalanceService", () => {
     });
 
     const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive)
+      Effect.provide(program, getUserTWAXrdBalanceLive),
     );
 
     // Should return only the 2 users that have matching addresses
@@ -346,7 +346,7 @@ describe("GetUserTWAXrdBalanceService", () => {
 
     // Sort results by userId for consistent checking
     const sortedResult = result.sort((a, b) =>
-      a.userId.localeCompare(b.userId)
+      a.userId.localeCompare(b.userId),
     );
 
     // Verify users that have matching addresses

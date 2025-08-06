@@ -1,8 +1,8 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { seasonPointsMultiplier } from "db/incentives";
-import { z } from "zod";
-import { eq, inArray, and } from "drizzle-orm";
+import { seasonPointsMultiplier } from 'db/incentives';
+import { and, eq, inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const GetSeasonPointMultiplierInputSchema = z.object({
   weekId: z.string(),
@@ -19,7 +19,7 @@ export type GetSeasonPointMultiplierOutput = {
 };
 
 export class GetSeasonPointMultiplierService extends Effect.Service<GetSeasonPointMultiplierService>()(
-  "GetSeasonPointMultiplierService",
+  'GetSeasonPointMultiplierService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -34,7 +34,7 @@ export class GetSeasonPointMultiplierService extends Effect.Service<GetSeasonPoi
 
               if (input.userIds && input.userIds.length > 0) {
                 whereConditions.push(
-                  inArray(seasonPointsMultiplier.userId, input.userIds)
+                  inArray(seasonPointsMultiplier.userId, input.userIds),
                 );
               }
 
@@ -56,5 +56,5 @@ export class GetSeasonPointMultiplierService extends Effect.Service<GetSeasonPoi
         }),
       };
     }),
-  }
+  },
 ) {}

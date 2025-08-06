@@ -1,7 +1,7 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
 export class CsvParsingError {
-  readonly _tag = "CsvParsingError";
+  readonly _tag = 'CsvParsingError';
   constructor(readonly message: string) {}
 }
 
@@ -15,10 +15,10 @@ export type ParseCsvWhitelistOutput = {
 };
 
 export const parseCsvWhitelist = (
-  input: ParseCsvWhitelistInput
+  input: ParseCsvWhitelistInput,
 ): Effect.Effect<ParseCsvWhitelistOutput, CsvParsingError> =>
   Effect.gen(function* () {
-    const lines = input.csvData.trim().split("\n");
+    const lines = input.csvData.trim().split('\n');
     const componentAddresses: string[] = [];
 
     // Handle empty CSV (clears whitelist)
@@ -31,23 +31,23 @@ export const parseCsvWhitelist = (
 
     const header = lines[0];
 
-    if (!header?.includes("matched_component")) {
+    if (!header?.includes('matched_component')) {
       return yield* Effect.fail(
         new CsvParsingError(
-          "Invalid CSV format. Expected 'matched_component' column"
-        )
+          "Invalid CSV format. Expected 'matched_component' column",
+        ),
       );
     }
 
     // Find the column index for matched_component
-    const headers = header.split(",").map((h) => h.trim());
+    const headers = header.split(',').map((h) => h.trim());
     const componentIndex = headers.findIndex(
-      (h) => h === "matched_component" || h === '"matched_component"'
+      (h) => h === 'matched_component' || h === '"matched_component"',
     );
 
     if (componentIndex === -1) {
       return yield* Effect.fail(
-        new CsvParsingError("Component address column not found")
+        new CsvParsingError('Component address column not found'),
       );
     }
 
@@ -57,11 +57,11 @@ export const parseCsvWhitelist = (
       if (!line) continue;
 
       const columns = line
-        .split(",")
-        .map((col) => col.trim().replace(/"/g, ""));
+        .split(',')
+        .map((col) => col.trim().replace(/"/g, ''));
       const componentAddress = columns[componentIndex];
 
-      if (componentAddress?.startsWith("component_")) {
+      if (componentAddress?.startsWith('component_')) {
         componentAddresses.push(componentAddress);
       }
     }

@@ -7,6 +7,7 @@
   },
   "files": {
     "ignoreUnknown": false,
+    "include": ["**/apps/**", "**/packages/**", "**/tools/**"],
     "ignore": [
       "node_modules",
       "dist",
@@ -16,7 +17,9 @@
       "./packages/sbor-ez-mode/**/*",
       ".next",
       "**/.next/**",
-      "**/output/**"
+      "**/output/**",
+      "**/.turbo/**",
+      "**/packages/db/src/incentives/seed/data/*"
     ]
   },
   "formatter": {

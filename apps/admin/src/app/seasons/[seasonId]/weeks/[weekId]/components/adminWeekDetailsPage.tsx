@@ -1,10 +1,10 @@
 'use client';
 
 import {
-  WeekHeader,
-  WeekControls,
-  CategoriesSection,
   type AdminWeekDetailsProps,
+  CategoriesSection,
+  WeekControls,
+  WeekHeader,
 } from '~/components/week-details';
 
 const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({

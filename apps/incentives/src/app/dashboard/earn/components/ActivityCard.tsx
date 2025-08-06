@@ -1,19 +1,19 @@
+import type { Activity, ActivityCategory, Dapp } from 'api/incentives';
 import {
-  ExternalLink,
   Banknote,
-  Wallet,
-  Zap,
-  Waves,
-  TrendingUp,
-  HandCoins,
-  CreditCard,
-  Settings,
-  FileText,
-  Droplet,
-  PiggyBank,
   Coins,
+  CreditCard,
+  Droplet,
+  ExternalLink,
+  FileText,
+  HandCoins,
+  PiggyBank,
+  Settings,
+  TrendingUp,
+  Wallet,
+  Waves,
+  Zap,
 } from 'lucide-react';
-import { cn } from '~/lib/utils';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import {
@@ -24,8 +24,8 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
+import { cn } from '~/lib/utils';
 import type { IconName } from '../utils/getActivityIcon';
-import type { Activity, ActivityCategory, Dapp } from 'api/incentives';
 
 export const ActivityCard = ({
   activity,

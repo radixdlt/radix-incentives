@@ -1,10 +1,10 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { accountBalances } from "db/incentives";
-import { sql } from "drizzle-orm";
-import { chunker } from "../../common";
+import { accountBalances } from 'db/incentives';
+import { sql } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { chunker } from '../../common';
+import { DbClientService, DbError } from '../db/dbClient';
 
-const BATCH_SIZE = Number.parseInt(process.env.INSERT_BATCH_SIZE || "5000"); // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
+const BATCH_SIZE = Number.parseInt(process.env.INSERT_BATCH_SIZE || '5000'); // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
 
 type UpsertAccountBalanceInput = {
   timestamp: Date;
@@ -13,7 +13,7 @@ type UpsertAccountBalanceInput = {
 }[];
 
 export class UpsertAccountBalancesService extends Context.Tag(
-  "UpsertAccountBalancesService"
+  'UpsertAccountBalancesService',
 )<
   UpsertAccountBalancesService,
   (input: UpsertAccountBalanceInput) => Effect.Effect<void, DbError>
@@ -36,7 +36,7 @@ export const UpsertAccountBalancesLive = Layer.effect(
                     timestamp,
                     accountAddress,
                     data,
-                  }))
+                  })),
                 )
                 .onConflictDoUpdate({
                   target: [
@@ -49,12 +49,12 @@ export const UpsertAccountBalancesLive = Layer.effect(
                 });
             },
             catch: (error) => new DbError(error),
-          }).pipe(Effect.withSpan("upsertAccountBalancesBatch"));
+          }).pipe(Effect.withSpan('upsertAccountBalancesBatch'));
 
         yield* Effect.forEach(chunker(input, BATCH_SIZE), makeRequest, {
           concurrency: 1,
         });
       });
     };
-  })
+  }),
 );

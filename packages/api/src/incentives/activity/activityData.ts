@@ -1,10 +1,10 @@
-import { Effect, Cache, Duration } from "effect";
-import { groupBy } from "effect/Array";
-import { DbClientService, DbError } from "../db/dbClient";
-import type { Activity } from "./activity";
+import { Cache, Duration, Effect } from 'effect';
+import { groupBy } from 'effect/Array';
+import { DbClientService, DbError } from '../db/dbClient';
+import type { Activity } from './activity';
 
 export class ActivityDataService extends Effect.Service<ActivityDataService>()(
-  "ActivityDataService",
+  'ActivityDataService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -32,7 +32,7 @@ export class ActivityDataService extends Effect.Service<ActivityDataService>()(
             const groupedById = groupBy(activities, (item) => item.id);
             const groupedByCategory = groupBy(
               activities,
-              (item) => item.category
+              (item) => item.category,
             );
 
             return {
@@ -44,9 +44,9 @@ export class ActivityDataService extends Effect.Service<ActivityDataService>()(
       });
       return {
         list: Effect.fn(function* () {
-          return yield* activityCache.get("list");
+          return yield* activityCache.get('list');
         }),
       };
     }),
-  }
+  },
 ) {}

@@ -1,30 +1,30 @@
-import { it } from "@effect/vitest";
-import BigNumber from "bignumber.js";
-import { ActivityCategoryId } from "data";
+import { it } from '@effect/vitest';
+import BigNumber from 'bignumber.js';
+import { ActivityCategoryId } from 'data';
 import {
+  accountActivityPoints,
+  accounts,
   activities,
   activityCategories,
   activityCategoryWeeks,
   activityWeeks,
-  accountActivityPoints,
-  accounts,
-  users,
   schema,
   seasons,
+  users,
   weeks,
-} from "db/incentives";
-import { eq } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { Effect } from "effect";
-import postgres from "postgres";
-import { describe, inject } from "vitest";
-import { createDbClientLive } from "../db/dbClient";
-import { ActivityCategoryWeekService } from "./activityCategoryWeek";
-import { distributeWeightedPoints } from "./distributeWeightedPoints";
-import { truncateAllTables } from "../../integration-tests/utils";
+} from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect } from 'effect';
+import postgres from 'postgres';
+import { describe, inject } from 'vitest';
+import { truncateAllTables } from '../../integration-tests/utils';
+import { createDbClientLive } from '../db/dbClient';
+import { ActivityCategoryWeekService } from './activityCategoryWeek';
+import { distributeWeightedPoints } from './distributeWeightedPoints';
 
-describe("ActivityCategoryWeekService", () => {
-  const dbUrl = inject("testDbUrl");
+describe('ActivityCategoryWeekService', () => {
+  const dbUrl = inject('testDbUrl');
   const client = postgres(dbUrl);
   const db = drizzle(client, { schema });
   const dbLive = createDbClientLive(db);
@@ -33,9 +33,9 @@ describe("ActivityCategoryWeekService", () => {
     await truncateAllTables(db, dbUrl);
   });
 
-  describe("getByWeekId", () => {
+  describe('getByWeekId', () => {
     it.effect(
-      "should return category data with activities and calculate distributed points correctly",
+      'should return category data with activities and calculate distributed points correctly',
       () =>
         Effect.gen(function* () {
           // Create a test season
@@ -43,14 +43,14 @@ describe("ActivityCategoryWeekService", () => {
             db
               .insert(seasons)
               .values({
-                name: "Test Season",
-                status: "active",
+                name: 'Test Season',
+                status: 'active',
               })
-              .returning({ id: seasons.id })
+              .returning({ id: seasons.id }),
           );
           const testSeasonId = seasonInsertResult[0]?.id;
           if (!testSeasonId) {
-            throw new Error("Failed to create test season");
+            throw new Error('Failed to create test season');
           }
 
           // Create a test week
@@ -59,14 +59,14 @@ describe("ActivityCategoryWeekService", () => {
               .insert(weeks)
               .values({
                 seasonId: testSeasonId,
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-01-07"),
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
               })
-              .returning({ id: weeks.id })
+              .returning({ id: weeks.id }),
           );
           const testWeekId = weekInsertResult[0]?.id;
           if (!testWeekId) {
-            throw new Error("Failed to create test week");
+            throw new Error('Failed to create test week');
           }
 
           // Create activity categories
@@ -76,14 +76,14 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 {
                   id: ActivityCategoryId.tradingVolume,
-                  name: "Trading Volume",
+                  name: 'Trading Volume',
                 },
                 {
                   id: ActivityCategoryId.lendingStables,
-                  name: "Lending Stables",
+                  name: 'Lending Stables',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activities
@@ -92,22 +92,22 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activities)
               .values([
                 {
-                  id: "test-activity-1",
-                  name: "Test Activity 1",
+                  id: 'test-activity-1',
+                  name: 'Test Activity 1',
                   category: ActivityCategoryId.tradingVolume,
                 },
                 {
-                  id: "test-activity-2",
-                  name: "Test Activity 2",
+                  id: 'test-activity-2',
+                  name: 'Test Activity 2',
                   category: ActivityCategoryId.tradingVolume,
                 },
                 {
-                  id: "test-activity-3",
-                  name: "Test Activity 3",
+                  id: 'test-activity-3',
+                  name: 'Test Activity 3',
                   category: ActivityCategoryId.lendingStables,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity category weeks with points pools
@@ -126,7 +126,7 @@ describe("ActivityCategoryWeekService", () => {
                   pointsPool: 2000,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity weeks with multipliers
@@ -135,22 +135,22 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityWeeks)
               .values([
                 {
-                  activityId: "test-activity-1",
+                  activityId: 'test-activity-1',
                   weekId: testWeekId,
-                  multiplier: "2",
+                  multiplier: '2',
                 },
                 {
-                  activityId: "test-activity-2",
+                  activityId: 'test-activity-2',
                   weekId: testWeekId,
-                  multiplier: "3",
+                  multiplier: '3',
                 },
                 {
-                  activityId: "test-activity-3",
+                  activityId: 'test-activity-3',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Use the service to get results
@@ -164,9 +164,9 @@ describe("ActivityCategoryWeekService", () => {
 
           // Verify all results have proper structure
           for (const category of categoryResults) {
-            expect(category).toHaveProperty("categoryId");
-            expect(category).toHaveProperty("activities");
-            expect(category).toHaveProperty("pointsPool");
+            expect(category).toHaveProperty('categoryId');
+            expect(category).toHaveProperty('activities');
+            expect(category).toHaveProperty('pointsPool');
             expect(category.pointsPool).toBeInstanceOf(BigNumber);
             expect(Array.isArray(category.activities)).toBe(true);
             expect(category.pointsPool.isGreaterThan(0)).toBe(true);
@@ -174,29 +174,29 @@ describe("ActivityCategoryWeekService", () => {
 
           // Find specific categories
           const tradingVolumeCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryId.tradingVolume
+            (c) => c.categoryId === ActivityCategoryId.tradingVolume,
           );
           const lendingStablesCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryId.lendingStables
+            (c) => c.categoryId === ActivityCategoryId.lendingStables,
           );
 
           expect(tradingVolumeCategory).toBeDefined();
           expect(lendingStablesCategory).toBeDefined();
 
           if (!tradingVolumeCategory || !lendingStablesCategory) {
-            throw new Error("Failed to find required categories");
+            throw new Error('Failed to find required categories');
           }
 
           // Verify trading volume category
           expect(tradingVolumeCategory.activities).toHaveLength(2);
           expect(
-            tradingVolumeCategory.pointsPool.isEqualTo(new BigNumber(1000))
+            tradingVolumeCategory.pointsPool.isEqualTo(new BigNumber(1000)),
           ).toBe(true);
 
           // Verify lending stables category
           expect(lendingStablesCategory.activities).toHaveLength(1);
           expect(
-            lendingStablesCategory.pointsPool.isEqualTo(new BigNumber(2000))
+            lendingStablesCategory.pointsPool.isEqualTo(new BigNumber(2000)),
           ).toBe(true);
 
           // Test point distribution for trading volume category
@@ -211,17 +211,17 @@ describe("ActivityCategoryWeekService", () => {
           expect(tradingVolumeDistribution).toHaveLength(2);
 
           const activity1Distribution = tradingVolumeDistribution.find(
-            (d) => d.id === "test-activity-1"
+            (d) => d.id === 'test-activity-1',
           );
           const activity2Distribution = tradingVolumeDistribution.find(
-            (d) => d.id === "test-activity-2"
+            (d) => d.id === 'test-activity-2',
           );
 
           expect(
-            activity1Distribution?.points.isEqualTo(new BigNumber(400))
+            activity1Distribution?.points.isEqualTo(new BigNumber(400)),
           ).toBe(true); // 1000 * 2/5
           expect(
-            activity2Distribution?.points.isEqualTo(new BigNumber(600))
+            activity2Distribution?.points.isEqualTo(new BigNumber(600)),
           ).toBe(true); // 1000 * 3/5
 
           // Test point distribution for lending stables category
@@ -236,35 +236,37 @@ describe("ActivityCategoryWeekService", () => {
           expect(lendingStablesDistribution).toHaveLength(1);
 
           const activity3Distribution = lendingStablesDistribution.find(
-            (d) => d.id === "test-activity-3"
+            (d) => d.id === 'test-activity-3',
           );
           expect(
-            activity3Distribution?.points.isEqualTo(new BigNumber(2000))
+            activity3Distribution?.points.isEqualTo(new BigNumber(2000)),
           ).toBe(true); // 2000 * 1/1
 
           // Clean up test data
           yield* Effect.promise(() =>
-            db.delete(activityWeeks).where(eq(activityWeeks.weekId, testWeekId))
+            db
+              .delete(activityWeeks)
+              .where(eq(activityWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
             db
               .delete(activityCategoryWeeks)
-              .where(eq(activityCategoryWeeks.weekId, testWeekId))
+              .where(eq(activityCategoryWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(weeks).where(eq(weeks.id, testWeekId))
+            db.delete(weeks).where(eq(weeks.id, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(seasons).where(eq(seasons.id, testSeasonId))
+            db.delete(seasons).where(eq(seasons.id, testSeasonId)),
           );
         }).pipe(
           Effect.provide(ActivityCategoryWeekService.Default),
-          Effect.provide(dbLive)
-        )
+          Effect.provide(dbLive),
+        ),
     );
 
     it.effect(
-      "should include categories with zero points pool when they have activities",
+      'should include categories with zero points pool when they have activities',
       () =>
         Effect.gen(function* () {
           // Create a test season
@@ -272,13 +274,13 @@ describe("ActivityCategoryWeekService", () => {
             db
               .insert(seasons)
               .values({
-                name: "Test Season Zero Pool",
+                name: 'Test Season Zero Pool',
               })
-              .returning({ id: seasons.id })
+              .returning({ id: seasons.id }),
           );
           const testSeasonId = seasonInsertResult[0]?.id;
           if (!testSeasonId) {
-            throw new Error("Failed to create test season");
+            throw new Error('Failed to create test season');
           }
 
           // Create a test week
@@ -287,14 +289,14 @@ describe("ActivityCategoryWeekService", () => {
               .insert(weeks)
               .values({
                 seasonId: testSeasonId,
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-01-07"),
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
               })
-              .returning({ id: weeks.id })
+              .returning({ id: weeks.id }),
           );
           const testWeekId = weekInsertResult[0]?.id;
           if (!testWeekId) {
-            throw new Error("Failed to create test week");
+            throw new Error('Failed to create test week');
           }
 
           // Create activity categories
@@ -304,14 +306,14 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 {
                   id: ActivityCategoryId.tradingVolume,
-                  name: "Trading Volume",
+                  name: 'Trading Volume',
                 },
                 {
                   id: ActivityCategoryId.lendingStables,
-                  name: "Lending Stables",
+                  name: 'Lending Stables',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activities
@@ -320,22 +322,22 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activities)
               .values([
                 {
-                  id: "test-activity-with-points",
-                  name: "Test Activity With Points",
+                  id: 'test-activity-with-points',
+                  name: 'Test Activity With Points',
                   category: ActivityCategoryId.tradingVolume,
                 },
                 {
-                  id: "test-activity-zero-pool-1",
-                  name: "Test Activity Zero Pool 1",
+                  id: 'test-activity-zero-pool-1',
+                  name: 'Test Activity Zero Pool 1',
                   category: ActivityCategoryId.lendingStables,
                 },
                 {
-                  id: "test-activity-zero-pool-2",
-                  name: "Test Activity Zero Pool 2",
+                  id: 'test-activity-zero-pool-2',
+                  name: 'Test Activity Zero Pool 2',
                   category: ActivityCategoryId.lendingStables,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity category weeks - one with points, one with zero points
@@ -354,7 +356,7 @@ describe("ActivityCategoryWeekService", () => {
                   pointsPool: 0, // This category has zero points
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity weeks for all activities (including those in zero-pool category)
@@ -363,22 +365,22 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityWeeks)
               .values([
                 {
-                  activityId: "test-activity-with-points",
+                  activityId: 'test-activity-with-points',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
                 {
-                  activityId: "test-activity-zero-pool-1",
+                  activityId: 'test-activity-zero-pool-1',
                   weekId: testWeekId,
-                  multiplier: "2",
+                  multiplier: '2',
                 },
                 {
-                  activityId: "test-activity-zero-pool-2",
+                  activityId: 'test-activity-zero-pool-2',
                   weekId: testWeekId,
-                  multiplier: "3",
+                  multiplier: '3',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Use the service to get results
@@ -392,63 +394,65 @@ describe("ActivityCategoryWeekService", () => {
 
           // Verify both categories are returned
           const tradingVolumeCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryId.tradingVolume
+            (c) => c.categoryId === ActivityCategoryId.tradingVolume,
           );
           const lendingStablesCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryId.lendingStables
+            (c) => c.categoryId === ActivityCategoryId.lendingStables,
           );
 
           expect(tradingVolumeCategory).toBeDefined();
           expect(lendingStablesCategory).toBeDefined(); // Should be included even with zero points
 
           if (!tradingVolumeCategory || !lendingStablesCategory) {
-            throw new Error("Both categories should be present");
+            throw new Error('Both categories should be present');
           }
 
           // Verify the category with points has correct data
           expect(tradingVolumeCategory.activities).toHaveLength(1);
           expect(
-            tradingVolumeCategory.pointsPool.isEqualTo(new BigNumber(1000))
+            tradingVolumeCategory.pointsPool.isEqualTo(new BigNumber(1000)),
           ).toBe(true);
           expect(tradingVolumeCategory.activities[0]?.id).toBe(
-            "test-activity-with-points"
+            'test-activity-with-points',
           );
 
           // Verify the category with zero points has correct data
           expect(lendingStablesCategory.activities).toHaveLength(2);
           expect(
-            lendingStablesCategory.pointsPool.isEqualTo(new BigNumber(0))
+            lendingStablesCategory.pointsPool.isEqualTo(new BigNumber(0)),
           ).toBe(true);
           expect(lendingStablesCategory.activities[0]?.id).toBe(
-            "test-activity-zero-pool-1"
+            'test-activity-zero-pool-1',
           );
           expect(lendingStablesCategory.activities[1]?.id).toBe(
-            "test-activity-zero-pool-2"
+            'test-activity-zero-pool-2',
           );
 
           // Clean up test data
           yield* Effect.promise(() =>
-            db.delete(activityWeeks).where(eq(activityWeeks.weekId, testWeekId))
+            db
+              .delete(activityWeeks)
+              .where(eq(activityWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
             db
               .delete(activityCategoryWeeks)
-              .where(eq(activityCategoryWeeks.weekId, testWeekId))
+              .where(eq(activityCategoryWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(weeks).where(eq(weeks.id, testWeekId))
+            db.delete(weeks).where(eq(weeks.id, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(seasons).where(eq(seasons.id, testSeasonId))
+            db.delete(seasons).where(eq(seasons.id, testSeasonId)),
           );
         }).pipe(
           Effect.provide(ActivityCategoryWeekService.Default),
-          Effect.provide(dbLive)
-        )
+          Effect.provide(dbLive),
+        ),
     );
 
     it.effect(
-      "should return categories with zero points when explicitly configured to include them",
+      'should return categories with zero points when explicitly configured to include them',
       () =>
         Effect.gen(function* () {
           // Create a test season
@@ -456,13 +460,13 @@ describe("ActivityCategoryWeekService", () => {
             db
               .insert(seasons)
               .values({
-                name: "Test Season Include Zero",
+                name: 'Test Season Include Zero',
               })
-              .returning({ id: seasons.id })
+              .returning({ id: seasons.id }),
           );
           const testSeasonId = seasonInsertResult[0]?.id;
           if (!testSeasonId) {
-            throw new Error("Failed to create test season");
+            throw new Error('Failed to create test season');
           }
 
           // Create a test week
@@ -471,14 +475,14 @@ describe("ActivityCategoryWeekService", () => {
               .insert(weeks)
               .values({
                 seasonId: testSeasonId,
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-01-07"),
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
               })
-              .returning({ id: weeks.id })
+              .returning({ id: weeks.id }),
           );
           const testWeekId = weekInsertResult[0]?.id;
           if (!testWeekId) {
-            throw new Error("Failed to create test week");
+            throw new Error('Failed to create test week');
           }
 
           // Create activity categories
@@ -488,14 +492,14 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 {
                   id: ActivityCategoryId.tradingVolume,
-                  name: "Trading Volume",
+                  name: 'Trading Volume',
                 },
                 {
                   id: ActivityCategoryId.lendingStables,
-                  name: "Lending Stables",
+                  name: 'Lending Stables',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activities
@@ -504,17 +508,17 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activities)
               .values([
                 {
-                  id: "test-activity-with-points",
-                  name: "Test Activity With Points",
+                  id: 'test-activity-with-points',
+                  name: 'Test Activity With Points',
                   category: ActivityCategoryId.tradingVolume,
                 },
                 {
-                  id: "test-activity-zero-pool",
-                  name: "Test Activity Zero Pool",
+                  id: 'test-activity-zero-pool',
+                  name: 'Test Activity Zero Pool',
                   category: ActivityCategoryId.lendingStables,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity category weeks - both with positive points pools
@@ -534,7 +538,7 @@ describe("ActivityCategoryWeekService", () => {
                   pointsPool: 500, // This category also has points (not zero)
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity weeks
@@ -543,17 +547,17 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityWeeks)
               .values([
                 {
-                  activityId: "test-activity-with-points",
+                  activityId: 'test-activity-with-points',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
                 {
-                  activityId: "test-activity-zero-pool",
+                  activityId: 'test-activity-zero-pool',
                   weekId: testWeekId,
-                  multiplier: "0", // Zero multiplier, but category has points pool
+                  multiplier: '0', // Zero multiplier, but category has points pool
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Use the service to get results
@@ -567,25 +571,25 @@ describe("ActivityCategoryWeekService", () => {
 
           // Find specific categories
           const tradingVolumeCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryId.tradingVolume
+            (c) => c.categoryId === ActivityCategoryId.tradingVolume,
           );
           const lendingStablesCategory = categoryResults.find(
-            (c) => c.categoryId === ActivityCategoryId.lendingStables
+            (c) => c.categoryId === ActivityCategoryId.lendingStables,
           );
 
           expect(tradingVolumeCategory).toBeDefined();
           expect(lendingStablesCategory).toBeDefined();
 
           if (!tradingVolumeCategory || !lendingStablesCategory) {
-            throw new Error("Both categories should be present");
+            throw new Error('Both categories should be present');
           }
 
           // Verify both categories have their respective points pools
           expect(
-            tradingVolumeCategory.pointsPool.isEqualTo(new BigNumber(1000))
+            tradingVolumeCategory.pointsPool.isEqualTo(new BigNumber(1000)),
           ).toBe(true);
           expect(
-            lendingStablesCategory.pointsPool.isEqualTo(new BigNumber(500))
+            lendingStablesCategory.pointsPool.isEqualTo(new BigNumber(500)),
           ).toBe(true);
 
           // Verify activities are present even with zero multipliers
@@ -593,49 +597,51 @@ describe("ActivityCategoryWeekService", () => {
           expect(lendingStablesCategory.activities).toHaveLength(1);
           expect(
             lendingStablesCategory.activities[0]?.multiplier.isEqualTo(
-              new BigNumber(0)
-            )
+              new BigNumber(0),
+            ),
           ).toBe(true);
 
           // Clean up test data
           yield* Effect.promise(() =>
-            db.delete(activityWeeks).where(eq(activityWeeks.weekId, testWeekId))
+            db
+              .delete(activityWeeks)
+              .where(eq(activityWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
             db
               .delete(activityCategoryWeeks)
-              .where(eq(activityCategoryWeeks.weekId, testWeekId))
+              .where(eq(activityCategoryWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(weeks).where(eq(weeks.id, testWeekId))
+            db.delete(weeks).where(eq(weeks.id, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(seasons).where(eq(seasons.id, testSeasonId))
+            db.delete(seasons).where(eq(seasons.id, testSeasonId)),
           );
         }).pipe(
           Effect.provide(ActivityCategoryWeekService.Default),
-          Effect.provide(dbLive)
-        )
+          Effect.provide(dbLive),
+        ),
     );
 
-    it.effect("should handle empty results when no data exists", () =>
+    it.effect('should handle empty results when no data exists', () =>
       Effect.gen(function* () {
         const service = yield* ActivityCategoryWeekService;
         const result = yield* service.getByWeekId({
-          weekId: "99999999-9999-9999-9999-999999999999", // Valid UUID that doesn't exist
+          weekId: '99999999-9999-9999-9999-999999999999', // Valid UUID that doesn't exist
         });
 
         expect(result).toEqual([]);
       }).pipe(
         Effect.provide(ActivityCategoryWeekService.Default),
-        Effect.provide(dbLive)
-      )
+        Effect.provide(dbLive),
+      ),
     );
   });
 
-  describe("getAvailableForWeek", () => {
+  describe('getAvailableForWeek', () => {
     it.effect(
-      "should return only categories that have activities with actual user points for the specific week",
+      'should return only categories that have activities with actual user points for the specific week',
       () =>
         Effect.gen(function* () {
           // Create a test season
@@ -643,14 +649,14 @@ describe("ActivityCategoryWeekService", () => {
             db
               .insert(seasons)
               .values({
-                name: "Test Season Available",
-                status: "active",
+                name: 'Test Season Available',
+                status: 'active',
               })
-              .returning({ id: seasons.id })
+              .returning({ id: seasons.id }),
           );
           const testSeasonId = seasonInsertResult[0]?.id;
           if (!testSeasonId) {
-            throw new Error("Failed to create test season");
+            throw new Error('Failed to create test season');
           }
 
           // Create a test week
@@ -659,14 +665,14 @@ describe("ActivityCategoryWeekService", () => {
               .insert(weeks)
               .values({
                 seasonId: testSeasonId,
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-01-07"),
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
               })
-              .returning({ id: weeks.id })
+              .returning({ id: weeks.id }),
           );
           const testWeekId = weekInsertResult[0]?.id;
           if (!testWeekId) {
-            throw new Error("Failed to create test week");
+            throw new Error('Failed to create test week');
           }
 
           // Create activity categories
@@ -676,21 +682,21 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 {
                   id: ActivityCategoryId.tradingVolume,
-                  name: "Trading Volume",
-                  description: "Trading volume activities",
+                  name: 'Trading Volume',
+                  description: 'Trading volume activities',
                 },
                 {
                   id: ActivityCategoryId.lendingStables,
-                  name: "Lending Stables",
-                  description: "Lending stable activities",
+                  name: 'Lending Stables',
+                  description: 'Lending stable activities',
                 },
                 {
                   id: ActivityCategoryId.maintainXrdBalance,
-                  name: "Maintain XRD Balance",
-                  description: "Maintain XRD balance activities",
+                  name: 'Maintain XRD Balance',
+                  description: 'Maintain XRD balance activities',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           yield* Effect.promise(() =>
@@ -713,7 +719,7 @@ describe("ActivityCategoryWeekService", () => {
                   pointsPool: 0,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activities
@@ -722,27 +728,27 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activities)
               .values([
                 {
-                  id: "trading-activity-1",
-                  name: "Trading Activity 1",
+                  id: 'trading-activity-1',
+                  name: 'Trading Activity 1',
                   category: ActivityCategoryId.tradingVolume,
                 },
                 {
-                  id: "trading-activity-2",
-                  name: "Trading Activity 2",
+                  id: 'trading-activity-2',
+                  name: 'Trading Activity 2',
                   category: ActivityCategoryId.tradingVolume,
                 },
                 {
-                  id: "lending-activity-1",
-                  name: "Lending Activity 1",
+                  id: 'lending-activity-1',
+                  name: 'Lending Activity 1',
                   category: ActivityCategoryId.lendingStables,
                 },
                 {
-                  id: "maintain-xrd-activity-1",
-                  name: "Maintain XRD Activity 1",
+                  id: 'maintain-xrd-activity-1',
+                  name: 'Maintain XRD Activity 1',
                   category: ActivityCategoryId.maintainXrdBalance,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity weeks
@@ -751,27 +757,27 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityWeeks)
               .values([
                 {
-                  activityId: "trading-activity-1",
+                  activityId: 'trading-activity-1',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
                 {
-                  activityId: "trading-activity-2",
+                  activityId: 'trading-activity-2',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
                 {
-                  activityId: "lending-activity-1",
+                  activityId: 'lending-activity-1',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
                 {
-                  activityId: "maintain-xrd-activity-1",
+                  activityId: 'maintain-xrd-activity-1',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create test users
@@ -780,20 +786,20 @@ describe("ActivityCategoryWeekService", () => {
               .insert(users)
               .values([
                 {
-                  identityAddress: "test-identity-1",
-                  label: "Test User 1",
+                  identityAddress: 'test-identity-1',
+                  label: 'Test User 1',
                 },
                 {
-                  identityAddress: "test-identity-2",
-                  label: "Test User 2",
+                  identityAddress: 'test-identity-2',
+                  label: 'Test User 2',
                 },
               ])
-              .returning({ id: users.id })
+              .returning({ id: users.id }),
           );
           const userId1 = userInsertResult[0]?.id;
           const userId2 = userInsertResult[1]?.id;
           if (!userId1 || !userId2) {
-            throw new Error("Failed to create test users");
+            throw new Error('Failed to create test users');
           }
 
           // Create test accounts
@@ -803,16 +809,16 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 {
                   userId: userId1,
-                  address: "test-account-1",
-                  label: "Test Account 1",
+                  address: 'test-account-1',
+                  label: 'Test Account 1',
                 },
                 {
                   userId: userId2,
-                  address: "test-account-2",
-                  label: "Test Account 2",
+                  address: 'test-account-2',
+                  label: 'Test Account 2',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create account activity points - only for some activities
@@ -822,33 +828,33 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 // Trading category has points
                 {
-                  accountAddress: "test-account-1",
+                  accountAddress: 'test-account-1',
                   weekId: testWeekId,
-                  activityId: "trading-activity-1",
-                  activityPoints: "100",
+                  activityId: 'trading-activity-1',
+                  activityPoints: '100',
                 },
                 {
-                  accountAddress: "test-account-2",
+                  accountAddress: 'test-account-2',
                   weekId: testWeekId,
-                  activityId: "trading-activity-2",
-                  activityPoints: "50",
+                  activityId: 'trading-activity-2',
+                  activityPoints: '50',
                 },
                 // Lending category has points
                 {
-                  accountAddress: "test-account-1",
+                  accountAddress: 'test-account-1',
                   weekId: testWeekId,
-                  activityId: "lending-activity-1",
-                  activityPoints: "75",
+                  activityId: 'lending-activity-1',
+                  activityPoints: '75',
                 },
                 // Maintain XRD category has NO points (will be excluded)
                 {
-                  accountAddress: "test-account-1",
+                  accountAddress: 'test-account-1',
                   weekId: testWeekId,
-                  activityId: "maintain-xrd-activity-1",
-                  activityPoints: "0", // Zero points
+                  activityId: 'maintain-xrd-activity-1',
+                  activityPoints: '0', // Zero points
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Use the service to get available categories
@@ -865,69 +871,71 @@ describe("ActivityCategoryWeekService", () => {
           expect(categoryIds).toContain(ActivityCategoryId.tradingVolume);
           expect(categoryIds).toContain(ActivityCategoryId.lendingStables);
           expect(categoryIds).not.toContain(
-            ActivityCategoryId.maintainXrdBalance
+            ActivityCategoryId.maintainXrdBalance,
           ); // No points > 0
 
           // Verify category structure
           for (const category of availableCategories) {
-            expect(category).toHaveProperty("id");
-            expect(category).toHaveProperty("name");
-            expect(category).toHaveProperty("description");
-            expect(typeof category.id).toBe("string");
-            expect(typeof category.name).toBe("string");
+            expect(category).toHaveProperty('id');
+            expect(category).toHaveProperty('name');
+            expect(category).toHaveProperty('description');
+            expect(typeof category.id).toBe('string');
+            expect(typeof category.name).toBe('string');
           }
 
           // Find specific categories
           const tradingCategory = availableCategories.find(
-            (c) => c.id === ActivityCategoryId.tradingVolume
+            (c) => c.id === ActivityCategoryId.tradingVolume,
           );
           const lendingCategory = availableCategories.find(
-            (c) => c.id === ActivityCategoryId.lendingStables
+            (c) => c.id === ActivityCategoryId.lendingStables,
           );
 
           expect(tradingCategory).toBeDefined();
           expect(lendingCategory).toBeDefined();
 
           if (tradingCategory && lendingCategory) {
-            expect(tradingCategory.name).toBe("Trading Volume");
-            expect(lendingCategory.name).toBe("Lending Stables");
+            expect(tradingCategory.name).toBe('Trading Volume');
+            expect(lendingCategory.name).toBe('Lending Stables');
           }
 
           // Clean up test data
           yield* Effect.promise(() =>
             db
               .delete(accountActivityPoints)
-              .where(eq(accountActivityPoints.weekId, testWeekId))
+              .where(eq(accountActivityPoints.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(accounts).where(eq(accounts.userId, userId1))
+            db.delete(accounts).where(eq(accounts.userId, userId1)),
           );
           yield* Effect.promise(() =>
-            db.delete(accounts).where(eq(accounts.userId, userId2))
+            db.delete(accounts).where(eq(accounts.userId, userId2)),
           );
           yield* Effect.promise(() =>
-            db.delete(users).where(eq(users.id, userId1))
+            db.delete(users).where(eq(users.id, userId1)),
           );
           yield* Effect.promise(() =>
-            db.delete(users).where(eq(users.id, userId2))
+            db.delete(users).where(eq(users.id, userId2)),
           );
           yield* Effect.promise(() =>
-            db.delete(activityWeeks).where(eq(activityWeeks.weekId, testWeekId))
+            db
+              .delete(activityWeeks)
+              .where(eq(activityWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(weeks).where(eq(weeks.id, testWeekId))
+            db.delete(weeks).where(eq(weeks.id, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(seasons).where(eq(seasons.id, testSeasonId))
+            db.delete(seasons).where(eq(seasons.id, testSeasonId)),
           );
         }).pipe(
           Effect.provide(ActivityCategoryWeekService.Default),
-          Effect.provide(dbLive)
-        )
+          Effect.provide(dbLive),
+        ),
     );
 
     it.effect(
-      "should return empty array when no categories have activities with points for the specific week",
+      'should return empty array when no categories have activities with points for the specific week',
       () =>
         Effect.gen(function* () {
           // Create a test season
@@ -935,14 +943,14 @@ describe("ActivityCategoryWeekService", () => {
             db
               .insert(seasons)
               .values({
-                name: "Test Season Empty",
-                status: "active",
+                name: 'Test Season Empty',
+                status: 'active',
               })
-              .returning({ id: seasons.id })
+              .returning({ id: seasons.id }),
           );
           const testSeasonId = seasonInsertResult[0]?.id;
           if (!testSeasonId) {
-            throw new Error("Failed to create test season");
+            throw new Error('Failed to create test season');
           }
 
           // Create a test week
@@ -951,14 +959,14 @@ describe("ActivityCategoryWeekService", () => {
               .insert(weeks)
               .values({
                 seasonId: testSeasonId,
-                startDate: new Date("2024-01-01"),
-                endDate: new Date("2024-01-07"),
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
               })
-              .returning({ id: weeks.id })
+              .returning({ id: weeks.id }),
           );
           const testWeekId = weekInsertResult[0]?.id;
           if (!testWeekId) {
-            throw new Error("Failed to create test week");
+            throw new Error('Failed to create test week');
           }
 
           // Create activity categories
@@ -968,11 +976,11 @@ describe("ActivityCategoryWeekService", () => {
               .values([
                 {
                   id: ActivityCategoryId.tradingVolume,
-                  name: "Trading Volume",
-                  description: "Trading volume activities",
+                  name: 'Trading Volume',
+                  description: 'Trading volume activities',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activities but no account activity points
@@ -981,12 +989,12 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activities)
               .values([
                 {
-                  id: "trading-activity-no-points",
-                  name: "Trading Activity No Points",
+                  id: 'trading-activity-no-points',
+                  name: 'Trading Activity No Points',
                   category: ActivityCategoryId.tradingVolume,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // Create activity weeks
@@ -995,12 +1003,12 @@ describe("ActivityCategoryWeekService", () => {
               .insert(activityWeeks)
               .values([
                 {
-                  activityId: "trading-activity-no-points",
+                  activityId: 'trading-activity-no-points',
                   weekId: testWeekId,
-                  multiplier: "1",
+                  multiplier: '1',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           // No account activity points created - should result in empty array
@@ -1016,32 +1024,34 @@ describe("ActivityCategoryWeekService", () => {
 
           // Clean up test data
           yield* Effect.promise(() =>
-            db.delete(activityWeeks).where(eq(activityWeeks.weekId, testWeekId))
+            db
+              .delete(activityWeeks)
+              .where(eq(activityWeeks.weekId, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(weeks).where(eq(weeks.id, testWeekId))
+            db.delete(weeks).where(eq(weeks.id, testWeekId)),
           );
           yield* Effect.promise(() =>
-            db.delete(seasons).where(eq(seasons.id, testSeasonId))
+            db.delete(seasons).where(eq(seasons.id, testSeasonId)),
           );
         }).pipe(
           Effect.provide(ActivityCategoryWeekService.Default),
-          Effect.provide(dbLive)
-        )
+          Effect.provide(dbLive),
+        ),
     );
 
-    it.effect("should handle non-existent week ID gracefully", () =>
+    it.effect('should handle non-existent week ID gracefully', () =>
       Effect.gen(function* () {
         const service = yield* ActivityCategoryWeekService;
         const result = yield* service.getAvailableForWeek({
-          weekId: "99999999-9999-9999-9999-999999999999", // Valid UUID that doesn't exist
+          weekId: '99999999-9999-9999-9999-999999999999', // Valid UUID that doesn't exist
         });
 
         expect(result).toEqual([]);
       }).pipe(
         Effect.provide(ActivityCategoryWeekService.Default),
-        Effect.provide(dbLive)
-      )
+        Effect.provide(dbLive),
+      ),
     );
   });
 });

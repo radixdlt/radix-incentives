@@ -1,12 +1,21 @@
 'use client';
 
-import * as React from 'react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import * as React from 'react';
 import { use } from 'react';
 
+import type { Season } from 'db/incentives';
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import {
@@ -16,17 +25,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '~/components/ui/select';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '~/components/ui/card';
 import { Separator } from '~/components/ui/separator';
 import { api } from '~/trpc/react';
-import type { Season } from 'db/incentives';
-import { toast } from 'sonner';
 
 type EditSeasonPageProps = {
   params: Promise<{
@@ -36,7 +36,11 @@ type EditSeasonPageProps = {
 
 interface EditSeasonFormProps {
   season: Season;
-  onSubmit: (data: { id: string; name: string; status: 'active' | 'upcoming' | 'completed' }) => void;
+  onSubmit: (data: {
+    id: string;
+    name: string;
+    status: 'active' | 'upcoming' | 'completed';
+  }) => void;
   isSubmitting?: boolean;
   onCancel?: () => void;
 }
@@ -76,10 +80,15 @@ function EditSeasonForm({
             required
           />
         </div>
-        
+
         <div className="grid gap-2">
           <Label htmlFor="status">Status</Label>
-          <Select value={status} onValueChange={(value: 'active' | 'upcoming' | 'completed') => setStatus(value)}>
+          <Select
+            value={status}
+            onValueChange={(value: 'active' | 'upcoming' | 'completed') =>
+              setStatus(value)
+            }
+          >
             <SelectTrigger>
               <SelectValue placeholder="Select status" />
             </SelectTrigger>
@@ -108,14 +117,22 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
   const params = use(paramsPromise);
   const router = useRouter();
   const utils = api.useUtils();
-  
-  const { data: season, isLoading, error } = api.season.getSeasonById.useQuery({
+
+  const {
+    data: season,
+    isLoading,
+    error,
+  } = api.season.getSeasonById.useQuery({
     id: params.seasonId,
   });
-  
+
   const editSeason = api.season.editSeason.useMutation();
 
-  const handleEditSeason = async (data: { id: string; name: string; status: 'active' | 'upcoming' | 'completed' }) => {
+  const handleEditSeason = async (data: {
+    id: string;
+    name: string;
+    status: 'active' | 'upcoming' | 'completed';
+  }) => {
     try {
       await editSeason.mutateAsync(data);
       toast.success('Season updated successfully!');
@@ -143,17 +160,13 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Edit Season
-            </h1>
-            <p className="text-muted-foreground">
-              Loading season details...
-            </p>
+            <h1 className="text-3xl font-bold tracking-tight">Edit Season</h1>
+            <p className="text-muted-foreground">Loading season details...</p>
           </div>
         </div>
-        
+
         <Separator className="my-6" />
-        
+
         <div className="mx-auto max-w-2xl">
           <Card>
             <CardContent className="p-6">
@@ -181,17 +194,15 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
-              Edit Season
-            </h1>
+            <h1 className="text-3xl font-bold tracking-tight">Edit Season</h1>
             <p className="text-muted-foreground">
               Season not found or error loading season.
             </p>
           </div>
         </div>
-        
+
         <Separator className="my-6" />
-        
+
         <div className="mx-auto max-w-2xl">
           <Card>
             <CardContent className="p-6 text-center">
@@ -217,9 +228,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
-            Edit Season
-          </h1>
+          <h1 className="text-3xl font-bold tracking-tight">Edit Season</h1>
           <p className="text-muted-foreground">
             Update the season name and status.
           </p>

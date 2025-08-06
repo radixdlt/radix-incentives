@@ -1,9 +1,12 @@
 'use client';
 
-import * as React from 'react';
+import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { Search, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
+import * as React from 'react';
 
+import { Badge } from '~/components/ui/badge';
+import { Input } from '~/components/ui/input';
+import { Separator } from '~/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -12,9 +15,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { Badge } from '~/components/ui/badge';
-import { Separator } from '~/components/ui/separator';
-import { Input } from '~/components/ui/input';
 import { api } from '~/trpc/react';
 
 type SortField =

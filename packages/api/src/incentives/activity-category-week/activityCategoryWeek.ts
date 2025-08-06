@@ -1,17 +1,17 @@
-import BigNumber from "bignumber.js";
-import { ActivityCategoryId } from "data";
+import BigNumber from 'bignumber.js';
+import { ActivityCategoryId } from 'data';
 import {
+  activityCategories,
   activityCategoryWeeks,
   activityWeeks,
-  activityCategories,
-} from "db/incentives";
-import { and, eq, sql, asc } from "drizzle-orm";
-import { Effect } from "effect";
-import { groupBy } from "effect/Array";
-import { DbClientService, DbError } from "../db/dbClient";
+} from 'db/incentives';
+import { and, asc, eq, sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { groupBy } from 'effect/Array';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
-  "ActivityCategoryWeekService",
+  'ActivityCategoryWeekService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -52,7 +52,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
 
           const groupedByCategory = groupBy(
             activities,
-            (item) => item.activity.category
+            (item) => item.activity.category,
           );
 
           return yield* Effect.forEach(
@@ -72,7 +72,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 })),
                 pointsPool,
               };
-            })
+            }),
           );
         }),
         updatePointsPool: Effect.fn(function* (input: {
@@ -92,9 +92,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                     eq(activityCategoryWeeks.weekId, input.weekId),
                     eq(
                       activityCategoryWeeks.activityCategoryId,
-                      input.activityCategoryId
-                    )
-                  )
+                      input.activityCategoryId,
+                    ),
+                  ),
                 ),
             catch: (error) => new DbError(error),
           });
@@ -109,7 +109,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   db.query.activityCategoryWeeks
                     .findMany({
                       where: and(
-                        eq(activityCategoryWeeks.weekId, input.fromWeekId!)
+                        eq(activityCategoryWeeks.weekId, input.fromWeekId!),
                       ),
                     })
                     .then((items) =>
@@ -125,8 +125,8 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                             activityCategoryId: string;
                             pointsPool: number;
                           }
-                        >
-                      )
+                        >,
+                      ),
                     ),
                 catch: (error) => new DbError(error),
               })
@@ -169,14 +169,14 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   activityCategoryWeeks,
                   eq(
                     activityCategories.id,
-                    activityCategoryWeeks.activityCategoryId
-                  )
+                    activityCategoryWeeks.activityCategoryId,
+                  ),
                 )
                 .where(
                   and(
                     eq(activityCategoryWeeks.weekId, input.weekId),
-                    sql`${activityCategoryWeeks.pointsPool} > 0`
-                  )
+                    sql`${activityCategoryWeeks.pointsPool} > 0`,
+                  ),
                 )
                 .orderBy(asc(activityCategories.name)),
             catch: (error) => new DbError(error),
@@ -184,5 +184,5 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
         }),
       };
     }),
-  }
+  },
 ) {}

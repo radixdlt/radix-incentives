@@ -7,7 +7,7 @@ export const getHourStartInUTC = (date = new Date()) => {
       date.getUTCHours(),
       0, // minutes
       0, // seconds
-      0 // milliseconds
-    )
+      0, // milliseconds
+    ),
   );
 };

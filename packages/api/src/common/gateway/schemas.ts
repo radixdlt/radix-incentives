@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { Effect } from "effect";
+import { Effect } from 'effect';
+import { z } from 'zod';
 
 export const StateVersionSchema = z.object({
   state_version: z.number(),
@@ -19,12 +19,12 @@ export const AtLedgerStateSchema = z.union([
 export type AtLedgerState = z.infer<typeof AtLedgerStateSchema>;
 
 export class InvalidStateInputError {
-  readonly _tag = "InvalidStateInputError";
+  readonly _tag = 'InvalidStateInputError';
   constructor(readonly error: z.ZodError<AtLedgerState>) {}
 }
 
 export const validateAtLedgerStateInput = (
-  input: unknown
+  input: unknown,
 ): Effect.Effect<AtLedgerState, InvalidStateInputError> =>
   Effect.gen(function* () {
     const parsed = AtLedgerStateSchema.safeParse(input);

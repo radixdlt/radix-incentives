@@ -1,14 +1,14 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { Exit } from "effect";
+import { TRPCError } from '@trpc/server';
+import { Exit } from 'effect';
+import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 // Helper function to get user ID from session token
 const getUserId = async (ctx: {
   sessionToken: string | null;
   dependencyLayer: {
     validateSessionToken: (
-      token: string
+      token: string,
     ) => Promise<Exit.Exit<{ user: { id: string } }, unknown>>;
   };
 }): Promise<string | undefined> => {
@@ -18,7 +18,7 @@ const getUserId = async (ctx: {
 
   try {
     const result = await ctx.dependencyLayer.validateSessionToken(
-      ctx.sessionToken
+      ctx.sessionToken,
     );
 
     if (Exit.isSuccess(result)) {
@@ -27,7 +27,7 @@ const getUserId = async (ctx: {
     }
   } catch (error) {
     // Silently ignore session validation errors for public procedures
-    console.log("Session validation failed for public procedure:", error);
+    console.log('Session validation failed for public procedure:', error);
   }
 
   return undefined;
@@ -38,7 +38,7 @@ export const leaderboardRouter = createTRPCRouter({
     .input(
       z.object({
         seasonId: z.string().uuid(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const userId = await getUserId(ctx);
@@ -52,19 +52,19 @@ export const leaderboardRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           const isCacheNotAvailableError =
-            error._tag === "Fail" &&
-            error.error._tag === "CacheNotAvailableError";
+            error._tag === 'Fail' &&
+            error.error._tag === 'CacheNotAvailableError';
 
           if (isCacheNotAvailableError) {
             throw new TRPCError({
-              code: "PRECONDITION_FAILED",
+              code: 'PRECONDITION_FAILED',
               message:
-                "Leaderboard is still being built. Please check back in a few minutes.",
+                'Leaderboard is still being built. Please check back in a few minutes.',
             });
           }
 
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -76,7 +76,7 @@ export const leaderboardRouter = createTRPCRouter({
       onSuccess: (value) => value,
       onFailure: (error) => {
         console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
       },
     });
   }),
@@ -85,7 +85,7 @@ export const leaderboardRouter = createTRPCRouter({
     .input(
       z.object({
         seasonId: z.string().uuid().optional(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.getAvailableWeeks({
@@ -96,19 +96,19 @@ export const leaderboardRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           const isCacheNotAvailableError =
-            error._tag === "Fail" &&
-            error.error._tag === "CacheNotAvailableError";
+            error._tag === 'Fail' &&
+            error.error._tag === 'CacheNotAvailableError';
 
           if (isCacheNotAvailableError) {
             throw new TRPCError({
-              code: "PRECONDITION_FAILED",
+              code: 'PRECONDITION_FAILED',
               message:
-                "Leaderboard is still being built. Please check back in a few minutes.",
+                'Leaderboard is still being built. Please check back in a few minutes.',
             });
           }
 
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -118,7 +118,7 @@ export const leaderboardRouter = createTRPCRouter({
       z.object({
         categoryId: z.string(),
         weekId: z.string().uuid(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const userId = await getUserId(ctx);
@@ -133,22 +133,22 @@ export const leaderboardRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           const isCacheNotAvailableError =
-            error._tag === "Fail" &&
+            error._tag === 'Fail' &&
             error.error &&
-            typeof error.error === "object" &&
-            "_tag" in error.error &&
-            error.error._tag === "CacheNotAvailableError";
+            typeof error.error === 'object' &&
+            '_tag' in error.error &&
+            error.error._tag === 'CacheNotAvailableError';
 
           if (isCacheNotAvailableError) {
             throw new TRPCError({
-              code: "PRECONDITION_FAILED",
+              code: 'PRECONDITION_FAILED',
               message:
-                "Leaderboard is still being built. Please check back in a few minutes.",
+                'Leaderboard is still being built. Please check back in a few minutes.',
             });
           }
 
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -162,7 +162,7 @@ export const leaderboardRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),

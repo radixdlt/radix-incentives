@@ -1,23 +1,23 @@
-import { Effect } from "effect";
-import type { EventQueueClientInput } from "./eventQueueClient";
-import { GetEventsFromDbService } from "./queries/getEventsFromDb";
-import { GetAddressByNonFungibleService } from "../../common/gateway/getAddressByNonFungible";
-import { GetAccountsIntersectionService } from "../account/getAccountsIntersection";
-import type { CommonEmittableEvents } from "./event-matchers/commonEventMatcher";
-import type { WeftFinanceEmittableEvents } from "./event-matchers/weftFinanceEventMatcher";
-import type { RootFinanceEmittableEvents } from "./event-matchers/rootFinanceEventMatcher";
-import { WeftFinanceConstants, RootFinanceConstants } from "data";
-import type { AtLedgerState } from "../../common";
+import { RootFinanceConstants, WeftFinanceConstants } from 'data';
+import { Effect } from 'effect';
+import type { AtLedgerState } from '../../common';
+import { GetAddressByNonFungibleService } from '../../common/gateway/getAddressByNonFungible';
+import { GetAccountsIntersectionService } from '../account/getAccountsIntersection';
+import type { CommonEmittableEvents } from './event-matchers/commonEventMatcher';
+import type { RootFinanceEmittableEvents } from './event-matchers/rootFinanceEventMatcher';
+import type { WeftFinanceEmittableEvents } from './event-matchers/weftFinanceEventMatcher';
+import type { EventQueueClientInput } from './eventQueueClient';
+import { GetEventsFromDbService } from './queries/getEventsFromDb';
 
 export class InvalidEventError {
-  _tag = "InvalidEventError";
+  _tag = 'InvalidEventError';
   constructor(readonly message: string) {}
 }
 
 export type DeriveAccountFromEventInput = EventQueueClientInput;
 
 export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountFromEventService>()(
-  "DeriveAccountFromEventService",
+  'DeriveAccountFromEventService',
   {
     effect: Effect.gen(function* () {
       const getEventsFromDbService = yield* GetEventsFromDbService;
@@ -33,7 +33,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
             const getRegisteredAccountAddressFromNonFungible = (
               resourceAddress: string,
               nonFungibleId: string,
-              at_ledger_state: AtLedgerState
+              at_ledger_state: AtLedgerState,
             ) =>
               Effect.gen(function* () {
                 const result = yield* getAddressByNonFungibleService({
@@ -42,7 +42,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
                   at_ledger_state,
                 });
 
-                if (!result.address.startsWith("account_")) {
+                if (!result.address.startsWith('account_')) {
                   return null;
                 }
 
@@ -54,7 +54,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
                 // account is not registered in incentives program
                 if (registeredAccounts.length === 0) {
                   yield* Effect.log(
-                    `Skipping ${result.address}, not registered in incentives program`
+                    `Skipping ${result.address}, not registered in incentives program`,
                   );
                   return null;
                 }
@@ -65,14 +65,14 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
                 };
               });
 
-            if (event.dApp === "Common") {
+            if (event.dApp === 'Common') {
               const eventData = event.eventData as CommonEmittableEvents;
 
               if (
-                eventData.type === "WithdrawNonFungibleEvent" ||
-                eventData.type === "DepositNonFungibleEvent" ||
-                eventData.type === "WithdrawFungibleEvent" ||
-                eventData.type === "DepositFungibleEvent"
+                eventData.type === 'WithdrawNonFungibleEvent' ||
+                eventData.type === 'DepositNonFungibleEvent' ||
+                eventData.type === 'WithdrawFungibleEvent' ||
+                eventData.type === 'DepositFungibleEvent'
               ) {
                 const registeredAccounts =
                   yield* getAccountsIntersectionService({
@@ -82,7 +82,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
                 // account is not registered in incentives program
                 if (registeredAccounts.length === 0) {
                   yield* Effect.log(
-                    `Skipping ${eventData.data.accountAddress}, not registered in incentives program`
+                    `Skipping ${eventData.data.accountAddress}, not registered in incentives program`,
                   );
                   return {
                     timestamp: event.timestamp.toISOString(),
@@ -99,18 +99,18 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
             }
 
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
-            if (event.dApp === "WeftFinance") {
-              yield* Effect.log("WeftFinance event", event.eventData);
+            if (event.dApp === 'WeftFinance') {
+              yield* Effect.log('WeftFinance event', event.eventData);
 
               const eventData = (event.eventData as WeftFinanceEmittableEvents)
                 .data[0];
               let nonFungibleId: string;
 
-              if ("cdp_id" in eventData) {
+              if ('cdp_id' in eventData) {
                 nonFungibleId = eventData.cdp_id;
               } else if (
-                "nft_id" in eventData &&
-                typeof eventData.nft_id === "string"
+                'nft_id' in eventData &&
+                typeof eventData.nft_id === 'string'
               ) {
                 nonFungibleId = eventData.nft_id;
               } else {
@@ -127,7 +127,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
               const result = yield* getRegisteredAccountAddressFromNonFungible(
                 WeftFinanceConstants.v2.WeftyV2.resourceAddress,
                 nonFungibleId,
-                at_ledger_state
+                at_ledger_state,
               );
 
               if (result === null) {
@@ -145,12 +145,12 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
             }
 
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
-            if (event.dApp === "RootFinance") {
-              yield* Effect.log("RootFinance event", event.eventData);
+            if (event.dApp === 'RootFinance') {
+              yield* Effect.log('RootFinance event', event.eventData);
 
               const eventData = event.eventData as RootFinanceEmittableEvents;
 
-              if (eventData.type === "CDPUpdatedEvent") {
+              if (eventData.type === 'CDPUpdatedEvent') {
                 const nonFungibleId = eventData.data.cdp_id;
 
                 const at_ledger_state = {
@@ -161,7 +161,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
                   yield* getRegisteredAccountAddressFromNonFungible(
                     RootFinanceConstants.receiptResourceAddress,
                     nonFungibleId,
-                    at_ledger_state
+                    at_ledger_state,
                   );
 
                 if (result === null) {
@@ -194,7 +194,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
         return accountAddresses;
       });
     }),
-  }
+  },
 ) {}
 
 export const DeriveAccountFromEventLive = DeriveAccountFromEventService.Default;

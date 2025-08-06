@@ -1,20 +1,31 @@
-import { defineConfig } from "vitest/config";
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
   test: {
     globals: true,
-    environment: "node",
-    globalSetup: "./src/test-config/global-setup.ts",
-    setupFiles: ["./src/test-config/setup.ts"],
+    environment: 'node',
+    globalSetup: './src/test-config/global-setup.ts',
+    setupFiles: ['./src/test-config/setup.ts'],
     testTimeout: 30_000, // 30 seconds global timeout
     retry: 0, // Retry failed tests up to 3 times
     // Run tests sequentially to avoid database conflicts and race conditions
-    pool: "forks",
+    pool: 'forks',
     fileParallelism: false,
     poolOptions: {
       forks: {
         singleFork: true, // Run all tests in a single fork (sequential)
       },
+    },
+    coverage: {
+      reporter: ['text', 'json', 'json-summary', 'html', 'lcov', 'cobertura'],
+      reportsDirectory: './coverage',
+      exclude: [
+        'node_modules/**',
+        'src/test-config/**',
+        '**/*.test.ts',
+        '**/*.spec.ts',
+        'coverage/**',
+      ],
     },
   },
 });

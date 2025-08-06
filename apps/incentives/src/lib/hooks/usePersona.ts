@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import { useDappToolkit } from "./useRdt";
-import type { Persona } from "@radixdlt/radix-dapp-toolkit";
+import type { Persona } from '@radixdlt/radix-dapp-toolkit';
+import { useEffect, useState } from 'react';
+import { useDappToolkit } from './useRdt';
 
 export const usePersona = () => {
   const rdt = useDappToolkit();

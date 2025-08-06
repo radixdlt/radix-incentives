@@ -1,8 +1,8 @@
-import { Effect } from "effect";
-import { DbClientService } from "../db/dbClient";
-import { type Consultation, consultations } from "db/consultation";
-import { z, type ZodError } from "zod";
-import { sql } from "drizzle-orm";
+import { type Consultation, consultations } from 'db/consultation';
+import { sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { type ZodError, z } from 'zod';
+import { DbClientService } from '../db/dbClient';
 
 export const consultationEntrySchema = z.object({
   accountAddress: z.string(),
@@ -11,30 +11,30 @@ export const consultationEntrySchema = z.object({
   rolaProof: z.object({
     publicKey: z.string(),
     signature: z.string(),
-    curve: z.enum(["curve25519", "secp256k1"]),
+    curve: z.enum(['curve25519', 'secp256k1']),
   }),
 });
 
 export type ConsultationEntry = Consultation;
 
 export class InsertConsultationError {
-  readonly _tag = "InsertConsultationError";
+  readonly _tag = 'InsertConsultationError';
   constructor(readonly error: unknown) {}
 }
 
 export class ParseConsultationError {
-  readonly _tag = "ParseConsultationError";
+  readonly _tag = 'ParseConsultationError';
   constructor(readonly error: ZodError<ConsultationEntry>) {}
 }
 
 export class AddConsultationToDbService extends Effect.Service<AddConsultationToDbService>()(
-  "AddConsultationToDbService",
+  'AddConsultationToDbService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {
         run: Effect.fn(function* (
-          items: z.infer<typeof consultationEntrySchema>[]
+          items: z.infer<typeof consultationEntrySchema>[],
         ) {
           yield* Effect.all(
             items.map((item) =>
@@ -42,10 +42,10 @@ export class AddConsultationToDbService extends Effect.Service<AddConsultationTo
                 try: () => consultationEntrySchema.parseAsync(item),
                 catch: (error) =>
                   new ParseConsultationError(
-                    error as ZodError<ConsultationEntry>
+                    error as ZodError<ConsultationEntry>,
                   ),
-              })
-            )
+              }),
+            ),
           );
 
           yield* Effect.tryPromise({
@@ -68,5 +68,5 @@ export class AddConsultationToDbService extends Effect.Service<AddConsultationTo
         }),
       };
     }),
-  }
+  },
 ) {}

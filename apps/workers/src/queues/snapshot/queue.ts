@@ -1,9 +1,9 @@
-import { createQueue } from "../createQueue";
-import { redisClient } from "../../redis";
-import { snapshotWorker } from "./worker";
-import type { SnapshotJob } from "./schemas";
-import { Effect } from "effect";
-import { QueueName } from "../types";
+import { Effect } from 'effect';
+import { redisClient } from '../../redis';
+import { createQueue } from '../createQueue';
+import { QueueName } from '../types';
+import type { SnapshotJob } from './schemas';
+import { snapshotWorker } from './worker';
 
 export const snapshotQueue = createQueue<SnapshotJob, void>({
   name: QueueName.snapshot,
@@ -20,7 +20,7 @@ export const snapshotQueue = createQueue<SnapshotJob, void>({
           stack: error.stack,
           failedReason: error.cause,
         });
-      })
+      }),
     );
   },
   workerOptions: {
@@ -38,7 +38,7 @@ Object.assign(snapshotQueue.queue.defaultJobOptions, {
   removeOnFail: { count: 10000 }, // Keep last 10000 failed jobs
   attempts: 3,
   backoff: {
-    type: "exponential",
+    type: 'exponential',
     delay: 1000,
   },
 });

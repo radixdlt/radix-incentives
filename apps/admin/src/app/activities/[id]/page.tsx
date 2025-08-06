@@ -1,11 +1,17 @@
 'use client';
 
-import * as React from 'react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import * as React from 'react';
 import { toast } from 'sonner';
 
+import type {
+  Activity,
+  ActivityCategory,
+  Dapp,
+  UpdateActivityInput,
+} from 'api/incentives';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -16,15 +22,9 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import { Textarea } from '~/components/ui/textarea';
-import { Switch } from '~/components/ui/switch';
 import { Separator } from '~/components/ui/separator';
-import type {
-  Activity,
-  ActivityCategory,
-  Dapp,
-  UpdateActivityInput,
-} from 'api/incentives';
+import { Switch } from '~/components/ui/switch';
+import { Textarea } from '~/components/ui/textarea';
 import { api } from '~/trpc/react';
 
 // Reusable form component (can be extracted later)

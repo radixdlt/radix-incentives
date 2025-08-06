@@ -1,4 +1,4 @@
-import { blake2b } from "blakejs";
+import { blake2b } from 'blakejs';
 
 /**
  * Generates a 32-byte BLAKE2b hash digest of a message.

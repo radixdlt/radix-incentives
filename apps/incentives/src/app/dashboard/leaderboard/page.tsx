@@ -1,22 +1,22 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { api } from "~/trpc/react";
-import { SeasonLeaderboard } from "./components/season-leaderboard";
-import { CategoryLeaderboard } from "./components/category-leaderboard";
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { api } from '~/trpc/react';
+import { CategoryLeaderboard } from './components/category-leaderboard';
+import { SeasonLeaderboard } from './components/season-leaderboard';
 
-type TabType = "category" | "season";
+type TabType = 'category' | 'season';
 
 export default function LeaderboardPage() {
-  const [activeTab, setActiveTab] = useState<TabType>("season");
+  const [activeTab, setActiveTab] = useState<TabType>('season');
   const searchParams = useSearchParams();
 
   // Switch to activity points tab if coming from dashboard with category parameter
   useEffect(() => {
-    const categoryParam = searchParams.get("category");
+    const categoryParam = searchParams.get('category');
     if (categoryParam) {
-      setActiveTab("category");
+      setActiveTab('category');
     }
   }, [searchParams]);
 
@@ -30,22 +30,22 @@ export default function LeaderboardPage() {
       <div className="flex space-x-1 glass rounded-xl p-1">
         <button
           type="button"
-          onClick={() => setActiveTab("season")}
+          onClick={() => setActiveTab('season')}
           className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
-            activeTab === "season"
-              ? "glass-card text-white shadow-lg gradient-brand"
-              : "text-white/70 hover:text-white hover:bg-white/10"
+            activeTab === 'season'
+              ? 'glass-card text-white shadow-lg gradient-brand'
+              : 'text-white/70 hover:text-white hover:bg-white/10'
           }`}
         >
           Season Points
         </button>
         <button
           type="button"
-          onClick={() => setActiveTab("category")}
+          onClick={() => setActiveTab('category')}
           className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
-            activeTab === "category"
-              ? "glass-card text-white shadow-lg gradient-brand"
-              : "text-white/70 hover:text-white hover:bg-white/10"
+            activeTab === 'category'
+              ? 'glass-card text-white shadow-lg gradient-brand'
+              : 'text-white/70 hover:text-white hover:bg-white/10'
           }`}
         >
           Activity Points
@@ -54,8 +54,8 @@ export default function LeaderboardPage() {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {activeTab === "season" && <SeasonLeaderboard />}
-        {activeTab === "category" && <CategoryLeaderboard />}
+        {activeTab === 'season' && <SeasonLeaderboard />}
+        {activeTab === 'category' && <CategoryLeaderboard />}
       </div>
     </div>
   );

@@ -1,8 +1,8 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { type User, user } from "db/incentives";
+import { type User, user } from 'db/incentives';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-export class UpsertUserService extends Context.Tag("UpsertUserService")<
+export class UpsertUserService extends Context.Tag('UpsertUserService')<
   UpsertUserService,
   (input: { address: string; label: string }) => Effect.Effect<User, DbError>
 >() {}
@@ -25,5 +25,5 @@ export const UpsertUserLive = Layer.effect(
             .returning(),
         catch: (error) => new DbError(error),
       }).pipe(Effect.map(([user]) => user as User));
-  })
+  }),
 );

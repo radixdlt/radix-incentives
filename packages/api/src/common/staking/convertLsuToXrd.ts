@@ -1,29 +1,29 @@
-import { Effect } from "effect";
-import type BigNumber from "bignumber.js";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
-import type { AtLedgerState } from "../gateway/schemas";
+import type BigNumber from 'bignumber.js';
+import { Effect } from 'effect';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import type { AtLedgerState } from '../gateway/schemas';
 
 export class InvalidResourceError {
-  readonly _tag = "InvalidResourceError";
+  readonly _tag = 'InvalidResourceError';
   constructor(readonly error: unknown) {}
 }
 
 export class InvalidNativeResourceKindError {
-  readonly _tag = "InvalidNativeResourceKindError";
+  readonly _tag = 'InvalidNativeResourceKindError';
   constructor(readonly error: unknown) {}
 }
 
 export class InvalidAmountError {
-  readonly _tag = "InvalidAmountError";
+  readonly _tag = 'InvalidAmountError';
   constructor(readonly error: unknown) {}
 }
 
 export class EntityDetailsNotFoundError {
-  readonly _tag = "EntityDetailsNotFoundError";
+  readonly _tag = 'EntityDetailsNotFoundError';
 }
 
 export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdService>()(
-  "ConvertLsuToXrdService",
+  'ConvertLsuToXrdService',
   {
     effect: Effect.gen(function* () {
       const getEntityDetails = yield* GetEntityDetailsService;
@@ -36,8 +36,8 @@ export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdServic
           {
             nativeResourceDetails: true,
           },
-          input.at_ledger_state
-        ).pipe(Effect.withSpan("getEntityDetails"));
+          input.at_ledger_state,
+        ).pipe(Effect.withSpan('getEntityDetails'));
 
         return yield* Effect.all(
           entityDetailsResponse.map((entityDetails) => {
@@ -46,21 +46,21 @@ export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdServic
                 return yield* Effect.fail(new EntityDetailsNotFoundError());
               }
 
-              if (entityDetails.details?.type !== "FungibleResource") {
+              if (entityDetails.details?.type !== 'FungibleResource') {
                 return yield* Effect.fail(
                   new InvalidResourceError(
-                    `Expected a fungible resource, got ${entityDetails.details?.type}`
-                  )
+                    `Expected a fungible resource, got ${entityDetails.details?.type}`,
+                  ),
                 );
               }
               if (
                 entityDetails.details.native_resource_details?.kind !==
-                "ValidatorLiquidStakeUnit"
+                'ValidatorLiquidStakeUnit'
               ) {
                 return yield* Effect.fail(
                   new InvalidNativeResourceKindError(
-                    `Expected a validator liquid stake unit, got ${entityDetails.details.native_resource_details?.kind}`
-                  )
+                    `Expected a validator liquid stake unit, got ${entityDetails.details.native_resource_details?.kind}`,
+                  ),
                 );
               }
 
@@ -71,7 +71,7 @@ export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdServic
               const unit_redemption_value = value?.amount;
 
               if (!unit_redemption_value) {
-                return yield* Effect.fail(new InvalidAmountError("No amount"));
+                return yield* Effect.fail(new InvalidAmountError('No amount'));
               }
 
               return {
@@ -83,11 +83,11 @@ export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdServic
                   amount.multipliedBy(unit_redemption_value),
               };
             });
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const ConvertLsuToXrdLive = ConvertLsuToXrdService.Default;

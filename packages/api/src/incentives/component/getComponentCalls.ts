@@ -1,11 +1,11 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { componentCalls } from "db/incentives";
-import { and, between } from "drizzle-orm";
+import { componentCalls } from 'db/incentives';
+import { and, between } from 'drizzle-orm';
 
-import { GetAccountAddressByUserIdService } from "../account/getAccountAddressByUserId";
-import { ComponentWhitelistService } from "./componentWhitelist";
+import { GetAccountAddressByUserIdService } from '../account/getAccountAddressByUserId';
+import { ComponentWhitelistService } from './componentWhitelist';
 
 export type GetComponentCallsServiceInput = {
   endTimestamp: Date;
@@ -22,11 +22,11 @@ export type GetComponentCallsServiceOutput = {
 }[];
 
 export class GetComponentCallsService extends Context.Tag(
-  "GetComponentCallsService"
+  'GetComponentCallsService',
 )<
   GetComponentCallsService,
   (
-    input: GetComponentCallsServiceInput
+    input: GetComponentCallsServiceInput,
   ) => Effect.Effect<GetComponentCallsServiceOutput, DbError>
 >() {}
 
@@ -52,9 +52,9 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
                   between(
                     componentCalls.timestamp,
                     input.startTimestamp,
-                    input.endTimestamp
-                  )
-                )
+                    input.endTimestamp,
+                  ),
+                ),
               ),
           catch: (error) => new DbError(error),
         });
@@ -68,19 +68,19 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
               // Filter components using the efficient whitelist service
               const validComponents =
                 yield* componentWhitelistService.filterComponents(
-                  allComponents
+                  allComponents,
                 );
 
               return {
                 userId: item.userId,
                 componentCalls: validComponents.length,
               };
-            })
-          )
+            }),
+          ),
         );
 
         const userIdAccountAddressMap = yield* getAccountAddressByUserId(
-          processedResult.map((item) => item.userId)
+          processedResult.map((item) => item.userId),
         );
 
         return processedResult
@@ -99,5 +99,5 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
           .filter((item): item is NonNullable<typeof item> => item !== null);
       });
     };
-  })
+  }),
 );

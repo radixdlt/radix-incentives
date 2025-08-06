@@ -1,5 +1,5 @@
-import { Effect } from "effect";
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
+import { Effect } from 'effect';
 
 export interface WeightedItem {
   id: string;
@@ -17,7 +17,7 @@ export const distributeWeightedPoints = Effect.fn(function* (input: {
   // Calculate total multiplier sum
   const totalMultiplier = input.items.reduce(
     (sum, item) => sum.plus(item.multiplier),
-    new BigNumber(0)
+    new BigNumber(0),
   );
 
   if (totalMultiplier.isZero()) {

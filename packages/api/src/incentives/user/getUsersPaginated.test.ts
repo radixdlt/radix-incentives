@@ -1,37 +1,37 @@
-import { describe, inject } from "vitest";
-import { Effect, Layer } from "effect";
-import { it } from "@effect/vitest";
-import { createDbClientLive } from "../db/dbClient";
+import { it } from '@effect/vitest';
+import { Effect, Layer } from 'effect';
+import { describe, inject } from 'vitest';
+import { createDbClientLive } from '../db/dbClient';
 import {
-  GetUsersPaginatedService,
   GetUsersPaginatedLive,
-} from "./getUsersPaginated";
+  GetUsersPaginatedService,
+} from './getUsersPaginated';
 
-import { users, accounts, schema } from "db/incentives";
-import postgres from "postgres";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { accounts, schema, users } from 'db/incentives';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 
 describe(
-  "GetUsersPaginatedService",
+  'GetUsersPaginatedService',
   {
     timeout: 30_000,
   },
   () => {
-    const dbUrl = inject("testDbUrl");
+    const dbUrl = inject('testDbUrl');
     const db = drizzle(postgres(dbUrl), { schema });
     const dbLive = createDbClientLive(db);
 
     const testLayer = GetUsersPaginatedLive.pipe(Layer.provide(dbLive));
 
     // Test data constants
-    const USER_1 = "11111111-1111-1111-1111-111111111111";
-    const USER_2 = "22222222-2222-2222-2222-222222222222";
-    const USER_3 = "33333333-3333-3333-3333-333333333333";
+    const USER_1 = '11111111-1111-1111-1111-111111111111';
+    const USER_2 = '22222222-2222-2222-2222-222222222222';
+    const USER_3 = '33333333-3333-3333-3333-333333333333';
 
-    const ACCOUNT_1 = "account_rdx12test1_get_users_paginated_acc";
-    const ACCOUNT_2 = "account_rdx12test2_get_users_paginated_acc";
-    const ACCOUNT_3 = "account_rdx12test3_get_users_paginated_acc";
-    const ACCOUNT_4 = "account_rdx12test4_get_users_paginated_acc";
+    const ACCOUNT_1 = 'account_rdx12test1_get_users_paginated_acc';
+    const ACCOUNT_2 = 'account_rdx12test2_get_users_paginated_acc';
+    const ACCOUNT_3 = 'account_rdx12test3_get_users_paginated_acc';
+    const ACCOUNT_4 = 'account_rdx12test4_get_users_paginated_acc';
 
     const setupTestData = Effect.gen(function* () {
       // Create users
@@ -43,7 +43,7 @@ describe(
             { id: USER_2, identityAddress: `identity_${USER_2}` },
             { id: USER_3, identityAddress: `identity_${USER_3}` },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create accounts
@@ -51,12 +51,12 @@ describe(
         db
           .insert(accounts)
           .values([
-            { address: ACCOUNT_1, userId: USER_1, label: "Account 1" },
-            { address: ACCOUNT_2, userId: USER_1, label: "Account 2" },
-            { address: ACCOUNT_3, userId: USER_2, label: "Account 3" },
-            { address: ACCOUNT_4, userId: USER_3, label: "Account 4" },
+            { address: ACCOUNT_1, userId: USER_1, label: 'Account 1' },
+            { address: ACCOUNT_2, userId: USER_1, label: 'Account 2' },
+            { address: ACCOUNT_3, userId: USER_2, label: 'Account 3' },
+            { address: ACCOUNT_4, userId: USER_3, label: 'Account 4' },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
     });
 
@@ -65,14 +65,14 @@ describe(
       yield* Effect.promise(() => db.delete(users));
     });
 
-    it.effect("should return paginated users with their accounts", () =>
+    it.effect('should return paginated users with their accounts', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
         yield* setupTestData;
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         const result = yield* service({ page: 1, limit: 10 });
@@ -88,7 +88,7 @@ describe(
         expect(user1).toBeDefined();
         expect(user1?.accounts).toHaveLength(2);
         expect(user1?.accounts.map((a) => a.address)).toEqual(
-          expect.arrayContaining([ACCOUNT_1, ACCOUNT_2])
+          expect.arrayContaining([ACCOUNT_1, ACCOUNT_2]),
         );
 
         expect(user2).toBeDefined();
@@ -100,17 +100,17 @@ describe(
         expect(user3?.accounts[0]?.address).toBe(ACCOUNT_4);
 
         yield* cleanupTestData;
-      })
+      }),
     );
 
-    it.effect("should handle pagination correctly", () =>
+    it.effect('should handle pagination correctly', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
         yield* setupTestData;
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         // Test first page with limit 2
@@ -129,10 +129,10 @@ describe(
         expect(page3.total).toBe(3);
 
         yield* cleanupTestData;
-      })
+      }),
     );
 
-    it.effect("should handle users with no accounts", () =>
+    it.effect('should handle users with no accounts', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
 
@@ -141,12 +141,12 @@ describe(
           db
             .insert(users)
             .values([{ id: USER_1, identityAddress: `identity_${USER_1}` }])
-            .onConflictDoNothing()
+            .onConflictDoNothing(),
         );
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         const result = yield* service({ page: 1, limit: 10 });
@@ -157,26 +157,26 @@ describe(
         expect(result.users[0]?.accounts).toHaveLength(0);
 
         yield* cleanupTestData;
-      })
+      }),
     );
 
-    it.effect("should handle empty result set", () =>
+    it.effect('should handle empty result set', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         const result = yield* service({ page: 1, limit: 10 });
 
         expect(result.users).toHaveLength(0);
         expect(result.total).toBe(0);
-      })
+      }),
     );
 
-    it.effect("should return users sorted by creation date", () =>
+    it.effect('should return users sorted by creation date', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
 
@@ -205,12 +205,12 @@ describe(
                 createdAt: yesterday,
               },
             ])
-            .onConflictDoNothing()
+            .onConflictDoNothing(),
         );
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         const result = yield* service({ page: 1, limit: 10 });
@@ -223,17 +223,17 @@ describe(
         expect(createdDates[1]).toBeGreaterThanOrEqual(createdDates[2] || 0);
 
         yield* cleanupTestData;
-      })
+      }),
     );
 
-    it.effect("should handle large page numbers gracefully", () =>
+    it.effect('should handle large page numbers gracefully', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
         yield* setupTestData;
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         // Request a very high page number
@@ -243,17 +243,17 @@ describe(
         expect(result.total).toBe(3);
 
         yield* cleanupTestData;
-      })
+      }),
     );
 
-    it.effect("should handle edge case limits", () =>
+    it.effect('should handle edge case limits', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
         yield* setupTestData;
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         // Test with limit of 1
@@ -272,15 +272,15 @@ describe(
         expect(result3.total).toBe(3);
 
         yield* cleanupTestData;
-      })
+      }),
     );
 
-    it.effect("should correctly associate multiple accounts per user", () =>
+    it.effect('should correctly associate multiple accounts per user', () =>
       Effect.gen(function* () {
         yield* cleanupTestData;
 
         // Create a user with many accounts
-        const USER_WITH_MANY_ACCOUNTS = "44444444-4444-4444-4444-444444444444";
+        const USER_WITH_MANY_ACCOUNTS = '44444444-4444-4444-4444-444444444444';
 
         yield* Effect.promise(() =>
           db
@@ -291,13 +291,13 @@ describe(
                 identityAddress: `identity_${USER_WITH_MANY_ACCOUNTS}`,
               },
             ])
-            .onConflictDoNothing()
+            .onConflictDoNothing(),
         );
 
         // Create 5 accounts for this user
         const accountAddresses = Array.from(
           { length: 5 },
-          (_, i) => `account_rdx12many${i}_get_users_paginated_acc`
+          (_, i) => `account_rdx12many${i}_get_users_paginated_acc`,
         );
 
         yield* Effect.promise(() =>
@@ -308,14 +308,14 @@ describe(
                 address,
                 userId: USER_WITH_MANY_ACCOUNTS,
                 label: `Many Account ${i + 1}`,
-              }))
+              })),
             )
-            .onConflictDoNothing()
+            .onConflictDoNothing(),
         );
 
         const service = yield* Effect.provide(
           GetUsersPaginatedService,
-          testLayer
+          testLayer,
         );
 
         const result = yield* service({ page: 1, limit: 10 });
@@ -326,11 +326,11 @@ describe(
         const user = result.users[0];
         expect(user?.accounts).toHaveLength(5);
         expect(user?.accounts.map((a) => a.address)).toEqual(
-          expect.arrayContaining(accountAddresses)
+          expect.arrayContaining(accountAddresses),
         );
 
         yield* cleanupTestData;
-      })
+      }),
     );
-  }
+  },
 );

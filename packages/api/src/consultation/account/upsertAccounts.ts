@@ -1,7 +1,7 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { accounts } from "db/consultation";
-import { sql } from "drizzle-orm";
+import { accounts } from 'db/consultation';
+import { sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 type UpsertAccountInput = {
   userId: string;
@@ -9,7 +9,7 @@ type UpsertAccountInput = {
 };
 
 export class UpsertAccountsService extends Effect.Service<UpsertAccountsService>()(
-  "UpsertAccountsService",
+  'UpsertAccountsService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -23,7 +23,7 @@ export class UpsertAccountsService extends Effect.Service<UpsertAccountsService>
                   input.accounts.map((account) => ({
                     userId: input.userId,
                     ...account,
-                  }))
+                  })),
                 )
                 .returning()
                 .onConflictDoUpdate({
@@ -35,5 +35,5 @@ export class UpsertAccountsService extends Effect.Service<UpsertAccountsService>
         }),
       };
     }),
-  }
+  },
 ) {}

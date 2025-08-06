@@ -1,15 +1,15 @@
-import { Effect } from "effect";
-import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
-import type { AtLedgerState } from "../gateway/schemas";
-import { BigNumber } from "bignumber.js";
-import { PoolUnitSchema, PoolResourcesSchema } from "./schemas";
+import { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../gateway/getFungibleBalance';
+import type { AtLedgerState } from '../gateway/schemas';
+import { PoolResourcesSchema, PoolUnitSchema } from './schemas';
 
 export class InvalidPoolResourceError extends Error {
-  readonly _tag = "InvalidPoolResourceError";
+  readonly _tag = 'InvalidPoolResourceError';
   constructor(error: unknown) {
     super(
-      `Invalid pool resource: ${error instanceof Error ? error.message : error}`
+      `Invalid pool resource: ${error instanceof Error ? error.message : error}`,
     );
   }
 }
@@ -20,11 +20,11 @@ export type GetResourcePoolInput = {
 };
 
 export type GetResourcePoolOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof GetResourcePoolUnitsService)["Service"]>>
+  Awaited<ReturnType<(typeof GetResourcePoolUnitsService)['Service']>>
 >;
 
 export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolUnitsService>()(
-  "GetResourcePoolUnitsService",
+  'GetResourcePoolUnitsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -45,11 +45,11 @@ export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolU
                 poolResources: string[];
               }>(
                 (acc, curr) => {
-                  if (curr.key === "pool_unit") {
+                  if (curr.key === 'pool_unit') {
                     const poolUnitResult = PoolUnitSchema.safeParse({
                       ...curr.value.programmatic_json,
                       // @ts-expect-error: missing variant_name
-                      variant_name: "PoolUnit",
+                      variant_name: 'PoolUnit',
                     });
 
                     if (poolUnitResult.isOk()) {
@@ -58,11 +58,11 @@ export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolU
                     }
                   }
 
-                  if (curr.key === "pool_resources") {
+                  if (curr.key === 'pool_resources') {
                     const poolResourcesResult = PoolResourcesSchema.safeParse({
                       ...curr.value.programmatic_json,
                       // @ts-expect-error: missing variant_name
-                      variant_name: "PoolResources",
+                      variant_name: 'PoolResources',
                     });
 
                     if (poolResourcesResult.isOk()) {
@@ -76,40 +76,40 @@ export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolU
                 {
                   poolUnit: undefined,
                   poolResources: [],
-                }
+                },
               );
 
               if (!poolUnit || poolResources.length === 0) {
                 return yield* Effect.fail(
                   new InvalidPoolResourceError(
-                    `Pool ${item.address} has no pool unit or pool resources`
-                  )
+                    `Pool ${item.address} has no pool unit or pool resources`,
+                  ),
                 );
               }
 
               const totalSupply = yield* getEntityDetailsService(
                 [poolUnit],
                 {},
-                input.at_ledger_state
+                input.at_ledger_state,
               ).pipe(
                 Effect.flatMap((responses) => {
-                  if (responses[0]?.details?.type !== "FungibleResource") {
+                  if (responses[0]?.details?.type !== 'FungibleResource') {
                     return Effect.fail(
                       new InvalidPoolResourceError(
-                        `${responses[0]?.address ?? poolUnit} is not a fungible resource`
-                      )
+                        `${responses[0]?.address ?? poolUnit} is not a fungible resource`,
+                      ),
                     );
                   }
                   return Effect.succeed(
-                    new BigNumber(responses[0].details.total_supply)
+                    new BigNumber(responses[0].details.total_supply),
                   );
-                })
+                }),
               );
 
               const poolResourcesFungibleResources = poolResources
                 .map((poolResource) => {
                   const value = item.fungibleResources.find(
-                    (item) => item.resourceAddress === poolResource
+                    (item) => item.resourceAddress === poolResource,
                   )?.amount;
 
                   if (value) {
@@ -130,11 +130,11 @@ export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolU
                 poolResources: poolResourcesFungibleResources,
               };
             }),
-          { concurrency: "inherit" }
+          { concurrency: 'inherit' },
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const GetResourcePoolUnitsLive = GetResourcePoolUnitsService.Default;

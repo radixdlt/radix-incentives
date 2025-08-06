@@ -1,28 +1,28 @@
-import { Data, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { type Season, seasons, weeks } from "db/incentives";
-import { eq, desc, sql } from "drizzle-orm";
-import { z } from "zod";
+import { type Season, seasons, weeks } from 'db/incentives';
+import { desc, eq, sql } from 'drizzle-orm';
+import { Data, Effect } from 'effect';
+import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
-class NotFound extends Data.TaggedError("NotFound")<{
+class NotFound extends Data.TaggedError('NotFound')<{
   message: string;
 }> {}
 
 export const CreateSeasonSchema = z.object({
   name: z.string(),
-  status: z.enum(["upcoming", "active", "completed"]),
+  status: z.enum(['upcoming', 'active', 'completed']),
 });
 
 export const EditSeasonSchema = z.object({
   id: z.string(),
   name: z.string(),
-  status: z.enum(["upcoming", "active", "completed"]),
+  status: z.enum(['upcoming', 'active', 'completed']),
 });
 
 export type EditSeasonInput = z.infer<typeof EditSeasonSchema>;
 
 export class SeasonService extends Effect.Service<SeasonService>()(
-  "SeasonService",
+  'SeasonService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -33,7 +33,7 @@ export class SeasonService extends Effect.Service<SeasonService>()(
               db
                 .select({ id: seasons.id })
                 .from(seasons)
-                .where(eq(seasons.status, "active"))
+                .where(eq(seasons.status, 'active'))
                 .limit(1)
                 .then((result) => result[0]),
             catch: (error) => new DbError(error),
@@ -41,7 +41,7 @@ export class SeasonService extends Effect.Service<SeasonService>()(
 
           if (!season) {
             return yield* Effect.fail(
-              new NotFound({ message: "No active season found" })
+              new NotFound({ message: 'No active season found' }),
             );
           }
 
@@ -58,7 +58,7 @@ export class SeasonService extends Effect.Service<SeasonService>()(
 
           if (!season) {
             return yield* Effect.fail(
-              new NotFound({ message: `Season ${id} not found` })
+              new NotFound({ message: `Season ${id} not found` }),
             );
           }
 
@@ -80,13 +80,13 @@ export class SeasonService extends Effect.Service<SeasonService>()(
 
           if (!season) {
             return yield* Effect.fail(
-              new NotFound({ message: `Season for week ${weekId} not found` })
+              new NotFound({ message: `Season for week ${weekId} not found` }),
             );
           }
 
           return season;
         }),
-        create: Effect.fn(function* (input: Omit<Season, "id">) {
+        create: Effect.fn(function* (input: Omit<Season, 'id'>) {
           const season = yield* Effect.tryPromise({
             try: () => db.insert(seasons).values(input).returning(),
             catch: (error) => new DbError(error),
@@ -109,8 +109,8 @@ export class SeasonService extends Effect.Service<SeasonService>()(
                   id: seasons.id,
                   name: seasons.name,
                   status: seasons.status,
-                  startDate: sql<Date>`MIN(${weeks.startDate})`.as("startDate"),
-                  endDate: sql<Date>`MAX(${weeks.endDate})`.as("endDate"),
+                  startDate: sql<Date>`MIN(${weeks.startDate})`.as('startDate'),
+                  endDate: sql<Date>`MAX(${weeks.endDate})`.as('endDate'),
                 })
                 .from(seasons)
                 .leftJoin(weeks, eq(seasons.id, weeks.seasonId))
@@ -121,5 +121,5 @@ export class SeasonService extends Effect.Service<SeasonService>()(
         }),
       };
     }),
-  }
+  },
 ) {}

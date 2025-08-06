@@ -12,8 +12,8 @@
     "clean": "./scripts/clean.sh",
     "test": "turbo run test --filter=api",
     "test:ci": "turbo run test:ci --filter=api",
-    "format": "biome format --write ./packages/**/**/*.ts",
     "lint": "biome lint --write ./packages/**/**/*.ts",
+    "format": "biome format --write .",
     "check-types": "biome check .",
     "db:start": "docker compose -f docker-compose.yml up -d",
     "db:generate": "turbo run db:generate:incentives",
@@ -25,10 +25,12 @@
     "db:reset": "./packages/db/scripts/reset.sh",
     "queue:add": "pnpm --filter queue-helper run queue",
     "verify:activities": "turbo run verify:activities",
-    "data:generate": "turbo run generate"
+    "data:generate": "turbo run generate",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "turbo": "^2.5.0",
     "typescript": "5.8.2"

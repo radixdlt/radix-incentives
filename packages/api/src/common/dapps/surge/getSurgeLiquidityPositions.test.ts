@@ -1,14 +1,14 @@
-import { Effect, Exit, Layer } from "effect";
-import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
-import { GetLedgerStateService } from "../../gateway/getLedgerState";
-import { EntityFungiblesPageService } from "../../gateway/entityFungiblesPage";
+import { Effect, Exit, Layer } from 'effect';
+import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import {
   GetSurgeLiquidityPositionsLive,
   GetSurgeLiquidityPositionsService,
-} from "./getSurgeLiquidityPositions";
-import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
-import { GetComponentStateService } from "../../gateway/getComponentState";
+} from './getSurgeLiquidityPositions';
 
 const GetFungibleBalanceLive = GetFungibleBalanceService.Default;
 const GetComponentStateLive = GetComponentStateService.Default;
@@ -22,21 +22,21 @@ const getSurgeLiquidityPositionsLive = GetSurgeLiquidityPositionsLive.pipe(
   Layer.provide(GetEntityDetailsServiceLive),
   Layer.provide(EntityFungiblesPageLive),
   Layer.provide(GetLedgerStateLive),
-  Layer.provide(GatewayApiClientLive)
+  Layer.provide(GatewayApiClientLive),
 );
 
-describe("GetSurgeLiquidityPositionsService", () => {
-  it("should get surge liquidity positions", async () => {
+describe('GetSurgeLiquidityPositionsService', () => {
+  it('should get surge liquidity positions', async () => {
     const result = await Effect.runPromiseExit(
       Effect.gen(function* () {
         const service = yield* GetSurgeLiquidityPositionsService;
         return yield* service.getSurgeLiquidityPositions({
           accountAddresses: [
-            "account_rdx12x7dulvhrvz2ney3992n5y4y590cqj58ge5y2xesjlkzgrydg8xdd7",
+            'account_rdx12x7dulvhrvz2ney3992n5y4y590cqj58ge5y2xesjlkzgrydg8xdd7',
           ],
           at_ledger_state: { state_version: 325927555 },
         });
-      }).pipe(Effect.provide(getSurgeLiquidityPositionsLive))
+      }).pipe(Effect.provide(getSurgeLiquidityPositionsLive)),
     );
 
     Exit.match(result, {

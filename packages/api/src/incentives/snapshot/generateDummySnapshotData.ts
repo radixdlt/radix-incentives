@@ -1,8 +1,7 @@
-import { Effect } from "effect";
-import { activitiesData } from "../../../../db/src/incentives/seed/data/100ActivitiesData";
-import type { AggregateAccountBalanceOutput } from "../account-balance/aggregateAccountBalance";
-import type { SnapshotInput } from "./snapshot";
-
+import { Effect } from 'effect';
+import { activitiesData } from '../../../../db/src/incentives/seed/data/100ActivitiesData';
+import type { AggregateAccountBalanceOutput } from '../account-balance/aggregateAccountBalance';
+import type { SnapshotInput } from './snapshot';
 
 type GenerateDummyDataInput = {
   batchAggregatedAccountBalance: AggregateAccountBalanceOutput[];
@@ -13,34 +12,34 @@ type GenerateDummyDataInput = {
 
 export const generateDummySnapshotData = (input: GenerateDummyDataInput) =>
   Effect.gen(function* () {
-    const {
-      batchAggregatedAccountBalance,
-      batch,
-      jobInput,
-      batchIndex,
-    } = input;
+    const { batchAggregatedAccountBalance, batch, jobInput, batchIndex } =
+      input;
     const { timestamp, jobId } = jobInput;
-    const allActivityIds = activitiesData.map((activity: { id: string }) => activity.id);
+    const allActivityIds = activitiesData.map(
+      (activity: { id: string }) => activity.id,
+    );
 
     // Get existing activity IDs from this batch's aggregated results
     const existingActivityIds = new Set(
       batchAggregatedAccountBalance.flatMap((item) =>
-        Array.isArray(item.data) 
-          ? item.data.map((d: { activityId: string }) => d.activityId) 
-          : []
-      )
+        Array.isArray(item.data)
+          ? item.data.map((d: { activityId: string }) => d.activityId)
+          : [],
+      ),
     );
 
     // Find missing activity IDs for this batch
     const missingActivityIds = allActivityIds.filter(
-      (activityId: string) => !existingActivityIds.has(activityId)
+      (activityId: string) => !existingActivityIds.has(activityId),
     );
 
     if (missingActivityIds.length === 0) {
       return batchAggregatedAccountBalance;
     }
 
-    yield* Effect.log("Adding dummy data for missing activities in batch", JSON.stringify({
+    yield* Effect.log(
+      'Adding dummy data for missing activities in batch',
+      JSON.stringify({
         batchIndex: batchIndex + 1,
         jobId: jobId,
         batchAccountsCount: batch.length,
@@ -48,7 +47,8 @@ export const generateDummySnapshotData = (input: GenerateDummyDataInput) =>
         existingActivityIds: existingActivityIds.size,
         batchAccounts: batch.length,
         timestamp: timestamp,
-    }));
+      }),
+    );
 
     // Create a map of existing entries by account address for fast lookup
     const existingEntriesMap = new Map<string, AggregateAccountBalanceOutput>();
@@ -59,7 +59,7 @@ export const generateDummySnapshotData = (input: GenerateDummyDataInput) =>
     // Create dummy activities for missing activity IDs
     const dummyActivities = missingActivityIds.map((activityId: string) => ({
       activityId,
-      usdValue: "0",
+      usdValue: '0',
     }));
 
     const updatedEntries: AggregateAccountBalanceOutput[] = [];
@@ -70,23 +70,22 @@ export const generateDummySnapshotData = (input: GenerateDummyDataInput) =>
       const existingData = Array.isArray(entry.data) ? entry.data : [];
       const updatedEntry: AggregateAccountBalanceOutput = {
         ...entry,
-        data: [
-          ...existingData,
-          ...dummyActivities,
-        ],
+        data: [...existingData, ...dummyActivities],
       };
       updatedEntries.push(updatedEntry);
       accountsWithEntries.add(entry.accountAddress);
     }
 
-    yield* Effect.log(JSON.stringify({
-        message: "Updated entries with dummy data",
+    yield* Effect.log(
+      JSON.stringify({
+        message: 'Updated entries with dummy data',
         batchIndex: batchIndex + 1,
         jobId: jobId,
         batchAccountsCount: batch.length,
         missingActivitiesCount: missingActivityIds.length,
         updatedEntriesCount: updatedEntries.length,
         timestamp: timestamp,
-    }));
+      }),
+    );
     return updatedEntries;
   });

@@ -1,86 +1,86 @@
-import type { Db, Season } from "db/incentives";
+import { NodeSdk } from '@effect/opentelemetry';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import type { Db, Season } from 'db/incentives';
+import { Effect, Layer } from 'effect';
+import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
+import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
+import { AccountBalanceService } from '../account/accountBalance';
+import { GetAccountsByAddressLive } from '../account/getAccountsByAddress';
+import { UpsertAccountsLive } from '../account/upsertAccounts';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import {
+  GetActivityWeeksByWeekIdsLive,
+  GetActivityWeeksByWeekIdsService,
+} from '../activity-week/getActivityWeeksByWeekIds';
+import {
+  ActivityService,
+  type UpdateActivityInput,
+} from '../activity/activity';
+import { ActivityDataService } from '../activity/activityData';
+import {
+  GetActivitiesLive,
+  GetActivitiesService,
+} from '../activity/getActivities';
+import {
+  GetActivityByIdLive,
+  GetActivityByIdService,
+} from '../activity/getActivityById';
+import {
+  CreateChallengeLive,
+  createChallengeProgram,
+} from '../challenge/createChallenge';
+import { VerifyChallengeLive } from '../challenge/verifyChallenge';
+import { ComponentWhitelistService } from '../component/componentWhitelist';
+import {
+  type CsvParsingError,
+  parseCsvWhitelist,
+} from '../component/parseCsvWhitelist';
 import {
   type AppConfig,
   createAppConfigLive,
   createConfig,
-} from "../config/appConfig";
-import { createDbClientLive } from "../db/dbClient";
-import { Effect, Layer } from "effect";
-import { RolaServiceLive } from "../rola/rola";
-import {
-  CreateChallengeLive,
-  createChallengeProgram,
-} from "../challenge/createChallenge";
-import { VerifyRolaProofLive } from "../rola/verifyRolaProof";
-import {
-  signInWithRolaProof,
-  type SignInWithRolaProofInput,
-} from "../programs/signInWithRolaProof";
-import { GenerateSessionTokenLive } from "../session/generateSessionToken";
-import { CreateSessionLive } from "../session/createSession";
-import { VerifyChallengeLive } from "../challenge/verifyChallenge";
-import { UpsertUserLive } from "../user/upsertUser";
-import { validateSessionTokenProgram } from "../programs/validateSessionToken";
-import { InvalidateSessionLive } from "../session/invalidateSession";
-import {
-  verifyAccountOwnershipProgram,
-  type VerifyAccountOwnershipInput,
-} from "../programs/verifyAccountOwnership";
-import { UpsertAccountsLive } from "../account/upsertAccounts";
-import { GetAccountsByAddressLive } from "../account/getAccountsByAddress";
-import { GetSessionLive } from "../session/getSession";
-import { CheckAccountPersistenceServiceLive } from "../../common/gateway/checkAccountPersistence";
-import { GatewayApiClientLive } from "../../common/gateway/gatewayApiClient";
-import { getAccountsProgram } from "../programs/getAccounts";
-import { signOutProgram } from "../programs/signOutProgram";
-import {
-  GetActivitiesLive,
-  GetActivitiesService,
-} from "../activity/getActivities";
-import { GetSeasonsLive, GetSeasonsService } from "../season/getSeasons";
-import {
-  GetSeasonByIdLive,
-  GetSeasonByIdService,
-} from "../season/getSeasonById";
-import {
-  GetActivityByIdLive,
-  GetActivityByIdService,
-} from "../activity/getActivityById";
-import {
-  GetActivityWeeksByWeekIdsLive,
-  GetActivityWeeksByWeekIdsService,
-} from "../activity-week/getActivityWeeksByWeekIds";
-import {
-  GetUsersPaginatedLive,
-  GetUsersPaginatedService,
-} from "../user/getUsersPaginated";
-import { UpdateWeekStatusService } from "../week/updateWeekStatus";
-import { UserService } from "../user/user";
-import { AccountBalanceService } from "../account/accountBalance";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
-import { NodeSdk } from "@effect/opentelemetry";
-import { type EditSeasonInput, SeasonService } from "../season/season";
-import { type CreateWeekInput, WeekService } from "../week/week";
-import { LeaderboardService } from "../leaderboard/leaderboard";
-import { ActivityDataService } from "../activity/activityData";
-import {
-  ActivityService,
-  type UpdateActivityInput,
-} from "../activity/activity";
-import { DappService } from "../dapp/dapp";
-import { ActivityCategoryService } from "../activity-category/activityCategory";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { ActivityWeekService } from "../activity-week/activityWeek";
-import { ComponentWhitelistService } from "../component/componentWhitelist";
-import {
-  parseCsvWhitelist,
-  type CsvParsingError,
-} from "../component/parseCsvWhitelist";
+} from '../config/appConfig';
 import {
   NotificationService,
   type NotificationSettings,
-} from "../config/notificationService";
+} from '../config/notificationService';
+import { DappService } from '../dapp/dapp';
+import { createDbClientLive } from '../db/dbClient';
+import { LeaderboardService } from '../leaderboard/leaderboard';
+import { getAccountsProgram } from '../programs/getAccounts';
+import {
+  type SignInWithRolaProofInput,
+  signInWithRolaProof,
+} from '../programs/signInWithRolaProof';
+import { signOutProgram } from '../programs/signOutProgram';
+import { validateSessionTokenProgram } from '../programs/validateSessionToken';
+import {
+  type VerifyAccountOwnershipInput,
+  verifyAccountOwnershipProgram,
+} from '../programs/verifyAccountOwnership';
+import { RolaServiceLive } from '../rola/rola';
+import { VerifyRolaProofLive } from '../rola/verifyRolaProof';
+import {
+  GetSeasonByIdLive,
+  GetSeasonByIdService,
+} from '../season/getSeasonById';
+import { GetSeasonsLive, GetSeasonsService } from '../season/getSeasons';
+import { type EditSeasonInput, SeasonService } from '../season/season';
+import { CreateSessionLive } from '../session/createSession';
+import { GenerateSessionTokenLive } from '../session/generateSessionToken';
+import { GetSessionLive } from '../session/getSession';
+import { InvalidateSessionLive } from '../session/invalidateSession';
+import {
+  GetUsersPaginatedLive,
+  GetUsersPaginatedService,
+} from '../user/getUsersPaginated';
+import { UpsertUserLive } from '../user/upsertUser';
+import { UserService } from '../user/user';
+import { UpdateWeekStatusService } from '../week/updateWeekStatus';
+import { type CreateWeekInput, WeekService } from '../week/week';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -98,13 +98,13 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const gatewayApiClientLive = GatewayApiClientLive;
 
   const checkAccountPersistenceLive = CheckAccountPersistenceServiceLive.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
 
   const createChallengeLive = CreateChallengeLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const upsertUserLive = UpsertUserLive.pipe(Layer.provide(dbClientLive));
@@ -113,28 +113,28 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const verifyChallengeLive = VerifyChallengeLive.pipe(
     Layer.provide(dbClientLive),
-    Layer.provide(appConfigLive)
+    Layer.provide(appConfigLive),
   );
 
   const createSessionLive = CreateSessionLive.pipe(
     Layer.provide(dbClientLive),
-    Layer.provide(appConfigLive)
+    Layer.provide(appConfigLive),
   );
 
   const verifyRolaProofLive = VerifyRolaProofLive.pipe(
-    Layer.provide(rolaServiceLive)
+    Layer.provide(rolaServiceLive),
   );
 
   const invalidateSessionLive = InvalidateSessionLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const upsertAccountsLive = UpsertAccountsLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const getAccountsByAddressLive = GetAccountsByAddressLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const getSessionLive = GetSessionLive.pipe(Layer.provide(dbClientLive));
@@ -146,33 +146,33 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getSeasonByIdLive = GetSeasonByIdLive.pipe(Layer.provide(dbClientLive));
 
   const getActivityByIdLive = GetActivityByIdLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const getActivityWeeksByWeekIdsLive = GetActivityWeeksByWeekIdsLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const getUsersPaginatedLive = GetUsersPaginatedLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const updateWeekStatusLive = UpdateWeekStatusService.Default.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const NodeSdkLive = NodeSdk.layer(() => ({
-    resource: { serviceName: "api" },
+    resource: { serviceName: 'api' },
     spanProcessor: new BatchSpanProcessor(
       new OTLPTraceExporter({
         url: `${appConfig.otlpBaseUrl}/v1/traces`,
-      })
+      }),
     ),
   }));
 
   const createChallenge = () =>
     Effect.runPromiseExit(
-      createChallengeProgram.pipe(Effect.provide(createChallengeLive))
+      createChallengeProgram.pipe(Effect.provide(createChallengeLive)),
     );
 
   const signIn = (input: SignInWithRolaProofInput) => {
@@ -186,8 +186,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         createSessionLive,
         generateSessionTokenLive,
         upsertUserLive,
-        verifyChallengeLive
-      )
+        verifyChallengeLive,
+      ),
     );
 
     return Effect.runPromiseExit(program);
@@ -200,8 +200,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         getSessionLive,
         invalidateSessionLive,
         dbClientLive,
-        appConfigLive
-      )
+        appConfigLive,
+      ),
     );
 
     return Effect.runPromiseExit(program);
@@ -218,8 +218,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         verifyChallengeLive,
         upsertAccountsLive,
         getAccountsByAddressLive,
-        checkAccountPersistenceLive
-      )
+        checkAccountPersistenceLive,
+      ),
     );
 
     return Effect.runPromiseExit(program);
@@ -228,7 +228,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getAccounts = (userId: string) => {
     const program = Effect.provide(
       getAccountsProgram(userId),
-      Layer.mergeAll(dbClientLive)
+      Layer.mergeAll(dbClientLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -237,7 +237,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const signOut = (userId: string) => {
     const program = Effect.provide(
       signOutProgram(userId),
-      Layer.mergeAll(dbClientLive)
+      Layer.mergeAll(dbClientLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -249,7 +249,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const getActivitiesService = yield* GetActivitiesService;
         return yield* getActivitiesService();
       }),
-      Layer.mergeAll(dbClientLive, getActivitiesLive)
+      Layer.mergeAll(dbClientLive, getActivitiesLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -261,7 +261,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const getActivityByIdService = yield* GetActivityByIdService;
         return yield* getActivityByIdService(input);
       }),
-      Layer.mergeAll(dbClientLive, getActivityByIdLive)
+      Layer.mergeAll(dbClientLive, getActivityByIdLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -273,7 +273,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const getSeasonsService = yield* GetSeasonsService;
         return yield* getSeasonsService();
       }),
-      Layer.mergeAll(dbClientLive, getSeasonsLive)
+      Layer.mergeAll(dbClientLive, getSeasonsLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -296,8 +296,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         dbClientLive,
         getSeasonByIdLive,
         getActivityWeeksByWeekIdsLive,
-        ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive))
-      )
+        ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
+      ),
     );
 
     return Effect.runPromiseExit(program);
@@ -310,7 +310,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
           yield* GetActivityWeeksByWeekIdsService;
         return yield* getActivityWeeksByWeekIdsService(input);
       }),
-      Layer.mergeAll(dbClientLive, getActivityWeeksByWeekIdsLive)
+      Layer.mergeAll(dbClientLive, getActivityWeeksByWeekIdsLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -322,7 +322,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const getUsersPaginatedService = yield* GetUsersPaginatedService;
         return yield* getUsersPaginatedService(input);
       }),
-      Layer.mergeAll(dbClientLive, getUsersPaginatedLive)
+      Layer.mergeAll(dbClientLive, getUsersPaginatedLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -334,7 +334,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const updateWeekStatusService = yield* UpdateWeekStatusService;
         return yield* updateWeekStatusService.run(input);
       }),
-      Layer.mergeAll(dbClientLive, updateWeekStatusLive)
+      Layer.mergeAll(dbClientLive, updateWeekStatusLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -343,25 +343,25 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const seasonLive = SeasonService.Default.pipe(Layer.provide(dbClientLive));
 
   const activityWeekServiceLive = ActivityWeekService.Default.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const activityCategoryWeekServiceLive =
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive));
 
   const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const weekLive = WeekService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(activityCategoryWeekServiceLive),
-    Layer.provide(activityWeekServiceLive)
+    Layer.provide(activityWeekServiceLive),
   );
 
   const userLive = UserService.Default.pipe(
     Layer.provide(dbClientLive),
-    Layer.provide(seasonLive)
+    Layer.provide(seasonLive),
   );
 
   const getUserStats = (input: { userId: string; weekId: string }) => {
@@ -378,7 +378,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
           seasonId: activeWeek.seasonId,
         });
       }),
-      Layer.mergeAll(userLive, weekLive)
+      Layer.mergeAll(userLive, weekLive),
     ).pipe(Effect.provide(NodeSdkLive));
 
     return Effect.runPromiseExit(program);
@@ -393,7 +393,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(seasonLive),
     Layer.provide(activityCategoryServiceLive),
     Layer.provide(activityCategoryWeekServiceLive),
-    Layer.provide(activityWeekServiceLive)
+    Layer.provide(activityWeekServiceLive),
   );
 
   const getLatestAccountBalances = ({ userId }: { userId: string }) => {
@@ -414,7 +414,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
         return yield* accountBalanceService.getLatest(accountAddresses);
       }),
-      Layer.mergeAll(getLatestAccountBalancesServiceLive, userLive)
+      Layer.mergeAll(getLatestAccountBalancesServiceLive, userLive),
     );
 
     return Effect.runPromiseExit(program);
@@ -429,7 +429,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const leaderboardService = yield* LeaderboardService;
         return yield* leaderboardService.getSeasonLeaderboard(input);
       }),
-      leaderboardLive
+      leaderboardLive,
     );
 
     return Effect.runPromiseExit(program);
@@ -441,7 +441,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const leaderboardService = yield* LeaderboardService;
         return yield* leaderboardService.getAvailableSeasons();
       }),
-      leaderboardLive
+      leaderboardLive,
     );
 
     return Effect.runPromiseExit(program);
@@ -453,7 +453,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const leaderboardService = yield* LeaderboardService;
         return yield* leaderboardService.getAvailableWeeks(input);
       }),
-      leaderboardLive
+      leaderboardLive,
     );
 
     return Effect.runPromiseExit(program);
@@ -469,7 +469,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const leaderboardService = yield* LeaderboardService;
         return yield* leaderboardService.getActivityCategoryLeaderboard(input);
       }),
-      leaderboardLive
+      leaderboardLive,
     );
 
     return Effect.runPromiseExit(program);
@@ -481,7 +481,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const leaderboardService = yield* LeaderboardService;
         return yield* leaderboardService.getAvailableCategories(input);
       }),
-      leaderboardLive
+      leaderboardLive,
     );
 
     return Effect.runPromiseExit(program);
@@ -496,7 +496,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const userService = yield* UserService;
         return yield* userService.getUserCategoryBreakdown(input);
       }),
-      userLive
+      userLive,
     );
 
     return Effect.runPromiseExit(program);
@@ -508,14 +508,14 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const activityDataService = yield* ActivityDataService;
         return yield* activityDataService.list();
       }),
-      ActivityDataService.Default.pipe(Layer.provide(dbClientLive))
+      ActivityDataService.Default.pipe(Layer.provide(dbClientLive)),
     );
 
     return Effect.runPromiseExit(program);
   };
 
   const activityServiceLive = ActivityService.Default.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const updateActivity = (input: UpdateActivityInput) => {
@@ -524,7 +524,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const activityService = yield* ActivityService;
         yield* activityService.update(input);
       }),
-      activityServiceLive
+      activityServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
@@ -537,14 +537,14 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const dappService = yield* DappService;
         return yield* dappService.list();
       }),
-      dappServiceLive
+      dappServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
 
   const componentWhitelistServiceLive = ComponentWhitelistService.Default.pipe(
     Layer.provide(dbClientLive),
-    Layer.provide(appConfigLive)
+    Layer.provide(appConfigLive),
   );
 
   const getActivityCategories = () => {
@@ -553,7 +553,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const activityCategoryService = yield* ActivityCategoryService;
         return yield* activityCategoryService.list();
       }),
-      activityCategoryServiceLive
+      activityCategoryServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
@@ -562,7 +562,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
     weekLive,
     ActivityCategoryService.Default.pipe(Layer.provide(dbClientLive)),
-    ActivityService.Default.pipe(Layer.provide(dbClientLive))
+    ActivityService.Default.pipe(Layer.provide(dbClientLive)),
   );
 
   const getWeekDetails = (input: { weekId: string }) => {
@@ -603,7 +603,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const activityCategoryWeekService = yield* ActivityCategoryWeekService;
         yield* activityCategoryWeekService.updatePointsPool(input);
       }),
-      activityCategoryWeekServiceLive
+      activityCategoryWeekServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
@@ -618,12 +618,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const activityWeekService = yield* ActivityWeekService;
         yield* activityWeekService.updateMultiplier(input);
       }),
-      ActivityWeekService.Default.pipe(Layer.provide(dbClientLive))
+      ActivityWeekService.Default.pipe(Layer.provide(dbClientLive)),
     );
     return Effect.runPromiseExit(program);
   };
 
-  const createSeason = (input: Omit<Season, "id">) => {
+  const createSeason = (input: Omit<Season, 'id'>) => {
     const runnable = Effect.gen(function* () {
       const seasonService = yield* SeasonService;
       return yield* seasonService.create(input);
@@ -631,7 +631,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     const program = Effect.provide(
       runnable,
-      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive)))
+      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive))),
     );
 
     return Effect.runPromiseExit(program);
@@ -645,7 +645,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     const program = Effect.provide(
       runnable,
-      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive)))
+      Layer.mergeAll(SeasonService.Default.pipe(Layer.provide(dbClientLive))),
     );
 
     return Effect.runPromiseExit(program);
@@ -668,7 +668,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const service = yield* ComponentWhitelistService;
         return yield* service.getCount();
       }),
-      componentWhitelistServiceLive
+      componentWhitelistServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
@@ -688,17 +688,17 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
           count: parseResult.count,
           message:
             parseResult.count === 0
-              ? "Successfully cleared component whitelist"
+              ? 'Successfully cleared component whitelist'
               : `Successfully updated whitelist with ${parseResult.count} components`,
         };
       }),
-      componentWhitelistServiceLive
+      componentWhitelistServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
 
   const notificationServiceLive = NotificationService.Default.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const getNotificationSettings = () => {
@@ -707,7 +707,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const notificationService = yield* NotificationService;
         return yield* notificationService.getNotificationSettings();
       }),
-      notificationServiceLive
+      notificationServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
@@ -718,7 +718,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         const notificationService = yield* NotificationService;
         return yield* notificationService.updateNotificationSettings(settings);
       }),
-      notificationServiceLive
+      notificationServiceLive,
     );
     return Effect.runPromiseExit(program);
   };

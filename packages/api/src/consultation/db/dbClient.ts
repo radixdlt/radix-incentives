@@ -1,14 +1,14 @@
-import { Context, Effect, Layer } from "effect";
-import type { Db } from "db/consultation";
+import type { Db } from 'db/consultation';
+import { Context, Effect, Layer } from 'effect';
 
 export class DbError {
-  readonly _tag: "DbError";
+  readonly _tag: 'DbError';
   constructor(readonly error: unknown) {
-    this._tag = "DbError";
+    this._tag = 'DbError';
   }
 }
 
-export class DbClientService extends Context.Tag("DbClientService")<
+export class DbClientService extends Context.Tag('DbClientService')<
   DbClientService,
   Db
 >() {}

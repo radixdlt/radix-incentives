@@ -1,14 +1,14 @@
-import { Context, Layer, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { snapshots, type Snapshot } from "db/incentives";
+import { type Snapshot, snapshots } from 'db/incentives';
 
 export type CreateSnapshotInput = {
   timestamp: Date;
-  status: Snapshot["status"];
+  status: Snapshot['status'];
 };
 
-export class CreateSnapshotService extends Context.Tag("CreateSnapshotService")<
+export class CreateSnapshotService extends Context.Tag('CreateSnapshotService')<
   CreateSnapshotService,
   (input: CreateSnapshotInput) => Effect.Effect<Snapshot, DbError>
 >() {}
@@ -30,5 +30,5 @@ export const CreateSnapshotLive = Layer.effect(
           catch: (error) => new DbError(error),
         });
       });
-  })
+  }),
 );

@@ -1,47 +1,47 @@
-import { describe, test, expect, vi } from "vitest";
-import { Effect, Layer, Cause } from "effect";
+import { Cause, Effect, Layer } from 'effect';
+import { describe, expect, test, vi } from 'vitest';
+import { VerifyChallengeService } from '../challenge/verifyChallenge';
+import { VerifyRolaProofService } from '../rola/verifyRolaProof';
+import { CreateSessionService } from '../session/createSession';
+import { GenerateSessionTokenService } from '../session/generateSessionToken';
+import { UpsertUserService } from '../user/upsertUser';
 import {
-  signInWithRolaProof,
-  InvalidProofError,
   InvalidChallengeError,
+  InvalidProofError,
   type SignInWithRolaProofInput,
-} from "./signInWithRolaProof";
-import { VerifyRolaProofService } from "../rola/verifyRolaProof";
-import { VerifyChallengeService } from "../challenge/verifyChallenge";
-import { UpsertUserService } from "../user/upsertUser";
-import { CreateSessionService } from "../session/createSession";
-import { GenerateSessionTokenService } from "../session/generateSessionToken";
+  signInWithRolaProof,
+} from './signInWithRolaProof';
 
 // --- Mock Services ---
 
 const mockVerifyChallenge = vi.fn();
 const VerifyChallengeTest = Layer.succeed(
   VerifyChallengeService,
-  VerifyChallengeService.of(mockVerifyChallenge)
+  VerifyChallengeService.of(mockVerifyChallenge),
 );
 
 const mockVerifyProof = vi.fn();
 const VerifyRolaProofTest = Layer.succeed(
   VerifyRolaProofService,
-  VerifyRolaProofService.of(mockVerifyProof)
+  VerifyRolaProofService.of(mockVerifyProof),
 );
 
 const mockUpsertUser = vi.fn();
 const UpsertUserTest = Layer.succeed(
   UpsertUserService,
-  UpsertUserService.of(mockUpsertUser)
+  UpsertUserService.of(mockUpsertUser),
 );
 
 const mockGenerateSessionToken = vi.fn();
 const GenerateSessionTokenTest = Layer.succeed(
   GenerateSessionTokenService,
-  GenerateSessionTokenService.of(mockGenerateSessionToken)
+  GenerateSessionTokenService.of(mockGenerateSessionToken),
 );
 
 const mockCreateSession = vi.fn();
 const CreateSessionTest = Layer.succeed(
   CreateSessionService,
-  CreateSessionService.of(mockCreateSession)
+  CreateSessionService.of(mockCreateSession),
 );
 
 // Combine all mock layers
@@ -50,20 +50,20 @@ const testLayer = Layer.mergeAll(
   VerifyRolaProofTest,
   UpsertUserTest,
   GenerateSessionTokenTest,
-  CreateSessionTest
+  CreateSessionTest,
 );
 
 // --- Test Input ---
 
 const validTestInput: SignInWithRolaProofInput = {
-  challenge: "valid_challenge",
-  type: "persona",
-  address: "account_address",
-  label: "Test User",
+  challenge: 'valid_challenge',
+  type: 'persona',
+  address: 'account_address',
+  label: 'Test User',
   proof: {
-    publicKey: "mockPublicKey",
-    signature: "mockSignature",
-    curve: "curve25519",
+    publicKey: 'mockPublicKey',
+    signature: 'mockSignature',
+    curve: 'curve25519',
   },
 };
 
@@ -78,11 +78,11 @@ type SignInError = InvalidProofError | InvalidChallengeError | Error; // Broaden
 
 // --- Test Suite ---
 
-describe("signInWithRolaProof", () => {
-  test("should successfully sign in with valid proof and challenge", async () => {
-    const expectedUserId = "user-123";
-    const expectedToken = "session-token-abc";
-    const expectedSession = { id: "session-xyz", userId: expectedUserId };
+describe('signInWithRolaProof', () => {
+  test('should successfully sign in with valid proof and challenge', async () => {
+    const expectedUserId = 'user-123';
+    const expectedToken = 'session-token-abc';
+    const expectedSession = { id: 'session-xyz', userId: expectedUserId };
 
     mockVerifyChallenge.mockReturnValue(Effect.succeed(true));
     mockVerifyProof.mockReturnValue(Effect.succeed(true));
@@ -98,8 +98,8 @@ describe("signInWithRolaProof", () => {
           SignInError,
           never
         >,
-        testLayer
-      )
+        testLayer,
+      ),
     );
 
     expect(result).toEqual({ session: expectedSession, token: expectedToken });
@@ -119,7 +119,7 @@ describe("signInWithRolaProof", () => {
     });
   });
 
-  test("should fail with InvalidProofError when verifyProof returns false", async () => {
+  test('should fail with InvalidProofError when verifyProof returns false', async () => {
     mockVerifyChallenge.mockReturnValue(Effect.succeed(true));
     mockVerifyProof.mockReturnValue(Effect.succeed(false)); // Proof verification fails
 
@@ -131,21 +131,21 @@ describe("signInWithRolaProof", () => {
           SignInError,
           never
         >,
-        testLayer
-      )
+        testLayer,
+      ),
     );
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
+    expect(result._tag).toBe('Failure');
+    if (result._tag === 'Failure') {
       const failure = Cause.failureOption(result.cause);
-      expect(failure._tag).toBe("Some");
-      if (failure._tag === "Some") {
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
         expect(failure.value).toBeInstanceOf(InvalidProofError);
       }
     }
   });
 
-  test("should fail with InvalidChallengeError when challenge is invalid", async () => {
+  test('should fail with InvalidChallengeError when challenge is invalid', async () => {
     mockVerifyChallenge.mockReturnValue(Effect.succeed(false)); // Challenge invalid
 
     const program = signInWithRolaProof(validTestInput);
@@ -156,22 +156,22 @@ describe("signInWithRolaProof", () => {
           SignInError,
           never
         >,
-        testLayer
-      )
+        testLayer,
+      ),
     );
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
+    expect(result._tag).toBe('Failure');
+    if (result._tag === 'Failure') {
       const failure = Cause.failureOption(result.cause);
-      expect(failure._tag).toBe("Some");
-      if (failure._tag === "Some") {
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
         expect(failure.value).toBeInstanceOf(InvalidChallengeError);
       }
     }
     expect(mockVerifyChallenge).toHaveBeenCalledWith(validTestInput.challenge);
   });
 
-  test("should fail with InvalidProofError when ROLA proof is invalid", async () => {
+  test('should fail with InvalidProofError when ROLA proof is invalid', async () => {
     mockVerifyChallenge.mockReturnValue(Effect.succeed(true));
     mockVerifyProof.mockReturnValue(Effect.succeed(false)); // Proof invalid
 
@@ -183,15 +183,15 @@ describe("signInWithRolaProof", () => {
           SignInError,
           never
         >,
-        testLayer
-      )
+        testLayer,
+      ),
     );
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
+    expect(result._tag).toBe('Failure');
+    if (result._tag === 'Failure') {
       const failure = Cause.failureOption(result.cause);
-      expect(failure._tag).toBe("Some");
-      if (failure._tag === "Some") {
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
         expect(failure.value).toBeInstanceOf(InvalidProofError);
       }
     }
@@ -202,8 +202,8 @@ describe("signInWithRolaProof", () => {
     });
   });
 
-  test("should propagate errors from upsertUser", async () => {
-    const upsertError = new Error("Upsert failed");
+  test('should propagate errors from upsertUser', async () => {
+    const upsertError = new Error('Upsert failed');
     mockVerifyChallenge.mockReturnValue(Effect.succeed(true));
     mockVerifyProof.mockReturnValue(Effect.succeed(true));
     mockUpsertUser.mockReturnValue(Effect.fail(upsertError)); // Upsert fails
@@ -216,24 +216,24 @@ describe("signInWithRolaProof", () => {
           SignInError,
           never
         >,
-        testLayer
-      )
+        testLayer,
+      ),
     );
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
+    expect(result._tag).toBe('Failure');
+    if (result._tag === 'Failure') {
       const failure = Cause.failureOption(result.cause);
-      expect(failure._tag).toBe("Some");
-      if (failure._tag === "Some") {
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
         expect(failure.value).toBe(upsertError);
       }
     }
   });
 
-  test("should propagate errors from createSession", async () => {
-    const createSessionError = new Error("Session creation failed");
-    const expectedUserId = "user-123";
-    const expectedToken = "session-token-abc";
+  test('should propagate errors from createSession', async () => {
+    const createSessionError = new Error('Session creation failed');
+    const expectedUserId = 'user-123';
+    const expectedToken = 'session-token-abc';
 
     mockVerifyChallenge.mockReturnValue(Effect.succeed(true));
     mockVerifyProof.mockReturnValue(Effect.succeed(true));
@@ -249,15 +249,15 @@ describe("signInWithRolaProof", () => {
           SignInError,
           never
         >,
-        testLayer
-      )
+        testLayer,
+      ),
     );
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
+    expect(result._tag).toBe('Failure');
+    if (result._tag === 'Failure') {
       const failure = Cause.failureOption(result.cause);
-      expect(failure._tag).toBe("Some");
-      if (failure._tag === "Some") {
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
         expect(failure.value).toBe(createSessionError);
       }
     }

@@ -1,49 +1,49 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
+import { DappConstants } from 'data';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-} from "../../gateway/getNonFungibleBalance";
-import { DappConstants } from "data";
+} from '../../gateway/getNonFungibleBalance';
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
 
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import { BigNumber } from 'bignumber.js';
+import { groupBy } from 'effect/Array';
+import type { SborError } from 'sbor-ez-mode';
+import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import type { AtLedgerState } from '../../gateway/schemas';
 import {
   CollaterizedDebtPositionData,
   LendingPoolState,
   PoolStatesKeyValueStoreKeySchema,
-} from "./schema";
-import type { SborError } from "sbor-ez-mode";
-import type { AtLedgerState } from "../../gateway/schemas";
-import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
-import { BigNumber } from "bignumber.js";
-import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
-import { groupBy } from "effect/Array";
+} from './schema';
 
 export class ParseSborError {
-  readonly _tag = "ParseSborError";
+  readonly _tag = 'ParseSborError';
   constructor(readonly error: SborError) {}
 }
 
 export class InvalidRootReceiptItemError extends Error {
-  readonly _tag = "InvalidRootReceiptItemError";
+  readonly _tag = 'InvalidRootReceiptItemError';
 }
 
 export class FailedToParseLendingPoolStateError {
-  readonly _tag = "FailedToParseLendingPoolStateError";
+  readonly _tag = 'FailedToParseLendingPoolStateError';
   constructor(readonly error: unknown) {}
 }
 
 export class FailedToParsePoolStatesKeyError {
-  readonly _tag = "FailedToParsePoolStatesKeyError";
+  readonly _tag = 'FailedToParsePoolStatesKeyError';
   constructor(readonly error: SborError) {}
 }
 
 export class MissingConversionRatioError {
-  readonly _tag = "MissingConversionRatioError";
+  readonly _tag = 'MissingConversionRatioError';
   constructor(
     readonly resourceAddress: string,
-    readonly positionType: "collateral" | "loan"
+    readonly positionType: 'collateral' | 'loan',
   ) {}
 }
 
@@ -74,7 +74,7 @@ type ResourceAddress = string;
 type Value = string;
 
 export class GetRootFinancePositionsService extends Effect.Service<GetRootFinancePositionsService>()(
-  "GetRootFinancePositionsService",
+  'GetRootFinancePositionsService',
   {
     effect: Effect.gen(function* () {
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
@@ -103,12 +103,12 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
         value: { programmatic_json: ProgrammaticScryptoSborValue };
       }) {
         const poolState = LendingPoolState.safeParse(
-          item.value.programmatic_json
+          item.value.programmatic_json,
         );
 
         if (poolState.isErr()) {
           return yield* Effect.fail(
-            new FailedToParseLendingPoolStateError(poolState.error)
+            new FailedToParseLendingPoolStateError(poolState.error),
           );
         }
 
@@ -119,12 +119,12 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
         key: { programmatic_json: ProgrammaticScryptoSborValue };
       }) {
         const key = PoolStatesKeyValueStoreKeySchema.safeParse(
-          item.key.programmatic_json
+          item.key.programmatic_json,
         );
 
         if (key.isErr()) {
           return yield* Effect.fail(
-            new FailedToParsePoolStatesKeyError(key.error)
+            new FailedToParsePoolStatesKeyError(key.error),
           );
         }
 
@@ -142,7 +142,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                 Effect.succeed({
                   entries: [],
                 }),
-            })
+            }),
           );
 
           const { collateralConversionRatios, loanConversionRatios } =
@@ -156,7 +156,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
 
                 // For collaterals: multiply by total_deposit / total_deposit_unit
                 const totalDepositUnit = new BigNumber(
-                  poolState.total_deposit_unit
+                  poolState.total_deposit_unit,
                 );
 
                 const output: {
@@ -167,7 +167,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
 
                 if (poolState.total_deposit_unit && totalDepositUnit.gt(0)) {
                   const collateralRatio = new BigNumber(
-                    poolState.total_deposit
+                    poolState.total_deposit,
                   ).div(totalDepositUnit);
 
                   output.push({
@@ -180,7 +180,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                 const totalLoanUnit = new BigNumber(poolState.total_loan_unit);
                 if (poolState.total_loan_unit && totalLoanUnit.gt(0)) {
                   const loanRatio = new BigNumber(poolState.total_loan).div(
-                    totalLoanUnit
+                    totalLoanUnit,
                   );
                   output.push({
                     resourceAddress,
@@ -190,7 +190,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
 
                 return output;
               }),
-              { concurrency: "unbounded" }
+              { concurrency: 'unbounded' },
             ).pipe(
               Effect.map((items) => {
                 const flatItems = items.flat();
@@ -209,13 +209,13 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                   if (item?.collateralRatio) {
                     collateralConversionRatios.set(
                       item.resourceAddress,
-                      item.collateralRatio
+                      item.collateralRatio,
                     );
                   }
                   if (item?.loanRatio) {
                     loanConversionRatios.set(
                       item.resourceAddress,
-                      item.loanRatio
+                      item.loanRatio,
                     );
                   }
                 }
@@ -224,7 +224,7 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                   collateralConversionRatios,
                   loanConversionRatios,
                 };
-              })
+              }),
             );
 
           const nonFungibleBalanceItems = input.nonFungibleBalance
@@ -254,8 +254,8 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                     .filter(
                       (item) =>
                         item.resourceAddress ===
-                        RootFinanceConstants.receiptResourceAddress
-                    )
+                        RootFinanceConstants.receiptResourceAddress,
+                    ),
               );
 
               return yield* Effect.forEach(
@@ -268,9 +268,9 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                     ...rootReceipt,
                     collaterizedDebtPosition,
                   };
-                })
+                }),
               );
-            })
+            }),
           ).pipe(Effect.map((items) => items.flat()));
 
           const collaterizedDebtPositionsWithRealAmounts =
@@ -295,13 +295,13 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                     return yield* Effect.fail(
                       new MissingConversionRatioError(
                         resourceAddress,
-                        "collateral"
-                      )
+                        'collateral',
+                      ),
                     );
                   }
 
                   const realAmount = new BigNumber(unitAmount).multipliedBy(
-                    conversionRatio
+                    conversionRatio,
                   );
                   collaterals[resourceAddress] = realAmount.toString();
                 }
@@ -320,12 +320,12 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                     loanConversionRatios.get(resourceAddress);
                   if (!conversionRatio) {
                     return yield* Effect.fail(
-                      new MissingConversionRatioError(resourceAddress, "loan")
+                      new MissingConversionRatioError(resourceAddress, 'loan'),
                     );
                   }
 
                   const realAmount = new BigNumber(unitAmount).multipliedBy(
-                    conversionRatio
+                    conversionRatio,
                   );
                   loans[resourceAddress] = realAmount.toString();
                 }
@@ -340,12 +340,12 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
                   loans,
                 };
               }),
-              { concurrency: "unbounded" }
+              { concurrency: 'unbounded' },
             );
 
           const groupedByAccountAddress = groupBy(
             collaterizedDebtPositionsWithRealAmounts,
-            (item) => item.accountAddress
+            (item) => item.accountAddress,
           );
 
           const output = Object.entries(groupedByAccountAddress).map(
@@ -354,9 +354,9 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
               collaterizedDebtPositions: items.map(
                 ({ accountAddress, ...rest }) => ({
                   ...rest,
-                })
+                }),
               ),
-            })
+            }),
           );
 
           return {
@@ -365,5 +365,5 @@ export class GetRootFinancePositionsService extends Effect.Service<GetRootFinanc
         }),
       };
     }),
-  }
+  },
 ) {}

@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import type { FC } from "react";
+import type { FC } from 'react';
 
 /**
  * Displays a message indicating the user has already voted.

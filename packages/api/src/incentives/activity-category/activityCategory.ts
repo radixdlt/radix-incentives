@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { activityCategories } from "db/incentives";
-import { eq } from "drizzle-orm";
-import { Data } from "effect";
-import { z } from "zod";
+import { activityCategories } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { Data } from 'effect';
+import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const ActivityCategorySchema = z.object({
   id: z.string(),
@@ -13,12 +13,14 @@ export const ActivityCategorySchema = z.object({
 
 export type ActivityCategory = z.infer<typeof ActivityCategorySchema>;
 
-class ActivityCategoryNotFoundError extends Data.TaggedError("ActivityCategoryNotFoundError")<{
+class ActivityCategoryNotFoundError extends Data.TaggedError(
+  'ActivityCategoryNotFoundError',
+)<{
   message: string;
 }> {}
 
 export class ActivityCategoryService extends Effect.Service<ActivityCategoryService>()(
-  "ActivityCategoryService",
+  'ActivityCategoryService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -50,7 +52,7 @@ export class ActivityCategoryService extends Effect.Service<ActivityCategoryServ
             return yield* Effect.fail(
               new ActivityCategoryNotFoundError({
                 message: `Activity category ${id} not found`,
-              })
+              }),
             );
           }
 
@@ -58,5 +60,5 @@ export class ActivityCategoryService extends Effect.Service<ActivityCategoryServ
         }),
       };
     }),
-  }
+  },
 ) {}

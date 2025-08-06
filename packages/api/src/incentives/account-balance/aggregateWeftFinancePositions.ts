@@ -1,8 +1,8 @@
-import { Config, Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { GetUsdValueService } from "../token-price/getUsdValue";
-import { BigNumber } from "bignumber.js";
-import { ActivityId, Assets, type AccountBalanceData } from "data";
+import { BigNumber } from 'bignumber.js';
+import { type AccountBalanceData, ActivityId, Assets } from 'data';
+import { Config, Effect } from 'effect';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 export type AggregateWeftFinancePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -10,16 +10,16 @@ export type AggregateWeftFinancePositionsInput = {
 };
 
 export type AggregateWeftFinancePositionsOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof AggregateWeftFinancePositionsService)["Service"]>>
+  Awaited<ReturnType<(typeof AggregateWeftFinancePositionsService)['Service']>>
 >;
 
 export class AggregateWeftFinancePositionsService extends Effect.Service<AggregateWeftFinancePositionsService>()(
-  "AggregateWeftFinancePositionsService",
+  'AggregateWeftFinancePositionsService',
   {
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
-      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
-        Config.withDefault(false)
+      const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
+        Config.withDefault(false),
       );
       return Effect.fn(function* (input: AggregateWeftFinancePositionsInput) {
         const accountBalance = input.accountBalance;
@@ -44,7 +44,7 @@ export class AggregateWeftFinancePositionsService extends Effect.Service<Aggrega
               ({
                 activityId,
                 usdValue: new BigNumber(0).toString(),
-              }) satisfies AccountBalanceData
+              }) satisfies AccountBalanceData,
           );
         }
 
@@ -59,19 +59,19 @@ export class AggregateWeftFinancePositionsService extends Effect.Service<Aggrega
                   acc[resourceAddress] = new BigNumber(0);
                 }
                 acc[resourceAddress] = acc[resourceAddress].plus(
-                  item.unwrappedAsset.amount
+                  item.unwrappedAsset.amount,
                 );
               }
               return acc;
             },
-            {} as Record<string, BigNumber>
+            {} as Record<string, BigNumber>,
           );
 
         // Calculate USD values for each asset
         const results: AccountBalanceData[] = [];
 
         for (const [resourceAddress, activityId] of Object.entries(
-          supportedAssets
+          supportedAssets,
         )) {
           const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
 
@@ -95,7 +95,7 @@ export class AggregateWeftFinancePositionsService extends Effect.Service<Aggrega
         return results;
       });
     }),
-  }
+  },
 ) {}
 
 export const AggregateWeftFinancePositionsServiceLive =

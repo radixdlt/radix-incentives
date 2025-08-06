@@ -1,25 +1,25 @@
-import { Context, Effect, Layer } from "effect";
+import { Context, Effect, Layer } from 'effect';
 
+import type {
+  CoreApiClient,
+  TransactionPreviewResponse,
+} from '@radixdlt/babylon-core-api-sdk';
 import {
   CoreApiClientService,
   CoreNodeError,
   type InvalidConfigError,
-} from "./coreApiClient";
-import type {
-  CoreApiClient,
-  TransactionPreviewResponse,
-} from "@radixdlt/babylon-core-api-sdk";
+} from './coreApiClient';
 
 export type PreviewTransactionInput = Parameters<
-  CoreApiClient["transaction"]["innerClient"]["transactionPreviewPost"]
->[0]["transactionPreviewRequest"];
+  CoreApiClient['transaction']['innerClient']['transactionPreviewPost']
+>[0]['transactionPreviewRequest'];
 
 export class PreviewTransactionService extends Context.Tag(
-  "PreviewTransactionService"
+  'PreviewTransactionService',
 )<
   PreviewTransactionService,
   (
-    input: PreviewTransactionInput
+    input: PreviewTransactionInput,
   ) => Effect.Effect<
     TransactionPreviewResponse,
     CoreNodeError | InvalidConfigError,
@@ -47,5 +47,5 @@ export const PreviewTransactionLive = Layer.effect(
         return result;
       });
     };
-  })
+  }),
 );

@@ -60,9 +60,7 @@ const WeekSelector = ({
             <Calendar className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-white">
-              Week Selection
-            </h2>
+            <h2 className="text-lg font-semibold text-white">Week Selection</h2>
             <p className="text-sm text-white/60">
               Choose a week to view your performance
             </p>

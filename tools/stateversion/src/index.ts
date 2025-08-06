@@ -1,13 +1,13 @@
-import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
+import { GatewayApiClient } from '@radixdlt/babylon-gateway-api-sdk';
 
 const gatewayApiClient = GatewayApiClient.initialize({
   networkId: 1,
-  applicationName: "stateversion",
-  applicationVersion: "1.0.0",
+  applicationName: 'stateversion',
+  applicationVersion: '1.0.0',
 });
 
-const START_DATE = new Date("2025-04-14T00:00:00Z");
-const END_DATE = new Date("2025-04-20T23:59:59Z");
+const START_DATE = new Date('2025-04-14T00:00:00Z');
+const END_DATE = new Date('2025-04-20T23:59:59Z');
 
 const getStateVersion = async (date: Date) => {
   return await gatewayApiClient.stream.innerClient

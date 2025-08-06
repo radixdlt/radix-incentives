@@ -1,12 +1,12 @@
-import { activities, activityCategories, dapps } from "../schema";
-import { db } from "../client";
-import { sql } from "drizzle-orm";
-import { activityCategoriesData, dappsData, activityData } from "data";
+import { activityCategoriesData, activityData, dappsData } from 'data';
+import { sql } from 'drizzle-orm';
+import { db } from '../client';
+import { activities, activityCategories, dapps } from '../schema';
 
 export const seedActivities = async () => {
   await db.insert(dapps).values(dappsData).onConflictDoNothing();
 
-  console.log("Dapps seeded");
+  console.log('Dapps seeded');
 
   await db
     .insert(activityCategories)
@@ -14,7 +14,7 @@ export const seedActivities = async () => {
     .returning()
     .onConflictDoNothing();
 
-  console.log("Activity categories seeded");
+  console.log('Activity categories seeded');
 
   await db
     .insert(activities)
@@ -24,7 +24,7 @@ export const seedActivities = async () => {
         category: activity.categoryId,
         dapp: activity.dAppId,
         componentAddresses: activity.componentAddresses,
-      }))
+      })),
     )
     .returning()
     .onConflictDoUpdate({
@@ -36,5 +36,5 @@ export const seedActivities = async () => {
       },
     });
 
-  console.log("Activities seeded");
+  console.log('Activities seeded');
 };

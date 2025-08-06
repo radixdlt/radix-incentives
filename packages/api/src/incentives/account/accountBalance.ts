@@ -1,7 +1,7 @@
-import { Effect } from "effect";
-import { inArray, desc, and, between } from "drizzle-orm";
-import { accountBalances } from "db/incentives";
-import { DbClientService, DbError } from "../db/dbClient";
+import { accountBalances } from 'db/incentives';
+import { and, between, desc, inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type AccountBalanceItem = {
   activityId: string;
@@ -16,7 +16,7 @@ export type LatestAccountBalance = {
 };
 
 export class AccountBalanceService extends Effect.Service<AccountBalanceService>()(
-  "AccountBalanceService",
+  'AccountBalanceService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -46,13 +46,13 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
                       between(
                         accountBalances.timestamp,
                         sevenDaysAgo,
-                        new Date()
-                      )
-                    )
+                        new Date(),
+                      ),
+                    ),
                   )
                   .orderBy(
                     accountBalances.accountAddress,
-                    desc(accountBalances.timestamp)
+                    desc(accountBalances.timestamp),
                   )
                   .execute(),
               catch: (error) => new DbError(error),
@@ -64,12 +64,12 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
                 accountAddress: balance.accountAddress,
                 timestamp: balance.timestamp,
                 data: balance.data as AccountBalanceItem[],
-              })
+              }),
             );
 
             return latestBalances;
           }),
       };
     }),
-  }
+  },
 ) {}

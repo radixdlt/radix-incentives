@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { Loader2 } from "lucide-react";
-import { OneTimeDataRequestBuilder } from "@radixdlt/radix-dapp-toolkit";
-import { useDappToolkit } from "~/lib/hooks/useRdt";
-import { StarBorder } from "~/components/ui/star-border";
-import { api } from "~/trpc/react";
-import { toast } from "sonner";
+import { OneTimeDataRequestBuilder } from '@radixdlt/radix-dapp-toolkit';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
+import { toast } from 'sonner';
+import { StarBorder } from '~/components/ui/star-border';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
+import { api } from '~/trpc/react';
 
 export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
   const rdt = useDappToolkit();
@@ -18,11 +18,11 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
     setIsConnecting(true);
     try {
       const response = await rdt?.walletApi.sendOneTimeRequest(
-        OneTimeDataRequestBuilder.accounts().atLeast(1).withProof()
+        OneTimeDataRequestBuilder.accounts().atLeast(1).withProof(),
       );
 
-      if (!response) throw new Error("Failed to get accounts");
-      if (response?.isErr()) throw new Error("Failed to get accounts");
+      if (!response) throw new Error('Failed to get accounts');
+      if (response?.isErr()) throw new Error('Failed to get accounts');
 
       if (response.isOk()) {
         const value = response.value;
@@ -36,9 +36,9 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
             items: proofs.map((proof) => ({
               address: proof.address,
               label: accounts.find(
-                (account) => account.address === proof.address
+                (account) => account.address === proof.address,
               )?.label!,
-              type: "account",
+              type: 'account',
               proof: proof.proof,
             })),
           },
@@ -46,13 +46,13 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
             onError: (error) => {
               toast.error(error.message);
             },
-          }
+          },
         );
 
         onConnect();
       }
     } catch (error) {
-      console.error("Failed to connect account:", error);
+      console.error('Failed to connect account:', error);
 
       // TODO: Show error message to the user with toast or something
     } finally {
@@ -75,7 +75,7 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
             Connecting...
           </div>
         ) : (
-          "Connect New Account"
+          'Connect New Account'
         )}
       </StarBorder>
     </div>

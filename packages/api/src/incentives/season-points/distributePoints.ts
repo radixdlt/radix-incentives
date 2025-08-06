@@ -1,5 +1,5 @@
-import { Effect } from "effect";
-import type { BigNumber } from "bignumber.js";
+import type { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
 
 /**
  * Distributes season points from a total points pool across multiple user bands.

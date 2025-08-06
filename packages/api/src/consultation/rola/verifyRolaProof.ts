@@ -1,49 +1,49 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import { z } from "zod";
-import { RolaService } from "./rola";
+import { z } from 'zod';
+import { RolaService } from './rola';
 
 export const signedChallengeSchema = z.object({
   challenge: z.string(),
   items: z.array(
     z.object({
-      type: z.enum(["persona", "account"]),
+      type: z.enum(['persona', 'account']),
       address: z.string(),
       label: z.string(),
       proof: z.object({
         publicKey: z.string(),
         signature: z.string(),
-        curve: z.enum(["curve25519", "secp256k1"]),
+        curve: z.enum(['curve25519', 'secp256k1']),
       }),
-    })
+    }),
   ),
 });
 
 export type VerifyRolaProofInput = z.infer<typeof signedChallengeSchema>;
 
 export class ParseRolaProofInputError {
-  readonly _tag: "ParseRolaProofInputError";
+  readonly _tag: 'ParseRolaProofInputError';
   constructor(readonly error: z.ZodError<VerifyRolaProofInput>) {
-    this._tag = "ParseRolaProofInputError";
+    this._tag = 'ParseRolaProofInputError';
   }
 }
 
 export class VerifyRolaProofError {
-  readonly _tag: "VerifyRolaProofError";
+  readonly _tag: 'VerifyRolaProofError';
   constructor(readonly error: unknown) {
-    this._tag = "VerifyRolaProofError";
+    this._tag = 'VerifyRolaProofError';
   }
 }
 
 export class VerifyRolaProofService extends Effect.Service<VerifyRolaProofService>()(
-  "VerifyRolaProofService",
+  'VerifyRolaProofService',
   {
     effect: Effect.gen(function* () {
       const verifySignedChallenge = yield* RolaService;
       return {
         run: Effect.fn(function* (input: VerifyRolaProofInput) {
           const verifyInputResult = yield* Effect.tryPromise(() =>
-            signedChallengeSchema.safeParseAsync(input)
+            signedChallengeSchema.safeParseAsync(input),
           );
 
           if (verifyInputResult.error) {
@@ -52,11 +52,11 @@ export class VerifyRolaProofService extends Effect.Service<VerifyRolaProofServic
                 input,
                 error: verifyInputResult.error,
               },
-              "invalid input"
+              'invalid input',
             );
 
             return yield* Effect.fail(
-              new ParseRolaProofInputError(verifyInputResult.error)
+              new ParseRolaProofInputError(verifyInputResult.error),
             );
           }
 
@@ -79,21 +79,21 @@ export class VerifyRolaProofService extends Effect.Service<VerifyRolaProofServic
                     },
                     error: result.error,
                   },
-                  "verifySignedChallenge failed"
+                  'verifySignedChallenge failed',
                 );
 
                 return yield* Effect.fail(
-                  new VerifyRolaProofError([result.error])
+                  new VerifyRolaProofError([result.error]),
                 );
               }
 
               return result.value;
-            })
+            }),
           );
 
           return true;
         }),
       };
     }),
-  }
+  },
 ) {}

@@ -1,8 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm, type ControllerRenderProps } from "react-hook-form";
-import * as z from "zod";
+import { zodResolver } from '@hookform/resolvers/zod';
+import { type ControllerRenderProps, useForm } from 'react-hook-form';
+import * as z from 'zod';
 
-import { Button } from "~/components/ui/button";
+import { Button } from '~/components/ui/button';
 import {
   Form,
   FormControl,
@@ -10,12 +10,12 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
+} from '~/components/ui/form';
+import { Input } from '~/components/ui/input';
 
 const FormSchema = z.object({
   weekName: z.string().min(2, {
-    message: "Week name must be at least 2 characters.",
+    message: 'Week name must be at least 2 characters.',
   }),
   // Add other fields as needed, e.g., start date, end date
 });
@@ -26,7 +26,7 @@ export function NewWeekForm({ seasonId }: { seasonId: string }) {
   const form = useForm<FormData>({
     resolver: zodResolver(FormSchema),
     defaultValues: {
-      weekName: "",
+      weekName: '',
     },
   });
 
@@ -42,7 +42,7 @@ export function NewWeekForm({ seasonId }: { seasonId: string }) {
   // });
 
   function onSubmit(data: FormData) {
-    console.log("Submitting week data:", data, "for season:", seasonId);
+    console.log('Submitting week data:', data, 'for season:', seasonId);
 
     // TODO: Call the mutation
     // createWeekMutation.mutate({ ...data, seasonId });
@@ -57,7 +57,7 @@ export function NewWeekForm({ seasonId }: { seasonId: string }) {
           render={({
             field,
           }: {
-            field: ControllerRenderProps<FormData, "weekName">;
+            field: ControllerRenderProps<FormData, 'weekName'>;
           }) => (
             <FormItem>
               <FormLabel>Week Name</FormLabel>

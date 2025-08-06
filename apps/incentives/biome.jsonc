@@ -22,5 +22,12 @@
       },
       "recommended": true
     }
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "single",
+      "indentStyle": "space",
+      "indentWidth": 2
+    }
   }
 }

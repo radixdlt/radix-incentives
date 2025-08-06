@@ -1,18 +1,18 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
+} from '../../gateway/getFungibleBalance';
 
-import { DappConstants } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+import { DappConstants } from 'data';
+import type { AtLedgerState } from '../../gateway/schemas';
 
 import {
   type GetResourcePoolOutput,
   GetResourcePoolUnitsService,
   InvalidPoolResourceError,
-} from "../../resource-pool/getResourcePoolUnits";
+} from '../../resource-pool/getResourcePoolUnits';
 
 type HyperstakePosition = {
   lpResourceAddress: string;
@@ -24,7 +24,7 @@ const CaviarNineConstants = DappConstants.CaviarNine.constants;
 type AccountAddress = string;
 
 export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakePositionsService>()(
-  "GetHyperstakePositionsService",
+  'GetHyperstakePositionsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -57,7 +57,7 @@ export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakeP
           }));
 
         const poolMap = new Map<string, GetResourcePoolOutput[number]>(
-          pools.map((pool) => [pool.lpResourceAddress, pool])
+          pools.map((pool) => [pool.lpResourceAddress, pool]),
         );
 
         for (const accountBalance of accountBalances) {
@@ -66,7 +66,7 @@ export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakeP
           // Filter for hyperstake LP tokens
           const hyperstakeFungibleResources = fungibleResources.filter(
             (item) =>
-              item.resourceAddress === CaviarNineConstants.HLP.resourceAddress
+              item.resourceAddress === CaviarNineConstants.HLP.resourceAddress,
           );
           const accountAddress = accountBalance.address;
 
@@ -80,8 +80,8 @@ export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakeP
             if (!pool) {
               return yield* Effect.fail(
                 new InvalidPoolResourceError(
-                  `Hyperstake pool details not found for LP token: ${resourceAddress}`
-                )
+                  `Hyperstake pool details not found for LP token: ${resourceAddress}`,
+                ),
               );
             }
 
@@ -103,11 +103,11 @@ export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakeP
           ([address, items]) => ({
             address,
             items,
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const GetHyperstakePositionsLive = GetHyperstakePositionsService.Default;

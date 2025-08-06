@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import fetchRetry from "fetch-retry";
-import { fetch } from "undici";
+import { Effect } from 'effect';
+import fetchRetry from 'fetch-retry';
+import { fetch } from 'undici';
 
 export class FetchService extends Effect.Service<FetchService>()(
-  "FetchService",
+  'FetchService',
   {
     effect: Effect.gen(function* () {
       const fetchImpl = fetchRetry(fetch, {
@@ -20,5 +20,5 @@ export class FetchService extends Effect.Service<FetchService>()(
 
       return fetchImpl;
     }),
-  }
+  },
 ) {}

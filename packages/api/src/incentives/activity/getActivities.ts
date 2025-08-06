@@ -1,9 +1,9 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { activities, type Activity } from "db/incentives";
+import { type Activity, activities } from 'db/incentives';
 
-export class GetActivitiesService extends Context.Tag("GetActivitiesService")<
+export class GetActivitiesService extends Context.Tag('GetActivitiesService')<
   GetActivitiesService,
   () => Effect.Effect<Activity[], DbError>
 >() {}
@@ -18,5 +18,5 @@ export const GetActivitiesLive = Layer.effect(
         try: () => db.select().from(activities),
         catch: (error) => new DbError(error),
       }).pipe(Effect.map((activities) => activities as Activity[]));
-  })
+  }),
 );

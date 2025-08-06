@@ -1,25 +1,25 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
+} from '../../gateway/getFungibleBalance';
 
-import { BigNumber } from "bignumber.js";
-import { GetComponentStateService } from "../../gateway/getComponentState";
-import { MarginPool } from "./schemas";
-import { DappConstants, Assets } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+import { BigNumber } from 'bignumber.js';
+import { Assets, DappConstants } from 'data';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import type { AtLedgerState } from '../../gateway/schemas';
+import { MarginPool } from './schemas';
 
 const SurgeConstants = DappConstants.Surge.constants;
 
 export class FailedToParseMarginPoolSchemaError {
-  readonly _tag = "FailedToParseMarginPoolSchemaError";
+  readonly _tag = 'FailedToParseMarginPoolSchemaError';
   constructor(readonly marginPool: unknown) {}
 }
 
 export class SlpNotFoundError {
-  readonly _tag = "SlpNotFoundError";
+  readonly _tag = 'SlpNotFoundError';
   constructor(readonly error: unknown) {}
 }
 
@@ -34,7 +34,7 @@ export type GetSurgeLiquidityPositionsOutput = {
 }[];
 
 export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLiquidityPositionsService>()(
-  "GetSurgeLiquidityPositionsService",
+  'GetSurgeLiquidityPositionsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -66,8 +66,8 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
               if (!marginPoolComponentState) {
                 return yield* Effect.fail(
                   new SlpNotFoundError(
-                    "Margin pool component not found at state version"
-                  )
+                    'Margin pool component not found at state version',
+                  ),
                 );
               }
 
@@ -84,44 +84,47 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
 
               const slpResourceResult = balanceResults.find(
                 (result) =>
-                  result.address === SurgeConstants.slp.resourceAddress
+                  result.address === SurgeConstants.slp.resourceAddress,
               );
 
               const marginPoolBalanceResult = balanceResults.find(
                 (result) =>
-                  result.address === SurgeConstants.marginPool.componentAddress
+                  result.address === SurgeConstants.marginPool.componentAddress,
               );
 
               if (
                 !slpResourceResult?.details ||
-                slpResourceResult.details.type !== "FungibleResource"
+                slpResourceResult.details.type !== 'FungibleResource'
               ) {
                 return yield* Effect.fail(
-                  new SlpNotFoundError("SLP resource not found or invalid type")
+                  new SlpNotFoundError(
+                    'SLP resource not found or invalid type',
+                  ),
                 );
               }
 
               if (
                 !marginPoolBalanceResult?.details ||
-                marginPoolBalanceResult.details.type !== "Component"
+                marginPoolBalanceResult.details.type !== 'Component'
               ) {
                 return yield* Effect.fail(
                   new SlpNotFoundError(
-                    "Margin pool component not found or invalid type"
-                  )
+                    'Margin pool component not found or invalid type',
+                  ),
                 );
               }
 
               // Get SLP total supply
               const slpTotalSupply = new BigNumber(
-                slpResourceResult.details.total_supply
+                slpResourceResult.details.total_supply,
               );
 
               // Get sUSD balance held by margin pool component
               const sUsdBalance =
                 marginPoolBalanceResult.fungibleResources.find(
                   (item) =>
-                    item.resourceAddress === SurgeConstants.sUSD.resourceAddress
+                    item.resourceAddress ===
+                    SurgeConstants.sUSD.resourceAddress,
                 );
 
               const sUsdAmount = sUsdBalance?.amount || new BigNumber(0);
@@ -129,12 +132,12 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
               // Calculate pool value in xUSDC
               const poolValueXUsdc = sUsdAmount
                 .plus(
-                  new BigNumber(marginPoolComponentState.state.virtual_balance)
+                  new BigNumber(marginPoolComponentState.state.virtual_balance),
                 )
                 .plus(
                   new BigNumber(
-                    marginPoolComponentState.state.unrealized_pool_funding
-                  )
+                    marginPoolComponentState.state.unrealized_pool_funding,
+                  ),
                 )
                 .plus(new BigNumber(marginPoolComponentState.state.pnl_snap));
 
@@ -147,11 +150,11 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
               for (const accountBalance of accountBalances) {
                 const slpBalance = accountBalance.fungibleResources.find(
                   (item) =>
-                    item.resourceAddress === SurgeConstants.slp.resourceAddress
+                    item.resourceAddress === SurgeConstants.slp.resourceAddress,
                 );
                 accountSlpBalanceMap.set(
                   accountBalance.address,
-                  slpBalance?.amount || new BigNumber(0)
+                  slpBalance?.amount || new BigNumber(0),
                 );
               }
 
@@ -169,13 +172,13 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
                       amount: liquidityValueXUsdc,
                     },
                   });
-                }
+                },
               );
-            })
+            }),
         ),
       };
     }),
-  }
+  },
 ) {}
 
 export const GetSurgeLiquidityPositionsLive =

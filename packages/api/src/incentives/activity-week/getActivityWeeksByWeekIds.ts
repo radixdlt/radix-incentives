@@ -1,14 +1,14 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { type ActivityWeek, activityWeeks } from "db/incentives";
-import type { ActivityId } from "data";
-import { inArray } from "drizzle-orm";
+import type { ActivityId } from 'data';
+import { type ActivityWeek, activityWeeks } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
 
 export type GetActivityWeeksError = DbError;
 
 export class GetActivityWeeksByWeekIdsService extends Context.Tag(
-  "GetActivityWeeksByWeekIdsService"
+  'GetActivityWeeksByWeekIdsService',
 )<
   GetActivityWeeksByWeekIdsService,
   (input: {
@@ -36,5 +36,5 @@ export const GetActivityWeeksByWeekIdsLive = Layer.effect(
           activityId: week.activityId as ActivityId,
         }));
       });
-  })
+  }),
 );

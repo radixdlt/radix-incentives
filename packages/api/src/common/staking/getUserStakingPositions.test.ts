@@ -1,69 +1,69 @@
-import { Effect, Layer } from "effect";
-import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
-import { GetLedgerStateService } from "../gateway/getLedgerState";
-import { GetFungibleBalanceService } from "../gateway/getFungibleBalance";
-import { EntityFungiblesPageService } from "../gateway/entityFungiblesPage";
-import { GetUserStakingPositionsService } from "./getUserStakingPositions";
-import { EntityNonFungiblesPageService } from "../gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataService } from "../gateway/entityNonFungiblesData";
-import { GetNonFungibleBalanceService } from "../gateway/getNonFungibleBalance";
-import { GetAllValidatorsService } from "../gateway/getAllValidators";
-import { accounts } from "../../fixtures/accounts";
+import { Effect, Layer } from 'effect';
+import { accounts } from '../../fixtures/accounts';
 import {
   GetNftResourceManagersService,
   GetNonFungibleIdsService,
-} from "../gateway";
+} from '../gateway';
+import { EntityFungiblesPageService } from '../gateway/entityFungiblesPage';
+import { EntityNonFungibleDataService } from '../gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../gateway/gatewayApiClient';
+import { GetAllValidatorsService } from '../gateway/getAllValidators';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../gateway/getFungibleBalance';
+import { GetLedgerStateService } from '../gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../gateway/getNonFungibleBalance';
+import { GetUserStakingPositionsService } from './getUserStakingPositions';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getLedgerStateLive = GetLedgerStateService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const entityFungiblesPageServiceLive = EntityFungiblesPageService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const stateEntityDetailsLive = GetFungibleBalanceService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),
-  Layer.provide(getLedgerStateLive)
+  Layer.provide(getLedgerStateLive),
 );
 
 const entityNonFungiblesPageServiceLive =
   EntityNonFungiblesPageService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
 const entityNonFungibleDataServiceLive =
   EntityNonFungibleDataService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
 const getNftResourceManagersServiceLive =
   GetNftResourceManagersService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
 const getNonFungibleIdsServiceLive = GetNonFungibleIdsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(entityNonFungibleDataServiceLive),
   Layer.provide(getNftResourceManagersServiceLive),
   Layer.provide(entityNonFungiblesPageServiceLive),
-  Layer.provide(getNonFungibleIdsServiceLive)
+  Layer.provide(getNonFungibleIdsServiceLive),
 );
 
 const getUserStakingPositionsLive = GetUserStakingPositionsService.Default.pipe(
@@ -74,11 +74,11 @@ const getUserStakingPositionsLive = GetUserStakingPositionsService.Default.pipe(
   Layer.provide(entityNonFungiblesPageServiceLive),
   Layer.provide(entityNonFungibleDataServiceLive),
   Layer.provide(getNonFungibleBalanceLive),
-  Layer.provide(getAllValidatorsServiceLive)
+  Layer.provide(getAllValidatorsServiceLive),
 );
 
-describe("getUserStakingPositions", () => {
-  it("should get user staking positions", async () => {
+describe('getUserStakingPositions', () => {
+  it('should get user staking positions', async () => {
     const result = await Effect.runPromise(
       Effect.provide(
         Effect.gen(function* () {
@@ -92,8 +92,8 @@ describe("getUserStakingPositions", () => {
             },
           });
         }),
-        getUserStakingPositionsLive
-      )
+        getUserStakingPositionsLive,
+      ),
     );
 
     expect(result.items.length).toBeGreaterThan(0);

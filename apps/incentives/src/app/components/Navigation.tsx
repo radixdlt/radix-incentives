@@ -1,7 +1,7 @@
+import Link from 'next/link';
 import { Logo } from '~/components/Logo';
 import { Button } from '~/components/ui/button';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
-import Link from 'next/link';
 
 export const Navigation = () => {
   const rdt = useDappToolkit();

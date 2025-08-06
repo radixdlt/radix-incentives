@@ -1,10 +1,10 @@
-import { Skeleton } from '~/components/ui/skeleton';
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from '~/components/ui/card';
+import { Skeleton } from '~/components/ui/skeleton';
 
 export const ActivityCardSkeleton = () => {
   return (
@@ -41,7 +41,7 @@ export const ActivityCardSkeleton = () => {
           <Skeleton className="h-3 w-32" />
         </div>
       </CardContent>
-      
+
       <CardFooter className="pt-3">
         <Skeleton className="h-8 w-full" />
       </CardFooter>

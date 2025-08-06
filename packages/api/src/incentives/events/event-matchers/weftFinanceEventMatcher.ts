@@ -1,6 +1,7 @@
-import { Effect } from "effect";
-import type { TransformedEvent } from "../../transaction-stream/transformEvent";
+import { Effect } from 'effect';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 
+import { isWeftFinanceComponent } from '../../../common/address-validation/addressValidation';
 import {
   AddCollateralEvent,
   AddNFTCollateralEvent,
@@ -15,46 +16,45 @@ import {
   RemoveCollateralEvent,
   RemoveNFTCollateralEvent,
   RepayEvent,
-} from "../../../common/dapps/weftFinance/schemas/lendingMarket";
+} from '../../../common/dapps/weftFinance/schemas/lendingMarket';
 import {
-  parseEventData,
   type CapturedEvent,
   createEventMatcher,
-} from "./createEventMatcher";
-import { isWeftFinanceComponent } from "../../../common/address-validation/addressValidation";
+  parseEventData,
+} from './createEventMatcher';
 
 export type WeftFinanceEmittableEvents =
-  | { readonly type: "AddCollateralEvent"; data: AddCollateralEvent }
-  | { readonly type: "BorrowEvent"; data: BorrowEvent }
-  | { readonly type: "RepayEvent"; data: RepayEvent }
-  | { readonly type: "RemoveCollateralEvent"; data: RemoveCollateralEvent }
-  | { readonly type: "AddNFTCollateralEvent"; data: AddNFTCollateralEvent }
+  | { readonly type: 'AddCollateralEvent'; data: AddCollateralEvent }
+  | { readonly type: 'BorrowEvent'; data: BorrowEvent }
+  | { readonly type: 'RepayEvent'; data: RepayEvent }
+  | { readonly type: 'RemoveCollateralEvent'; data: RemoveCollateralEvent }
+  | { readonly type: 'AddNFTCollateralEvent'; data: AddNFTCollateralEvent }
   | {
-      readonly type: "RemoveNFTCollateralEvent";
+      readonly type: 'RemoveNFTCollateralEvent';
       data: RemoveNFTCollateralEvent;
     }
   | {
-      readonly type: "CDPRepayForLiquidationEvent";
+      readonly type: 'CDPRepayForLiquidationEvent';
       data: CDPRepayForLiquidationEvent;
     }
   | {
-      readonly type: "CDPRepayForNFTLiquidationEvent";
+      readonly type: 'CDPRepayForNFTLiquidationEvent';
       data: CDPRepayForNFTLiquidationEvent;
     }
   | {
-      readonly type: "CDPRepayForRefinanceEvent";
+      readonly type: 'CDPRepayForRefinanceEvent';
       data: CDPRepayForRefinanceEvent;
     }
   | {
-      readonly type: "CDPRemoveCollateralForLiquidation";
+      readonly type: 'CDPRemoveCollateralForLiquidation';
       data: CDPRemoveCollateralForLiquidation;
     }
-  | { readonly type: "FlashAddCollateralEvent"; data: FlashAddCollateralEvent }
+  | { readonly type: 'FlashAddCollateralEvent'; data: FlashAddCollateralEvent }
   | {
-      readonly type: "FlashRemoveCollateralEvent";
+      readonly type: 'FlashRemoveCollateralEvent';
       data: FlashRemoveCollateralEvent;
     }
-  | { readonly type: "CDPCreationFeeEvent"; data: CDPCreationFeeEvent };
+  | { readonly type: 'CDPCreationFeeEvent'; data: CDPCreationFeeEvent };
 
 export type CapturedWeftFinanceEvent =
   CapturedEvent<WeftFinanceEmittableEvents>;
@@ -64,42 +64,42 @@ export const weftFinanceEventMatcherFn = (input: TransformedEvent) =>
     if (
       !isWeftFinanceComponent(
         input.emitter.globalEmitter,
-        input.package.address
+        input.package.address,
       )
     ) {
       return yield* Effect.succeed(null);
     }
 
     switch (input?.event.name) {
-      case "AddCollateralEvent":
+      case 'AddCollateralEvent':
         return yield* parseEventData(input, AddCollateralEvent);
-      case "BorrowEvent":
+      case 'BorrowEvent':
         return yield* parseEventData(input, BorrowEvent);
-      case "RepayEvent":
+      case 'RepayEvent':
         return yield* parseEventData(input, RepayEvent);
-      case "RemoveCollateralEvent":
+      case 'RemoveCollateralEvent':
         return yield* parseEventData(input, RemoveCollateralEvent);
-      case "AddNFTCollateralEvent":
+      case 'AddNFTCollateralEvent':
         return yield* parseEventData(input, AddNFTCollateralEvent);
-      case "RemoveNFTCollateralEvent":
+      case 'RemoveNFTCollateralEvent':
         return yield* parseEventData(input, RemoveNFTCollateralEvent);
-      case "CDPRepayForLiquidationEvent":
+      case 'CDPRepayForLiquidationEvent':
         return yield* parseEventData(input, CDPRepayForLiquidationEvent);
-      case "CDPRepayForRefinanceEvent":
+      case 'CDPRepayForRefinanceEvent':
         return yield* parseEventData(input, CDPRepayForRefinanceEvent);
-      case "CDPRemoveCollateralForLiquidation":
+      case 'CDPRemoveCollateralForLiquidation':
         return yield* parseEventData(input, CDPRemoveCollateralForLiquidation);
-      case "CDPRepayForNFTLiquidationEvent":
+      case 'CDPRepayForNFTLiquidationEvent':
         return yield* parseEventData(input, CDPRepayForNFTLiquidationEvent);
-      case "CDPCreationFeeEvent":
+      case 'CDPCreationFeeEvent':
         return yield* parseEventData(input, CDPCreationFeeEvent);
-      case "FlashAddCollateralEvent":
-      case "FlashRemoveCollateralEvent":
+      case 'FlashAddCollateralEvent':
+      case 'FlashRemoveCollateralEvent':
         return yield* Effect.succeed(null);
     }
 
     yield* Effect.log(
-      `No match found for event: weftFinance.${input?.event.name}`
+      `No match found for event: weftFinance.${input?.event.name}`,
     );
 
     return yield* Effect.succeed(null);
@@ -107,8 +107,8 @@ export const weftFinanceEventMatcherFn = (input: TransformedEvent) =>
 
 export const weftFinanceEventMatcher = createEventMatcher(
   {
-    dApp: "WeftFinance",
-    category: "Lending",
+    dApp: 'WeftFinance',
+    category: 'Lending',
   },
-  weftFinanceEventMatcherFn
+  weftFinanceEventMatcherFn,
 );

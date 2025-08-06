@@ -1,31 +1,31 @@
-import { Context, Layer, Effect } from "effect";
+import { Context, Effect, Layer } from 'effect';
 import type {
-  createTransactionStream,
   TransactionStream,
-} from "radix-transaction-stream";
+  createTransactionStream,
+} from 'radix-transaction-stream';
 
-import type { CommittedTransactionInfo } from "@radixdlt/babylon-gateway-api-sdk";
+import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk';
 
 type TransformTransactionResultOutput = ReturnType<
-  Awaited<ReturnType<TransactionStream["next"]>>["_unsafeUnwrap"]
+  Awaited<ReturnType<TransactionStream['next']>>['_unsafeUnwrap']
 >;
 
 class StateVersionBeyondEndOfKnownLedgerError {
-  readonly _tag = "StateVersionBeyondEndOfKnownLedgerError";
+  readonly _tag = 'StateVersionBeyondEndOfKnownLedgerError';
   constructor(readonly error: unknown) {}
 }
 
 class RateLimitedError {
-  readonly _tag = "RateLimitedError";
+  readonly _tag = 'RateLimitedError';
   constructor(readonly error: unknown) {}
 }
 
 class UnknownTransactionStreamError {
-  readonly _tag = "UnknownTransactionStreamError";
+  readonly _tag = 'UnknownTransactionStreamError';
   constructor(readonly error: unknown) {}
 }
 
-export class TransactionStreamService extends Context.Tag("TransactionStream")<
+export class TransactionStreamService extends Context.Tag('TransactionStream')<
   TransactionStreamService,
   (stateVersion: number) => Effect.Effect<
     {
@@ -39,7 +39,7 @@ export class TransactionStreamService extends Context.Tag("TransactionStream")<
 >() {}
 
 export const TransactionStreamLive = (
-  transactionStreamClient: ReturnType<typeof createTransactionStream>
+  transactionStreamClient: ReturnType<typeof createTransactionStream>,
 ) =>
   Layer.effect(
     TransactionStreamService,
@@ -57,14 +57,14 @@ export const TransactionStreamLive = (
             console.log(`sleeping for ${backoffMs}ms`);
             return Effect.sleep(backoffMs).pipe(
               Effect.tap(() => {
-                console.log("waking up");
+                console.log('waking up');
                 backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF_MS);
               }),
 
               Effect.map(() => ({
                 transactions: [],
                 stateVersion,
-              }))
+              })),
             );
           };
 
@@ -76,7 +76,7 @@ export const TransactionStreamLive = (
           }).pipe(
             Effect.flatMap(
               (
-                result
+                result,
               ): Effect.Effect<
                 TransformTransactionResultOutput,
                 | StateVersionBeyondEndOfKnownLedgerError
@@ -88,43 +88,43 @@ export const TransactionStreamLive = (
                 const error = result.error;
 
                 const isStateVersionBeyondEndOfKnownLedgerError =
-                  typeof error === "object" &&
+                  typeof error === 'object' &&
                   error !== null &&
-                  "parsedError" in error &&
-                  error.parsedError === "StateVersionBeyondEndOfKnownLedger";
+                  'parsedError' in error &&
+                  error.parsedError === 'StateVersionBeyondEndOfKnownLedger';
 
                 const isRateLimitedError =
-                  typeof error === "object" &&
+                  typeof error === 'object' &&
                   error !== null &&
-                  "status" in error &&
+                  'status' in error &&
                   error.status === 429;
 
                 if (isStateVersionBeyondEndOfKnownLedgerError)
                   return Effect.fail(
-                    new StateVersionBeyondEndOfKnownLedgerError(error)
+                    new StateVersionBeyondEndOfKnownLedgerError(error),
                   );
 
                 if (isRateLimitedError)
                   return Effect.fail(new RateLimitedError(error));
 
                 return Effect.fail(new UnknownTransactionStreamError(error));
-              }
+              },
             ),
             Effect.catchTags({
               RateLimitedError: () => {
-                console.log("Rate limited, waiting...");
+                console.log('Rate limited, waiting...');
                 return exponentialBackoff();
               },
               StateVersionBeyondEndOfKnownLedgerError: () => {
-                console.log("Reached the end of the ledger, waiting...");
+                console.log('Reached the end of the ledger, waiting...');
                 return exponentialBackoff();
               },
               UnknownTransactionStreamError: (error) => {
-                console.log("Unknown transaction stream error, waiting...");
+                console.log('Unknown transaction stream error, waiting...');
                 console.error({ error: error });
                 return exponentialBackoff();
               },
-            })
+            }),
           );
 
           resetBackoff();
@@ -134,5 +134,5 @@ export const TransactionStreamLive = (
             stateVersion: result.stateVersion,
           };
         });
-    })
+    }),
   );

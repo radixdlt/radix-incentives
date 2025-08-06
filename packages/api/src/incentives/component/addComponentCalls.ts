@@ -1,12 +1,12 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { startOfISOWeek, endOfISOWeek } from "date-fns";
-import { utc } from "@date-fns/utc";
+import { utc } from '@date-fns/utc';
+import { endOfISOWeek, startOfISOWeek } from 'date-fns';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { componentCalls } from "db/incentives";
-import { inArray, sql, and, between } from "drizzle-orm";
-import { GetUserIdByAccountAddressService } from "../user/getUserIdByAccountAddress";
-import { groupBy } from "effect/Array";
+import { componentCalls } from 'db/incentives';
+import { and, between, inArray, sql } from 'drizzle-orm';
+import { groupBy } from 'effect/Array';
+import { GetUserIdByAccountAddressService } from '../user/getUserIdByAccountAddress';
 
 export type AddComponentCallsServiceInput = {
   accountAddress: string;
@@ -15,7 +15,7 @@ export type AddComponentCallsServiceInput = {
 }[];
 
 export class AddComponentCallsService extends Context.Tag(
-  "AddComponentCallsService"
+  'AddComponentCallsService',
 )<
   AddComponentCallsService,
   (input: AddComponentCallsServiceInput) => Effect.Effect<void, DbError>
@@ -35,7 +35,7 @@ export const AddComponentCallsLive = Layer.effect(
         if (input.length === 0) return;
 
         const accountAddressUserIdMap = yield* getUserIdByAccountAddress(
-          input.map((item) => item.accountAddress)
+          input.map((item) => item.accountAddress),
         );
 
         const groupedByWeek = new Map<
@@ -101,9 +101,9 @@ export const AddComponentCallsLive = Layer.effect(
                     between(
                       componentCalls.timestamp,
                       weekGroup.startDate,
-                      weekGroup.endDate
-                    )
-                  )
+                      weekGroup.endDate,
+                    ),
+                  ),
                 ),
             catch: (error) => new DbError(error),
           });
@@ -148,7 +148,7 @@ export const AddComponentCallsLive = Layer.effect(
 
         // Handle duplicate inserts for the same user
         const itemsToInsert = Object.values(
-          groupBy(dbEntries, (item) => item.userId)
+          groupBy(dbEntries, (item) => item.userId),
         ).map((userComponentCalls) => {
           const componentCalls = userComponentCalls.reduce((acc, item) => {
             for (const componentCall of item.data) {
@@ -178,5 +178,5 @@ export const AddComponentCallsLive = Layer.effect(
         return;
       });
     };
-  })
+  }),
 );

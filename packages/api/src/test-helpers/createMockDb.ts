@@ -1,6 +1,6 @@
-import { vi } from "vitest";
-import { Layer } from "effect";
-import { DbClientService } from "../incentives/db/dbClient";
+import { Layer } from 'effect';
+import { vi } from 'vitest';
+import { DbClientService } from '../incentives/db/dbClient';
 
 // Create a mock database client
 export const createMockDb = () => {

@@ -1,29 +1,29 @@
-import { Effect } from "effect";
-import {
-  type GetFungibleBalanceOutput,
-  GetFungibleBalanceService,
-} from "../gateway/getFungibleBalance";
-import {
-  type GetNonFungibleBalanceOutput,
-  GetNonFungibleBalanceService,
-} from "../gateway/getNonFungibleBalance";
+import { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
 import {
   GetAllValidatorsService,
   type Validator,
-} from "../gateway/getAllValidators";
-import { claimNftSchema } from "./schema";
-import { BigNumber } from "bignumber.js";
+} from '../gateway/getAllValidators';
+import {
+  type GetFungibleBalanceOutput,
+  GetFungibleBalanceService,
+} from '../gateway/getFungibleBalance';
+import {
+  type GetNonFungibleBalanceOutput,
+  GetNonFungibleBalanceService,
+} from '../gateway/getNonFungibleBalance';
+import { claimNftSchema } from './schema';
 
-import type { AtLedgerState } from "../gateway/schemas";
+import type { AtLedgerState } from '../gateway/schemas';
 
 export class GetUserStakingPositionsService extends Effect.Service<GetUserStakingPositionsService>()(
-  "GetUserStakingPositionsService",
+  'GetUserStakingPositionsService',
   {
     effect: Effect.gen(function* () {
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
-      return Effect.fn("getUserStakingPositionsService")(function* (input: {
+      return Effect.fn('getUserStakingPositionsService')(function* (input: {
         addresses: string[];
         at_ledger_state: AtLedgerState;
         nonFungibleBalance?: GetNonFungibleBalanceOutput;
@@ -34,11 +34,11 @@ export class GetUserStakingPositionsService extends Effect.Service<GetUserStakin
           input.validators ?? (yield* getAllValidatorsService());
 
         const claimNftResourceAddressSet = new Set(
-          validators.map((validator) => validator.claimNftResourceAddress)
+          validators.map((validator) => validator.claimNftResourceAddress),
         );
 
         const lsuResourceAddressSet = new Set(
-          validators.map((validator) => validator.lsuResourceAddress)
+          validators.map((validator) => validator.lsuResourceAddress),
         );
 
         const nonFungibleBalanceResults = input.nonFungibleBalance
@@ -46,18 +46,18 @@ export class GetUserStakingPositionsService extends Effect.Service<GetUserStakin
           : yield* getNonFungibleBalanceService({
               addresses: input.addresses,
               at_ledger_state: input.at_ledger_state,
-            }).pipe(Effect.withSpan("getNonFungibleBalanceService"));
+            }).pipe(Effect.withSpan('getNonFungibleBalanceService'));
 
         const fungibleBalanceResults = input.fungibleBalance
           ? input.fungibleBalance
           : yield* getFungibleBalanceService({
               addresses: input.addresses,
               at_ledger_state: input.at_ledger_state,
-            }).pipe(Effect.withSpan("getFungibleBalanceService"));
+            }).pipe(Effect.withSpan('getFungibleBalanceService'));
 
         const staked = fungibleBalanceResults.map((item) => {
           const lsus = item.fungibleResources.filter((resource) =>
-            lsuResourceAddressSet.has(resource.resourceAddress)
+            lsuResourceAddressSet.has(resource.resourceAddress),
           );
 
           return {
@@ -70,8 +70,8 @@ export class GetUserStakingPositionsService extends Effect.Service<GetUserStakin
           const claimNfts = item.nonFungibleResources
             .filter((nonFungibleResource) =>
               claimNftResourceAddressSet.has(
-                nonFungibleResource.resourceAddress
-              )
+                nonFungibleResource.resourceAddress,
+              ),
             )
             .flatMap((nonFungibleResource) => {
               const resourceAddress = nonFungibleResource.resourceAddress;
@@ -119,7 +119,7 @@ export class GetUserStakingPositionsService extends Effect.Service<GetUserStakin
         };
       });
     }),
-  }
+  },
 ) {}
 
 export const GetUserStakingPositionsLive =

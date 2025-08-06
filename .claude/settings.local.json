@@ -21,7 +21,11 @@
       "Bash(pnpm -w run build)",
       "Bash(pnpm -w run clean)",
       "Bash(./build-docker.sh:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "Bash(npx yaml-lint:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh workflow:*)"
     ],
     "deny": []
   }

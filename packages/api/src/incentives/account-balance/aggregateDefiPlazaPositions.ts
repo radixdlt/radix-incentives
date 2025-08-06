@@ -1,31 +1,31 @@
-import { Data, Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { DappId, defiPlazaLpResourceAddressToComponentAddress } from "data";
+import { DappId, defiPlazaLpResourceAddressToComponentAddress } from 'data';
+import { Data, Effect } from 'effect';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 import {
   AggregatePoolPositionsService,
   type LpPosition,
-} from "./aggregatePoolPositions";
+} from './aggregatePoolPositions';
 
 export class InvalidDefiPlazaPositionError extends Data.TaggedClass(
-  "InvalidDefiPlazaPositionError"
+  'InvalidDefiPlazaPositionError',
 )<{ lpResourceAddress: string; reason: string }> {}
 
 export type AggregateDefiPlazaPositionsOutput = Effect.Effect.Success<
   ReturnType<typeof AggregateDefiPlazaPositionsService.Service>
 >;
 
-type DefiPlazaPositions = AccountBalanceFromSnapshot["defiPlazaPositions"];
+type DefiPlazaPositions = AccountBalanceFromSnapshot['defiPlazaPositions'];
 
 export class AggregateDefiPlazaPositionsService extends Effect.Service<AggregateDefiPlazaPositionsService>()(
-  "AggregateDefiPlazaPositionsService",
+  'AggregateDefiPlazaPositionsService',
   {
     effect: Effect.gen(function* () {
       const aggregatePoolPositionsService =
         yield* AggregatePoolPositionsService;
 
       const normalizePoolPositions = Effect.fn(function* (
-        input: DefiPlazaPositions
+        input: DefiPlazaPositions,
       ) {
         const positions: LpPosition[] = yield* Effect.forEach(
           input.items,
@@ -35,7 +35,7 @@ export class AggregateDefiPlazaPositionsService extends Effect.Service<Aggregate
 
             const componentAddress =
               defiPlazaLpResourceAddressToComponentAddress.get(
-                item.lpResourceAddress
+                item.lpResourceAddress,
               );
 
             if (!componentAddress) {
@@ -43,7 +43,7 @@ export class AggregateDefiPlazaPositionsService extends Effect.Service<Aggregate
                 new InvalidDefiPlazaPositionError({
                   lpResourceAddress: item.lpResourceAddress,
                   reason: `Component address not found for lpResourceAddress: ${item.lpResourceAddress}`,
-                })
+                }),
               );
             }
             return {
@@ -51,20 +51,20 @@ export class AggregateDefiPlazaPositionsService extends Effect.Service<Aggregate
               xToken: {
                 resourceAddress: xToken.resourceAddress,
                 withinPriceBounds: xToken.amount.toString(),
-                outsidePriceBounds: "0",
+                outsidePriceBounds: '0',
               },
               yToken: {
                 resourceAddress: yToken.resourceAddress,
                 withinPriceBounds: yToken.amount.toString(),
-                outsidePriceBounds: "0",
+                outsidePriceBounds: '0',
               },
             };
-          })
+          }),
         );
         return positions;
       });
 
-      return Effect.fn("AggregateDefiPlazaPositionsService")(function* (input: {
+      return Effect.fn('AggregateDefiPlazaPositionsService')(function* (input: {
         accountBalance: DefiPlazaPositions;
         timestamp: Date;
       }) {
@@ -77,7 +77,7 @@ export class AggregateDefiPlazaPositionsService extends Effect.Service<Aggregate
         });
       });
     }),
-  }
+  },
 ) {}
 
 export const AggregateDefiPlazaPositionsLive =

@@ -1,15 +1,15 @@
-import { dependencyLayer } from "api/incentives";
-import { FlowProducer } from "bullmq";
-import { Exit } from "effect";
-import { QueueName } from "../types";
-import { redisClient } from "../../redis";
-import type { ScheduledCalculationsJob } from "./schemas";
-import type { FlowJob, Job } from "bullmq";
+import { dependencyLayer } from 'api/incentives';
+import { FlowProducer } from 'bullmq';
+import type { FlowJob, Job } from 'bullmq';
+import { Exit } from 'effect';
+import { redisClient } from '../../redis';
+import { QueueName } from '../types';
+import type { ScheduledCalculationsJob } from './schemas';
 
 const flowProducer = new FlowProducer({ connection: redisClient });
 
 export const scheduledCalculationsWorker = async (
-  job: Job<ScheduledCalculationsJob>
+  job: Job<ScheduledCalculationsJob>,
 ) => {
   let weekId = job.data.weekId;
 
@@ -20,31 +20,31 @@ export const scheduledCalculationsWorker = async (
     const weekResult = await dependencyLayer.getWeekByDate(timestamp);
 
     if (Exit.isFailure(weekResult)) {
-      if (weekResult.cause._tag === "Fail") {
+      if (weekResult.cause._tag === 'Fail') {
         const enhancedError = new Error(weekResult.cause.error._tag);
         enhancedError.stack = `${JSON.stringify(weekResult.cause.error, null, 2)}`;
         enhancedError.cause = weekResult.cause.error._tag;
         throw enhancedError;
       }
 
-      if (weekResult.cause._tag === "Die") {
-        const enhancedError = new Error("unhandled error");
+      if (weekResult.cause._tag === 'Die') {
+        const enhancedError = new Error('unhandled error');
 
         if (
           weekResult.cause.defect !== null &&
-          typeof weekResult.cause.defect === "object" &&
-          "stack" in weekResult.cause.defect
+          typeof weekResult.cause.defect === 'object' &&
+          'stack' in weekResult.cause.defect
         ) {
           enhancedError.stack = `${weekResult.cause.defect.stack}`;
         } else {
           enhancedError.stack = JSON.stringify(
             weekResult.cause.defect,
             null,
-            2
+            2,
           );
         }
 
-        enhancedError.cause = "unhandled error";
+        enhancedError.cause = 'unhandled error';
         throw enhancedError;
       }
 
@@ -56,17 +56,17 @@ export const scheduledCalculationsWorker = async (
   const seasonResult = await dependencyLayer.getSeasonByWeekId(weekId);
 
   if (Exit.isFailure(seasonResult)) {
-    if (seasonResult.cause._tag === "Fail") {
+    if (seasonResult.cause._tag === 'Fail') {
       const enhancedError = new Error(seasonResult.cause.error._tag);
       enhancedError.stack = `${JSON.stringify(seasonResult.cause.error, null, 2)}`;
       enhancedError.cause = seasonResult.cause.error._tag;
       throw enhancedError;
     }
 
-    if (seasonResult.cause._tag === "Die") {
-      const enhancedError = new Error("unhandled error");
+    if (seasonResult.cause._tag === 'Die') {
+      const enhancedError = new Error('unhandled error');
       enhancedError.stack = `${JSON.stringify(seasonResult.cause.defect, null, 2)}`;
-      enhancedError.cause = "unhandled error";
+      enhancedError.cause = 'unhandled error';
       throw enhancedError;
     }
 
@@ -78,27 +78,27 @@ export const scheduledCalculationsWorker = async (
   job.log(`starting scheduled calculations for weekId: ${weekId}`);
 
   const seasonPointsMultiplierJob: FlowJob = {
-    name: "scheduledJob",
+    name: 'scheduledJob',
     data: { weekId },
     queueName: QueueName.seasonPointsMultiplier,
   };
 
   // Cache population job (runs after all calculations are complete)
   const cachePopulationJob: FlowJob = {
-    name: "populate-cache",
+    name: 'populate-cache',
     data: { weekId },
     queueName: QueueName.populateLeaderboardCache,
     opts: {
       attempts: 3,
       backoff: {
-        type: "exponential",
+        type: 'exponential',
         delay: 5000,
       },
     },
   };
 
   const calculateActivityPointsJob: FlowJob = {
-    name: "scheduledJob",
+    name: 'scheduledJob',
     data: { weekId },
     opts: { failParentOnFailure: true },
     queueName: QueueName.calculateActivityPoints,
@@ -106,7 +106,7 @@ export const scheduledCalculationsWorker = async (
   seasonPointsMultiplierJob.children = [calculateActivityPointsJob];
 
   const calculateSeasonPointsJob: FlowJob = {
-    name: "scheduledJob",
+    name: 'scheduledJob',
     data: { weekId, seasonId, markAsProcessed: job.data.markAsProcessed },
     queueName: QueueName.calculateSeasonPoints,
   };

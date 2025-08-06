@@ -1,8 +1,8 @@
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
+import { TRPCError } from '@trpc/server';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 
-import type { Account } from "db/incentives";
-import { verifyAccountOwnershipInputSchema } from "../programs/verifyAccountOwnership";
+import type { Account } from 'db/incentives';
+import { verifyAccountOwnershipInputSchema } from '../programs/verifyAccountOwnership';
 
 export const accountRouter = createTRPCRouter({
   verifyAccountOwnership: protectedProcedure
@@ -14,44 +14,44 @@ export const accountRouter = createTRPCRouter({
         userId,
       });
 
-      if (result._tag === "Failure") {
+      if (result._tag === 'Failure') {
         console.error(result.cause);
 
-        if (result.cause._tag === "Fail") {
+        if (result.cause._tag === 'Fail') {
           switch (result.cause.error._tag) {
-            case "InvalidChallengeError":
-            case "InvalidProofError":
-            case "ParseRolaProofInputError":
-            case "VerifyRolaProofError":
+            case 'InvalidChallengeError':
+            case 'InvalidProofError':
+            case 'ParseRolaProofInputError':
+            case 'VerifyRolaProofError':
               throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Invalid account ownership proof",
+                code: 'BAD_REQUEST',
+                message: 'Invalid account ownership proof',
               });
-            case "AccountAlreadyRegisteredError":
+            case 'AccountAlreadyRegisteredError':
               throw new TRPCError({
-                code: "BAD_REQUEST",
+                code: 'BAD_REQUEST',
                 message:
-                  typeof result.cause.error === "string"
+                  typeof result.cause.error === 'string'
                     ? result.cause.error
-                    : "Account already registered",
+                    : 'Account already registered',
               });
-            case "VirtualAccountError":
+            case 'VirtualAccountError':
               throw new TRPCError({
-                code: "BAD_REQUEST",
+                code: 'BAD_REQUEST',
                 message:
-                  "Account is virtual and has not been persisted on-ledger. Please use the account in a transaction first to create it on-ledger.",
+                  'Account is virtual and has not been persisted on-ledger. Please use the account in a transaction first to create it on-ledger.',
               });
-            case "CheckAccountPersistenceError":
+            case 'CheckAccountPersistenceError':
               throw new TRPCError({
-                code: "BAD_REQUEST",
+                code: 'BAD_REQUEST',
                 message:
-                  "Unable to verify account. Please check the account address and try again.",
+                  'Unable to verify account. Please check the account address and try again.',
               });
           }
         }
 
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: 'INTERNAL_SERVER_ERROR',
         });
       }
 
@@ -62,11 +62,11 @@ export const accountRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     const result = await ctx.dependencyLayer.getAccounts(userId);
 
-    if (result._tag === "Failure") {
+    if (result._tag === 'Failure') {
       console.error(result.cause);
 
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+        code: 'INTERNAL_SERVER_ERROR',
       });
     }
 
@@ -81,10 +81,10 @@ export const accountRouter = createTRPCRouter({
       userId,
     });
 
-    if (balancesResult._tag === "Failure") {
+    if (balancesResult._tag === 'Failure') {
       console.error(balancesResult.cause);
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+        code: 'INTERNAL_SERVER_ERROR',
       });
     }
 

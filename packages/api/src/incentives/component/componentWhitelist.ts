@@ -1,10 +1,10 @@
-import { Effect, Ref } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { componentWhitelist } from "db/incentives";
-import { AppConfigService } from "../config/appConfig";
+import { componentWhitelist } from 'db/incentives';
+import { Effect, Ref } from 'effect';
+import { AppConfigService } from '../config/appConfig';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class ComponentWhitelistService extends Effect.Service<ComponentWhitelistService>()(
-  "ComponentWhitelistService",
+  'ComponentWhitelistService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -29,12 +29,12 @@ export class ComponentWhitelistService extends Effect.Service<ComponentWhitelist
           });
 
           const whitelistSet = new Set(
-            whitelist.map((item) => item.componentAddress)
+            whitelist.map((item) => item.componentAddress),
           );
 
           yield* Ref.set(whitelistRef, whitelistSet);
           yield* Effect.log(
-            `Loaded ${whitelistSet.size} components into whitelist`
+            `Loaded ${whitelistSet.size} components into whitelist`,
           );
         });
 
@@ -68,7 +68,7 @@ export class ComponentWhitelistService extends Effect.Service<ComponentWhitelist
                   await tx
                     .insert(componentWhitelist)
                     .values(
-                      batch.map((address) => ({ componentAddress: address }))
+                      batch.map((address) => ({ componentAddress: address })),
                     );
                 }
               }),
@@ -102,5 +102,5 @@ export class ComponentWhitelistService extends Effect.Service<ComponentWhitelist
         reloadWhitelist: () => loadWhitelist(),
       };
     }),
-  }
+  },
 ) {}

@@ -1,15 +1,15 @@
-import { z } from "zod";
-import type { ActivityCategoryId } from "./activityCategories";
-import type { TokenDetails } from "./helpers/getTokenPair";
+import { z } from 'zod';
+import type { ActivityCategoryId } from './activityCategories';
+import type { TokenDetails } from './helpers/getTokenPair';
 
 export const DappId = {
-  caviarnine: "c9",
-  defiPlaza: "dp",
-  ociswap: "oc",
-  root: "ro",
-  weft: "we",
-  surge: "su",
-  radix: "ra",
+  caviarnine: 'c9',
+  defiPlaza: 'dp',
+  ociswap: 'oc',
+  root: 'ro',
+  weft: 'we',
+  surge: 'su',
+  radix: 'ra',
 } as const;
 
 export type DappId = (typeof DappId)[keyof typeof DappId];
@@ -23,17 +23,17 @@ export const AccountBalanceData = z.object({
 
 export type AccountBalanceData = Omit<
   z.infer<typeof AccountBalanceData>,
-  "activityId"
+  'activityId'
 > & {
   activityId: string;
 };
 
 export const Action = {
-  LP: "lp",
-  HOLD: "ho",
-  TRADE: "tr",
-  LEND: "le",
-  OTHER: "ot",
+  LP: 'lp',
+  HOLD: 'ho',
+  TRADE: 'tr',
+  LEND: 'le',
+  OTHER: 'ot',
 };
 
 export type Action = (typeof Action)[keyof typeof Action];

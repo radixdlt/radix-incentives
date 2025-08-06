@@ -1,10 +1,10 @@
-import { Effect } from "effect";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { GatewayError } from "./errors";
-import type { AtLedgerState } from "./schemas";
+import { Effect } from 'effect';
+import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
+import type { AtLedgerState } from './schemas';
 
 export class GetNonFungibleLocationService extends Effect.Service<GetNonFungibleLocationService>()(
-  "GetNonFungibleLocationService",
+  'GetNonFungibleLocationService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
@@ -28,5 +28,5 @@ export class GetNonFungibleLocationService extends Effect.Service<GetNonFungible
         return result;
       });
     }),
-  }
+  },
 ) {}
