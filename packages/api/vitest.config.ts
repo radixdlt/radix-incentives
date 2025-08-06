@@ -17,7 +17,7 @@ export default defineConfig({
       },
     },
     coverage: {
-      reporter: ['text', 'json', 'html'],
+      reporter: ['text', 'json', 'html', 'lcov', 'cobertura'],
       reportsDirectory: './coverage',
       exclude: [
         'node_modules/**',
