@@ -21,7 +21,7 @@ import { AddComponentCallsLive } from "../component/addComponentCalls";
 import { ProcessSwapEventTradingVolumeLive } from "../trading-volume/processSwapEventTradingVolume";
 import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { AddTradingVolumeLive } from "../trading-volume/addTradingVolume";
-import { FilterTradingEventsLive } from "../trading-volume/filterTradingEvents";
+import { FilterTradingEventsServiceLive } from "../trading-volume/filterTradingEvents";
 import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
 import { GetUserIdByAccountAddressLive } from "../user/getUserIdByAccountAddress";
 import { ConfigService } from "../config/configService";
@@ -93,7 +93,7 @@ const getUsdValueLive = GetUsdValueLive.pipe(
   Layer.provide(addressValidationServiceLive)
 );
 
-const filterTradingEventsLive = FilterTradingEventsLive.pipe(
+const filterTradingEventsLive = FilterTradingEventsServiceLive.pipe(
   Layer.provide(getUsdValueLive),
   Layer.provide(addressValidationServiceLive),
   Layer.provide(dbClientLive)
