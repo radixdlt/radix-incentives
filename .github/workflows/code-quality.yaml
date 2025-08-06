@@ -16,6 +16,20 @@ jobs:
     runs-on: ubuntu-latest
     
     services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: password
+          POSTGRES_DB: radix-incentives
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
       redis:
         image: redis:7-alpine
         ports:
@@ -55,8 +69,16 @@ jobs:
       - name: Run type check
         run: pnpm check-types
 
+      - name: Setup database
+        env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/radix-incentives
+        run: |
+          pnpm db:migrate
+          pnpm db:migrate:consultation
+
       - name: Run tests
         env:
+          DATABASE_URL: postgres://postgres:password@localhost:5432/radix-incentives
           REDIS_URL: redis://localhost:6379
           NODE_ENV: test
         run: pnpm test:ci
