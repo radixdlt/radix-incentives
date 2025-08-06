@@ -64,6 +64,9 @@ jobs:
 
       - name: Build applications
         run: pnpm build
+        env: 
+          DATABASE_URL: postgres://postgres:password@localhost:5432/radix-incentives
+          WORKERS_API_BASE_URL: http://localhost:3003
 
       - name: Upload test coverage
         if: always()
