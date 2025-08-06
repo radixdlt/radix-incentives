@@ -25,10 +25,12 @@
     "db:reset": "./packages/db/scripts/reset.sh",
     "queue:add": "pnpm --filter queue-helper run queue",
     "verify:activities": "turbo run verify:activities",
-    "data:generate": "turbo run generate"
+    "data:generate": "turbo run generate",
+    "prepare": "husky"
   },
   "devDependencies": {
     "@biomejs/biome": "1.9.4",
+    "husky": "^9.1.7",
     "prettier": "^3.5.3",
     "turbo": "^2.5.0",
     "typescript": "5.8.2"
