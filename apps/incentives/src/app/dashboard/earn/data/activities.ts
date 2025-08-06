@@ -1,11 +1,11 @@
-import type { IconName } from "../utils/getActivityIcon";
+import type { IconName } from '../utils/getActivityIcon';
 
 export interface ActivityData {
   id: string;
   title: string;
   description: string;
-  category: "passive" | "active";
-  type: "holding" | "trading" | "liquidity" | "lending" | "network";
+  category: 'passive' | 'active';
+  type: 'holding' | 'trading' | 'liquidity' | 'lending' | 'network';
 
   icon: IconName;
   requirements?: string[];
@@ -17,9 +17,9 @@ export interface Activity {
   id: string;
   name: string;
   description: string;
-  category: "passive" | "active";
-  type: "holding" | "trading" | "liquidity" | "lending" | "network";
+  category: 'passive' | 'active';
+  type: 'holding' | 'trading' | 'liquidity' | 'lending' | 'network';
   pointsRange: string;
-  difficulty: "Easy" | "Medium" | "Hard";
+  difficulty: 'Easy' | 'Medium' | 'Hard';
   requirements?: string[];
 }

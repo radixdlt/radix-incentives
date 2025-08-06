@@ -1,14 +1,23 @@
-import type { NodePgDatabase } from "drizzle-orm/node-postgres";
-import { sql } from "drizzle-orm";
+import type { NodePgDatabase } from 'drizzle-orm/node-postgres';
+import { sql } from 'drizzle-orm';
 
 export type PartitionManager = {
-  createWeeklyPartitions: (weekStart: Date, weekEnd: Date, hashPartitions?: number) => Promise<void>;
+  createWeeklyPartitions: (
+    weekStart: Date,
+    weekEnd: Date,
+    hashPartitions?: number,
+  ) => Promise<void>;
   dropOldPartitions: (cutoffDate: Date) => Promise<void>;
   getPartitionInfo: () => Promise<Array<{ tablename: string; size: string }>>;
   ensurePartitionExists: (timestamp: Date) => Promise<string[]>;
   optimizePartitions: () => Promise<void>;
-  consolidateOldPartitions: (monthsThreshold?: number, dryRun?: boolean) => Promise<void>;
-  getConsolidationStatus: () => Promise<Array<{ week_key: string; partition_type: string; partition_count: number }>>;
+  consolidateOldPartitions: (
+    monthsThreshold?: number,
+    dryRun?: boolean,
+  ) => Promise<void>;
+  getConsolidationStatus: () => Promise<
+    Array<{ week_key: string; partition_type: string; partition_count: number }>
+  >;
 };
 
 // Partition management utilities - these will be used in migrations
@@ -32,7 +41,11 @@ export const accountBalancesPartitionSQL = {
   `,
 
   // Create hash sub-partitions within a week (distributed by account_address)
-  createHashPartition: (weekStart: string, hashNumber: number, modulus: number) => `
+  createHashPartition: (
+    weekStart: string,
+    hashNumber: number,
+    modulus: number,
+  ) => `
     CREATE TABLE IF NOT EXISTS account_balances_${weekStart.replace(/-/g, '_')}_hash_${hashNumber}
     PARTITION OF account_balances_${weekStart.replace(/-/g, '_')}
     FOR VALUES WITH (modulus ${modulus}, remainder ${hashNumber});
@@ -67,9 +80,8 @@ export const accountBalancesPartitionSQL = {
  * Handles range partitioning by timestamp and list partitioning by activity_id
  */
 export const createPartitionManager = (
-  db: NodePgDatabase<Record<string, never>>
+  db: NodePgDatabase<Record<string, never>>,
 ): PartitionManager => {
-  
   const formatDate = (date: Date): string => {
     return date.toISOString().split('T')[0];
   };
@@ -81,7 +93,7 @@ export const createPartitionManager = (
   const createWeeklyPartitions = async (
     weekStart: Date,
     weekEnd: Date,
-    hashPartitions = 4  // Default to 4 hash partitions
+    hashPartitions = 4, // Default to 4 hash partitions
   ): Promise<void> => {
     const weekKey = getWeekKey(weekStart);
     const weekStartStr = formatDate(weekStart);
@@ -89,33 +101,51 @@ export const createPartitionManager = (
 
     try {
       // Create the weekly range partition
-      await db.execute(sql.raw(
-        accountBalancesPartitionSQL.createWeeklyPartition(weekStartStr, weekEndStr)
-      ));
+      await db.execute(
+        sql.raw(
+          accountBalancesPartitionSQL.createWeeklyPartition(
+            weekStartStr,
+            weekEndStr,
+          ),
+        ),
+      );
 
       // Create hash sub-partitions within the week (distributed by account_address)
       for (let i = 0; i < hashPartitions; i++) {
-        await db.execute(sql.raw(
-          accountBalancesPartitionSQL.createHashPartition(weekStartStr, i, hashPartitions)
-        ));
-        
+        await db.execute(
+          sql.raw(
+            accountBalancesPartitionSQL.createHashPartition(
+              weekStartStr,
+              i,
+              hashPartitions,
+            ),
+          ),
+        );
+
         // Create indexes on each hash partition
         const tableName = `account_balances_${weekKey}_hash_${i}`;
-        await db.execute(sql.raw(
-          accountBalancesPartitionSQL.createPartitionIndexes(tableName)
-        ));
+        await db.execute(
+          sql.raw(
+            accountBalancesPartitionSQL.createPartitionIndexes(tableName),
+          ),
+        );
       }
 
-      console.log(`Created partitions for week ${weekStartStr} with ${hashPartitions} hash partitions`);
+      console.log(
+        `Created partitions for week ${weekStartStr} with ${hashPartitions} hash partitions`,
+      );
     } catch (error) {
-      console.error(`Failed to create partitions for week ${weekStartStr}:`, error);
+      console.error(
+        `Failed to create partitions for week ${weekStartStr}:`,
+        error,
+      );
       throw error;
     }
   };
 
   const dropOldPartitions = async (cutoffDate: Date): Promise<void> => {
     const cutoffKey = getWeekKey(cutoffDate);
-    
+
     try {
       // Get list of partitions older than cutoff
       const cutoffTableName = `account_balances_${cutoffKey}`;
@@ -137,8 +167,12 @@ export const createPartitionManager = (
     }
   };
 
-  const getPartitionInfo = async (): Promise<Array<{ tablename: string; size: string }>> => {
-    const result = await db.execute(sql.raw(accountBalancesPartitionSQL.getPartitionInfo));
+  const getPartitionInfo = async (): Promise<
+    Array<{ tablename: string; size: string }>
+  > => {
+    const result = await db.execute(
+      sql.raw(accountBalancesPartitionSQL.getPartitionInfo),
+    );
     return result.rows as Array<{ tablename: string; size: string }>;
   };
 
@@ -146,13 +180,13 @@ export const createPartitionManager = (
     const weekStart = new Date(timestamp);
     weekStart.setUTCHours(0, 0, 0, 0);
     weekStart.setUTCDate(weekStart.getUTCDate() - weekStart.getUTCDay()); // Start of week (Sunday)
-    
+
     const weekEnd = new Date(weekStart);
     weekEnd.setUTCDate(weekEnd.getUTCDate() + 7);
-    
+
     const weekKey = getWeekKey(weekStart);
     const hashPartitions = 4; // Default number of hash partitions
-    
+
     // Check if weekly partition exists
     const weeklyPartitionName = `account_balances_${weekKey}`;
     const weeklyPartitionExists = await db.execute(sql`
@@ -177,7 +211,7 @@ export const createPartitionManager = (
     try {
       // Analyze all partitions for better query planning
       const partitions = await getPartitionInfo();
-      
+
       for (const partition of partitions) {
         await db.execute(sql.raw(`ANALYZE ${partition.tablename}`));
       }
@@ -194,18 +228,27 @@ export const createPartitionManager = (
     }
   };
 
-  const consolidateOldPartitions = async (monthsThreshold = 3, dryRun = false): Promise<void> => {
+  const consolidateOldPartitions = async (
+    monthsThreshold = 3,
+    dryRun = false,
+  ): Promise<void> => {
     try {
       const result = await db.execute(sql`
         SELECT * FROM consolidate_old_hash_partitions(${monthsThreshold}, ${dryRun})
       `);
-      
-      console.log(`Consolidation ${dryRun ? 'analysis' : 'execution'} completed for partitions older than ${monthsThreshold} months`);
-      
+
+      console.log(
+        `Consolidation ${dryRun ? 'analysis' : 'execution'} completed for partitions older than ${monthsThreshold} months`,
+      );
+
       if (dryRun) {
-        console.log(`Found ${result.rows.length} weeks that would be consolidated`);
+        console.log(
+          `Found ${result.rows.length} weeks that would be consolidated`,
+        );
       } else {
-        const consolidated = result.rows.filter((row: Record<string, unknown>) => row.action_taken === 'CONSOLIDATED');
+        const consolidated = result.rows.filter(
+          (row: Record<string, unknown>) => row.action_taken === 'CONSOLIDATED',
+        );
         console.log(`Successfully consolidated ${consolidated.length} weeks`);
       }
     } catch (error) {
@@ -214,15 +257,21 @@ export const createPartitionManager = (
     }
   };
 
-  const getConsolidationStatus = async (): Promise<Array<{ week_key: string; partition_type: string; partition_count: number }>> => {
+  const getConsolidationStatus = async (): Promise<
+    Array<{ week_key: string; partition_type: string; partition_count: number }>
+  > => {
     try {
       const result = await db.execute(sql`
         SELECT week_key, partition_type, partition_count 
         FROM get_partition_consolidation_status()
         ORDER BY week_start DESC
       `);
-      
-      return result.rows as Array<{ week_key: string; partition_type: string; partition_count: number }>;
+
+      return result.rows as Array<{
+        week_key: string;
+        partition_type: string;
+        partition_count: number;
+      }>;
     } catch (error) {
       console.error('Failed to get consolidation status:', error);
       throw error;
@@ -246,11 +295,11 @@ export const createPartitionManager = (
  */
 export const createActivityGroups = (
   activities: Array<{ id: string; category: string; type: string }>,
-  maxGroupSize = 10
+  maxGroupSize = 10,
 ): string[][] => {
   // Group by category and type for better query locality
   const categoryGroups = new Map<string, string[]>();
-  
+
   for (const activity of activities) {
     const key = `${activity.category}_${activity.type}`;
     if (!categoryGroups.has(key)) {
@@ -263,7 +312,7 @@ export const createActivityGroups = (
   }
 
   const groups: string[][] = [];
-  
+
   for (const [, activityIds] of categoryGroups) {
     // Split large groups
     for (let i = 0; i < activityIds.length; i += maxGroupSize) {
@@ -286,19 +335,22 @@ type BatchRecord = {
  * Batch insert utility for partitioned tables
  * Automatically routes data to correct partitions
  */
-export const createBatchInserter = (db: NodePgDatabase<Record<string, never>>, partitionManager: PartitionManager) => {
+export const createBatchInserter = (
+  db: NodePgDatabase<Record<string, never>>,
+  partitionManager: PartitionManager,
+) => {
   return async (records: BatchRecord[]): Promise<void> => {
     if (records.length === 0) return;
 
     // Group records by week to ensure partitions exist
     const weekGroups = new Map<string, BatchRecord[]>();
-    
+
     for (const record of records) {
       const weekStart = new Date(record.timestamp);
       weekStart.setUTCHours(0, 0, 0, 0);
       weekStart.setUTCDate(weekStart.getUTCDate() - weekStart.getUTCDay());
       const weekKey = weekStart.toISOString().split('T')[0].replace(/-/g, '_');
-      
+
       if (!weekGroups.has(weekKey)) {
         weekGroups.set(weekKey, []);
       }
@@ -311,12 +363,16 @@ export const createBatchInserter = (db: NodePgDatabase<Record<string, never>>, p
       if (!timestamp) continue;
 
       // Ensure partitions exist for this week
-      const partitionNames = await partitionManager.ensurePartitionExists(timestamp);
-      
+      const partitionNames =
+        await partitionManager.ensurePartitionExists(timestamp);
+
       // Insert all records for this week (PostgreSQL will automatically route to correct hash partition)
-      const values = weekRecords.map(record => 
-        `('${record.timestamp.toISOString()}', '${record.accountAddress}', ${record.usdValue}, '${record.activityId}', '${JSON.stringify(record.data)}')`
-      ).join(', ');
+      const values = weekRecords
+        .map(
+          (record) =>
+            `('${record.timestamp.toISOString()}', '${record.accountAddress}', ${record.usdValue}, '${record.activityId}', '${JSON.stringify(record.data)}')`,
+        )
+        .join(', ');
 
       const insertSQL = `
         INSERT INTO account_balances (timestamp, account_address, usd_value, activity_id, data)
@@ -329,4 +385,4 @@ export const createBatchInserter = (db: NodePgDatabase<Record<string, never>>, p
       await db.execute(sql.raw(insertSQL));
     }
   };
-}; 
+};

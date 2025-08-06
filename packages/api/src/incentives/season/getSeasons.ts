@@ -1,11 +1,11 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { seasons, type Season } from "db/incentives";
+import { seasons, type Season } from 'db/incentives';
 
 export type GetSeasonsError = DbError;
 
-export class GetSeasonsService extends Context.Tag("GetSeasonsService")<
+export class GetSeasonsService extends Context.Tag('GetSeasonsService')<
   GetSeasonsService,
   () => Effect.Effect<Season[], GetSeasonsError>
 >() {}
@@ -22,5 +22,5 @@ export const GetSeasonsLive = Layer.effect(
           catch: (error) => new DbError(error),
         });
       });
-  })
+  }),
 );

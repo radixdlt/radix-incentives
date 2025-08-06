@@ -1,46 +1,46 @@
-import { Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { DappId } from "data";
+import { Effect } from 'effect';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
+import { DappId } from 'data';
 
 import {
   AggregatePoolPositionsService,
   type LpPosition,
-} from "./aggregatePoolPositions";
-import { BigNumber } from "bignumber.js";
+} from './aggregatePoolPositions';
+import { BigNumber } from 'bignumber.js';
 
 export type AggregateOciswapPositionsOutput = Effect.Effect.Success<
   ReturnType<typeof AggregateOciswapPositionsService.Service>
 >;
 
-type OciswapPositions = AccountBalanceFromSnapshot["ociswapPositions"];
+type OciswapPositions = AccountBalanceFromSnapshot['ociswapPositions'];
 
 export class AggregateOciswapPositionsService extends Effect.Service<AggregateOciswapPositionsService>()(
-  "AggregateOciswapPositionsService",
+  'AggregateOciswapPositionsService',
   {
     effect: Effect.gen(function* () {
       const aggregatePoolPositionsService =
         yield* AggregatePoolPositionsService;
 
       const normalizePoolPositions = Effect.fn(function* (
-        input: OciswapPositions
+        input: OciswapPositions,
       ) {
         const positions: LpPosition[] = Object.entries(input).flatMap(
           ([componentAddress, poolPositions]) => {
             return poolPositions.map((position) => {
               const xTokenWithinPriceBounds = new BigNumber(
-                position.xToken.amountInBounds
+                position.xToken.amountInBounds,
               ).toString();
               const xTokenOutsidePriceBounds = new BigNumber(
-                position.xToken.totalAmount
+                position.xToken.totalAmount,
               )
                 .minus(xTokenWithinPriceBounds)
                 .toString();
 
               const yTokenWithinPriceBounds = new BigNumber(
-                position.yToken.amountInBounds
+                position.yToken.amountInBounds,
               ).toString();
               const yTokenOutsidePriceBounds = new BigNumber(
-                position.yToken.totalAmount
+                position.yToken.totalAmount,
               )
                 .minus(yTokenWithinPriceBounds)
                 .toString();
@@ -59,12 +59,12 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
                 },
               };
             });
-          }
+          },
         );
         return positions;
       });
 
-      return Effect.fn("AggregateOciswapPositionsService")(function* (input: {
+      return Effect.fn('AggregateOciswapPositionsService')(function* (input: {
         accountBalance: OciswapPositions;
         timestamp: Date;
       }) {
@@ -77,7 +77,7 @@ export class AggregateOciswapPositionsService extends Effect.Service<AggregateOc
         });
       });
     }),
-  }
+  },
 ) {}
 
 export const AggregateOciswapPositionsLive =

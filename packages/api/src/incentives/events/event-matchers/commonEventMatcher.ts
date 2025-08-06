@@ -1,14 +1,14 @@
-import { Effect } from "effect";
-import type { TransformedEvent } from "../../transaction-stream/transformEvent";
-import { type CapturedEvent, createEventMatcher } from "./createEventMatcher";
+import { Effect } from 'effect';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
+import { type CapturedEvent, createEventMatcher } from './createEventMatcher';
 
-import { parseWithdrawEvent } from "./parseWithdrawEvent";
-import { parseDepositEvent } from "./parseDepositEvent";
-import { isValidResourceAddress } from "../../../common/address-validation/addressValidation";
+import { parseWithdrawEvent } from './parseWithdrawEvent';
+import { parseDepositEvent } from './parseDepositEvent';
+import { isValidResourceAddress } from '../../../common/address-validation/addressValidation';
 
 export type CommonEmittableEvents =
   | {
-      readonly type: "WithdrawNonFungibleEvent";
+      readonly type: 'WithdrawNonFungibleEvent';
       data: {
         resourceAddress: string;
         nftIds: string[];
@@ -16,7 +16,7 @@ export type CommonEmittableEvents =
       };
     }
   | {
-      readonly type: "DepositNonFungibleEvent";
+      readonly type: 'DepositNonFungibleEvent';
       data: {
         resourceAddress: string;
         nftIds: string[];
@@ -24,7 +24,7 @@ export type CommonEmittableEvents =
       };
     }
   | {
-      readonly type: "WithdrawFungibleEvent";
+      readonly type: 'WithdrawFungibleEvent';
       data: {
         resourceAddress: string;
         amount: string;
@@ -32,7 +32,7 @@ export type CommonEmittableEvents =
       };
     }
   | {
-      readonly type: "DepositFungibleEvent";
+      readonly type: 'DepositFungibleEvent';
       data: {
         resourceAddress: string;
         amount: string;
@@ -62,8 +62,8 @@ export const withdrawDepositEventMatcherFn = (input: TransformedEvent) =>
 
 export const commonEventMatcher = createEventMatcher(
   {
-    dApp: "Common",
-    category: "none",
+    dApp: 'Common',
+    category: 'none',
   },
-  withdrawDepositEventMatcherFn
+  withdrawDepositEventMatcherFn,
 );

@@ -1,28 +1,28 @@
-import { Effect } from "effect";
-import { GetFungibleBalanceService } from "../../gateway/getFungibleBalance";
+import { Effect } from 'effect';
+import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
 
-import { BigNumber } from "bignumber.js";
+import { BigNumber } from 'bignumber.js';
 import type {
   ProgrammaticScryptoSborValue,
   ProgrammaticScryptoSborValueDecimal,
-} from "@radixdlt/babylon-gateway-api-sdk";
-import { DappConstants } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+} from '@radixdlt/babylon-gateway-api-sdk';
+import { DappConstants } from 'data';
+import type { AtLedgerState } from '../../gateway/schemas';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export class LsulpNotFoundError {
-  readonly _tag = "LsulpNotFoundError";
+  readonly _tag = 'LsulpNotFoundError';
   constructor(readonly error: unknown) {}
 }
 
 export class InvalidEntityAddressError {
-  readonly _tag = "InvalidEntityAddressError";
+  readonly _tag = 'InvalidEntityAddressError';
   constructor(readonly error: unknown) {}
 }
 
 export class GetLsulpValueService extends Effect.Service<GetLsulpValueService>()(
-  "GetLsulpValueService",
+  'GetLsulpValueService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -39,55 +39,56 @@ export class GetLsulpValueService extends Effect.Service<GetLsulpValueService>()
         if (!lsulpResourceResult || !lsulpComponentResult) {
           return yield* Effect.fail(
             new LsulpNotFoundError(
-              "resource or component not found at state version"
-            )
+              'resource or component not found at state version',
+            ),
           );
         }
 
-        if (lsulpResourceResult.details?.type !== "FungibleResource") {
+        if (lsulpResourceResult.details?.type !== 'FungibleResource') {
           return yield* Effect.fail(
             new InvalidEntityAddressError(
-              `expected LSULP to be a fungible resource, got ${lsulpResourceResult.details?.type}`
-            )
+              `expected LSULP to be a fungible resource, got ${lsulpResourceResult.details?.type}`,
+            ),
           );
         }
 
-        if (lsulpComponentResult.details?.type !== "Component") {
+        if (lsulpComponentResult.details?.type !== 'Component') {
           return yield* Effect.fail(
             new InvalidEntityAddressError(
-              `expected LSULP component to be a component, got ${lsulpComponentResult.details?.type}`
-            )
+              `expected LSULP component to be a component, got ${lsulpComponentResult.details?.type}`,
+            ),
           );
         }
 
         const componentState = lsulpComponentResult.details
           .state as ProgrammaticScryptoSborValue;
 
-        if (componentState.kind !== "Tuple") {
+        if (componentState.kind !== 'Tuple') {
           return yield* Effect.fail(
             new InvalidEntityAddressError(
-              `expected LSULP component state to be a tuple, got ${componentState.kind}`
-            )
+              `expected LSULP component state to be a tuple, got ${componentState.kind}`,
+            ),
           );
         }
 
         const dexValuationXrdField = componentState.fields.find(
           (field): field is ProgrammaticScryptoSborValueDecimal =>
-            field.field_name === "dex_valuation_xrd" && field.kind === "Decimal"
+            field.field_name === 'dex_valuation_xrd' &&
+            field.kind === 'Decimal',
         );
 
         if (!dexValuationXrdField) {
           return yield* Effect.fail(
             new InvalidEntityAddressError(
-              "expected LSULP component state to have a dex_valuation_xrd field"
-            )
+              'expected LSULP component state to have a dex_valuation_xrd field',
+            ),
           );
         }
 
         const dexValuationXrd = new BigNumber(dexValuationXrdField.value);
 
         const lsulpTotalSupply = new BigNumber(
-          lsulpResourceResult.details.total_supply
+          lsulpResourceResult.details.total_supply,
         );
 
         const lsulpValue = dexValuationXrd.dividedBy(lsulpTotalSupply);
@@ -99,7 +100,7 @@ export class GetLsulpValueService extends Effect.Service<GetLsulpValueService>()
         };
       });
     }),
-  }
+  },
 ) {}
 
 export const GetLsulpValueLive = GetLsulpValueService.Default;

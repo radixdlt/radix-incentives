@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useRef } from "react";
-import { api } from "~/trpc/react";
-import { Button } from "~/components/ui/button";
+import { useState, useRef } from 'react';
+import { api } from '~/trpc/react';
+import { Button } from '~/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "~/components/ui/card";
-import { Alert, AlertDescription } from "~/components/ui/alert";
-import { Loader2, Upload, FileText, File } from "lucide-react";
+} from '~/components/ui/card';
+import { Alert, AlertDescription } from '~/components/ui/alert';
+import { Loader2, Upload, FileText, File } from 'lucide-react';
 
 export default function ComponentWhitelistPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -32,7 +32,7 @@ export default function ComponentWhitelistPage() {
       setIsUploading(false);
       setSelectedFile(null);
       if (fileInputRef.current) {
-        fileInputRef.current.value = "";
+        fileInputRef.current.value = '';
       }
       refetchStats();
     },
@@ -49,12 +49,12 @@ export default function ComponentWhitelistPage() {
     const file = event.target.files?.[0];
     if (file) {
       if (
-        file.type !== "text/csv" &&
-        !file.name.toLowerCase().endsWith(".csv")
+        file.type !== 'text/csv' &&
+        !file.name.toLowerCase().endsWith('.csv')
       ) {
         setUploadResult({
           success: false,
-          message: "Please select a CSV file",
+          message: 'Please select a CSV file',
         });
         return;
       }
@@ -70,9 +70,9 @@ export default function ComponentWhitelistPage() {
   };
 
   const handleFileInputKeyDown = (
-    e: React.KeyboardEvent<HTMLButtonElement>
+    e: React.KeyboardEvent<HTMLButtonElement>,
   ) => {
-    if (e.key === "Enter" || e.key === " ") {
+    if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
       fileInputRef.current?.click();
     }
@@ -82,7 +82,7 @@ export default function ComponentWhitelistPage() {
     if (!selectedFile) {
       setUploadResult({
         success: false,
-        message: "Please select a CSV file",
+        message: 'Please select a CSV file',
       });
       return;
     }
@@ -96,7 +96,7 @@ export default function ComponentWhitelistPage() {
     } catch (error) {
       setUploadResult({
         success: false,
-        message: "Failed to read CSV file",
+        message: 'Failed to read CSV file',
       });
       setIsUploading(false);
     }
@@ -129,7 +129,7 @@ export default function ComponentWhitelistPage() {
         <CardContent>
           <div>
             <p className="text-2xl font-bold">
-              {whitelistStats?.count?.toLocaleString() ?? "Loading..."}
+              {whitelistStats?.count?.toLocaleString() ?? 'Loading...'}
             </p>
             <p className="text-muted-foreground">Components in whitelist</p>
           </div>
@@ -219,7 +219,7 @@ export default function ComponentWhitelistPage() {
                     e.stopPropagation();
                     setSelectedFile(null);
                     if (fileInputRef.current) {
-                      fileInputRef.current.value = "";
+                      fileInputRef.current.value = '';
                     }
                     setUploadResult(null);
                   }}
@@ -253,7 +253,7 @@ export default function ComponentWhitelistPage() {
 
       {/* Results */}
       {uploadResult && (
-        <Alert variant={uploadResult.success ? "default" : "destructive"}>
+        <Alert variant={uploadResult.success ? 'default' : 'destructive'}>
           <AlertDescription>
             {uploadResult.message}
             {uploadResult.count && (

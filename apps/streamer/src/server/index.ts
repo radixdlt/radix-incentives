@@ -1,11 +1,11 @@
-import { Hono } from "hono";
-import { serve } from "@hono/node-server";
-import { showRoutes } from "hono/dev";
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+import { showRoutes } from 'hono/dev';
 
 const app = new Hono();
 
-app.get("/health", (c) => {
-  return c.text("ok");
+app.get('/health', (c) => {
+  return c.text('ok');
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3004;
@@ -22,7 +22,7 @@ serve(
   },
   () => {
     console.log(`✅ Server is now running on http://localhost:${port}`);
-  }
+  },
 );
 
 export default app;

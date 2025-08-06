@@ -1,12 +1,12 @@
-import { initTRPC, TRPCError } from "@trpc/server";
-import superjson from "superjson";
-import { ZodError } from "zod";
-import { BigNumber } from "bignumber.js";
+import { initTRPC, TRPCError } from '@trpc/server';
+import superjson from 'superjson';
+import { ZodError } from 'zod';
+import { BigNumber } from 'bignumber.js';
 import {
   type DependencyLayer,
   createDependencyLayer,
-} from "./createDependencyLayer";
-import { Exit } from "effect";
+} from './createDependencyLayer';
+import { Exit } from 'effect';
 
 export type { DependencyLayer };
 export { createDependencyLayer };
@@ -15,10 +15,10 @@ export { createDependencyLayer };
 superjson.registerCustom<BigNumber, string>(
   {
     isApplicable: (v): v is BigNumber => BigNumber.isBigNumber(v),
-    serialize: v => v.toString(),
-    deserialize: v => new BigNumber(v)
+    serialize: (v) => v.toString(),
+    deserialize: (v) => new BigNumber(v),
   },
-  'BigNumber'
+  'BigNumber',
 );
 
 /**
@@ -127,35 +127,35 @@ export const protectedProcedure = t.procedure
   .use(timingMiddleware)
   .use(async ({ ctx, next }) => {
     if (!ctx.sessionToken) {
-      console.error("session token not found");
-      throw new TRPCError({ code: "UNAUTHORIZED" });
+      console.error('session token not found');
+      throw new TRPCError({ code: 'UNAUTHORIZED' });
     }
 
-    console.log("validating session token", ctx.sessionToken);
+    console.log('validating session token', ctx.sessionToken);
 
     const result = await ctx.dependencyLayer.validateSessionToken(
-      ctx.sessionToken
+      ctx.sessionToken,
     );
 
     if (Exit.isFailure(result)) {
       console.error(result.cause);
-      if (result.cause._tag === "Fail") {
+      if (result.cause._tag === 'Fail') {
         switch (result.cause.error._tag) {
-          case "SessionExpiredError":
+          case 'SessionExpiredError':
             throw new TRPCError({
-              code: "UNAUTHORIZED",
-              message: "Session expired",
+              code: 'UNAUTHORIZED',
+              message: 'Session expired',
             });
-          case "SessionNotFoundError":
+          case 'SessionNotFoundError':
             throw new TRPCError({
-              code: "UNAUTHORIZED",
-              message: "Session not found",
+              code: 'UNAUTHORIZED',
+              message: 'Session not found',
             });
         }
       }
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
-        message: "Unknown error",
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Unknown error',
       });
     }
 

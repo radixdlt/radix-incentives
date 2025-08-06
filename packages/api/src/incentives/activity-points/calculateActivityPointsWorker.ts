@@ -1,10 +1,10 @@
-import { Effect } from "effect";
-import { CalculateActivityPointsService } from "./calculateActivityPoints";
-import { z } from "zod";
-import { InvalidInputError } from "../../common/errors";
-import { chunker } from "../../common";
-import { GetWeekByIdService } from "../week/getWeekById";
-import { AccountAddressService } from "../account/accountAddressService";
+import { Effect } from 'effect';
+import { CalculateActivityPointsService } from './calculateActivityPoints';
+import { z } from 'zod';
+import { InvalidInputError } from '../../common/errors';
+import { chunker } from '../../common';
+import { GetWeekByIdService } from '../week/getWeekById';
+import { AccountAddressService } from '../account/accountAddressService';
 
 export const calculateActivityPointsJobSchema = z.object({
   weekId: z.string(),
@@ -17,7 +17,7 @@ export type CalculateActivityPointsJob = z.infer<
 >;
 
 export class CalculateActivityPointsWorkerService extends Effect.Service<CalculateActivityPointsWorkerService>()(
-  "CalculateActivityPointsWorkerService",
+  'CalculateActivityPointsWorkerService',
   {
     effect: Effect.gen(function* () {
       const calculateActivityPointsService =
@@ -52,7 +52,7 @@ export class CalculateActivityPointsWorkerService extends Effect.Service<Calcula
                   weekId: parsedInput.data.weekId,
                   addresses: chunk,
                   useWeekEndDate: parsedInput.data.useWeekEndDate,
-                })
+                }),
             );
           }
 
@@ -61,7 +61,7 @@ export class CalculateActivityPointsWorkerService extends Effect.Service<Calcula
             .ACTIVITY_POINTS_WORKER_ACCOUNTS_LIMIT
             ? Number.parseInt(
                 process.env.ACTIVITY_POINTS_WORKER_ACCOUNTS_LIMIT,
-                10
+                10,
               )
             : 10000;
           let shouldContinue = true;
@@ -74,7 +74,7 @@ export class CalculateActivityPointsWorkerService extends Effect.Service<Calcula
                 limit: accountsLimitPerPage,
                 createdAt: week.endDate,
               })
-              .pipe(Effect.withSpan("getPaginatedAccounts"));
+              .pipe(Effect.withSpan('getPaginatedAccounts'));
 
             yield* Effect.log(`fetched ${items.length} accounts`);
             if (items.length === 0) {
@@ -83,7 +83,7 @@ export class CalculateActivityPointsWorkerService extends Effect.Service<Calcula
             }
 
             yield* Effect.log(
-              `calculating activity points for ${items.length} accounts`
+              `calculating activity points for ${items.length} accounts`,
             );
             yield* calculateActivityPointsService({
               weekId: parsedInput.data.weekId,
@@ -95,12 +95,12 @@ export class CalculateActivityPointsWorkerService extends Effect.Service<Calcula
           }
 
           yield* Effect.log(
-            `activity points calculations completed for week ${week.id}`
+            `activity points calculations completed for week ${week.id}`,
           );
         }),
       };
     }),
-  }
+  },
 ) {}
 
 export const CalculateActivityPointsWorkerLive =

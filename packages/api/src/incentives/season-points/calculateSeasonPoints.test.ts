@@ -1,11 +1,11 @@
-import { describe, inject } from "vitest";
-import { Effect, Layer, Logger, LogLevel } from "effect";
-import { it } from "@effect/vitest";
-import { createDbClientLive } from "../db/dbClient";
-import { CalculateSeasonPointsService } from "./calculateSeasonPoints";
-import { drizzle } from "drizzle-orm/postgres-js";
-import BigNumber from "bignumber.js";
-import { eq } from "drizzle-orm";
+import { describe, inject } from 'vitest';
+import { Effect, Layer, Logger, LogLevel } from 'effect';
+import { it } from '@effect/vitest';
+import { createDbClientLive } from '../db/dbClient';
+import { CalculateSeasonPointsService } from './calculateSeasonPoints';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import BigNumber from 'bignumber.js';
+import { eq } from 'drizzle-orm';
 
 import {
   schema,
@@ -20,48 +20,48 @@ import {
   userSeasonPoints,
   users,
   accounts,
-} from "db/incentives";
+} from 'db/incentives';
 
-import postgres from "postgres";
-import { ActivityCategoryId } from "data";
+import postgres from 'postgres';
+import { ActivityCategoryId } from 'data';
 
 // Import required services
-import { UserActivityPointsService } from "../user/userActivityPoints";
-import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
-import { UpdateWeekStatusService } from "../week/updateWeekStatus";
-import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { SeasonService } from "../season/season";
-import { WeekService } from "../week/week";
-import { ActivityWeekService } from "../activity-week/activityWeek";
+import { UserActivityPointsService } from '../user/userActivityPoints';
+import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
+import { UpdateWeekStatusService } from '../week/updateWeekStatus';
+import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { ActivityWeekService } from '../activity-week/activityWeek';
 
 describe(
-  "CalculateSeasonPointsService",
+  'CalculateSeasonPointsService',
   {
     timeout: 60_000,
   },
   () => {
-    const dbUrl = inject("testDbUrl");
+    const dbUrl = inject('testDbUrl');
     const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
 
     // Test data constants
-    const SEASON_ID = "11111111-1111-1111-1111-111111111111";
-    const WEEK_ID = "22222222-2222-2222-2222-222222222222";
-    const USER_1 = "33333333-3333-3333-3333-333333333333";
-    const USER_2 = "44444444-4444-4444-4444-444444444444";
-    const USER_3 = "55555555-5555-5555-5555-555555555555";
-    const USER_4 = "66666666-6666-6666-6666-666666666666";
-    const ACTIVITY_1 = "test-activity-1";
-    const ACTIVITY_2 = "test-activity-2";
-    const ACTIVITY_3 = "test-activity-3";
+    const SEASON_ID = '11111111-1111-1111-1111-111111111111';
+    const WEEK_ID = '22222222-2222-2222-2222-222222222222';
+    const USER_1 = '33333333-3333-3333-3333-333333333333';
+    const USER_2 = '44444444-4444-4444-4444-444444444444';
+    const USER_3 = '55555555-5555-5555-5555-555555555555';
+    const USER_4 = '66666666-6666-6666-6666-666666666666';
+    const ACTIVITY_1 = 'test-activity-1';
+    const ACTIVITY_2 = 'test-activity-2';
+    const ACTIVITY_3 = 'test-activity-3';
 
-    const ACCOUNT_1 = "account_rdx12test1_calculate_season_points_acc";
-    const ACCOUNT_2 = "account_rdx12test2_calculate_season_points_acc";
-    const ACCOUNT_3 = "account_rdx12test3_calculate_season_points_acc";
-    const ACCOUNT_4 = "account_rdx12test4_calculate_season_points_acc";
+    const ACCOUNT_1 = 'account_rdx12test1_calculate_season_points_acc';
+    const ACCOUNT_2 = 'account_rdx12test2_calculate_season_points_acc';
+    const ACCOUNT_3 = 'account_rdx12test3_calculate_season_points_acc';
+    const ACCOUNT_4 = 'account_rdx12test4_calculate_season_points_acc';
 
     const setupTestData = Effect.gen(function* () {
       // Create season
@@ -71,11 +71,11 @@ describe(
           .values([
             {
               id: SEASON_ID,
-              name: "Test Season",
-              status: "active",
+              name: 'Test Season',
+              status: 'active',
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create week
@@ -86,11 +86,11 @@ describe(
             {
               id: WEEK_ID,
               seasonId: SEASON_ID,
-              startDate: new Date("2024-01-01"),
-              endDate: new Date("2024-01-07"),
+              startDate: new Date('2024-01-01'),
+              endDate: new Date('2024-01-07'),
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create activity categories
@@ -100,14 +100,14 @@ describe(
           .values([
             {
               id: ActivityCategoryId.tradingVolume,
-              name: "Trading Volume",
+              name: 'Trading Volume',
             },
             {
               id: ActivityCategoryId.componentCalls,
-              name: "Component Calls",
+              name: 'Component Calls',
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create activities
@@ -117,21 +117,21 @@ describe(
           .values([
             {
               id: ACTIVITY_1,
-              name: "Test Activity 1",
+              name: 'Test Activity 1',
               category: ActivityCategoryId.tradingVolume,
             },
             {
               id: ACTIVITY_2,
-              name: "Test Activity 2",
+              name: 'Test Activity 2',
               category: ActivityCategoryId.tradingVolume,
             },
             {
               id: ACTIVITY_3,
-              name: "Test Activity 3",
+              name: 'Test Activity 3',
               category: ActivityCategoryId.componentCalls,
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create activity category weeks with points pools
@@ -150,7 +150,7 @@ describe(
               pointsPool: 5000,
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create activity weeks with multipliers (integers only)
@@ -161,20 +161,20 @@ describe(
             {
               activityId: ACTIVITY_1,
               weekId: WEEK_ID,
-              multiplier: "2",
+              multiplier: '2',
             },
             {
               activityId: ACTIVITY_2,
               weekId: WEEK_ID,
-              multiplier: "3",
+              multiplier: '3',
             },
             {
               activityId: ACTIVITY_3,
               weekId: WEEK_ID,
-              multiplier: "1",
+              multiplier: '1',
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create users
@@ -187,7 +187,7 @@ describe(
             { id: USER_3, identityAddress: `identity_${USER_3}` },
             { id: USER_4, identityAddress: `identity_${USER_4}` },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create accounts
@@ -195,12 +195,12 @@ describe(
         db
           .insert(accounts)
           .values([
-            { address: ACCOUNT_1, userId: USER_1, label: "Account 1" },
-            { address: ACCOUNT_2, userId: USER_2, label: "Account 2" },
-            { address: ACCOUNT_3, userId: USER_3, label: "Account 3" },
-            { address: ACCOUNT_4, userId: USER_4, label: "Account 4" },
+            { address: ACCOUNT_1, userId: USER_1, label: 'Account 1' },
+            { address: ACCOUNT_2, userId: USER_2, label: 'Account 2' },
+            { address: ACCOUNT_3, userId: USER_3, label: 'Account 3' },
+            { address: ACCOUNT_4, userId: USER_4, label: 'Account 4' },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create season points multiplier data
@@ -211,33 +211,33 @@ describe(
             {
               userId: USER_1,
               weekId: WEEK_ID,
-              totalTWABalance: "100",
-              cumulativeTWABalance: "100",
-              multiplier: "1.5",
+              totalTWABalance: '100',
+              cumulativeTWABalance: '100',
+              multiplier: '1.5',
             },
             {
               userId: USER_2,
               weekId: WEEK_ID,
-              totalTWABalance: "200",
-              cumulativeTWABalance: "200",
-              multiplier: "2.0",
+              totalTWABalance: '200',
+              cumulativeTWABalance: '200',
+              multiplier: '2.0',
             },
             {
               userId: USER_3,
               weekId: WEEK_ID,
-              totalTWABalance: "300",
-              cumulativeTWABalance: "300",
-              multiplier: "2.5",
+              totalTWABalance: '300',
+              cumulativeTWABalance: '300',
+              multiplier: '2.5',
             },
             {
               userId: USER_4,
               weekId: WEEK_ID,
-              totalTWABalance: "25", // Below minimum threshold
-              cumulativeTWABalance: "25",
-              multiplier: "1.0",
+              totalTWABalance: '25', // Below minimum threshold
+              cumulativeTWABalance: '25',
+              multiplier: '1.0',
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
 
       // Create account activity points with varying amounts
@@ -250,43 +250,43 @@ describe(
               accountAddress: ACCOUNT_1,
               weekId: WEEK_ID,
               activityId: ACTIVITY_1,
-              activityPoints: "1000",
+              activityPoints: '1000',
             },
             {
               accountAddress: ACCOUNT_1,
               weekId: WEEK_ID,
               activityId: ACTIVITY_2,
-              activityPoints: "800",
+              activityPoints: '800',
             },
             // User 2 - medium performance across activities
             {
               accountAddress: ACCOUNT_2,
               weekId: WEEK_ID,
               activityId: ACTIVITY_1,
-              activityPoints: "600",
+              activityPoints: '600',
             },
             {
               accountAddress: ACCOUNT_2,
               weekId: WEEK_ID,
               activityId: ACTIVITY_3,
-              activityPoints: "400",
+              activityPoints: '400',
             },
             // User 3 - focused on component calls
             {
               accountAddress: ACCOUNT_3,
               weekId: WEEK_ID,
               activityId: ACTIVITY_3,
-              activityPoints: "1200",
+              activityPoints: '1200',
             },
             // User 4 - low activity but below TWA threshold anyway
             {
               accountAddress: ACCOUNT_4,
               weekId: WEEK_ID,
               activityId: ACTIVITY_1,
-              activityPoints: "100",
+              activityPoints: '100',
             },
           ])
-          .onConflictDoNothing()
+          .onConflictDoNothing(),
       );
     });
 
@@ -302,28 +302,28 @@ describe(
       yield* Effect.promise(() => db.delete(seasons));
     });
 
-    describe("run", () => {
+    describe('run', () => {
       const validInput = {
         weekId: WEEK_ID,
         markAsProcessed: false,
       };
 
       it.effect(
-        "should successfully calculate and distribute season points",
+        'should successfully calculate and distribute season points',
         () =>
           Effect.gen(function* () {
             yield* setupTestData;
 
             const service = yield* Effect.provide(
               CalculateSeasonPointsService,
-              testLayer
+              testLayer,
             );
 
             yield* service.run(validInput);
 
             // Verify that season points were created
             const seasonPointsResults = yield* Effect.promise(() =>
-              db.select().from(userSeasonPoints)
+              db.select().from(userSeasonPoints),
             );
 
             expect(seasonPointsResults.length).toBeGreaterThan(0);
@@ -334,7 +334,7 @@ describe(
                 acc[row.userId] = new BigNumber(row.points);
                 return acc;
               },
-              {} as Record<string, BigNumber>
+              {} as Record<string, BigNumber>,
             );
 
             // User 1, 2, 3 should have season points (above TWA threshold)
@@ -363,16 +363,16 @@ describe(
             expect(user1Points).toBeInstanceOf(BigNumber);
 
             yield* cleanupTestData;
-          })
+          }),
       );
 
-      it.effect("should validate input and reject invalid data", () =>
+      it.effect('should validate input and reject invalid data', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
           const service = yield* Effect.provide(
             CalculateSeasonPointsService,
-            testLayer
+            testLayer,
           );
 
           const invalidInput = {
@@ -385,16 +385,16 @@ describe(
 
           const result = yield* Effect.either(service.run(invalidInput));
 
-          expect(result._tag).toBe("Left");
-          if (result._tag === "Left") {
-            expect(result.left._tag).toBe("InputValidationError");
+          expect(result._tag).toBe('Left');
+          if (result._tag === 'Left') {
+            expect(result.left._tag).toBe('InputValidationError');
           }
 
           yield* cleanupTestData;
-        })
+        }),
       );
 
-      it.effect("should reject completed season unless forced", () =>
+      it.effect('should reject completed season unless forced', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -402,25 +402,25 @@ describe(
           yield* Effect.promise(() =>
             db
               .update(seasons)
-              .set({ status: "completed" })
-              .where(eq(seasons.id, SEASON_ID))
+              .set({ status: 'completed' })
+              .where(eq(seasons.id, SEASON_ID)),
           );
 
           const service = yield* Effect.provide(
             CalculateSeasonPointsService,
-            testLayer
+            testLayer,
           );
 
           const result = yield* Effect.either(service.run(validInput));
 
-          expect(result._tag).toBe("Left");
-          if (result._tag === "Left") {
-            expect(result.left._tag).toBe("InvalidStateError");
-            expect(result.left.message).toContain("completed state");
+          expect(result._tag).toBe('Left');
+          if (result._tag === 'Left') {
+            expect(result.left._tag).toBe('InvalidStateError');
+            expect(result.left.message).toContain('completed state');
           }
 
           yield* cleanupTestData;
-        })
+        }),
       );
 
       const seasonLayer = SeasonService.Default.pipe(Layer.provide(dbLive));
@@ -428,17 +428,17 @@ describe(
       const activityCategoryWeekLayer =
         ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
       const userActivityPointsLayer = UserActivityPointsService.Default.pipe(
-        Layer.provide(dbLive)
+        Layer.provide(dbLive),
       );
       const addSeasonPointsToUserLayer =
         AddSeasonPointsToUserService.Default.pipe(Layer.provide(dbLive));
       const updateWeekStatusLayer = UpdateWeekStatusService.Default.pipe(
-        Layer.provide(dbLive)
+        Layer.provide(dbLive),
       );
       const getSeasonPointMultiplierLayer =
         GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbLive));
       const activityWeekLayer = ActivityWeekService.Default.pipe(
-        Layer.provide(dbLive)
+        Layer.provide(dbLive),
       );
 
       const testLayer = CalculateSeasonPointsService.Default.pipe(
@@ -451,10 +451,10 @@ describe(
         Layer.provide(updateWeekStatusLayer),
         Layer.provide(getSeasonPointMultiplierLayer),
         Layer.provide(activityWeekLayer),
-        Layer.provide(Logger.minimumLogLevel(LogLevel.None))
+        Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
       );
 
-      it.effect("should process completed season when forced", () =>
+      it.effect('should process completed season when forced', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -462,13 +462,13 @@ describe(
           yield* Effect.promise(() =>
             db
               .update(seasons)
-              .set({ status: "completed" })
-              .where(eq(seasons.id, SEASON_ID))
+              .set({ status: 'completed' })
+              .where(eq(seasons.id, SEASON_ID)),
           );
 
           const service = yield* Effect.provide(
             CalculateSeasonPointsService,
-            testLayer
+            testLayer,
           );
 
           const forcedInput = {
@@ -480,16 +480,16 @@ describe(
 
           // Verify that season points were still created
           const seasonPointsResults = yield* Effect.promise(() =>
-            db.select().from(userSeasonPoints)
+            db.select().from(userSeasonPoints),
           );
 
           expect(seasonPointsResults.length).toBeGreaterThan(0);
 
           yield* cleanupTestData;
-        })
+        }),
       );
 
-      it.effect("should reject completed week unless forced", () =>
+      it.effect('should reject completed week unless forced', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -498,33 +498,33 @@ describe(
             db
               .update(weeks)
               .set({ processed: true })
-              .where(eq(weeks.id, WEEK_ID))
+              .where(eq(weeks.id, WEEK_ID)),
           );
 
           const service = yield* Effect.provide(
             CalculateSeasonPointsService,
-            testLayer
+            testLayer,
           );
 
           const result = yield* Effect.either(service.run(validInput));
 
-          expect(result._tag).toBe("Left");
-          if (result._tag === "Left") {
-            expect(result.left._tag).toBe("InvalidStateError");
-            expect(result.left.message).toContain("already processed");
+          expect(result._tag).toBe('Left');
+          if (result._tag === 'Left') {
+            expect(result.left._tag).toBe('InvalidStateError');
+            expect(result.left.message).toContain('already processed');
           }
 
           yield* cleanupTestData;
-        })
+        }),
       );
 
-      it.effect("should mark week as completed when endOfWeek is true", () =>
+      it.effect('should mark week as completed when endOfWeek is true', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
           const service = yield* Effect.provide(
             CalculateSeasonPointsService,
-            testLayer
+            testLayer,
           );
 
           const endOfWeekInput = {
@@ -536,16 +536,16 @@ describe(
 
           // Verify week status was updated
           const weekResult = yield* Effect.promise(() =>
-            db.select().from(weeks).where(eq(weeks.id, WEEK_ID))
+            db.select().from(weeks).where(eq(weeks.id, WEEK_ID)),
           );
 
           expect(weekResult[0]?.processed).toBe(true);
 
           yield* cleanupTestData;
-        })
+        }),
       );
 
-      it.effect("should handle users with no activity gracefully", () =>
+      it.effect('should handle users with no activity gracefully', () =>
         Effect.gen(function* () {
           // Create minimal test data with no activity points
           yield* Effect.promise(() =>
@@ -554,11 +554,11 @@ describe(
               .values([
                 {
                   id: SEASON_ID,
-                  name: "Empty Season",
-                  status: "active",
+                  name: 'Empty Season',
+                  status: 'active',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           yield* Effect.promise(() =>
@@ -568,12 +568,12 @@ describe(
                 {
                   id: WEEK_ID,
                   seasonId: SEASON_ID,
-                  startDate: new Date("2024-01-01"),
-                  endDate: new Date("2024-01-07"),
+                  startDate: new Date('2024-01-01'),
+                  endDate: new Date('2024-01-07'),
                   processed: false,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           yield* Effect.promise(() =>
@@ -582,10 +582,10 @@ describe(
               .values([
                 {
                   id: ActivityCategoryId.tradingVolume,
-                  name: "Trading Volume",
+                  name: 'Trading Volume',
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           yield* Effect.promise(() =>
@@ -598,12 +598,12 @@ describe(
                   pointsPool: 1000,
                 },
               ])
-              .onConflictDoNothing()
+              .onConflictDoNothing(),
           );
 
           const service = yield* Effect.provide(
             CalculateSeasonPointsService,
-            testLayer
+            testLayer,
           );
 
           // Should not throw error even with no users/activities
@@ -611,35 +611,35 @@ describe(
 
           // Verify season points were created for all users (service creates zero points for users with no activity)
           const seasonPointsResults = yield* Effect.promise(() =>
-            db.select().from(userSeasonPoints)
+            db.select().from(userSeasonPoints),
           );
 
           // The service creates season points for all users in the system, with zero points for those with no activity
           expect(seasonPointsResults.length).toBeGreaterThanOrEqual(0);
-          
+
           // All season points should be zero since there's no activity
           for (const result of seasonPointsResults) {
             expect(new BigNumber(result.points).isZero()).toBe(true);
           }
 
           yield* cleanupTestData;
-        })
+        }),
       );
 
       it.effect(
-        "should handle large user base with proper banding and distribution",
+        'should handle large user base with proper banding and distribution',
         () =>
           Effect.gen(function* () {
             // Create 24 users for comprehensive testing
             const userIds = Array.from(
               { length: 24 },
               (_, i) =>
-                `00000${String(i + 1).padStart(3, "0")}-1111-1111-1111-111111111111`
+                `00000${String(i + 1).padStart(3, '0')}-1111-1111-1111-111111111111`,
             );
             const accountAddresses = Array.from(
               { length: 24 },
               (_, i) =>
-                `account_rdx12user${String(i + 1).padStart(2, "0")}_large_test_address`
+                `account_rdx12user${String(i + 1).padStart(2, '0')}_large_test_address`,
             );
 
             // Create season and week
@@ -649,11 +649,11 @@ describe(
                 .values([
                   {
                     id: SEASON_ID,
-                    name: "Large Test Season",
-                    status: "active",
+                    name: 'Large Test Season',
+                    status: 'active',
                   },
                 ])
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             yield* Effect.promise(() =>
@@ -663,12 +663,12 @@ describe(
                   {
                     id: WEEK_ID,
                     seasonId: SEASON_ID,
-                    startDate: new Date("2024-01-01"),
-                    endDate: new Date("2024-01-07"),
+                    startDate: new Date('2024-01-01'),
+                    endDate: new Date('2024-01-07'),
                     processed: false,
                   },
                 ])
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create activity categories
@@ -678,10 +678,10 @@ describe(
                 .values([
                   {
                     id: ActivityCategoryId.tradingVolume,
-                    name: "Trading Volume",
+                    name: 'Trading Volume',
                   },
                 ])
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create activities
@@ -691,11 +691,11 @@ describe(
                 .values([
                   {
                     id: ACTIVITY_1,
-                    name: "Large Test Activity",
+                    name: 'Large Test Activity',
                     category: ActivityCategoryId.tradingVolume,
                   },
                 ])
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create activity category weeks
@@ -709,7 +709,7 @@ describe(
                     pointsPool: 100000, // Large points pool for 24 users
                   },
                 ])
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create activity weeks
@@ -720,10 +720,10 @@ describe(
                   {
                     activityId: ACTIVITY_1,
                     weekId: WEEK_ID,
-                    multiplier: "2",
+                    multiplier: '2',
                   },
                 ])
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create 24 users
@@ -734,9 +734,9 @@ describe(
                   userIds.map((id) => ({
                     id,
                     identityAddress: `identity_${id}`,
-                  }))
+                  })),
                 )
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create 24 accounts
@@ -748,9 +748,9 @@ describe(
                     address: accountAddresses[index],
                     userId: id,
                     label: `Account ${index + 1}`,
-                  }))
+                  })),
                 )
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create season points multiplier data with varying multipliers
@@ -760,28 +760,28 @@ describe(
                 .values(
                   userIds.map((id, index) => {
                     // Create a distribution of multipliers
-                    let multiplier = "1.0";
+                    let multiplier = '1.0';
                     if (index < 4)
-                      multiplier = "3.0"; // Top 4 users get 3x
+                      multiplier = '3.0'; // Top 4 users get 3x
                     else if (index < 8)
-                      multiplier = "2.5"; // Next 4 get 2.5x
+                      multiplier = '2.5'; // Next 4 get 2.5x
                     else if (index < 12)
-                      multiplier = "2.0"; // Next 4 get 2x
+                      multiplier = '2.0'; // Next 4 get 2x
                     else if (index < 16)
-                      multiplier = "1.5"; // Next 4 get 1.5x
-                    else if (index < 20) multiplier = "1.2"; // Next 4 get 1.2x
+                      multiplier = '1.5'; // Next 4 get 1.5x
+                    else if (index < 20) multiplier = '1.2'; // Next 4 get 1.2x
                     // Last 4 get 1.0x
 
                     return {
                       userId: id,
                       weekId: WEEK_ID,
-                      totalTWABalance: "500", // Well above minimum threshold
-                      cumulativeTWABalance: "500",
+                      totalTWABalance: '500', // Well above minimum threshold
+                      cumulativeTWABalance: '500',
                       multiplier,
                     };
-                  })
+                  }),
                 )
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             // Create account activity points with realistic distribution
@@ -794,7 +794,7 @@ describe(
                     // Following a power law distribution where top users have much more activity
                     const basePoints = 10000;
                     const points = new BigNumber(
-                      Math.floor(basePoints / (index + 1) ** 0.8)
+                      Math.floor(basePoints / (index + 1) ** 0.8),
                     );
 
                     return {
@@ -803,17 +803,17 @@ describe(
                       activityId: ACTIVITY_1,
                       activityPoints: Math.max(
                         points.toNumber(),
-                        100
+                        100,
                       ).toString(), // Minimum 100 points
                     };
-                  })
+                  }),
                 )
-                .onConflictDoNothing()
+                .onConflictDoNothing(),
             );
 
             const service = yield* Effect.provide(
               CalculateSeasonPointsService,
-              testLayer
+              testLayer,
             );
 
             yield* service.run({
@@ -826,7 +826,7 @@ describe(
               db
                 .select()
                 .from(userSeasonPoints)
-                .orderBy(userSeasonPoints.points)
+                .orderBy(userSeasonPoints.points),
             );
 
             // Should have results for all users (service now creates zero season points for all users)
@@ -836,7 +836,7 @@ describe(
             // Verify total points distributed
             const totalPointsDistributed = seasonPointsResults.reduce(
               (sum, row) => sum.plus(new BigNumber(row.points)),
-              new BigNumber(0)
+              new BigNumber(0),
             );
 
             // Total should be positive and reasonable
@@ -848,7 +848,7 @@ describe(
                 acc[row.userId] = new BigNumber(row.points);
                 return acc;
               },
-              {} as Record<string, BigNumber>
+              {} as Record<string, BigNumber>,
             );
 
             // Check that top multiplier users received points
@@ -870,14 +870,14 @@ describe(
 
             // Verify user banding worked - check that distribution isn't uniform
             const pointsValues = seasonPointsResults.map(
-              (row) => new BigNumber(row.points)
+              (row) => new BigNumber(row.points),
             );
             const maxPoints = BigNumber.maximum(...pointsValues);
             const minPoints = BigNumber.minimum(...pointsValues);
 
             // There should be meaningful variance in the distribution
             expect(maxPoints.isGreaterThan(minPoints.multipliedBy(1.5))).toBe(
-              true
+              true,
             );
 
             // Cleanup
@@ -889,8 +889,8 @@ describe(
             yield* Effect.promise(() => db.delete(activities));
             yield* Effect.promise(() => db.delete(weeks));
             yield* Effect.promise(() => db.delete(seasons));
-          })
+          }),
       );
     });
-  }
+  },
 );

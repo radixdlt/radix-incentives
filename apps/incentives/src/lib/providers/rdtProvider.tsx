@@ -1,14 +1,14 @@
-"use client";
+'use client';
 
-import { useState, createContext, useEffect, useRef } from "react";
+import { useState, createContext, useEffect, useRef } from 'react';
 import {
   DataRequestBuilder,
   RadixDappToolkit,
   type Persona,
-} from "@radixdlt/radix-dapp-toolkit";
-import { api } from "~/trpc/react";
-import { toast } from "sonner";
-import { usePersonaConnectionWarning } from "~/components/ui/PersonaConnectionWarning";
+} from '@radixdlt/radix-dapp-toolkit';
+import { api } from '~/trpc/react';
+import { toast } from 'sonner';
+import { usePersonaConnectionWarning } from '~/components/ui/PersonaConnectionWarning';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 
@@ -29,13 +29,13 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // RDT is not available on server
-    if (typeof window === "undefined") return;
+    if (typeof window === 'undefined') return;
 
     const rdt =
       rdtSingleton ??
       RadixDappToolkit({
         dAppDefinitionAddress:
-          "account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh",
+          'account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh',
         networkId: 1,
         onDisconnect: async () => {
           await signOut.mutateAsync();
@@ -44,8 +44,8 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
 
     setRdt(rdt);
 
-    rdt.buttonApi.setMode("dark");
-    rdt.buttonApi.setTheme("white");
+    rdt.buttonApi.setMode('dark');
+    rdt.buttonApi.setTheme('white');
 
     rdt.walletApi.setRequestData(DataRequestBuilder.persona().withProof());
 
@@ -59,7 +59,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
         !request.persona ||
         !request.proofs ||
         !request.proofs[0] ||
-        request.proofs[0].type !== "persona"
+        request.proofs[0].type !== 'persona'
       ) {
         return;
       }
@@ -98,11 +98,11 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       if (!currentPersona) {
         const userConfirmed = await showWarning();
         if (!userConfirmed) {
-          throw new Error("User cancelled persona connection");
+          throw new Error('User cancelled persona connection');
         }
       }
 
-      toast.info("Open your wallet to continue");
+      toast.info('Open your wallet to continue');
       return generateChallenge.mutateAsync();
     });
   }, [rdt]);

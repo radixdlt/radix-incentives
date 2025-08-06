@@ -1,13 +1,13 @@
-import { Config, Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { GetUsdValueService } from "../token-price/getUsdValue";
-import { BigNumber } from "bignumber.js";
+import { Config, Effect } from 'effect';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import { BigNumber } from 'bignumber.js';
 import {
   DappConstants,
   Assets,
   type AccountBalanceData,
   ActivityId,
-} from "data";
+} from 'data';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
@@ -17,16 +17,16 @@ export type AggregateRootFinancePositionsInput = {
 };
 
 export type AggregateRootFinancePositionsOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof AggregateRootFinancePositionsService)["Service"]>>
+  Awaited<ReturnType<(typeof AggregateRootFinancePositionsService)['Service']>>
 >;
 
 export class AggregateRootFinancePositionsService extends Effect.Service<AggregateRootFinancePositionsService>()(
-  "AggregateRootFinancePositionsService",
+  'AggregateRootFinancePositionsService',
   {
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
-      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
-        Config.withDefault(false)
+      const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
+        Config.withDefault(false),
       );
       return Effect.fn(function* (input: AggregateRootFinancePositionsInput) {
         const accountBalance = input.accountBalance;
@@ -52,7 +52,7 @@ export class AggregateRootFinancePositionsService extends Effect.Service<Aggrega
               ({
                 activityId,
                 usdValue: new BigNumber(0).toString(),
-              }) satisfies AccountBalanceData
+              }) satisfies AccountBalanceData,
           );
         }
 
@@ -61,12 +61,12 @@ export class AggregateRootFinancePositionsService extends Effect.Service<Aggrega
           (acc, position) => {
             // Process collaterals (the lent/deposited assets)
             for (const [resourceAddress, amount] of Object.entries(
-              position.collaterals
+              position.collaterals,
             )) {
               if (
                 resourceAddress in supportedAssets &&
                 amount != null &&
-                amount !== ""
+                amount !== ''
               ) {
                 try {
                   const amountBN = new BigNumber(amount);
@@ -78,21 +78,21 @@ export class AggregateRootFinancePositionsService extends Effect.Service<Aggrega
                   }
                 } catch (error) {
                   console.warn(
-                    `Invalid Root Finance collateral amount: ${amount} for ${resourceAddress}`
+                    `Invalid Root Finance collateral amount: ${amount} for ${resourceAddress}`,
                   );
                 }
               }
             }
             return acc;
           },
-          {} as Record<string, BigNumber>
+          {} as Record<string, BigNumber>,
         );
 
         // Calculate USD values for each asset
         const results: AccountBalanceData[] = [];
 
         for (const [resourceAddress, activityId] of Object.entries(
-          supportedAssets
+          supportedAssets,
         )) {
           const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
 
@@ -116,7 +116,7 @@ export class AggregateRootFinancePositionsService extends Effect.Service<Aggrega
         return results;
       });
     }),
-  }
+  },
 ) {}
 
 export const AggregateRootFinancePositionsServiceLive =

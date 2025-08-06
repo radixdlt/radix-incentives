@@ -1,17 +1,17 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { seasons, type Week, type Season } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { seasons, type Week, type Season } from 'db/incentives';
+import { eq } from 'drizzle-orm';
 
 export class SeasonNotFoundError {
-  readonly _tag = "SeasonNotFoundError";
+  readonly _tag = 'SeasonNotFoundError';
   constructor(readonly message: string) {}
 }
 
 export type GetSeasonByIdError = DbError | SeasonNotFoundError;
 
-export class GetSeasonByIdService extends Context.Tag("GetSeasonByIdService")<
+export class GetSeasonByIdService extends Context.Tag('GetSeasonByIdService')<
   GetSeasonByIdService,
   (input: {
     id: string;
@@ -39,11 +39,11 @@ export const GetSeasonByIdLive = Layer.effect(
 
         if (!season) {
           return yield* Effect.fail(
-            new SeasonNotFoundError(`season ${input.id} not found`)
+            new SeasonNotFoundError(`season ${input.id} not found`),
           );
         }
 
         return season;
       });
-  })
+  }),
 );

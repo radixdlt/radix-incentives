@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { Calendar } from "lucide-react";
+import { Calendar } from 'lucide-react';
 
 interface Week {
   id: string;
@@ -23,18 +23,18 @@ interface CategoryInfoProps {
 
 export function CategoryInfo({ week, category }: CategoryInfoProps) {
   const isActive = new Date() <= new Date(week.endDate);
-  const statusColor = isActive ? "text-green-600" : "text-muted-foreground";
-  const statusText = isActive ? "Active" : "Completed";
+  const statusColor = isActive ? 'text-green-600' : 'text-muted-foreground';
+  const statusText = isActive ? 'Active' : 'Completed';
 
   const formatDateRange = (start: Date, end: Date) => {
-    const startStr = new Date(start).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    const startStr = new Date(start).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
     });
-    const endStr = new Date(end).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    const endStr = new Date(end).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
     return `${startStr} - ${endStr}`;
   };

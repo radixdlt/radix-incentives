@@ -1,11 +1,11 @@
-import { Effect } from "effect";
-import { KeyValueStoreKeysService } from "./keyValueStoreKeys";
-import { KeyValueStoreDataService } from "./keyValueStoreData";
-import type { AtLedgerState } from "./schemas";
-import { chunker } from "../helpers/chunker";
+import { Effect } from 'effect';
+import { KeyValueStoreKeysService } from './keyValueStoreKeys';
+import { KeyValueStoreDataService } from './keyValueStoreData';
+import type { AtLedgerState } from './schemas';
+import { chunker } from '../helpers/chunker';
 
 export class GetKeyValueStoreService extends Effect.Service<GetKeyValueStoreService>()(
-  "GetKeyValueStoreService",
+  'GetKeyValueStoreService',
   {
     effect: Effect.gen(function* () {
       const keyValueStoreKeysService = yield* KeyValueStoreKeysService;
@@ -60,9 +60,9 @@ export class GetKeyValueStoreService extends Effect.Service<GetKeyValueStoreServ
               ledger_state,
               entries,
             };
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}

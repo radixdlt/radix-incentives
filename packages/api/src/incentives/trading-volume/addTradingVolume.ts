@@ -1,9 +1,9 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { tradingVolume } from "db/incentives";
-import { sql } from "drizzle-orm";
-import type { ActivityId } from "data";
+import { tradingVolume } from 'db/incentives';
+import { sql } from 'drizzle-orm';
+import type { ActivityId } from 'data';
 
 export type AddTradingVolumeServiceInput = {
   accountAddress: string;
@@ -15,7 +15,7 @@ export type AddTradingVolumeServiceInput = {
 }[];
 
 export class AddTradingVolumeService extends Context.Tag(
-  "AddTradingVolumeService"
+  'AddTradingVolumeService',
 )<
   AddTradingVolumeService,
   (input: AddTradingVolumeServiceInput) => Effect.Effect<void, DbError>
@@ -47,5 +47,5 @@ export const AddTradingVolumeLive = Layer.effect(
         return result;
       });
     };
-  })
+  }),
 );

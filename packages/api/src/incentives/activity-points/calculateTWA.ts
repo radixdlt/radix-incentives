@@ -1,6 +1,6 @@
-import { Effect } from "effect";
-import BigNumber from "bignumber.js";
-import type { AccountBalanceGroupedByAddressAndActivityId } from "../account-balance/accountBalance";
+import { Effect } from 'effect';
+import BigNumber from 'bignumber.js';
+import type { AccountBalanceGroupedByAddressAndActivityId } from '../account-balance/accountBalance';
 
 type AccountAddress = string;
 type ActivityId = string;
@@ -11,14 +11,14 @@ export type AccountActivityPointsMap = Record<
 >;
 
 export type TWACalculationType =
-  | "USDValue"
-  | "USDValueDurationMultiplied"
-  | "USDValueHighPrecision";
+  | 'USDValue'
+  | 'USDValueDurationMultiplied'
+  | 'USDValueHighPrecision';
 
 export const calculateTWA = ({
   items: grouped,
   week,
-  calculationType = "USDValueDurationMultiplied",
+  calculationType = 'USDValueDurationMultiplied',
 }: {
   items: AccountBalanceGroupedByAddressAndActivityId[];
   week: { endDate: Date };
@@ -40,7 +40,7 @@ export const calculateTWA = ({
         const { activityId, items } = activityRecord;
 
         const itemsSortedByTimestamp = items.sort(
-          (a, b) => a.timestamp.getTime() - b.timestamp.getTime()
+          (a, b) => a.timestamp.getTime() - b.timestamp.getTime(),
         );
 
         if (!itemsSortedByTimestamp || itemsSortedByTimestamp.length === 0)
@@ -57,7 +57,7 @@ export const calculateTWA = ({
 
               return {
                 totalWeightedValue: acc.totalWeightedValue.plus(
-                  currentUsdValue.multipliedBy(duration)
+                  currentUsdValue.multipliedBy(duration),
                 ),
                 totalDurationInMilliseconds:
                   acc.totalDurationInMilliseconds.plus(duration),
@@ -66,7 +66,7 @@ export const calculateTWA = ({
             {
               totalWeightedValue: new BigNumber(0),
               totalDurationInMilliseconds: new BigNumber(0),
-            }
+            },
           );
 
         // Handle the last item - assume it holds until the end date
@@ -81,7 +81,7 @@ export const calculateTWA = ({
 
           if (lastDuration > 0) {
             totalWeightedValue = totalWeightedValue.plus(
-              lastUsdValue.multipliedBy(lastDuration)
+              lastUsdValue.multipliedBy(lastDuration),
             );
             totalDurationInMilliseconds =
               totalDurationInMilliseconds.plus(lastDuration);
@@ -93,14 +93,14 @@ export const calculateTWA = ({
           : new BigNumber(0);
 
         const totalDurationInMinutes = totalDurationInMilliseconds.div(
-          1000 * 60
+          1000 * 60,
         );
 
         // Calculate result based on calculation type
         resultWithTwa[accountAddress][activityId] =
-          calculationType === "USDValue"
+          calculationType === 'USDValue'
             ? timeWeightedAverageUsdValue.decimalPlaces(2)
-            : calculationType === "USDValueHighPrecision"
+            : calculationType === 'USDValueHighPrecision'
               ? timeWeightedAverageUsdValue.decimalPlaces(6)
               : timeWeightedAverageUsdValue
                   .multipliedBy(totalDurationInMinutes)

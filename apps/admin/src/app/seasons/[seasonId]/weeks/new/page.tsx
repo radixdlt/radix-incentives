@@ -35,7 +35,9 @@ function CreateWeekForm({
 }) {
   const params = useParams<{ seasonId: string }>();
   const seasonId = params.seasonId;
-  const [selectedWeek, setSelectedWeek] = React.useState<{ start: Date; end: Date } | undefined>();
+  const [selectedWeek, setSelectedWeek] = React.useState<
+    { start: Date; end: Date } | undefined
+  >();
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,10 +47,10 @@ function CreateWeekForm({
       return;
     }
 
-    onSubmit({ 
-      seasonId, 
-      startDate: selectedWeek.start, 
-      endDate: selectedWeek.end 
+    onSubmit({
+      seasonId,
+      startDate: selectedWeek.start,
+      endDate: selectedWeek.end,
     });
   };
 
@@ -62,17 +64,19 @@ function CreateWeekForm({
             onWeekSelect={setSelectedWeek}
           />
         </div>
-        
+
         {selectedWeek && (
           <div className="grid gap-2">
             <Label>Week Range (ISO Format)</Label>
             <div className="p-3 bg-muted rounded-md">
               <div className="text-sm space-y-1">
                 <div>
-                  <strong>Start:</strong> {selectedWeek.start.toISOString()} (Monday)
+                  <strong>Start:</strong> {selectedWeek.start.toISOString()}{' '}
+                  (Monday)
                 </div>
                 <div>
-                  <strong>End:</strong> {selectedWeek.end.toISOString()} (Sunday)
+                  <strong>End:</strong> {selectedWeek.end.toISOString()}{' '}
+                  (Sunday)
                 </div>
               </div>
             </div>
@@ -104,7 +108,7 @@ function CreateWeekPage() {
   const { data: seasonData, isLoading } = api.season.getSeasonById.useQuery({
     id: seasonId,
   });
-  
+
   const createWeek = api.week.createWeek.useMutation();
 
   const handleCreateWeek = async (data: {
@@ -118,7 +122,7 @@ function CreateWeekPage() {
         startDate: data.startDate,
         endDate: data.endDate,
       });
-      
+
       toast.success('Week created successfully!');
       await utils.season.getSeasonById.invalidate({ id: seasonId });
       router.push(`/seasons/${seasonId}`);
@@ -140,13 +144,15 @@ function CreateWeekPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create New Week</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Create New Week
+            </h1>
             <p className="text-muted-foreground">Loading season data...</p>
           </div>
         </div>
-        
+
         <Separator className="my-6" />
-        
+
         <div className="mx-auto max-w-2xl">
           <Card>
             <CardContent className="p-6">
@@ -173,7 +179,9 @@ function CreateWeekPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Create New Week</h1>
+            <h1 className="text-3xl font-bold tracking-tight">
+              Create New Week
+            </h1>
             <p className="text-muted-foreground">Season not found</p>
           </div>
         </div>

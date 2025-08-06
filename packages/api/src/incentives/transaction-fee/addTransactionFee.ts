@@ -1,8 +1,8 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { transactionFees } from "db/incentives";
-import type BigNumber from "bignumber.js";
+import { transactionFees } from 'db/incentives';
+import type BigNumber from 'bignumber.js';
 
 export type AddTransactionFeeServiceInput = {
   txId: string;
@@ -12,7 +12,7 @@ export type AddTransactionFeeServiceInput = {
 }[];
 
 export class AddTransactionFeeService extends Context.Tag(
-  "AddTransactionFeeService"
+  'AddTransactionFeeService',
 )<
   AddTransactionFeeService,
   (input: AddTransactionFeeServiceInput) => Effect.Effect<void, DbError>
@@ -36,7 +36,7 @@ export const AddTransactionFeeLive = Layer.effect(
                   accountAddress: t.accountAddress,
                   fee: t.fee.toString(),
                   timestamp: t.timestamp,
-                }))
+                })),
               )
               .onConflictDoNothing(),
           catch: (error) => new DbError(error),
@@ -45,5 +45,5 @@ export const AddTransactionFeeLive = Layer.effect(
         return result;
       });
     };
-  })
+  }),
 );

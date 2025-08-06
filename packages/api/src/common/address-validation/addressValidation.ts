@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Context, Effect, Layer } from 'effect';
 
 // Import all protocol constants
 import {
@@ -10,7 +10,7 @@ import {
   Assets,
   matchComponentAddress,
   getTradingActivityIdByComponentAddress,
-} from "data";
+} from 'data';
 
 // Multiplier for constant product market maker pools (less efficient than precision pools)
 export const CONSTANT_PRODUCT_MULTIPLIER = 0.5;
@@ -33,7 +33,7 @@ export type PoolTradingInfo = {
 };
 
 export class UnknownTokenError extends Error {
-  readonly _tag = "UnknownTokenError";
+  readonly _tag = 'UnknownTokenError';
   constructor(readonly resourceAddress: string) {
     super(`Unknown token resource address: ${resourceAddress}`);
   }
@@ -42,7 +42,7 @@ export class UnknownTokenError extends Error {
 export type AddressValidationServiceError = UnknownTokenError;
 
 export class AddressValidationService extends Context.Tag(
-  "AddressValidationService"
+  'AddressValidationService',
 )<
   AddressValidationService,
   {
@@ -50,7 +50,7 @@ export class AddressValidationService extends Context.Tag(
     isValidPoolComponent: (address: string) => boolean;
     isValidProtocolComponent: (
       address: string,
-      packageAddress?: string
+      packageAddress?: string,
     ) => boolean;
     isValidResourceAddress: (address: string) => boolean;
 
@@ -66,11 +66,11 @@ export class AddressValidationService extends Context.Tag(
     isOciswapBasicPoolComponent: (address: string) => boolean;
     isWeftFinanceComponent: (
       address: string,
-      packageAddress?: string
+      packageAddress?: string,
     ) => boolean;
     isRootFinanceComponent: (
       address: string,
-      packageAddress?: string
+      packageAddress?: string,
     ) => boolean;
 
     // Resource validation by dApp
@@ -85,10 +85,10 @@ export class AddressValidationService extends Context.Tag(
     // Trading and utility methods
     getTradingActivityIdForPool: (address: string) => ActivityId | undefined;
     getTokenName: (
-      resourceAddress: string
+      resourceAddress: string,
     ) => Effect.Effect<string, UnknownTokenError>;
     getTokenNameAndNativeAssetStatus: (
-      resourceAddress: string
+      resourceAddress: string,
     ) => Effect.Effect<TokenInfo, UnknownTokenError>;
 
     // Pool efficiency methods
@@ -99,18 +99,18 @@ export class AddressValidationService extends Context.Tag(
 // Helper function to recursively extract all values of a specific property from nested objects
 function extractPropertyValues(
   obj: Record<string, unknown>,
-  propertyName: string
+  propertyName: string,
 ): string[] {
   const results: string[] = [];
 
   function traverse(current: unknown): void {
-    if (current && typeof current === "object") {
+    if (current && typeof current === 'object') {
       const currentObj = current as Record<string, unknown>;
 
       // If current object has the property we're looking for, add it
       if (
         propertyName in currentObj &&
-        typeof currentObj[propertyName] === "string"
+        typeof currentObj[propertyName] === 'string'
       ) {
         results.push(currentObj[propertyName]);
       }
@@ -128,23 +128,23 @@ function extractPropertyValues(
 
 // Helper function to extract component+package pairs for protocol validation
 function extractProtocolValidations(
-  obj: Record<string, unknown>
+  obj: Record<string, unknown>,
 ): ProtocolValidation[] {
   const results: ProtocolValidation[] = [];
 
   function traverse(current: unknown): void {
-    if (current && typeof current === "object") {
+    if (current && typeof current === 'object') {
       const currentObj = current as Record<string, unknown>;
 
       // If current object has componentAddress, it's a potential protocol component
       if (
-        "componentAddress" in currentObj &&
-        typeof currentObj.componentAddress === "string"
+        'componentAddress' in currentObj &&
+        typeof currentObj.componentAddress === 'string'
       ) {
         results.push({
           componentAddress: currentObj.componentAddress,
           packageAddress:
-            typeof currentObj.packageAddress === "string"
+            typeof currentObj.packageAddress === 'string'
               ? currentObj.packageAddress
               : undefined,
         });
@@ -163,27 +163,27 @@ function extractProtocolValidations(
 
 // Precompute sets for resource validation at module load
 const validResourceAddresses = new Set([
-  ...extractPropertyValues(Assets, "resourceAddress"),
+  ...extractPropertyValues(Assets, 'resourceAddress'),
   ...Object.values(Assets.Fungible),
-  ...extractPropertyValues(CaviarNineConstants, "resourceAddress"),
-  ...extractPropertyValues(CaviarNineConstants, "liquidity_receipt"),
-  ...extractPropertyValues(DefiPlazaConstants, "baseLpResourceAddress"),
-  ...extractPropertyValues(DefiPlazaConstants, "quoteLpResourceAddress"),
-  ...extractPropertyValues(DefiPlazaConstants, "baseResourceAddress"),
-  ...extractPropertyValues(DefiPlazaConstants, "quoteResourceAddress"),
-  ...extractPropertyValues(OciswapConstants, "lpResourceAddress"),
-  ...extractPropertyValues(OciswapConstants, "token_x"),
-  ...extractPropertyValues(OciswapConstants, "token_y"),
-  ...extractPropertyValues(WeftFinanceConstants, "resourceAddress"),
-  ...extractPropertyValues(RootFinanceConstants, "resourceAddress"),
+  ...extractPropertyValues(CaviarNineConstants, 'resourceAddress'),
+  ...extractPropertyValues(CaviarNineConstants, 'liquidity_receipt'),
+  ...extractPropertyValues(DefiPlazaConstants, 'baseLpResourceAddress'),
+  ...extractPropertyValues(DefiPlazaConstants, 'quoteLpResourceAddress'),
+  ...extractPropertyValues(DefiPlazaConstants, 'baseResourceAddress'),
+  ...extractPropertyValues(DefiPlazaConstants, 'quoteResourceAddress'),
+  ...extractPropertyValues(OciswapConstants, 'lpResourceAddress'),
+  ...extractPropertyValues(OciswapConstants, 'token_x'),
+  ...extractPropertyValues(OciswapConstants, 'token_y'),
+  ...extractPropertyValues(WeftFinanceConstants, 'resourceAddress'),
+  ...extractPropertyValues(RootFinanceConstants, 'resourceAddress'),
   RootFinanceConstants.receiptResourceAddress,
-  ...extractPropertyValues(SurgeConstants, "resourceAddress"),
+  ...extractPropertyValues(SurgeConstants, 'resourceAddress'),
 ]);
 
 const caviarNinePrecisionPoolComponents = new Set([
   // Shape liquidity pools (precision pools)
   ...Object.values(CaviarNineConstants.shapeLiquidityPools).map(
-    (p) => p.componentAddress
+    (p) => p.componentAddress,
   ),
 ] as string[]);
 
@@ -193,7 +193,7 @@ const caviarNineHyperstakePoolComponents = new Set([
 
 const caviarNineSimplePoolComponents = new Set([
   ...Object.values(CaviarNineConstants.simplePools).map(
-    (p) => p.componentAddress
+    (p) => p.componentAddress,
   ),
 ] as string[]);
 
@@ -207,26 +207,26 @@ const caviarNineComponents = new Set([
 const defiPlazaComponents = new Set(
   Object.values(DefiPlazaConstants)
     .map((pool) => pool.componentAddress)
-    .filter((addr) => addr && addr.length > 0) as string[]
+    .filter((addr) => addr && addr.length > 0) as string[],
 );
 
 const ociswapPrecisionPoolComponents = new Set([
   ...Object.values(OciswapConstants.pools).map((pool) => pool.componentAddress),
   ...Object.values(OciswapConstants.poolsV2).map(
-    (pool) => pool.componentAddress
+    (pool) => pool.componentAddress,
   ),
 ] as string[]);
 
 const ociswapFlexPoolComponents = new Set(
   Object.values(OciswapConstants.flexPools).map(
-    (pool) => pool.componentAddress
-  ) as string[]
+    (pool) => pool.componentAddress,
+  ) as string[],
 );
 
 const ociswapBasicPoolComponents = new Set(
   Object.values(OciswapConstants.basicPools).map(
-    (pool) => pool.componentAddress
-  ) as string[]
+    (pool) => pool.componentAddress,
+  ) as string[],
 );
 
 // Keep the original combined set for backward compatibility
@@ -241,64 +241,64 @@ const caviarNineResources = new Set([
   CaviarNineConstants.HLP.resourceAddress,
   ...extractPropertyValues(
     CaviarNineConstants.shapeLiquidityPools,
-    "liquidity_receipt"
+    'liquidity_receipt',
   ),
-  ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, "token_x"),
-  ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, "token_y"),
+  ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, 'token_x'),
+  ...extractPropertyValues(CaviarNineConstants.shapeLiquidityPools, 'token_y'),
   CaviarNineConstants.HLP.token_x,
   CaviarNineConstants.HLP.token_y,
   ...extractPropertyValues(
     CaviarNineConstants.simplePools,
-    "lpResourceAddress"
+    'lpResourceAddress',
   ),
-  ...extractPropertyValues(CaviarNineConstants.simplePools, "token_x"),
-  ...extractPropertyValues(CaviarNineConstants.simplePools, "token_y"),
+  ...extractPropertyValues(CaviarNineConstants.simplePools, 'token_x'),
+  ...extractPropertyValues(CaviarNineConstants.simplePools, 'token_y'),
 ]);
 
 const defiPlazaResources = new Set([
-  ...extractPropertyValues(DefiPlazaConstants, "baseLpResourceAddress"),
-  ...extractPropertyValues(DefiPlazaConstants, "quoteLpResourceAddress"),
-  ...extractPropertyValues(DefiPlazaConstants, "baseResourceAddress"),
-  ...extractPropertyValues(DefiPlazaConstants, "quoteResourceAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, 'baseLpResourceAddress'),
+  ...extractPropertyValues(DefiPlazaConstants, 'quoteLpResourceAddress'),
+  ...extractPropertyValues(DefiPlazaConstants, 'baseResourceAddress'),
+  ...extractPropertyValues(DefiPlazaConstants, 'quoteResourceAddress'),
 ]);
 
 const ociswapResources = new Set([
-  ...extractPropertyValues(OciswapConstants.pools, "lpResourceAddress"),
-  ...extractPropertyValues(OciswapConstants.pools, "token_x"),
-  ...extractPropertyValues(OciswapConstants.pools, "token_y"),
-  ...extractPropertyValues(OciswapConstants.poolsV2, "lpResourceAddress"),
-  ...extractPropertyValues(OciswapConstants.poolsV2, "token_x"),
-  ...extractPropertyValues(OciswapConstants.poolsV2, "token_y"),
-  ...extractPropertyValues(OciswapConstants.flexPools, "lpResourceAddress"),
-  ...extractPropertyValues(OciswapConstants.flexPools, "token_x"),
-  ...extractPropertyValues(OciswapConstants.flexPools, "token_y"),
-  ...extractPropertyValues(OciswapConstants.basicPools, "lpResourceAddress"),
-  ...extractPropertyValues(OciswapConstants.basicPools, "token_x"),
-  ...extractPropertyValues(OciswapConstants.basicPools, "token_y"),
+  ...extractPropertyValues(OciswapConstants.pools, 'lpResourceAddress'),
+  ...extractPropertyValues(OciswapConstants.pools, 'token_x'),
+  ...extractPropertyValues(OciswapConstants.pools, 'token_y'),
+  ...extractPropertyValues(OciswapConstants.poolsV2, 'lpResourceAddress'),
+  ...extractPropertyValues(OciswapConstants.poolsV2, 'token_x'),
+  ...extractPropertyValues(OciswapConstants.poolsV2, 'token_y'),
+  ...extractPropertyValues(OciswapConstants.flexPools, 'lpResourceAddress'),
+  ...extractPropertyValues(OciswapConstants.flexPools, 'token_x'),
+  ...extractPropertyValues(OciswapConstants.flexPools, 'token_y'),
+  ...extractPropertyValues(OciswapConstants.basicPools, 'lpResourceAddress'),
+  ...extractPropertyValues(OciswapConstants.basicPools, 'token_x'),
+  ...extractPropertyValues(OciswapConstants.basicPools, 'token_y'),
 ]);
 
 const weftResources = new Set(
-  extractPropertyValues(WeftFinanceConstants, "resourceAddress")
+  extractPropertyValues(WeftFinanceConstants, 'resourceAddress'),
 );
 
 const rootResources = new Set([
   RootFinanceConstants.receiptResourceAddress,
-  ...extractPropertyValues(RootFinanceConstants, "resourceAddress"),
+  ...extractPropertyValues(RootFinanceConstants, 'resourceAddress'),
 ]);
 
 const surgeResources = new Set(
-  extractPropertyValues(SurgeConstants, "resourceAddress")
+  extractPropertyValues(SurgeConstants, 'resourceAddress'),
 );
 
 // Constant product pools (less efficient, use CONSTANT_PRODUCT_MULTIPLIER)
 const constantProductPools = new Set([
   // Ociswap FlexPools and BasicPools
-  ...extractPropertyValues(OciswapConstants.flexPools, "componentAddress"),
-  ...extractPropertyValues(OciswapConstants.basicPools, "componentAddress"),
+  ...extractPropertyValues(OciswapConstants.flexPools, 'componentAddress'),
+  ...extractPropertyValues(OciswapConstants.basicPools, 'componentAddress'),
   // Caviarnine SimplePools
-  ...extractPropertyValues(CaviarNineConstants.simplePools, "componentAddress"),
+  ...extractPropertyValues(CaviarNineConstants.simplePools, 'componentAddress'),
   // DefiPlaza pools (all are constant product)
-  ...extractPropertyValues(DefiPlazaConstants, "componentAddress"),
+  ...extractPropertyValues(DefiPlazaConstants, 'componentAddress'),
 ]);
 
 const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);
@@ -309,26 +309,26 @@ export const isValidResourceAddress = (resourceAddress: string): boolean => {
 };
 
 export const isCaviarNinePrecisionPoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return caviarNinePrecisionPoolComponents.has(componentAddress);
 };
 
 export const isCaviarNineHyperstakePoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return caviarNineHyperstakePoolComponents.has(componentAddress);
 };
 
 export const isCaviarNineSimplePoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return caviarNineSimplePoolComponents.has(componentAddress);
 };
 
 // Keep the original function for backward compatibility
 export const isCaviarNinePoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return caviarNineComponents.has(componentAddress);
 };
@@ -338,19 +338,19 @@ export const isDefiPlazaPoolComponent = (componentAddress: string): boolean => {
 };
 
 export const isOciswapPrecisionPoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return ociswapPrecisionPoolComponents.has(componentAddress);
 };
 
 export const isOciswapFlexPoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return ociswapFlexPoolComponents.has(componentAddress);
 };
 
 export const isOciswapBasicPoolComponent = (
-  componentAddress: string
+  componentAddress: string,
 ): boolean => {
   return ociswapBasicPoolComponents.has(componentAddress);
 };
@@ -362,7 +362,7 @@ export const isOciswapPoolComponent = (componentAddress: string): boolean => {
 
 export const isWeftFinanceComponent = (
   componentAddress: string,
-  packageAddress: string
+  packageAddress: string,
 ): boolean => {
   const isWeftV2Event =
     componentAddress === WeftFinanceConstants.v2.WeftyV2.componentAddress;
@@ -374,7 +374,7 @@ export const isWeftFinanceComponent = (
 
 export const isRootFinanceComponent = (
   componentAddress: string,
-  packageAddress: string
+  packageAddress: string,
 ): boolean => {
   const isRootFinanceEvent =
     componentAddress === RootFinanceConstants.componentAddress;
@@ -407,7 +407,7 @@ export const AddressValidationServiceLive = Layer.succeed(
 
     isValidProtocolComponent: (
       componentAddress: string,
-      packageAddress?: string
+      packageAddress?: string,
     ): boolean => {
       // Generic validation - checks ALL protocols
       const protocolValidations = [
@@ -430,16 +430,16 @@ export const AddressValidationServiceLive = Layer.succeed(
     // dApp-specific protocol component validation
     isWeftFinanceComponent: (
       componentAddress: string,
-      packageAddress?: string
+      packageAddress?: string,
     ): boolean => {
-      return isWeftFinanceComponent(componentAddress, packageAddress || "");
+      return isWeftFinanceComponent(componentAddress, packageAddress || '');
     },
 
     isRootFinanceComponent: (
       componentAddress: string,
-      packageAddress?: string
+      packageAddress?: string,
     ): boolean => {
-      return isRootFinanceComponent(componentAddress, packageAddress || "");
+      return isRootFinanceComponent(componentAddress, packageAddress || '');
     },
 
     isValidResourceAddress,
@@ -474,13 +474,13 @@ export const AddressValidationServiceLive = Layer.succeed(
     },
 
     getTradingActivityIdForPool: (
-      componentAddress: string
+      componentAddress: string,
     ): ActivityId | undefined => {
       return getTradingActivityIdByComponentAddress(componentAddress);
     },
 
     getTokenName: (
-      resourceAddress: string
+      resourceAddress: string,
     ): Effect.Effect<string, UnknownTokenError> => {
       const tokenName =
         flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
@@ -493,7 +493,7 @@ export const AddressValidationServiceLive = Layer.succeed(
     },
 
     getTokenNameAndNativeAssetStatus: (
-      resourceAddress: string
+      resourceAddress: string,
     ): Effect.Effect<TokenInfo, UnknownTokenError> => {
       const tokenName =
         flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
@@ -512,5 +512,5 @@ export const AddressValidationServiceLive = Layer.succeed(
     isConstantProductPool: (componentAddress: string): boolean => {
       return constantProductPools.has(componentAddress);
     },
-  }
+  },
 );

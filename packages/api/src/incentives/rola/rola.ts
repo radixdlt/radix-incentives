@@ -1,10 +1,10 @@
-import { Context, Effect, Layer } from "effect";
-import { Rola } from "@radixdlt/rola";
-import { AppConfigService } from "../config/appConfig";
+import { Context, Effect, Layer } from 'effect';
+import { Rola } from '@radixdlt/rola';
+import { AppConfigService } from '../config/appConfig';
 
-export class RolaService extends Context.Tag("RolaService")<
+export class RolaService extends Context.Tag('RolaService')<
   RolaService,
-  ReturnType<typeof Rola>["verifySignedChallenge"]
+  ReturnType<typeof Rola>['verifySignedChallenge']
 >() {}
 
 export const RolaServiceLive = Layer.effect(
@@ -25,5 +25,5 @@ export const RolaServiceLive = Layer.effect(
     });
 
     return verifySignedChallenge;
-  })
+  }),
 );

@@ -1,12 +1,12 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { AppConfigService } from "../config/appConfig";
-import { type Session, sessions } from "db/consultation";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { AppConfigService } from '../config/appConfig';
+import { type Session, sessions } from 'db/consultation';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { sha256 } from '@oslojs/crypto/sha2';
 
 export class CreateSessionService extends Effect.Service<CreateSessionService>()(
-  "CreateSessionService",
+  'CreateSessionService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -14,7 +14,7 @@ export class CreateSessionService extends Effect.Service<CreateSessionService>()
       return {
         run: Effect.fn(function* (input: { token: string; userId: string }) {
           const sessionId = encodeHexLowerCase(
-            sha256(new TextEncoder().encode(input.token))
+            sha256(new TextEncoder().encode(input.token)),
           );
           return yield* Effect.tryPromise({
             try: () =>
@@ -31,5 +31,5 @@ export class CreateSessionService extends Effect.Service<CreateSessionService>()
         }),
       };
     }),
-  }
+  },
 ) {}

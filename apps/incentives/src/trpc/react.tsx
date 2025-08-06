@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import { QueryClientProvider, type QueryClient } from "@tanstack/react-query";
-import { httpBatchLink, httpBatchStreamLink, loggerLink } from "@trpc/client";
-import { createTRPCReact } from "@trpc/react-query";
-import type { inferRouterInputs, inferRouterOutputs } from "@trpc/server";
-import { useState } from "react";
-import SuperJSON from "superjson";
-import { BigNumber } from "bignumber.js";
+import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
+import { httpBatchLink, httpBatchStreamLink, loggerLink } from '@trpc/client';
+import { createTRPCReact } from '@trpc/react-query';
+import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import { useState } from 'react';
+import SuperJSON from 'superjson';
+import { BigNumber } from 'bignumber.js';
 
-import type { AppRouter } from "api/incentives";
-import { createQueryClient } from "./query-client";
+import type { AppRouter } from 'api/incentives';
+import { createQueryClient } from './query-client';
 
 // Register BigNumber transformation with SuperJSON
 SuperJSON.registerCustom<BigNumber, string>(
   {
     isApplicable: (v): v is BigNumber => BigNumber.isBigNumber(v),
-    serialize: v => v.toString(),
-    deserialize: v => new BigNumber(v)
+    serialize: (v) => v.toString(),
+    deserialize: (v) => new BigNumber(v),
   },
-  'BigNumber'
+  'BigNumber',
 );
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;
 const getQueryClient = () => {
-  if (typeof window === "undefined") {
+  if (typeof window === 'undefined') {
     // Server: always make a new query client
     return createQueryClient();
   }
@@ -57,20 +57,20 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
       links: [
         loggerLink({
           enabled: (op) =>
-            process.env.NODE_ENV === "development" ||
-            (op.direction === "down" && op.result instanceof Error),
+            process.env.NODE_ENV === 'development' ||
+            (op.direction === 'down' && op.result instanceof Error),
         }),
         httpBatchLink({
           transformer: SuperJSON,
           url: `${getBaseUrl()}/api/trpc`,
           headers: () => {
             const headers = new Headers();
-            headers.set("x-trpc-source", "nextjs-react");
+            headers.set('x-trpc-source', 'nextjs-react');
             return headers;
           },
         }),
       ],
-    })
+    }),
   );
 
   return (
@@ -83,7 +83,7 @@ export function TRPCReactProvider(props: { children: React.ReactNode }) {
 }
 
 function getBaseUrl() {
-  if (typeof window !== "undefined") return window.location.origin;
+  if (typeof window !== 'undefined') return window.location.origin;
   if (process.env.VERCEL_URL) return `https://${process.env.VERCEL_URL}`;
   return `http://localhost:${process.env.PORT ?? 3000}`;
 }

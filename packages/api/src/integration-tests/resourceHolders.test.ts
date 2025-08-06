@@ -1,15 +1,15 @@
-import { describe, it, expect } from "vitest";
-import { getAccountHoldersForResource } from "./utils.js";
+import { describe, it, expect } from 'vitest';
+import { getAccountHoldersForResource } from './utils.js';
 
-describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === "true")(
-  "Resource Holders Integration Test",
+describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
+  'Resource Holders Integration Test',
   { retry: 0 },
   () => {
-    it("should get account holders for NFT resource and include expected account", async () => {
+    it('should get account holders for NFT resource and include expected account', async () => {
       const resourceAddress =
-        "resource_rdx1nft63kjp38agw0z8nnwkyjhcgpzwjer84945h5z8yr663fgukjyp3l";
+        'resource_rdx1nft63kjp38agw0z8nnwkyjhcgpzwjer84945h5z8yr663fgukjyp3l';
       const expectedAccount =
-        "account_rdx168rkx0shgda9r6ku3zrsvevm477le2qlpnmrlurqma0k9lxh9662wh";
+        'account_rdx168rkx0shgda9r6ku3zrsvevm477le2qlpnmrlurqma0k9lxh9662wh';
 
       console.log(`Testing resource address: ${resourceAddress}`);
       console.log(`Looking for expected account: ${expectedAccount}`);
@@ -19,7 +19,7 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === "true")(
 
       console.log(
         `Found ${accountHolders.length} account holders:`,
-        accountHolders
+        accountHolders,
       );
 
       // Check that we got some results
@@ -36,8 +36,8 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === "true")(
       }
 
       console.log(
-        `✅ Successfully found expected account ${expectedAccount} among ${accountHolders.length} holders`
+        `✅ Successfully found expected account ${expectedAccount} among ${accountHolders.length} holders`,
       );
     }, 300000);
-  }
+  },
 );

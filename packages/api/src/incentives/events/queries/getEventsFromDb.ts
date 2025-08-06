@@ -1,24 +1,24 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../../db/dbClient';
 
-import { events, type Event } from "db/incentives";
-import SuperJSON from "superjson";
-import { and, eq, or } from "drizzle-orm";
-import type { EmittableEvent } from "../event-matchers/types";
+import { events, type Event } from 'db/incentives';
+import SuperJSON from 'superjson';
+import { and, eq, or } from 'drizzle-orm';
+import type { EmittableEvent } from '../event-matchers/types';
 
-export type GetEventsFromDbOutput = (Omit<Event, "eventData"> & {
+export type GetEventsFromDbOutput = (Omit<Event, 'eventData'> & {
   eventData: EmittableEvent;
 })[];
 
 export class GetEventsFromDbService extends Context.Tag(
-  "GetEventsFromDbService"
+  'GetEventsFromDbService',
 )<
   GetEventsFromDbService,
   (
     input: {
       transactionId: string;
       eventIndex: number;
-    }[]
+    }[],
   ) => Effect.Effect<GetEventsFromDbOutput, DbError>
 >() {}
 
@@ -36,9 +36,9 @@ export const GetEventsFromDbLive = Layer.effect(
                 ...input.map((item) =>
                   and(
                     eq(events.transactionId, item.transactionId),
-                    eq(events.eventIndex, item.eventIndex)
-                  )
-                )
+                    eq(events.eventIndex, item.eventIndex),
+                  ),
+                ),
               ),
             }),
           catch: (error) => new DbError(error),
@@ -57,5 +57,5 @@ export const GetEventsFromDbLive = Layer.effect(
         return parsedData;
       });
     };
-  })
+  }),
 );

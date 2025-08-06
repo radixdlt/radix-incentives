@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import type BigNumber from "bignumber.js";
-import { DbClientService, DbError } from "../db/dbClient";
-import { chunker } from "../../common";
-import { userSeasonPoints } from "db/incentives";
-import { sql } from "drizzle-orm";
+import { Effect } from 'effect';
+import type BigNumber from 'bignumber.js';
+import { DbClientService, DbError } from '../db/dbClient';
+import { chunker } from '../../common';
+import { userSeasonPoints } from 'db/incentives';
+import { sql } from 'drizzle-orm';
 
 export type AddSeasonPointsToUserInput = {
   userId: string;
@@ -13,14 +13,14 @@ export type AddSeasonPointsToUserInput = {
 }[];
 
 export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPointsToUserService>()(
-  "AddSeasonPointsToUserService",
+  'AddSeasonPointsToUserService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {
         run: Effect.fn(function* (input: AddSeasonPointsToUserInput) {
           if (input.length === 0) {
-            yield* Effect.log("empty input, skipping");
+            yield* Effect.log('empty input, skipping');
             return;
           }
 
@@ -36,7 +36,7 @@ export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPoints
                         seasonId: item.seasonId,
                         weekId: item.weekId,
                         points: item.points.decimalPlaces(6).toString(),
-                      }))
+                      })),
                     )
                     .onConflictDoUpdate({
                       target: [
@@ -55,5 +55,5 @@ export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPoints
         }),
       };
     }),
-  }
+  },
 ) {}

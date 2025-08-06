@@ -1,7 +1,7 @@
-import { Effect } from "effect";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { GatewayError } from "./errors";
-import type { AtLedgerState } from "./schemas";
+import { Effect } from 'effect';
+import { GatewayApiClientService } from './gatewayApiClient';
+import { GatewayError } from './errors';
+import type { AtLedgerState } from './schemas';
 
 export type GetNonFungibleIdsInput = {
   vaultAddress: string;
@@ -12,7 +12,7 @@ export type GetNonFungibleIdsInput = {
 };
 
 export class GetNonFungibleIdsService extends Effect.Service<GetNonFungibleIdsService>()(
-  "GetNonFungibleIdsService",
+  'GetNonFungibleIdsService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
@@ -49,5 +49,5 @@ export class GetNonFungibleIdsService extends Effect.Service<GetNonFungibleIdsSe
         return { ids, address: input.address };
       });
     }),
-  }
+  },
 ) {}

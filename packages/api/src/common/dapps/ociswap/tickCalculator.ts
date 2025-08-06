@@ -1,10 +1,10 @@
-import { Decimal } from "decimal.js";
+import { Decimal } from 'decimal.js';
 
 // Configure Decimal.js for high precision
 Decimal.config({ precision: 50 });
 
 export const TICK_BASE_SQRT = new Decimal(
-  "1.000049998750062496094023416993798697"
+  '1.000049998750062496094023416993798697',
 );
 
 export function tickToPriceSqrt(tick: number): Decimal {
@@ -22,13 +22,13 @@ export function removableAmounts(
   priceLeftBoundSqrt: Decimal,
   priceRightBoundSqrt: Decimal,
   xDivisibility: number,
-  yDivisibility: number
+  yDivisibility: number,
 ): [Decimal, Decimal] {
   // When the current price is below the lower bound, all liquidity can be withdrawn as token x.
   if (priceSqrt.lte(priceLeftBoundSqrt)) {
     const xAmount = Decimal.max(
       liquidity.div(priceLeftBoundSqrt).sub(liquidity.div(priceRightBoundSqrt)),
-      new Decimal(0)
+      new Decimal(0),
     );
     return [floorToDecimals(xAmount, xDivisibility), new Decimal(0)];
   }
@@ -42,7 +42,7 @@ export function removableAmounts(
   // When the current price is within the bounds, calculate the withdrawable amounts for both tokens.
   const xAmount = Decimal.max(
     liquidity.div(priceSqrt).sub(liquidity.div(priceRightBoundSqrt)),
-    new Decimal(0)
+    new Decimal(0),
   );
   const yAmount = liquidity.mul(priceSqrt.sub(priceLeftBoundSqrt));
 

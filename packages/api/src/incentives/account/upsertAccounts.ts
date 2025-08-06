@@ -1,14 +1,14 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { accounts, type Account } from "db/consultation";
-import { sql } from "drizzle-orm";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { accounts, type Account } from 'db/consultation';
+import { sql } from 'drizzle-orm';
 
 type UpsertAccountInput = {
   userId: string;
   accounts: { address: string; label: string }[];
 };
 
-export class UpsertAccountsService extends Context.Tag("UpsertAccountsService")<
+export class UpsertAccountsService extends Context.Tag('UpsertAccountsService')<
   UpsertAccountsService,
   (input: UpsertAccountInput) => Effect.Effect<Account[], DbError>
 >() {}
@@ -27,7 +27,7 @@ export const UpsertAccountsLive = Layer.effect(
               input.accounts.map((account) => ({
                 userId: input.userId,
                 ...account,
-              }))
+              })),
             )
             .returning()
             .onConflictDoUpdate({
@@ -36,5 +36,5 @@ export const UpsertAccountsLive = Layer.effect(
             }),
         catch: (error) => new DbError(error),
       });
-  })
+  }),
 );

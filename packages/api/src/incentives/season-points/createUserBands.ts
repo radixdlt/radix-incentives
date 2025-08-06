@@ -1,5 +1,5 @@
-import { BigNumber } from "bignumber.js";
-import { Effect } from "effect";
+import { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
 
 /**
  * Creates user bands for reward distribution based on points and pool share allocation.
@@ -71,7 +71,7 @@ export const createUserBands = (input: {
     // Highest point users will go to later bands which have higher pool shares
     const sortedUsers = input.users.sort((a, b) => {
       const comparison = new BigNumber(b.points).comparedTo(
-        new BigNumber(a.points)
+        new BigNumber(a.points),
       );
       return comparison ?? 0;
     });
@@ -82,13 +82,13 @@ export const createUserBands = (input: {
     // Only create bands for users that exist
     const actualNumberOfBands = Math.min(
       input.numberOfBands,
-      totalSurvivingUsers
+      totalSurvivingUsers,
     );
 
     if (actualNumberOfBands === 0) {
       yield* Effect.log(
-        "created 0 bands with base size 0 users each. 0 bands will have 1 users (0 surviving users)",
-        { bands: [] }
+        'created 0 bands with base size 0 users each. 0 bands will have 1 users (0 surviving users)',
+        { bands: [] },
       );
       return [];
     }
@@ -142,7 +142,7 @@ export const createUserBands = (input: {
           numberOfUsers: band.userIds.length,
           poolShare: band.poolShare.toString(),
         })),
-      }
+      },
     );
 
     return bands;

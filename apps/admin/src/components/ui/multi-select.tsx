@@ -1,11 +1,11 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import { Check, ChevronsUpDown, X } from "lucide-react";
+import * as React from 'react';
+import { Check, ChevronsUpDown, X } from 'lucide-react';
 
-import { cn } from "~/lib/utils";
-import { Badge } from "~/components/ui/badge";
-import { Button } from "~/components/ui/button";
+import { cn } from '~/lib/utils';
+import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
 import {
   Command,
   CommandEmpty,
@@ -14,12 +14,12 @@ import {
   CommandItem,
   CommandList,
   CommandSeparator,
-} from "~/components/ui/command"; // Assuming Command exists
+} from '~/components/ui/command'; // Assuming Command exists
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "~/components/ui/popover";
+} from '~/components/ui/popover';
 
 export type OptionType = {
   label: string;
@@ -41,10 +41,10 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
       selected,
       onChange,
       className,
-      placeholder = "Select options...",
+      placeholder = 'Select options...',
       ...props
     },
-    ref
+    ref,
   ) => {
     const [open, setOpen] = React.useState(false);
 
@@ -69,7 +69,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
             // biome-ignore lint/a11y/useSemanticElements: Custom multi-select requires combobox pattern
             role="combobox"
             aria-expanded={open}
-            className={`w-full justify-between ${selected.length > 0 ? "h-full" : "h-10"}`}
+            className={`w-full justify-between ${selected.length > 0 ? 'h-full' : 'h-10'}`}
             onClick={() => setOpen(!open)}
           >
             <div className="flex flex-wrap items-center gap-1">
@@ -113,10 +113,10 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
                   >
                     <Check
                       className={cn(
-                        "mr-2 h-4 w-4",
+                        'mr-2 h-4 w-4',
                         selected.includes(option.value)
-                          ? "opacity-100"
-                          : "opacity-0"
+                          ? 'opacity-100'
+                          : 'opacity-0',
                       )}
                     />
                     {option.label}
@@ -141,9 +141,9 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
         </PopoverContent>
       </Popover>
     );
-  }
+  },
 );
 
-MultiSelect.displayName = "MultiSelect";
+MultiSelect.displayName = 'MultiSelect';
 
 export { MultiSelect };

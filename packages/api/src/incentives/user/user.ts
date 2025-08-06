@@ -1,5 +1,5 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 import {
   accountActivityPoints,
   accounts,
@@ -7,13 +7,12 @@ import {
   seasonPointsMultiplier,
   activities,
   activityCategories,
-} from "db/incentives";
-import { eq, sql, and, sum } from "drizzle-orm";
+} from 'db/incentives';
+import { eq, sql, and, sum } from 'drizzle-orm';
 
-export class UserService extends Effect.Service<UserService>()("UserService", {
+export class UserService extends Effect.Service<UserService>()('UserService', {
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
-
 
     const getMultiplierByUserId = Effect.fn(function* (input: {
       userId: string;
@@ -24,7 +23,7 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
           db.query.seasonPointsMultiplier.findFirst({
             where: and(
               eq(seasonPointsMultiplier.userId, input.userId),
-              eq(seasonPointsMultiplier.weekId, input.weekId)
+              eq(seasonPointsMultiplier.weekId, input.weekId),
             ),
             columns: {
               multiplier: true,
@@ -34,7 +33,7 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
       });
 
       return {
-        value: result?.multiplier ?? "0",
+        value: result?.multiplier ?? '0',
       };
     });
 
@@ -67,8 +66,8 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
 
       if (!result || result?.points === null) {
         return {
-          rank: "n/a",
-          points: "0",
+          rank: 'n/a',
+          points: '0',
         };
       }
 
@@ -93,15 +92,15 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
             .from(activities)
             .innerJoin(
               activityCategories,
-              eq(activities.category, activityCategories.id)
+              eq(activities.category, activityCategories.id),
             )
             .where(
               and(
                 // Exclude hold_ activities (they're for multiplier calculation, not leaderboards)
                 sql`${activities.id} NOT LIKE '%hold_%'`,
                 // Exclude common activity (not rewarded)
-                sql`${activities.id} != 'common'`
-              )
+                sql`${activities.id} != 'common'`,
+              ),
             )
             .groupBy(activities.category, activityCategories.name),
         catch: (error) => new DbError(error),
@@ -114,17 +113,17 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
             .select({
               categoryId: activities.category,
               totalPoints: sum(accountActivityPoints.activityPoints).as(
-                "totalPoints"
+                'totalPoints',
               ),
             })
             .from(accountActivityPoints)
             .innerJoin(
               accounts,
-              eq(accountActivityPoints.accountAddress, accounts.address)
+              eq(accountActivityPoints.accountAddress, accounts.address),
             )
             .innerJoin(
               activities,
-              eq(accountActivityPoints.activityId, activities.id)
+              eq(accountActivityPoints.activityId, activities.id),
             )
             .where(
               and(
@@ -132,8 +131,8 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
                 eq(accountActivityPoints.weekId, input.weekId),
                 // Same exclusions as above
                 sql`${activities.id} NOT LIKE '%hold_%'`,
-                sql`${activities.id} != 'common'`
-              )
+                sql`${activities.id} != 'common'`,
+              ),
             )
             .groupBy(activities.category),
         catch: (error) => new DbError(error),
@@ -143,13 +142,13 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
       const categoryBreakdown = categoriesWithActivities
         .map((category) => {
           const userPoints = userCategoryPoints.find(
-            (up) => up.categoryId === category.categoryId
+            (up) => up.categoryId === category.categoryId,
           );
           return {
             categoryId: category.categoryId,
             categoryName: category.categoryName,
             points: userPoints
-              ? Number.parseFloat(userPoints.totalPoints || "0")
+              ? Number.parseFloat(userPoints.totalPoints || '0')
               : 0,
           };
         })
@@ -167,17 +166,17 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
           db
             .select({
               totalPoints: sum(accountActivityPoints.activityPoints).as(
-                "totalPoints"
+                'totalPoints',
               ),
             })
             .from(accountActivityPoints)
             .innerJoin(
               accounts,
-              eq(accountActivityPoints.accountAddress, accounts.address)
+              eq(accountActivityPoints.accountAddress, accounts.address),
             )
             .innerJoin(
               activities,
-              eq(accountActivityPoints.activityId, activities.id)
+              eq(accountActivityPoints.activityId, activities.id),
             )
             .where(
               and(
@@ -185,8 +184,8 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
                 eq(accountActivityPoints.weekId, input.weekId),
                 // Exclude hold_ activities and common like other functions
                 sql`${activities.id} NOT LIKE '%hold_%'`,
-                sql`${activities.id} != 'common'`
-              )
+                sql`${activities.id} != 'common'`,
+              ),
             )
             .then((result) => result[0]),
         catch: (error) => new DbError(error),
@@ -194,7 +193,9 @@ export class UserService extends Effect.Service<UserService>()("UserService", {
 
       return {
         weekId: input.weekId,
-        totalPoints: result?.totalPoints ? Number.parseFloat(result.totalPoints) : 0,
+        totalPoints: result?.totalPoints
+          ? Number.parseFloat(result.totalPoints)
+          : 0,
       };
     });
 

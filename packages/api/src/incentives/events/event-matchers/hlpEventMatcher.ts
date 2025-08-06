@@ -1,15 +1,15 @@
-import { Effect } from "effect";
-import type { TransformedEvent } from "../../transaction-stream/transformEvent";
-import { HLPSwapEvent } from "../../../common/dapps/caviarnine/schemas";
+import { Effect } from 'effect';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
+import { HLPSwapEvent } from '../../../common/dapps/caviarnine/schemas';
 import {
   parseEventData,
   type CapturedEvent,
   createEventMatcher,
-} from "./createEventMatcher";
-import { isHlpPoolComponent } from "../../../common/address-validation/addressValidation";
+} from './createEventMatcher';
+import { isHlpPoolComponent } from '../../../common/address-validation/addressValidation';
 
 export type HLPEmittableEvents = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: HLPSwapEvent;
 };
 
@@ -23,14 +23,14 @@ export const hlpEventMatcherFn = (input: TransformedEvent) =>
     }
 
     switch (input?.event.name) {
-      case "SwapEvent":
+      case 'SwapEvent':
         return yield* parseEventData(input, HLPSwapEvent);
       // ignore these events
-      case "SetFeeShareEvent":
-      case "LiquidityChangeEvent": // No need to do anything, handled by deposit/withdraw events
-      case "NewPoolEvent":
-      case "ProtocolFeeEvent":
-      case "LiquidityFeeEvent":
+      case 'SetFeeShareEvent':
+      case 'LiquidityChangeEvent': // No need to do anything, handled by deposit/withdraw events
+      case 'NewPoolEvent':
+      case 'ProtocolFeeEvent':
+      case 'LiquidityFeeEvent':
         return yield* Effect.succeed(null);
     }
 
@@ -41,8 +41,8 @@ export const hlpEventMatcherFn = (input: TransformedEvent) =>
 
 export const hlpEventMatcher = createEventMatcher(
   {
-    dApp: "HLP",
-    category: "DEX",
+    dApp: 'HLP',
+    category: 'DEX',
   },
-  hlpEventMatcherFn
+  hlpEventMatcherFn,
 );

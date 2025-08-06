@@ -1,25 +1,25 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
 import {
   type GetEntityDetailsOptions,
   GetEntityDetailsService,
-} from "../gateway/getEntityDetails";
+} from '../gateway/getEntityDetails';
 
 import type {
   ProgrammaticScryptoSborValue,
   StateEntityDetailsVaultResponseItem,
-} from "@radixdlt/babylon-gateway-api-sdk";
+} from '@radixdlt/babylon-gateway-api-sdk';
 
-import type { ParsedType, StructDefinition, StructSchema } from "sbor-ez-mode";
-import type { AtLedgerState } from "./schemas";
+import type { ParsedType, StructDefinition, StructSchema } from 'sbor-ez-mode';
+import type { AtLedgerState } from './schemas';
 
 export class InvalidComponentStateError {
-  readonly _tag = "InvalidComponentStateError";
+  readonly _tag = 'InvalidComponentStateError';
   constructor(readonly error: unknown) {}
 }
 
 export class GetComponentStateService extends Effect.Service<GetComponentStateService>()(
-  "GetComponentStateService",
+  'GetComponentStateService',
   {
     effect: Effect.gen(function* () {
       const getEntityDetailsService = yield* GetEntityDetailsService;
@@ -37,7 +37,7 @@ export class GetComponentStateService extends Effect.Service<GetComponentStateSe
           const entityDetails = yield* getEntityDetailsService(
             input.addresses,
             input.options,
-            input.at_ledger_state
+            input.at_ledger_state,
           );
 
           const results: {
@@ -51,7 +51,7 @@ export class GetComponentStateService extends Effect.Service<GetComponentStateSe
           }[] = [];
 
           for (const item of entityDetails) {
-            if (item.details?.type === "Component") {
+            if (item.details?.type === 'Component') {
               const componentDetails = item.details;
               const componentState =
                 componentDetails.state as ProgrammaticScryptoSborValue;
@@ -60,7 +60,7 @@ export class GetComponentStateService extends Effect.Service<GetComponentStateSe
 
               if (parsed.isErr()) {
                 return yield* Effect.fail(
-                  new InvalidComponentStateError(parsed.error)
+                  new InvalidComponentStateError(parsed.error),
                 );
               }
 
@@ -78,5 +78,5 @@ export class GetComponentStateService extends Effect.Service<GetComponentStateSe
         }),
       };
     }),
-  }
+  },
 ) {}

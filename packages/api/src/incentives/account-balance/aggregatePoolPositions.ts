@@ -1,6 +1,6 @@
-import { Config, Effect } from "effect";
+import { Config, Effect } from 'effect';
 
-import { groupBy } from "effect/Array";
+import { groupBy } from 'effect/Array';
 import {
   type AccountBalanceData,
   Action,
@@ -10,15 +10,15 @@ import {
   getTokenDetailsFromResourceAddress,
   getTokenPairFromResourceAddresses,
   type TokenDetails,
-} from "data";
-import { BigNumber } from "bignumber.js";
+} from 'data';
+import { BigNumber } from 'bignumber.js';
 
-import { GetUsdValueService } from "../token-price/getUsdValue";
+import { GetUsdValueService } from '../token-price/getUsdValue';
 import {
   AddressValidationService,
   CONSTANT_PRODUCT_MULTIPLIER,
-} from "../../common/address-validation/addressValidation";
-import { getDefaultPositions } from "./getDefaultPositions";
+} from '../../common/address-validation/addressValidation';
+import { getDefaultPositions } from './getDefaultPositions';
 
 export type LpPosition = {
   componentAddress: string;
@@ -35,35 +35,35 @@ export type LpPosition = {
 };
 
 export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolPositionsService>()(
-  "AggregatePoolPositionsService",
+  'AggregatePoolPositionsService',
   {
     effect: Effect.gen(function* () {
-      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
-        Config.withDefault(false)
+      const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
+        Config.withDefault(false),
       );
       const getUsdValueService = yield* GetUsdValueService;
       const addressValidationService = yield* AddressValidationService;
 
       const calculatePoolPositionTotals = Effect.fn(function* (
-        positions: LpPosition[]
+        positions: LpPosition[],
       ) {
         return positions.reduce(
           (acc, item) => {
             acc.totalXTokenWithinPriceBounds =
               acc.totalXTokenWithinPriceBounds.plus(
-                item.xToken.withinPriceBounds
+                item.xToken.withinPriceBounds,
               );
             acc.totalXTokenOutsidePriceBounds =
               acc.totalXTokenOutsidePriceBounds.plus(
-                item.xToken.outsidePriceBounds
+                item.xToken.outsidePriceBounds,
               );
             acc.totalYTokenWithinPriceBounds =
               acc.totalYTokenWithinPriceBounds.plus(
-                item.yToken.withinPriceBounds
+                item.yToken.withinPriceBounds,
               );
             acc.totalYTokenOutsidePriceBounds =
               acc.totalYTokenOutsidePriceBounds.plus(
-                item.yToken.outsidePriceBounds
+                item.yToken.outsidePriceBounds,
               );
             return acc;
           },
@@ -72,17 +72,17 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
             totalYTokenWithinPriceBounds: new BigNumber(0),
             totalXTokenOutsidePriceBounds: new BigNumber(0),
             totalYTokenOutsidePriceBounds: new BigNumber(0),
-          }
+          },
         );
       });
 
       const aggregatePoolPositions = Effect.fn(function* (
         positions: LpPosition[],
-        dAppId: DappId
+        dAppId: DappId,
       ) {
         const groupedByComponentAddress = groupBy(
           positions,
-          (position) => position.componentAddress
+          (position) => position.componentAddress,
         );
 
         const aggregatedPoolPositions = yield* Effect.forEach(
@@ -96,16 +96,16 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
               yield* calculatePoolPositionTotals(poolPositions);
 
             const xTokenDetails = yield* getTokenDetailsFromResourceAddress(
-              xToken.resourceAddress
+              xToken.resourceAddress,
             );
 
             const yTokenDetails = yield* getTokenDetailsFromResourceAddress(
-              yToken.resourceAddress
+              yToken.resourceAddress,
             );
 
             const { tokenPair } = yield* getTokenPairFromResourceAddresses(
               xToken.resourceAddress,
-              yToken.resourceAddress
+              yToken.resourceAddress,
             );
 
             const isSingleTokenPool =
@@ -165,7 +165,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                 token: xTokenDetails,
                 totalWithinPriceBounds:
                   poolTotals.totalXTokenWithinPriceBounds.plus(
-                    poolTotals.totalXTokenOutsidePriceBounds
+                    poolTotals.totalXTokenOutsidePriceBounds,
                   ),
                 totalOutsidePriceBounds: new BigNumber(0),
               },
@@ -175,7 +175,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                 token: yTokenDetails,
                 totalWithinPriceBounds:
                   poolTotals.totalYTokenWithinPriceBounds.plus(
-                    poolTotals.totalYTokenOutsidePriceBounds
+                    poolTotals.totalYTokenOutsidePriceBounds,
                   ),
                 totalOutsidePriceBounds: new BigNumber(0),
               },
@@ -185,7 +185,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
               lpActivities,
               holdActivities,
             };
-          })
+          }),
         ).pipe(
           Effect.map((items) => items.filter((item) => item !== undefined)),
           Effect.map((items) =>
@@ -195,9 +195,9 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                 acc.holdActivities.push(...item.holdActivities);
                 return acc;
               },
-              { lpActivities: [], holdActivities: [] }
-            )
-          )
+              { lpActivities: [], holdActivities: [] },
+            ),
+          ),
         );
 
         return aggregatedPoolPositions;
@@ -212,7 +212,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
           totalOutsidePriceBounds: BigNumber;
         }[],
         timestamp: Date,
-        applyMultiplier: boolean
+        applyMultiplier: boolean,
       ) {
         const groupedByActivityId = groupBy(items, (item) => item.activityId);
 
@@ -225,7 +225,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                 Effect.fn(function* (item) {
                   const isPoolConstantProduct =
                     addressValidationService.isConstantProductPool(
-                      item.componentAddress
+                      item.componentAddress,
                     );
 
                   const totalXTokenUsdValue = item.totalWithinPriceBounds.gt(0)
@@ -237,11 +237,11 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                         Effect.map((usdValue) => {
                           if (isPoolConstantProduct) {
                             return usdValue.multipliedBy(
-                              CONSTANT_PRODUCT_MULTIPLIER
+                              CONSTANT_PRODUCT_MULTIPLIER,
                             );
                           }
                           return usdValue;
-                        })
+                        }),
                       )
                     : new BigNumber(0);
 
@@ -249,7 +249,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                     usdValue: totalXTokenUsdValue,
                     metadata: item,
                   };
-                })
+                }),
               );
 
               const usdValue = withUsdValue
@@ -281,11 +281,11 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                 usdValue,
                 metadata: STORE_METADATA ? { items: metadata } : undefined,
               } satisfies AccountBalanceData;
-            })
+            }),
           );
 
         const output = new Map<string, AccountBalanceData>(
-          aggregatedByActivityId.map((item) => [item.activityId, item])
+          aggregatedByActivityId.map((item) => [item.activityId, item]),
         );
 
         return output;
@@ -313,24 +313,24 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
             yield* processAggregatedPoolPositions(
               lpActivities,
               timestamp,
-              true
+              true,
             );
 
           const processedHoldPositions = yield* processAggregatedPoolPositions(
             holdActivities,
             timestamp,
-            false
+            false,
           );
 
           // add default values for positions that were not processed
           return defaultValues.map((item) => {
             const processedLpItem = processedLpPoolPositions.get(
-              item.activityId
+              item.activityId,
             );
             if (processedLpItem) return processedLpItem;
 
             const processedHoldItem = processedHoldPositions.get(
-              item.activityId
+              item.activityId,
             );
             if (processedHoldItem) return processedHoldItem;
 
@@ -339,5 +339,5 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
         }),
       };
     }),
-  }
+  },
 ) {}

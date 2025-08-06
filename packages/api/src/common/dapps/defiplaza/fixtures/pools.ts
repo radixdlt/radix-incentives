@@ -1,12 +1,12 @@
-import type { GetResourcePoolOutput } from "../../../resource-pool/getResourcePoolUnits";
-import BigNumber from "bignumber.js";
-import { deserializeBigNumber } from "../../../utils/deserializeBigNumber";
+import type { GetResourcePoolOutput } from '../../../resource-pool/getResourcePoolUnits';
+import BigNumber from 'bignumber.js';
+import { deserializeBigNumber } from '../../../utils/deserializeBigNumber';
 
 export const pools: GetResourcePoolOutput = [
   {
-    address: "pool_rdx1c4547fnprjhlp2m27aycmf8rzrkrfzcck58jt2706r85gpcaeapz7k",
+    address: 'pool_rdx1c4547fnprjhlp2m27aycmf8rzrkrfzcck58jt2706r85gpcaeapz7k',
     lpResourceAddress:
-      "resource_rdx1t4a5clnxmnctmezaty08cuugfzmj2lezqcjk2szezrfdfl4w4ederu",
+      'resource_rdx1t4a5clnxmnctmezaty08cuugfzmj2lezqcjk2szezrfdfl4w4ederu',
     totalSupply: {
       s: 1,
       e: 5,
@@ -15,7 +15,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq",
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
         poolUnitValue: {
           s: 1,
           e: 1,
@@ -25,9 +25,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c47jlmd9stptfy2a7e39wnjfechu72q9ggus29x0mqf98m8xt70rx2",
+    address: 'pool_rdx1c47jlmd9stptfy2a7e39wnjfechu72q9ggus29x0mqf98m8xt70rx2',
     lpResourceAddress:
-      "resource_rdx1t5q26nr5t02pzf40tp9z999ex7d84szldnpqg8e459jyvztrxhqqls",
+      'resource_rdx1t5q26nr5t02pzf40tp9z999ex7d84szldnpqg8e459jyvztrxhqqls',
     totalSupply: {
       s: 1,
       e: 5,
@@ -36,7 +36,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1t4tjx4g3qzd98nayqxm7qdpj0a0u8ns6a0jrchq49dyfevgh6u0gj3",
+          'resource_rdx1t4tjx4g3qzd98nayqxm7qdpj0a0u8ns6a0jrchq49dyfevgh6u0gj3',
         poolUnitValue: {
           s: 1,
           e: 0,
@@ -45,7 +45,7 @@ export const pools: GetResourcePoolOutput = [
       },
       {
         resourceAddress:
-          "resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq",
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
         poolUnitValue: {
           s: 1,
           e: 1,
@@ -55,9 +55,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c4scl7k67czs4e29skz0njvcmx4epmrjk4nkrkvsmt93rug7jcnagf",
+    address: 'pool_rdx1c4scl7k67czs4e29skz0njvcmx4epmrjk4nkrkvsmt93rug7jcnagf',
     lpResourceAddress:
-      "resource_rdx1t5swt0y0u6sdzycg02flamm3e6qljjgvpxeg5p5tw6jl7ssel0x369",
+      'resource_rdx1t5swt0y0u6sdzycg02flamm3e6qljjgvpxeg5p5tw6jl7ssel0x369',
     totalSupply: {
       s: 1,
       e: 5,
@@ -66,7 +66,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 0,
@@ -76,9 +76,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c4xm5wfm92vh39dzszzv3huvdmvz73juhkw8vls0z4fg2vfr0wkv93",
+    address: 'pool_rdx1c4xm5wfm92vh39dzszzv3huvdmvz73juhkw8vls0z4fg2vfr0wkv93',
     lpResourceAddress:
-      "resource_rdx1tkuuhphx2rtdytucgt0ucnd4k8zymxdeta4xa2req93yuaup3s244u",
+      'resource_rdx1tkuuhphx2rtdytucgt0ucnd4k8zymxdeta4xa2req93yuaup3s244u',
     totalSupply: {
       s: 1,
       e: 4,
@@ -87,7 +87,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq",
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
         poolUnitValue: {
           s: 1,
           e: 1,
@@ -97,9 +97,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c5glrayedmn0utd44pqs8a3x52dw9aklq2g5f9ewxjxtm7xvjmussa",
+    address: 'pool_rdx1c5glrayedmn0utd44pqs8a3x52dw9aklq2g5f9ewxjxtm7xvjmussa',
     lpResourceAddress:
-      "resource_rdx1thhth6tseavhurrgae898k9sht29f3yckzr6szct6zgheqdhxkus0t",
+      'resource_rdx1thhth6tseavhurrgae898k9sht29f3yckzr6szct6zgheqdhxkus0t',
     totalSupply: {
       s: 1,
       e: 5,
@@ -108,7 +108,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 0,
@@ -118,9 +118,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c5pvssdmlgjh78anllzszh7alal666ayv8h6at3xmxmmpueqf7at4q",
+    address: 'pool_rdx1c5pvssdmlgjh78anllzszh7alal666ayv8h6at3xmxmmpueqf7at4q',
     lpResourceAddress:
-      "resource_rdx1thnmcry6e02x6ja73llm8z6pkrurvrsudgez4ammsp24r0v20rllxt",
+      'resource_rdx1thnmcry6e02x6ja73llm8z6pkrurvrsudgez4ammsp24r0v20rllxt',
     totalSupply: {
       s: 1,
       e: 4,
@@ -129,7 +129,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw",
+          'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
         poolUnitValue: {
           s: 1,
           e: -1,
@@ -138,7 +138,7 @@ export const pools: GetResourcePoolOutput = [
       },
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 1,
@@ -148,9 +148,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c5xlqz5uc62fzlsyl2f3ql6lx8upc75tdpe4f8cmys83lpqrrul976",
+    address: 'pool_rdx1c5xlqz5uc62fzlsyl2f3ql6lx8upc75tdpe4f8cmys83lpqrrul976',
     lpResourceAddress:
-      "resource_rdx1t4x7f34hec2jxtay6cvxvcq3skmkg9pwtr98m4dm7qfrvnaddlavgv",
+      'resource_rdx1t4x7f34hec2jxtay6cvxvcq3skmkg9pwtr98m4dm7qfrvnaddlavgv',
     totalSupply: {
       s: 1,
       e: -1,
@@ -159,7 +159,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75",
+          'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
         poolUnitValue: {
           s: 1,
           e: -1,
@@ -168,7 +168,7 @@ export const pools: GetResourcePoolOutput = [
       },
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 6,
@@ -178,9 +178,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1c5z06xda4gjykyhupj4fjszdfhsye7h3mcsgwe5cvuz2vemwn7yjax",
+    address: 'pool_rdx1c5z06xda4gjykyhupj4fjszdfhsye7h3mcsgwe5cvuz2vemwn7yjax',
     lpResourceAddress:
-      "resource_rdx1tkdws0nvfwjnn2q62x4gqgelyt4t5z7cn58pwvrtf4zrxtdw2sem8x",
+      'resource_rdx1tkdws0nvfwjnn2q62x4gqgelyt4t5z7cn58pwvrtf4zrxtdw2sem8x',
     totalSupply: {
       s: 1,
       e: 5,
@@ -189,7 +189,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf",
+          'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
         poolUnitValue: {
           s: 1,
           e: -1,
@@ -198,7 +198,7 @@ export const pools: GetResourcePoolOutput = [
       },
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 1,
@@ -208,9 +208,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1ch62axcl22gnmhe5ajtwraukrxstxxqlq5c6p9n2y5qv0pgyqnhfry",
+    address: 'pool_rdx1ch62axcl22gnmhe5ajtwraukrxstxxqlq5c6p9n2y5qv0pgyqnhfry',
     lpResourceAddress:
-      "resource_rdx1t5gr3wsf7jq28fvnpyfg4rwfkewynv67nnqjna9h5f7mwjuwcwegcj",
+      'resource_rdx1t5gr3wsf7jq28fvnpyfg4rwfkewynv67nnqjna9h5f7mwjuwcwegcj',
     totalSupply: {
       s: 1,
       e: 6,
@@ -219,7 +219,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 0,
@@ -229,9 +229,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1cht7hqhcnj2la96cygema5l32xwz26luunr9umlszy3s9gr78ppdzv",
+    address: 'pool_rdx1cht7hqhcnj2la96cygema5l32xwz26luunr9umlszy3s9gr78ppdzv',
     lpResourceAddress:
-      "resource_rdx1th6ftl6twglqfz2s8ref2vr5nfccaeq2878p4996uq5duszkjhp2gl",
+      'resource_rdx1th6ftl6twglqfz2s8ref2vr5nfccaeq2878p4996uq5duszkjhp2gl',
     totalSupply: {
       s: 1,
       e: 5,
@@ -240,7 +240,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 0,
@@ -250,9 +250,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1chxn0nqj840r78t2ah5agchq4ue9p65q23nc9ckqfe0mmjstq8fyg0",
+    address: 'pool_rdx1chxn0nqj840r78t2ah5agchq4ue9p65q23nc9ckqfe0mmjstq8fyg0',
     lpResourceAddress:
-      "resource_rdx1tknxlx2sy23qkg6twvnu3kqcd5l4daacq0n6mdam54upqgx50f4ju8",
+      'resource_rdx1tknxlx2sy23qkg6twvnu3kqcd5l4daacq0n6mdam54upqgx50f4ju8',
     totalSupply: {
       s: 1,
       e: 5,
@@ -261,7 +261,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 1,
@@ -270,7 +270,7 @@ export const pools: GetResourcePoolOutput = [
       },
       {
         resourceAddress:
-          "resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq",
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
         poolUnitValue: {
           s: 1,
           e: -2,
@@ -280,9 +280,9 @@ export const pools: GetResourcePoolOutput = [
     ],
   },
   {
-    address: "pool_rdx1ckt7dhmt5gr9vdsgz3p62fm88pm7f69kzzqw2268f3negvgns2xkpa",
+    address: 'pool_rdx1ckt7dhmt5gr9vdsgz3p62fm88pm7f69kzzqw2268f3negvgns2xkpa',
     lpResourceAddress:
-      "resource_rdx1t5k00sp4jejklp8cx6nw7ecvhz7z07mfexgmdyflgqpflfvzv8v7wd",
+      'resource_rdx1t5k00sp4jejklp8cx6nw7ecvhz7z07mfexgmdyflgqpflfvzv8v7wd',
     totalSupply: {
       s: 1,
       e: 1,
@@ -291,7 +291,7 @@ export const pools: GetResourcePoolOutput = [
     poolResources: [
       {
         resourceAddress:
-          "resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww",
+          'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
         poolUnitValue: {
           s: 1,
           e: -1,
@@ -300,7 +300,7 @@ export const pools: GetResourcePoolOutput = [
       },
       {
         resourceAddress:
-          "resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd",
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
         poolUnitValue: {
           s: 1,
           e: 4,

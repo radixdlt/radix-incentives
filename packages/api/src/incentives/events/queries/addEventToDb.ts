@@ -1,10 +1,10 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../../db/dbClient';
 
-import { events, type Event } from "db/incentives";
-import SuperJSON from "superjson";
+import { events, type Event } from 'db/incentives';
+import SuperJSON from 'superjson';
 
-export class AddEventsToDbService extends Context.Tag("AddEventsToDbService")<
+export class AddEventsToDbService extends Context.Tag('AddEventsToDbService')<
   AddEventsToDbService,
   (input: Event[]) => Effect.Effect<Event[], DbError>
 >() {}
@@ -24,7 +24,7 @@ export const AddEventsToDbLive = Layer.effect(
                 input.map((item) => ({
                   ...item,
                   eventData: SuperJSON.serialize(item.eventData),
-                }))
+                })),
               )
               .returning()
               .onConflictDoNothing(),
@@ -34,5 +34,5 @@ export const AddEventsToDbLive = Layer.effect(
         return result;
       });
     };
-  })
+  }),
 );

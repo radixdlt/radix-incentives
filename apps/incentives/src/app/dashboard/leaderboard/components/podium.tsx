@@ -16,7 +16,7 @@ interface PodiumProps {
 
 export function Podium({
   users,
-  pointsLabel = "points",
+  pointsLabel = 'points',
   userStats,
 }: PodiumProps) {
   const topThree = users.slice(0, 3);
@@ -30,7 +30,7 @@ export function Podium({
   };
 
   const getDisplayName = (user: PodiumUser) => {
-    return user.label || "Anonymous User";
+    return user.label || 'Anonymous User';
   };
 
   const isCurrentUser = (user: PodiumUser) => {
@@ -79,8 +79,8 @@ export function Podium({
               <div
                 className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
                   isCurrentUser(topThree[1])
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border"
+                    ? 'bg-primary/5 border-primary/30'
+                    : 'bg-card border-border'
                 }`}
               >
                 <div className="text-lg mb-1">🥈</div>
@@ -103,8 +103,8 @@ export function Podium({
               <div
                 className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
                   isCurrentUser(topThree[0])
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border"
+                    ? 'bg-primary/5 border-primary/30'
+                    : 'bg-card border-border'
                 }`}
               >
                 <div className="text-xl mb-1">🏆</div>
@@ -127,8 +127,8 @@ export function Podium({
               <div
                 className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
                   isCurrentUser(topThree[2])
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border"
+                    ? 'bg-primary/5 border-primary/30'
+                    : 'bg-card border-border'
                 }`}
               >
                 <div className="text-lg mb-1">🥉</div>
@@ -156,8 +156,8 @@ export function Podium({
               <div
                 className={`text-center mb-2 p-3 rounded-lg border ${
                   isCurrentUser(topThree[1])
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border"
+                    ? 'bg-primary/5 border-primary/30'
+                    : 'bg-card border-border'
                 }`}
               >
                 <div className="text-2xl mb-1">🥈</div>
@@ -185,8 +185,8 @@ export function Podium({
               <div
                 className={`text-center mb-2 p-4 rounded-lg border ${
                   isCurrentUser(topThree[0])
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border"
+                    ? 'bg-primary/5 border-primary/30'
+                    : 'bg-card border-border'
                 }`}
               >
                 <div className="text-3xl mb-1">🏆</div>
@@ -214,8 +214,8 @@ export function Podium({
               <div
                 className={`text-center mb-2 p-3 rounded-lg border ${
                   isCurrentUser(topThree[2])
-                    ? "bg-primary/5 border-primary/30"
-                    : "bg-card border-border"
+                    ? 'bg-primary/5 border-primary/30'
+                    : 'bg-card border-border'
                 }`}
               >
                 <div className="text-2xl mb-1">🥉</div>
@@ -247,8 +247,8 @@ export function Podium({
               key={user.userId}
               className={`flex items-center justify-between p-3 rounded-lg border ${
                 isCurrentUser(user)
-                  ? "bg-primary/5 border-primary/30"
-                  : "bg-card border-border"
+                  ? 'bg-primary/5 border-primary/30'
+                  : 'bg-card border-border'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -283,7 +283,7 @@ export function Podium({
       {!currentUserInTop5 && userStats && (
         <div className="space-y-2">
           <div className="text-center text-sm text-muted-foreground">
-            {userStats.rank > 5 ? "..." : ""}
+            {userStats.rank > 5 ? '...' : ''}
           </div>
           <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5 border-primary/30 ring-2 ring-primary/20">
             <div className="flex items-center gap-3">

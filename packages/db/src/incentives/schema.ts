@@ -1,5 +1,5 @@
-import type { ActivityCategoryId, ActivityId } from "data";
-import { type InferSelectModel, relations } from "drizzle-orm";
+import type { ActivityCategoryId, ActivityId } from 'data';
+import { type InferSelectModel, relations } from 'drizzle-orm';
 import {
   pgTableCreator,
   timestamp,
@@ -15,7 +15,7 @@ import {
   pgEnum,
   integer,
   bigint,
-} from "drizzle-orm/pg-core";
+} from 'drizzle-orm/pg-core';
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -25,30 +25,30 @@ import {
  */
 export const createTable = pgTableCreator((name) => name);
 
-export const challenge = createTable("challenge", {
-  challenge: char("challenge", { length: 64 })
+export const challenge = createTable('challenge', {
+  challenge: char('challenge', { length: 64 })
     .primaryKey()
     .$defaultFn(() =>
       Array.from(crypto.getRandomValues(new Uint8Array(32)))
-        .map((b) => b.toString(16).padStart(2, "0"))
-        .join("")
+        .map((b) => b.toString(16).padStart(2, '0'))
+        .join(''),
     ),
-  createdAt: timestamp("created_at", {
-    mode: "date",
+  createdAt: timestamp('created_at', {
+    mode: 'date',
     withTimezone: true,
   })
     .notNull()
     .defaultNow(),
 });
 
-export const users = createTable("user", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  identityAddress: varchar("identity_address", { length: 255 })
+export const users = createTable('user', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  identityAddress: varchar('identity_address', { length: 255 })
     .unique()
     .notNull(),
-  label: varchar("label", { length: 255 }),
-  createdAt: timestamp("created_at", {
-    mode: "date",
+  label: varchar('label', { length: 255 }),
+  createdAt: timestamp('created_at', {
+    mode: 'date',
     withTimezone: true,
   })
     .defaultNow()
@@ -62,14 +62,14 @@ export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
 }));
 
-export const sessions = createTable("session", {
-  id: text("id").primaryKey(),
-  userId: uuid("user_id")
+export const sessions = createTable('session', {
+  id: text('id').primaryKey(),
+  userId: uuid('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" })
+    .references(() => users.id, { onDelete: 'cascade' })
     .$defaultFn(() => crypto.randomUUID()),
-  expiresAt: timestamp("expires_at", {
-    mode: "date",
+  expiresAt: timestamp('expires_at', {
+    mode: 'date',
     withTimezone: true,
   }).notNull(),
 });
@@ -78,14 +78,14 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
   user: one(users, { fields: [sessions.userId], references: [users.id] }),
 }));
 
-export const accounts = createTable("account", {
-  userId: uuid("user_id")
+export const accounts = createTable('account', {
+  userId: uuid('user_id')
     .notNull()
-    .references(() => users.id, { onDelete: "cascade" }),
-  address: varchar("address", { length: 255 }).notNull().primaryKey(),
-  label: varchar("label", { length: 255 }).notNull(),
-  createdAt: timestamp("created_at", {
-    mode: "date",
+    .references(() => users.id, { onDelete: 'cascade' }),
+  address: varchar('address', { length: 255 }).notNull().primaryKey(),
+  label: varchar('label', { length: 255 }).notNull(),
+  createdAt: timestamp('created_at', {
+    mode: 'date',
     withTimezone: true,
   })
     .defaultNow()
@@ -97,36 +97,36 @@ export const accountsRelations = relations(accounts, ({ one }) => ({
 }));
 
 export const verificationTokens = createTable(
-  "verification_token",
+  'verification_token',
   {
-    identifier: varchar("identifier", { length: 255 }).notNull(),
-    token: varchar("token", { length: 255 }).notNull(),
-    expires: timestamp("expires", {
-      mode: "date",
+    identifier: varchar('identifier', { length: 255 }).notNull(),
+    token: varchar('token', { length: 255 }).notNull(),
+    expires: timestamp('expires', {
+      mode: 'date',
       withTimezone: true,
     }).notNull(),
   },
   (vt) => ({
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
-  })
+  }),
 );
 
 // Enums (Define possible string values for enum columns)
-export const seasonStatusEnum = pgEnum("season_status", [
-  "upcoming",
-  "active",
-  "completed",
+export const seasonStatusEnum = pgEnum('season_status', [
+  'upcoming',
+  'active',
+  'completed',
 ]);
-export const activityWeekStatusEnum = pgEnum("activity_week_status", [
-  "active",
-  "inactive",
+export const activityWeekStatusEnum = pgEnum('activity_week_status', [
+  'active',
+  'inactive',
 ]);
 
 // Season Table
-export const seasons = createTable("season", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  name: varchar("name", { length: 255 }).notNull(),
-  status: seasonStatusEnum("status").notNull().default("upcoming"),
+export const seasons = createTable('season', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  name: varchar('name', { length: 255 }).notNull(),
+  status: seasonStatusEnum('status').notNull().default('upcoming'),
 });
 
 export const seasonsRelations = relations(seasons, ({ many }) => ({
@@ -134,20 +134,20 @@ export const seasonsRelations = relations(seasons, ({ many }) => ({
 }));
 
 // Week Table
-export const weeks = createTable("week", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  seasonId: uuid("season_id")
+export const weeks = createTable('week', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  seasonId: uuid('season_id')
     .notNull()
-    .references(() => seasons.id, { onDelete: "cascade" }),
-  startDate: timestamp("start_date", {
-    mode: "date",
+    .references(() => seasons.id, { onDelete: 'cascade' }),
+  startDate: timestamp('start_date', {
+    mode: 'date',
     withTimezone: true,
   }).notNull(),
-  endDate: timestamp("end_date", {
-    mode: "date",
+  endDate: timestamp('end_date', {
+    mode: 'date',
     withTimezone: true,
   }).notNull(),
-  processed: boolean("processed").notNull().default(false),
+  processed: boolean('processed').notNull().default(false),
 });
 
 export const weeksRelations = relations(weeks, ({ one, many }) => ({
@@ -155,16 +155,16 @@ export const weeksRelations = relations(weeks, ({ one, many }) => ({
   activityWeeks: many(activityWeeks),
 }));
 
-export const activityCategories = createTable("activity_categories", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  description: text("description"),
+export const activityCategories = createTable('activity_categories', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  description: text('description'),
 });
 
-export const dapps = createTable("dapp", {
-  id: text("id").primaryKey(),
-  name: text("name").notNull(),
-  website: text("website").notNull(),
+export const dapps = createTable('dapp', {
+  id: text('id').primaryKey(),
+  name: text('name').notNull(),
+  website: text('website').notNull(),
 });
 
 export const dappsRelations = relations(dapps, ({ many }) => ({
@@ -172,16 +172,16 @@ export const dappsRelations = relations(dapps, ({ many }) => ({
 }));
 
 // Activity Table
-export const activities = createTable("activity", {
-  id: text("id").primaryKey(),
-  name: text("name"),
-  description: text("description"),
-  category: text("category")
+export const activities = createTable('activity', {
+  id: text('id').primaryKey(),
+  name: text('name'),
+  description: text('description'),
+  category: text('category')
     .notNull()
-    .references(() => activityCategories.id, { onDelete: "cascade" }),
-  dapp: text("dapp").references(() => dapps.id),
-  componentAddresses: jsonb("component_addresses").$defaultFn(() => []),
-  data: jsonb("data").$defaultFn(() => ({})),
+    .references(() => activityCategories.id, { onDelete: 'cascade' }),
+  dapp: text('dapp').references(() => dapps.id),
+  componentAddresses: jsonb('component_addresses').$defaultFn(() => []),
+  data: jsonb('data').$defaultFn(() => ({})),
 });
 
 export const activitiesRelations = relations(activities, ({ many, one }) => ({
@@ -198,26 +198,26 @@ export const activitiesRelations = relations(activities, ({ many, one }) => ({
 
 // ActivityWeek Junction Table
 export const activityWeeks = createTable(
-  "activity_week",
+  'activity_week',
   {
-    activityId: text("activity_id")
+    activityId: text('activity_id')
       .notNull()
-      .references(() => activities.id, { onDelete: "cascade" }),
-    weekId: uuid("week_id")
+      .references(() => activities.id, { onDelete: 'cascade' }),
+    weekId: uuid('week_id')
       .notNull()
-      .references(() => weeks.id, { onDelete: "cascade" }),
-    multiplier: decimal("multiplier", { precision: 18, scale: 6 })
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    multiplier: decimal('multiplier', { precision: 18, scale: 6 })
       .notNull()
-      .default("1"),
+      .default('1'),
   },
   (table) => {
     return {
       pk: primaryKey({
-        name: "activity_week_pk",
+        name: 'activity_week_pk',
         columns: [table.activityId, table.weekId],
       }),
     };
-  }
+  },
 );
 
 export const activityWeeksRelations = relations(activityWeeks, ({ one }) => ({
@@ -229,22 +229,22 @@ export const activityWeeksRelations = relations(activityWeeks, ({ one }) => ({
 }));
 
 export const activityCategoryWeeks = createTable(
-  "activity_category_weeks",
+  'activity_category_weeks',
   {
-    activityCategoryId: text("activity_category_id")
+    activityCategoryId: text('activity_category_id')
       .notNull()
-      .references(() => activityCategories.id, { onDelete: "cascade" }),
-    weekId: uuid("week_id")
+      .references(() => activityCategories.id, { onDelete: 'cascade' }),
+    weekId: uuid('week_id')
       .notNull()
-      .references(() => weeks.id, { onDelete: "cascade" }),
-    pointsPool: integer("points_pool").notNull(),
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    pointsPool: integer('points_pool').notNull(),
   },
   (table) => ({
     pk: primaryKey({
-      name: "activity_category_week_pk",
+      name: 'activity_category_week_pk',
       columns: [table.weekId, table.activityCategoryId],
     }),
-  })
+  }),
 );
 
 export const activityCategoryWeeksRelations = relations(
@@ -258,48 +258,48 @@ export const activityCategoryWeeksRelations = relations(
       fields: [activityCategoryWeeks.weekId],
       references: [weeks.id],
     }),
-  })
+  }),
 );
 
 // UserActivity Table
 export const events = createTable(
-  "event",
+  'event',
   {
-    transactionId: text("transaction_id").notNull(),
-    eventIndex: integer("event_index").notNull(),
-    dApp: text("dApp").notNull(),
-    stateVersion: integer("state_version").notNull(),
-    timestamp: timestamp("timestamp", {
-      mode: "date",
+    transactionId: text('transaction_id').notNull(),
+    eventIndex: integer('event_index').notNull(),
+    dApp: text('dApp').notNull(),
+    stateVersion: integer('state_version').notNull(),
+    timestamp: timestamp('timestamp', {
+      mode: 'date',
       withTimezone: true,
     }).notNull(),
-    globalEmitter: text("global_emitter").notNull(),
-    packageAddress: text("package_address").notNull(),
-    blueprint: text("blueprint").notNull(),
-    eventName: text("event_name").notNull(),
-    eventData: jsonb("event_data").notNull(),
+    globalEmitter: text('global_emitter').notNull(),
+    packageAddress: text('package_address').notNull(),
+    blueprint: text('blueprint').notNull(),
+    eventName: text('event_name').notNull(),
+    eventData: jsonb('event_data').notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.transactionId, table.eventIndex] }),
-  })
+  }),
 );
 
-export const snapshotStatusEnum = pgEnum("snapshot_status", [
-  "not_started",
-  "processing",
-  "completed",
-  "failed",
+export const snapshotStatusEnum = pgEnum('snapshot_status', [
+  'not_started',
+  'processing',
+  'completed',
+  'failed',
 ]);
 
-export const snapshots = createTable("snapshot", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  timestamp: timestamp("timestamp", {
-    mode: "date",
+export const snapshots = createTable('snapshot', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  timestamp: timestamp('timestamp', {
+    mode: 'date',
     withTimezone: true,
   }),
-  status: snapshotStatusEnum("status").notNull().default("not_started"),
-  updatedAt: timestamp("updated_at", {
-    mode: "date",
+  status: snapshotStatusEnum('status').notNull().default('not_started'),
+  updatedAt: timestamp('updated_at', {
+    mode: 'date',
     withTimezone: true,
   })
     .notNull()
@@ -307,40 +307,40 @@ export const snapshots = createTable("snapshot", {
 });
 
 export const accountBalances = createTable(
-  "account_balances",
+  'account_balances',
   {
-    timestamp: timestamp("timestamp", {
-      mode: "date",
+    timestamp: timestamp('timestamp', {
+      mode: 'date',
       withTimezone: true,
     }).notNull(),
-    accountAddress: varchar("account_address", { length: 255 })
+    accountAddress: varchar('account_address', { length: 255 })
       .notNull()
-      .references(() => accounts.address, { onDelete: "cascade" }),
-    data: jsonb("data").notNull(),
+      .references(() => accounts.address, { onDelete: 'cascade' }),
+    data: jsonb('data').notNull(),
   },
   (table) => ({
     pk: primaryKey({
       columns: [table.accountAddress, table.timestamp],
     }),
     // Note: Indexes will be created per partition, not on the main table
-    timestampIdx: index("idx_account_balances_timestamp").on(table.timestamp),
-    accountIdx: index("idx_account_balances_account").on(table.accountAddress),
-  })
+    timestampIdx: index('idx_account_balances_timestamp').on(table.timestamp),
+    accountIdx: index('idx_account_balances_account').on(table.accountAddress),
+  }),
 );
 
 export const accountActivityPoints = createTable(
-  "account_activity_points",
+  'account_activity_points',
   {
-    accountAddress: varchar("account_address", { length: 255 })
+    accountAddress: varchar('account_address', { length: 255 })
       .notNull()
-      .references(() => accounts.address, { onDelete: "cascade" }),
-    weekId: uuid("week_id")
+      .references(() => accounts.address, { onDelete: 'cascade' }),
+    weekId: uuid('week_id')
       .notNull()
-      .references(() => weeks.id, { onDelete: "cascade" }),
-    activityId: text("activity_id")
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    activityId: text('activity_id')
       .notNull()
-      .references(() => activities.id, { onDelete: "cascade" }),
-    activityPoints: decimal("activity_points", {
+      .references(() => activities.id, { onDelete: 'cascade' }),
+    activityPoints: decimal('activity_points', {
       precision: 18,
       scale: 6,
     }).notNull(),
@@ -349,7 +349,7 @@ export const accountActivityPoints = createTable(
     pk: primaryKey({
       columns: [table.accountAddress, table.weekId, table.activityId],
     }),
-  })
+  }),
 );
 
 export const accountActivityPointsRelations = relations(
@@ -367,62 +367,62 @@ export const accountActivityPointsRelations = relations(
       fields: [accountActivityPoints.activityId],
       references: [activities.id],
     }),
-  })
+  }),
 );
 
 export const userSeasonPoints = createTable(
-  "user_season_points",
+  'user_season_points',
   {
-    userId: uuid("user_id")
+    userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    seasonId: uuid("season_id")
+      .references(() => users.id, { onDelete: 'cascade' }),
+    seasonId: uuid('season_id')
       .notNull()
-      .references(() => seasons.id, { onDelete: "cascade" }),
-    weekId: uuid("week_id")
+      .references(() => seasons.id, { onDelete: 'cascade' }),
+    weekId: uuid('week_id')
       .notNull()
-      .references(() => weeks.id, { onDelete: "cascade" }),
-    points: decimal("points", { precision: 18, scale: 6 }).notNull(),
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    points: decimal('points', { precision: 18, scale: 6 }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.seasonId, table.weekId] }),
-  })
+  }),
 );
 
 export const seasonPointsMultiplier = createTable(
-  "season_points_multiplier",
+  'season_points_multiplier',
   {
-    userId: uuid("user_id")
+    userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    weekId: uuid("week_id")
+      .references(() => users.id, { onDelete: 'cascade' }),
+    weekId: uuid('week_id')
       .notNull()
-      .references(() => weeks.id, { onDelete: "cascade" }),
-    multiplier: decimal("multiplier", { precision: 18, scale: 2 }).notNull(),
-    cumulativeTWABalance: decimal("cumulative_twa_balance", {
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    multiplier: decimal('multiplier', { precision: 18, scale: 2 }).notNull(),
+    cumulativeTWABalance: decimal('cumulative_twa_balance', {
       precision: 18,
       scale: 2,
     }).notNull(),
-    totalTWABalance: decimal("total_twa_balance", {
+    totalTWABalance: decimal('total_twa_balance', {
       precision: 18,
       scale: 2,
     }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.weekId] }),
-  })
+  }),
 );
 
 export const transactionFees = createTable(
-  "transaction_fees",
+  'transaction_fees',
   {
-    transactionId: text("transaction_id").notNull(),
-    accountAddress: varchar("account_address", { length: 255 })
+    transactionId: text('transaction_id').notNull(),
+    accountAddress: varchar('account_address', { length: 255 })
       .notNull()
-      .references(() => accounts.address, { onDelete: "cascade" }),
-    fee: decimal("fee", { precision: 18, scale: 2 }).notNull(),
-    timestamp: timestamp("timestamp", {
-      mode: "date",
+      .references(() => accounts.address, { onDelete: 'cascade' }),
+    fee: decimal('fee', { precision: 18, scale: 2 }).notNull(),
+    timestamp: timestamp('timestamp', {
+      mode: 'date',
       withTimezone: true,
     }).notNull(),
   },
@@ -430,18 +430,18 @@ export const transactionFees = createTable(
     pk: primaryKey({
       columns: [table.timestamp, table.accountAddress, table.transactionId],
     }),
-  })
+  }),
 );
 
 export const componentCalls = createTable(
-  "component_calls",
+  'component_calls',
   {
-    userId: uuid("user_id")
+    userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    data: jsonb("data").notNull(),
-    timestamp: timestamp("timestamp", {
-      mode: "date",
+      .references(() => users.id, { onDelete: 'cascade' }),
+    data: jsonb('data').notNull(),
+    timestamp: timestamp('timestamp', {
+      mode: 'date',
       withTimezone: true,
     }).notNull(),
   },
@@ -449,53 +449,61 @@ export const componentCalls = createTable(
     pk: primaryKey({
       columns: [table.userId, table.timestamp],
     }),
-  })
+  }),
 );
 
 export const tradingVolume = createTable(
-  "trading_volume",
+  'trading_volume',
   {
-    accountAddress: varchar("account_address", { length: 255 })
+    accountAddress: varchar('account_address', { length: 255 })
       .notNull()
-      .references(() => accounts.address, { onDelete: "cascade" }),
-    timestamp: timestamp("timestamp", {
-      mode: "date",
+      .references(() => accounts.address, { onDelete: 'cascade' }),
+    timestamp: timestamp('timestamp', {
+      mode: 'date',
       withTimezone: true,
     }).notNull(),
-    data: jsonb("data").notNull(),
+    data: jsonb('data').notNull(),
   },
   (table) => ({
     pk: primaryKey({
       columns: [table.timestamp, table.accountAddress],
     }),
-  })
+  }),
 );
 
-export const config = createTable("config", {
-  key: varchar("key", { length: 255 }).primaryKey(),
-  value: jsonb("value").notNull(),
+export const config = createTable('config', {
+  key: varchar('key', { length: 255 }).primaryKey(),
+  value: jsonb('value').notNull(),
 });
 
-export const componentWhitelist = createTable("component_whitelist", {
-  componentAddress: varchar("component_address", { length: 255 }).primaryKey(),
-}, (table) => ({
-  componentAddressIdx: index("idx_component_whitelist_address").on(table.componentAddress),
-}));
+export const componentWhitelist = createTable(
+  'component_whitelist',
+  {
+    componentAddress: varchar('component_address', {
+      length: 255,
+    }).primaryKey(),
+  },
+  (table) => ({
+    componentAddressIdx: index('idx_component_whitelist_address').on(
+      table.componentAddress,
+    ),
+  }),
+);
 
 // Leaderboard pre-aggregation tables
 export const seasonLeaderboardCache = createTable(
-  "season_leaderboard_cache",
+  'season_leaderboard_cache',
   {
-    seasonId: uuid("season_id")
+    seasonId: uuid('season_id')
       .notNull()
-      .references(() => seasons.id, { onDelete: "cascade" }),
-    userId: uuid("user_id")
+      .references(() => seasons.id, { onDelete: 'cascade' }),
+    userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    totalPoints: decimal("total_points", { precision: 18, scale: 6 }).notNull(),
-    rank: integer("rank").notNull(),
-    lastUpdated: timestamp("last_updated", {
-      mode: "date",
+      .references(() => users.id, { onDelete: 'cascade' }),
+    totalPoints: decimal('total_points', { precision: 18, scale: 6 }).notNull(),
+    rank: integer('rank').notNull(),
+    lastUpdated: timestamp('last_updated', {
+      mode: 'date',
       withTimezone: true,
     })
       .notNull()
@@ -503,26 +511,29 @@ export const seasonLeaderboardCache = createTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.seasonId, table.userId] }),
-    rankIdx: index("idx_season_leaderboard_rank").on(table.seasonId, table.rank),
-    userIdx: index("idx_season_leaderboard_user").on(table.userId),
-  })
+    rankIdx: index('idx_season_leaderboard_rank').on(
+      table.seasonId,
+      table.rank,
+    ),
+    userIdx: index('idx_season_leaderboard_user').on(table.userId),
+  }),
 );
 
 export const categoryLeaderboardCache = createTable(
-  "category_leaderboard_cache",
+  'category_leaderboard_cache',
   {
-    weekId: uuid("week_id")
+    weekId: uuid('week_id')
       .notNull()
-      .references(() => weeks.id, { onDelete: "cascade" }),
-    categoryId: varchar("category_id", { length: 255 }).notNull(),
-    userId: uuid("user_id")
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    categoryId: varchar('category_id', { length: 255 }).notNull(),
+    userId: uuid('user_id')
       .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    totalPoints: decimal("total_points", { precision: 18, scale: 6 }).notNull(),
-    rank: integer("rank").notNull(),
-    activityBreakdown: jsonb("activity_breakdown").notNull(),
-    lastUpdated: timestamp("last_updated", {
-      mode: "date",
+      .references(() => users.id, { onDelete: 'cascade' }),
+    totalPoints: decimal('total_points', { precision: 18, scale: 6 }).notNull(),
+    rank: integer('rank').notNull(),
+    activityBreakdown: jsonb('activity_breakdown').notNull(),
+    lastUpdated: timestamp('last_updated', {
+      mode: 'date',
       withTimezone: true,
     })
       .notNull()
@@ -530,22 +541,22 @@ export const categoryLeaderboardCache = createTable(
   },
   (table) => ({
     pk: primaryKey({ columns: [table.weekId, table.categoryId, table.userId] }),
-    rankIdx: index("idx_category_leaderboard_rank").on(
+    rankIdx: index('idx_category_leaderboard_rank').on(
       table.weekId,
       table.categoryId,
-      table.rank
+      table.rank,
     ),
-    userIdx: index("idx_category_leaderboard_user").on(table.userId),
-  })
+    userIdx: index('idx_category_leaderboard_user').on(table.userId),
+  }),
 );
 
-export const leaderboardStatsCache = createTable("leaderboard_stats_cache", {
-  cacheKey: varchar("cache_key", { length: 255 }).primaryKey(),
-  totalUsers: integer("total_users").notNull(),
-  median: decimal("median", { precision: 18, scale: 6 }),
-  average: decimal("average", { precision: 18, scale: 6 }),
-  lastUpdated: timestamp("last_updated", {
-    mode: "date",
+export const leaderboardStatsCache = createTable('leaderboard_stats_cache', {
+  cacheKey: varchar('cache_key', { length: 255 }).primaryKey(),
+  totalUsers: integer('total_users').notNull(),
+  median: decimal('median', { precision: 18, scale: 6 }),
+  average: decimal('average', { precision: 18, scale: 6 }),
+  lastUpdated: timestamp('last_updated', {
+    mode: 'date',
     withTimezone: true,
   })
     .notNull()
@@ -561,21 +572,21 @@ export type Season = InferSelectModel<typeof seasons>;
 export type Week = InferSelectModel<typeof weeks>;
 export type ActivityCategory = Omit<
   InferSelectModel<typeof activityCategories>,
-  "id"
+  'id'
 > & {
   id: ActivityCategoryId;
 };
 export type NewActivity = typeof activities.$inferInsert;
 export type Activity = Omit<
   InferSelectModel<typeof activities>,
-  "category" | "id"
+  'category' | 'id'
 > & {
   id: ActivityId;
   category: ActivityCategoryId;
 };
 export type ActivityWeek = Omit<
   InferSelectModel<typeof activityWeeks>,
-  "activityId"
+  'activityId'
 > & {
   activityId: ActivityId;
 };
@@ -586,7 +597,7 @@ export type AccountBalance = InferSelectModel<typeof accountBalances>;
 
 export type AccountActivityPoints = Omit<
   InferSelectModel<typeof accountActivityPoints>,
-  "activityId"
+  'activityId'
 > & {
   activityId: ActivityId;
 };
@@ -600,6 +611,12 @@ export type ComponentCall = InferSelectModel<typeof componentCalls>;
 export type ComponentWhitelist = InferSelectModel<typeof componentWhitelist>;
 
 // Leaderboard cache types
-export type SeasonLeaderboardCache = InferSelectModel<typeof seasonLeaderboardCache>;
-export type CategoryLeaderboardCache = InferSelectModel<typeof categoryLeaderboardCache>;
-export type LeaderboardStatsCache = InferSelectModel<typeof leaderboardStatsCache>;
+export type SeasonLeaderboardCache = InferSelectModel<
+  typeof seasonLeaderboardCache
+>;
+export type CategoryLeaderboardCache = InferSelectModel<
+  typeof categoryLeaderboardCache
+>;
+export type LeaderboardStatsCache = InferSelectModel<
+  typeof leaderboardStatsCache
+>;

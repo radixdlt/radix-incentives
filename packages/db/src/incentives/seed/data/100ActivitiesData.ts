@@ -1,445 +1,445 @@
-import { ActivityCategoryId } from "data";
+import { ActivityCategoryId } from 'data';
 
 export const activitiesData = [
   // === LENDING ACTIVITIES (50 total) ===
   // Root lending activities (25 tokens)
   {
-    id: "root_lend_floop",
+    id: 'root_lend_floop',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_dfp2",
+    id: 'root_lend_dfp2',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_early",
+    id: 'root_lend_early',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_caviar",
+    id: 'root_lend_caviar',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_weft",
+    id: 'root_lend_weft',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_xUsdt",
+    id: 'root_lend_xUsdt',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_root",
+    id: 'root_lend_root',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_stab",
+    id: 'root_lend_stab',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_fusd",
+    id: 'root_lend_fusd',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_popey",
+    id: 'root_lend_popey',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_radit",
+    id: 'root_lend_radit',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_dan",
+    id: 'root_lend_dan',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_hug",
+    id: 'root_lend_hug',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_surge",
+    id: 'root_lend_surge',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_sUsd",
+    id: 'root_lend_sUsd',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_delphi",
+    id: 'root_lend_delphi',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_astrl",
+    id: 'root_lend_astrl',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_ilis",
+    id: 'root_lend_ilis',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_oci",
+    id: 'root_lend_oci',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_mox",
+    id: 'root_lend_mox',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_foton",
+    id: 'root_lend_foton',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_fomo",
+    id: 'root_lend_fomo',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_xrd",
+    id: 'root_lend_xrd',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_xusdc",
+    id: 'root_lend_xusdc',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "root_lend_lsulp",
+    id: 'root_lend_lsulp',
     category: ActivityCategoryId.lendingStables,
   },
 
   // Weft lending activities (25 tokens)
   {
-    id: "weft_lend_floop",
+    id: 'weft_lend_floop',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_dfp2",
+    id: 'weft_lend_dfp2',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_early",
+    id: 'weft_lend_early',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_caviar",
+    id: 'weft_lend_caviar',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_weft",
+    id: 'weft_lend_weft',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_xUsdt",
+    id: 'weft_lend_xUsdt',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_root",
+    id: 'weft_lend_root',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_stab",
+    id: 'weft_lend_stab',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_fusd",
+    id: 'weft_lend_fusd',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_popey",
+    id: 'weft_lend_popey',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_radit",
+    id: 'weft_lend_radit',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_dan",
+    id: 'weft_lend_dan',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_hug",
+    id: 'weft_lend_hug',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_surge",
+    id: 'weft_lend_surge',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_sUsd",
+    id: 'weft_lend_sUsd',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_delphi",
+    id: 'weft_lend_delphi',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_astrl",
+    id: 'weft_lend_astrl',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_ilis",
+    id: 'weft_lend_ilis',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_oci",
+    id: 'weft_lend_oci',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_mox",
+    id: 'weft_lend_mox',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_foton",
+    id: 'weft_lend_foton',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_fomo",
+    id: 'weft_lend_fomo',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_xrd",
+    id: 'weft_lend_xrd',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_xusdc",
+    id: 'weft_lend_xusdc',
     category: ActivityCategoryId.lendingStables,
   },
   {
-    id: "weft_lend_lsulp",
+    id: 'weft_lend_lsulp',
     category: ActivityCategoryId.lendingStables,
   },
 
   // === DEX LIQUIDITY ACTIVITIES (25 total) ===
   // C9 DEX LP activities
   {
-    id: "c9_lp_xrd-xusdc",
+    id: 'c9_lp_xrd-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_floop-xrd",
+    id: 'c9_lp_floop-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_dfp2-xrd",
+    id: 'c9_lp_dfp2-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_early-xrd",
+    id: 'c9_lp_early-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_caviar-xrd",
+    id: 'c9_lp_caviar-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_xUsdt-xusdc",
+    id: 'c9_lp_xUsdt-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_stab-xusdc",
+    id: 'c9_lp_stab-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_fusd-xusdc",
+    id: 'c9_lp_fusd-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "c9_lp_lsulp-xrd",
+    id: 'c9_lp_lsulp-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
 
   // DefiPlaza LP activities
   {
-    id: "defiPlaza_lp_xrd-xusdc",
+    id: 'defiPlaza_lp_xrd-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_floop-xrd",
+    id: 'defiPlaza_lp_floop-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_dfp2-xrd",
+    id: 'defiPlaza_lp_dfp2-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_early-xrd",
+    id: 'defiPlaza_lp_early-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_caviar-xrd",
+    id: 'defiPlaza_lp_caviar-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_xUsdt-xusdc",
+    id: 'defiPlaza_lp_xUsdt-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_stab-xusdc",
+    id: 'defiPlaza_lp_stab-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_fusd-xusdc",
+    id: 'defiPlaza_lp_fusd-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "defiPlaza_lp_lsulp-xrd",
+    id: 'defiPlaza_lp_lsulp-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
 
   // OCI LP activities
   {
-    id: "oci_lp_xrd-xusdc",
+    id: 'oci_lp_xrd-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_floop-xrd",
+    id: 'oci_lp_floop-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_dfp2-xrd",
+    id: 'oci_lp_dfp2-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_early-xrd",
+    id: 'oci_lp_early-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_caviar-xrd",
+    id: 'oci_lp_caviar-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_xUsdt-xusdc",
+    id: 'oci_lp_xUsdt-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_stab-xusdc",
+    id: 'oci_lp_stab-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_fusd-xusdc",
+    id: 'oci_lp_fusd-xusdc',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
   {
-    id: "oci_lp_lsulp-xrd",
+    id: 'oci_lp_lsulp-xrd',
     category: ActivityCategoryId.provideStablesLiquidityToDex,
   },
 
   // === MAINTAIN XRD BALANCE ACTIVITIES (20 total) ===
   // Core holding activities
   {
-    id: "hold_xrd",
+    id: 'hold_xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "hold_stakedXrd",
+    id: 'hold_stakedXrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "hold_unstakedXrd",
+    id: 'hold_unstakedXrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "hold_lsulp",
+    id: 'hold_lsulp',
     category: ActivityCategoryId.maintainXrdBalance,
   },
 
   // DEX LP positions that maintain XRD exposure
   {
-    id: "c9_hold_xrd-xusdc",
+    id: 'c9_hold_xrd-xusdc',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "c9_hold_floop-xrd",
+    id: 'c9_hold_floop-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "c9_hold_lsulp-xrd",
+    id: 'c9_hold_lsulp-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "defiPlaza_hold_xrd-xusdc",
+    id: 'defiPlaza_hold_xrd-xusdc',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "defiPlaza_hold_floop-xrd",
+    id: 'defiPlaza_hold_floop-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "defiPlaza_hold_lsulp-xrd",
+    id: 'defiPlaza_hold_lsulp-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "oci_hold_xrd-xusdc",
+    id: 'oci_hold_xrd-xusdc',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "oci_hold_floop-xrd",
+    id: 'oci_hold_floop-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "oci_hold_lsulp-xrd",
+    id: 'oci_hold_lsulp-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
 
   // Lending positions that maintain XRD exposure
   {
-    id: "root_hold_xrd",
+    id: 'root_hold_xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "root_hold_lsulp",
+    id: 'root_hold_lsulp',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "weft_hold_xrd",
+    id: 'weft_hold_xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "weft_hold_lsulp",
+    id: 'weft_hold_lsulp',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "weft_hold_staked",
+    id: 'weft_hold_staked',
     category: ActivityCategoryId.maintainXrdBalance,
   },
 
   {
-    id: "componentCalls",
+    id: 'componentCalls',
     category: ActivityCategoryId.componentCalls,
   },
 
   // Additional XRD-adjacent holdings
   {
-    id: "c9_hold_dfp2-xrd",
+    id: 'c9_hold_dfp2-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "defiPlaza_hold_dfp2-xrd",
+    id: 'defiPlaza_hold_dfp2-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
   {
-    id: "oci_hold_dfp2-xrd",
+    id: 'oci_hold_dfp2-xrd',
     category: ActivityCategoryId.maintainXrdBalance,
   },
 
   // === NETWORK AND UTILITY ACTIVITIES (5 total) ===
   {
-    id: "txFees",
+    id: 'txFees',
     category: ActivityCategoryId.transactionFees,
   },
   {
-    id: "common",
+    id: 'common',
     category: ActivityCategoryId.common,
   },
 
   // Additional network activities
   {
-    id: "c9_trade_xrd-xusdc",
+    id: 'c9_trade_xrd-xusdc',
     category: ActivityCategoryId.tradingVolume,
   },
   {
-    id: "defiPlaza_trade_xrd-xusdc",
+    id: 'defiPlaza_trade_xrd-xusdc',
     category: ActivityCategoryId.tradingVolume,
   },
   {
-    id: "oci_trade_xrd-xusdc",
+    id: 'oci_trade_xrd-xusdc',
     category: ActivityCategoryId.tradingVolume,
   },
 ] as const;

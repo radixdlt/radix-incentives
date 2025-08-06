@@ -1,16 +1,16 @@
-import { Context, Layer, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { type Session, sessions, type User, users } from "db/consultation";
-import { eq } from "drizzle-orm";
+import { Context, Layer, Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { type Session, sessions, type User, users } from 'db/consultation';
+import { eq } from 'drizzle-orm';
 
 export class SessionNotFoundError {
-  readonly _tag = "SessionNotFoundError";
+  readonly _tag = 'SessionNotFoundError';
 }
 
-export class GetSessionService extends Context.Tag("GetSessionService")<
+export class GetSessionService extends Context.Tag('GetSessionService')<
   GetSessionService,
   (
-    sessionId: string
+    sessionId: string,
   ) => Effect.Effect<
     { session: Session; user: User },
     DbError | SessionNotFoundError
@@ -39,5 +39,5 @@ export const GetSessionLive = Layer.effect(
 
         return session;
       });
-  })
+  }),
 );

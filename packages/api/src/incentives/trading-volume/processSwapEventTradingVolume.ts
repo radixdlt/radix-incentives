@@ -1,12 +1,15 @@
-import { Effect } from "effect";
-import { groupBy } from "effect/Array";
-import BigNumber from "bignumber.js";
-import type { ActivityId } from "data";
-import { AddTradingVolumeService } from "./addTradingVolume";
-import type { DbError } from "../db/dbClient";
-import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
-import type { EmittableEvent } from "../events/event-matchers/types";
-import { FilterTradingEventsService, type TradingEventWithTokens } from "./filterTradingEvents";
+import { Effect } from 'effect';
+import { groupBy } from 'effect/Array';
+import BigNumber from 'bignumber.js';
+import type { ActivityId } from 'data';
+import { AddTradingVolumeService } from './addTradingVolume';
+import type { DbError } from '../db/dbClient';
+import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
+import type { EmittableEvent } from '../events/event-matchers/types';
+import {
+  FilterTradingEventsService,
+  type TradingEventWithTokens,
+} from './filterTradingEvents';
 
 export type ProcessSwapEventTradingVolumeServiceInput = {
   events: CapturedEvent<EmittableEvent>[];
@@ -31,7 +34,7 @@ type TradingVolumeItem = {
  * Aggregates trading events by activity ID and calculates total USD value per activity
  */
 const aggregateEventsByActivity = (
-  events: TradingEventWithTokens[]
+  events: TradingEventWithTokens[],
 ): { activityId: ActivityId; usdValue: string }[] => {
   const groupedByActivity = groupBy(events, (event) => event.activityId);
   const result: { activityId: ActivityId; usdValue: string }[] = [];
@@ -41,7 +44,7 @@ const aggregateEventsByActivity = (
 
     const aggregatedUsdValue = activityEvents.reduce(
       (acc, event) => acc.plus(event.usdValue),
-      new BigNumber(0)
+      new BigNumber(0),
     );
 
     if (aggregatedUsdValue.gt(0)) {
@@ -62,7 +65,7 @@ const aggregateEventsByActivity = (
 const processTransactionGroup = (
   transactionId: string,
   events: TradingEventWithTokens[],
-  highestFeePayerMap: Map<string, string>
+  highestFeePayerMap: Map<string, string>,
 ): TradingVolumeItem | null => {
   if (!events.length) return null;
 
@@ -84,27 +87,34 @@ const processTransactionGroup = (
  * Groups events by transaction and aggregates USD values by activity before persisting
  */
 export class ProcessSwapEventTradingVolumeService extends Effect.Service<ProcessSwapEventTradingVolumeService>()(
-  "ProcessSwapEventTradingVolumeService",
+  'ProcessSwapEventTradingVolumeService',
   {
     effect: Effect.gen(function* () {
       const addTradingVolumeService = yield* AddTradingVolumeService;
       const filterTradingEventsService = yield* FilterTradingEventsService;
 
-      return Effect.fn(function* (input: ProcessSwapEventTradingVolumeServiceInput) {
+      return Effect.fn(function* (
+        input: ProcessSwapEventTradingVolumeServiceInput,
+      ) {
         const filteredEvents = yield* filterTradingEventsService(input.events);
-        const groupedByTransactionId = groupBy(filteredEvents, (event) => event.transactionId);
+        const groupedByTransactionId = groupBy(
+          filteredEvents,
+          (event) => event.transactionId,
+        );
 
         const items: TradingVolumeItem[] = [];
 
-        for (const [transactionId, events] of Object.entries(groupedByTransactionId)) {
+        for (const [transactionId, events] of Object.entries(
+          groupedByTransactionId,
+        )) {
           if (!events) continue;
-          
+
           const item = processTransactionGroup(
             transactionId,
             events,
-            input.highestFeePayerMap
+            input.highestFeePayerMap,
           );
-          
+
           if (item) {
             items.push(item);
           }
@@ -115,7 +125,8 @@ export class ProcessSwapEventTradingVolumeService extends Effect.Service<Process
         }
       });
     }),
-  }
+  },
 ) {}
 
-export const ProcessSwapEventTradingVolumeLive = ProcessSwapEventTradingVolumeService.Default;
+export const ProcessSwapEventTradingVolumeLive =
+  ProcessSwapEventTradingVolumeService.Default;

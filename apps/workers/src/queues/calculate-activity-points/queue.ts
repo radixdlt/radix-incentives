@@ -1,9 +1,9 @@
-import { createQueue } from "../createQueue";
-import { redisClient } from "../../redis";
-import { calculateActivityPointsWorker } from "./worker";
-import type { CalculateActivityPointsJob } from "./schemas";
-import { Effect } from "effect";
-import { QueueName } from "../types";
+import { createQueue } from '../createQueue';
+import { redisClient } from '../../redis';
+import { calculateActivityPointsWorker } from './worker';
+import type { CalculateActivityPointsJob } from './schemas';
+import { Effect } from 'effect';
+import { QueueName } from '../types';
 
 export const calculateActivityPointsQueue = createQueue<
   CalculateActivityPointsJob,
@@ -23,7 +23,7 @@ export const calculateActivityPointsQueue = createQueue<
           stack: error.stack,
           failedReason: error.cause,
         });
-      })
+      }),
     );
   },
 });

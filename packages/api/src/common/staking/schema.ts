@@ -1,4 +1,4 @@
-import s from "sbor-ez-mode";
+import s from 'sbor-ez-mode';
 
 export const claimNftSchema = s.struct({
   name: s.string(),

@@ -1,13 +1,13 @@
-import { Config, Effect } from "effect";
+import { Config, Effect } from 'effect';
 
-import type { StateEntityDetailsOperationRequest } from "@radixdlt/babylon-gateway-api-sdk";
-import { EntityNonFungibleDataService } from "./entityNonFungiblesData";
+import type { StateEntityDetailsOperationRequest } from '@radixdlt/babylon-gateway-api-sdk';
+import { EntityNonFungibleDataService } from './entityNonFungiblesData';
 
-import type { AtLedgerState } from "./schemas";
-import { GetNftResourceManagersService } from "./getNftResourceManagers";
+import type { AtLedgerState } from './schemas';
+import { GetNftResourceManagersService } from './getNftResourceManagers';
 
 export class InvalidInputError {
-  readonly _tag = "InvalidInputError";
+  readonly _tag = 'InvalidInputError';
   constructor(readonly error: unknown) {}
 }
 
@@ -15,15 +15,15 @@ type GetNonFungibleBalanceInput = {
   addresses: string[];
   at_ledger_state: AtLedgerState;
   resourceAddresses?: string[];
-  options?: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+  options?: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
 };
 
 export type GetNonFungibleBalanceOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof GetNonFungibleBalanceService)["Service"]>>
+  Awaited<ReturnType<(typeof GetNonFungibleBalanceService)['Service']>>
 >;
 
 export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleBalanceService>()(
-  "GetNonFungibleBalanceService",
+  'GetNonFungibleBalanceService',
   {
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
@@ -31,7 +31,7 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
         yield* GetNftResourceManagersService;
 
       const getNonFungibleDataConcurrency = yield* Config.number(
-        "GATEWAY_GET_NON_FUNGIBLE_DATA_CONCURRENCY"
+        'GATEWAY_GET_NON_FUNGIBLE_DATA_CONCURRENCY',
       ).pipe(Config.withDefault(15));
 
       const getNonFungibleData = Effect.fn(function* (input: {
@@ -70,12 +70,12 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
               resourceAddress: item.resourceAddress,
               items,
             };
-          })
+          }),
         );
       });
 
-      return Effect.fn("getNonFungibleBalanceService")(function* (
-        input: GetNonFungibleBalanceInput
+      return Effect.fn('getNonFungibleBalanceService')(function* (
+        input: GetNonFungibleBalanceInput,
       ) {
         const optIns = { ...input.options, non_fungible_include_nfids: true };
 
@@ -86,7 +86,7 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
             at_ledger_state: input.at_ledger_state,
             resourceAddresses: input.resourceAddresses,
             options: optIns,
-          }
+          },
         );
 
         // Get non-fungible data for each account
@@ -103,11 +103,11 @@ export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleB
               nonFungibleResources: nonFungibleResourcesWithNftData,
             };
           }),
-          { concurrency: getNonFungibleDataConcurrency }
-        ).pipe(Effect.withSpan("get non-fungible data for each account"));
+          { concurrency: getNonFungibleDataConcurrency },
+        ).pipe(Effect.withSpan('get non-fungible data for each account'));
 
         return { items: result };
       });
     }),
-  }
+  },
 ) {}

@@ -1,20 +1,20 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import type { AtLedgerState } from "../../gateway/schemas";
-import { QuantaSwap } from "./schemas";
+import type { AtLedgerState } from '../../gateway/schemas';
+import { QuantaSwap } from './schemas';
 
-import { GetComponentStateService } from "../../gateway/getComponentState";
+import { GetComponentStateService } from '../../gateway/getComponentState';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-} from "../../gateway/getNonFungibleBalance";
-import { GetQuantaSwapBinMapService } from "./getQuantaSwapBinMap";
-import { GetShapeLiquidityClaimsService } from "./getShapeLiquidityClaims";
-import { I192 } from "../../helpers/i192";
-import { calculatePrice, calculateTick } from "./tickCalculator";
+} from '../../gateway/getNonFungibleBalance';
+import { GetQuantaSwapBinMapService } from './getQuantaSwapBinMap';
+import { GetShapeLiquidityClaimsService } from './getShapeLiquidityClaims';
+import { I192 } from '../../helpers/i192';
+import { calculatePrice, calculateTick } from './tickCalculator';
 
 export class FailedToParseComponentStateError {
-  readonly _tag = "FailedToParseComponentStateError";
+  readonly _tag = 'FailedToParseComponentStateError';
   constructor(readonly error: unknown) {}
 }
 
@@ -36,7 +36,7 @@ export type ShapeLiquidityAsset = {
 };
 
 export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiquidityAssetsService>()(
-  "GetShapeLiquidityAssetsService",
+  'GetShapeLiquidityAssetsService',
   {
     effect: Effect.gen(function* () {
       const getComponentStateService = yield* GetComponentStateService;
@@ -60,13 +60,13 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
           schema: QuantaSwap,
           at_ledger_state: input.at_ledger_state,
           options: {
-            explicitMetadata: ["token_x", "token_y"],
+            explicitMetadata: ['token_x', 'token_y'],
           },
         });
 
         if (componentStateResult.length === 0) {
           return yield* Effect.fail(
-            new FailedToParseComponentStateError("Component not found")
+            new FailedToParseComponentStateError('Component not found'),
           );
         }
 
@@ -74,42 +74,42 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
         if (!componentResult) {
           return yield* Effect.fail(
             new FailedToParseComponentStateError(
-              "Component result is undefined"
-            )
+              'Component result is undefined',
+            ),
           );
         }
 
         const { state: quantaSwapState, details } = componentResult;
 
         const metadata = details.explicit_metadata?.items;
-        const token_x = metadata?.find((item) => item.key === "token_x");
-        const token_y = metadata?.find((item) => item.key === "token_y");
+        const token_x = metadata?.find((item) => item.key === 'token_x');
+        const token_y = metadata?.find((item) => item.key === 'token_y');
 
         const token_x_address =
-          token_x?.value.typed.type === "GlobalAddress"
+          token_x?.value.typed.type === 'GlobalAddress'
             ? token_x.value.typed.value
             : undefined;
 
         const token_y_address =
-          token_y?.value.typed.type === "GlobalAddress"
+          token_y?.value.typed.type === 'GlobalAddress'
             ? token_y.value.typed.value
             : undefined;
 
         if (!token_x_address || !token_y_address) {
           return yield* Effect.fail(
-            new FailedToParseComponentStateError("Token X or Y is not defined")
+            new FailedToParseComponentStateError('Token X or Y is not defined'),
           );
         }
 
         const binSpan = quantaSwapState.bin_span;
         const currentTick =
-          quantaSwapState.tick_index.current.variant === "Some"
+          quantaSwapState.tick_index.current.variant === 'Some'
             ? quantaSwapState.tick_index.current.value[0]
             : undefined;
 
         if (!currentTick)
           return yield* Effect.fail(
-            new FailedToParseComponentStateError("Current tick is not defined")
+            new FailedToParseComponentStateError('Current tick is not defined'),
           );
 
         const nonFungibleBalances = input.nonFungibleBalance
@@ -124,10 +124,10 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
             .filter(
               (nft) =>
                 nft.resourceAddress ===
-                quantaSwapState.liquidity_receipt_manager
+                quantaSwapState.liquidity_receipt_manager,
             )
             .flatMap((nft) => nft.items)
-            .map((nft) => ({ ...nft, address: item.address }))
+            .map((nft) => ({ ...nft, address: item.address })),
         );
 
         const nftIds = shapeLiquidityNfts.map((nft) => nft.id);
@@ -156,7 +156,7 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
         const binMapData = yield* getQuantaSwapBinMapService({
           address: quantaSwapState.bin_map,
           at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("getQuantaSwapBinMapService"));
+        }).pipe(Effect.withSpan('getQuantaSwapBinMapService'));
 
         const nfts = yield* getShapeLiquidityClaimsService({
           componentAddress: input.componentAddress,
@@ -165,13 +165,13 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
           nonFungibleLocalIds: nftIds,
           at_ledger_state: input.at_ledger_state,
         }).pipe(
-          Effect.withSpan("getShapeLiquidityClaimsService"),
+          Effect.withSpan('getShapeLiquidityClaimsService'),
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,
               address: nftOwnerMap.get(nft.nonFungibleId)!,
-            }))
-          )
+            })),
+          ),
         );
 
         return yield* Effect.forEach(
@@ -235,7 +235,7 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
                   // Bin at current tick - X and Y tokens
                   isActive = true;
                   const share = new I192(claimAmount).divide(
-                    active_total_claim
+                    active_total_claim,
                   );
                   const amount_x = active_x.multiply(share);
                   const amount_y = active_y.multiply(share);
@@ -265,7 +265,7 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
                 currentPrice: currentPrice.toString(),
               });
             });
-          }
+          },
         ).pipe(
           Effect.map((items) => {
             const addressAssetMap = new Map<string, ShapeLiquidityAsset[]>();
@@ -284,15 +284,15 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
                 at_ledger_state: input.at_ledger_state,
                 address,
                 items,
-              })
+              }),
             );
 
             return result;
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const GetShapeLiquidityAssetsLive =

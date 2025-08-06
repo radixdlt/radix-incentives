@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { between, inArray, and } from "drizzle-orm";
-import { type AccountBalance, accountBalances } from "db/incentives";
-import { groupBy } from "effect/Array";
-import type { ActivityId, AccountBalanceData } from "data";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { between, inArray, and } from 'drizzle-orm';
+import { type AccountBalance, accountBalances } from 'db/incentives';
+import { groupBy } from 'effect/Array';
+import type { ActivityId, AccountBalanceData } from 'data';
 
 type AccountBalanceWithData = AccountBalance & {
   data: AccountBalanceData[];
@@ -22,7 +22,7 @@ export type AccountBalanceGroupedByAddressAndActivityId = {
 };
 
 export class AccountBalanceService extends Effect.Service<AccountBalanceService>()(
-  "AccountBalanceService",
+  'AccountBalanceService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -43,16 +43,16 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
                   between(
                     accountBalances.timestamp,
                     input.startDate,
-                    input.endDate
-                  )
-                )
+                    input.endDate,
+                  ),
+                ),
               )
               .then((result) => result as AccountBalanceWithData[]),
           catch: (error) => new DbError(error),
         });
 
       return {
-        byAddressesAndDateRange: Effect.fn("byAddressesAndDateRange")(
+        byAddressesAndDateRange: Effect.fn('byAddressesAndDateRange')(
           function* (input: {
             startDate: Date;
             endDate: Date;
@@ -64,7 +64,7 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
 
             const groupedByAddress = groupBy(
               result,
-              (item) => item.accountAddress
+              (item) => item.accountAddress,
             );
 
             const output: AccountBalanceGroupedByAddressAndActivityId[] =
@@ -74,12 +74,12 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
                     balance.data.map((data) => ({
                       ...data,
                       timestamp: balance.timestamp,
-                    }))
+                    })),
                   );
 
                   const groupedByActivityId = groupBy(
                     flattedDataWithTimestamp,
-                    (item) => item.activityId
+                    (item) => item.activityId,
                   );
 
                   return {
@@ -91,13 +91,13 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
                         items: data,
                       })),
                   };
-                }
+                },
               );
 
             return output;
-          }
+          },
         ),
       };
     }),
-  }
+  },
 ) {}

@@ -1,17 +1,18 @@
-import { Exit } from "effect";
-import { createDependencyLayer } from "api/consultation";
-import { db } from "db/consultation";
+import { Exit } from 'effect';
+import { createDependencyLayer } from 'api/consultation';
+import { db } from 'db/consultation';
 
-const { calculateVotingPowerAtStateVersion, calculateTWAVotingPower } = createDependencyLayer({
-  dbClient: db,
-});
+const { calculateVotingPowerAtStateVersion, calculateTWAVotingPower } =
+  createDependencyLayer({
+    dbClient: db,
+  });
 
 const START_DATE = process.env.START_DATE;
 const END_DATE = process.env.END_DATE;
-const ACCOUNTS_FILE_PATH = process.env.ACCOUNTS_FILE_PATH || "./accounts.ts";
+const ACCOUNTS_FILE_PATH = process.env.ACCOUNTS_FILE_PATH || './accounts.ts';
 
 if (!START_DATE || !END_DATE) {
-  throw new Error("START_DATE and END_DATE must be set");
+  throw new Error('START_DATE and END_DATE must be set');
 }
 
 const chunkArray = <T>(array: T[], size: number): T[][] => {
@@ -34,20 +35,26 @@ const main = async () => {
 
   // Split addresses into batches of 1000
   const addressBatches = chunkArray<{
-    account_address: string, selected_option: string, rola_proof: {
+    account_address: string;
+    selected_option: string;
+    rola_proof: {
       curve: string;
       publicKey: string;
       signature: string;
-    }
+    };
   }>(accounts, 1000);
-  console.log(`Processing ${addressBatches.length} batches of up to 1000 addresses each`);
+  console.log(
+    `Processing ${addressBatches.length} batches of up to 1000 addresses each`,
+  );
 
   const allResults: unknown[] = [];
   const failedBatches: number[] = [];
 
   for (let i = 0; i < addressBatches.length; i++) {
     const batch = addressBatches[i];
-    console.log(`Processing batch ${i + 1}/${addressBatches.length} with ${batch.length} addresses`);
+    console.log(
+      `Processing batch ${i + 1}/${addressBatches.length} with ${batch.length} addresses`,
+    );
 
     const result = await calculateVotingPowerAtStateVersion({
       accounts: batch,
@@ -63,13 +70,16 @@ const main = async () => {
 
     // if failure record the batch number and continue
     if (Exit.isFailure(result)) {
-      console.error(`Batch ${i + 1} failed:`, JSON.stringify(result.cause, null, 2));
+      console.error(
+        `Batch ${i + 1} failed:`,
+        JSON.stringify(result.cause, null, 2),
+      );
       failedBatches.push(i + 1);
     }
   }
 
   // Report final results
-  console.log("\nProcessing complete:");
+  console.log('\nProcessing complete:');
   console.log(`- Successful batches: ${allResults.length}`);
   console.log(`- Failed batches: ${failedBatches.length}`);
 
@@ -84,7 +94,7 @@ const main = async () => {
 
   // calculate time weighted average
   await calculateTWAVotingPower();
-  console.log("Time weighted average calculated");
+  console.log('Time weighted average calculated');
 };
 
 main();

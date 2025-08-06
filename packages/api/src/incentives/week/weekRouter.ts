@@ -1,7 +1,7 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { Exit } from "effect";
-import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from '../trpc';
+import { TRPCError } from '@trpc/server';
+import { Exit } from 'effect';
+import { z } from 'zod';
 
 export const weekRouter = createTRPCRouter({
   getWeeks: publicProcedure.query(async ({ ctx }) => {
@@ -13,7 +13,7 @@ export const weekRouter = createTRPCRouter({
       onSuccess: (value) => value,
       onFailure: (error) => {
         console.error(error);
-        throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
       },
     });
   }),
@@ -24,7 +24,7 @@ export const weekAdminRouter = createTRPCRouter({
     .input(
       z.object({
         weekId: z.string(),
-      })
+      }),
     )
     .query(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.getWeekDetails({
@@ -35,7 +35,7 @@ export const weekAdminRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -45,7 +45,7 @@ export const weekAdminRouter = createTRPCRouter({
         weekId: z.string(),
         activityCategoryId: z.string(),
         pointsPool: z.number(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.updateCategoryWeekPointsPool({
@@ -58,7 +58,7 @@ export const weekAdminRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -68,7 +68,7 @@ export const weekAdminRouter = createTRPCRouter({
         weekId: z.string(),
         activityId: z.string(),
         multiplier: z.number(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.updateActivityWeekMultiplier({
@@ -81,7 +81,7 @@ export const weekAdminRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),
@@ -92,7 +92,7 @@ export const weekAdminRouter = createTRPCRouter({
         seasonId: z.string(),
         startDate: z.date(),
         endDate: z.date(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.createWeek({
@@ -105,7 +105,7 @@ export const weekAdminRouter = createTRPCRouter({
         onSuccess: (value) => value,
         onFailure: (error) => {
           console.error(error);
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR" });
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
     }),

@@ -1,15 +1,15 @@
-import { Context, Layer, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Layer, Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { snapshots, type Snapshot } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { snapshots, type Snapshot } from 'db/incentives';
+import { eq } from 'drizzle-orm';
 
 export type UpdateSnapshotInput = {
   id: string;
-  status: Snapshot["status"];
+  status: Snapshot['status'];
 };
 
-export class UpdateSnapshotService extends Context.Tag("UpdateSnapshotService")<
+export class UpdateSnapshotService extends Context.Tag('UpdateSnapshotService')<
   UpdateSnapshotService,
   (input: UpdateSnapshotInput) => Effect.Effect<void, DbError>
 >() {}
@@ -34,5 +34,5 @@ export const UpdateSnapshotLive = Layer.effect(
         });
       });
     };
-  })
+  }),
 );

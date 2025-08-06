@@ -1,11 +1,15 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { activityWeeks, activities, activityCategoryWeeks } from "db/incentives";
-import { eq, and, sql, asc } from "drizzle-orm";
-import { ActivityId } from "data";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import {
+  activityWeeks,
+  activities,
+  activityCategoryWeeks,
+} from 'db/incentives';
+import { eq, and, sql, asc } from 'drizzle-orm';
+import { ActivityId } from 'data';
 
 export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
-  "ActivityWeekService",
+  'ActivityWeekService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -32,8 +36,8 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
                 .where(
                   and(
                     eq(activityWeeks.weekId, input.weekId),
-                    eq(activityWeeks.activityId, input.activityId)
-                  )
+                    eq(activityWeeks.activityId, input.activityId),
+                  ),
                 ),
             catch: (error) => new DbError(error),
           });
@@ -54,16 +58,16 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
                     {} as Record<
                       string,
                       { activityId: string; weekId: string; multiplier: string }
-                    >
-                  )
-                )
+                    >,
+                  ),
+                ),
               )
             : {};
 
           const items = Object.values(ActivityId).map((item) => ({
             activityId: item,
             weekId: input.toWeekId,
-            multiplier: values[item]?.multiplier ?? "1",
+            multiplier: values[item]?.multiplier ?? '1',
           }));
 
           yield* Effect.tryPromise({
@@ -80,9 +84,9 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
             catch: (error) => new DbError(error),
           });
         }),
-        getActivitiesWithPointsForWeek: Effect.fn(function* (input: { 
-          weekId: string; 
-          categoryId?: string; 
+        getActivitiesWithPointsForWeek: Effect.fn(function* (input: {
+          weekId: string;
+          categoryId?: string;
         }) {
           return yield* Effect.tryPromise({
             try: () =>
@@ -92,15 +96,26 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
                   name: activities.name,
                 })
                 .from(activities)
-                .innerJoin(activityWeeks, eq(activities.id, activityWeeks.activityId))
-                .innerJoin(activityCategoryWeeks, eq(activities.category, activityCategoryWeeks.activityCategoryId))
+                .innerJoin(
+                  activityWeeks,
+                  eq(activities.id, activityWeeks.activityId),
+                )
+                .innerJoin(
+                  activityCategoryWeeks,
+                  eq(
+                    activities.category,
+                    activityCategoryWeeks.activityCategoryId,
+                  ),
+                )
                 .where(
                   and(
                     eq(activityWeeks.weekId, input.weekId),
                     eq(activityCategoryWeeks.weekId, input.weekId),
                     sql`${activityCategoryWeeks.pointsPool} > 0`,
-                    input.categoryId ? eq(activities.category, input.categoryId) : undefined
-                  )
+                    input.categoryId
+                      ? eq(activities.category, input.categoryId)
+                      : undefined,
+                  ),
                 )
                 .orderBy(asc(activities.name)),
             catch: (error) => new DbError(error),
@@ -108,5 +123,5 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
         }),
       };
     }),
-  }
+  },
 ) {}

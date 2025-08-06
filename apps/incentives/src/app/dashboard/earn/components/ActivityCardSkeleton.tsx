@@ -41,7 +41,7 @@ export const ActivityCardSkeleton = () => {
           <Skeleton className="h-3 w-32" />
         </div>
       </CardContent>
-      
+
       <CardFooter className="pt-3">
         <Skeleton className="h-8 w-full" />
       </CardFooter>

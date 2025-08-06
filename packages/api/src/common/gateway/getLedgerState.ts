@@ -1,20 +1,20 @@
-import { Effect } from "effect";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { GatewayError } from "./errors";
+import { Effect } from 'effect';
+import { GatewayApiClientService } from './gatewayApiClient';
+import { GatewayError } from './errors';
 
-import type { AtLedgerState } from "./schemas";
+import type { AtLedgerState } from './schemas';
 
 export type GetLedgerStateInput = {
   at_ledger_state: AtLedgerState;
 };
 
 export class GetLedgerStateService extends Effect.Service<GetLedgerStateService>()(
-  "GetLedgerStateService",
+  'GetLedgerStateService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
-      return Effect.fn("getLedgerStateService")(function* (
-        input: GetLedgerStateInput
+      return Effect.fn('getLedgerStateService')(function* (
+        input: GetLedgerStateInput,
       ) {
         const result = yield* Effect.tryPromise({
           try: () =>
@@ -30,5 +30,5 @@ export class GetLedgerStateService extends Effect.Service<GetLedgerStateService>
         return result.ledger_state;
       });
     }),
-  }
+  },
 ) {}

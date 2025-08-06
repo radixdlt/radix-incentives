@@ -1,6 +1,6 @@
-import { cn } from "~/lib/utils";
-import { MoveUpRight, Award, Zap } from "lucide-react";
-import { Card } from "~/components/ui/card";
+import { cn } from '~/lib/utils';
+import { MoveUpRight, Award, Zap } from 'lucide-react';
+import { Card } from '~/components/ui/card';
 
 export default function DashboardPage() {
   return (
@@ -86,8 +86,8 @@ export default function DashboardPage() {
             </div>
             <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "35%" }}
+                className={cn('h-full bg-primary')}
+                style={{ width: '35%' }}
               />
             </div>
 
@@ -97,8 +97,8 @@ export default function DashboardPage() {
             </div>
             <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "32%" }}
+                className={cn('h-full bg-primary')}
+                style={{ width: '32%' }}
               />
             </div>
 
@@ -108,8 +108,8 @@ export default function DashboardPage() {
             </div>
             <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "21%" }}
+                className={cn('h-full bg-primary')}
+                style={{ width: '21%' }}
               />
             </div>
 
@@ -119,8 +119,8 @@ export default function DashboardPage() {
             </div>
             <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
               <div
-                className={cn("h-full bg-primary")}
-                style={{ width: "12%" }}
+                className={cn('h-full bg-primary')}
+                style={{ width: '12%' }}
               />
             </div>
           </div>

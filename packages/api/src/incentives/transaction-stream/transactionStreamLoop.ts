@@ -1,25 +1,25 @@
-import { Effect } from "effect";
-import { TransactionStreamService } from "./transactionStream";
+import { Effect } from 'effect';
+import { TransactionStreamService } from './transactionStream';
 
-import { weftFinanceEventMatcher } from "../events/event-matchers/weftFinanceEventMatcher";
-import { rootFinanceEventMatcher } from "../events/event-matchers/rootFinanceEventMatcher";
-import { FilterTransactionsService } from "./filterTransactions";
-import { AddEventsToDbService } from "../events/queries/addEventToDb";
-import { caviarnineEventMatcher } from "../events/event-matchers/caviarnineEventMatcher";
-import { hlpEventMatcher } from "../events/event-matchers/hlpEventMatcher";
-import { AddToEventQueueService } from "../events/addToEventQueue";
-import { commonEventMatcher } from "../events/event-matchers/commonEventMatcher";
-import { AddTransactionFeeService } from "../transaction-fee/addTransactionFee";
-import { AddComponentCallsService } from "../component/addComponentCalls";
-import { ProcessSwapEventTradingVolumeService } from "../trading-volume/processSwapEventTradingVolume";
-import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
-import type { EmittableEvent } from "../events/event-matchers/types";
-import { defiPlazaEventMatcher } from "../events/event-matchers/defiPlazaEventMatcher";
-import { ociswapEventMatcher } from "../events/event-matchers/ociswapEventMatcher";
-import { ConfigService } from "../config/configService";
+import { weftFinanceEventMatcher } from '../events/event-matchers/weftFinanceEventMatcher';
+import { rootFinanceEventMatcher } from '../events/event-matchers/rootFinanceEventMatcher';
+import { FilterTransactionsService } from './filterTransactions';
+import { AddEventsToDbService } from '../events/queries/addEventToDb';
+import { caviarnineEventMatcher } from '../events/event-matchers/caviarnineEventMatcher';
+import { hlpEventMatcher } from '../events/event-matchers/hlpEventMatcher';
+import { AddToEventQueueService } from '../events/addToEventQueue';
+import { commonEventMatcher } from '../events/event-matchers/commonEventMatcher';
+import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
+import { AddComponentCallsService } from '../component/addComponentCalls';
+import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processSwapEventTradingVolume';
+import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
+import type { EmittableEvent } from '../events/event-matchers/types';
+import { defiPlazaEventMatcher } from '../events/event-matchers/defiPlazaEventMatcher';
+import { ociswapEventMatcher } from '../events/event-matchers/ociswapEventMatcher';
+import { ConfigService } from '../config/configService';
 
 export class TransactionStreamLoopService extends Effect.Service<TransactionStreamLoopService>()(
-  "TransactionStreamLoopService",
+  'TransactionStreamLoopService',
   {
     effect: Effect.gen(function* () {
       const transactionStreamService = yield* TransactionStreamService;
@@ -38,7 +38,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
 
             if (!stateVersion)
               return yield* Effect.dieMessage(
-                "no state version found, killing streamer"
+                'no state version found, killing streamer',
               );
 
             // transactions which registered accounts are involved in
@@ -47,18 +47,18 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
               stateVersion: nextStateVersion,
               registeredFeePayers,
             } = yield* transactionStreamService(stateVersion).pipe(
-              Effect.flatMap(filterTransactionsService)
+              Effect.flatMap(filterTransactionsService),
             );
 
             if (filteredTransactions.length > 0) {
               // remove duplicate transactions using Map for O(n) performance
               const transactionMap = new Map(
                 filteredTransactions
-                  .filter((tx) => tx.status === "CommittedSuccess")
+                  .filter((tx) => tx.status === 'CommittedSuccess')
                   .map((transaction) => [
                     transaction.transactionId,
                     transaction,
-                  ])
+                  ]),
               );
               const uniqueTransactions = Array.from(transactionMap.values());
 
@@ -100,7 +100,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 if (transaction.highestFeePayer) {
                   highestFeePayerMap.set(
                     transaction.transactionId,
-                    transaction.highestFeePayer
+                    transaction.highestFeePayer,
                   );
                 }
               }
@@ -114,19 +114,19 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 yield* addEventsToDbService(allCapturedEvents);
 
                 yield* Effect.log(
-                  "adding events to event queue",
+                  'adding events to event queue',
                   allCapturedEvents.map((item) => ({
                     dApp: item.dApp,
                     eventData: item.eventData.type,
                     transactionId: item.transactionId,
                     eventIndex: item.eventIndex,
-                  }))
+                  })),
                 );
                 yield* addToEventQueueService(
                   allCapturedEvents.map((event) => ({
                     transactionId: event.transactionId,
                     eventIndex: event.eventIndex,
-                  }))
+                  })),
                 );
               }
 
@@ -138,14 +138,14 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 }))
                 .filter(
                   (
-                    item
+                    item,
                   ): item is {
                     accountAddress: string;
                     componentAddresses: string[];
                     timestamp: Date;
                   } =>
                     item.accountAddress !== undefined &&
-                    item.componentAddresses.length > 0
+                    item.componentAddresses.length > 0,
                 );
 
               if (componentCalls.length > 0) {
@@ -165,5 +165,5 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
         }),
       };
     }),
-  }
+  },
 ) {}

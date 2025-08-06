@@ -1,21 +1,21 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import { DbError } from "../db/dbClient";
-import { AppConfigService } from "../config/appConfig";
-import { DbClientService } from "../db/dbClient";
-import { InvalidateSessionService } from "../session/invalidateSession";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
-import { GetSessionService } from "../session/getSession";
-import { sessions } from "db/consultation";
-import { eq } from "drizzle-orm";
+import { DbError } from '../db/dbClient';
+import { AppConfigService } from '../config/appConfig';
+import { DbClientService } from '../db/dbClient';
+import { InvalidateSessionService } from '../session/invalidateSession';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { sha256 } from '@oslojs/crypto/sha2';
+import { GetSessionService } from '../session/getSession';
+import { sessions } from 'db/consultation';
+import { eq } from 'drizzle-orm';
 
 class SessionExpiredError {
-  readonly _tag = "SessionExpiredError";
+  readonly _tag = 'SessionExpiredError';
 }
 
 export class ValidateSessionTokenService extends Effect.Service<ValidateSessionTokenService>()(
-  "ValidateSessionTokenService",
+  'ValidateSessionTokenService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -26,12 +26,12 @@ export class ValidateSessionTokenService extends Effect.Service<ValidateSessionT
       return {
         run: Effect.fn(function* (token: string) {
           const sessionId = encodeHexLowerCase(
-            sha256(new TextEncoder().encode(token))
+            sha256(new TextEncoder().encode(token)),
           );
 
           yield* Effect.logDebug(
             { token, sessionId },
-            "Validating session token"
+            'Validating session token',
           );
 
           const { user, session } = yield* getSession.run(sessionId);
@@ -42,7 +42,7 @@ export class ValidateSessionTokenService extends Effect.Service<ValidateSessionT
             return yield* invalidateSession
               .run(session.id)
               .pipe(
-                Effect.flatMap(() => Effect.fail(new SessionExpiredError()))
+                Effect.flatMap(() => Effect.fail(new SessionExpiredError())),
               );
           }
 
@@ -58,7 +58,7 @@ export class ValidateSessionTokenService extends Effect.Service<ValidateSessionT
                   .set({
                     expiresAt: new Date(
                       session.expiresAt.getTime() +
-                        appConfig.sessionRefreshThreshold
+                        appConfig.sessionRefreshThreshold,
                     ),
                   })
                   .where(eq(sessions.id, session.id))
@@ -68,7 +68,7 @@ export class ValidateSessionTokenService extends Effect.Service<ValidateSessionT
               Effect.map(([updatedSession]) => ({
                 session: updatedSession,
                 user,
-              }))
+              })),
             );
             return updatedSession;
           }
@@ -77,5 +77,5 @@ export class ValidateSessionTokenService extends Effect.Service<ValidateSessionT
         }),
       };
     }),
-  }
+  },
 ) {}

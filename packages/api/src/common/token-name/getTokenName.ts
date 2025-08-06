@@ -1,15 +1,15 @@
-import { Effect } from "effect";
-import { flatTokenNameMap } from "data";
+import { Effect } from 'effect';
+import { flatTokenNameMap } from 'data';
 
 export class UnknownTokenError extends Error {
-  readonly _tag = "UnknownTokenError";
+  readonly _tag = 'UnknownTokenError';
   constructor(readonly resourceAddress: string) {
     super(`Unknown token resource address: ${resourceAddress}`);
   }
 }
 
 export class GetTokenNameService extends Effect.Service<GetTokenNameService>()(
-  "GetTokenNameService",
+  'GetTokenNameService',
   {
     effect: Effect.gen(function* () {
       return Effect.fn(function* (resourceAddress: string) {
@@ -23,7 +23,7 @@ export class GetTokenNameService extends Effect.Service<GetTokenNameService>()(
         return Effect.fail(new UnknownTokenError(resourceAddress));
       });
     }),
-  }
+  },
 ) {}
 
 export const GetTokenNameLive = GetTokenNameService.Default;

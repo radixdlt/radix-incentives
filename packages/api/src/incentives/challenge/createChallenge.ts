@@ -1,8 +1,8 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { challenge } from "db/consultation";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { challenge } from 'db/consultation';
 
-export class ChallengeService extends Context.Tag("ChallengeService")<
+export class ChallengeService extends Context.Tag('ChallengeService')<
   ChallengeService,
   string
 >() {}
@@ -20,10 +20,10 @@ export const CreateChallengeLive = Layer.effect(
           .then(([value]) => value),
       catch: (error) => new DbError(error),
     });
-    if (!value) return yield* Effect.fail(new DbError("No challenge created"));
+    if (!value) return yield* Effect.fail(new DbError('No challenge created'));
 
     return value.challenge;
-  })
+  }),
 );
 
 export const createChallengeProgram = Effect.gen(function* () {

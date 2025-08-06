@@ -1,61 +1,61 @@
-import { Effect, Layer } from "effect";
-import { GetNonFungibleBalanceService } from "../../gateway/getNonFungibleBalance";
-import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
-import { GetLedgerStateService } from "../../gateway/getLedgerState";
-import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
+import { Effect, Layer } from 'effect';
+import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 
-import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
-import { EntityNonFungiblesPageService } from "../../gateway/entityNonFungiblesPage";
-import { CaviarNineConstants } from "data";
-import { GetResourceHoldersService } from "../../gateway/getResourceHolders";
+import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { CaviarNineConstants } from 'data';
+import { GetResourceHoldersService } from '../../gateway/getResourceHolders';
 import {
   GetShapeLiquidityAssetsLive,
   GetShapeLiquidityAssetsService,
-} from "./getShapeLiquidityAssets";
-import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
-import { KeyValueStoreDataService } from "../../gateway/keyValueStoreData";
-import { KeyValueStoreKeysService } from "../../gateway/keyValueStoreKeys";
-import { GetComponentStateService } from "../../gateway/getComponentState";
-import { GetQuantaSwapBinMapLive } from "./getQuantaSwapBinMap";
-import { GetShapeLiquidityClaimsLive } from "./getShapeLiquidityClaims";
+} from './getShapeLiquidityAssets';
+import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
+import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetQuantaSwapBinMapLive } from './getQuantaSwapBinMap';
+import { GetShapeLiquidityClaimsLive } from './getShapeLiquidityClaims';
 import {
   GetNftResourceManagersService,
   GetNonFungibleIdsService,
-} from "../../gateway";
+} from '../../gateway';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
 const getLedgerStateLive = GetLedgerStateService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const entityNonFungiblesPageServiceLive =
   EntityNonFungiblesPageService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
 const getNonFungibleIdsServiceLive = GetNonFungibleIdsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getNftResourceManagersServiceLive =
   GetNftResourceManagersService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityNonFungiblesPageServiceLive),
-    Layer.provide(getNonFungibleIdsServiceLive)
+    Layer.provide(getNonFungibleIdsServiceLive),
   );
 
 const entityNonFungibleDataLive = EntityNonFungibleDataService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const entityNonFungiblesPageLive = EntityNonFungiblesPageService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(entityNonFungibleDataLive)
+  Layer.provide(entityNonFungibleDataLive),
 );
 
 const getNonfungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
@@ -63,34 +63,34 @@ const getNonfungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
   Layer.provide(getLedgerStateLive),
   Layer.provide(entityNonFungibleDataLive),
   Layer.provide(entityNonFungiblesPageLive),
-  Layer.provide(getNftResourceManagersServiceLive)
+  Layer.provide(getNftResourceManagersServiceLive),
 );
 
 const getResourceHoldersLive = GetResourceHoldersService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getEntityDetailsLive = GetEntityDetailsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const keyValueStoreDataLive = KeyValueStoreDataService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getKeyValueStoreKeysLive = KeyValueStoreKeysService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getKeyValueStoreLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(keyValueStoreDataLive),
-  Layer.provide(getKeyValueStoreKeysLive)
+  Layer.provide(getKeyValueStoreKeysLive),
 );
 
 const getComponentStateLive = GetComponentStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
-  Layer.provide(getEntityDetailsLive)
+  Layer.provide(getEntityDetailsLive),
 );
 
 const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
@@ -98,13 +98,13 @@ const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
   Layer.provide(getLedgerStateLive),
   Layer.provide(getEntityDetailsLive),
   Layer.provide(getKeyValueStoreLive),
-  Layer.provide(getComponentStateLive)
+  Layer.provide(getComponentStateLive),
 );
 
 const getShapeLiquidityClaimsLive = GetShapeLiquidityClaimsLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getEntityDetailsLive),
-  Layer.provide(entityNonFungibleDataLive)
+  Layer.provide(entityNonFungibleDataLive),
 );
 
 const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
@@ -118,11 +118,11 @@ const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
   Layer.provide(getComponentStateLive),
   Layer.provide(getQuantaSwapBinMapLive),
   Layer.provide(getShapeLiquidityClaimsLive),
-  Layer.provide(getNftResourceManagersServiceLive)
+  Layer.provide(getNftResourceManagersServiceLive),
 );
 
-describe("getShapeLiquidityAssets", () => {
-  it("should get the shape liquidity assets", async () => {
+describe('getShapeLiquidityAssets', () => {
+  it('should get the shape liquidity assets', async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const getShapeLiquidityAssetsService =
@@ -132,7 +132,7 @@ describe("getShapeLiquidityAssets", () => {
 
         const state = yield* getLedgerState({
           at_ledger_state: {
-            timestamp: new Date("2025-04-01T00:00:00.000Z"),
+            timestamp: new Date('2025-04-01T00:00:00.000Z'),
           },
         });
 
@@ -146,7 +146,7 @@ describe("getShapeLiquidityAssets", () => {
         });
 
         const addresses = resourceHolders
-          .filter((item) => item.holder_address.startsWith("account_"))
+          .filter((item) => item.holder_address.startsWith('account_'))
           .map((item) => item.holder_address)
           .slice(0, 3);
 
@@ -170,8 +170,8 @@ describe("getShapeLiquidityAssets", () => {
         getResourceHoldersLive,
         getLedgerStateLive,
         getShapeLiquidityAssetsLive,
-        getNftResourceManagersServiceLive
-      )
+        getNftResourceManagersServiceLive,
+      ),
     );
 
     const result = await Effect.runPromise(
@@ -179,8 +179,8 @@ describe("getShapeLiquidityAssets", () => {
         Effect.catchAll((error) => {
           console.error(JSON.stringify(error, null, 2));
           return Effect.fail(error);
-        })
-      )
+        }),
+      ),
     );
 
     expect(result.length).toBeGreaterThan(0);

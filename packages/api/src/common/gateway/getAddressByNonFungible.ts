@@ -1,9 +1,9 @@
-import { Data, Effect } from "effect";
-import type { AtLedgerState } from "./schemas";
-import { GetNonFungibleLocationService } from "./getNonFungibleLocation";
+import { Data, Effect } from 'effect';
+import type { AtLedgerState } from './schemas';
+import { GetNonFungibleLocationService } from './getNonFungibleLocation';
 
 export class EntityNotFoundError extends Data.TaggedError(
-  "EntityNotFoundError"
+  'EntityNotFoundError',
 )<{
   message: string;
 }> {}
@@ -15,7 +15,7 @@ export type GetAddressByNonFungibleServiceInput = {
 };
 
 export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByNonFungibleService>()(
-  "GetAddressByNonFungibleService",
+  'GetAddressByNonFungibleService',
   {
     effect: Effect.gen(function* () {
       const getNonFungibleLocationService =
@@ -23,7 +23,7 @@ export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByN
       return Effect.fn(function* (input: GetAddressByNonFungibleServiceInput) {
         let isBurned = true;
         let nextStateVersion = input.at_ledger_state;
-        let address = "";
+        let address = '';
 
         while (isBurned) {
           const nonFungibleLocationResult =
@@ -39,7 +39,7 @@ export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByN
             return yield* Effect.fail(
               new EntityNotFoundError({
                 message: `Non-fungible location not found for resource address ${input.resourceAddress} and non-fungible id ${input.nonFungibleId}`,
-              })
+              }),
             );
           }
 
@@ -61,5 +61,5 @@ export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByN
         };
       });
     }),
-  }
+  },
 ) {}

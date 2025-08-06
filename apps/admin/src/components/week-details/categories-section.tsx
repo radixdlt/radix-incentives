@@ -44,7 +44,10 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     });
   };
 
-  const startEditingPointsPool = (categoryId: string, currentValue: number | string | { toString(): string }) => {
+  const startEditingPointsPool = (
+    categoryId: string,
+    currentValue: number | string | { toString(): string },
+  ) => {
     setEditingPointsPool(categoryId);
     const valueString = String(currentValue);
     setEditingValue(Number(valueString).toLocaleString());
@@ -66,7 +69,10 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     setEditingValue('');
   };
 
-  const startEditingMultiplier = (activityId: string, currentValue: number | string | { toString(): string }) => {
+  const startEditingMultiplier = (
+    activityId: string,
+    currentValue: number | string | { toString(): string },
+  ) => {
     setEditingMultiplier(activityId);
     const valueString = String(currentValue);
     setEditingMultiplierValue(valueString);
@@ -179,22 +185,23 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                         ).toLocaleString()}
                       </span>
                     )}
-                    {onUpdatePointsPool && editingPointsPool !== category.categoryId && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startEditingPointsPool(
-                            category.categoryId,
-                            category.pointsPool,
-                          );
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    )}
+                    {onUpdatePointsPool &&
+                      editingPointsPool !== category.categoryId && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditingPointsPool(
+                              category.categoryId,
+                              category.pointsPool,
+                            );
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4" />
                     ) : (
@@ -279,21 +286,22 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                   )}
                                 </div>
                                 <div className="flex gap-2">
-                                  {onUpdateMultiplier && editingMultiplier !== activity.id && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="h-8 w-8 p-0"
-                                      onClick={() =>
-                                        startEditingMultiplier(
-                                          activity.id,
-                                          activity.multiplier,
-                                        )
-                                      }
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                  )}
+                                  {onUpdateMultiplier &&
+                                    editingMultiplier !== activity.id && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0"
+                                        onClick={() =>
+                                          startEditingMultiplier(
+                                            activity.id,
+                                            activity.multiplier,
+                                          )
+                                        }
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    )}
                                 </div>
                               </div>
                             </div>

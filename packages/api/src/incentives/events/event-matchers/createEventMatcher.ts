@@ -1,13 +1,13 @@
 import type {
   TransformedEvent,
   TransformedTransaction,
-} from "../../transaction-stream/transformEvent";
+} from '../../transaction-stream/transformEvent';
 import type {
   StructDefinition,
   StructSchema,
   OrderedTupleSchema,
-} from "sbor-ez-mode";
-import { Effect } from "effect";
+} from 'sbor-ez-mode';
+import { Effect } from 'effect';
 
 export type CapturedEvent<U> = {
   dApp: string;
@@ -29,20 +29,20 @@ export type ParseEventDataOutput<
 > = ReturnType<typeof parseEventData<T, R>>;
 
 export class FailedToParseEventDataError {
-  readonly _tag = "FailedToParseEventDataError";
+  readonly _tag = 'FailedToParseEventDataError';
   constructor(readonly error: unknown) {}
 }
 
 export const parseEventData = <T extends StructDefinition, R extends boolean>(
   event: TransformedEvent,
-  schema: OrderedTupleSchema<[StructSchema<T, R>]> | StructSchema<T, R>
+  schema: OrderedTupleSchema<[StructSchema<T, R>]> | StructSchema<T, R>,
 ) => {
   return Effect.gen(function* () {
     const parsedResult = schema.safeParse(event.event.payload);
 
     if (parsedResult.isErr()) {
       return yield* Effect.fail(
-        new FailedToParseEventDataError(parsedResult.error)
+        new FailedToParseEventDataError(parsedResult.error),
       );
     }
 
@@ -60,7 +60,7 @@ export const parseEventData = <T extends StructDefinition, R extends boolean>(
 };
 
 export type EventMatcherFn<T extends StructDefinition, R extends boolean> = (
-  event: TransformedEvent
+  event: TransformedEvent,
 ) => ParseEventDataOutput<T, R> | undefined;
 
 export const createEventMatcher =
@@ -70,11 +70,11 @@ export const createEventMatcher =
       category: string;
     },
     matcherFn: (
-      event: TransformedEvent
+      event: TransformedEvent,
     ) => Effect.Effect<
-      CapturedEvent<T>["eventData"] | null,
+      CapturedEvent<T>['eventData'] | null,
       FailedToParseEventDataError
-    >
+    >,
   ) =>
   (transactions: TransformedTransaction[]) => {
     return Effect.gen(function* () {
@@ -97,7 +97,7 @@ export const createEventMatcher =
                 ...value,
               };
             });
-          }).pipe(Effect.map((item) => item.filter((item) => item !== null)))
+          }).pipe(Effect.map((item) => item.filter((item) => item !== null))),
       );
       return matchedTransactions.flat();
     });

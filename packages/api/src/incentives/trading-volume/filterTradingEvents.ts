@@ -1,20 +1,20 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import type { EmittableEvent } from "../events/event-matchers/types";
-import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
-import type { CaviarnineSwapEvent } from "../events/event-matchers/caviarnineEventMatcher";
+import type { EmittableEvent } from '../events/event-matchers/types';
+import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
+import type { CaviarnineSwapEvent } from '../events/event-matchers/caviarnineEventMatcher';
 import {
   shapeLiquidityComponentSet,
   defiPlazaComponentSet,
   type ActivityId,
-} from "data";
-import { GetUsdValueService } from "../token-price/getUsdValue";
-import BigNumber from "bignumber.js";
+} from 'data';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import BigNumber from 'bignumber.js';
 
-import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
-import type { HLPEmittableEvents } from "../events/event-matchers/hlpEventMatcher";
-import type { OciswapSwapEvent } from "../events/event-matchers/ociswapEventMatcher";
-import { AddressValidationService } from "../../common/address-validation/addressValidation";
+import type { DefiPlazaSwapEvent } from '../events/event-matchers/defiPlazaEventMatcher';
+import type { HLPEmittableEvents } from '../events/event-matchers/hlpEventMatcher';
+import type { OciswapSwapEvent } from '../events/event-matchers/ociswapEventMatcher';
+import { AddressValidationService } from '../../common/address-validation/addressValidation';
 
 export type TradingEvent = CaviarnineSwapEvent;
 
@@ -28,11 +28,11 @@ export type TradingEventWithTokens = {
 };
 
 export type FilterTradingEventsOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof FilterTradingEventsService)["Service"]>>
+  Awaited<ReturnType<(typeof FilterTradingEventsService)['Service']>>
 >;
 
 export class FilterTradingEventsService extends Effect.Service<FilterTradingEventsService>()(
-  "FilterTradingEventsService",
+  'FilterTradingEventsService',
   {
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
@@ -42,13 +42,13 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
 
         for (const event of input) {
           if (
-            event.dApp === "Caviarnine" &&
-            event.eventData.type === "SwapEvent"
+            event.dApp === 'Caviarnine' &&
+            event.eventData.type === 'SwapEvent'
           ) {
             const swapEvent = event as CapturedEvent<CaviarnineSwapEvent>;
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (activityId) {
@@ -58,12 +58,12 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
 
               // Check if this is a precision pool SwapEvent (has amount_change_x/y)
               if (
-                "amount_change_x" in swapData &&
-                "amount_change_y" in swapData
+                'amount_change_x' in swapData &&
+                'amount_change_y' in swapData
               ) {
                 // Precision pool swap event
                 const pool = shapeLiquidityComponentSet.get(
-                  swapEvent.globalEmitter
+                  swapEvent.globalEmitter,
                 );
 
                 if (pool) {
@@ -90,8 +90,8 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
                   }
                 }
               } else if (
-                "input_resource" in swapData &&
-                "input_amount" in swapData
+                'input_resource' in swapData &&
+                'input_amount' in swapData
               ) {
                 // HLP or SimplePool swap event
                 inputToken = swapData.input_resource;
@@ -118,15 +118,15 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
           }
 
           if (
-            event.dApp === "DefiPlaza" &&
-            event.eventData.type === "SwapEvent"
+            event.dApp === 'DefiPlaza' &&
+            event.eventData.type === 'SwapEvent'
           ) {
             const swapEvent = event as CapturedEvent<DefiPlazaSwapEvent>;
 
             const pool = defiPlazaComponentSet.get(swapEvent.globalEmitter);
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (pool && activityId) {
@@ -169,11 +169,11 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
             }
           }
 
-          if (event.dApp === "HLP" && event.eventData.type === "SwapEvent") {
+          if (event.dApp === 'HLP' && event.eventData.type === 'SwapEvent') {
             const swapEvent = event as CapturedEvent<HLPEmittableEvents>;
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (activityId) {
@@ -199,13 +199,13 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
           }
 
           if (
-            event.dApp === "Ociswap" &&
-            event.eventData.type === "SwapEvent"
+            event.dApp === 'Ociswap' &&
+            event.eventData.type === 'SwapEvent'
           ) {
             const swapEvent = event as CapturedEvent<OciswapSwapEvent>;
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (activityId) {
@@ -234,7 +234,7 @@ export class FilterTradingEventsService extends Effect.Service<FilterTradingEven
         return tradingEvents;
       });
     }),
-  }
+  },
 ) {}
 
 export const FilterTradingEventsServiceLive =

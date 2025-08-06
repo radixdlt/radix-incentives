@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const calculateSeasonPointsJobSchema = z.object({
   weekId: z.string(),

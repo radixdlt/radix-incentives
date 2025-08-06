@@ -1,25 +1,25 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 import {
   activities,
   activityWeeks,
   type Week,
   type ActivityWeek,
-} from "db/incentives";
-import { eq } from "drizzle-orm";
-import type { ActivityId } from "data";
-import type { Activity } from "./activity";
+} from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import type { ActivityId } from 'data';
+import type { Activity } from './activity';
 
 export class NotFoundError {
-  readonly _tag = "NotFoundError";
+  readonly _tag = 'NotFoundError';
   constructor(readonly message: string) {}
 }
 
 export type GetActivityByIdError = DbError | NotFoundError;
 
 export class GetActivityByIdService extends Context.Tag(
-  "GetActivityByIdService"
+  'GetActivityByIdService',
 )<
   GetActivityByIdService,
   (input: { id: string }) => Effect.Effect<
@@ -48,7 +48,7 @@ export const GetActivityByIdLive = Layer.effect(
 
         if (!activityResult) {
           return yield* Effect.fail(
-            new NotFoundError(`activity ${input.id} not found`)
+            new NotFoundError(`activity ${input.id} not found`),
           );
         }
 
@@ -71,5 +71,5 @@ export const GetActivityByIdLive = Layer.effect(
           })),
         };
       });
-  })
+  }),
 );

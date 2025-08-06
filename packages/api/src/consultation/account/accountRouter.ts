@@ -1,8 +1,8 @@
-import { createTRPCRouter, protectedProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
+import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { TRPCError } from '@trpc/server';
 
-import type { Account } from "db/consultation";
-import { verifyAccountOwnershipInputSchema } from "./verifyAccountOwnership";
+import type { Account } from 'db/consultation';
+import { verifyAccountOwnershipInputSchema } from './verifyAccountOwnership';
 
 export const accountRouter = createTRPCRouter({
   verifyAccountOwnership: protectedProcedure
@@ -14,29 +14,29 @@ export const accountRouter = createTRPCRouter({
         userId,
       });
 
-      if (result._tag === "Failure") {
+      if (result._tag === 'Failure') {
         console.error(result.cause);
 
-        if (result.cause._tag === "Fail") {
+        if (result.cause._tag === 'Fail') {
           switch (result.cause.error._tag) {
-            case "InvalidChallengeError":
-            case "InvalidProofError":
-            case "ParseRolaProofInputError":
-            case "VerifyRolaProofError":
+            case 'InvalidChallengeError':
+            case 'InvalidProofError':
+            case 'ParseRolaProofInputError':
+            case 'VerifyRolaProofError':
               throw new TRPCError({
-                code: "BAD_REQUEST",
-                message: "Invalid account ownership proof",
+                code: 'BAD_REQUEST',
+                message: 'Invalid account ownership proof',
               });
-            case "AccountAlreadyRegisteredError":
+            case 'AccountAlreadyRegisteredError':
               throw new TRPCError({
-                code: "BAD_REQUEST",
+                code: 'BAD_REQUEST',
                 message: result.cause.error.error,
               });
           }
         }
 
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: 'INTERNAL_SERVER_ERROR',
         });
       }
 
@@ -47,11 +47,11 @@ export const accountRouter = createTRPCRouter({
     const userId = ctx.session.user.id;
     const result = await ctx.dependencyLayer.getAccounts(userId);
 
-    if (result._tag === "Failure") {
+    if (result._tag === 'Failure') {
       console.error(result.cause);
 
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+        code: 'INTERNAL_SERVER_ERROR',
       });
     }
 

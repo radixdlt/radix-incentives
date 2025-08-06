@@ -1,17 +1,17 @@
 export const ActivityCategoryId = {
-  maintainXrdBalance: "maintainXrdBalance",
-  provideStablesLiquidityToDex: "provideStablesLiquidityToDex",
-  provideBlueChipLiquidityToDex: "provideBlueChipLiquidityToDex",
-  provideNativeLiquidityToDex: "provideNativeLiquidityToDex",
-  provideXrdDerivativeLiquidityToDex: "provideXrdDerivativeLiquidityToDex",
-  lendingStables: "lendingStables",
-  lendingBlueChips: "lendingBlueChips",
-  lendingNative: "lendingNative",
-  lendingXrdDerivative: "lendingXrdDerivative",
-  transactionFees: "transactionFees",
-  componentCalls: "componentCalls",
-  tradingVolume: "tradingVolume",
-  common: "common",
+  maintainXrdBalance: 'maintainXrdBalance',
+  provideStablesLiquidityToDex: 'provideStablesLiquidityToDex',
+  provideBlueChipLiquidityToDex: 'provideBlueChipLiquidityToDex',
+  provideNativeLiquidityToDex: 'provideNativeLiquidityToDex',
+  provideXrdDerivativeLiquidityToDex: 'provideXrdDerivativeLiquidityToDex',
+  lendingStables: 'lendingStables',
+  lendingBlueChips: 'lendingBlueChips',
+  lendingNative: 'lendingNative',
+  lendingXrdDerivative: 'lendingXrdDerivative',
+  transactionFees: 'transactionFees',
+  componentCalls: 'componentCalls',
+  tradingVolume: 'tradingVolume',
+  common: 'common',
 } as const;
 
 export type ActivityCategoryId = keyof typeof ActivityCategoryId;
@@ -22,54 +22,54 @@ export const activityCategoriesData: {
 }[] = [
   {
     id: ActivityCategoryId.maintainXrdBalance,
-    name: "Maintain XRD balance",
+    name: 'Maintain XRD balance',
   },
   {
     id: ActivityCategoryId.provideStablesLiquidityToDex,
-    name: "Provide stables liquidity to a DEX",
+    name: 'Provide stables liquidity to a DEX',
   },
   {
     id: ActivityCategoryId.provideBlueChipLiquidityToDex,
-    name: "Provide blue chip liquidity to a DEX",
+    name: 'Provide blue chip liquidity to a DEX',
   },
   {
     id: ActivityCategoryId.provideNativeLiquidityToDex,
-    name: "Provide native liquidity to a DEX",
+    name: 'Provide native liquidity to a DEX',
   },
   {
     id: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
-    name: "Provide XRD derivative liquidity to a DEX",
+    name: 'Provide XRD derivative liquidity to a DEX',
   },
   {
     id: ActivityCategoryId.lendingStables,
-    name: "Lend stables",
+    name: 'Lend stables',
   },
   {
     id: ActivityCategoryId.lendingBlueChips,
-    name: "Lend blue chips",
+    name: 'Lend blue chips',
   },
   {
     id: ActivityCategoryId.lendingNative,
-    name: "Lend native tokens",
+    name: 'Lend native tokens',
   },
   {
     id: ActivityCategoryId.lendingXrdDerivative,
-    name: "Lend XRD derivatives",
+    name: 'Lend XRD derivatives',
   },
   {
     id: ActivityCategoryId.transactionFees,
-    name: "Paid transaction fees",
+    name: 'Paid transaction fees',
   },
   {
     id: ActivityCategoryId.componentCalls,
-    name: "Component calls",
+    name: 'Component calls',
   },
   {
     id: ActivityCategoryId.tradingVolume,
-    name: "Trading volume",
+    name: 'Trading volume',
   },
   {
     id: ActivityCategoryId.common,
-    name: "Common activities",
+    name: 'Common activities',
   },
 ];

@@ -1,9 +1,9 @@
-import { createQueue } from "../createQueue";
-import { redisClient } from "../../redis";
-import { seasonPointsMultiplierWorker } from "./worker";
-import type { SeasonPointsMultiplierJob } from "./schemas";
-import { Effect } from "effect";
-import { QueueName } from "../types";
+import { createQueue } from '../createQueue';
+import { redisClient } from '../../redis';
+import { seasonPointsMultiplierWorker } from './worker';
+import type { SeasonPointsMultiplierJob } from './schemas';
+import { Effect } from 'effect';
+import { QueueName } from '../types';
 
 export const seasonPointsMultiplierQueue = createQueue<
   SeasonPointsMultiplierJob,
@@ -23,7 +23,7 @@ export const seasonPointsMultiplierQueue = createQueue<
           stack: error.stack,
           failedReason: error.cause,
         });
-      })
+      }),
     );
   },
 });

@@ -1,5 +1,5 @@
-import type { Account } from "db/consultation";
-import { UserAvatar } from "~/components/ui/UserAvatar";
+import type { Account } from 'db/consultation';
+import { UserAvatar } from '~/components/ui/UserAvatar';
 
 const AccountCard = ({ account }: { account: Account }) => (
   <div className="border-t">

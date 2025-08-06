@@ -1,42 +1,42 @@
-import { Config, Effect } from "effect";
-import { BigNumber } from "bignumber.js";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { EntityFungiblesPageService } from "./entityFungiblesPage";
-import { GatewayError } from "./errors";
+import { Config, Effect } from 'effect';
+import { BigNumber } from 'bignumber.js';
+import { GatewayApiClientService } from './gatewayApiClient';
+import { EntityFungiblesPageService } from './entityFungiblesPage';
+import { GatewayError } from './errors';
 import type {
   StateEntityDetailsOperationRequest,
   StateEntityDetailsResponseItem,
-} from "@radixdlt/babylon-gateway-api-sdk";
+} from '@radixdlt/babylon-gateway-api-sdk';
 
-import { chunker } from "../helpers/chunker";
+import { chunker } from '../helpers/chunker';
 
-import type { AtLedgerState } from "./schemas";
+import type { AtLedgerState } from './schemas';
 
 export type GetFungibleBalanceOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof GetFungibleBalanceService)["Service"]>>
+  Awaited<ReturnType<(typeof GetFungibleBalanceService)['Service']>>
 >;
 
 export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalanceService>()(
-  "GetFungibleBalanceService",
+  'GetFungibleBalanceService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
 
       const chunkSize = yield* Config.number(
-        "GATEWAY_GET_FUNGIBLE_BALANCE_CHUNK_SIZE"
+        'GATEWAY_GET_FUNGIBLE_BALANCE_CHUNK_SIZE',
       ).pipe(Config.withDefault(20));
 
       const concurrency = yield* Config.number(
-        "GATEWAY_GET_FUNGIBLE_BALANCE_CONCURRENCY"
+        'GATEWAY_GET_FUNGIBLE_BALANCE_CONCURRENCY',
       ).pipe(Config.withDefault(5));
 
-      const aggregationLevel = "Global";
+      const aggregationLevel = 'Global';
 
       const entityFungiblesPageService = yield* EntityFungiblesPageService;
 
       const getAggregatedFungibleBalance = Effect.fn(function* (
         item: StateEntityDetailsResponseItem,
-        at_ledger_state: AtLedgerState
+        at_ledger_state: AtLedgerState,
       ) {
         const address = item.address;
 
@@ -58,7 +58,7 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
 
         const fungibleResources = allFungibleResources
           .map((item) => {
-            if (item.aggregation_level === "Global") {
+            if (item.aggregation_level === 'Global') {
               const { resource_address: resourceAddress, amount } = item;
 
               return {
@@ -70,12 +70,12 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
           })
           .filter(
             (
-              item
+              item,
             ): item is {
               resourceAddress: string;
               amount: BigNumber;
               lastUpdatedStateVersion: number;
-            } => !!item && item?.amount.gt(0)
+            } => !!item && item?.amount.gt(0),
           );
 
         return {
@@ -86,14 +86,14 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
         };
       });
 
-      return Effect.fn("getFungibleBalanceService")(function* (
+      return Effect.fn('getFungibleBalanceService')(function* (
         input: Omit<
-          StateEntityDetailsOperationRequest["stateEntityDetailsRequest"],
-          "at_ledger_state"
+          StateEntityDetailsOperationRequest['stateEntityDetailsRequest'],
+          'at_ledger_state'
         > & {
           at_ledger_state: AtLedgerState;
-          options?: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
-        }
+          options?: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
+        },
       ) {
         const stateEntityDetailsResults = yield* Effect.forEach(
           chunker(input.addresses, chunkSize),
@@ -115,17 +115,17 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
           }),
           {
             concurrency,
-          }
+          },
         ).pipe(Effect.map((results) => results.flat()));
 
         const fungibleBalanceResults = yield* Effect.forEach(
           stateEntityDetailsResults,
           (item) => getAggregatedFungibleBalance(item, input.at_ledger_state),
-          { concurrency }
+          { concurrency },
         ).pipe(Effect.map((results) => results.flat()));
 
         return fungibleBalanceResults;
       });
     }),
-  }
+  },
 ) {}

@@ -1,26 +1,26 @@
-import { Config, Effect } from "effect";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { GatewayError } from "./errors";
+import { Config, Effect } from 'effect';
+import { GatewayApiClientService } from './gatewayApiClient';
+import { GatewayError } from './errors';
 import type {
   NonFungibleResourcesCollectionItemVaultAggregated,
   StateEntityDetailsOperationRequest,
   StateEntityDetailsResponseItem,
-} from "@radixdlt/babylon-gateway-api-sdk";
-import { EntityNonFungiblesPageService } from "./entityNonFungiblesPage";
-import { chunker } from "../helpers/chunker";
+} from '@radixdlt/babylon-gateway-api-sdk';
+import { EntityNonFungiblesPageService } from './entityNonFungiblesPage';
+import { chunker } from '../helpers/chunker';
 
-import type { AtLedgerState } from "./schemas";
-import { GetNonFungibleIdsService } from "./getNonFungibleIds";
+import type { AtLedgerState } from './schemas';
+import { GetNonFungibleIdsService } from './getNonFungibleIds';
 
 type GetNftResourceManagersInput = {
   addresses: string[];
   at_ledger_state: AtLedgerState;
   resourceAddresses?: string[];
-  options?: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+  options?: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
 };
 
 export class GetNftResourceManagersService extends Effect.Service<GetNftResourceManagersService>()(
-  "GetNftResourceManagersService",
+  'GetNftResourceManagersService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
@@ -29,22 +29,22 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
       const getNonFungibleIdsService = yield* GetNonFungibleIdsService;
 
       const getNftResourceManagersConcurrency = yield* Config.number(
-        "GET_NFT_RESOURCE_MANAGERS_CONCURRENCY"
+        'GET_NFT_RESOURCE_MANAGERS_CONCURRENCY',
       ).pipe(Config.withDefault(10));
 
       const stateEntityDetailsChunkSize = yield* Config.number(
-        "GATEWAY_STATE_ENTITY_DETAILS_CHUNK_SIZE"
+        'GATEWAY_STATE_ENTITY_DETAILS_CHUNK_SIZE',
       ).pipe(Config.withDefault(20));
 
       const stateEntityDetailsConcurrency = yield* Config.number(
-        "GATEWAY_STATE_ENTITY_DETAILS_CONCURRENCY"
+        'GATEWAY_STATE_ENTITY_DETAILS_CONCURRENCY',
       ).pipe(Config.withDefault(10));
 
       const getNftIdsConcurrency = yield* Config.number(
-        "GET_NFT_IDS_CONCURRENCY"
+        'GET_NFT_IDS_CONCURRENCY',
       ).pipe(Config.withDefault(20));
 
-      const AGGREGATION_LEVEL = "Vault";
+      const AGGREGATION_LEVEL = 'Vault';
 
       const getNonFungibleResourceVaultPage = ({
         address,
@@ -56,7 +56,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
         address: string;
         cursor?: string;
         resourceAddress: string;
-        optIns: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+        optIns: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
         at_ledger_state: AtLedgerState;
       }) =>
         Effect.tryPromise({
@@ -71,7 +71,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
               },
             }),
           catch: (error) => new GatewayError({ error }),
-        }).pipe(Effect.withSpan("entityNonFungibleResourceVaultPage"));
+        }).pipe(Effect.withSpan('entityNonFungibleResourceVaultPage'));
 
       const getNftIds = Effect.fn(function* ({
         resourceManager,
@@ -80,7 +80,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
         address,
       }: {
         resourceManager: NonFungibleResourcesCollectionItemVaultAggregated;
-        optIns: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+        optIns: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
         at_ledger_state: AtLedgerState;
         address: string;
       }) {
@@ -95,7 +95,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
             resourceAddress: resourceManager.resource_address,
             optIns,
             at_ledger_state,
-          }).pipe(Effect.withSpan("getNonFungibleResourceVaultPage"));
+          }).pipe(Effect.withSpan('getNonFungibleResourceVaultPage'));
 
           vaults.push(...vaultsPage.items);
 
@@ -119,7 +119,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
             }
 
             return nftIds;
-          })
+          }),
         ).pipe(Effect.map((ids) => ids.flat()));
 
         return {
@@ -128,10 +128,10 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
         };
       });
 
-      const getStateEntityDetails = Effect.fn("getStateEntityDetails")(
+      const getStateEntityDetails = Effect.fn('getStateEntityDetails')(
         function* (input: {
           addresses: string[];
-          optIns: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+          optIns: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
           at_ledger_state: AtLedgerState;
         }) {
           const { addresses, optIns, at_ledger_state } = input;
@@ -153,18 +153,18 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
                 catch: (error) => new GatewayError({ error }),
               });
             }),
-            { concurrency: stateEntityDetailsConcurrency }
+            { concurrency: stateEntityDetailsConcurrency },
           );
 
           return results;
-        }
+        },
       );
 
       const getResourceManagers = Effect.fn(function* (input: {
         items: StateEntityDetailsResponseItem[];
         at_ledger_state: AtLedgerState;
-        aggregationLevel: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["aggregation_level"];
-        optIns: StateEntityDetailsOperationRequest["stateEntityDetailsRequest"]["opt_ins"];
+        aggregationLevel: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['aggregation_level'];
+        optIns: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
         filterResourceAddresses?: string[];
       }) {
         const { items, aggregationLevel, optIns, filterResourceAddresses } =
@@ -193,7 +193,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
                 });
 
               resourceManagers.push(
-                ...(entityNonFungiblesPageResult.items as NonFungibleResourcesCollectionItemVaultAggregated[])
+                ...(entityNonFungiblesPageResult.items as NonFungibleResourcesCollectionItemVaultAggregated[]),
               );
 
               next_cursor = entityNonFungiblesPageResult.next_cursor;
@@ -202,8 +202,8 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
             const filteredResourceManagers = filterResourceAddresses
               ? resourceManagers.filter((resourceManager) =>
                   filterResourceAddresses.includes(
-                    resourceManager.resource_address
-                  )
+                    resourceManager.resource_address,
+                  ),
                 )
               : resourceManagers;
 
@@ -211,12 +211,12 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
               address,
               resourceManagers: filteredResourceManagers,
             };
-          })
+          }),
         );
       });
 
-      return Effect.fn("getNftResourceManagersService")(function* (
-        input: GetNftResourceManagersInput
+      return Effect.fn('getNftResourceManagersService')(function* (
+        input: GetNftResourceManagersInput,
       ) {
         const optIns = { ...input.options, non_fungible_include_nfids: true };
 
@@ -239,10 +239,10 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
               filterResourceAddresses,
             });
           }),
-          { concurrency: getNftResourceManagersConcurrency }
+          { concurrency: getNftResourceManagersConcurrency },
         ).pipe(
           Effect.map((items) => items.flat()),
-          Effect.withSpan("getResourceManagers")
+          Effect.withSpan('getResourceManagers'),
         );
 
         const results = yield* Effect.forEach(
@@ -256,7 +256,7 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
                   optIns,
                   at_ledger_state: input.at_ledger_state,
                   address: resourceManagerResult.address,
-                })
+                }),
             );
 
             return {
@@ -264,11 +264,11 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
               items: nftIds,
             };
           }),
-          { concurrency: getNftIdsConcurrency }
-        ).pipe(Effect.withSpan("getNftIds"));
+          { concurrency: getNftIdsConcurrency },
+        ).pipe(Effect.withSpan('getNftIds'));
 
         return results;
       });
     }),
-  }
+  },
 ) {}

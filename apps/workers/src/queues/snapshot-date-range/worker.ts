@@ -1,14 +1,14 @@
-import type { Job } from "bullmq";
-import { snapshotQueue } from "../snapshot/queue";
+import type { Job } from 'bullmq';
+import { snapshotQueue } from '../snapshot/queue';
 import {
   snapshotDateRangeJobSchema,
   type SnapshotDateRangeJob,
-} from "./schemas";
-import { getDatesBetweenIntervals } from "api/common";
-import { SnapshotPriority } from "../snapshot/constants";
+} from './schemas';
+import { getDatesBetweenIntervals } from 'api/common';
+import { SnapshotPriority } from '../snapshot/constants';
 
 export const snapshotDateRangeWorker = async (
-  input: Job<SnapshotDateRangeJob>
+  input: Job<SnapshotDateRangeJob>,
 ) => {
   const parsedInput = snapshotDateRangeJobSchema.safeParse(input.data);
   if (!parsedInput.success) {
@@ -19,12 +19,12 @@ export const snapshotDateRangeWorker = async (
     new Date(input.data.toTimestamp),
     (date) => {
       date.setHours(date.getHours() + parsedInput.data.intervalInHours);
-    }
+    },
   );
 
   for (const date of dates) {
     await snapshotQueue.queue.add(
-      "manualSnapshot",
+      'manualSnapshot',
       {
         timestamp: date.toISOString(),
         addresses: input.data.addresses,
@@ -32,7 +32,7 @@ export const snapshotDateRangeWorker = async (
       },
       {
         priority: SnapshotPriority.Scheduled,
-      }
+      },
     );
   }
 };

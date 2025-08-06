@@ -1,13 +1,13 @@
-import { Context, Effect, Layer } from "effect";
+import { Context, Effect, Layer } from 'effect';
 import {
   transformTransactions,
   type TransformedTransaction,
-} from "./transformEvent";
-import { DbClientService, DbError } from "../db/dbClient";
-import { inArray } from "drizzle-orm";
-import { type Account, accounts } from "db/incentives";
-import type { CommittedTransactionInfo } from "@radixdlt/babylon-gateway-api-sdk";
-import Bignumber from "bignumber.js";
+} from './transformEvent';
+import { DbClientService, DbError } from '../db/dbClient';
+import { inArray } from 'drizzle-orm';
+import { type Account, accounts } from 'db/incentives';
+import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk';
+import Bignumber from 'bignumber.js';
 
 export type RegisteredFeePayer = {
   txId: string;
@@ -24,7 +24,7 @@ export type FilterTransactionsServiceOutput = {
 };
 
 export class FilterTransactionsService extends Context.Tag(
-  "FilterTransactionsService"
+  'FilterTransactionsService',
 )<
   FilterTransactionsService,
   (input: {
@@ -52,7 +52,7 @@ export const FilterTransactionsLive = Layer.effect(
         for (const transaction of transactions) {
           for (const event of transaction.events) {
             const globalEmitter = event.emitter.globalEmitter;
-            if (globalEmitter.startsWith("account_")) {
+            if (globalEmitter.startsWith('account_')) {
               const transactionIdSet =
                 addressTransactionMap.get(globalEmitter) ??
                 new Set<TransactionId>();
@@ -78,12 +78,12 @@ export const FilterTransactionsLive = Layer.effect(
 
         for (const registeredAccount of registeredAccounts) {
           const transactionIdSet = addressTransactionMap.get(
-            registeredAccount.address
+            registeredAccount.address,
           );
           if (!transactionIdSet) continue;
 
           const transaction = transactions.find((transaction) =>
-            transactionIdSet.has(transaction.transactionId)
+            transactionIdSet.has(transaction.transactionId),
           );
 
           const registeredFeePayers = transactions
@@ -101,7 +101,7 @@ export const FilterTransactionsLive = Layer.effect(
           const highestFeePayer = registeredFeePayers[0]
             ? registeredFeePayers?.reduce(
                 (max, current) => (current.fee.gt(max.fee) ? current : max),
-                registeredFeePayers[0]
+                registeredFeePayers[0],
               )?.accountAddress
             : undefined;
 
@@ -120,5 +120,5 @@ export const FilterTransactionsLive = Layer.effect(
         };
       });
     };
-  })
+  }),
 );

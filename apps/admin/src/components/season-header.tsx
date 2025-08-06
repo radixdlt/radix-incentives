@@ -10,7 +10,10 @@ interface SeasonHeaderProps {
   seasonId: string;
 }
 
-export const SeasonHeader: React.FC<SeasonHeaderProps> = ({ seasonName, seasonId }) => {
+export const SeasonHeader: React.FC<SeasonHeaderProps> = ({
+  seasonName,
+  seasonId,
+}) => {
   return (
     <div className="mb-6 flex items-center justify-between gap-4">
       <div className="flex items-center gap-4">
@@ -21,7 +24,9 @@ export const SeasonHeader: React.FC<SeasonHeaderProps> = ({ seasonName, seasonId
         </Link>
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Season Details</h1>
-          <p className="text-muted-foreground">View details for {seasonName}.</p>
+          <p className="text-muted-foreground">
+            View details for {seasonName}.
+          </p>
         </div>
       </div>
       <Link href={`/seasons/${seasonId}/edit`}>

@@ -3,14 +3,23 @@
 import { useState } from 'react';
 import { api } from '~/trpc/react';
 import { Button } from '~/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
 import { AlertCircle, CheckCircle2, Database, Loader2 } from 'lucide-react';
 import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { toast } from 'sonner';
 
 export default function SeedPage() {
   const [isSeeding, setIsSeeding] = useState(false);
-  const [result, setResult] = useState<{ success: boolean; message: string } | null>(null);
+  const [result, setResult] = useState<{
+    success: boolean;
+    message: string;
+  } | null>(null);
 
   const seedMutation = api.seed.seedAll.useMutation({
     onMutate: () => {
@@ -51,7 +60,8 @@ export default function SeedPage() {
               Seed Database
             </CardTitle>
             <CardDescription>
-              This will update the database with the latest activities, activity categories, and DApp configurations.
+              This will update the database with the latest activities, activity
+              categories, and DApp configurations.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -76,7 +86,10 @@ export default function SeedPage() {
             </Button>
 
             {result && (
-              <Alert className="mt-4" variant={result.success ? 'default' : 'destructive'}>
+              <Alert
+                className="mt-4"
+                variant={result.success ? 'default' : 'destructive'}
+              >
                 {result.success ? (
                   <CheckCircle2 className="h-4 w-4" />
                 ) : (
@@ -92,22 +105,22 @@ export default function SeedPage() {
         <Card>
           <CardHeader>
             <CardTitle>Seeding Information</CardTitle>
-            <CardDescription>
-              What data will be updated
-            </CardDescription>
+            <CardDescription>What data will be updated</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
                 <h4 className="font-semibold mb-1">Activities</h4>
                 <p className="text-sm text-muted-foreground">
-                  Updates all supported DeFi activities (Ociswap, DefiPlaza, CaviarNine, Root Finance, Surge, Weft Finance, etc.)
+                  Updates all supported DeFi activities (Ociswap, DefiPlaza,
+                  CaviarNine, Root Finance, Surge, Weft Finance, etc.)
                 </p>
               </div>
               <div>
                 <h4 className="font-semibold mb-1">Activity Categories</h4>
                 <p className="text-sm text-muted-foreground">
-                  Updates activity category configurations with proper multipliers and settings
+                  Updates activity category configurations with proper
+                  multipliers and settings
                 </p>
               </div>
               <div>

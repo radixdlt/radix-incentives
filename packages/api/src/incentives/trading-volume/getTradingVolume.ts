@@ -1,10 +1,10 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { tradingVolume } from "db/incentives";
-import { inArray, and, between } from "drizzle-orm";
-import BigNumber from "bignumber.js";
-import type { ActivityId } from "data";
+import { tradingVolume } from 'db/incentives';
+import { inArray, and, between } from 'drizzle-orm';
+import BigNumber from 'bignumber.js';
+import type { ActivityId } from 'data';
 
 export type GetTradingVolumeServiceInput = {
   endTimestamp: Date;
@@ -20,11 +20,11 @@ export type GetTradingVolumeServiceOutput = {
 }[];
 
 export class GetTradingVolumeService extends Context.Tag(
-  "GetTradingVolumeService"
+  'GetTradingVolumeService',
 )<
   GetTradingVolumeService,
   (
-    input: GetTradingVolumeServiceInput
+    input: GetTradingVolumeServiceInput,
   ) => Effect.Effect<GetTradingVolumeServiceOutput, DbError>
 >() {}
 
@@ -43,13 +43,13 @@ export const GetTradingVolumeLive = Layer.effect(
           between(
             tradingVolume.timestamp,
             input.startTimestamp,
-            input.endTimestamp
+            input.endTimestamp,
           ),
         ];
 
         if (input.addresses) {
           andConditions.push(
-            inArray(tradingVolume.accountAddress, input.addresses)
+            inArray(tradingVolume.accountAddress, input.addresses),
           );
         }
 
@@ -69,7 +69,7 @@ export const GetTradingVolumeLive = Layer.effect(
                       activityId: ActivityId;
                       usdValue: string;
                     }[],
-                  }))
+                  })),
                 ),
             catch: (error) => new DbError(error),
           });
@@ -92,7 +92,7 @@ export const GetTradingVolumeLive = Layer.effect(
               if (existingValue) {
                 accountData.set(
                   data.activityId,
-                  existingValue.plus(data.usdValue)
+                  existingValue.plus(data.usdValue),
                 );
               } else {
                 accountData.set(data.activityId, new BigNumber(data.usdValue));
@@ -111,9 +111,9 @@ export const GetTradingVolumeLive = Layer.effect(
               accountAddress,
               activityId,
               usdValue,
-            }))
+            })),
         );
       });
     };
-  })
+  }),
 );

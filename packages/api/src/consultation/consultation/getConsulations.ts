@@ -1,11 +1,11 @@
-import { Effect } from "effect";
-import { DbClientService } from "../db/dbClient";
-import { accounts, consultations } from "db/consultation";
-import { eq } from "drizzle-orm";
-import { type Consultation, consultationConfig } from "./consultationConfig";
+import { Effect } from 'effect';
+import { DbClientService } from '../db/dbClient';
+import { accounts, consultations } from 'db/consultation';
+import { eq } from 'drizzle-orm';
+import { type Consultation, consultationConfig } from './consultationConfig';
 
 export class GetConsultationsService extends Effect.Service<GetConsultationsService>()(
-  "GetConsultationsService",
+  'GetConsultationsService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -19,9 +19,9 @@ export class GetConsultationsService extends Effect.Service<GetConsultationsServ
               .from(consultations)
               .innerJoin(
                 accounts,
-                eq(consultations.accountAddress, accounts.address)
+                eq(consultations.accountAddress, accounts.address),
               )
-              .where(eq(accounts.userId, userId))
+              .where(eq(accounts.userId, userId)),
           );
 
           return result.map((r) => r.consultation);
@@ -33,5 +33,5 @@ export class GetConsultationsService extends Effect.Service<GetConsultationsServ
         }),
       };
     }),
-  }
+  },
 ) {}

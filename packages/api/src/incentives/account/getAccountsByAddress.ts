@@ -1,14 +1,14 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { accounts, type Account } from "db/incentives";
-import { inArray } from "drizzle-orm";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { accounts, type Account } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
 
 type GetAccountsByAddressInput = {
   addresses: string[];
 };
 
 export class GetAccountsByAddressService extends Context.Tag(
-  "GetAccountsByAddressService"
+  'GetAccountsByAddressService',
 )<
   GetAccountsByAddressService,
   (input: GetAccountsByAddressInput) => Effect.Effect<Account[], DbError>
@@ -29,5 +29,5 @@ export const GetAccountsByAddressLive = Layer.effect(
 
         catch: (error) => new DbError(error),
       });
-  })
+  }),
 );

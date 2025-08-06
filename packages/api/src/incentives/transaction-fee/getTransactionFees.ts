@@ -1,9 +1,9 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { transactionFees } from "db/incentives";
-import { and, between, inArray, sum } from "drizzle-orm";
-import BigNumber from "bignumber.js";
+import { transactionFees } from 'db/incentives';
+import { and, between, inArray, sum } from 'drizzle-orm';
+import BigNumber from 'bignumber.js';
 
 export type GetTransactionFeesServiceInput = {
   endTimestamp: Date;
@@ -18,11 +18,11 @@ export type GetTransactionFeesServiceOutput = {
 }[];
 
 export class GetTransactionFeesService extends Context.Tag(
-  "GetTransactionFeesService"
+  'GetTransactionFeesService',
 )<
   GetTransactionFeesService,
   (
-    input: GetTransactionFeesServiceInput
+    input: GetTransactionFeesServiceInput,
   ) => Effect.Effect<GetTransactionFeesServiceOutput, DbError>
 >() {}
 
@@ -38,13 +38,13 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
         between(
           transactionFees.timestamp,
           input.startTimestamp,
-          input.endTimestamp
+          input.endTimestamp,
         ),
       ];
 
       if (input.addresses) {
         andConditions.push(
-          inArray(transactionFees.accountAddress, input.addresses)
+          inArray(transactionFees.accountAddress, input.addresses),
         );
       }
 
@@ -89,5 +89,5 @@ export const GetTransactionFeesPaginatedLive = Layer.effect(
         }));
       });
     };
-  })
+  }),
 );

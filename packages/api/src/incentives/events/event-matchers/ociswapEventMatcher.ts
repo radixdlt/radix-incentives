@@ -1,33 +1,33 @@
-import { Effect } from "effect";
-import type { TransformedEvent } from "../../transaction-stream/transformEvent";
+import { Effect } from 'effect';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
   SwapEvent,
   BasicPoolSwapEvent,
   FlexPoolSwapEvent,
-} from "../../../common/dapps/ociswap/schemas";
+} from '../../../common/dapps/ociswap/schemas';
 import {
   parseEventData,
   type CapturedEvent,
   createEventMatcher,
-} from "./createEventMatcher";
+} from './createEventMatcher';
 import {
   isOciswapPrecisionPoolComponent,
   isOciswapFlexPoolComponent,
   isOciswapBasicPoolComponent,
-} from "../../../common/address-validation/addressValidation";
+} from '../../../common/address-validation/addressValidation';
 
 export type OciswapPrecisionPoolSwapEvent = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: SwapEvent;
 };
 
 export type OciswapFlexPoolSwapEvent = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: FlexPoolSwapEvent;
 };
 
 export type OciswapBasicPoolSwapEvent = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: BasicPoolSwapEvent;
 };
 
@@ -54,7 +54,7 @@ export const ociswapEventMatcherFn = (input: TransformedEvent) =>
     }
 
     switch (input?.event.name) {
-      case "SwapEvent":
+      case 'SwapEvent':
         // Parse with the appropriate schema based on pool type
         if (isPrecisionPool) {
           return yield* parseEventData(input, SwapEvent);
@@ -66,16 +66,16 @@ export const ociswapEventMatcherFn = (input: TransformedEvent) =>
           return yield* parseEventData(input, BasicPoolSwapEvent);
         }
         yield* Effect.log(
-          `Unknown Ociswap pool type for component: ${componentAddress}`
+          `Unknown Ociswap pool type for component: ${componentAddress}`,
         );
         return yield* Effect.succeed(null);
-      case "ClaimFeesEvent":
-      case "FlashLoanEvent":
-      case "InstantiateEvent":
-      case "AddLiquidityEvent":
-      case "RemoveLiquidityEvent":
-      case "DepositEvent":
-      case "WithdrawEvent":
+      case 'ClaimFeesEvent':
+      case 'FlashLoanEvent':
+      case 'InstantiateEvent':
+      case 'AddLiquidityEvent':
+      case 'RemoveLiquidityEvent':
+      case 'DepositEvent':
+      case 'WithdrawEvent':
         return yield* Effect.succeed(null);
     }
 
@@ -86,8 +86,8 @@ export const ociswapEventMatcherFn = (input: TransformedEvent) =>
 
 export const ociswapEventMatcher = createEventMatcher(
   {
-    dApp: "Ociswap",
-    category: "DEX",
+    dApp: 'Ociswap',
+    category: 'DEX',
   },
-  ociswapEventMatcherFn
+  ociswapEventMatcherFn,
 );

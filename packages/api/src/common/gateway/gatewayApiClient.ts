@@ -1,27 +1,27 @@
-import { Config, Effect } from "effect";
-import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
-import fetchRetry from "fetch-retry";
-import { fetch } from "undici";
+import { Config, Effect } from 'effect';
+import { GatewayApiClient } from '@radixdlt/babylon-gateway-api-sdk';
+import fetchRetry from 'fetch-retry';
+import { fetch } from 'undici';
 
 export class GatewayApiClientService extends Effect.Service<GatewayApiClientService>()(
-  "GatewayApiClientService",
+  'GatewayApiClientService',
   {
     effect: Effect.gen(function* () {
-      const networkId = yield* Config.number("NETWORK_ID").pipe(
-        Config.withDefault(1)
+      const networkId = yield* Config.number('NETWORK_ID').pipe(
+        Config.withDefault(1),
       );
-      const basePath = yield* Config.string("GATEWAY_URL").pipe(
-        Config.withDefault(undefined)
+      const basePath = yield* Config.string('GATEWAY_URL').pipe(
+        Config.withDefault(undefined),
       );
-      const applicationName = yield* Config.string("APPLICATION_NAME").pipe(
-        Config.withDefault("radix-web3.js")
+      const applicationName = yield* Config.string('APPLICATION_NAME').pipe(
+        Config.withDefault('radix-web3.js'),
       );
-      const gatewayApiKey = yield* Config.string("GATEWAY_BASIC_AUTH").pipe(
-        Config.withDefault(undefined)
+      const gatewayApiKey = yield* Config.string('GATEWAY_BASIC_AUTH').pipe(
+        Config.withDefault(undefined),
       );
 
       const gatewayRetryAttempts = yield* Config.number(
-        "GATEWAY_RETRY_ATTEMPTS"
+        'GATEWAY_RETRY_ATTEMPTS',
       ).pipe(Config.withDefault(5));
 
       /**
@@ -65,7 +65,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
 
       return client;
     }),
-  }
+  },
 ) {}
 
 export const GatewayApiClientLive = GatewayApiClientService.Default;

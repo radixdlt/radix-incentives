@@ -1,16 +1,16 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
-import { DappConstants } from "data";
-import { BigNumber } from "bignumber.js";
-import type { AtLedgerState } from "../../gateway/schemas";
+} from '../../gateway/getFungibleBalance';
+import { DappConstants } from 'data';
+import { BigNumber } from 'bignumber.js';
+import type { AtLedgerState } from '../../gateway/schemas';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
 export class GetLsulpService extends Effect.Service<GetLsulpService>()(
-  "GetLsulpService",
+  'GetLsulpService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -22,14 +22,14 @@ export class GetLsulpService extends Effect.Service<GetLsulpService>()(
         const fungibleBalanceResults = input.fungibleBalance
           ? input.fungibleBalance
           : yield* getFungibleBalanceService(input).pipe(
-              Effect.withSpan("getFungibleBalanceService")
+              Effect.withSpan('getFungibleBalanceService'),
             );
 
         return fungibleBalanceResults.map((item) => {
           const lsulpAmount = item.fungibleResources.find(
             (resource) =>
               resource.resourceAddress ===
-              CaviarNineConstants.LSULP.resourceAddress
+              CaviarNineConstants.LSULP.resourceAddress,
           ) ?? {
             amount: new BigNumber(0),
           };
@@ -43,7 +43,7 @@ export class GetLsulpService extends Effect.Service<GetLsulpService>()(
         });
       });
     }),
-  }
+  },
 ) {}
 
 export const GetLsulpLive = GetLsulpService.Default;

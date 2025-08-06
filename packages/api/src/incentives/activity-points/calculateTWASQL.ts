@@ -1,11 +1,11 @@
-import { Context, Effect, Layer } from "effect";
+import { Context, Effect, Layer } from 'effect';
 import {
   DbClientService,
   DbError,
   DbReadOnlyClientService,
-} from "../db/dbClient";
-import { sql } from "drizzle-orm";
-import { z } from "zod";
+} from '../db/dbClient';
+import { sql } from 'drizzle-orm';
+import { z } from 'zod';
 
 export const calculateTWASQLInputSchema = z.object({
   weekId: z.string(),
@@ -13,9 +13,9 @@ export const calculateTWASQLInputSchema = z.object({
   startDate: z.date(),
   endDate: z.date(),
   calculationType: z
-    .enum(["USDValue", "USDValueDurationMultiplied", "USDValueHighPrecision"])
-    .default("USDValueDurationMultiplied"),
-  filterType: z.enum(["exclude_hold", "include_hold"]).default("exclude_hold"),
+    .enum(['USDValue', 'USDValueDurationMultiplied', 'USDValueHighPrecision'])
+    .default('USDValueDurationMultiplied'),
+  filterType: z.enum(['exclude_hold', 'include_hold']).default('exclude_hold'),
   filterZeroValues: z.boolean().default(true),
 });
 
@@ -29,7 +29,7 @@ export type CalculateTWASQLOutput = {
 }[];
 
 export class CalculateTWASQLService extends Context.Tag(
-  "CalculateTWASQLService"
+  'CalculateTWASQLService',
 )<
   CalculateTWASQLService,
   (input: CalculateTWASQLInput) => Effect.Effect<CalculateTWASQLOutput, DbError>
@@ -48,7 +48,7 @@ export const CalculateTWASQLLive = Layer.effect(
         return Effect.tryPromise({
           try: async () => {
             // Debug log to ensure this code is being executed
-            console.log("Executing SQL query with read-only database client");
+            console.log('Executing SQL query with read-only database client');
             const effectiveDb = readOnlyDb || db;
             const result = await effectiveDb.execute(sql`
               WITH expanded_activities AS (
@@ -64,12 +64,12 @@ export const CalculateTWASQLLive = Layer.effect(
                   AND ab.timestamp <= ${input.endDate.toISOString()}
                   AND ab.account_address = ANY(ARRAY[${sql.join(
                     addressBatch.map((addr) => sql`${addr}`),
-                    sql`, `
+                    sql`, `,
                   )}]::text[])
                   AND ab.data IS NOT NULL
                   AND jsonb_typeof(ab.data) = 'array'
                   AND ${
-                    input.filterType === "exclude_hold"
+                    input.filterType === 'exclude_hold'
                       ? sql`(activity_item->>'activityId') NOT LIKE '%ho_%'`
                       : sql`(activity_item->>'activityId') LIKE '%ho_%'`
                   }
@@ -158,7 +158,7 @@ export const CalculateTWASQLLive = Layer.effect(
             }));
           },
           catch: (error) => new DbError(error),
-        }).pipe(Effect.withSpan("executeQuery_twa"));
+        }).pipe(Effect.withSpan('executeQuery_twa'));
       };
 
       // If addresses array is small enough, process in single batch
@@ -179,13 +179,13 @@ export const CalculateTWASQLLive = Layer.effect(
         }
 
         yield* Effect.log(
-          `Processing ${input.addresses.length} addresses in ${batches.length} parallel batches`
+          `Processing ${input.addresses.length} addresses in ${batches.length} parallel batches`,
         );
 
         // Process batches in parallel with controlled concurrency
         const maxConcurrency = Number.parseInt(
-          process.env.ACTIVITY_POINTS_SQL_CONCURRENCY || "5",
-          10
+          process.env.ACTIVITY_POINTS_SQL_CONCURRENCY || '5',
+          10,
         );
         const concurrency = Math.min(batches.length, maxConcurrency);
 
@@ -200,33 +200,33 @@ export const CalculateTWASQLLive = Layer.effect(
               if (concurrentSlot > 0) {
                 const delaySeconds = concurrentSlot * 3;
                 yield* Effect.log(
-                  `Batch ${index + 1} (slot ${concurrentSlot}): Waiting ${delaySeconds} seconds before starting...`
+                  `Batch ${index + 1} (slot ${concurrentSlot}): Waiting ${delaySeconds} seconds before starting...`,
                 );
                 yield* Effect.sleep(`${delaySeconds} seconds`);
               }
 
               yield* Effect.log(
-                `Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`
+                `Starting batch ${index + 1}/${batches.length} (${addressBatch.length} addresses)`,
               );
               const batchResults = yield* executeQuery(addressBatch);
               yield* Effect.log(
-                `Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`
+                `Completed batch ${index + 1}/${batches.length} - found ${batchResults.length} results`,
               );
 
               return batchResults;
             }),
-          { concurrency }
+          { concurrency },
         );
 
         // Flatten all results
         const allResults = allBatchResults.flat();
 
         yield* Effect.log(
-          `Completed processing ${input.addresses.length} addresses in ${batches.length} parallel batches. Total results: ${allResults.length}`
+          `Completed processing ${input.addresses.length} addresses in ${batches.length} parallel batches. Total results: ${allResults.length}`,
         );
 
         return allResults;
       });
     };
-  })
+  }),
 );

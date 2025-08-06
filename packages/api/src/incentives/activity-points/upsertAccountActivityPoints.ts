@@ -1,16 +1,16 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { accountActivityPoints, activities } from "db/incentives";
-import { sql, inArray } from "drizzle-orm";
-import { chunker } from "../../common";
+import { accountActivityPoints, activities } from 'db/incentives';
+import { sql, inArray } from 'drizzle-orm';
+import { chunker } from '../../common';
 
 export class UpsertAccountActivityPointsService extends Context.Tag(
-  "UpsertAccountActivityPointsService"
+  'UpsertAccountActivityPointsService',
 )<
   UpsertAccountActivityPointsService,
   (
-    input: (typeof accountActivityPoints.$inferInsert)[]
+    input: (typeof accountActivityPoints.$inferInsert)[],
   ) => Effect.Effect<void, DbError>
 >() {}
 
@@ -22,8 +22,10 @@ export const UpsertAccountActivityPointsLive = Layer.effect(
     return (input) =>
       Effect.gen(function* () {
         // Get unique activity IDs from input
-        const uniqueActivityIds = [...new Set(input.map(item => item.activityId))];
-        
+        const uniqueActivityIds = [
+          ...new Set(input.map((item) => item.activityId)),
+        ];
+
         // Validate that all activity IDs exist in the activities table
         const validActivityIds = yield* Effect.tryPromise({
           try: async () => {
@@ -31,21 +33,27 @@ export const UpsertAccountActivityPointsLive = Layer.effect(
               .select({ id: activities.id })
               .from(activities)
               .where(inArray(activities.id, uniqueActivityIds));
-            return new Set(result.map(row => row.id));
+            return new Set(result.map((row) => row.id));
           },
           catch: (error) => new DbError(error),
         });
 
         // Filter input to only include valid activity IDs
-        const validInput = input.filter(item => validActivityIds.has(item.activityId));
-        
+        const validInput = input.filter((item) =>
+          validActivityIds.has(item.activityId),
+        );
+
         if (validInput.length < input.length) {
-          const invalidActivityIds = uniqueActivityIds.filter(id => !validActivityIds.has(id));
-          yield* Effect.log(`Filtered out ${input.length - validInput.length} records with invalid activity IDs: ${invalidActivityIds.join(', ')}`);
+          const invalidActivityIds = uniqueActivityIds.filter(
+            (id) => !validActivityIds.has(id),
+          );
+          yield* Effect.log(
+            `Filtered out ${input.length - validInput.length} records with invalid activity IDs: ${invalidActivityIds.join(', ')}`,
+          );
         }
 
         if (validInput.length === 0) {
-          yield* Effect.log("No valid activity records to upsert");
+          yield* Effect.log('No valid activity records to upsert');
           return;
         }
 
@@ -69,7 +77,7 @@ export const UpsertAccountActivityPointsLive = Layer.effect(
               catch: (error) => new DbError(error),
             });
           });
-        }).pipe(Effect.withSpan("upsertAccountActivityPoints"));
+        }).pipe(Effect.withSpan('upsertAccountActivityPoints'));
       });
-  })
+  }),
 );

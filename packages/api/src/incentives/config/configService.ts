@@ -1,11 +1,11 @@
-import { Duration, Effect, Cache } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { eq } from "drizzle-orm";
-import { config } from "db/incentives";
-import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
+import { Duration, Effect, Cache } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { eq } from 'drizzle-orm';
+import { config } from 'db/incentives';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 
 export class ConfigService extends Effect.Service<ConfigService>()(
-  "ConfigService",
+  'ConfigService',
   {
     effect: Effect.gen(function* () {
       const dbClient = yield* DbClientService;
@@ -55,7 +55,7 @@ export class ConfigService extends Effect.Service<ConfigService>()(
           },
         });
 
-        yield* setConfig("stateVersion", stateVersionResult.state_version);
+        yield* setConfig('stateVersion', stateVersionResult.state_version);
 
         return stateVersionResult.state_version;
       });
@@ -63,12 +63,12 @@ export class ConfigService extends Effect.Service<ConfigService>()(
       return {
         setStartStateVersion,
         getStateVersion: Effect.fn(function* () {
-          return yield* getConfig<number>("stateVersion");
+          return yield* getConfig<number>('stateVersion');
         }),
         setStateVersion: Effect.fn(function* (stateVersion: number) {
-          yield* setConfig("stateVersion", stateVersion);
+          yield* setConfig('stateVersion', stateVersion);
         }),
       };
     }),
-  }
+  },
 ) {}

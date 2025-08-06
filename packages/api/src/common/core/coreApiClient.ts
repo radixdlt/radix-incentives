@@ -1,32 +1,32 @@
-import https from "node:https";
-import { CoreApiClient } from "@radixdlt/babylon-core-api-sdk";
-import { Context, Effect, Layer } from "effect";
+import https from 'node:https';
+import { CoreApiClient } from '@radixdlt/babylon-core-api-sdk';
+import { Context, Effect, Layer } from 'effect';
 
-import type { PublicKey as GatewayPublicKey } from "@radixdlt/babylon-gateway-api-sdk";
-import type { PublicKey } from "@radixdlt/radix-engine-toolkit";
+import type { PublicKey as GatewayPublicKey } from '@radixdlt/babylon-gateway-api-sdk';
+import type { PublicKey } from '@radixdlt/radix-engine-toolkit';
 
 export class CoreNodeError {
-  readonly _tag = "CoreNodeError";
+  readonly _tag = 'CoreNodeError';
   constructor(readonly error: unknown) {}
 }
 
 export class InvalidConfigError {
-  readonly _tag = "InvalidConfigError";
+  readonly _tag = 'InvalidConfigError';
   constructor(readonly error: unknown) {}
 }
 
 export const retPublicKeyToGatewayPublicKey = (
-  publicKey: PublicKey
+  publicKey: PublicKey,
 ): GatewayPublicKey => {
   switch (publicKey.curve) {
-    case "Secp256k1":
+    case 'Secp256k1':
       return {
-        key_type: "EcdsaSecp256k1",
+        key_type: 'EcdsaSecp256k1',
         key_hex: publicKey.hex(),
       };
-    case "Ed25519":
+    case 'Ed25519':
       return {
-        key_type: "EddsaEd25519",
+        key_type: 'EddsaEd25519',
         key_hex: publicKey.hex(),
       };
   }
@@ -36,7 +36,7 @@ type CoreApiClientCtor = Parameters<typeof CoreApiClient.initialize>[0];
 
 type CreateCoreApiClientInput = {
   basePath: string;
-  logicalNetworkName: CoreApiClientCtor["logicalNetworkName"];
+  logicalNetworkName: CoreApiClientCtor['logicalNetworkName'];
   basicAuth: string;
 };
 
@@ -57,7 +57,7 @@ export const createCoreApiClient = async (input: CreateCoreApiClientInput) => {
   });
 };
 
-export class CoreApiClientService extends Context.Tag("CoreApiClientService")<
+export class CoreApiClientService extends Context.Tag('CoreApiClientService')<
   CoreApiClientService,
   () => Effect.Effect<CoreApiClient, InvalidConfigError | CoreNodeError>
 >() {}
@@ -73,19 +73,19 @@ export const CoreApiClientLive = Layer.effect(
 
         if (!basicAuth) {
           return yield* Effect.fail(
-            new InvalidConfigError("missing basic auth")
+            new InvalidConfigError('missing basic auth'),
           );
         }
 
         if (!basePath) {
           return yield* Effect.fail(
-            new InvalidConfigError("missing base path")
+            new InvalidConfigError('missing base path'),
           );
         }
 
         if (!logicalNetworkName) {
           return yield* Effect.fail(
-            new InvalidConfigError("missing logical network name")
+            new InvalidConfigError('missing logical network name'),
           );
         }
 
@@ -99,5 +99,5 @@ export const CoreApiClientLive = Layer.effect(
 
         return result;
       });
-  })
+  }),
 );

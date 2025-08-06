@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { SeasonService } from "../season/season";
-import { WeekService } from "../week/week";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { ActivityWeekService } from "../activity-week/activityWeek";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
 import {
   seasonLeaderboardCache,
   categoryLeaderboardCache,
@@ -11,15 +11,15 @@ import {
   userSeasonPoints,
   accountActivityPoints,
   accounts,
-} from "db/incentives";
-import { eq, and, sql, desc, inArray } from "drizzle-orm";
+} from 'db/incentives';
+import { eq, and, sql, desc, inArray } from 'drizzle-orm';
 
 export type PopulateLeaderboardCacheInput = {
   weekId?: string;
 };
 
 export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheService>()(
-  "LeaderboardCacheService",
+  'LeaderboardCacheService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -30,14 +30,14 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
 
       return {
         populateAll: Effect.fn(function* (
-          input: PopulateLeaderboardCacheInput
+          input: PopulateLeaderboardCacheInput,
         ) {
-          yield* Effect.log("Starting leaderboard cache population");
+          yield* Effect.log('Starting leaderboard cache population');
 
           // Handle specific week
           if (input.weekId) {
             yield* Effect.log(
-              `Populating cache for specific week: ${input.weekId}`
+              `Populating cache for specific week: ${input.weekId}`,
             );
 
             const season = yield* seasonService.getByWeekId(input.weekId!);
@@ -45,18 +45,18 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
 
             yield* populateCategoryLeaderboards({ weekId: input.weekId });
             yield* populateGlobalStats();
-            yield* Effect.log("Week leaderboard cache population completed");
+            yield* Effect.log('Week leaderboard cache population completed');
             return;
           }
 
           // Handle all seasons and weeks (default behavior)
-          yield* Effect.log("Populating cache for ALL seasons and weeks");
+          yield* Effect.log('Populating cache for ALL seasons and weeks');
 
           const seasonsToProcess = yield* seasonService.list();
           const weeksToProcess = yield* weekService.list({});
 
           yield* Effect.log(
-            `Processing ${seasonsToProcess.length} seasons and ${weeksToProcess.length} weeks`
+            `Processing ${seasonsToProcess.length} seasons and ${weeksToProcess.length} weeks`,
           );
 
           // Populate season leaderboard cache
@@ -77,13 +77,13 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
 
           yield* populateGlobalStats();
 
-          yield* Effect.log("All leaderboard cache population completed");
+          yield* Effect.log('All leaderboard cache population completed');
         }),
       };
 
       function* populateSeasonLeaderboard(input: { seasonId: string }) {
         yield* Effect.log(
-          `Populating season leaderboard cache for season ${input.seasonId}`
+          `Populating season leaderboard cache for season ${input.seasonId}`,
         );
 
         // Clear existing cache for this season
@@ -131,13 +131,13 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         }
 
         yield* Effect.log(
-          `Populated season leaderboard cache with ${cacheEntries.length} entries`
+          `Populated season leaderboard cache with ${cacheEntries.length} entries`,
         );
       }
 
       function* populateCategoryLeaderboards(input: { weekId: string }) {
         yield* Effect.log(
-          `Populating category leaderboard cache for week ${input.weekId}`
+          `Populating category leaderboard cache for week ${input.weekId}`,
         );
 
         // Clear existing cache for this week
@@ -184,17 +184,17 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
                 .from(accountActivityPoints)
                 .innerJoin(
                   accounts,
-                  eq(accountActivityPoints.accountAddress, accounts.address)
+                  eq(accountActivityPoints.accountAddress, accounts.address),
                 )
                 .where(
                   and(
                     eq(accountActivityPoints.weekId, input.weekId),
-                    inArray(accountActivityPoints.activityId, activityIds)
-                  )
+                    inArray(accountActivityPoints.activityId, activityIds),
+                  ),
                 )
                 .groupBy(accounts.userId)
                 .orderBy(
-                  desc(sql`SUM(${accountActivityPoints.activityPoints})`)
+                  desc(sql`SUM(${accountActivityPoints.activityPoints})`),
                 ),
             catch: (error) => new DbError(error),
           });
@@ -218,13 +218,13 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           }
 
           yield* Effect.log(
-            `Populated category ${category.id} cache with ${cacheEntries.length} entries`
+            `Populated category ${category.id} cache with ${cacheEntries.length} entries`,
           );
         }
       }
 
       function* populateGlobalStats() {
-        yield* Effect.log("Populating global statistics cache");
+        yield* Effect.log('Populating global statistics cache');
 
         // Clear existing stats
         yield* Effect.tryPromise({
@@ -239,16 +239,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
               .select({
                 cacheKey:
                   sql<string>`'season_' || ${seasonLeaderboardCache.seasonId}`.as(
-                    "cache_key"
+                    'cache_key',
                   ),
-                totalUsers: sql<number>`COUNT(*)`.as("total_users"),
+                totalUsers: sql<number>`COUNT(*)`.as('total_users'),
                 median:
                   sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ${seasonLeaderboardCache.totalPoints}::numeric)`.as(
-                    "median"
+                    'median',
                   ),
                 average:
                   sql<string>`AVG(${seasonLeaderboardCache.totalPoints}::numeric)`.as(
-                    "average"
+                    'average',
                   ),
               })
               .from(seasonLeaderboardCache)
@@ -263,22 +263,22 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
               .select({
                 cacheKey:
                   sql<string>`'category_' || ${categoryLeaderboardCache.weekId} || '_' || ${categoryLeaderboardCache.categoryId}`.as(
-                    "cache_key"
+                    'cache_key',
                   ),
-                totalUsers: sql<number>`COUNT(*)`.as("total_users"),
+                totalUsers: sql<number>`COUNT(*)`.as('total_users'),
                 median:
                   sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ${categoryLeaderboardCache.totalPoints}::numeric)`.as(
-                    "median"
+                    'median',
                   ),
                 average:
                   sql<string>`AVG(${categoryLeaderboardCache.totalPoints}::numeric)`.as(
-                    "average"
+                    'average',
                   ),
               })
               .from(categoryLeaderboardCache)
               .groupBy(
                 categoryLeaderboardCache.weekId,
-                categoryLeaderboardCache.categoryId
+                categoryLeaderboardCache.categoryId,
               ),
           catch: (error) => new DbError(error),
         });
@@ -307,9 +307,9 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         }
 
         yield* Effect.log(
-          `Populated ${allStatsEntries.length} global statistics entries using SQL aggregation`
+          `Populated ${allStatsEntries.length} global statistics entries using SQL aggregation`,
         );
       }
     }),
-  }
+  },
 ) {}

@@ -1,2 +1,2 @@
-export * from "./appConfig";
-export * from "./configRouter";
+export * from './appConfig';
+export * from './configRouter';

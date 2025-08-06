@@ -1,7 +1,7 @@
-import { createQueue } from "../createQueue";
-import { redisClient } from "../../redis";
-import { scheduledCalculationsWorker } from "./worker";
-import { QueueName } from "../types";
+import { createQueue } from '../createQueue';
+import { redisClient } from '../../redis';
+import { scheduledCalculationsWorker } from './worker';
+import { QueueName } from '../types';
 
 export const scheduledCalculationsQueue = createQueue({
   name: QueueName.scheduledCalculations,
@@ -13,14 +13,17 @@ export const scheduledCalculationsQueue = createQueue({
 });
 
 if (process.env.DISABLE_SCHEDULED_CALCULATIONS === 'true') {
-  const scheduler = await scheduledCalculationsQueue.queue.getJobScheduler("every_two_hours")
+  const scheduler =
+    await scheduledCalculationsQueue.queue.getJobScheduler('every_two_hours');
   if (scheduler) {
-    await scheduledCalculationsQueue.queue.removeJobScheduler("every_two_hours")
-    console.log("Disabled scheduled calculations")
+    await scheduledCalculationsQueue.queue.removeJobScheduler(
+      'every_two_hours',
+    );
+    console.log('Disabled scheduled calculations');
   }
 } else {
-  scheduledCalculationsQueue.queue.upsertJobScheduler("every_two_hours", {
-    pattern: "0 */2 * * *",
+  scheduledCalculationsQueue.queue.upsertJobScheduler('every_two_hours', {
+    pattern: '0 */2 * * *',
   });
-  console.log("Enabled scheduled calculations")
+  console.log('Enabled scheduled calculations');
 }

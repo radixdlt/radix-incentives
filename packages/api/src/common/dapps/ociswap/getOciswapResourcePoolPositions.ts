@@ -1,23 +1,23 @@
-import { Effect } from "effect";
-import BigNumber from "bignumber.js";
+import { Effect } from 'effect';
+import BigNumber from 'bignumber.js';
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
+} from '../../gateway/getFungibleBalance';
 
-import { DappConstants } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+import { DappConstants } from 'data';
+import type { AtLedgerState } from '../../gateway/schemas';
 
-import { GetResourcePoolUnitsService } from "../../resource-pool/getResourcePoolUnits";
+import { GetResourcePoolUnitsService } from '../../resource-pool/getResourcePoolUnits';
 
 const OciswapConstants = DappConstants.Ociswap.constants;
 
 export class InvalidResourcePoolError extends Error {
-  readonly _tag = "InvalidResourcePoolError";
+  readonly _tag = 'InvalidResourcePoolError';
   constructor(error: unknown) {
     super(
-      `Invalid resource pool error: ${error instanceof Error ? error.message : error}`
+      `Invalid resource pool error: ${error instanceof Error ? error.message : error}`,
     );
   }
 }
@@ -48,7 +48,7 @@ export type GetOciswapResourcePoolPositionsOutput = {
 type AccountAddress = string;
 
 export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOciswapResourcePoolPositionsService>()(
-  "GetOciswapResourcePoolPositionsService",
+  'GetOciswapResourcePoolPositionsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -59,7 +59,7 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
           accountAddresses: string[];
           at_ledger_state: AtLedgerState;
           fungibleBalance?: GetFungibleBalanceOutput;
-          poolType?: "flexPools" | "basicPools";
+          poolType?: 'flexPools' | 'basicPools';
         }) =>
           Effect.gen(function* () {
             const accountBalancesMap = new Map<
@@ -70,7 +70,7 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
             // Get pools based on pool type (if not specified, use both)
             const poolTypes = input.poolType
               ? [input.poolType]
-              : ["flexPools" as const, "basicPools" as const];
+              : ['flexPools' as const, 'basicPools' as const];
 
             // Initialize map for all account addresses
             for (const address of input.accountAddresses) {
@@ -90,12 +90,12 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
             // Process each pool type
             for (const poolType of poolTypes) {
               const pools =
-                poolType === "flexPools"
+                poolType === 'flexPools'
                   ? OciswapConstants.flexPools
                   : OciswapConstants.basicPools;
 
               const allPoolAddresses = Object.values(pools).map(
-                (pool) => pool.poolAddress
+                (pool) => pool.poolAddress,
               );
 
               // Get pool units for all pools of this type
@@ -122,7 +122,7 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
                       .find((balance) => balance.address === address)
                       ?.fungibleResources.find(
                         (item) =>
-                          item.resourceAddress === poolConfig.lpResourceAddress
+                          item.resourceAddress === poolConfig.lpResourceAddress,
                       );
 
                     if (
@@ -138,8 +138,8 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
                     if (contributedAmounts.length !== 2) {
                       return yield* Effect.fail(
                         new InvalidResourcePoolError(
-                          `Pool must have exactly 2 tokens, found ${contributedAmounts.length}`
-                        )
+                          `Pool must have exactly 2 tokens, found ${contributedAmounts.length}`,
+                        ),
                       );
                     }
                     const [token1, token2] = contributedAmounts as [
@@ -175,7 +175,7 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
                   }
                 } catch (error) {
                   return yield* Effect.fail(
-                    new InvalidResourcePoolError(error)
+                    new InvalidResourcePoolError(error),
                   );
                 }
               }
@@ -192,13 +192,13 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
                         (item.xToken.resourceAddress === pool.token_x &&
                           item.yToken.resourceAddress === pool.token_y) ||
                         (item.xToken.resourceAddress === pool.token_y &&
-                          item.yToken.resourceAddress === pool.token_x)
+                          item.yToken.resourceAddress === pool.token_x),
                     );
                     return {
                       address,
                       items: poolSpecificPositions,
                     };
-                  }
+                  },
                 );
 
                 allPoolOutputResults.push({
@@ -212,7 +212,7 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
           }),
       };
     }),
-  }
+  },
 ) {}
 
 export const GetOciswapResourcePoolPositionsLive =

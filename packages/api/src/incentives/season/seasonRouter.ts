@@ -1,18 +1,18 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { Exit } from "effect";
-import { CreateSeasonSchema, EditSeasonSchema } from "./season";
+import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from '../trpc';
+import { TRPCError } from '@trpc/server';
+import { Exit } from 'effect';
+import { CreateSeasonSchema, EditSeasonSchema } from './season';
 
 export const seasonRouter = createTRPCRouter({
   getSeasons: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getSeasons();
 
-    if (result._tag === "Failure") {
+    if (result._tag === 'Failure') {
       console.error(result.cause);
 
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+        code: 'INTERNAL_SERVER_ERROR',
       });
     }
 
@@ -38,17 +38,17 @@ export const seasonRouter = createTRPCRouter({
           };
         },
         onFailure: (error) => {
-          if (error._tag === "Fail") {
-            if (error.error._tag === "SeasonNotFoundError") {
+          if (error._tag === 'Fail') {
+            if (error.error._tag === 'SeasonNotFoundError') {
               throw new TRPCError({
-                code: "NOT_FOUND",
+                code: 'NOT_FOUND',
                 message: error.error.message,
               });
             }
 
             throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: "An unexpected error occurred",
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'An unexpected error occurred',
             });
           }
         },
@@ -60,11 +60,11 @@ export const adminSeasonRouter = createTRPCRouter({
   getSeasons: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getSeasons();
 
-    if (result._tag === "Failure") {
+    if (result._tag === 'Failure') {
       console.error(result.cause);
 
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+        code: 'INTERNAL_SERVER_ERROR',
       });
     }
 
@@ -90,17 +90,17 @@ export const adminSeasonRouter = createTRPCRouter({
           };
         },
         onFailure: (error) => {
-          if (error._tag === "Fail") {
-            if (error.error._tag === "SeasonNotFoundError") {
+          if (error._tag === 'Fail') {
+            if (error.error._tag === 'SeasonNotFoundError') {
               throw new TRPCError({
-                code: "NOT_FOUND",
+                code: 'NOT_FOUND',
                 message: error.error.message,
               });
             }
 
             throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: "An unexpected error occurred",
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'An unexpected error occurred',
             });
           }
         },
@@ -117,9 +117,9 @@ export const adminSeasonRouter = createTRPCRouter({
           return value;
         },
         onFailure: (error) => {
-          if (error._tag === "Fail") {
+          if (error._tag === 'Fail') {
             throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
+              code: 'INTERNAL_SERVER_ERROR',
             });
           }
         },
@@ -136,9 +136,9 @@ export const adminSeasonRouter = createTRPCRouter({
           return value;
         },
         onFailure: (error) => {
-          if (error._tag === "Fail") {
+          if (error._tag === 'Fail') {
             throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
+              code: 'INTERNAL_SERVER_ERROR',
             });
           }
         },
@@ -150,25 +150,25 @@ export const adminSeasonRouter = createTRPCRouter({
       z.object({
         weekId: z.string(),
         force: z.boolean().optional(),
-      })
+      }),
     )
     .mutation(async ({ input }) => {
       const response = await fetch(
         `${process.env.WORKERS_API_BASE_URL}/queues/scheduled-calculations/add`,
         {
-          method: "POST",
+          method: 'POST',
           body: JSON.stringify({
             weekId: input.weekId,
             force: input.force,
             markAsProcessed: true,
             includeSPCalculations: true,
           }),
-        }
+        },
       );
 
       if (!response.ok) {
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
+          code: 'INTERNAL_SERVER_ERROR',
         });
       }
     }),
@@ -178,7 +178,7 @@ export const adminSeasonRouter = createTRPCRouter({
       z.object({
         id: z.string(),
         processed: z.boolean(),
-      })
+      }),
     )
     .mutation(async ({ ctx, input }) => {
       const result = await ctx.dependencyLayer.updateWeekStatus(input);
@@ -188,9 +188,9 @@ export const adminSeasonRouter = createTRPCRouter({
           return { success: true };
         },
         onFailure: (error) => {
-          if (error._tag === "Fail") {
+          if (error._tag === 'Fail') {
             throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
+              code: 'INTERNAL_SERVER_ERROR',
             });
           }
         },

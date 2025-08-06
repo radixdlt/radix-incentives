@@ -1,13 +1,11 @@
-import { Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Assets, DappConstants } from "data";
+import { Effect } from 'effect';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
+import { Assets, DappConstants } from 'data';
 
-import {
-  GetUsdValueService,
-} from "../token-price/getUsdValue";
-import { BigNumber } from "bignumber.js";
-import { type AccountBalanceData, ActivityId } from "data";
-import type { GetWeftFinancePositionsOutput } from "../../common/dapps/weftFinance/getWeftFinancePositions";
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import { BigNumber } from 'bignumber.js';
+import { type AccountBalanceData, ActivityId } from 'data';
+import type { GetWeftFinancePositionsOutput } from '../../common/dapps/weftFinance/getWeftFinancePositions';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
@@ -16,7 +14,7 @@ const CaviarNineConstants = DappConstants.CaviarNine.constants;
 // Helper function to convert LSULP amount to XRD equivalent
 const convertLsulpToXrd = (
   amount: BigNumber,
-  lsulpValue: BigNumber
+  lsulpValue: BigNumber,
 ): BigNumber => {
   return amount.multipliedBy(lsulpValue);
 };
@@ -26,7 +24,7 @@ const toXrdEquivalent = (
   amount: BigNumber,
   resourceAddress: string,
   lsulpValue: BigNumber,
-  convertLsuToXrdMap?: Map<string, (amount: BigNumber) => BigNumber>
+  convertLsuToXrdMap?: Map<string, (amount: BigNumber) => BigNumber>,
 ): BigNumber => {
   if (resourceAddress === CaviarNineConstants.LSULP.resourceAddress) {
     return convertLsulpToXrd(amount, lsulpValue);
@@ -42,14 +40,14 @@ const toXrdEquivalent = (
 };
 
 type XrdValueConverter = (
-  amount: BigNumber
-// biome-ignore lint/suspicious/noExplicitAny: Complex union type causing build issues
+  amount: BigNumber,
+  // biome-ignore lint/suspicious/noExplicitAny: Complex union type causing build issues
 ) => Effect.Effect<string, any>;
 
 // Extract basic XRD holdings processing
 const processBasicXrdHoldings = (
   accountBalance: AccountBalanceFromSnapshot,
-  xrdToUsd: XrdValueConverter
+  xrdToUsd: XrdValueConverter,
 ) =>
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
@@ -57,7 +55,7 @@ const processBasicXrdHoldings = (
     // Direct XRD holdings
     const xrd =
       accountBalance.fungibleTokenBalances.find(
-        (resource) => resource.resourceAddress === Assets.Fungible.XRD
+        (resource) => resource.resourceAddress === Assets.Fungible.XRD,
       )?.amount ?? new BigNumber(0);
 
     output.push({
@@ -68,7 +66,7 @@ const processBasicXrdHoldings = (
     // Staked XRD
     const stakedXrd = accountBalance.staked.reduce(
       (acc, item) => acc.plus(item.xrdAmount),
-      new BigNumber(0)
+      new BigNumber(0),
     );
 
     output.push({
@@ -79,7 +77,7 @@ const processBasicXrdHoldings = (
     // Unstaked XRD
     const unstakedXrd = accountBalance.unstaked.reduce(
       (acc, item) => acc.plus(item.amount),
-      new BigNumber(0)
+      new BigNumber(0),
     );
 
     output.push({
@@ -90,7 +88,7 @@ const processBasicXrdHoldings = (
     // LSULP (converted to XRD equivalent)
     const lsulpXrdEquivalent = convertLsulpToXrd(
       accountBalance.lsulp.amount,
-      accountBalance.lsulp.lsulpValue
+      accountBalance.lsulp.lsulpValue,
     );
 
     output.push({
@@ -104,7 +102,7 @@ const processBasicXrdHoldings = (
 // Extract lending protocol processing
 const processLendingProtocols = (
   accountBalance: AccountBalanceFromSnapshot,
-  xrdToUsd: XrdValueConverter
+  xrdToUsd: XrdValueConverter,
 ) =>
   Effect.gen(function* () {
     const output: AccountBalanceData[] = [];
@@ -115,7 +113,7 @@ const processLendingProtocols = (
         // Check XRD collaterals
         if (position.collaterals?.[Assets.Fungible.XRD]) {
           acc.xrd = acc.xrd.plus(
-            position.collaterals[Assets.Fungible.XRD] ?? 0
+            position.collaterals[Assets.Fungible.XRD] ?? 0,
           );
         }
 
@@ -126,14 +124,14 @@ const processLendingProtocols = (
         if (lsulpCollateral) {
           const lsulpXrdEquivalent = convertLsulpToXrd(
             new BigNumber(lsulpCollateral),
-            accountBalance.lsulp.lsulpValue
+            accountBalance.lsulp.lsulpValue,
           );
           acc.lsulp = acc.lsulp.plus(lsulpXrdEquivalent);
         }
 
         return acc;
       },
-      { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+      { xrd: new BigNumber(0), lsulp: new BigNumber(0) },
     ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
 
     output.push(
@@ -144,7 +142,7 @@ const processLendingProtocols = (
       {
         activityId: ActivityId.ro_ho_lsulp,
         usdValue: yield* xrdToUsd(rootFinanceLending.lsulp),
-      }
+      },
     );
 
     // Weft Finance lending and collateral
@@ -154,14 +152,14 @@ const processLendingProtocols = (
     const weftLendingXrd = weftFinancePositions.lending.reduce(
       (
         acc: BigNumber,
-        position: GetWeftFinancePositionsOutput["lending"][number]
+        position: GetWeftFinancePositionsOutput['lending'][number],
       ) => {
         if (position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD) {
           return acc.plus(position.unwrappedAsset.amount);
         }
         return acc;
       },
-      new BigNumber(0)
+      new BigNumber(0),
     );
 
     // Process collateral positions
@@ -179,7 +177,7 @@ const processLendingProtocols = (
         // LSULP collateral - convert to XRD equivalent
         const lsulpXrdEquivalent = convertLsulpToXrd(
           position.amount,
-          accountBalance.lsulp.lsulpValue
+          accountBalance.lsulp.lsulpValue,
         );
         weftCollateralLsulp = weftCollateralLsulp.plus(lsulpXrdEquivalent);
       } else if (
@@ -190,7 +188,7 @@ const processLendingProtocols = (
           position.amount,
           position.resourceAddress,
           accountBalance.lsulp.lsulpValue,
-          accountBalance.convertLsuToXrdMap
+          accountBalance.convertLsuToXrdMap,
         );
 
         weftCollateralStakedXrd = weftCollateralStakedXrd.plus(xrdAmount);
@@ -210,7 +208,7 @@ const processLendingProtocols = (
       {
         activityId: ActivityId.we_ho_lsulp,
         usdValue: yield* xrdToUsd(totalWeftLsulp),
-      }
+      },
     );
 
     // Add aggregated staked XRD from LSU collaterals
@@ -225,7 +223,7 @@ const processLendingProtocols = (
     // Aggregate all unstaking receipts into a single entry
     const totalUnstakingXrd = weftFinancePositions.unstakingReceipts.reduce(
       (acc, receipt) => acc.plus(receipt.claimAmount),
-      new BigNumber(0)
+      new BigNumber(0),
     );
 
     if (totalUnstakingXrd.gt(0)) {
@@ -244,11 +242,11 @@ export type XrdBalanceInput = {
 };
 
 export type XrdBalanceOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof XrdBalanceService)["Service"]>>
+  Awaited<ReturnType<(typeof XrdBalanceService)['Service']>>
 >;
 
 export class XrdBalanceService extends Effect.Service<XrdBalanceService>()(
-  "XrdBalanceService",
+  'XrdBalanceService',
   {
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
@@ -273,7 +271,7 @@ export class XrdBalanceService extends Effect.Service<XrdBalanceService>()(
         return [...basicHoldings, ...lendingHoldings];
       });
     }),
-  }
+  },
 ) {}
 
 export const XrdBalanceLive = XrdBalanceService.Default;

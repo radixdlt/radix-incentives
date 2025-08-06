@@ -15,10 +15,10 @@ import { createQueryClient } from './query-client';
 SuperJSON.registerCustom<BigNumber, string>(
   {
     isApplicable: (v): v is BigNumber => BigNumber.isBigNumber(v),
-    serialize: v => v.toString(),
-    deserialize: v => new BigNumber(v)
+    serialize: (v) => v.toString(),
+    deserialize: (v) => new BigNumber(v),
   },
-  'BigNumber'
+  'BigNumber',
 );
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;

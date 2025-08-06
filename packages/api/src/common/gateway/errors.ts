@@ -1,5 +1,5 @@
-import { Data } from "effect";
+import { Data } from 'effect';
 
-export class GatewayError extends Data.TaggedError("GatewayError")<{
+export class GatewayError extends Data.TaggedError('GatewayError')<{
   error: unknown;
 }> {}

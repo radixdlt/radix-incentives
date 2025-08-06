@@ -1,14 +1,14 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { sessions, users } from "db/consultation";
-import { eq } from "drizzle-orm";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { sessions, users } from 'db/consultation';
+import { eq } from 'drizzle-orm';
 
 export class SessionNotFoundError {
-  readonly _tag = "SessionNotFoundError";
+  readonly _tag = 'SessionNotFoundError';
 }
 
 export class GetSessionService extends Effect.Service<GetSessionService>()(
-  "GetSessionService",
+  'GetSessionService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -31,5 +31,5 @@ export class GetSessionService extends Effect.Service<GetSessionService>()(
         }),
       };
     }),
-  }
+  },
 ) {}

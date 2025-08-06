@@ -1,6 +1,6 @@
-import { activityCategoriesData, activityData, dappsData } from "data";
-import { activities, activityCategories, dapps, type Db } from "db/incentives";
-import { sql } from "drizzle-orm";
+import { activityCategoriesData, activityData, dappsData } from 'data';
+import { activities, activityCategories, dapps, type Db } from 'db/incentives';
+import { sql } from 'drizzle-orm';
 
 export const createActivities = async (db: Db) => {
   await db.insert(dapps).values(dappsData).onConflictDoNothing();
@@ -24,7 +24,7 @@ export const createActivities = async (db: Db) => {
         category: activity.categoryId,
         dapp: activity.dAppId,
         componentAddresses: activity.componentAddresses,
-      }))
+      })),
     )
     .returning()
     .onConflictDoUpdate({

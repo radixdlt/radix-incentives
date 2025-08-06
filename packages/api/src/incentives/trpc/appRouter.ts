@@ -1,18 +1,18 @@
-import { createCallerFactory, createTRPCRouter } from ".";
-import { authRouter } from "../auth/authRouter";
-import { accountRouter } from "../account/accountRouter";
+import { createCallerFactory, createTRPCRouter } from '.';
+import { authRouter } from '../auth/authRouter';
+import { accountRouter } from '../account/accountRouter';
 import {
   activityRouter,
   adminActivityRouter,
-} from "../activity/activityRouter";
-import { adminSeasonRouter } from "../season/seasonRouter";
-import { adminUserRouter, userRouter } from "../user/userRouter";
-import { leaderboardRouter } from "../leaderboard/leaderboardRouter";
-import { configRouter, adminConfigRouter } from "../config/configRouter";
-import { weekAdminRouter, weekRouter } from "../week/weekRouter";
-import { adminDappRouter, dappRouter } from "../dapp/dappRouter";
-import { adminComponentWhitelistRouter } from "../component/componentWhitelistRouter";
-import { adminSeedRouter } from "../seed/seedRouter";
+} from '../activity/activityRouter';
+import { adminSeasonRouter } from '../season/seasonRouter';
+import { adminUserRouter, userRouter } from '../user/userRouter';
+import { leaderboardRouter } from '../leaderboard/leaderboardRouter';
+import { configRouter, adminConfigRouter } from '../config/configRouter';
+import { weekAdminRouter, weekRouter } from '../week/weekRouter';
+import { adminDappRouter, dappRouter } from '../dapp/dappRouter';
+import { adminComponentWhitelistRouter } from '../component/componentWhitelistRouter';
+import { adminSeedRouter } from '../seed/seedRouter';
 
 /**
  * This is the primary router for your server.

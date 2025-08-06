@@ -1,17 +1,17 @@
-import { Effect, Either } from "effect";
-import { CreateSnapshotService } from "./createSnapshot";
-import { UpdateSnapshotService } from "./updateSnapshot";
-import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
-import { chunker } from "../../common";
-import { GetAccountBalancesAtStateVersionService } from "../account-balance/getAccountBalancesAtStateVersion";
-import { GetAllValidatorsService } from "../../common/gateway/getAllValidators";
-import { GetAccountAddressesService } from "../account/getAccounts";
-import { UpsertAccountBalancesService } from "../account-balance/upsertAccountBalance";
-import { AggregateAccountBalanceService } from "../account-balance/aggregateAccountBalance";
-import { generateDummySnapshotData } from "./generateDummySnapshotData";
+import { Effect, Either } from 'effect';
+import { CreateSnapshotService } from './createSnapshot';
+import { UpdateSnapshotService } from './updateSnapshot';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { chunker } from '../../common';
+import { GetAccountBalancesAtStateVersionService } from '../account-balance/getAccountBalancesAtStateVersion';
+import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
+import { GetAccountAddressesService } from '../account/getAccounts';
+import { UpsertAccountBalancesService } from '../account-balance/upsertAccountBalance';
+import { AggregateAccountBalanceService } from '../account-balance/aggregateAccountBalance';
+import { generateDummySnapshotData } from './generateDummySnapshotData';
 
 export class SnapshotError {
-  _tag = "SnapshotError";
+  _tag = 'SnapshotError';
   constructor(public readonly message: string) {}
 }
 
@@ -24,7 +24,7 @@ export type SnapshotInput = {
 };
 
 export class SnapshotService extends Effect.Service<SnapshotService>()(
-  "SnapshotService",
+  'SnapshotService',
   {
     effect: Effect.gen(function* () {
       const getLedgerState = yield* GetLedgerStateService;
@@ -38,24 +38,24 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         yield* AggregateAccountBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
 
-      return Effect.fn("snapshot")(function* (input: SnapshotInput) {
+      return Effect.fn('snapshot')(function* (input: SnapshotInput) {
         yield* Effect.log(
-          "running snapshot",
+          'running snapshot',
           JSON.stringify({
             timestamp: input.timestamp,
             addresses: input.addresses,
             batchSize: input.batchSize,
             jobId: input.jobId,
-          })
+          }),
         );
 
         if (!input.timestamp)
-          return yield* Effect.fail(new SnapshotError("Timestamp is required"));
+          return yield* Effect.fail(new SnapshotError('Timestamp is required'));
 
         // Get batch size from input or environment variable, default to 1000
         const batchSize =
           input.batchSize ??
-          Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? "30000", 10);
+          Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? '30000', 10);
 
         const lederState = yield* getLedgerState({
           at_ledger_state: {
@@ -70,17 +70,17 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
           }));
 
         yield* Effect.log(
-          "processing accounts in batches",
+          'processing accounts in batches',
           JSON.stringify({
             totalAccounts: accountAddresses.length,
             batchSize,
             totalBatches: Math.ceil(accountAddresses.length / batchSize),
-          })
+          }),
         );
 
         const { id: snapshotId } = yield* createSnapshot({
           timestamp: input.timestamp,
-          status: "processing",
+          status: 'processing',
         });
 
         const validators = yield* getAllValidatorsService();
@@ -104,12 +104,12 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
           if (!batch) {
             return yield* Effect.fail(
-              new SnapshotError(`Batch ${batchIndex} is undefined`)
+              new SnapshotError(`Batch ${batchIndex} is undefined`),
             );
           }
 
           yield* Effect.log(
-            "getting account balances for batch",
+            'getting account balances for batch',
             JSON.stringify({
               batchIndex: batchIndex + 1,
               totalBatches: accountBatches.length,
@@ -117,7 +117,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               processedAccounts,
               totalAccounts: accountAddresses.length,
               progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            })
+            }),
           );
 
           const [accountBalancesResult] = yield* Effect.all(
@@ -130,17 +130,17 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
                 validators: validators,
               }).pipe(
                 Effect.withSpan(
-                  `getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`
-                )
+                  `getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`,
+                ),
               ),
             ],
-            { mode: "either" }
+            { mode: 'either' },
           );
 
           if (Either.isLeft(accountBalancesResult)) {
             yield* updateSnapshot({
               id: snapshotId,
-              status: "failed",
+              status: 'failed',
             });
             const error = accountBalancesResult.left;
             return yield* Effect.fail(error);
@@ -149,7 +149,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
           const accountBalances = accountBalancesResult.right;
 
           yield* Effect.log(
-            "aggregating account balances and converting into USD for batch",
+            'aggregating account balances and converting into USD for batch',
             JSON.stringify({
               batchIndex: batchIndex + 1,
               totalBatches: accountBatches.length,
@@ -157,7 +157,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               processedAccounts,
               totalAccounts: accountAddresses.length,
               progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            })
+            }),
           );
 
           const [aggregateAccountBalanceResult] = yield* Effect.all(
@@ -167,24 +167,24 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
                 timestamp: input.timestamp,
               }).pipe(
                 Effect.withSpan(
-                  `aggregateAccountBalance_batch_${batchIndex + 1}`
-                )
+                  `aggregateAccountBalance_batch_${batchIndex + 1}`,
+                ),
               ),
             ],
-            { mode: "either" }
+            { mode: 'either' },
           );
 
           if (Either.isLeft(aggregateAccountBalanceResult)) {
             const error = aggregateAccountBalanceResult.left;
-            yield* Effect.logError("Account balance aggregation failed", error);
+            yield* Effect.logError('Account balance aggregation failed', error);
             yield* updateSnapshot({
               id: snapshotId,
-              status: "failed",
+              status: 'failed',
             });
             return yield* Effect.fail(
               new SnapshotError(
-                `Failed to convert account balances for batch ${batchIndex + 1}: ${error}`
-              )
+                `Failed to convert account balances for batch ${batchIndex + 1}: ${error}`,
+              ),
             );
           }
 
@@ -202,7 +202,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
           }
 
           yield* Effect.log(
-            "upserting account balances for batch",
+            'upserting account balances for batch',
             JSON.stringify({
               batchIndex: batchIndex + 1,
               totalBatches: accountBatches.length,
@@ -210,12 +210,12 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               processedAccounts,
               totalAccounts: accountAddresses.length,
               progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            })
+            }),
           );
 
           // Upsert results for this batch immediately
           yield* upsertAccountBalances(batchAggregatedAccountBalance).pipe(
-            Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`)
+            Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
           );
 
           // Update progress
@@ -223,7 +223,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
           totalProcessedEntries += batchAggregatedAccountBalance.length;
 
           yield* Effect.log(
-            "completed batch",
+            'completed batch',
             JSON.stringify({
               batchIndex: batchIndex + 1,
               totalBatches: accountBatches.length,
@@ -231,7 +231,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               processedAccounts,
               totalAccounts: accountAddresses.length,
               progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            })
+            }),
           );
 
           // Clear batch data from memory to reduce memory usage
@@ -239,26 +239,26 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         }
 
         yield* Effect.log(
-          "all batches completed for job",
+          'all batches completed for job',
           JSON.stringify({
             totalBatches: accountBatches.length,
             processedAccounts,
             totalAccounts: accountAddresses.length,
             progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-          })
+          }),
         );
 
         yield* Effect.log(
-          "updating snapshot for job",
+          'updating snapshot for job',
           JSON.stringify({
             jobId: input.jobId,
             timestamp: input.timestamp,
-          })
+          }),
         );
 
         yield* updateSnapshot({
           id: snapshotId,
-          status: "completed",
+          status: 'completed',
         });
 
         yield* Effect.log(`snapshot completed for job ${input.jobId}
@@ -266,7 +266,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         `);
       });
     }),
-  }
+  },
 ) {}
 
 export const SnapshotLive = SnapshotService.Default;

@@ -1,9 +1,9 @@
-"use client"; // Assuming this will be used in client components
+'use client'; // Assuming this will be used in client components
 
-import * as React from "react";
-import * as AvatarPrimitive from "@radix-ui/react-avatar";
-import { UserRound } from "lucide-react";
-import { cn } from "~/lib/utils"; // Corrected path assumption
+import * as React from 'react';
+import * as AvatarPrimitive from '@radix-ui/react-avatar';
+import { UserRound } from 'lucide-react';
+import { cn } from '~/lib/utils'; // Corrected path assumption
 
 const Avatar = React.forwardRef<
   React.ElementRef<typeof AvatarPrimitive.Root>,
@@ -12,8 +12,8 @@ const Avatar = React.forwardRef<
   <AvatarPrimitive.Root
     ref={ref}
     className={cn(
-      "relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full",
-      className
+      'relative flex h-10 w-10 shrink-0 overflow-hidden rounded-full',
+      className,
     )}
     {...props}
   />
@@ -26,7 +26,7 @@ const AvatarImage = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AvatarPrimitive.Image
     ref={ref}
-    className={cn("aspect-square h-full w-full", className)}
+    className={cn('aspect-square h-full w-full', className)}
     {...props}
   />
 ));
@@ -39,8 +39,8 @@ const AvatarFallback = React.forwardRef<
   <AvatarPrimitive.Fallback
     ref={ref}
     className={cn(
-      "flex h-full w-full items-center justify-center rounded-[inherit] bg-secondary text-xs",
-      className
+      'flex h-full w-full items-center justify-center rounded-[inherit] bg-secondary text-xs',
+      className,
     )}
     {...props}
   />
@@ -50,19 +50,19 @@ AvatarFallback.displayName = AvatarPrimitive.Fallback.displayName;
 interface UserAvatarProps {
   name?: string | null;
   src?: string;
-  size?: "sm" | "md" | "lg";
+  size?: 'sm' | 'md' | 'lg';
   className?: string;
 }
 
 const UserAvatar: React.FC<UserAvatarProps> = ({
   name,
   src,
-  size = "md", // Default size matches the previous div
+  size = 'md', // Default size matches the previous div
   className,
 }) => {
   const getInitials = (name: string | null | undefined) => {
-    if (!name) return "";
-    const parts = name.split(" ") || [];
+    if (!name) return '';
+    const parts = name.split(' ') || [];
     if (parts.length >= 2 && parts[0] && parts[1]) {
       // Ensure parts[0] and parts[1] have characters before accessing [0]
       if (parts[0].length > 0 && parts[1].length > 0) {
@@ -70,13 +70,13 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
       }
     }
     // Ensure name has characters before accessing [0]
-    return name.length > 0 ? name[0]?.toUpperCase() : "";
+    return name.length > 0 ? name[0]?.toUpperCase() : '';
   };
 
   const sizeClasses = {
-    sm: "h-8 w-8",
-    md: "h-10 w-10", // Matches the previous div size
-    lg: "h-12 w-12",
+    sm: 'h-8 w-8',
+    md: 'h-10 w-10', // Matches the previous div size
+    lg: 'h-12 w-12',
   };
 
   const iconSizes = {
@@ -87,7 +87,7 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
 
   return (
     <Avatar className={cn(sizeClasses[size], className)}>
-      {src && <AvatarImage src={src} alt={name || "User"} />}
+      {src && <AvatarImage src={src} alt={name || 'User'} />}
       <AvatarFallback>
         {name ? (
           getInitials(name)

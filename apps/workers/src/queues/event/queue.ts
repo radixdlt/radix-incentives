@@ -1,8 +1,8 @@
-import { createQueue } from "../createQueue";
-import { redisClient } from "../../redis";
-import { eventQueueWorker } from "./worker";
-import type { EventQueueJob } from "./schemas";
-import { QueueName } from "../types";
+import { createQueue } from '../createQueue';
+import { redisClient } from '../../redis';
+import { eventQueueWorker } from './worker';
+import type { EventQueueJob } from './schemas';
+import { QueueName } from '../types';
 
 export const eventQueue = createQueue<EventQueueJob, void>({
   name: QueueName.event,

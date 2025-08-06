@@ -1,10 +1,10 @@
-import { Effect } from "effect";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { GatewayError } from "./errors";
-import type { ResourceHoldersCollectionItem } from "@radixdlt/babylon-gateway-api-sdk";
+import { Effect } from 'effect';
+import { GatewayApiClientService } from './gatewayApiClient';
+import { GatewayError } from './errors';
+import type { ResourceHoldersCollectionItem } from '@radixdlt/babylon-gateway-api-sdk';
 
 export class GetResourceHoldersService extends Effect.Service<GetResourceHoldersService>()(
-  "GetResourceHoldersService",
+  'GetResourceHoldersService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
@@ -17,7 +17,7 @@ export class GetResourceHoldersService extends Effect.Service<GetResourceHolders
           try: () =>
             gatewayClient.extensions.getResourceHolders(
               input.resourceAddress,
-              input.cursor
+              input.cursor,
             ),
           catch: (error) => {
             return new GatewayError({ error });
@@ -54,5 +54,5 @@ export class GetResourceHoldersService extends Effect.Service<GetResourceHolders
         return Array.from(holders.values());
       });
     }),
-  }
+  },
 ) {}

@@ -1,11 +1,11 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { votingPower } from "db/consultation";
-import { sql } from "drizzle-orm";
-import { chunker } from "../../common/helpers/chunker";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { votingPower } from 'db/consultation';
+import { sql } from 'drizzle-orm';
+import { chunker } from '../../common/helpers/chunker';
 
 export class AddVotingPowerToDbService extends Effect.Service<AddVotingPowerToDbService>()(
-  "AddVotingPowerToDbService",
+  'AddVotingPowerToDbService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -18,7 +18,7 @@ export class AddVotingPowerToDbService extends Effect.Service<AddVotingPowerToDb
             balances: Record<string, string>;
             selectedOption: string;
             rolaProof: string;
-          }[]
+          }[],
         ) {
           // Split input into chunks of 10,000 rows
           const chunks = chunker(input, 10000);
@@ -50,5 +50,5 @@ export class AddVotingPowerToDbService extends Effect.Service<AddVotingPowerToDb
         }),
       };
     }),
-  }
+  },
 ) {}

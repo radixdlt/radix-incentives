@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { type User, user } from "db/consultation";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { type User, user } from 'db/consultation';
 
 export class UpsertUserService extends Effect.Service<UpsertUserService>()(
-  "UpsertUserService",
+  'UpsertUserService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -30,5 +30,5 @@ export class UpsertUserService extends Effect.Service<UpsertUserService>()(
         }),
       };
     }),
-  }
+  },
 ) {}

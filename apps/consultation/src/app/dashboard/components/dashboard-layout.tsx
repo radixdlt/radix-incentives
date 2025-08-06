@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { RadixConnectButton } from "./RadixConnectButton";
-import { Sidebar, SidebarBody, SidebarLink } from "~/components/ui/sidebar";
-import { Users, Vote } from "lucide-react";
+import Link from 'next/link';
+import Image from 'next/image';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
+import { RadixConnectButton } from './RadixConnectButton';
+import { Sidebar, SidebarBody, SidebarLink } from '~/components/ui/sidebar';
+import { Users, Vote } from 'lucide-react';
 
 const navItems = [
   {
-    label: "Accounts",
-    href: "/dashboard/accounts",
+    label: 'Accounts',
+    href: '/dashboard/accounts',
     icon: (
       <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),
   },
   {
-    label: "Consultations",
-    href: "/dashboard/consultations",
+    label: 'Consultations',
+    href: '/dashboard/consultations',
     icon: (
       <Vote className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
     ),

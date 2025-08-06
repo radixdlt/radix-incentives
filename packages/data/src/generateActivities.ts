@@ -1,49 +1,49 @@
-import { CaviarNineConstants } from "./dapps/caviarnine/constants";
+import { CaviarNineConstants } from './dapps/caviarnine/constants';
 import {
   getTokenPairFromResourceAddresses,
   type TokenDetails,
-} from "./helpers/getTokenPair";
-import { Effect, pipe } from "effect";
-import { Action, type ActivityData, DappId, deriveLpActivityId } from "./types";
-import { Assets, AssetType } from "./assets";
-import fs from "node:fs";
-import path from "node:path";
-import { deduplicate, flatten, sort } from "./helpers/utils";
-import { ActivityCategoryId } from "./activityCategories";
-import { OciswapConstants } from "./dapps/ociswap/constants";
-import { DefiPlazaConstants } from "./dapps/defiPlaza/constants";
-import { SurgeConstants } from "./dapps/surge/constants";
+} from './helpers/getTokenPair';
+import { Effect, pipe } from 'effect';
+import { Action, type ActivityData, DappId, deriveLpActivityId } from './types';
+import { Assets, AssetType } from './assets';
+import fs from 'node:fs';
+import path from 'node:path';
+import { deduplicate, flatten, sort } from './helpers/utils';
+import { ActivityCategoryId } from './activityCategories';
+import { OciswapConstants } from './dapps/ociswap/constants';
+import { DefiPlazaConstants } from './dapps/defiPlaza/constants';
+import { SurgeConstants } from './dapps/surge/constants';
 import {
   WeftFinanceConstants,
   weftFungibleRecourceAddresses,
-} from "./dapps/weftFinance/constants";
-import { RootFinanceConstants } from "./dapps/rootFinance/constants";
-import { groupBy } from "effect/Array";
+} from './dapps/weftFinance/constants';
+import { RootFinanceConstants } from './dapps/rootFinance/constants';
+import { groupBy } from 'effect/Array';
 
 const PoolType = {
-  DEX: "DEX",
-  LENDING: "LENDING",
+  DEX: 'DEX',
+  LENDING: 'LENDING',
 } as const;
 
 type PoolType = (typeof PoolType)[keyof typeof PoolType];
 
 type DexPool = {
   dAppId: DappId;
-  poolType: (typeof PoolType)["DEX"];
+  poolType: (typeof PoolType)['DEX'];
   tokens: [string, string] | [string];
   componentAddress: string;
 };
 
 type LendingPool = {
   dAppId: DappId;
-  poolType: (typeof PoolType)["LENDING"];
+  poolType: (typeof PoolType)['LENDING'];
   tokens: [string];
   componentAddress: string;
 };
 
 type Pool = DexPool | LendingPool;
 
-const outputPath = path.join(import.meta.dirname, "output", "activities.ts");
+const outputPath = path.join(import.meta.dirname, 'output', 'activities.ts');
 
 const allCaviarNinePools = [
   ...Object.values(CaviarNineConstants.shapeLiquidityPools),
@@ -55,7 +55,7 @@ const allCaviarNinePools = [
     poolType: PoolType.DEX,
     tokens: [pool.token_x, pool.token_y],
     componentAddress: pool.componentAddress,
-  })
+  }),
 );
 
 const allOciswapPools = [
@@ -69,7 +69,7 @@ const allOciswapPools = [
     poolType: PoolType.DEX,
     tokens: [pool.token_x, pool.token_y],
     componentAddress: pool.componentAddress,
-  })
+  }),
 );
 
 const allDefiPlazaPools = [...Object.values(DefiPlazaConstants)].map(
@@ -78,7 +78,7 @@ const allDefiPlazaPools = [...Object.values(DefiPlazaConstants)].map(
     poolType: PoolType.DEX,
     tokens: [pool.baseResourceAddress, pool.quoteResourceAddress],
     componentAddress: pool.componentAddress,
-  })
+  }),
 );
 
 const allSurgePools = [
@@ -92,7 +92,7 @@ const allSurgePools = [
 
 const allWeftPools: LendingPool[] = Object.values(WeftFinanceConstants.v2)
   .map((item) => {
-    if (item.type !== "fungible") {
+    if (item.type !== 'fungible') {
       return null;
     }
     const token = weftFungibleRecourceAddresses.get(item.resourceAddress);
@@ -115,7 +115,7 @@ const allRootPools = Object.values(RootFinanceConstants.supportedAssets).map(
     poolType: PoolType.LENDING,
     tokens: [item.resourceAddress],
     componentAddress: RootFinanceConstants.componentAddress,
-  })
+  }),
 );
 
 const allPools: Pool[] = [
@@ -161,7 +161,7 @@ const deriveActivities = (
   input: Pool & {
     assets: TokenDetails[];
     tokenPair: string;
-  }
+  },
 ) => {
   const { dAppId, tokenPair, assets, componentAddress, poolType } = input;
 
@@ -204,7 +204,7 @@ const deriveActivities = (
 
     // Only add trading volume activity if the tokens are different.
     // e.g. LSULP pool should not have a trading volume activity
-    if (!isSingleTokenPool && poolType === "DEX") {
+    if (!isSingleTokenPool && poolType === 'DEX') {
       const tradeActivityId = `${dAppId}_${Action.TRADE}_${tokenPair}`;
       activities.push({
         categoryId: ActivityCategoryId.tradingVolume,
@@ -241,7 +241,7 @@ const deriveActivityDetails = Effect.fn(function* (input: Pool) {
 
   const { tokenPair, assets } = yield* getTokenPairFromResourceAddresses(
     tokenA,
-    tokenB
+    tokenB,
   );
 
   const activities = deriveActivities({ ...input, tokenPair, assets });
@@ -258,7 +258,7 @@ const arrayToRecord = (items: string[]) =>
 const runnable = Effect.gen(function* () {
   const activities = yield* Effect.forEach(
     allPools,
-    deriveActivityDetails
+    deriveActivityDetails,
   ).pipe(Effect.map(flatten));
 
   // additional activities that didn't fit into the pool structure
@@ -266,14 +266,14 @@ const runnable = Effect.gen(function* () {
     {
       categoryId: ActivityCategoryId.maintainXrdBalance,
       activityId: `${Action.HOLD}_xrd`,
-      componentAddress: "",
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.HOLD,
       assets: [
         {
           assetType: AssetType.NATIVE,
-          name: "xrd",
+          name: 'xrd',
           resourceAddress: Assets.Fungible.XRD,
         },
       ],
@@ -281,14 +281,14 @@ const runnable = Effect.gen(function* () {
     {
       categoryId: ActivityCategoryId.maintainXrdBalance,
       activityId: `${Action.HOLD}_lsulp`,
-      componentAddress: "",
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.HOLD,
       assets: [
         {
           assetType: AssetType.NATIVE,
-          name: "lsulp",
+          name: 'lsulp',
           resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
         },
       ],
@@ -296,18 +296,18 @@ const runnable = Effect.gen(function* () {
     {
       categoryId: ActivityCategoryId.maintainXrdBalance,
       activityId: `${Action.HOLD}_stakedXrd`,
-      componentAddress: "",
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.HOLD,
       assets: [],
     },
     {
       categoryId: ActivityCategoryId.maintainXrdBalance,
       activityId: `${Action.HOLD}_unstakedXrd`,
-      componentAddress: "",
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.HOLD,
       assets: [],
     },
@@ -316,7 +316,7 @@ const runnable = Effect.gen(function* () {
       activityId: `${DappId.weft}_${Action.HOLD}_stakedXrd`,
       componentAddress: WeftFinanceConstants.v2.WeftyV2.componentAddress,
       dAppId: DappId.weft,
-      tokenPair: "stakedXrd",
+      tokenPair: 'stakedXrd',
       action: Action.HOLD,
       assets: [],
     },
@@ -325,7 +325,7 @@ const runnable = Effect.gen(function* () {
       activityId: `${DappId.weft}_${Action.HOLD}_unstakedXrd`,
       componentAddress: WeftFinanceConstants.v2.WeftyV2.componentAddress,
       dAppId: DappId.weft,
-      tokenPair: "unstakedXrd",
+      tokenPair: 'unstakedXrd',
       action: Action.HOLD,
       assets: [],
     },
@@ -334,43 +334,43 @@ const runnable = Effect.gen(function* () {
       activityId: `${DappId.weft}_${Action.HOLD}_lsulp`,
       componentAddress: WeftFinanceConstants.v2.WeftyV2.componentAddress,
       dAppId: DappId.weft,
-      tokenPair: "lsulp",
+      tokenPair: 'lsulp',
       action: Action.HOLD,
       assets: [
         {
           assetType: AssetType.NATIVE,
-          name: "lsulp",
+          name: 'lsulp',
           resourceAddress: CaviarNineConstants.LSULP.resourceAddress,
         },
       ],
     },
     {
       categoryId: ActivityCategoryId.componentCalls,
-      activityId: "componentCalls",
-      componentAddress: "",
+      activityId: 'componentCalls',
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.OTHER,
       assets: [],
     },
     {
       categoryId: ActivityCategoryId.transactionFees,
-      activityId: "txFees",
-      componentAddress: "",
+      activityId: 'txFees',
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.OTHER,
       assets: [],
     },
     {
       categoryId: ActivityCategoryId.common,
-      activityId: "common",
-      componentAddress: "",
+      activityId: 'common',
+      componentAddress: '',
       dAppId: DappId.radix,
-      tokenPair: "",
+      tokenPair: '',
       action: Action.OTHER,
       assets: [],
-    }
+    },
   );
 
   const groupedActivities = groupBy(activities, (item) => item.activityId);
@@ -379,19 +379,21 @@ const runnable = Effect.gen(function* () {
     ([_, activities]) => {
       const { componentAddress, ...firstActivity } = activities[0];
       const componentAddresses = new Set(
-        activities.map((item) => item.componentAddress).filter((item) => !!item)
+        activities
+          .map((item) => item.componentAddress)
+          .filter((item) => !!item),
       );
 
       return {
         ...firstActivity,
         componentAddresses: Array.from(componentAddresses.values()),
       };
-    }
+    },
   );
 
   const activitiesGroupedByDappId = pipe(
     deduplicatedActivities,
-    groupBy((item) => item.dAppId)
+    groupBy((item) => item.dAppId),
   );
 
   const activityIds = pipe(
@@ -399,7 +401,7 @@ const runnable = Effect.gen(function* () {
     (items) => items.map((item) => item.activityId),
     deduplicate,
     sort,
-    arrayToRecord
+    arrayToRecord,
   );
 
   const componentAddresses = pipe(
@@ -407,60 +409,60 @@ const runnable = Effect.gen(function* () {
     (items) => items.map((item) => item.componentAddress),
     (items) => items.filter((item) => !!item),
     deduplicate,
-    sort
+    sort,
   );
 
   const allTradingActivities = pipe(activities, (items) =>
-    items.filter((item) => item.action === Action.TRADE)
+    items.filter((item) => item.action === Action.TRADE),
   );
 
   const allLpActivities = pipe(activities, (items) =>
-    items.filter((item) => item.action === Action.LP)
+    items.filter((item) => item.action === Action.LP),
   );
 
   const tradingActivityIdByComponentAddress = pipe(
     allTradingActivities,
     (items) => items.map((item) => [item.componentAddress, item.activityId]),
-    (items) => Object.fromEntries(items)
+    (items) => Object.fromEntries(items),
   );
 
   const lpActivityIdByComponentAddress = pipe(
     allLpActivities,
     (items) => items.map((item) => [item.componentAddress, item.activityId]),
-    (items) => Object.fromEntries(items)
+    (items) => Object.fromEntries(items),
   );
 
   const componentAddressToActivityDataMap: Record<
     string,
-    Omit<ActivityData, "componentAddresses">[]
+    Omit<ActivityData, 'componentAddresses'>[]
   > = pipe(
     activities,
     (items) => groupBy(items, (item) => item.componentAddress),
     (items) => Object.entries(items),
-    (items) => items.filter(([componentAddress]) => componentAddress !== ""),
+    (items) => items.filter(([componentAddress]) => componentAddress !== ''),
     (items) =>
       items.map(([componentAddress, activities]) => [
         componentAddress,
         activities.map(({ componentAddress, ...item }) => item),
       ]),
-    (items) => Object.fromEntries(items)
+    (items) => Object.fromEntries(items),
   );
 
   const output = [
-    "// DO NOT EDIT THIS FILE",
-    "// This file is auto-generated by generateActivities.ts",
+    '// DO NOT EDIT THIS FILE',
+    '// This file is auto-generated by generateActivities.ts',
     `import type { ActivityData, DappId } from "../types";`,
 
     `export const ActivityId = ${JSON.stringify(activityIds, null, 2)} as const`,
 
-    "export type ActivityId = (typeof ActivityId)[keyof typeof ActivityId];",
+    'export type ActivityId = (typeof ActivityId)[keyof typeof ActivityId];',
 
     `export const matchActivityId = (input: string) =>
     !!ActivityId[input as keyof typeof ActivityId];`,
 
     `const componentAddresses = ${JSON.stringify(componentAddresses, null, 2)}`,
 
-    "const componentAddressSet = new Set(componentAddresses);",
+    'const componentAddressSet = new Set(componentAddresses);',
 
     `export const matchComponentAddress = (input: string) =>
     componentAddressSet.has(input);`,
@@ -468,7 +470,7 @@ const runnable = Effect.gen(function* () {
     `const componentAddressTradingActivityIdMap: Record<string, ActivityId> = ${JSON.stringify(
       tradingActivityIdByComponentAddress,
       null,
-      2
+      2,
     )}`,
 
     `export const getTradingActivityIdByComponentAddress = (componentAddress: string): ActivityId | undefined =>
@@ -477,7 +479,7 @@ const runnable = Effect.gen(function* () {
     `const componentAddressLpActivityIdMap: Record<string, ActivityId> = ${JSON.stringify(
       lpActivityIdByComponentAddress,
       null,
-      2
+      2,
     )}`,
 
     `export const getLpActivityIdByComponentAddress = (componentAddress: string): ActivityId | undefined =>
@@ -486,25 +488,25 @@ const runnable = Effect.gen(function* () {
     `export const activityDataByDappId: Record<DappId, ActivityData[]> = ${JSON.stringify(
       activitiesGroupedByDappId,
       null,
-      2
+      2,
     )}`,
 
     `export const activityData: ActivityData[] = ${JSON.stringify(
       deduplicatedActivities,
       null,
-      2
+      2,
     )}`,
 
     `export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, "componentAddresses">[]> = ${JSON.stringify(
       componentAddressToActivityDataMap,
       null,
-      2
+      2,
     )}`,
-  ].join("\n\n");
+  ].join('\n\n');
 
   fs.writeFileSync(outputPath, output);
 
-  console.log("Generated /output/activities.ts");
+  console.log('Generated /output/activities.ts');
 });
 
 Effect.runPromise(runnable);

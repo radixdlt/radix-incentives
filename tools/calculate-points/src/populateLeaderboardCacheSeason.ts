@@ -1,25 +1,27 @@
 #!/usr/bin/env tsx
 
-import { Effect, Layer } from "effect";
-import { LeaderboardCacheService } from "api/incentives/leaderboard/leaderboardCache";
-import { createDbClientLive } from "api/incentives/db/dbClient";
-import { dbClient } from "api/incentives";
-import { z } from "zod";
+import { Effect, Layer } from 'effect';
+import { LeaderboardCacheService } from 'api/incentives/leaderboard/leaderboardCache';
+import { createDbClientLive } from 'api/incentives/db/dbClient';
+import { dbClient } from 'api/incentives';
+import { z } from 'zod';
 
 const argsSchema = z.object({
-  seasonId: z.string().uuid("Season ID must be a valid UUID"),
+  seasonId: z.string().uuid('Season ID must be a valid UUID'),
 });
 
 const args = process.argv.slice(2);
 if (args.length === 0) {
-  console.error("❌ Usage: pnpm cache:season <season-id>");
-  console.error("Example: pnpm cache:season 123e4567-e89b-12d3-a456-426614174000");
+  console.error('❌ Usage: pnpm cache:season <season-id>');
+  console.error(
+    'Example: pnpm cache:season 123e4567-e89b-12d3-a456-426614174000',
+  );
   process.exit(1);
 }
 
 const parseResult = argsSchema.safeParse({ seasonId: args[0] });
 if (!parseResult.success) {
-  console.error("❌ Invalid arguments:");
+  console.error('❌ Invalid arguments:');
   for (const err of parseResult.error.errors) {
     console.error(`  ${err.path.join('.')}: ${err.message}`);
   }
@@ -29,29 +31,31 @@ if (!parseResult.success) {
 const { seasonId } = parseResult.data;
 
 const program = Effect.gen(function* () {
-  console.log(`🚀 Starting leaderboard cache population for season: ${seasonId}`);
-  
+  console.log(
+    `🚀 Starting leaderboard cache population for season: ${seasonId}`,
+  );
+
   const leaderboardCacheService = yield* LeaderboardCacheService;
-  
+
   yield* leaderboardCacheService.populateAll({
-    seasonId
+    seasonId,
   });
-  
-  console.log("✅ Season leaderboard cache population completed successfully!");
+
+  console.log('✅ Season leaderboard cache population completed successfully!');
 });
 
 const dbClientLive = createDbClientLive(dbClient);
 const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
-  Layer.provide(dbClientLive)
+  Layer.provide(dbClientLive),
 );
 
 const runnable = Effect.provide(program, leaderboardCacheServiceLive);
 
 Effect.runPromiseExit(runnable).then((result) => {
-  if (result._tag === "Success") {
+  if (result._tag === 'Success') {
     process.exit(0);
   } else {
-    console.error("❌ Failed to populate season leaderboard cache:");
+    console.error('❌ Failed to populate season leaderboard cache:');
     console.error(result.cause);
     process.exit(1);
   }

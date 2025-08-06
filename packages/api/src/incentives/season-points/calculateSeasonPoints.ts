@@ -1,21 +1,21 @@
-import { Data, Effect } from "effect";
-import { z, type ZodError } from "zod";
-import { UserActivityPointsService } from "../user/userActivityPoints";
-import BigNumber from "bignumber.js";
-import { createUserBands } from "./createUserBands";
-import { supplyPercentileTrim } from "./supplyPercentileTrim";
-import { distributeSeasonPoints } from "./distributePoints";
-import { AddSeasonPointsToUserService } from "./addSeasonPointsToUser";
-import { UpdateWeekStatusService } from "../week/updateWeekStatus";
-import { GetSeasonPointMultiplierService } from "../season-point-multiplier/getSeasonPointMultiplier";
-import { Thresholds } from "../../common/config/constants";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { groupBy } from "effect/Array";
-import { SeasonService } from "../season/season";
-import { WeekService } from "../week/week";
-import { ActivityCategoryId } from "data";
-import { users } from "db/incentives";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Data, Effect } from 'effect';
+import { z, type ZodError } from 'zod';
+import { UserActivityPointsService } from '../user/userActivityPoints';
+import BigNumber from 'bignumber.js';
+import { createUserBands } from './createUserBands';
+import { supplyPercentileTrim } from './supplyPercentileTrim';
+import { distributeSeasonPoints } from './distributePoints';
+import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
+import { UpdateWeekStatusService } from '../week/updateWeekStatus';
+import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
+import { Thresholds } from '../../common/config/constants';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { groupBy } from 'effect/Array';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { ActivityCategoryId } from 'data';
+import { users } from 'db/incentives';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const calculateSeasonPointsInputSchema = z.object({
   weekId: z.string(),
@@ -27,16 +27,16 @@ export type CalculateSeasonPointsInput = z.infer<
   typeof calculateSeasonPointsInputSchema
 >;
 
-const InputValidationError = Data.TaggedError("InputValidationError")<
+const InputValidationError = Data.TaggedError('InputValidationError')<
   ZodError<CalculateSeasonPointsInput>
 >;
 
-const InvalidStateError = Data.TaggedError("InvalidStateError")<{
+const InvalidStateError = Data.TaggedError('InvalidStateError')<{
   message: string;
 }>;
 
 export class CalculateSeasonPointsService extends Effect.Service<CalculateSeasonPointsService>()(
-  "CalculateSeasonPointsService",
+  'CalculateSeasonPointsService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -58,13 +58,13 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       ]);
 
       const parseInput = Effect.fn(function* (
-        input: CalculateSeasonPointsInput
+        input: CalculateSeasonPointsInput,
       ) {
         const parsedInput = calculateSeasonPointsInputSchema.safeParse(input);
 
         if (parsedInput.error)
           return yield* Effect.fail(
-            new InputValidationError(parsedInput.error)
+            new InputValidationError(parsedInput.error),
           );
 
         return parsedInput.data;
@@ -76,23 +76,23 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       }) {
         const season = yield* seasonService.getById(input.seasonId);
 
-        if (season.status === "completed" && !input.force) {
+        if (season.status === 'completed' && !input.force) {
           yield* Effect.log(`season ${input.seasonId} is completed`);
           return yield* Effect.fail(
             new InvalidStateError({
               message: `season ${input.seasonId} is in completed state`,
-            })
+            }),
           );
         }
       });
 
       const validateWeek = Effect.fn(function* (
-        input: CalculateSeasonPointsInput
+        input: CalculateSeasonPointsInput,
       ) {
         const week = yield* weekService.getById(input.weekId);
 
         yield* Effect.log(
-          `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`
+          `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`,
         );
 
         if (week.processed && !input.force) {
@@ -100,13 +100,13 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           return yield* Effect.fail(
             new InvalidStateError({
               message: `week ${input.weekId} is already processed`,
-            })
+            }),
           );
         }
       });
 
       const getMinimumAPThreshold = Effect.fn(function* (
-        categoryId: ActivityCategoryId
+        categoryId: ActivityCategoryId,
       ) {
         // all thresholds in the map are 1, and the ACTIVITY_POINTS_THRESHOLD is too
         // so this might be unnecessary, but let's keep the structure for now
@@ -129,7 +129,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       });
 
       const markAsProcessed = Effect.fn(function* (
-        input: CalculateSeasonPointsInput
+        input: CalculateSeasonPointsInput,
       ) {
         if (input.markAsProcessed) {
           yield* updateWeekStatus.run({
@@ -141,7 +141,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
       return {
         run: Effect.fn(function* (input: CalculateSeasonPointsInput) {
-          yield* Effect.log("calculating season points", input);
+          yield* Effect.log('calculating season points', input);
 
           yield* parseInput(input);
 
@@ -169,7 +169,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                         weekId: input.weekId,
                         activityId: activity.id,
                         minPoints: yield* getMinimumAPThreshold(
-                          activityCategory.categoryId
+                          activityCategory.categoryId,
                         ),
                         minTWABalance: minimumBalance,
                       })
@@ -179,13 +179,13 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                           items.map((item) => ({
                             ...item,
                             points: item.points.multipliedBy(
-                              activity.multiplier
+                              activity.multiplier,
                             ),
                             activityId: activity.id,
-                          }))
-                        )
+                          })),
+                        ),
                       );
-                  })
+                  }),
                 ).pipe(
                   Effect.map((items) => items.flat()),
                   // aggregate user points by user
@@ -198,8 +198,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                       acc[item.userId] = acc[item.userId]!.plus(item.points);
 
                       return acc;
-                    }, {})
-                  )
+                    }, {}),
+                  ),
                 );
 
                 return {
@@ -210,7 +210,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                     points,
                   })),
                 };
-              })
+              }),
             );
 
           const seasonPointMultipliers = yield* getSeasonPointMultiplier
@@ -222,26 +222,26 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           const userSeasonPoints = yield* Effect.forEach(
             userActivityPointsGroupedByActivityCategory,
             Effect.fn(function* (activityCategory) {
-              yield* Effect.log("--------------------------------");
+              yield* Effect.log('--------------------------------');
               yield* Effect.log(
-                `processing category: ${activityCategory.categoryId} with points pool: ${activityCategory.pointsPool}`
+                `processing category: ${activityCategory.categoryId} with points pool: ${activityCategory.pointsPool}`,
               );
 
               // should not happen at this point, but just in case
               if (activityCategory.pointsPool.isZero()) {
                 yield* Effect.log(
-                  `activity category ${activityCategory.categoryId} has no points, skipping`
+                  `activity category ${activityCategory.categoryId} has no points, skipping`,
                 );
                 return;
               }
 
               if (activityCategory.users.length === 0) {
-                yield* Effect.log("no users found, skipping");
+                yield* Effect.log('no users found, skipping');
                 return;
               }
 
               yield* Effect.log(
-                `processing ${activityCategory.users.length} users`
+                `processing ${activityCategory.users.length} users`,
               );
 
               // remove users with low activity points
@@ -249,13 +249,13 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 activityCategory.users,
                 {
                   lowerBoundsPercentage,
-                }
+                },
               );
 
               const bands = yield* createUserBands({
                 numberOfBands: 20,
-                poolShareStart: new BigNumber("0.98").div(100),
-                poolShareStep: new BigNumber("1.15"),
+                poolShareStart: new BigNumber('0.98').div(100),
+                poolShareStep: new BigNumber('1.15'),
                 users: withoutLowerBounds,
               });
 
@@ -265,7 +265,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               });
 
               return seasonPoints;
-            })
+            }),
           ).pipe(
             // flatten and filter out undefined
             Effect.map((items) => items.flat().filter((p) => p !== undefined)),
@@ -280,14 +280,14 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 acc[curr.userId] = acc[curr.userId]!.plus(curr.seasonPoints);
 
                 return acc;
-              }, {})
+              }, {}),
             ),
 
             // multiply season points by multiplier
             Effect.map((items) =>
               Object.entries(items).map(([userId, seasonPoints]) => {
                 const multiplier =
-                  seasonPointMultipliers[userId]?.[0]?.multiplier ?? "0";
+                  seasonPointMultipliers[userId]?.[0]?.multiplier ?? '0';
 
                 return {
                   userId,
@@ -295,8 +295,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   points: seasonPoints.multipliedBy(multiplier),
                   weekId: input.weekId,
                 };
-              })
-            )
+              }),
+            ),
           );
 
           // Get all user IDs from the database
@@ -304,12 +304,12 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
           // Extract user IDs that already have season points
           const existingUserIds = new Set(
-            userSeasonPoints.map((sp) => sp.userId)
+            userSeasonPoints.map((sp) => sp.userId),
           );
 
           // Find users that don't have season points
           const missingUserIds = allUserIds.filter(
-            (userId) => !existingUserIds.has(userId)
+            (userId) => !existingUserIds.has(userId),
           );
 
           // Create zero season points for missing users
@@ -327,20 +327,20 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           ];
 
           yield* Effect.log(
-            `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`
+            `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`,
           );
 
           yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
 
           yield* markAsProcessed(input);
 
-          yield* Effect.log("--------------------------------");
+          yield* Effect.log('--------------------------------');
 
           yield* Effect.log(
-            `season points for week ${input.weekId} successfully applied to users`
+            `season points for week ${input.weekId} successfully applied to users`,
           );
         }),
       };
     }),
-  }
+  },
 ) {}

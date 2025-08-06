@@ -1,13 +1,13 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 const ConsultationId = {
-  RepurposeTheStablecoinReserve: "Repurpose the Stablecoin Reserve",
-  WaitForHyperlane: "WaitForHyperlane",
+  RepurposeTheStablecoinReserve: 'Repurpose the Stablecoin Reserve',
+  WaitForHyperlane: 'WaitForHyperlane',
 } as const;
 
 const ConsultationOptionId = {
-  Yes: "yes",
-  No: "no",
+  Yes: 'yes',
+  No: 'no',
 } as const;
 
 export type ConsultationOptionId =
@@ -21,8 +21,8 @@ const ConsultationOptionSchema = z.object({
 });
 
 const ConsultationOptions = [
-  { id: ConsultationOptionId.Yes, text: "Wait for HyperLane" },
-  { id: ConsultationOptionId.No, text: "Launch now" },
+  { id: ConsultationOptionId.Yes, text: 'Wait for HyperLane' },
+  { id: ConsultationOptionId.No, text: 'Launch now' },
 ];
 
 export type ConsultationOption = z.infer<typeof ConsultationOptionSchema>;
@@ -46,19 +46,19 @@ export type Consultation = z.infer<typeof ConsultationSchema>;
 export const consultationConfig = [
   {
     consultationId: ConsultationId.RepurposeTheStablecoinReserve,
-    title: "Repurpose the Stablecoin Reserve",
+    title: 'Repurpose the Stablecoin Reserve',
     question: `Repurpose the Stablecoin Reserve. <a class="text-blue-500 text-lg hover:underline" href="https://www.radixdlt.com/blog/token-holder-consultation-repurposing-the-stablecoin-reserve" target="_blank" rel="noopener noreferrer">Learn more</a>`,
-    startDate: new Date("2025-05-09T00:00:00Z"),
-    endDate: new Date("2025-05-19T23:59:00Z"),
+    startDate: new Date('2025-05-09T00:00:00Z'),
+    endDate: new Date('2025-05-19T23:59:00Z'),
     options: ConsultationOptions,
   },
   {
     consultationId: ConsultationId.WaitForHyperlane,
-    title: "Launch Radix Rewards with Hyperlane?",
+    title: 'Launch Radix Rewards with Hyperlane?',
     question:
-      "The Radix Foundation believes that launching Radix Rewards with the Hyperlane bridge in place will dramatically increase its reach and impact. Do you support launching the campaign at the moment of highest cross-chain accessibility and network visibility?",
-    startDate: new Date("2025-07-16T00:00:00Z"),
-    endDate: new Date("2025-07-23T23:59:00Z"),
+      'The Radix Foundation believes that launching Radix Rewards with the Hyperlane bridge in place will dramatically increase its reach and impact. Do you support launching the campaign at the moment of highest cross-chain accessibility and network visibility?',
+    startDate: new Date('2025-07-16T00:00:00Z'),
+    endDate: new Date('2025-07-23T23:59:00Z'),
     options: ConsultationOptions,
   },
 ] satisfies Consultation[];

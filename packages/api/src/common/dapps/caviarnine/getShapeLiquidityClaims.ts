@@ -1,12 +1,12 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import type { AtLedgerState } from "../../gateway/schemas";
-import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
-import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
-import s from "sbor-ez-mode";
+import type { AtLedgerState } from '../../gateway/schemas';
+import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import s from 'sbor-ez-mode';
 
 export class FailedToParseLiquidityClaimsError {
-  readonly _tag = "FailedToParseLiquidityClaimsError";
+  readonly _tag = 'FailedToParseLiquidityClaimsError';
   constructor(readonly error: unknown) {}
 }
 
@@ -18,7 +18,7 @@ const liquidityReceiptSchema = s.struct({
 });
 
 export class GetShapeLiquidityClaimsService extends Effect.Service<GetShapeLiquidityClaimsService>()(
-  "GetShapeLiquidityClaimsService",
+  'GetShapeLiquidityClaimsService',
   {
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
@@ -33,21 +33,21 @@ export class GetShapeLiquidityClaimsService extends Effect.Service<GetShapeLiqui
           resource_address: input.liquidityReceiptResourceAddress,
           non_fungible_ids: input.nonFungibleLocalIds,
           at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("entityNonFungibleDataService"));
+        }).pipe(Effect.withSpan('entityNonFungibleDataService'));
 
         return yield* Effect.forEach(nonFungibleDataResult, (result) => {
           return Effect.gen(function* () {
             const { data, non_fungible_id } = result;
 
             const parsedLiquidityReceipt = liquidityReceiptSchema.safeParse(
-              data?.programmatic_json as ProgrammaticScryptoSborValue
+              data?.programmatic_json as ProgrammaticScryptoSborValue,
             );
 
             if (parsedLiquidityReceipt.isErr()) {
               return yield* Effect.fail(
                 new FailedToParseLiquidityClaimsError(
-                  parsedLiquidityReceipt.error
-                )
+                  parsedLiquidityReceipt.error,
+                ),
               );
             }
 
@@ -63,7 +63,7 @@ export class GetShapeLiquidityClaimsService extends Effect.Service<GetShapeLiqui
         });
       });
     }),
-  }
+  },
 ) {}
 
 export const GetShapeLiquidityClaimsLive =

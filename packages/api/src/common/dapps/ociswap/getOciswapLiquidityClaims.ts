@@ -1,16 +1,16 @@
-import { Data, Effect } from "effect";
+import { Data, Effect } from 'effect';
 
-import type { AtLedgerState } from "../../gateway/schemas";
-import { EntityNonFungibleDataService } from "../../gateway/entityNonFungiblesData";
-import type { ProgrammaticScryptoSborValue } from "@radixdlt/babylon-gateway-api-sdk";
-import { LiquidityPosition } from "./schemas";
+import type { AtLedgerState } from '../../gateway/schemas';
+import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import { LiquidityPosition } from './schemas';
 
 export class FailedToParseOciswapLiquidityPositionError extends Data.TaggedError(
-  "FailedToParseOciswapLiquidityPositionError"
+  'FailedToParseOciswapLiquidityPositionError',
 )<{ error: unknown }> {}
 
 export class GetOciswapLiquidityClaimsService extends Effect.Service<GetOciswapLiquidityClaimsService>()(
-  "GetOciswapLiquidityClaimsService",
+  'GetOciswapLiquidityClaimsService',
   {
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
@@ -23,21 +23,21 @@ export class GetOciswapLiquidityClaimsService extends Effect.Service<GetOciswapL
           resource_address: input.lpResourceAddress,
           non_fungible_ids: input.nonFungibleLocalIds,
           at_ledger_state: input.at_ledger_state,
-        }).pipe(Effect.withSpan("entityNonFungibleDataService"));
+        }).pipe(Effect.withSpan('entityNonFungibleDataService'));
 
         return yield* Effect.forEach(nonFungibleDataResult, (result) => {
           return Effect.gen(function* () {
             const { data, non_fungible_id } = result;
 
             const parsedLiquidityPosition = LiquidityPosition.safeParse(
-              data?.programmatic_json as ProgrammaticScryptoSborValue
+              data?.programmatic_json as ProgrammaticScryptoSborValue,
             );
 
             if (parsedLiquidityPosition.isErr()) {
               return yield* Effect.fail(
                 new FailedToParseOciswapLiquidityPositionError({
                   error: parsedLiquidityPosition.error,
-                })
+                }),
               );
             }
 
@@ -56,5 +56,5 @@ export class GetOciswapLiquidityClaimsService extends Effect.Service<GetOciswapL
         });
       });
     }),
-  }
+  },
 ) {}

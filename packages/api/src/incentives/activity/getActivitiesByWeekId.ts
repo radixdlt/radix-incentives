@@ -1,12 +1,12 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { activities, activityWeeks, type ActivityWeek } from "db/incentives";
-import type { ActivityCategoryId, ActivityId } from "data";
-import { and, eq, inArray, notInArray } from "drizzle-orm";
+import { activities, activityWeeks, type ActivityWeek } from 'db/incentives';
+import type { ActivityCategoryId, ActivityId } from 'data';
+import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export class NotFoundError {
-  readonly _tag = "NotFoundError";
+  readonly _tag = 'NotFoundError';
   constructor(readonly message: string) {}
 }
 
@@ -18,7 +18,7 @@ export type GetActivitiesByWeekIdServiceOutput = (ActivityWeek & {
 })[];
 
 export class GetActivitiesByWeekIdService extends Context.Tag(
-  "GetActivitiesByWeekIdService"
+  'GetActivitiesByWeekIdService',
 )<
   GetActivitiesByWeekIdService,
   (input: {
@@ -45,7 +45,7 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
               .from(activityWeeks)
               .innerJoin(
                 activities,
-                eq(activityWeeks.activityId, activities.id)
+                eq(activityWeeks.activityId, activities.id),
               )
               .where(
                 and(
@@ -55,15 +55,15 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
                     : []),
                   ...(input.includeCategories
                     ? [inArray(activities.category, input.includeCategories)]
-                    : [])
-                )
+                    : []),
+                ),
               ),
           catch: (error) => new DbError(error),
         });
 
         if (result.length === 0) {
           return yield* Effect.fail(
-            new NotFoundError(`activity week ${input.weekId} not found`)
+            new NotFoundError(`activity week ${input.weekId} not found`),
           );
         }
 
@@ -74,5 +74,5 @@ export const GetActivitiesByWeekIdLive = Layer.effect(
           category: row.activity.category as ActivityCategoryId,
         }));
       });
-  })
+  }),
 );

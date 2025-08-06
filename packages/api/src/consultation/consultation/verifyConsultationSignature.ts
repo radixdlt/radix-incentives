@@ -1,22 +1,22 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
 import {
   signedChallengeSchema,
   VerifyRolaProofService,
-} from "../rola/verifyRolaProof";
+} from '../rola/verifyRolaProof';
 
-import { areUint8ArraysEqual } from "../../common/crypto/areEqual";
-import { fromHex } from "radix-connect";
-import { AddConsultationToDbService } from "../consultation/addConsultationToDb";
-import { z } from "zod";
-import { CreateConsultationMessageService } from "../consultation/createConsultationMessage";
+import { areUint8ArraysEqual } from '../../common/crypto/areEqual';
+import { fromHex } from 'radix-connect';
+import { AddConsultationToDbService } from '../consultation/addConsultationToDb';
+import { z } from 'zod';
+import { CreateConsultationMessageService } from '../consultation/createConsultationMessage';
 
 export class VerifyConsultationSignatureError {
-  readonly _tag = "VerifyConsultationSignatureError";
+  readonly _tag = 'VerifyConsultationSignatureError';
 }
 
 export class InvalidRolaProofError {
-  readonly _tag = "InvalidRolaProofError";
+  readonly _tag = 'InvalidRolaProofError';
 }
 
 export const verifyConsultationSignatureInputSchema = z.object({
@@ -30,7 +30,7 @@ export type VerifyConsultationSignatureInput = z.infer<
 >;
 
 export class VerifyConsultationSignatureService extends Effect.Service<VerifyConsultationSignatureService>()(
-  "VerifyConsultationSignatureService",
+  'VerifyConsultationSignatureService',
   {
     effect: Effect.gen(function* () {
       const verifyRolaProof = yield* VerifyRolaProofService;
@@ -62,5 +62,5 @@ export class VerifyConsultationSignatureService extends Effect.Service<VerifyCon
         }),
       };
     }),
-  }
+  },
 ) {}

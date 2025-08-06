@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { DeriveAccountFromEventService } from "./deriveAccountFromEvent";
-import { events } from "db/incentives";
-import { inArray } from "drizzle-orm";
-import { groupBy } from "effect/Array";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { DeriveAccountFromEventService } from './deriveAccountFromEvent';
+import { events } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
+import { groupBy } from 'effect/Array';
 
 export type EventWorkerInput = {
   items: {
@@ -17,7 +17,7 @@ export type EventWorkerInput = {
 };
 
 export class EventWorkerService extends Effect.Service<EventWorkerService>()(
-  "EventWorkerService",
+  'EventWorkerService',
   {
     effect: Effect.gen(function* () {
       const deriveAccountFromEventService =
@@ -33,7 +33,7 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
 
         const groupedByTransactionId = groupBy(
           result,
-          (item) => item.transactionId
+          (item) => item.transactionId,
         );
 
         for (const transactionId in groupedByTransactionId) {
@@ -43,8 +43,8 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
             new Set(
               transactions
                 .map((item) => item.address)
-                .filter((item) => item !== undefined)
-            )
+                .filter((item) => item !== undefined),
+            ),
           );
 
           if (addresses.length > 0) {
@@ -52,7 +52,7 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
             if (!firstTransaction) continue;
             const timestamp = firstTransaction.timestamp;
             yield* Effect.logDebug(
-              `Adding ${addresses.length} accounts to snapshot queue for transaction ${transactionId} at ${timestamp}`
+              `Adding ${addresses.length} accounts to snapshot queue for transaction ${transactionId} at ${timestamp}`,
             );
             yield* addToSnapshotQueue({
               timestamp,
@@ -67,14 +67,14 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
             db.delete(events).where(
               inArray(
                 events.transactionId,
-                input.items.map(({ transactionId }) => transactionId)
-              )
+                input.items.map(({ transactionId }) => transactionId),
+              ),
             ),
           catch: (error) => new DbError(error),
         });
       });
     }),
-  }
+  },
 ) {}
 
 export const EventWorkerLive = EventWorkerService.Default;

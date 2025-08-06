@@ -1,7 +1,7 @@
-import { Config, Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { GetUsdValueService } from "../token-price/getUsdValue";
-import { ActivityId, type AccountBalanceData } from "data";
+import { Config, Effect } from 'effect';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import { ActivityId, type AccountBalanceData } from 'data';
 
 export type AggregateSurgePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;
@@ -11,11 +11,11 @@ export type AggregateSurgePositionsInput = {
 export type AggregateSurgePositionsOutput = AccountBalanceData;
 
 export class AggregateSurgePositionsService extends Effect.Service<AggregateSurgePositionsService>()(
-  "AggregateSurgePositionsService",
+  'AggregateSurgePositionsService',
   {
     effect: Effect.gen(function* () {
-      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
-        Config.withDefault(false)
+      const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
+        Config.withDefault(false),
       );
       const getUsdValueService = yield* GetUsdValueService;
 
@@ -57,14 +57,14 @@ export class AggregateSurgePositionsService extends Effect.Service<AggregateSurg
               return [
                 {
                   activityId,
-                  usdValue: "0",
+                  usdValue: '0',
                 } satisfies AccountBalanceData,
               ];
-            })
+            }),
         ),
       };
     }),
-  }
+  },
 ) {}
 
 export const AggregateSurgePositionsLive =

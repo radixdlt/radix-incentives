@@ -1,15 +1,15 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { z } from "zod";
-import { CalculateTWASQLService } from "../activity-points/calculateTWASQL";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import { z } from 'zod';
+import { CalculateTWASQLService } from '../activity-points/calculateTWASQL';
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
   type WeekNotFoundError,
-} from "../week/getWeekById";
-import { accounts } from "db/consultation";
-import { lte } from "drizzle-orm";
-import { BigNumber } from "bignumber.js";
+} from '../week/getWeekById';
+import { accounts } from 'db/consultation';
+import { lte } from 'drizzle-orm';
+import { BigNumber } from 'bignumber.js';
 
 export const GetUserTWAXrdBalanceInputSchema = z.object({
   weekId: z.string(),
@@ -31,11 +31,11 @@ export type UsersWithTwaBalance = {
 };
 
 export class GetUserTWAXrdBalanceService extends Context.Tag(
-  "GetUserTWAXrdBalanceService"
+  'GetUserTWAXrdBalanceService',
 )<
   GetUserTWAXrdBalanceService,
   (
-    input: GetUserTWAXrdBalanceInput
+    input: GetUserTWAXrdBalanceInput,
   ) => Effect.Effect<UsersWithTwaBalance[], GetUserTWAXrdBalanceError>
 >() {}
 
@@ -56,19 +56,19 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
           addresses: input.addresses,
           startDate: week.startDate,
           endDate: week.endDate,
-          calculationType: "USDValue",
-          filterType: "include_hold",
+          calculationType: 'USDValue',
+          filterType: 'include_hold',
           filterZeroValues: false,
         })
           .pipe(
             Effect.tap(() =>
-              Effect.log("Calculated TWA XRD balance using SQL")
+              Effect.log('Calculated TWA XRD balance using SQL'),
             ),
             Effect.tap((items) =>
-              Effect.log(`Found ${items.length} hold activity entries`)
-            )
+              Effect.log(`Found ${items.length} hold activity entries`),
+            ),
           )
-          .pipe(Effect.withSpan("calculateTWASQL"));
+          .pipe(Effect.withSpan('calculateTWASQL'));
 
         const getAccountsWithUserId = (createdAt: Date) => {
           return Effect.gen(function* () {
@@ -82,11 +82,11 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
                   .from(accounts)
                   .where(lte(accounts.createdAt, createdAt))
                   .then((res) =>
-                    res.map((r) => ({ address: r.address, userId: r.userId }))
+                    res.map((r) => ({ address: r.address, userId: r.userId })),
                   ),
               catch: (error) => new DbError(error),
             });
-          }).pipe(Effect.withSpan("getAccountsWithUserId"));
+          }).pipe(Effect.withSpan('getAccountsWithUserId'));
         };
 
         // accountsWithUserId is: Array<{ address: string, userId: string }>
@@ -109,10 +109,10 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
         }
 
         const userTwaBalances = Array.from(userTwaMap.entries()).map(
-          ([userId, totalTWABalance]) => ({ userId, totalTWABalance })
+          ([userId, totalTWABalance]) => ({ userId, totalTWABalance }),
         );
         return userTwaBalances;
       });
     };
-  })
+  }),
 );

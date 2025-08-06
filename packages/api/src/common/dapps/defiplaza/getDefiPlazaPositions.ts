@@ -1,20 +1,20 @@
-import { Data, Effect } from "effect";
-import BigNumber from "bignumber.js";
+import { Data, Effect } from 'effect';
+import BigNumber from 'bignumber.js';
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
+} from '../../gateway/getFungibleBalance';
 
-import { DappConstants } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+import { DappConstants } from 'data';
+import type { AtLedgerState } from '../../gateway/schemas';
 
 const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
 
 import {
   type GetResourcePoolOutput,
   GetResourcePoolUnitsService,
-} from "../../resource-pool/getResourcePoolUnits";
+} from '../../resource-pool/getResourcePoolUnits';
 
 type DefiPlazaPosition = {
   lpResourceAddress: string;
@@ -29,7 +29,7 @@ export type GetDefiPlazaPositionsOutput = {
 type AccountAddress = string;
 
 export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPositionsService>()(
-  "GetDefiPlazaPositionsService",
+  'GetDefiPlazaPositionsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -48,10 +48,10 @@ export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPos
 
         // Gather all pool addresses (base and quote) and LP resource addresses
         const allPoolAddresses = Object.values(DefiPlazaConstants).flatMap(
-          (pool) => [pool.basePoolAddress, pool.quotePoolAddress]
+          (pool) => [pool.basePoolAddress, pool.quotePoolAddress],
         );
         const allLpResourceAddresses = Object.values(
-          DefiPlazaConstants
+          DefiPlazaConstants,
         ).flatMap((pool) => [
           pool.baseLpResourceAddress,
           pool.quoteLpResourceAddress,
@@ -95,7 +95,7 @@ export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPos
           for (const item of fungibleResources) {
             if (
               (allLpResourceAddresses as string[]).includes(
-                item.resourceAddress
+                item.resourceAddress,
               )
             ) {
               userLpBalances.set(item.resourceAddress, { amount: item.amount });
@@ -114,7 +114,7 @@ export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPos
             // Helper to sum resources
             const sumResourceAmounts = (
               resourcesA: { resourceAddress: string; amount: BigNumber }[] = [],
-              resourcesB: { resourceAddress: string; amount: BigNumber }[] = []
+              resourcesB: { resourceAddress: string; amount: BigNumber }[] = [],
             ) => {
               const map = new Map<string, BigNumber>();
               for (const r of resourcesA) {
@@ -124,11 +124,11 @@ export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPos
                 const prev = map.get(r.resourceAddress) ?? new BigNumber(0);
                 map.set(
                   r.resourceAddress,
-                  prev.plus(r.amount ?? new BigNumber(0))
+                  prev.plus(r.amount ?? new BigNumber(0)),
                 );
               }
               return Array.from(map.entries()).map(
-                ([resourceAddress, amount]) => ({ resourceAddress, amount })
+                ([resourceAddress, amount]) => ({ resourceAddress, amount }),
               );
             };
 
@@ -174,11 +174,11 @@ export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPos
           ([address, items]) => ({
             address,
             items,
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const GetDefiPlazaPositionsLive = GetDefiPlazaPositionsService.Default;

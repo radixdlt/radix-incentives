@@ -1,14 +1,14 @@
-import { Effect } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { AggregateCaviarninePositionsService } from "./aggregateCaviarninePositions";
-import { AggregateOciswapPositionsService } from "./aggregateOciswapPositions";
+import { Effect } from 'effect';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
+import { AggregateCaviarninePositionsService } from './aggregateCaviarninePositions';
+import { AggregateOciswapPositionsService } from './aggregateOciswapPositions';
 
-import { XrdBalanceService } from "./aggregateXrdBalance";
-import { AggregateWeftFinancePositionsService } from "./aggregateWeftFinancePositions";
-import { AggregateRootFinancePositionsService } from "./aggregateRootFinancePositions";
-import { AggregateDefiPlazaPositionsService } from "./aggregateDefiPlazaPositions";
-import { AggregateSurgePositionsService } from "./aggregateSurgePositions";
-import type { AccountBalance } from "db/incentives";
+import { XrdBalanceService } from './aggregateXrdBalance';
+import { AggregateWeftFinancePositionsService } from './aggregateWeftFinancePositions';
+import { AggregateRootFinancePositionsService } from './aggregateRootFinancePositions';
+import { AggregateDefiPlazaPositionsService } from './aggregateDefiPlazaPositions';
+import { AggregateSurgePositionsService } from './aggregateSurgePositions';
+import type { AccountBalance } from 'db/incentives';
 
 type AggregateAccountBalanceInput = {
   accountBalances: AccountBalanceFromSnapshot[];
@@ -18,7 +18,7 @@ type AggregateAccountBalanceInput = {
 export type AggregateAccountBalanceOutput = AccountBalance;
 
 export class AggregateAccountBalanceService extends Effect.Service<AggregateAccountBalanceService>()(
-  "AggregateAccountBalanceService",
+  'AggregateAccountBalanceService',
   {
     effect: Effect.gen(function* () {
       const aggregateCaviarninePositionsService =
@@ -34,12 +34,12 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
         yield* AggregateDefiPlazaPositionsService;
       const aggregateSurgePositionsService =
         yield* AggregateSurgePositionsService;
-      return Effect.fn("aggregateAccountBalance")(function* (
-        input: AggregateAccountBalanceInput
+      return Effect.fn('aggregateAccountBalance')(function* (
+        input: AggregateAccountBalanceInput,
       ) {
         return yield* Effect.forEach(
           input.accountBalances,
-          Effect.fn("aggregateAccountBalanceItem")(function* (accountBalance) {
+          Effect.fn('aggregateAccountBalanceItem')(function* (accountBalance) {
             const caviarninePositions =
               yield* aggregateCaviarninePositionsService({
                 accountBalance,
@@ -89,11 +89,11 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
                 ...surgePositions,
               ],
             };
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const AggregateAccountBalanceLive =

@@ -1,12 +1,12 @@
-import { Action, componentAddressActivityDataMap } from "data";
-import { Effect, Data } from "effect";
+import { Action, componentAddressActivityDataMap } from 'data';
+import { Effect, Data } from 'effect';
 
-class ActivityNotFoundError extends Data.TaggedError("ActivityNotFoundError")<{
+class ActivityNotFoundError extends Data.TaggedError('ActivityNotFoundError')<{
   componentAddress: string;
 }> {}
 
 export const getActivitiesDataByComponentAddress = Effect.fn(function* (
-  componentAddress: string
+  componentAddress: string,
 ) {
   const activitiesData = componentAddressActivityDataMap[componentAddress];
 
@@ -18,13 +18,13 @@ export const getActivitiesDataByComponentAddress = Effect.fn(function* (
 });
 
 export const getLpActivitiesDataByComponentAddress = Effect.fn(function* (
-  componentAddress: string
+  componentAddress: string,
 ) {
   const activitiesData =
     yield* getActivitiesDataByComponentAddress(componentAddress);
 
   const lpActivitiesData = activitiesData.filter(
-    (activityData) => activityData.action === Action.LP
+    (activityData) => activityData.action === Action.LP,
   );
 
   return lpActivitiesData;

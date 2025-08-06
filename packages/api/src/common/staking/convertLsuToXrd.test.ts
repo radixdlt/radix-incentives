@@ -1,30 +1,30 @@
-import { Effect, Layer } from "effect";
-import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from "./convertLsuToXrd";
-import { GatewayApiClientLive } from "../gateway/gatewayApiClient";
-import { GetEntityDetailsService } from "../gateway/getEntityDetails";
-import { GetLedgerStateService } from "../gateway/getLedgerState";
-import { GetAllValidatorsService } from "../gateway/getAllValidators";
+import { Effect, Layer } from 'effect';
+import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from './convertLsuToXrd';
+import { GatewayApiClientLive } from '../gateway/gatewayApiClient';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import { GetLedgerStateService } from '../gateway/getLedgerState';
+import { GetAllValidatorsService } from '../gateway/getAllValidators';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
 const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const convertLsuToXrdServiceLive = ConvertLsuToXrdLive.pipe(
-  Layer.provide(getEntityDetailsServiceLive)
+  Layer.provide(getEntityDetailsServiceLive),
 );
 
 const getStateVersionLive = GetLedgerStateService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
 const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
-  Layer.provide(gatewayApiClientLive)
+  Layer.provide(gatewayApiClientLive),
 );
 
-describe("ConvertLsuToXrdService", () => {
-  it("should convert lsu to xrd", async () => {
+describe('ConvertLsuToXrdService', () => {
+  it('should convert lsu to xrd', async () => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const convertLsuToXrd = yield* ConvertLsuToXrdService;
@@ -32,7 +32,7 @@ describe("ConvertLsuToXrdService", () => {
         return yield* convertLsuToXrd({
           addresses: [],
           at_ledger_state: {
-            timestamp: new Date("2025-01-01T00:00:00Z"),
+            timestamp: new Date('2025-01-01T00:00:00Z'),
           },
         });
       }),
@@ -41,8 +41,8 @@ describe("ConvertLsuToXrdService", () => {
         getEntityDetailsServiceLive,
         getStateVersionLive,
         gatewayApiClientLive,
-        getAllValidatorsServiceLive
-      )
+        getAllValidatorsServiceLive,
+      ),
     );
 
     const result = await Effect.runPromise(program);

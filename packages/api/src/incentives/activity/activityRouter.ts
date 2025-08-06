@@ -1,18 +1,18 @@
-import { z } from "zod";
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { Exit } from "effect";
-import { UpdateActivitySchema } from "./activity";
+import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from '../trpc';
+import { TRPCError } from '@trpc/server';
+import { Exit } from 'effect';
+import { UpdateActivitySchema } from './activity';
 
 export const adminActivityRouter = createTRPCRouter({
   getActivities: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getActivities();
 
-    if (result._tag === "Failure") {
+    if (result._tag === 'Failure') {
       console.error(result.cause);
 
       throw new TRPCError({
-        code: "INTERNAL_SERVER_ERROR",
+        code: 'INTERNAL_SERVER_ERROR',
       });
     }
 
@@ -30,17 +30,17 @@ export const adminActivityRouter = createTRPCRouter({
           return value;
         },
         onFailure: (error) => {
-          if (error._tag === "Fail") {
-            if (error.error._tag === "NotFoundError") {
+          if (error._tag === 'Fail') {
+            if (error.error._tag === 'NotFoundError') {
               throw new TRPCError({
-                code: "NOT_FOUND",
+                code: 'NOT_FOUND',
                 message: error.error.message,
               });
             }
 
             throw new TRPCError({
-              code: "INTERNAL_SERVER_ERROR",
-              message: "An unexpected error occurred",
+              code: 'INTERNAL_SERVER_ERROR',
+              message: 'An unexpected error occurred',
             });
           }
         },
@@ -60,8 +60,8 @@ export const adminActivityRouter = createTRPCRouter({
           console.error(error);
 
           throw new TRPCError({
-            code: "INTERNAL_SERVER_ERROR",
-            message: "An unexpected error occurred",
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'An unexpected error occurred',
           });
         },
       });
@@ -77,8 +77,8 @@ export const adminActivityRouter = createTRPCRouter({
       onFailure: (error) => {
         console.error(error);
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred',
         });
       },
     });
@@ -96,8 +96,8 @@ export const activityRouter = createTRPCRouter({
       onFailure: (error) => {
         console.error(error);
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred',
         });
       },
     });
@@ -113,8 +113,8 @@ export const activityRouter = createTRPCRouter({
         console.error(error);
 
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred',
         });
       },
     });

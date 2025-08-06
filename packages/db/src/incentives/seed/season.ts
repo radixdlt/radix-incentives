@@ -1,6 +1,6 @@
-import { seasons, weeks } from "../schema";
-import { db } from "../client";
-import { desc, eq } from "drizzle-orm";
+import { seasons, weeks } from '../schema';
+import { db } from '../client';
+import { desc, eq } from 'drizzle-orm';
 
 export const seedSeason = async () => {
   const seasonId = await db
@@ -16,12 +16,12 @@ export const seedSeason = async () => {
       .insert(seasons)
       .values([
         {
-          name: "Season 1",
-          status: "active",
+          name: 'Season 1',
+          status: 'active',
         },
       ])
       .returning()
       .onConflictDoNothing();
   }
-  console.log("Season seeded");
+  console.log('Season seeded');
 };

@@ -1,29 +1,29 @@
-import { Effect } from "effect";
-import { VerifyRolaProofService } from "../rola/verifyRolaProof";
+import { Effect } from 'effect';
+import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 
-import { VerifyChallengeService } from "../challenge/verifyChallenge";
-import { UpsertUserService } from "../user/upsertUser";
-import { CreateSessionService } from "../session/createSession";
-import { GenerateSessionTokenService } from "../session/generateSessionToken";
-import { z } from "zod";
+import { VerifyChallengeService } from '../challenge/verifyChallenge';
+import { UpsertUserService } from '../user/upsertUser';
+import { CreateSessionService } from '../session/createSession';
+import { GenerateSessionTokenService } from '../session/generateSessionToken';
+import { z } from 'zod';
 
 export class InvalidChallengeError {
-  readonly _tag = "InvalidChallengeError";
+  readonly _tag = 'InvalidChallengeError';
 }
 
 export class InvalidProofError {
-  readonly _tag = "InvalidProofError";
+  readonly _tag = 'InvalidProofError';
 }
 
 export const signInWithRolaProofInputSchema = z.object({
   challenge: z.string(),
-  type: z.enum(["persona"]),
+  type: z.enum(['persona']),
   address: z.string(),
   label: z.string(),
   proof: z.object({
     publicKey: z.string(),
     signature: z.string(),
-    curve: z.enum(["curve25519", "secp256k1"]),
+    curve: z.enum(['curve25519', 'secp256k1']),
   }),
 });
 
@@ -32,7 +32,7 @@ export type SignInWithRolaProofInput = z.infer<
 >;
 
 export class SignInWithRolaProofService extends Effect.Service<SignInWithRolaProofService>()(
-  "SignInWithRolaProofService",
+  'SignInWithRolaProofService',
   {
     effect: Effect.gen(function* () {
       const verifyChallenge = yield* VerifyChallengeService;
@@ -71,5 +71,5 @@ export class SignInWithRolaProofService extends Effect.Service<SignInWithRolaPro
         }),
       };
     }),
-  }
+  },
 ) {}
