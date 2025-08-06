@@ -40,8 +40,8 @@ export const truncateAllTables = async (db: any, dbUrl: string) => {
     console.log('All tables truncated successfully');
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const createTestUserAndAccounts = async (
+    // biome-ignore lint/suspicious/noExplicitAny: Database client type not easily accessible
     db: any,
     accountAddresses: string[],
 ) => {
@@ -127,8 +127,8 @@ export const getAccountHoldersForResource = async (
     }
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const getTotalUsdValueForActivity = async (
+    // biome-ignore lint/suspicious/noExplicitAny: PostgreSQL client type not easily accessible
     client: any,
     weftActivityId: string,
 ) => {

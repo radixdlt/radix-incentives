@@ -1,7 +1,6 @@
 import { Context, Effect, Layer } from "effect";
 import BigNumber from "bignumber.js";
 import { AddTradingVolumeService } from "./addTradingVolume";
-import type { GetUsdValueServiceError } from "../token-price/getUsdValue";
 import type { DbError } from "../db/dbClient";
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
 import type { EmittableEvent } from "../events/event-matchers/types";
@@ -16,7 +15,7 @@ export type ProcessSwapEventTradingVolumeServiceInput = {
 
 export type ProcessSwapEventTradingVolumeServiceError =
   | DbError
-  | GetUsdValueServiceError;
+;
 
 export class ProcessSwapEventTradingVolumeService extends Context.Tag(
   "ProcessSwapEventTradingVolumeService"

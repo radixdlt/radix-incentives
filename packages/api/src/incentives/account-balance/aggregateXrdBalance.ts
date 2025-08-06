@@ -4,7 +4,6 @@ import { Assets, DappConstants } from "data";
 
 import {
   GetUsdValueService,
-  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { type AccountBalanceData, ActivityId } from "data";
@@ -44,7 +43,8 @@ const toXrdEquivalent = (
 
 type XrdValueConverter = (
   amount: BigNumber
-) => Effect.Effect<string, GetUsdValueServiceError>;
+// biome-ignore lint/suspicious/noExplicitAny: Complex union type causing build issues
+) => Effect.Effect<string, any>;
 
 // Extract basic XRD holdings processing
 const processBasicXrdHoldings = (

@@ -50,7 +50,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
 
           return false;
         },
-      }) as unknown as (typeof globalThis)["fetch"];
+      });
 
       const client = GatewayApiClient.initialize({
         networkId,
@@ -59,7 +59,8 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
         headers: gatewayApiKey
           ? { Authorization: `Basic ${gatewayApiKey}` }
           : undefined,
-        fetchApi: fetchImpl,
+        // biome-ignore lint/suspicious/noExplicitAny: Fetch-retry types are incompatible with expected fetch API
+        fetchApi: fetchImpl as any,
       });
 
       return client;

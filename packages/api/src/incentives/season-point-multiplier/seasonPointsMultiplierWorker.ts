@@ -20,7 +20,6 @@ import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplie
 import { Thresholds } from "../../common/config/constants";
 import {
   GetUsdValueService,
-  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { Assets } from "data";
 
@@ -92,7 +91,6 @@ export class SeasonPointsMultiplierWorkerService extends Context.Tag(
     | DbError
     | WeekNotFoundError
     | GetWeekByIdError
-    | GetUsdValueServiceError
   >
 >() {}
 

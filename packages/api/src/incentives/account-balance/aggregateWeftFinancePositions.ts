@@ -3,7 +3,6 @@ import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountB
 import { Context } from "effect";
 import {
   GetUsdValueService,
-  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { ActivityId, Assets, type AccountBalanceData } from "data";
@@ -23,7 +22,8 @@ export class AggregateWeftFinancePositionsService extends Context.Tag(
     input: AggregateWeftFinancePositionsInput
   ) => Effect.Effect<
     AggregateWeftFinancePositionsOutput[],
-    GetUsdValueServiceError
+    // biome-ignore lint/suspicious/noExplicitAny: Complex union type causing build issues
+    any
   >
 >() {}
 

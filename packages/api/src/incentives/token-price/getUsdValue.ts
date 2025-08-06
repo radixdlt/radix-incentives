@@ -1,9 +1,7 @@
-import { Context, Effect, Layer, Cache, Duration } from "effect";
+import { Effect, Cache, Duration, Data } from "effect";
 import { BigNumber } from "bignumber.js";
-import {
-  AddressValidationService,
-  type UnknownTokenError,
-} from "../../common/address-validation/addressValidation";
+import { AddressValidationService } from "../../common/address-validation/addressValidation";
+import { FetchService } from "../../common/helpers";
 
 export type GetUsdValueInput = {
   amount: BigNumber;
@@ -11,25 +9,24 @@ export type GetUsdValueInput = {
   timestamp: Date;
 };
 
-export class InvalidResourceAddressError {
-  readonly _tag = "InvalidResourceAddressError";
-  constructor(readonly message: string) {}
-}
+export class InvalidResourceAddressError extends Data.TaggedError(
+  "InvalidResourceAddressError"
+)<{ message: string }> {}
 
-export class PriceServiceApiError {
-  readonly _tag = "PriceServiceApiError";
-  constructor(readonly message: string) {}
-}
+export class PriceServiceApiError extends Data.TaggedError(
+  "PriceServiceApiError"
+)<{
+  message: string;
+  status?: number;
+  resourceAddress: string;
+  timestamp: number;
+}> {}
 
-export type GetUsdValueServiceError =
-  | InvalidResourceAddressError
-  | PriceServiceApiError
-  | UnknownTokenError;
-
-export class GetUsdValueService extends Context.Tag("GetUsdValueService")<
-  GetUsdValueService,
-  (input: GetUsdValueInput) => Effect.Effect<BigNumber, GetUsdValueServiceError>
->() {}
+class MissingPriceError extends Data.TaggedError("MissingPriceError")<{
+  message: string;
+  resourceAddress: string;
+  timestamp: number;
+}> {}
 
 const TOKEN_PRICE_SERVICE_URL =
   process.env.TOKEN_PRICE_SERVICE_URL ||
@@ -39,82 +36,117 @@ const TOKEN_PRICE_SERVICE_API_KEY =
 
 type PriceCacheKey = `${string}:${number}`;
 
-const fetchTokenPriceFromAPI = (
-  resourceAddress: string,
-  timestamp: number
-): Effect.Effect<number, PriceServiceApiError> =>
-  Effect.gen(function* () {
-    const response = yield* Effect.tryPromise({
-      try: () =>
-        fetch(TOKEN_PRICE_SERVICE_URL, {
-          method: "POST",
-          headers: {
-            "x-api-key": TOKEN_PRICE_SERVICE_API_KEY,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            tokens: [resourceAddress],
-            timestamp: timestamp,
-          }),
-        }),
-      catch: (error) =>
-        new PriceServiceApiError(
-          `Failed to fetch token price: ${error instanceof Error ? error.message : String(error)}`
-        ),
-    });
+export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
+  "GetUsdValueService",
+  {
+    effect: Effect.gen(function* () {
+      const addressValidationService = yield* AddressValidationService;
+      const fetchImpl = yield* FetchService;
 
-    if (!response.ok) {
-      return yield* Effect.fail(
-        new PriceServiceApiError(`HTTP error! status: ${response.status}`)
-      );
-    }
+      const fetchTokenPriceFromAPI = Effect.fn(function* (
+        resourceAddress: string,
+        timestamp: number
+      ) {
+        const response = yield* Effect.tryPromise({
+          try: () =>
+            fetchImpl(TOKEN_PRICE_SERVICE_URL, {
+              method: "POST",
+              headers: {
+                "x-api-key": TOKEN_PRICE_SERVICE_API_KEY,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({
+                tokens: [resourceAddress],
+                timestamp: timestamp,
+              }),
+            }),
+          catch: (error) =>
+            new PriceServiceApiError({
+              message: `Failed to fetch token price: ${error instanceof Error ? error.message : String(error)}`,
+              resourceAddress,
+              timestamp,
+            }),
+        });
 
-    const data = yield* Effect.tryPromise({
-      try: () => response.json(),
-      catch: (error) =>
-        new PriceServiceApiError(
-          `Failed to parse response: ${error instanceof Error ? error.message : String(error)}`
-        ),
-    });
+        if (!response.ok) {
+          const responseText = yield* Effect.tryPromise({
+            try: () => response.text(),
+            catch: (error) =>
+              new PriceServiceApiError({
+                message: `Failed to fetch token price: ${error instanceof Error ? error.message : String(error)}`,
+                resourceAddress,
+                timestamp,
+              }),
+          });
 
-    if (!data || !data.prices || !data.prices[resourceAddress]) {
-      return yield* Effect.fail(
-        new PriceServiceApiError("Invalid response format from price service")
-      );
-    }
+          if (responseText.includes("Price missing for tokens")) {
+            return yield* Effect.fail(
+              new MissingPriceError({
+                message: "Price missing for tokens",
+                resourceAddress,
+                timestamp,
+              })
+            );
+          }
 
-    return data.prices[resourceAddress].usd_price;
-  });
+          return yield* Effect.fail(
+            new PriceServiceApiError({
+              message: `HTTP error! status: ${response.status}, ${responseText}`,
+              resourceAddress,
+              timestamp,
+              status: response.status,
+            })
+          );
+        }
 
-export const GetUsdValueLive = Layer.effect(
-  GetUsdValueService,
-  Effect.gen(function* () {
-    const addressValidationService = yield* AddressValidationService;
-    // Create a cache with 5 minutes TTL and max 1000 entries
-    const priceCache = yield* Cache.make({
-      capacity: 1000,
-      timeToLive: Duration.minutes(5),
-      lookup: (key: PriceCacheKey) => {
-        const [resourceAddress, roundedTimestamp] = key.split(":");
+        const data = yield* Effect.tryPromise({
+          try: () =>
+            response.json() as Promise<{
+              prices: Record<string, { usd_price: number }>;
+            }>,
+          catch: (error) =>
+            new PriceServiceApiError({
+              message: `Failed to parse response: ${error instanceof Error ? error.message : String(error)}`,
+              resourceAddress,
+              timestamp,
+            }),
+        });
 
-        const timestamp = Number.parseInt(roundedTimestamp!);
+        if (!data || !data.prices || !data.prices[resourceAddress]) {
+          return yield* Effect.fail(
+            new PriceServiceApiError({
+              message: "Invalid response format from price service",
+              resourceAddress,
+              timestamp,
+            })
+          );
+        }
 
-        return fetchTokenPriceFromAPI(resourceAddress!, timestamp!);
-      },
-    });
+        return data.prices[resourceAddress].usd_price;
+      });
 
-    return (input) => {
-      return Effect.gen(function* () {
-        // Validate that the token is supported by attempting to get its name from AddressValidationService
+      // Create a cache with 5 minutes TTL and max 1000 entries
+      const priceCache = yield* Cache.make({
+        capacity: 1000,
+        timeToLive: Duration.minutes(5),
+        lookup: (key: PriceCacheKey) => {
+          const [resourceAddress, roundedTimestamp] = key.split(":");
+
+          const timestamp = Number.parseInt(roundedTimestamp!);
+
+          return fetchTokenPriceFromAPI(resourceAddress!, timestamp!);
+        },
+      });
+      return Effect.fn(function* (input: GetUsdValueInput) {
         const tokenNameResult = yield* addressValidationService
           .getTokenName(input.resourceAddress)
           .pipe(Effect.either);
 
         if (tokenNameResult._tag === "Left") {
           return yield* Effect.fail(
-            new InvalidResourceAddressError(
-              `Invalid resource address: ${input.resourceAddress}`
-            )
+            new InvalidResourceAddressError({
+              message: `Invalid resource address: ${input.resourceAddress}`,
+            })
           );
         }
 
@@ -129,6 +161,8 @@ export const GetUsdValueLive = Layer.effect(
           new BigNumber(price).multipliedBy(input.amount)
         );
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const GetUsdValueLive = GetUsdValueService.Default;

@@ -10,7 +10,6 @@ import {
 } from "data";
 import {
   GetUsdValueService,
-  type GetUsdValueServiceError,
 } from "../token-price/getUsdValue";
 import BigNumber from "bignumber.js";
 
@@ -30,7 +29,8 @@ export type TradingEventWithTokens = {
   usdValue: BigNumber;
 };
 
-export type FilterTradingEventsServiceError = GetUsdValueServiceError;
+// biome-ignore lint/suspicious/noExplicitAny: Complex union type causing build issues
+export type FilterTradingEventsServiceError = any;
 
 export class FilterTradingEventsService extends Context.Tag(
   "FilterTradingEventsService"

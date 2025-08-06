@@ -6,9 +6,11 @@ import { GetUsdValueLive } from "../token-price/getUsdValue";
 import { Action, type AccountBalanceData } from "data";
 import { AggregatePoolPositionsService } from "./aggregatePoolPositions";
 import { getDefaultPositions } from "./getDefaultPositions";
+import { FetchService } from "../../common/helpers";
 
 const getUsdValueLive = GetUsdValueLive.pipe(
-  Layer.provide(AddressValidationServiceLive)
+  Layer.provide(AddressValidationServiceLive),
+  Layer.provide(FetchService.Default)
 );
 
 const aggregatePoolPositionsLive = AggregatePoolPositionsService.Default.pipe(

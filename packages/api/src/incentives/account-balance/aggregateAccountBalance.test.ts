@@ -16,6 +16,7 @@ import { AggregateOciswapPositionsLive } from "./aggregateOciswapPositions";
 import { AggregateCaviarninePositionsLive } from "./aggregateCaviarninePositions";
 import { XrdBalanceLive } from "./aggregateXrdBalance";
 import { accountBalanceFixture } from "./fixtures/accountBalances";
+import { FetchService } from "../../common/helpers";
 
 const addressValidationServiceLive = AddressValidationServiceLive;
 
@@ -66,7 +67,8 @@ const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
   Layer.provide(aggregateRootFinancePositionsLive),
   Layer.provide(aggregateDefiPlazaPositionsLive),
   Layer.provide(aggregateSurgePositionsLive),
-  Layer.provide(aggregatePoolPositionsLive)
+  Layer.provide(aggregatePoolPositionsLive),
+  Layer.provide(FetchService.Default)
 );
 
 describe("aggregateAccountBalance", { retry: 0 }, () => {

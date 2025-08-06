@@ -4,6 +4,7 @@ import { BigNumber } from "bignumber.js";
 import { Assets } from "data";
 import { GetUsdValueLive, GetUsdValueService } from "./getUsdValue";
 import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
+import { FetchService } from "../../common/helpers";
 
 describe("GetUsdValueService", () => {
   const mockFetch = vi.fn();
@@ -13,9 +14,13 @@ describe("GetUsdValueService", () => {
     vi.clearAllMocks();
   });
 
+  const getUsdValueLive = GetUsdValueLive.pipe(
+    Layer.provide(AddressValidationServiceLive)
+  );
+
   it("should return USD value for xUSDC", async () => {
     const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+    const timestamp = new Date("2025-01-01");
     const expectedPrice = 1;
 
     mockFetch.mockResolvedValueOnce({
@@ -37,8 +42,8 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     const result = await Effect.runPromise(program);
 
@@ -54,7 +59,7 @@ describe("GetUsdValueService", () => {
 
   it("should return USD value for XRD", async () => {
     const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+    const timestamp = new Date("2025-01-01");
     const expectedPrice = 0.01;
 
     mockFetch.mockResolvedValueOnce({
@@ -76,8 +81,8 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     const result = await Effect.runPromise(program);
 
@@ -86,7 +91,7 @@ describe("GetUsdValueService", () => {
 
   it("should fail with InvalidResourceAddressError for unknown token", async () => {
     const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+    const timestamp = new Date("2025-01-01");
     const invalidAddress = "invalid_address";
 
     const program = Effect.provide(
@@ -98,8 +103,8 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
       message: expect.stringContaining(
@@ -110,7 +115,7 @@ describe("GetUsdValueService", () => {
 
   it("should fail with ApiError when API call fails", async () => {
     const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+    const timestamp = new Date("2025-01-01");
 
     mockFetch.mockRejectedValueOnce(new Error("Network error"));
 
@@ -123,17 +128,17 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining("PriceServiceApiError"),
+      name: expect.stringContaining("PriceServiceApiError"),
     });
   });
 
   it("should fail with ApiError when API returns invalid response", async () => {
     const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+    const timestamp = new Date("2025-01-01");
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -152,11 +157,11 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining("PriceServiceApiError"),
+      name: expect.stringContaining("PriceServiceApiError"),
     });
   });
 });
