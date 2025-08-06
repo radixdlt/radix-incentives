@@ -97,7 +97,7 @@ When fixing lint/build issues, follow this order:
    - Add `type` to button elements: `<button type="button">`
    - Use `import type` for React imports: `import type * as React from "react"`
    - Add keyboard event handlers for click events (accessibility)
-   - Handle `BigNumber` types with union types: `number | string | { toString(): string }`
+
 3. **Run build**: `pnpm build` - clean with `pnpm clean` if workspace conflicts occur
 4. **Commit**: All changes including lint fixes, build fixes, and accessibility improvements
 
