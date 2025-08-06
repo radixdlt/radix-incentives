@@ -20,7 +20,8 @@
       "Bash(pnpm run:*)",
       "Bash(pnpm -w run build)",
       "Bash(pnpm -w run clean)",
-      "Bash(./build-docker.sh:*)"
+      "Bash(./build-docker.sh:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }
