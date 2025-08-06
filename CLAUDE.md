@@ -138,6 +138,30 @@ pnpm build:clean
 - Use the `Effect` library for functional composition (`pipe`)
 - Import types: `import type { FC } from "react"` not `import { type FC } from "react"`
 
+### Effect.Service Guidelines
+When creating services using the Effect library:
+- Use `Effect.Service<ServiceName>()` pattern instead of `Context.Tag` + `Layer.effect`
+- Service class structure:
+  ```typescript
+  export class ServiceName extends Effect.Service<ServiceName>()(
+    "ServiceName",
+    {
+      effect: Effect.gen(function* () {
+        // Dependencies
+        const dependency = yield* DependencyService;
+        
+        return Effect.fn(function* (input: InputType) {
+          // Service implementation
+          return result;
+        });
+      }),
+    }
+  ) {}
+  ```
+- Export service live implementation: `export const ServiceNameLive = ServiceName.Default;`
+- Output type should reference the service: `Effect.Effect.Success<Awaited<ReturnType<(typeof ServiceName)["Service"]>>>`
+- Import only necessary Effect modules: `import { Config, Effect } from "effect"`
+
 ### React/Next.js Guidelines
 - Use Tailwind classes for styling (no inline CSS or `<style>` tags)
 - Prefer `class:` over ternary operators in class attributes

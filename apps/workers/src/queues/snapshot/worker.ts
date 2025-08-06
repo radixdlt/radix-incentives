@@ -6,7 +6,6 @@ import type { SnapshotJob } from "./schemas";
 
 export const snapshotWorker = async (input: Job<SnapshotJob>) => {
   const result = await dependencyLayer.snapshotWorker({
-    // biome-ignore lint/style/noNonNullAssertion: <explanation>
     jobId: input.id!,
     addresses: input.data.addresses,
     timestamp: new Date(input.data.timestamp),

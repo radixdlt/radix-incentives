@@ -71,7 +71,7 @@ export function SeasonLeaderboard() {
         refetchLeaderboard();
       });
     }
-  }, [persona, refetchLeaderboard, selectedSeasonId, utils]);
+  }, [refetchLeaderboard, selectedSeasonId, utils]);
 
   if (seasonsLoading) {
     return <LoadingState message="Loading seasons..." />;

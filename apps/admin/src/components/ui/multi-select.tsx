@@ -66,6 +66,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
           <Button
             ref={ref}
             variant="outline"
+            // biome-ignore lint/a11y/useSemanticElements: Custom multi-select requires combobox pattern
             role="combobox"
             aria-expanded={open}
             className={`w-full justify-between ${selected.length > 0 ? "h-full" : "h-10"}`}
