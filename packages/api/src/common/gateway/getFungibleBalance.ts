@@ -1,12 +1,12 @@
-import { Config, Effect } from 'effect';
-import { BigNumber } from 'bignumber.js';
-import { GatewayApiClientService } from './gatewayApiClient';
-import { EntityFungiblesPageService } from './entityFungiblesPage';
-import { GatewayError } from './errors';
 import type {
   StateEntityDetailsOperationRequest,
   StateEntityDetailsResponseItem,
 } from '@radixdlt/babylon-gateway-api-sdk';
+import { BigNumber } from 'bignumber.js';
+import { Config, Effect } from 'effect';
+import { EntityFungiblesPageService } from './entityFungiblesPage';
+import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
 
 import { chunker } from '../helpers/chunker';
 

@@ -1,21 +1,21 @@
-import { Data, Effect } from 'effect';
-import { z, type ZodError } from 'zod';
-import { UserActivityPointsService } from '../user/userActivityPoints';
 import BigNumber from 'bignumber.js';
-import { createUserBands } from './createUserBands';
-import { supplyPercentileTrim } from './supplyPercentileTrim';
-import { distributeSeasonPoints } from './distributePoints';
-import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
-import { UpdateWeekStatusService } from '../week/updateWeekStatus';
-import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
-import { Thresholds } from '../../common/config/constants';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { groupBy } from 'effect/Array';
-import { SeasonService } from '../season/season';
-import { WeekService } from '../week/week';
 import { ActivityCategoryId } from 'data';
 import { users } from 'db/incentives';
+import { Data, Effect } from 'effect';
+import { groupBy } from 'effect/Array';
+import { type ZodError, z } from 'zod';
+import { Thresholds } from '../../common/config/constants';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { DbClientService, DbError } from '../db/dbClient';
+import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
+import { SeasonService } from '../season/season';
+import { UserActivityPointsService } from '../user/userActivityPoints';
+import { UpdateWeekStatusService } from '../week/updateWeekStatus';
+import { WeekService } from '../week/week';
+import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
+import { createUserBands } from './createUserBands';
+import { distributeSeasonPoints } from './distributePoints';
+import { supplyPercentileTrim } from './supplyPercentileTrim';
 
 export const calculateSeasonPointsInputSchema = z.object({
   weekId: z.string(),

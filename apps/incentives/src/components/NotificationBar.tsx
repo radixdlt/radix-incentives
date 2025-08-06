@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
-import { X, Info } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Info, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 type NotificationBarProps = {
   message: string;

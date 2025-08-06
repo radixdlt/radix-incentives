@@ -1,9 +1,9 @@
-import { describe, test, expect, vi } from 'vitest';
-import { Effect, Layer, Cause } from 'effect';
-import { VerifyChallengeService } from './verifyChallenge';
-import { createDbClientLive, DbClientService, DbError } from '../db/dbClient';
+import { type Db, challenge } from 'db/consultation';
+import { Cause, Effect, Layer } from 'effect';
+import { describe, expect, test, vi } from 'vitest';
 import { AppConfigService, createAppConfigLive } from '../config/appConfig';
-import { challenge, type Db } from 'db/consultation';
+import { DbClientService, DbError, createDbClientLive } from '../db/dbClient';
+import { VerifyChallengeService } from './verifyChallenge';
 
 // Mock the DbClientService
 const mockDbClient = {

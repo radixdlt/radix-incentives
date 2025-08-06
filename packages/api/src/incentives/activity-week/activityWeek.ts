@@ -1,12 +1,12 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { ActivityId } from 'data';
 import {
-  activityWeeks,
   activities,
   activityCategoryWeeks,
+  activityWeeks,
 } from 'db/incentives';
-import { eq, and, sql, asc } from 'drizzle-orm';
-import { ActivityId } from 'data';
+import { and, asc, eq, sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
   'ActivityWeekService',

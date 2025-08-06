@@ -1,8 +1,8 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { activities, type NewActivity } from 'db/incentives';
+import { type NewActivity, activities } from 'db/incentives';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 const ActivityDataSchema = z.object({
   showOnEarnPage: z.boolean(),

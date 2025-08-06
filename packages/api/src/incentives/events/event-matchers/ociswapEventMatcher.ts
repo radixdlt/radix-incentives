@@ -1,20 +1,20 @@
 import { Effect } from 'effect';
-import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
-  SwapEvent,
+  isOciswapBasicPoolComponent,
+  isOciswapFlexPoolComponent,
+  isOciswapPrecisionPoolComponent,
+} from '../../../common/address-validation/addressValidation';
+import {
   BasicPoolSwapEvent,
   FlexPoolSwapEvent,
+  SwapEvent,
 } from '../../../common/dapps/ociswap/schemas';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
-  parseEventData,
   type CapturedEvent,
   createEventMatcher,
+  parseEventData,
 } from './createEventMatcher';
-import {
-  isOciswapPrecisionPoolComponent,
-  isOciswapFlexPoolComponent,
-  isOciswapBasicPoolComponent,
-} from '../../../common/address-validation/addressValidation';
 
 export type OciswapPrecisionPoolSwapEvent = {
   readonly type: 'SwapEvent';

@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
-import { activities, type Activity } from 'db/incentives';
+import { type Activity, activities } from 'db/incentives';
 
 export class GetActivitiesService extends Context.Tag('GetActivitiesService')<
   GetActivitiesService,

@@ -1,13 +1,13 @@
-import { describe, expect, vi, beforeEach } from 'vitest';
-import { Effect, Layer, Exit, Cause, Option } from 'effect';
 import { it } from '@effect/vitest';
+import { challenge } from 'db/consultation';
+import { Cause, Effect, Exit, Layer, Option } from 'effect';
+import { beforeEach, describe, expect, vi } from 'vitest';
 import { DbClientService, DbError } from '../db/dbClient';
 import {
-  CreateChallengeLive,
   ChallengeService,
+  CreateChallengeLive,
   createChallengeProgram,
 } from './createChallenge';
-import { challenge } from 'db/consultation';
 
 // Mock the Drizzle-like database client behavior
 const mockDbClient = {

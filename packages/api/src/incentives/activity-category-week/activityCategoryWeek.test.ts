@@ -2,15 +2,15 @@ import { it } from '@effect/vitest';
 import BigNumber from 'bignumber.js';
 import { ActivityCategoryId } from 'data';
 import {
+  accountActivityPoints,
+  accounts,
   activities,
   activityCategories,
   activityCategoryWeeks,
   activityWeeks,
-  accountActivityPoints,
-  accounts,
-  users,
   schema,
   seasons,
+  users,
   weeks,
 } from 'db/incentives';
 import { eq } from 'drizzle-orm';
@@ -18,10 +18,10 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { Effect } from 'effect';
 import postgres from 'postgres';
 import { describe, inject } from 'vitest';
+import { truncateAllTables } from '../../integration-tests/utils';
 import { createDbClientLive } from '../db/dbClient';
 import { ActivityCategoryWeekService } from './activityCategoryWeek';
 import { distributeWeightedPoints } from './distributeWeightedPoints';
-import { truncateAllTables } from '../../integration-tests/utils';
 
 describe('ActivityCategoryWeekService', () => {
   const dbUrl = inject('testDbUrl');

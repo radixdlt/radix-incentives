@@ -1,5 +1,5 @@
-import { seedActivities } from 'db/incentives';
 import { TRPCError } from '@trpc/server';
+import { seedActivities } from 'db/incentives';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
 export const adminSeedRouter = createTRPCRouter({

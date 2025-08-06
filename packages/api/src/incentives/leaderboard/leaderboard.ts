@@ -1,19 +1,19 @@
-import { Effect, Data } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { WeekService } from '../week/week';
-import { SeasonService } from '../season/season';
-import { ActivityCategoryService } from '../activity-category/activityCategory';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { ActivityWeekService } from '../activity-week/activityWeek';
 import type { Db } from 'db/incentives';
 import {
-  users,
   activities,
-  seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
+  seasonLeaderboardCache,
+  users,
 } from 'db/incentives';
-import { eq, asc, sql, and, inArray } from 'drizzle-orm';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { Data, Effect } from 'effect';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { DbClientService, DbError } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
 
 // Custom error for when cache is being built
 export class CacheNotAvailableError extends Data.TaggedError(

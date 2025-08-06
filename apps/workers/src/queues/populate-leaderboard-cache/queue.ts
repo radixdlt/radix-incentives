@@ -1,9 +1,9 @@
-import { createQueue } from '../createQueue';
-import { redisClient } from '../../redis';
-import { populateLeaderboardCacheWorker } from './worker';
-import type { PopulateLeaderboardCacheInput } from './schemas';
 import { Effect } from 'effect';
+import { redisClient } from '../../redis';
+import { createQueue } from '../createQueue';
 import { QueueName } from '../types';
+import type { PopulateLeaderboardCacheInput } from './schemas';
+import { populateLeaderboardCacheWorker } from './worker';
 
 export const populateLeaderboardCacheQueue = createQueue<
   PopulateLeaderboardCacheInput,

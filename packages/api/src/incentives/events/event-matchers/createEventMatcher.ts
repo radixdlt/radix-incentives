@@ -1,13 +1,13 @@
+import { Effect } from 'effect';
+import type {
+  OrderedTupleSchema,
+  StructDefinition,
+  StructSchema,
+} from 'sbor-ez-mode';
 import type {
   TransformedEvent,
   TransformedTransaction,
 } from '../../transaction-stream/transformEvent';
-import type {
-  StructDefinition,
-  StructSchema,
-  OrderedTupleSchema,
-} from 'sbor-ez-mode';
-import { Effect } from 'effect';
 
 export type CapturedEvent<U> = {
   dApp: string;

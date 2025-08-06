@@ -1,16 +1,16 @@
 import { Effect } from 'effect';
-import type { TransformedEvent } from '../../transaction-stream/transformEvent';
+import { isDefiPlazaPoolComponent } from '../../../common/address-validation/addressValidation';
 import {
   AddLiquidityEvent,
   RemoveLiquidityEvent,
   SwapEvent,
 } from '../../../common/dapps/defiplaza/schemas';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
-  parseEventData,
   type CapturedEvent,
   createEventMatcher,
+  parseEventData,
 } from './createEventMatcher';
-import { isDefiPlazaPoolComponent } from '../../../common/address-validation/addressValidation';
 
 export type DefiPlazaSwapEvent = {
   readonly type: 'SwapEvent';

@@ -1,5 +1,5 @@
-import { describe, it, expect, vi } from 'vitest';
 import { BigNumber } from 'bignumber.js';
+import { describe, expect, it, vi } from 'vitest';
 import { calculateMultiplier } from './seasonPointsMultiplierWorker';
 
 // Mock the chunker utility

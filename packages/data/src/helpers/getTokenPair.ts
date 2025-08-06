@@ -1,3 +1,4 @@
+import { Data, Effect } from 'effect';
 import {
   AssetType,
   bluechipAssets,
@@ -6,7 +7,6 @@ import {
   stableAssets,
   xrdDerivativeAssets,
 } from '../assets';
-import { Data, Effect } from 'effect';
 
 /**
  * Sort tokens in ascending alphabetical order

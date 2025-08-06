@@ -1,16 +1,16 @@
 'use client';
 
-import { ConnectAccount } from './components/ConnectAccount';
-import { api } from '~/trpc/react';
-import { ConnectAccountInstructions } from './components/Instructions';
-import { useEffect } from 'react';
-import { ConnectedAccounts } from './components/ConnectedAccounts';
-import { EmptyState } from '~/components/ui/empty-state';
 import { AlertTriangle, Wallet } from 'lucide-react';
+import { useEffect } from 'react';
+import { EmptyState } from '~/components/ui/empty-state';
 import { Skeleton } from '~/components/ui/skeleton';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { ConnectedState } from '../components/ConnectedState';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
+import { api } from '~/trpc/react';
+import { ConnectedState } from '../components/ConnectedState';
+import { ConnectAccount } from './components/ConnectAccount';
+import { ConnectedAccounts } from './components/ConnectedAccounts';
+import { ConnectAccountInstructions } from './components/Instructions';
 
 export default function AccountsPage() {
   const persona = usePersona();

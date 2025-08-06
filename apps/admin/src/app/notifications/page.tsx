@@ -1,7 +1,8 @@
 'use client';
 
+import { Eye, Loader2, Save } from 'lucide-react';
 import React, { useState } from 'react';
-import { api } from '~/trpc/react';
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -14,8 +15,7 @@ import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Switch } from '~/components/ui/switch';
 import { Textarea } from '~/components/ui/textarea';
-import { toast } from 'sonner';
-import { Loader2, Save, Eye } from 'lucide-react';
+import { api } from '~/trpc/react';
 
 export default function NotificationsPage() {
   const { data: config, refetch } = api.config.getPublicConfig.useQuery();

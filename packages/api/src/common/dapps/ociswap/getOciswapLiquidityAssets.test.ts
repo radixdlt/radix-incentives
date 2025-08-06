@@ -1,19 +1,19 @@
-import { describe, it } from 'vitest';
 import { Effect, Layer } from 'effect';
+import { describe, it } from 'vitest';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import {
   GetOciswapLiquidityAssetsLive,
   GetOciswapLiquidityAssetsService,
 } from './getOciswapLiquidityAssets';
 import { GetOciswapLiquidityClaimsService } from './getOciswapLiquidityClaims';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 
-import { GetComponentStateService } from '../../gateway/getComponentState';
-import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
-import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
-import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
+import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
+import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
+import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
 
 const TEST_CONFIG = {
   // V1 Pool (xUSDC/XRD)

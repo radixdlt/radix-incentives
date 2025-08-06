@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import { ArrowLeft, Edit } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '~/components/ui/button';
 

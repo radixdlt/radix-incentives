@@ -1,5 +1,5 @@
-import type { GetResourcePoolOutput } from '../../../resource-pool/getResourcePoolUnits';
 import BigNumber from 'bignumber.js';
+import type { GetResourcePoolOutput } from '../../../resource-pool/getResourcePoolUnits';
 import { deserializeBigNumber } from '../../../utils/deserializeBigNumber';
 
 export const pools: GetResourcePoolOutput = [

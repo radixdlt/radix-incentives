@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { between, inArray, and } from 'drizzle-orm';
+import type { AccountBalanceData, ActivityId } from 'data';
 import { type AccountBalance, accountBalances } from 'db/incentives';
+import { and, between, inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
-import type { ActivityId, AccountBalanceData } from 'data';
+import { DbClientService, DbError } from '../db/dbClient';
 
 type AccountBalanceWithData = AccountBalance & {
   data: AccountBalanceData[];

@@ -1,7 +1,7 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { accounts } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 type GetAccountAddressByUserIdInput = string[];
 

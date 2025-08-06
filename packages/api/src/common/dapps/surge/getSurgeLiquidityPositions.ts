@@ -6,10 +6,10 @@ import {
 } from '../../gateway/getFungibleBalance';
 
 import { BigNumber } from 'bignumber.js';
+import { Assets, DappConstants } from 'data';
 import { GetComponentStateService } from '../../gateway/getComponentState';
-import { MarginPool } from './schemas';
-import { DappConstants, Assets } from 'data';
 import type { AtLedgerState } from '../../gateway/schemas';
+import { MarginPool } from './schemas';
 
 const SurgeConstants = DappConstants.Surge.constants;
 

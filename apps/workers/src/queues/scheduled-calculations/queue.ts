@@ -1,7 +1,7 @@
-import { createQueue } from '../createQueue';
 import { redisClient } from '../../redis';
-import { scheduledCalculationsWorker } from './worker';
+import { createQueue } from '../createQueue';
 import { QueueName } from '../types';
+import { scheduledCalculationsWorker } from './worker';
 
 export const scheduledCalculationsQueue = createQueue({
   name: QueueName.scheduledCalculations,

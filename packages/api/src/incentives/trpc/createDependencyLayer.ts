@@ -1,86 +1,86 @@
+import { NodeSdk } from '@effect/opentelemetry';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import type { Db, Season } from 'db/incentives';
-import {
-  type AppConfig,
-  createAppConfigLive,
-  createConfig,
-} from '../config/appConfig';
-import { createDbClientLive } from '../db/dbClient';
 import { Effect, Layer } from 'effect';
-import { RolaServiceLive } from '../rola/rola';
-import {
-  CreateChallengeLive,
-  createChallengeProgram,
-} from '../challenge/createChallenge';
-import { VerifyRolaProofLive } from '../rola/verifyRolaProof';
-import {
-  signInWithRolaProof,
-  type SignInWithRolaProofInput,
-} from '../programs/signInWithRolaProof';
-import { GenerateSessionTokenLive } from '../session/generateSessionToken';
-import { CreateSessionLive } from '../session/createSession';
-import { VerifyChallengeLive } from '../challenge/verifyChallenge';
-import { UpsertUserLive } from '../user/upsertUser';
-import { validateSessionTokenProgram } from '../programs/validateSessionToken';
-import { InvalidateSessionLive } from '../session/invalidateSession';
-import {
-  verifyAccountOwnershipProgram,
-  type VerifyAccountOwnershipInput,
-} from '../programs/verifyAccountOwnership';
-import { UpsertAccountsLive } from '../account/upsertAccounts';
-import { GetAccountsByAddressLive } from '../account/getAccountsByAddress';
-import { GetSessionLive } from '../session/getSession';
 import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
-import { getAccountsProgram } from '../programs/getAccounts';
-import { signOutProgram } from '../programs/signOutProgram';
-import {
-  GetActivitiesLive,
-  GetActivitiesService,
-} from '../activity/getActivities';
-import { GetSeasonsLive, GetSeasonsService } from '../season/getSeasons';
-import {
-  GetSeasonByIdLive,
-  GetSeasonByIdService,
-} from '../season/getSeasonById';
-import {
-  GetActivityByIdLive,
-  GetActivityByIdService,
-} from '../activity/getActivityById';
+import { AccountBalanceService } from '../account/accountBalance';
+import { GetAccountsByAddressLive } from '../account/getAccountsByAddress';
+import { UpsertAccountsLive } from '../account/upsertAccounts';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
 import {
   GetActivityWeeksByWeekIdsLive,
   GetActivityWeeksByWeekIdsService,
 } from '../activity-week/getActivityWeeksByWeekIds';
 import {
-  GetUsersPaginatedLive,
-  GetUsersPaginatedService,
-} from '../user/getUsersPaginated';
-import { UpdateWeekStatusService } from '../week/updateWeekStatus';
-import { UserService } from '../user/user';
-import { AccountBalanceService } from '../account/accountBalance';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { NodeSdk } from '@effect/opentelemetry';
-import { type EditSeasonInput, SeasonService } from '../season/season';
-import { type CreateWeekInput, WeekService } from '../week/week';
-import { LeaderboardService } from '../leaderboard/leaderboard';
-import { ActivityDataService } from '../activity/activityData';
-import {
   ActivityService,
   type UpdateActivityInput,
 } from '../activity/activity';
-import { DappService } from '../dapp/dapp';
-import { ActivityCategoryService } from '../activity-category/activityCategory';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { ActivityWeekService } from '../activity-week/activityWeek';
+import { ActivityDataService } from '../activity/activityData';
+import {
+  GetActivitiesLive,
+  GetActivitiesService,
+} from '../activity/getActivities';
+import {
+  GetActivityByIdLive,
+  GetActivityByIdService,
+} from '../activity/getActivityById';
+import {
+  CreateChallengeLive,
+  createChallengeProgram,
+} from '../challenge/createChallenge';
+import { VerifyChallengeLive } from '../challenge/verifyChallenge';
 import { ComponentWhitelistService } from '../component/componentWhitelist';
 import {
-  parseCsvWhitelist,
   type CsvParsingError,
+  parseCsvWhitelist,
 } from '../component/parseCsvWhitelist';
+import {
+  type AppConfig,
+  createAppConfigLive,
+  createConfig,
+} from '../config/appConfig';
 import {
   NotificationService,
   type NotificationSettings,
 } from '../config/notificationService';
+import { DappService } from '../dapp/dapp';
+import { createDbClientLive } from '../db/dbClient';
+import { LeaderboardService } from '../leaderboard/leaderboard';
+import { getAccountsProgram } from '../programs/getAccounts';
+import {
+  type SignInWithRolaProofInput,
+  signInWithRolaProof,
+} from '../programs/signInWithRolaProof';
+import { signOutProgram } from '../programs/signOutProgram';
+import { validateSessionTokenProgram } from '../programs/validateSessionToken';
+import {
+  type VerifyAccountOwnershipInput,
+  verifyAccountOwnershipProgram,
+} from '../programs/verifyAccountOwnership';
+import { RolaServiceLive } from '../rola/rola';
+import { VerifyRolaProofLive } from '../rola/verifyRolaProof';
+import {
+  GetSeasonByIdLive,
+  GetSeasonByIdService,
+} from '../season/getSeasonById';
+import { GetSeasonsLive, GetSeasonsService } from '../season/getSeasons';
+import { type EditSeasonInput, SeasonService } from '../season/season';
+import { CreateSessionLive } from '../session/createSession';
+import { GenerateSessionTokenLive } from '../session/generateSessionToken';
+import { GetSessionLive } from '../session/getSession';
+import { InvalidateSessionLive } from '../session/invalidateSession';
+import {
+  GetUsersPaginatedLive,
+  GetUsersPaginatedService,
+} from '../user/getUsersPaginated';
+import { UpsertUserLive } from '../user/upsertUser';
+import { UserService } from '../user/user';
+import { UpdateWeekStatusService } from '../week/updateWeekStatus';
+import { type CreateWeekInput, WeekService } from '../week/week';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 

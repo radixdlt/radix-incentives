@@ -1,5 +1,5 @@
-import { vi } from 'vitest';
 import { Layer } from 'effect';
+import { vi } from 'vitest';
 import { DbClientService } from '../incentives/db/dbClient';
 
 // Create a mock database client

@@ -1,6 +1,6 @@
-import * as React from 'react';
 import { ChevronRightIcon } from '@radix-ui/react-icons';
 import { Slot } from '@radix-ui/react-slot';
+import * as React from 'react';
 
 const cn = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(' ');

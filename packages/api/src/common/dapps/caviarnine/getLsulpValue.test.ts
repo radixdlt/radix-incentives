@@ -1,11 +1,11 @@
-import { Effect, Layer } from 'effect';
 import { it } from '@effect/vitest';
+import { Effect, Layer } from 'effect';
 
+import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
 import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
-import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import { GetLsulpValueLive, GetLsulpValueService } from './getLsulpValue';
 
 const gatewayApiClientLive = GatewayApiClientLive;

@@ -1,5 +1,5 @@
-import { Effect } from 'effect';
 import BigNumber from 'bignumber.js';
+import { Effect } from 'effect';
 import type { AccountBalanceGroupedByAddressAndActivityId } from '../account-balance/accountBalance';
 
 type AccountAddress = string;

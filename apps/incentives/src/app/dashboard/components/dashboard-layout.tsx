@@ -1,23 +1,23 @@
 'use client';
 
+import {
+  ChevronLeft,
+  ChevronRight,
+  HelpCircle,
+  Home,
+  List,
+  Target,
+  Users,
+} from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
-import { RadixConnectButton } from './RadixConnectButton';
-import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
-import {
-  Home,
-  List,
-  Users,
-  HelpCircle,
-  Target,
-  ChevronLeft,
-  ChevronRight,
-} from 'lucide-react';
 import { Logo } from '~/components/Logo';
 import { NotificationBar } from '~/components/NotificationBar';
+import { Button } from '~/components/ui/button';
+import { cn } from '~/lib/utils';
 import { api } from '~/trpc/react';
+import { RadixConnectButton } from './RadixConnectButton';
 
 type DashboardLayoutProps = {
   children: React.ReactNode;

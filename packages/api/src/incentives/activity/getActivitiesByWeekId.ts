@@ -1,8 +1,8 @@
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
-import { activities, activityWeeks, type ActivityWeek } from 'db/incentives';
 import type { ActivityCategoryId, ActivityId } from 'data';
+import { type ActivityWeek, activities, activityWeeks } from 'db/incentives';
 import { and, eq, inArray, notInArray } from 'drizzle-orm';
 
 export class NotFoundError {

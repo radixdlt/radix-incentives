@@ -1,6 +1,6 @@
+import { type User, user } from 'db/incentives';
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
-import { type User, user } from 'db/incentives';
 
 export class UpsertUserService extends Context.Tag('UpsertUserService')<
   UpsertUserService,

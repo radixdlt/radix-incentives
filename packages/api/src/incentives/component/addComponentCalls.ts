@@ -1,12 +1,12 @@
+import { utc } from '@date-fns/utc';
+import { endOfISOWeek, startOfISOWeek } from 'date-fns';
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
-import { startOfISOWeek, endOfISOWeek } from 'date-fns';
-import { utc } from '@date-fns/utc';
 
 import { componentCalls } from 'db/incentives';
-import { inArray, sql, and, between } from 'drizzle-orm';
-import { GetUserIdByAccountAddressService } from '../user/getUserIdByAccountAddress';
+import { and, between, inArray, sql } from 'drizzle-orm';
 import { groupBy } from 'effect/Array';
+import { GetUserIdByAccountAddressService } from '../user/getUserIdByAccountAddress';
 
 export type AddComponentCallsServiceInput = {
   accountAddress: string;

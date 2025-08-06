@@ -1,9 +1,9 @@
+import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 import { GatewayApiClientLive } from './gatewayApiClient';
 import { GetKeyValueStoreService } from './getKeyValueStore';
 import { KeyValueStoreDataService } from './keyValueStoreData';
 import { KeyValueStoreKeysService } from './keyValueStoreKeys';
-import { it } from '@effect/vitest';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

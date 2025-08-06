@@ -1,8 +1,8 @@
 'use client'; // Assuming this will be used in client components
 
-import * as React from 'react';
 import * as AvatarPrimitive from '@radix-ui/react-avatar';
 import { UserRound } from 'lucide-react';
+import * as React from 'react';
 import { cn } from '~/lib/utils'; // Corrected path assumption
 
 const Avatar = React.forwardRef<

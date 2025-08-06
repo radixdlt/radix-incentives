@@ -1,20 +1,20 @@
-import { describe, it, expect, beforeEach, afterEach } from 'vitest';
-import { Effect, Layer, Logger, LogLevel } from 'effect';
 import { inject } from '@effect/vitest';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { schema } from 'db/incentives';
+import { BigNumber } from 'bignumber.js';
+import { ActivityId } from 'data';
 import * as consultationSchema from 'db/consultation';
+import { schema } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import postgres from 'postgres';
+import { afterEach, beforeEach, describe, expect, it } from 'vitest';
+import { CalculateTWASQLLive } from '../activity-points/calculateTWASQL';
 import { createDbClientLive, createDbReadOnlyClientLive } from '../db/dbClient';
 import { GetWeekByIdLive } from '../week/getWeekById';
-import { CalculateTWASQLLive } from '../activity-points/calculateTWASQL';
 import {
-  GetUserTWAXrdBalanceService,
   GetUserTWAXrdBalanceLive,
+  GetUserTWAXrdBalanceService,
 } from './getUserTWAXrdBalance';
-import { BigNumber } from 'bignumber.js';
-import { eq } from 'drizzle-orm';
-import { ActivityId } from 'data';
 
 // Test data with proper UUIDs
 const testSeasonId = '550e8400-e29b-41d4-a716-446655440000';

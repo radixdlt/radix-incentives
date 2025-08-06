@@ -1,6 +1,6 @@
-import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { Exit } from 'effect';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 export const adminDappRouter = createTRPCRouter({
   getDapps: publicProcedure.query(async ({ ctx }) => {

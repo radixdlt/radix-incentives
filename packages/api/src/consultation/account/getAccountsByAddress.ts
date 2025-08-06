@@ -1,7 +1,7 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { accounts } from 'db/consultation';
 import { inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 type GetAccountsByAddressInput = {
   addresses: string[];

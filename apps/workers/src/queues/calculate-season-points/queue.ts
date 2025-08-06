@@ -1,9 +1,9 @@
-import { createQueue } from '../createQueue';
-import { redisClient } from '../../redis';
-import { calculateSeasonPointsWorker } from './worker';
-import type { CalculateSeasonPointsJob } from './schemas';
 import { Effect } from 'effect';
+import { redisClient } from '../../redis';
+import { createQueue } from '../createQueue';
 import { QueueName } from '../types';
+import type { CalculateSeasonPointsJob } from './schemas';
+import { calculateSeasonPointsWorker } from './worker';
 
 export const calculateSeasonPointsQueue = createQueue<
   CalculateSeasonPointsJob,

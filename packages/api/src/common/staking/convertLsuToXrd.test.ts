@@ -1,9 +1,9 @@
 import { Effect, Layer } from 'effect';
-import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from './convertLsuToXrd';
 import { GatewayApiClientLive } from '../gateway/gatewayApiClient';
+import { GetAllValidatorsService } from '../gateway/getAllValidators';
 import { GetEntityDetailsService } from '../gateway/getEntityDetails';
 import { GetLedgerStateService } from '../gateway/getLedgerState';
-import { GetAllValidatorsService } from '../gateway/getAllValidators';
+import { ConvertLsuToXrdLive, ConvertLsuToXrdService } from './convertLsuToXrd';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

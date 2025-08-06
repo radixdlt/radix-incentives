@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { activityCategories } from 'db/incentives';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { Data } from 'effect';
 import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const ActivityCategorySchema = z.object({
   id: z.string(),

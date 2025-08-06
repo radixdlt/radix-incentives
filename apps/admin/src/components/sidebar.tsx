@@ -4,13 +4,13 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 
 import {
-  Users,
-  LogOut,
-  CalendarDays,
   Activity,
-  Database,
-  Shield,
   Bell,
+  CalendarDays,
+  Database,
+  LogOut,
+  Shield,
+  Users,
 } from 'lucide-react';
 
 import { cn } from '../lib/utils';

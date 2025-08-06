@@ -1,18 +1,18 @@
+import {
+  accountActivityPoints,
+  accounts,
+  categoryLeaderboardCache,
+  leaderboardStatsCache,
+  seasonLeaderboardCache,
+  userSeasonPoints,
+} from 'db/incentives';
+import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
 import { DbClientService, DbError } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { WeekService } from '../week/week';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { ActivityWeekService } from '../activity-week/activityWeek';
-import {
-  seasonLeaderboardCache,
-  categoryLeaderboardCache,
-  leaderboardStatsCache,
-  userSeasonPoints,
-  accountActivityPoints,
-  accounts,
-} from 'db/incentives';
-import { eq, and, sql, desc, inArray } from 'drizzle-orm';
 
 export type PopulateLeaderboardCacheInput = {
   weekId?: string;

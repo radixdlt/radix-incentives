@@ -1,10 +1,10 @@
 'use client';
 
+import { ArrowLeft, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { Calendar, ArrowLeft } from 'lucide-react';
 
-import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
 import type { WeekDetailsData } from './types';
 
 interface WeekHeaderProps {

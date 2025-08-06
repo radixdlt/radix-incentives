@@ -1,6 +1,6 @@
-import { Exit } from 'effect';
 import { createDependencyLayer } from 'api/consultation';
 import { db } from 'db/consultation';
+import { Exit } from 'effect';
 
 const { calculateVotingPowerAtStateVersion, calculateTWAVotingPower } =
   createDependencyLayer({

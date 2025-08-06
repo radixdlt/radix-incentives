@@ -1,5 +1,5 @@
-import { Data, Effect } from 'effect';
 import BigNumber from 'bignumber.js';
+import { Data, Effect } from 'effect';
 
 import {
   type GetFungibleBalanceOutput,

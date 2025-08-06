@@ -1,7 +1,7 @@
 import { dependencyLayer } from 'api/incentives';
-import type { CalculateActivityPointsJob } from './schemas';
 import type { Job } from 'bullmq';
 import { Exit } from 'effect';
+import type { CalculateActivityPointsJob } from './schemas';
 
 export const calculateActivityPointsWorker = async (
   input: Job<CalculateActivityPointsJob>,

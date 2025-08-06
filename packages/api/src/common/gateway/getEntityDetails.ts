@@ -1,7 +1,7 @@
 import { Effect } from 'effect';
 import { GatewayApiClientService } from '../gateway/gatewayApiClient';
-import type { AtLedgerState } from './schemas';
 import { GatewayError } from './errors';
+import type { AtLedgerState } from './schemas';
 
 type GetEntityDetailsParameters = Parameters<
   GatewayApiClientService['state']['getEntityDetailsVaultAggregated']

@@ -4,6 +4,7 @@ import { migrate } from 'drizzle-orm/postgres-js/migrator';
 
 import { activityCategoriesData, activityData, dappsData } from 'data';
 
+import path from 'node:path';
 import {
   activities,
   activityCategories,
@@ -13,9 +14,8 @@ import {
   seasons,
   weeks,
 } from 'db/incentives';
-import postgres from 'postgres';
-import path from 'node:path';
 import { sql } from 'drizzle-orm';
+import postgres from 'postgres';
 
 declare module 'vitest' {
   export interface ProvidedContext {

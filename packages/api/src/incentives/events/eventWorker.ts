@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { DeriveAccountFromEventService } from './deriveAccountFromEvent';
 import { events } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
+import { DbClientService, DbError } from '../db/dbClient';
+import { DeriveAccountFromEventService } from './deriveAccountFromEvent';
 
 export type EventWorkerInput = {
   items: {

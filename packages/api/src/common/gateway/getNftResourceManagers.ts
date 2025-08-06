@@ -1,16 +1,16 @@
-import { Config, Effect } from 'effect';
-import { GatewayApiClientService } from './gatewayApiClient';
-import { GatewayError } from './errors';
 import type {
   NonFungibleResourcesCollectionItemVaultAggregated,
   StateEntityDetailsOperationRequest,
   StateEntityDetailsResponseItem,
 } from '@radixdlt/babylon-gateway-api-sdk';
-import { EntityNonFungiblesPageService } from './entityNonFungiblesPage';
+import { Config, Effect } from 'effect';
 import { chunker } from '../helpers/chunker';
+import { EntityNonFungiblesPageService } from './entityNonFungiblesPage';
+import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
 
-import type { AtLedgerState } from './schemas';
 import { GetNonFungibleIdsService } from './getNonFungibleIds';
+import type { AtLedgerState } from './schemas';
 
 type GetNftResourceManagersInput = {
   addresses: string[];

@@ -1,5 +1,5 @@
-import { ActivityId } from './activityId';
 import { activitiesData } from './activities';
+import { ActivityId } from './activityId';
 
 const verifyActivity = (): void => {
   for (const activityId of Object.values(ActivityId)) {

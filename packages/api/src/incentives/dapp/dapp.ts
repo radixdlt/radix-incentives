@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const DappSchema = z.object({
   id: z.string(),

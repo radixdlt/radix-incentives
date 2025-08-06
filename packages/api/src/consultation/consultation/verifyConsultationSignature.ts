@@ -1,14 +1,14 @@
 import { Effect } from 'effect';
 
 import {
-  signedChallengeSchema,
   VerifyRolaProofService,
+  signedChallengeSchema,
 } from '../rola/verifyRolaProof';
 
-import { areUint8ArraysEqual } from '../../common/crypto/areEqual';
 import { fromHex } from 'radix-connect';
-import { AddConsultationToDbService } from '../consultation/addConsultationToDb';
 import { z } from 'zod';
+import { areUint8ArraysEqual } from '../../common/crypto/areEqual';
+import { AddConsultationToDbService } from '../consultation/addConsultationToDb';
 import { CreateConsultationMessageService } from '../consultation/createConsultationMessage';
 
 export class VerifyConsultationSignatureError {

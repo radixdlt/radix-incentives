@@ -1,8 +1,8 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { challenge } from 'db/consultation';
 import { and, eq, gt } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { AppConfigService } from '../config/appConfig';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class VerifyChallengeService extends Effect.Service<VerifyChallengeService>()(
   'VerifyChallengeService',

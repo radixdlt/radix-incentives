@@ -1,5 +1,5 @@
-import { Effect } from 'effect';
 import { Rola } from '@radixdlt/rola';
+import { Effect } from 'effect';
 import { AppConfigService } from '../config/appConfig';
 
 export class RolaService extends Effect.Service<RolaService>()('RolaService', {

@@ -1,6 +1,6 @@
 'use client';
 
-import { Trophy, ChevronDown } from 'lucide-react';
+import { ChevronDown, Trophy } from 'lucide-react';
 import {
   Select,
   SelectContent,

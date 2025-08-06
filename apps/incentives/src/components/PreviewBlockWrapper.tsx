@@ -1,8 +1,8 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { ThankYouPage } from './ThankYouPage';
 import { api } from '~/trpc/react';
+import { ThankYouPage } from './ThankYouPage';
 
 interface PreviewBlockWrapperProps {
   children: ReactNode;

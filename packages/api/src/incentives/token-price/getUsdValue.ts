@@ -1,5 +1,5 @@
-import { Effect, Cache, Duration, Data } from 'effect';
 import { BigNumber } from 'bignumber.js';
+import { Cache, Data, Duration, Effect } from 'effect';
 import { AddressValidationService } from '../../common/address-validation/addressValidation';
 import { FetchService } from '../../common/helpers';
 

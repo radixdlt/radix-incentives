@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useRef } from 'react';
-import { api } from '~/trpc/react';
+import { File, FileText, Loader2, Upload } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -10,8 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
-import { Alert, AlertDescription } from '~/components/ui/alert';
-import { Loader2, Upload, FileText, File } from 'lucide-react';
+import { api } from '~/trpc/react';
 
 export default function ComponentWhitelistPage() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);

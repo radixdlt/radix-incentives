@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
-import { GatewayApiClientService } from './gatewayApiClient';
 import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
 
 export class CheckAccountPersistenceService extends Effect.Service<CheckAccountPersistenceService>()(
   'CheckAccountPersistenceService',

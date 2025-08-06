@@ -1,6 +1,6 @@
+import { DappId, defiPlazaLpResourceAddressToComponentAddress } from 'data';
 import { Data, Effect } from 'effect';
 import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-import { DappId, defiPlazaLpResourceAddressToComponentAddress } from 'data';
 
 import {
   AggregatePoolPositionsService,

@@ -1,38 +1,38 @@
-import { Effect, Layer } from 'effect';
-import { createDbClientLive, DbReadOnlyClientService } from '../db/dbClient';
+import { it } from '@effect/vitest';
 import {
-  schema,
-  weeks,
   accounts,
   activities,
-  activityWeeks,
-  seasons,
   activityCategories,
+  activityWeeks,
+  schema,
+  seasons,
   users,
+  weeks,
 } from 'db/incentives';
-import {
-  CalculateActivityPointsLive,
-  CalculateActivityPointsService,
-} from './calculateActivityPoints';
-import { UpsertAccountActivityPointsLive } from './upsertAccountActivityPoints';
-import { GetWeekByIdLive } from '../week/getWeekById';
-import { GetTransactionFeesPaginatedLive } from '../transaction-fee/getTransactionFees';
-import { GetComponentCallsPaginatedLive } from '../component/getComponentCalls';
-import { GetTradingVolumeLive } from '../trading-volume/getTradingVolume';
-import { GetAccountAddressByUserIdLive } from '../account/getAccountAddressByUserId';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer } from 'effect';
+import postgres from 'postgres';
+import { describe, inject } from 'vitest';
 import { AccountBalanceService } from '../account-balance/accountBalance';
-import { CalculateTWASQLLive } from './calculateTWASQL';
+import { GetAccountAddressByUserIdLive } from '../account/getAccountAddressByUserId';
+import { ComponentWhitelistService } from '../component/componentWhitelist';
+import { GetComponentCallsPaginatedLive } from '../component/getComponentCalls';
 import {
   AppConfigService,
   createAppConfigLive,
   defaultAppConfig,
 } from '../config/appConfig';
-import { ComponentWhitelistService } from '../component/componentWhitelist';
-import { describe, inject } from 'vitest';
-import { it } from '@effect/vitest';
-import postgres from 'postgres';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { eq } from 'drizzle-orm';
+import { DbReadOnlyClientService, createDbClientLive } from '../db/dbClient';
+import { GetTradingVolumeLive } from '../trading-volume/getTradingVolume';
+import { GetTransactionFeesPaginatedLive } from '../transaction-fee/getTransactionFees';
+import { GetWeekByIdLive } from '../week/getWeekById';
+import {
+  CalculateActivityPointsLive,
+  CalculateActivityPointsService,
+} from './calculateActivityPoints';
+import { CalculateTWASQLLive } from './calculateTWASQL';
+import { UpsertAccountActivityPointsLive } from './upsertAccountActivityPoints';
 
 describe('calculateActivityPoints', () => {
   const dbUrl = inject('testDbUrl');

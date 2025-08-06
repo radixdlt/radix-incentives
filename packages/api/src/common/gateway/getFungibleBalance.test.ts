@@ -2,9 +2,9 @@ import { Effect, Exit, Layer } from 'effect';
 import { GatewayApiClientLive } from './gatewayApiClient';
 import { GetEntityDetailsService } from './getEntityDetails';
 
-import { GetLedgerStateService } from './getLedgerState';
-import { GetFungibleBalanceService } from './getFungibleBalance';
 import { EntityFungiblesPageService } from './entityFungiblesPage';
+import { GetFungibleBalanceService } from './getFungibleBalance';
+import { GetLedgerStateService } from './getLedgerState';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

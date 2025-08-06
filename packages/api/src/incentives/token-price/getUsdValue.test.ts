@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { Effect, Layer } from 'effect';
 import { BigNumber } from 'bignumber.js';
 import { Assets } from 'data';
-import { GetUsdValueLive, GetUsdValueService } from './getUsdValue';
+import { Effect, Layer } from 'effect';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
 import { FetchService } from '../../common/helpers';
+import { GetUsdValueLive, GetUsdValueService } from './getUsdValue';
 
 describe('GetUsdValueService', () => {
   const mockFetch = vi.fn();

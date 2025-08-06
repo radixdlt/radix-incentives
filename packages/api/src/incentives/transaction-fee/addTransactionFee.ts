@@ -1,8 +1,8 @@
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
-import { transactionFees } from 'db/incentives';
 import type BigNumber from 'bignumber.js';
+import { transactionFees } from 'db/incentives';
 
 export type AddTransactionFeeServiceInput = {
   txId: string;

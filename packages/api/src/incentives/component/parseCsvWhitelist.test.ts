@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { Effect, Exit, Cause } from 'effect';
-import { parseCsvWhitelist, CsvParsingError } from './parseCsvWhitelist';
+import { Cause, Effect, Exit } from 'effect';
+import { describe, expect, it } from 'vitest';
+import { CsvParsingError, parseCsvWhitelist } from './parseCsvWhitelist';
 
 describe('parseCsvWhitelist', () => {
   it('should successfully parse valid CSV with component addresses', async () => {

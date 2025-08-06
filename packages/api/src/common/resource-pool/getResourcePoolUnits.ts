@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import { GetFungibleBalanceService } from '../gateway/getFungibleBalance';
-import { GetEntityDetailsService } from '../gateway/getEntityDetails';
-import type { AtLedgerState } from '../gateway/schemas';
 import { BigNumber } from 'bignumber.js';
-import { PoolUnitSchema, PoolResourcesSchema } from './schemas';
+import { Effect } from 'effect';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../gateway/getFungibleBalance';
+import type { AtLedgerState } from '../gateway/schemas';
+import { PoolResourcesSchema, PoolUnitSchema } from './schemas';
 
 export class InvalidPoolResourceError extends Error {
   readonly _tag = 'InvalidPoolResourceError';

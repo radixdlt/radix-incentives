@@ -1,5 +1,5 @@
 import { Action, componentAddressActivityDataMap } from 'data';
-import { Effect, Data } from 'effect';
+import { Data, Effect } from 'effect';
 
 class ActivityNotFoundError extends Data.TaggedError('ActivityNotFoundError')<{
   componentAddress: string;

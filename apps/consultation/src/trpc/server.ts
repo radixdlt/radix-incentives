@@ -5,13 +5,13 @@ import { cookies, headers } from 'next/headers';
 import { cache } from 'react';
 
 import {
+  type AppRouter,
   createCaller,
   createDependencyLayer,
-  type AppRouter,
 } from 'api/consultation';
 import { createTRPCContext } from 'api/consultation';
-import { createQueryClient } from './query-client';
 import { db } from 'db/consultation';
+import { createQueryClient } from './query-client';
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when

@@ -1,6 +1,6 @@
+import { type User, user } from 'db/consultation';
 import { Effect } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
-import { type User, user } from 'db/consultation';
 
 export class UpsertUserService extends Effect.Service<UpsertUserService>()(
   'UpsertUserService',

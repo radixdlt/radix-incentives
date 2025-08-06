@@ -1,6 +1,6 @@
-import { cn } from '~/lib/utils';
-import { MoveUpRight, Award, Zap } from 'lucide-react';
+import { Award, MoveUpRight, Zap } from 'lucide-react';
 import { Card } from '~/components/ui/card';
+import { cn } from '~/lib/utils';
 
 export default function DashboardPage() {
   return (

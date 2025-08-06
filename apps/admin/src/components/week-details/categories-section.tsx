@@ -1,9 +1,9 @@
 'use client';
 
+import { Check, ChevronDown, ChevronUp, Edit, X } from 'lucide-react';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Edit, Check, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import type { WeekDetailsData } from './types';
 

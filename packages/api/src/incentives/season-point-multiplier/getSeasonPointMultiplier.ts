@@ -1,8 +1,8 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { seasonPointsMultiplier } from 'db/incentives';
+import { and, eq, inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { z } from 'zod';
-import { eq, inArray, and } from 'drizzle-orm';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const GetSeasonPointMultiplierInputSchema = z.object({
   weekId: z.string(),

@@ -1,23 +1,23 @@
 import { Config, Effect } from 'effect';
 
-import { groupBy } from 'effect/Array';
+import { BigNumber } from 'bignumber.js';
 import {
   type AccountBalanceData,
   Action,
   type DappId,
+  type TokenDetails,
   deriveHoldActivityId,
   deriveLpActivityId,
   getTokenDetailsFromResourceAddress,
   getTokenPairFromResourceAddresses,
-  type TokenDetails,
 } from 'data';
-import { BigNumber } from 'bignumber.js';
+import { groupBy } from 'effect/Array';
 
-import { GetUsdValueService } from '../token-price/getUsdValue';
 import {
   AddressValidationService,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from '../../common/address-validation/addressValidation';
+import { GetUsdValueService } from '../token-price/getUsdValue';
 import { getDefaultPositions } from './getDefaultPositions';
 
 export type LpPosition = {

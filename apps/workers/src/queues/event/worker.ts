@@ -1,10 +1,10 @@
 import type { Job } from 'bullmq';
 
-import type { EventQueueJob } from './schemas';
 import { dependencyLayer } from 'api/incentives';
 import { Exit } from 'effect';
-import { snapshotQueue } from '../snapshot/queue';
 import { SnapshotPriority } from '../snapshot/constants';
+import { snapshotQueue } from '../snapshot/queue';
+import type { EventQueueJob } from './schemas';
 
 export const eventQueueWorker = async (job: Job<EventQueueJob>) => {
   const result = await dependencyLayer.eventWorkerHandler({

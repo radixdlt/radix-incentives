@@ -1,14 +1,14 @@
 import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 
+import BigNumber from 'bignumber.js';
+import { type AccountBalanceData, Action } from 'data';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
+import { FetchService } from '../../common/helpers';
 import { GetUsdValueLive } from '../token-price/getUsdValue';
 import { AggregateDefiPlazaPositionsService } from './aggregateDefiPlazaPositions';
 import { AggregatePoolPositionsService } from './aggregatePoolPositions';
 import { getDefaultPositions } from './getDefaultPositions';
-import { Action, type AccountBalanceData } from 'data';
-import BigNumber from 'bignumber.js';
-import { FetchService } from '../../common/helpers';
 
 const getUsdValueLive = GetUsdValueLive.pipe(
   Layer.provide(AddressValidationServiceLive),

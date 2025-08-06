@@ -1,7 +1,7 @@
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { Effect, Exit, Layer, Logger, LogLevel } from 'effect';
+import { Effect, Exit, Layer, LogLevel, Logger } from 'effect';
 import { describe, expect, it } from 'vitest';
 
 // Test target
@@ -41,15 +41,15 @@ import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/g
 // Resource pool services
 import { GetResourcePoolUnitsLive } from '../../common/resource-pool/getResourcePoolUnits';
 
-// Config and fixtures
-import { createAppConfigLive } from '../config/appConfig';
-import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
+import { GetCaviarnineResourcePoolPositionsService } from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
 import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
 import { GetOciswapLiquidityAssetsService } from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
 import { GetOciswapLiquidityClaimsService } from '../../common/dapps/ociswap/getOciswapLiquidityClaims';
-import { GetSurgeLiquidityPositionsService } from '../../common/dapps/surge/getSurgeLiquidityPositions';
 import { GetOciswapResourcePoolPositionsService } from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
-import { GetCaviarnineResourcePoolPositionsService } from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetSurgeLiquidityPositionsService } from '../../common/dapps/surge/getSurgeLiquidityPositions';
+import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
+// Config and fixtures
+import { createAppConfigLive } from '../config/appConfig';
 
 const appConfigServiceLive = createAppConfigLive();
 

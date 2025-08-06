@@ -1,7 +1,7 @@
-import { Context, Layer, Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { type Session, sessions, type User, users } from 'db/consultation';
+import { type Session, type User, sessions, users } from 'db/consultation';
 import { eq } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class SessionNotFoundError {
   readonly _tag = 'SessionNotFoundError';

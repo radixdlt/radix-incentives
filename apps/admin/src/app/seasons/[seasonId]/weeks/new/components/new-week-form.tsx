@@ -1,5 +1,5 @@
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useForm, type ControllerRenderProps } from 'react-hook-form';
+import { type ControllerRenderProps, useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 import { Button } from '~/components/ui/button';

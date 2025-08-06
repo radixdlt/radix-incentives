@@ -1,65 +1,65 @@
 import type { Db } from 'db/consultation';
-import { type AppConfig, createAppConfigLive } from '../config/appConfig';
-import { createDbClientLive } from '../db/dbClient';
 import { Effect, Layer } from 'effect';
-import { RolaService } from '../rola/rola';
+import { GetLsulpLive } from '../../common/dapps/caviarnine/getLsulp';
+import { GetLsulpValueLive } from '../../common/dapps/caviarnine/getLsulpValue';
+import { GetRootFinancePositionsService } from '../../common/dapps/rootFinance/getRootFinancePositions';
+import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/getWeftFinancePositions';
+import { EntityFungiblesPageService } from '../../common/gateway/entityFungiblesPage';
+import { EntityNonFungibleDataService } from '../../common/gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../common/gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
+import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
+import { GetComponentStateService } from '../../common/gateway/getComponentState';
+import { GetEntityDetailsService } from '../../common/gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
+import { GetKeyValueStoreService } from '../../common/gateway/getKeyValueStore';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { GetNftResourceManagersService } from '../../common/gateway/getNftResourceManagers';
+import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
+import { GetNonFungibleIdsService } from '../../common/gateway/getNonFungibleIds';
+import { KeyValueStoreDataService } from '../../common/gateway/keyValueStoreData';
+import { KeyValueStoreKeysService } from '../../common/gateway/keyValueStoreKeys';
+import { getDatesBetweenIntervals } from '../../common/helpers/getDatesBetweenIntervals';
+import { ConvertLsuToXrdLive } from '../../common/staking/convertLsuToXrd';
+import { GetUserStakingPositionsLive } from '../../common/staking/getUserStakingPositions';
+import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
+import { getAccountsProgram } from '../account/getAccounts';
+import { GetAccountsByAddressService } from '../account/getAccountsByAddress';
+import { UpsertAccountsService } from '../account/upsertAccounts';
+import {
+  type VerifyAccountOwnershipInput,
+  VerifyAccountOwnershipService,
+} from '../account/verifyAccountOwnership';
+import {
+  type SignInWithRolaProofInput,
+  SignInWithRolaProofService,
+} from '../auth/signInWithRolaProof';
+import { signOutProgram } from '../auth/signOutProgram';
+import { ValidateSessionTokenService } from '../auth/validateSessionToken';
 import {
   CreateChallengeLive,
   createChallengeProgram,
 } from '../challenge/createChallenge';
-import { VerifyRolaProofService } from '../rola/verifyRolaProof';
-import {
-  SignInWithRolaProofService,
-  type SignInWithRolaProofInput,
-} from '../auth/signInWithRolaProof';
-import { GenerateSessionTokenService } from '../session/generateSessionToken';
-import { CreateSessionService } from '../session/createSession';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
-import { UpsertUserService } from '../user/upsertUser';
-import { ValidateSessionTokenService } from '../auth/validateSessionToken';
-import { InvalidateSessionService } from '../session/invalidateSession';
-import {
-  VerifyAccountOwnershipService,
-  type VerifyAccountOwnershipInput,
-} from '../account/verifyAccountOwnership';
-import { UpsertAccountsService } from '../account/upsertAccounts';
-import { GetAccountsByAddressService } from '../account/getAccountsByAddress';
-import { GetSessionService } from '../session/getSession';
-import { getAccountsProgram } from '../account/getAccounts';
-import { signOutProgram } from '../auth/signOutProgram';
+import { type AppConfig, createAppConfigLive } from '../config/appConfig';
+import { AddConsultationToDbService } from '../consultation/addConsultationToDb';
+import { CreateConsultationMessageService } from '../consultation/createConsultationMessage';
+import { GetConsultationsService } from '../consultation/getConsulations';
 import {
   type VerifyConsultationSignatureInput,
   VerifyConsultationSignatureService,
 } from '../consultation/verifyConsultationSignature';
-import { AddConsultationToDbService } from '../consultation/addConsultationToDb';
-import { CreateConsultationMessageService } from '../consultation/createConsultationMessage';
-import { GetConsultationsService } from '../consultation/getConsulations';
-import { GetVotingPowerAtStateVersionService } from '../voting-power/getVotingPowerAtStateVersion';
-import { ConvertLsuToXrdLive } from '../../common/staking/convertLsuToXrd';
-import { GetLsulpValueLive } from '../../common/dapps/caviarnine/getLsulpValue';
-import { GetLsulpLive } from '../../common/dapps/caviarnine/getLsulp';
-import { GetUserStakingPositionsLive } from '../../common/staking/getUserStakingPositions';
-import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
-import { EntityNonFungibleDataService } from '../../common/gateway/entityNonFungiblesData';
-import { EntityNonFungiblesPageService } from '../../common/gateway/entityNonFungiblesPage';
-import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
-import { EntityFungiblesPageService } from '../../common/gateway/entityFungiblesPage';
-import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
-import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
-import { GetEntityDetailsService } from '../../common/gateway/getEntityDetails';
-import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
-import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/getWeftFinancePositions';
-import { GetRootFinancePositionsService } from '../../common/dapps/rootFinance/getRootFinancePositions';
-import { GetComponentStateService } from '../../common/gateway/getComponentState';
-import { GetKeyValueStoreService } from '../../common/gateway/getKeyValueStore';
-import { KeyValueStoreDataService } from '../../common/gateway/keyValueStoreData';
-import { KeyValueStoreKeysService } from '../../common/gateway/keyValueStoreKeys';
+import { createDbClientLive } from '../db/dbClient';
+import { RolaService } from '../rola/rola';
+import { VerifyRolaProofService } from '../rola/verifyRolaProof';
+import { CreateSessionService } from '../session/createSession';
+import { GenerateSessionTokenService } from '../session/generateSessionToken';
+import { GetSessionService } from '../session/getSession';
+import { InvalidateSessionService } from '../session/invalidateSession';
+import { UpsertUserService } from '../user/upsertUser';
 import { AddVotingPowerToDbService } from '../voting-power/addVotingPowerToDb';
-import { GetNftResourceManagersService } from '../../common/gateway/getNftResourceManagers';
-import { GetNonFungibleIdsService } from '../../common/gateway/getNonFungibleIds';
-import { getDatesBetweenIntervals } from '../../common/helpers/getDatesBetweenIntervals';
-import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
 import { CalculateTWAVotingPowerService } from '../voting-power/calculateVotingPowerTWA';
+import { GetVotingPowerAtStateVersionService } from '../voting-power/getVotingPowerAtStateVersion';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 

@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
-import { CalculateActivityPointsService } from './calculateActivityPoints';
 import { z } from 'zod';
-import { InvalidInputError } from '../../common/errors';
 import { chunker } from '../../common';
-import { GetWeekByIdService } from '../week/getWeekById';
+import { InvalidInputError } from '../../common/errors';
 import { AccountAddressService } from '../account/accountAddressService';
+import { GetWeekByIdService } from '../week/getWeekById';
+import { CalculateActivityPointsService } from './calculateActivityPoints';
 
 export const calculateActivityPointsJobSchema = z.object({
   weekId: z.string(),

@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
-import { api } from '~/trpc/react';
+import { useEffect, useState } from 'react';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { CategorySelectors } from './category-selectors';
+import { api } from '~/trpc/react';
 import { CategoryInfo } from './category-info';
+import { CategorySelectors } from './category-selectors';
+import { EmptyState } from './empty-state';
 import { LeaderboardContent } from './leaderboard-content';
 import { LoadingState } from './loading-state';
-import { EmptyState } from './empty-state';
 
 export function CategoryLeaderboard() {
   const [selectedWeekId, setSelectedWeekId] = useState<string>('');

@@ -1,7 +1,7 @@
-import { Effect } from 'effect';
-import { DbClientService } from '../db/dbClient';
 import { accounts } from 'db/consultation';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService } from '../db/dbClient';
 
 export const getAccountsProgram = (userId: string) =>
   Effect.gen(function* () {

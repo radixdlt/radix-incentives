@@ -1,14 +1,14 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import {
   accountActivityPoints,
   accounts,
-  userSeasonPoints,
-  seasonPointsMultiplier,
   activities,
   activityCategories,
+  seasonPointsMultiplier,
+  userSeasonPoints,
 } from 'db/incentives';
-import { eq, sql, and, sum } from 'drizzle-orm';
+import { and, eq, sql, sum } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class UserService extends Effect.Service<UserService>()('UserService', {
   effect: Effect.gen(function* () {

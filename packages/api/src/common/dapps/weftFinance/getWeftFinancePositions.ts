@@ -9,14 +9,14 @@ import {
 
 import { BigNumber } from 'bignumber.js';
 import { GetComponentStateService } from '../../gateway/getComponentState';
-import { LendingPoolSchema, SingleResourcePool, CDPData } from './schemas';
 import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { CDPData, LendingPoolSchema, SingleResourcePool } from './schemas';
 
 import { DappConstants } from 'data';
 import type { AtLedgerState } from '../../gateway/schemas';
 import {
-  UnstakingReceiptProcessorService,
   type UnstakingReceipt,
+  UnstakingReceiptProcessorService,
 } from '../../staking/unstakingReceiptProcessor';
 
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;

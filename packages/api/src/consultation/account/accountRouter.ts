@@ -1,5 +1,5 @@
-import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 
 import type { Account } from 'db/consultation';
 import { verifyAccountOwnershipInputSchema } from './verifyAccountOwnership';

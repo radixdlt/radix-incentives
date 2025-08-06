@@ -1,7 +1,7 @@
-import { Effect } from 'effect';
-import { GatewayApiClientService } from './gatewayApiClient';
 import type { EntityNonFungiblesPageRequest } from '@radixdlt/babylon-gateway-api-sdk';
+import { Effect } from 'effect';
 import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
 import type { AtLedgerState } from './schemas';
 
 export class EntityNonFungiblesPageService extends Effect.Service<EntityNonFungiblesPageService>()(

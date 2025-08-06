@@ -1,11 +1,11 @@
 import BigNumber from 'bignumber.js';
 import { ActivityCategoryId } from 'data';
 import {
+  activityCategories,
   activityCategoryWeeks,
   activityWeeks,
-  activityCategories,
 } from 'db/incentives';
-import { and, eq, sql, asc } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
 import { DbClientService, DbError } from '../db/dbClient';

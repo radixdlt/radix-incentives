@@ -1,5 +1,5 @@
-import { Config, Effect } from 'effect';
 import { GatewayApiClient } from '@radixdlt/babylon-gateway-api-sdk';
+import { Config, Effect } from 'effect';
 import fetchRetry from 'fetch-retry';
 import { fetch } from 'undici';
 

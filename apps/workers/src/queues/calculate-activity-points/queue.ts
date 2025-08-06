@@ -1,9 +1,9 @@
-import { createQueue } from '../createQueue';
-import { redisClient } from '../../redis';
-import { calculateActivityPointsWorker } from './worker';
-import type { CalculateActivityPointsJob } from './schemas';
 import { Effect } from 'effect';
+import { redisClient } from '../../redis';
+import { createQueue } from '../createQueue';
 import { QueueName } from '../types';
+import type { CalculateActivityPointsJob } from './schemas';
+import { calculateActivityPointsWorker } from './worker';
 
 export const calculateActivityPointsQueue = createQueue<
   CalculateActivityPointsJob,

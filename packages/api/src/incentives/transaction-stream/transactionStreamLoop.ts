@@ -1,22 +1,22 @@
 import { Effect } from 'effect';
 import { TransactionStreamService } from './transactionStream';
 
-import { weftFinanceEventMatcher } from '../events/event-matchers/weftFinanceEventMatcher';
-import { rootFinanceEventMatcher } from '../events/event-matchers/rootFinanceEventMatcher';
-import { FilterTransactionsService } from './filterTransactions';
-import { AddEventsToDbService } from '../events/queries/addEventToDb';
-import { caviarnineEventMatcher } from '../events/event-matchers/caviarnineEventMatcher';
-import { hlpEventMatcher } from '../events/event-matchers/hlpEventMatcher';
-import { AddToEventQueueService } from '../events/addToEventQueue';
-import { commonEventMatcher } from '../events/event-matchers/commonEventMatcher';
-import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
 import { AddComponentCallsService } from '../component/addComponentCalls';
-import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processSwapEventTradingVolume';
-import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
-import type { EmittableEvent } from '../events/event-matchers/types';
-import { defiPlazaEventMatcher } from '../events/event-matchers/defiPlazaEventMatcher';
-import { ociswapEventMatcher } from '../events/event-matchers/ociswapEventMatcher';
 import { ConfigService } from '../config/configService';
+import { AddToEventQueueService } from '../events/addToEventQueue';
+import { caviarnineEventMatcher } from '../events/event-matchers/caviarnineEventMatcher';
+import { commonEventMatcher } from '../events/event-matchers/commonEventMatcher';
+import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
+import { defiPlazaEventMatcher } from '../events/event-matchers/defiPlazaEventMatcher';
+import { hlpEventMatcher } from '../events/event-matchers/hlpEventMatcher';
+import { ociswapEventMatcher } from '../events/event-matchers/ociswapEventMatcher';
+import { rootFinanceEventMatcher } from '../events/event-matchers/rootFinanceEventMatcher';
+import type { EmittableEvent } from '../events/event-matchers/types';
+import { weftFinanceEventMatcher } from '../events/event-matchers/weftFinanceEventMatcher';
+import { AddEventsToDbService } from '../events/queries/addEventToDb';
+import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processSwapEventTradingVolume';
+import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
+import { FilterTransactionsService } from './filterTransactions';
 
 export class TransactionStreamLoopService extends Effect.Service<TransactionStreamLoopService>()(
   'TransactionStreamLoopService',

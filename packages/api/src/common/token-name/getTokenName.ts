@@ -1,5 +1,5 @@
-import { Effect } from 'effect';
 import { flatTokenNameMap } from 'data';
+import { Effect } from 'effect';
 
 export class UnknownTokenError extends Error {
   readonly _tag = 'UnknownTokenError';

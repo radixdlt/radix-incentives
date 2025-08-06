@@ -1,5 +1,5 @@
-import { Context, Effect, Layer } from 'effect';
 import type { Db, ReadOnlyDb } from 'db/incentives';
+import { Context, Effect, Layer } from 'effect';
 
 export class DbError extends Error {
   _tag = 'DbError';

@@ -3,8 +3,8 @@ import { Config, Effect } from 'effect';
 import type { StateEntityDetailsOperationRequest } from '@radixdlt/babylon-gateway-api-sdk';
 import { EntityNonFungibleDataService } from './entityNonFungiblesData';
 
-import type { AtLedgerState } from './schemas';
 import { GetNftResourceManagersService } from './getNftResourceManagers';
+import type { AtLedgerState } from './schemas';
 
 export class InvalidInputError {
   readonly _tag = 'InvalidInputError';

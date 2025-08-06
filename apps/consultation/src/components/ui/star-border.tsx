@@ -1,5 +1,5 @@
+import type { ComponentPropsWithoutRef, ElementType } from 'react';
 import { cn } from '~/lib/utils';
-import type { ElementType, ComponentPropsWithoutRef } from 'react';
 
 interface StarBorderProps<T extends ElementType> {
   as?: T;

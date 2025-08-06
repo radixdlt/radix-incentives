@@ -1,14 +1,14 @@
-import { describe, expect, vi, inject, beforeEach } from 'vitest';
-import { Effect, Layer, ConfigProvider } from 'effect';
 import { it } from '@effect/vitest';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { eq } from 'drizzle-orm';
-import { schema, config } from 'db/incentives';
+import { config, schema } from 'db/incentives';
 import type { Db } from 'db/incentives';
-import { ConfigService } from './configService';
-import { DbClientService } from '../db/dbClient';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { ConfigProvider, Effect, Layer } from 'effect';
+import postgres from 'postgres';
+import { beforeEach, describe, expect, inject, vi } from 'vitest';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { DbClientService } from '../db/dbClient';
+import { ConfigService } from './configService';
 
 describe('ConfigService', () => {
   let db: Db;

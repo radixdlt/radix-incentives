@@ -1,15 +1,15 @@
-import { describe, test, expect } from 'vitest';
-import { Effect, Layer, Cause, Logger, LogLevel } from 'effect';
+import { Cause, Effect, Layer, LogLevel, Logger } from 'effect';
+import { describe, expect, test } from 'vitest';
 import { ZodError } from 'zod';
+import { createAppConfigLive, defaultAppConfig } from '../config/appConfig';
+import { RolaServiceLive } from './rola';
 import {
-  VerifyRolaProofService,
-  VerifyRolaProofLive,
   ParseRolaProofInputError,
   VerifyRolaProofError,
   type VerifyRolaProofInput,
+  VerifyRolaProofLive,
+  VerifyRolaProofService,
 } from './verifyRolaProof';
-import { RolaServiceLive } from './rola';
-import { createAppConfigLive, defaultAppConfig } from '../config/appConfig';
 
 // --- Test Data ---
 

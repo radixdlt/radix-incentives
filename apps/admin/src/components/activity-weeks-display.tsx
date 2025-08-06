@@ -1,15 +1,15 @@
 'use client';
 
-import * as React from 'react';
 import { ChevronDown, ChevronRight } from 'lucide-react';
+import * as React from 'react';
 
+import type { ActivityWeek } from 'db/incentives';
 import { Button } from '~/components/ui/button';
 import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from '~/components/ui/collapsible';
-import type { ActivityWeek } from 'db/incentives';
 
 interface ActivityWeeksDisplayProps {
   weekId: string;

@@ -1,9 +1,8 @@
 'use client';
 
-import * as React from 'react';
 import { Check, ChevronsUpDown, X } from 'lucide-react';
+import * as React from 'react';
 
-import { cn } from '~/lib/utils';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import {
@@ -20,6 +19,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '~/components/ui/popover';
+import { cn } from '~/lib/utils';
 
 export type OptionType = {
   label: string;

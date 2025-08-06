@@ -1,8 +1,8 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { votingPower } from 'db/consultation';
 import { sql } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { chunker } from '../../common/helpers/chunker';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class AddVotingPowerToDbService extends Effect.Service<AddVotingPowerToDbService>()(
   'AddVotingPowerToDbService',

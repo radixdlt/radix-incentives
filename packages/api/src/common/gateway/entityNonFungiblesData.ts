@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import { GatewayApiClientService } from './gatewayApiClient';
-import { GatewayError } from './errors';
-import type { AtLedgerState } from './schemas';
-import { chunker } from '../helpers/chunker';
 import type { NonFungibleDataRequest } from '@radixdlt/babylon-gateway-api-sdk';
+import { Effect } from 'effect';
+import { chunker } from '../helpers/chunker';
+import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
+import type { AtLedgerState } from './schemas';
 
 export class EntityNonFungibleDataService extends Effect.Service<EntityNonFungibleDataService>()(
   'EntityNonFungibleDataService',

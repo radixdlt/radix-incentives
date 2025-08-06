@@ -1,5 +1,5 @@
-import { Effect } from 'effect';
 import type BigNumber from 'bignumber.js';
+import { Effect } from 'effect';
 import { GetEntityDetailsService } from '../gateway/getEntityDetails';
 import type { AtLedgerState } from '../gateway/schemas';
 

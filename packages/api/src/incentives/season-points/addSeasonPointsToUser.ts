@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
 import type BigNumber from 'bignumber.js';
-import { DbClientService, DbError } from '../db/dbClient';
-import { chunker } from '../../common';
 import { userSeasonPoints } from 'db/incentives';
 import { sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { chunker } from '../../common';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type AddSeasonPointsToUserInput = {
   userId: string;

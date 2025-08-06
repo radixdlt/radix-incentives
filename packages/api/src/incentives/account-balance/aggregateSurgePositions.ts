@@ -1,7 +1,7 @@
+import { type AccountBalanceData, ActivityId } from 'data';
 import { Config, Effect } from 'effect';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 import { GetUsdValueService } from '../token-price/getUsdValue';
-import { ActivityId, type AccountBalanceData } from 'data';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 export type AggregateSurgePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;

@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
-import { Effect, Logger, LogLevel } from 'effect';
-import { describe, it, expect } from 'vitest';
+import { Effect, LogLevel, Logger } from 'effect';
+import { describe, expect, it } from 'vitest';
 import { createUserBands } from './createUserBands';
 
 describe('createUserBands', () => {

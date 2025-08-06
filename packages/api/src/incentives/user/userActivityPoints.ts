@@ -1,13 +1,13 @@
 import { Effect } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
+import BigNumber from 'bignumber.js';
 import {
   accountActivityPoints,
   accounts,
   seasonPointsMultiplier,
 } from 'db/incentives';
 import { and, asc, eq, gte, sum } from 'drizzle-orm';
-import BigNumber from 'bignumber.js';
 
 export class UserActivityPointsService extends Effect.Service<UserActivityPointsService>()(
   'UserActivityPointsService',

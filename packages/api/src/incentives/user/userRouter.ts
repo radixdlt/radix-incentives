@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { Exit } from 'effect';
+import { z } from 'zod';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 
 export const userRouter = createTRPCRouter({
   getUserStats: protectedProcedure

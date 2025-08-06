@@ -2,118 +2,118 @@ import { Effect, Layer, Logger } from 'effect';
 import { GatewayApiClientLive } from '../common/gateway/gatewayApiClient';
 import { GetEntityDetailsService } from '../common/gateway/getEntityDetails';
 
+import { NodeSdk } from '@effect/opentelemetry';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { db, readOnlyDb } from 'db/incentives';
+import { GetCaviarnineResourcePoolPositionsLive } from '../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetHyperstakePositionsLive } from '../common/dapps/caviarnine/getHyperstakePositions';
+import { GetLsulpLive } from '../common/dapps/caviarnine/getLsulp';
+import { GetLsulpValueLive } from '../common/dapps/caviarnine/getLsulpValue';
+import { GetQuantaSwapBinMapLive } from '../common/dapps/caviarnine/getQuantaSwapBinMap';
+import { GetShapeLiquidityAssetsLive } from '../common/dapps/caviarnine/getShapeLiquidityAssets';
+import { GetShapeLiquidityClaimsLive } from '../common/dapps/caviarnine/getShapeLiquidityClaims';
+import { GetDefiPlazaPositionsLive } from '../common/dapps/defiplaza/getDefiPlazaPositions';
+import { GetOciswapLiquidityAssetsLive } from '../common/dapps/ociswap/getOciswapLiquidityAssets';
+import { GetOciswapLiquidityClaimsService } from '../common/dapps/ociswap/getOciswapLiquidityClaims';
+import { GetOciswapResourcePoolPositionsLive } from '../common/dapps/ociswap/getOciswapResourcePoolPositions';
+import { GetRootFinancePositionsService } from '../common/dapps/rootFinance/getRootFinancePositions';
+import { GetWeftFinancePositionsService } from '../common/dapps/weftFinance/getWeftFinancePositions';
+import { EntityFungiblesPageService } from '../common/gateway/entityFungiblesPage';
+import { EntityNonFungibleDataService } from '../common/gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../common/gateway/entityNonFungiblesPage';
+import { GetAddressByNonFungibleService } from '../common/gateway/getAddressByNonFungible';
+import { GetAllValidatorsService } from '../common/gateway/getAllValidators';
+import { GetComponentStateService } from '../common/gateway/getComponentState';
+import { GetFungibleBalanceService } from '../common/gateway/getFungibleBalance';
+import { GetKeyValueStoreService } from '../common/gateway/getKeyValueStore';
 import {
   type GetLedgerStateInput,
   GetLedgerStateService,
 } from '../common/gateway/getLedgerState';
-import { GetFungibleBalanceService } from '../common/gateway/getFungibleBalance';
-import { EntityFungiblesPageService } from '../common/gateway/entityFungiblesPage';
-import { EntityNonFungiblesPageService } from '../common/gateway/entityNonFungiblesPage';
-import { EntityNonFungibleDataService } from '../common/gateway/entityNonFungiblesData';
+import { GetNftResourceManagersService } from '../common/gateway/getNftResourceManagers';
 import { GetNonFungibleBalanceService } from '../common/gateway/getNonFungibleBalance';
-import { GetAllValidatorsService } from '../common/gateway/getAllValidators';
-import { GetAccountBalancesAtStateVersionLive } from './account-balance/getAccountBalancesAtStateVersion';
-import { GetUserStakingPositionsLive } from '../common/staking/getUserStakingPositions';
-import { GetLsulpLive } from '../common/dapps/caviarnine/getLsulp';
-import { GetLsulpValueLive } from '../common/dapps/caviarnine/getLsulpValue';
-import { ConvertLsuToXrdLive } from '../common/staking/convertLsuToXrd';
-import { GetWeftFinancePositionsService } from '../common/dapps/weftFinance/getWeftFinancePositions';
-import { LeaderboardCacheService } from './leaderboard/leaderboardCache';
-import { UnstakingReceiptProcessorLive } from '../common/staking/unstakingReceiptProcessor';
-import { GetComponentStateService } from '../common/gateway/getComponentState';
+import { GetNonFungibleIdsService } from '../common/gateway/getNonFungibleIds';
+import { GetNonFungibleLocationService } from '../common/gateway/getNonFungibleLocation';
 import { KeyValueStoreDataService } from '../common/gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../common/gateway/keyValueStoreKeys';
-import { GetKeyValueStoreService } from '../common/gateway/getKeyValueStore';
-import { GetRootFinancePositionsService } from '../common/dapps/rootFinance/getRootFinancePositions';
-import { GetQuantaSwapBinMapLive } from '../common/dapps/caviarnine/getQuantaSwapBinMap';
-import { GetShapeLiquidityClaimsLive } from '../common/dapps/caviarnine/getShapeLiquidityClaims';
-import { GetShapeLiquidityAssetsLive } from '../common/dapps/caviarnine/getShapeLiquidityAssets';
-import { GetOciswapLiquidityAssetsLive } from '../common/dapps/ociswap/getOciswapLiquidityAssets';
-import { GetOciswapLiquidityClaimsService } from '../common/dapps/ociswap/getOciswapLiquidityClaims';
-import { GetOciswapResourcePoolPositionsLive } from '../common/dapps/ociswap/getOciswapResourcePoolPositions';
-import { GetCaviarnineResourcePoolPositionsLive } from '../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
-import { GetDefiPlazaPositionsLive } from '../common/dapps/defiplaza/getDefiPlazaPositions';
-import { GetHyperstakePositionsLive } from '../common/dapps/caviarnine/getHyperstakePositions';
 import { GetResourcePoolUnitsLive } from '../common/resource-pool/getResourcePoolUnits';
-import { SnapshotLive } from './snapshot/snapshot';
-import { GetAccountAddressesLive } from './account/getAccounts';
-import { UpsertAccountBalancesLive } from './account-balance/upsertAccountBalance';
-import { CreateSnapshotLive } from './snapshot/createSnapshot';
-import { UpdateSnapshotLive } from './snapshot/updateSnapshot';
-import { createDbClientLive, createDbReadOnlyClientLive } from './db/dbClient';
-import { db, readOnlyDb } from 'db/incentives';
-import { GetUsdValueLive } from './token-price/getUsdValue';
+import { ConvertLsuToXrdLive } from '../common/staking/convertLsuToXrd';
+import { GetUserStakingPositionsLive } from '../common/staking/getUserStakingPositions';
+import { UnstakingReceiptProcessorLive } from '../common/staking/unstakingReceiptProcessor';
+import { AccountBalanceService } from './account-balance/accountBalance';
 import { AggregateAccountBalanceLive } from './account-balance/aggregateAccountBalance';
 import { AggregateCaviarninePositionsLive } from './account-balance/aggregateCaviarninePositions';
 import { AggregateOciswapPositionsLive } from './account-balance/aggregateOciswapPositions';
+import { XrdBalanceLive } from './account-balance/aggregateXrdBalance';
+import { GetAccountBalancesAtStateVersionLive } from './account-balance/getAccountBalancesAtStateVersion';
+import { UpsertAccountBalancesLive } from './account-balance/upsertAccountBalance';
+import { GetAccountAddressesLive } from './account/getAccounts';
+import { GetAccountsIntersectionLive } from './account/getAccountsIntersection';
+import { CalculateActivityPointsLive } from './activity-points/calculateActivityPoints';
+import {
+  CalculateActivityPointsWorkerLive,
+  CalculateActivityPointsWorkerService,
+} from './activity-points/calculateActivityPointsWorker';
+import { CalculateTWASQLLive } from './activity-points/calculateTWASQL';
+import { UpsertAccountActivityPointsLive } from './activity-points/upsertAccountActivityPoints';
+import { GetActivitiesByWeekIdLive } from './activity/getActivitiesByWeekId';
 import { createAppConfigLive, createConfig } from './config/appConfig';
+import { createDbClientLive, createDbReadOnlyClientLive } from './db/dbClient';
 import {
   type DeriveAccountFromEventInput,
   DeriveAccountFromEventLive,
   DeriveAccountFromEventService,
 } from './events/deriveAccountFromEvent';
-import { GetNonFungibleLocationService } from '../common/gateway/getNonFungibleLocation';
 import { GetEventsFromDbLive } from './events/queries/getEventsFromDb';
-import { GetAddressByNonFungibleService } from '../common/gateway/getAddressByNonFungible';
-import { GetAccountsIntersectionLive } from './account/getAccountsIntersection';
-import { NodeSdk } from '@effect/opentelemetry';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
-import { GetNftResourceManagersService } from '../common/gateway/getNftResourceManagers';
-import { GetNonFungibleIdsService } from '../common/gateway/getNonFungibleIds';
-import { CalculateActivityPointsLive } from './activity-points/calculateActivityPoints';
-import { CalculateTWASQLLive } from './activity-points/calculateTWASQL';
-import { UpsertAccountActivityPointsLive } from './activity-points/upsertAccountActivityPoints';
-import { GetWeekByIdLive } from './week/getWeekById';
-import { AccountBalanceService } from './account-balance/accountBalance';
+import { LeaderboardCacheService } from './leaderboard/leaderboardCache';
+import { GetSeasonPointMultiplierService } from './season-point-multiplier/getSeasonPointMultiplier';
+import { GetUserTWAXrdBalanceLive } from './season-point-multiplier/getUserTWAXrdBalance';
 import {
-  CalculateActivityPointsWorkerLive,
-  CalculateActivityPointsWorkerService,
-} from './activity-points/calculateActivityPointsWorker';
+  SeasonPointsMultiplierWorkerService,
+  SeasonPointsMultiplierWorkerServiceLive,
+} from './season-point-multiplier/seasonPointsMultiplierWorker';
+import { UpsertUserTwaWithMultiplierLive } from './season-point-multiplier/upsertUserTwaWithMultiplier';
+import { AddSeasonPointsToUserService } from './season-points/addSeasonPointsToUser';
 import { CalculateSeasonPointsService } from './season-points/calculateSeasonPoints';
 import { GetSeasonByIdLive } from './season/getSeasonById';
-import { GetActivitiesByWeekIdLive } from './activity/getActivitiesByWeekId';
-import { UserActivityPointsService } from './user/userActivityPoints';
+import { CreateSnapshotLive } from './snapshot/createSnapshot';
+import { SnapshotLive } from './snapshot/snapshot';
+import { UpdateSnapshotLive } from './snapshot/updateSnapshot';
+import { GetUsdValueLive } from './token-price/getUsdValue';
 import { GetUsersPaginatedLive } from './user/getUsersPaginated';
+import { UserActivityPointsService } from './user/userActivityPoints';
+import { GetWeekByIdLive } from './week/getWeekById';
 import { UpdateWeekStatusService } from './week/updateWeekStatus';
-import { AddSeasonPointsToUserService } from './season-points/addSeasonPointsToUser';
-import { XrdBalanceLive } from './account-balance/aggregateXrdBalance';
-import {
-  SeasonPointsMultiplierWorkerServiceLive,
-  SeasonPointsMultiplierWorkerService,
-} from './season-point-multiplier/seasonPointsMultiplierWorker';
-import { GetUserTWAXrdBalanceLive } from './season-point-multiplier/getUserTWAXrdBalance';
-import { UpsertUserTwaWithMultiplierLive } from './season-point-multiplier/upsertUserTwaWithMultiplier';
-import { GetSeasonPointMultiplierService } from './season-point-multiplier/getSeasonPointMultiplier';
 
-import { AggregateWeftFinancePositionsServiceLive } from './account-balance/aggregateWeftFinancePositions';
-import { AggregateRootFinancePositionsServiceLive } from './account-balance/aggregateRootFinancePositions';
-import { AggregateDefiPlazaPositionsLive } from './account-balance/aggregateDefiPlazaPositions';
-import { GetSurgeLiquidityPositionsLive } from '../common/dapps/surge/getSurgeLiquidityPositions';
-import { AggregateSurgePositionsLive } from './account-balance/aggregateSurgePositions';
-import { GetTransactionFeesPaginatedLive } from './transaction-fee/getTransactionFees';
-import { GetComponentCallsPaginatedLive } from './component/getComponentCalls';
-import { ComponentWhitelistService } from './component/componentWhitelist';
-import { GetTradingVolumeLive } from './trading-volume/getTradingVolume';
 import { AddressValidationServiceLive } from '../common/address-validation/addressValidation';
+import { GetSurgeLiquidityPositionsLive } from '../common/dapps/surge/getSurgeLiquidityPositions';
 import { FetchService } from '../common/helpers/fetch';
+import { AggregateDefiPlazaPositionsLive } from './account-balance/aggregateDefiPlazaPositions';
+import { AggregatePoolPositionsService } from './account-balance/aggregatePoolPositions';
+import { AggregateRootFinancePositionsServiceLive } from './account-balance/aggregateRootFinancePositions';
+import { AggregateSurgePositionsLive } from './account-balance/aggregateSurgePositions';
+import { AggregateWeftFinancePositionsServiceLive } from './account-balance/aggregateWeftFinancePositions';
+import { AccountAddressService } from './account/accountAddressService';
+import { GetAccountAddressByUserIdLive } from './account/getAccountAddressByUserId';
+import { ActivityCategoryWeekService } from './activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from './activity-week/activityWeek';
+import { ComponentWhitelistService } from './component/componentWhitelist';
+import { GetComponentCallsPaginatedLive } from './component/getComponentCalls';
 import {
   type EventWorkerInput,
   EventWorkerLive,
   EventWorkerService,
 } from './events/eventWorker';
-import { GetAccountAddressByUserIdLive } from './account/getAccountAddressByUserId';
+import { SeasonService } from './season/season';
 import {
   type SnapshotWorkerInput,
   SnapshotWorkerLive,
   SnapshotWorkerService,
 } from './snapshot/snapshotWorker';
-import { AccountAddressService } from './account/accountAddressService';
+import { GetTradingVolumeLive } from './trading-volume/getTradingVolume';
+import { GetTransactionFeesPaginatedLive } from './transaction-fee/getTransactionFees';
 import { WeekService } from './week/week';
-import { ActivityCategoryWeekService } from './activity-category-week/activityCategoryWeek';
-import { SeasonService } from './season/season';
-import { ActivityWeekService } from './activity-week/activityWeek';
-import { AggregatePoolPositionsService } from './account-balance/aggregatePoolPositions';
 const appConfig = createConfig();
 
 const dbClientLive = createDbClientLive(db);

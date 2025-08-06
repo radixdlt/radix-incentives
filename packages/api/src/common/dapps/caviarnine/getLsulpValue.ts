@@ -1,11 +1,11 @@
 import { Effect } from 'effect';
 import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
 
-import { BigNumber } from 'bignumber.js';
 import type {
   ProgrammaticScryptoSborValue,
   ProgrammaticScryptoSborValueDecimal,
 } from '@radixdlt/babylon-gateway-api-sdk';
+import { BigNumber } from 'bignumber.js';
 import { DappConstants } from 'data';
 import type { AtLedgerState } from '../../gateway/schemas';
 

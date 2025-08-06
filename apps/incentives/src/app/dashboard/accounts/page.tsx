@@ -1,16 +1,16 @@
 'use client';
 
-import { ConnectAccount } from './components/ConnectAccount';
-import { api } from '~/trpc/react';
+import { AlertTriangle, Info, Wallet } from 'lucide-react';
 import { useEffect } from 'react';
-import { ConnectedAccounts } from './components/ConnectedAccounts';
+import { Card, CardContent } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
-import { AlertTriangle, Wallet, Info } from 'lucide-react';
 import { Skeleton } from '~/components/ui/skeleton';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { ConnectedState } from '../components/ConnectedState';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
-import { Card, CardContent } from '~/components/ui/card';
+import { api } from '~/trpc/react';
+import { ConnectedState } from '../components/ConnectedState';
+import { ConnectAccount } from './components/ConnectAccount';
+import { ConnectedAccounts } from './components/ConnectedAccounts';
 
 function ParticipationInstructions() {
   return (

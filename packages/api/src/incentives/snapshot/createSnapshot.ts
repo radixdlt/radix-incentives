@@ -1,7 +1,7 @@
-import { Context, Layer, Effect } from 'effect';
+import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
-import { snapshots, type Snapshot } from 'db/incentives';
+import { type Snapshot, snapshots } from 'db/incentives';
 
 export type CreateSnapshotInput = {
   timestamp: Date;

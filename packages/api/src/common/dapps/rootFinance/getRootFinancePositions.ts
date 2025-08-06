@@ -1,24 +1,24 @@
 import { Effect } from 'effect';
 
+import { DappConstants } from 'data';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from '../../gateway/getNonFungibleBalance';
-import { DappConstants } from 'data';
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
 
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import { BigNumber } from 'bignumber.js';
+import { groupBy } from 'effect/Array';
+import type { SborError } from 'sbor-ez-mode';
+import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import type { AtLedgerState } from '../../gateway/schemas';
 import {
   CollaterizedDebtPositionData,
   LendingPoolState,
   PoolStatesKeyValueStoreKeySchema,
 } from './schema';
-import type { SborError } from 'sbor-ez-mode';
-import type { AtLedgerState } from '../../gateway/schemas';
-import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
-import { BigNumber } from 'bignumber.js';
-import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
-import { groupBy } from 'effect/Array';
 
 export class ParseSborError {
   readonly _tag = 'ParseSborError';

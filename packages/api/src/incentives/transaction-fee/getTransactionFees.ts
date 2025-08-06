@@ -1,9 +1,9 @@
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
+import BigNumber from 'bignumber.js';
 import { transactionFees } from 'db/incentives';
 import { and, between, inArray, sum } from 'drizzle-orm';
-import BigNumber from 'bignumber.js';
 
 export type GetTransactionFeesServiceInput = {
   endTimestamp: Date;

@@ -1,17 +1,17 @@
-import { Effect, Layer } from 'effect';
 import { it } from '@effect/vitest';
+import { Effect, Layer } from 'effect';
 import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 
+import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
+import { GetResourcePoolUnitsService } from '../../resource-pool/getResourcePoolUnits';
+import { deserializeBigNumber } from '../../utils/deserializeBigNumber';
+import { fungibleBalance } from './fixtures/fungibleBalance';
+import { pools } from './fixtures/pools';
 import {
   GetDefiPlazaPositionsLive,
   GetDefiPlazaPositionsService,
 } from './getDefiPlazaPositions';
-import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
-import { GetResourcePoolUnitsService } from '../../resource-pool/getResourcePoolUnits';
-import { pools } from './fixtures/pools';
-import { fungibleBalance } from './fixtures/fungibleBalance';
-import { deserializeBigNumber } from '../../utils/deserializeBigNumber';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

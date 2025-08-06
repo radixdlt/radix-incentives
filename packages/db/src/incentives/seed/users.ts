@@ -1,6 +1,6 @@
-import { accountsData } from './data/accounts30KData';
-import { accounts, users } from '../schema';
 import { db } from '../client';
+import { accounts, users } from '../schema';
+import { accountsData } from './data/accounts30KData';
 
 const chunker = <T>(array: T[], size: number) => {
   return array.reduce((acc, item, index) => {

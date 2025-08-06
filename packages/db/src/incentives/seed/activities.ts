@@ -1,7 +1,7 @@
-import { activities, activityCategories, dapps } from '../schema';
-import { db } from '../client';
+import { activityCategoriesData, activityData, dappsData } from 'data';
 import { sql } from 'drizzle-orm';
-import { activityCategoriesData, dappsData, activityData } from 'data';
+import { db } from '../client';
+import { activities, activityCategories, dapps } from '../schema';
 
 export const seedActivities = async () => {
   await db.insert(dapps).values(dappsData).onConflictDoNothing();

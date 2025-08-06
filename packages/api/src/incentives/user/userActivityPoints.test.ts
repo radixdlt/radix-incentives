@@ -1,18 +1,18 @@
-import { describe, inject } from 'vitest';
-import { Effect, Layer } from 'effect';
 import { it } from '@effect/vitest';
-import { createDbClientLive } from '../db/dbClient';
-import { UserActivityPointsService } from './userActivityPoints';
-import { drizzle } from 'drizzle-orm/postgres-js';
 import BigNumber from 'bignumber.js';
 import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer } from 'effect';
+import { describe, inject } from 'vitest';
+import { createDbClientLive } from '../db/dbClient';
+import { UserActivityPointsService } from './userActivityPoints';
 
 import {
-  schema,
-  users,
-  accounts,
   accountActivityPoints,
+  accounts,
+  schema,
   seasonPointsMultiplier,
+  users,
 } from 'db/incentives';
 import postgres from 'postgres';
 

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { CoinsIcon, TrophyIcon, ExternalLinkIcon } from 'lucide-react';
+import { CoinsIcon, ExternalLinkIcon, TrophyIcon } from 'lucide-react';
 import { Card } from '~/components/ui/card';
 
 export const StatsSection = () => {

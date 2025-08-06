@@ -1,9 +1,9 @@
 import { Effect } from 'effect';
 
-import type { AtLedgerState } from '../../gateway/schemas';
-import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
 import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
 import s from 'sbor-ez-mode';
+import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
+import type { AtLedgerState } from '../../gateway/schemas';
 
 export class FailedToParseLiquidityClaimsError {
   readonly _tag = 'FailedToParseLiquidityClaimsError';

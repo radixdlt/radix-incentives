@@ -1,10 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';
-import { SeasonLeaderboard } from './components/season-leaderboard';
 import { CategoryLeaderboard } from './components/category-leaderboard';
+import { SeasonLeaderboard } from './components/season-leaderboard';
 
 type TabType = 'category' | 'season';
 

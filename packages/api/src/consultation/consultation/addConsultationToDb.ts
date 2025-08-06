@@ -1,8 +1,8 @@
-import { Effect } from 'effect';
-import { DbClientService } from '../db/dbClient';
 import { type Consultation, consultations } from 'db/consultation';
-import { z, type ZodError } from 'zod';
 import { sql } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { type ZodError, z } from 'zod';
+import { DbClientService } from '../db/dbClient';
 
 export const consultationEntrySchema = z.object({
   accountAddress: z.string(),

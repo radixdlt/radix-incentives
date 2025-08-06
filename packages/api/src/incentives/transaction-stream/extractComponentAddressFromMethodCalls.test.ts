@@ -1,6 +1,6 @@
 import { describe, it } from 'vitest';
-import { manifest } from './fixtures/manifest';
 import { extractComponentAddressFromMethodCalls } from './extractComponentAddressFromMethodCalls';
+import { manifest } from './fixtures/manifest';
 
 describe('extractComponentAddressFromMethodCalls', () => {
   it('should extract component address from method calls', () => {

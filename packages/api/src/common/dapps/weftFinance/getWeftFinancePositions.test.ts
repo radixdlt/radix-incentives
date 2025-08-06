@@ -1,20 +1,20 @@
 import { Effect, Layer } from 'effect';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
-import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
-import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
-import { GetWeftFinancePositionsService } from './getWeftFinancePositions';
-import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
+import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
 import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
+import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
+import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
+import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
 import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
-import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
-import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
 import { UnstakingReceiptProcessorService } from '../../staking/unstakingReceiptProcessor';
+import { GetWeftFinancePositionsService } from './getWeftFinancePositions';
 
 // Provide all dependencies in correct order, EntityNonFungiblesPageService only once
 const fullLayer = GetWeftFinancePositionsService.Default.pipe(

@@ -1,13 +1,13 @@
-import { Context, Effect, Layer } from 'effect';
-import {
-  transformTransactions,
-  type TransformedTransaction,
-} from './transformEvent';
-import { DbClientService, DbError } from '../db/dbClient';
-import { inArray } from 'drizzle-orm';
-import { type Account, accounts } from 'db/incentives';
 import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk';
 import Bignumber from 'bignumber.js';
+import { type Account, accounts } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
+import {
+  type TransformedTransaction,
+  transformTransactions,
+} from './transformEvent';
 
 export type RegisteredFeePayer = {
   txId: string;

@@ -1,10 +1,10 @@
 import { dependencyLayer } from 'api/incentives';
 import { FlowProducer } from 'bullmq';
-import { Exit } from 'effect';
-import { QueueName } from '../types';
-import { redisClient } from '../../redis';
-import type { ScheduledCalculationsJob } from './schemas';
 import type { FlowJob, Job } from 'bullmq';
+import { Exit } from 'effect';
+import { redisClient } from '../../redis';
+import { QueueName } from '../types';
+import type { ScheduledCalculationsJob } from './schemas';
 
 const flowProducer = new FlowProducer({ connection: redisClient });
 

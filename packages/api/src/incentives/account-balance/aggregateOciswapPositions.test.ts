@@ -1,12 +1,12 @@
 import { it } from '@effect/vitest';
+import { type AccountBalanceData, Action } from 'data';
 import { Effect, Layer } from 'effect';
-import { AggregateOciswapPositionsService } from './aggregateOciswapPositions';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
+import { FetchService } from '../../common/helpers';
 import { GetUsdValueLive } from '../token-price/getUsdValue';
-import { Action, type AccountBalanceData } from 'data';
+import { AggregateOciswapPositionsService } from './aggregateOciswapPositions';
 import { AggregatePoolPositionsService } from './aggregatePoolPositions';
 import { getDefaultPositions } from './getDefaultPositions';
-import { FetchService } from '../../common/helpers';
 
 const getUsdValueLive = GetUsdValueLive.pipe(
   Layer.provide(AddressValidationServiceLive),

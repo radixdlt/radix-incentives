@@ -2,8 +2,8 @@ import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../../db/dbClient';
 
 import { events, type Event } from 'db/incentives';
-import SuperJSON from 'superjson';
 import { and, eq, or } from 'drizzle-orm';
+import SuperJSON from 'superjson';
 import type { EmittableEvent } from '../event-matchers/types';
 
 export type GetEventsFromDbOutput = (Omit<Event, 'eventData'> & {

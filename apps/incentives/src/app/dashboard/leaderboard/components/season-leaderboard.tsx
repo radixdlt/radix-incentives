@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { api } from '~/trpc/react';
+import { useEffect, useState } from 'react';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { SeasonSelector } from './season-selector';
+import { api } from '~/trpc/react';
+import { EmptyState } from './empty-state';
 import { LeaderboardContent } from './leaderboard-content';
 import { LoadingState } from './loading-state';
-import { EmptyState } from './empty-state';
+import { SeasonSelector } from './season-selector';
 
 export function SeasonLeaderboard() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');

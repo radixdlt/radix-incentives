@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { Menu } from 'lucide-react';
-import { Button } from './ui/button';
+import { useState } from 'react';
 import { Sidebar } from './sidebar';
+import { Button } from './ui/button';
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);

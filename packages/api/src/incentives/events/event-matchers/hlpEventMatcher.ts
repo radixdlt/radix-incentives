@@ -1,12 +1,12 @@
 import { Effect } from 'effect';
-import type { TransformedEvent } from '../../transaction-stream/transformEvent';
+import { isHlpPoolComponent } from '../../../common/address-validation/addressValidation';
 import { HLPSwapEvent } from '../../../common/dapps/caviarnine/schemas';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
-  parseEventData,
   type CapturedEvent,
   createEventMatcher,
+  parseEventData,
 } from './createEventMatcher';
-import { isHlpPoolComponent } from '../../../common/address-validation/addressValidation';
 
 export type HLPEmittableEvents = {
   readonly type: 'SwapEvent';

@@ -1,22 +1,22 @@
 import { Effect } from 'effect';
-import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
-  AddLiquidityEvent,
-  RemoveLiquidityEvent,
-  SwapEvent,
-  HLPSwapEvent,
-  SimplePoolSwapEvent,
-} from '../../../common/dapps/caviarnine/schemas';
-import {
-  parseEventData,
-  type CapturedEvent,
-  createEventMatcher,
-} from './createEventMatcher';
-import {
-  isCaviarNinePrecisionPoolComponent,
   isCaviarNineHyperstakePoolComponent,
+  isCaviarNinePrecisionPoolComponent,
   isCaviarNineSimplePoolComponent,
 } from '../../../common/address-validation/addressValidation';
+import {
+  AddLiquidityEvent,
+  HLPSwapEvent,
+  RemoveLiquidityEvent,
+  SimplePoolSwapEvent,
+  SwapEvent,
+} from '../../../common/dapps/caviarnine/schemas';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
+import {
+  type CapturedEvent,
+  createEventMatcher,
+  parseEventData,
+} from './createEventMatcher';
 
 export type CaviarninePrecisionPoolSwapEvent = {
   readonly type: 'SwapEvent';

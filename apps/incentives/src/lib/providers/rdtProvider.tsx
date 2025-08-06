@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, createContext, useEffect, useRef } from 'react';
 import {
   DataRequestBuilder,
-  RadixDappToolkit,
   type Persona,
+  RadixDappToolkit,
 } from '@radixdlt/radix-dapp-toolkit';
-import { api } from '~/trpc/react';
+import { createContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { usePersonaConnectionWarning } from '~/components/ui/PersonaConnectionWarning';
+import { api } from '~/trpc/react';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 

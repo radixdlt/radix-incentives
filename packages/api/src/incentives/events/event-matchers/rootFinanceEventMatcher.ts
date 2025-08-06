@@ -1,18 +1,18 @@
 import { Effect } from 'effect';
 import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 
+import { isRootFinanceComponent } from '../../../common/address-validation/addressValidation';
 import {
+  type CDPLiquidableEvent as CDPLiquidableEventType,
   CDPUpdatedEvent,
   type CDPUpdatedEvent as CDPUpdatedEventType,
-  type CDPLiquidableEvent as CDPLiquidableEventType,
   type LendingPoolUpdatedEvent as LendingPoolUpdatedEventType,
 } from '../../../common/dapps/rootFinance/schema';
 import {
-  parseEventData,
   type CapturedEvent,
   createEventMatcher,
+  parseEventData,
 } from './createEventMatcher';
-import { isRootFinanceComponent } from '../../../common/address-validation/addressValidation';
 
 export type RootFinanceEmittableEvents =
   | { readonly type: 'CDPUpdatedEvent'; data: CDPUpdatedEventType }

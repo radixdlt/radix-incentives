@@ -1,8 +1,8 @@
-import { Config, Effect } from 'effect';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-import { GetUsdValueService } from '../token-price/getUsdValue';
 import { BigNumber } from 'bignumber.js';
-import { ActivityId, Assets, type AccountBalanceData } from 'data';
+import { type AccountBalanceData, ActivityId, Assets } from 'data';
+import { Config, Effect } from 'effect';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 export type AggregateWeftFinancePositionsInput = {
   accountBalance: AccountBalanceFromSnapshot;

@@ -1,20 +1,20 @@
 import type { ActivityCategoryId, ActivityId } from 'data';
 import { type InferSelectModel, relations } from 'drizzle-orm';
 import {
-  pgTableCreator,
-  timestamp,
-  varchar,
-  char,
-  text,
-  primaryKey,
-  uuid,
-  jsonb,
-  index,
-  boolean,
-  decimal,
-  pgEnum,
-  integer,
   bigint,
+  boolean,
+  char,
+  decimal,
+  index,
+  integer,
+  jsonb,
+  pgEnum,
+  pgTableCreator,
+  primaryKey,
+  text,
+  timestamp,
+  uuid,
+  varchar,
 } from 'drizzle-orm/pg-core';
 
 /**

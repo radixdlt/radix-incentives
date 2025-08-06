@@ -1,19 +1,19 @@
 import { Effect, Layer } from 'effect';
-import { GatewayApiClientLive } from '../gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../gateway/getEntityDetails';
-import { GetLedgerStateService } from '../gateway/getLedgerState';
-import { GetFungibleBalanceService } from '../gateway/getFungibleBalance';
-import { EntityFungiblesPageService } from '../gateway/entityFungiblesPage';
-import { GetUserStakingPositionsService } from './getUserStakingPositions';
-import { EntityNonFungiblesPageService } from '../gateway/entityNonFungiblesPage';
-import { EntityNonFungibleDataService } from '../gateway/entityNonFungiblesData';
-import { GetNonFungibleBalanceService } from '../gateway/getNonFungibleBalance';
-import { GetAllValidatorsService } from '../gateway/getAllValidators';
 import { accounts } from '../../fixtures/accounts';
 import {
   GetNftResourceManagersService,
   GetNonFungibleIdsService,
 } from '../gateway';
+import { EntityFungiblesPageService } from '../gateway/entityFungiblesPage';
+import { EntityNonFungibleDataService } from '../gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../gateway/gatewayApiClient';
+import { GetAllValidatorsService } from '../gateway/getAllValidators';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../gateway/getFungibleBalance';
+import { GetLedgerStateService } from '../gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../gateway/getNonFungibleBalance';
+import { GetUserStakingPositionsService } from './getUserStakingPositions';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

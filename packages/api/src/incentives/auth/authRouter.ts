@@ -1,6 +1,6 @@
-import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 
 export const authRouter = createTRPCRouter({
   generateChallenge: publicProcedure.mutation(async ({ ctx }) => {

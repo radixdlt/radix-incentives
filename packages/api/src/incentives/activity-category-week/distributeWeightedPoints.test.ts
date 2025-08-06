@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import { Effect } from 'effect';
 import BigNumber from 'bignumber.js';
+import { Effect } from 'effect';
+import { describe, expect, it } from 'vitest';
 import { distributeWeightedPoints } from './distributeWeightedPoints';
 
 describe('distributeWeightedPoints', () => {

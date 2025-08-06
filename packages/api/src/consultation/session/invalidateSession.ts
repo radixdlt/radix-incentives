@@ -1,7 +1,7 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { sessions } from 'db/consultation';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class InvalidateSessionService extends Effect.Service<InvalidateSessionService>()(
   'InvalidateSessionService',

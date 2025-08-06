@@ -1,5 +1,5 @@
-import { Hono } from 'hono';
 import { serve } from '@hono/node-server';
+import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
 
 const app = new Hono();

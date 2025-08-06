@@ -1,28 +1,28 @@
-import { describe, inject } from 'vitest';
-import { Effect, Layer, Logger, LogLevel } from 'effect';
 import { it } from '@effect/vitest';
-import { createDbClientLive } from '../db/dbClient';
-import { LeaderboardCacheService } from './leaderboardCache';
-import { LeaderboardService } from './leaderboard';
-import { WeekService } from '../week/week';
-import { ActivityWeekService } from '../activity-week/activityWeek';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { SeasonService } from '../season/season';
-import { ActivityCategoryService } from '../activity-category/activityCategory';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import { describe, inject } from 'vitest';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { createDbClientLive } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { LeaderboardService } from './leaderboard';
+import { LeaderboardCacheService } from './leaderboardCache';
 
 import {
-  schema,
-  seasons,
-  weeks,
-  users,
-  accounts,
-  userSeasonPoints,
   accountActivityPoints,
+  accounts,
   activities,
   activityCategories,
-  activityWeeks,
   activityCategoryWeeks,
+  activityWeeks,
+  schema,
+  seasons,
+  userSeasonPoints,
+  users,
+  weeks,
 } from 'db/incentives';
 
 import postgres from 'postgres';

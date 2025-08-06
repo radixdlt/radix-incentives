@@ -2,9 +2,9 @@
 
 import type { FC } from 'react';
 import { use } from 'react';
-import AdminWeekDetails from './components/adminWeekDetailsPage';
-import { api } from '~/trpc/react';
 import { toast } from 'sonner';
+import { api } from '~/trpc/react';
+import AdminWeekDetails from './components/adminWeekDetailsPage';
 
 type WeekPageProps = {
   params: Promise<{

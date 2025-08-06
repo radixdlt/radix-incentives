@@ -1,11 +1,11 @@
+import { Assets, DappConstants } from 'data';
 import { Effect } from 'effect';
 import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-import { Assets, DappConstants } from 'data';
 
-import { GetUsdValueService } from '../token-price/getUsdValue';
 import { BigNumber } from 'bignumber.js';
 import { type AccountBalanceData, ActivityId } from 'data';
 import type { GetWeftFinancePositionsOutput } from '../../common/dapps/weftFinance/getWeftFinancePositions';
+import { GetUsdValueService } from '../token-price/getUsdValue';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 

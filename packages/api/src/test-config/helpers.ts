@@ -1,5 +1,5 @@
 import { activityCategoriesData, activityData, dappsData } from 'data';
-import { activities, activityCategories, dapps, type Db } from 'db/incentives';
+import { type Db, activities, activityCategories, dapps } from 'db/incentives';
 import { sql } from 'drizzle-orm';
 
 export const createActivities = async (db: Db) => {

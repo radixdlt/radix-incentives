@@ -1,15 +1,15 @@
 'use client';
 
-import { MoveUpRight, Award, Zap, Wallet, Clock } from 'lucide-react';
+import { Award, Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
+import { useEffect, useState } from 'react';
 import { MetricCard } from '~/components/dashboard';
-import { CategoryBreakdown } from './components/category-breakdown';
 import { WeekSelector } from '~/components/dashboard/WeekSelector';
-import { api } from '~/trpc/react';
 import { EmptyState } from '~/components/ui/empty-state';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
-import { useState, useEffect } from 'react';
 import { getNextUpdateTime } from '~/lib/utils';
+import { api } from '~/trpc/react';
+import { CategoryBreakdown } from './components/category-breakdown';
 
 const NextUpdateNotification = () => {
   const [timeUntilUpdate, setTimeUntilUpdate] = useState('');

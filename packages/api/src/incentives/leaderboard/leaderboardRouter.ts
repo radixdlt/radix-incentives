@@ -1,7 +1,7 @@
-import { z } from 'zod';
-import { createTRPCRouter, publicProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
 import { Exit } from 'effect';
+import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 // Helper function to get user ID from session token
 const getUserId = async (ctx: {

@@ -1,14 +1,14 @@
-import { describe, it } from 'vitest';
 import { Effect, Layer } from 'effect';
-import {
-  GetCaviarnineResourcePoolPositionsLive,
-  GetCaviarnineResourcePoolPositionsService,
-} from './getCaviarnineResourcePoolPositions';
+import { describe, it } from 'vitest';
+import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
 import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
 import { GetResourcePoolUnitsLive } from '../../resource-pool/getResourcePoolUnits';
-import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
+import {
+  GetCaviarnineResourcePoolPositionsLive,
+  GetCaviarnineResourcePoolPositionsService,
+} from './getCaviarnineResourcePoolPositions';
 
 const TEST_ACCOUNT =
   'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew';

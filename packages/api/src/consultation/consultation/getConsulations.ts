@@ -1,7 +1,7 @@
-import { Effect } from 'effect';
-import { DbClientService } from '../db/dbClient';
 import { accounts, consultations } from 'db/consultation';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService } from '../db/dbClient';
 import { type Consultation, consultationConfig } from './consultationConfig';
 
 export class GetConsultationsService extends Effect.Service<GetConsultationsService>()(

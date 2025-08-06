@@ -1,13 +1,13 @@
+import { inject } from '@effect/vitest';
+import { schema } from 'db/incentives';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer } from 'effect';
+import postgres from 'postgres';
+import { createDbClientLive } from '../db/dbClient';
 import {
   GetTransactionFeesPaginatedLive,
   GetTransactionFeesService,
 } from './getTransactionFees';
-import { Effect, Layer } from 'effect';
-import { createDbClientLive } from '../db/dbClient';
-import { inject } from '@effect/vitest';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-import { schema } from 'db/incentives';
 
 describe('GetTransactionFeesService', () => {
   it('should get transaction fees', async () => {

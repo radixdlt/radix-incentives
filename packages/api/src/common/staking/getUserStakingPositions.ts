@@ -1,4 +1,9 @@
+import { BigNumber } from 'bignumber.js';
 import { Effect } from 'effect';
+import {
+  GetAllValidatorsService,
+  type Validator,
+} from '../gateway/getAllValidators';
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
@@ -7,12 +12,7 @@ import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from '../gateway/getNonFungibleBalance';
-import {
-  GetAllValidatorsService,
-  type Validator,
-} from '../gateway/getAllValidators';
 import { claimNftSchema } from './schema';
-import { BigNumber } from 'bignumber.js';
 
 import type { AtLedgerState } from '../gateway/schemas';
 

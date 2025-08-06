@@ -1,22 +1,22 @@
 import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 
+import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
+import { FetchService } from '../../common/helpers';
+import { GetUsdValueLive } from '../token-price/getUsdValue';
 import {
   AggregateAccountBalanceLive,
   AggregateAccountBalanceService,
 } from './aggregateAccountBalance';
-import { GetUsdValueLive } from '../token-price/getUsdValue';
-import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
-import { AggregatePoolPositionsService } from './aggregatePoolPositions';
-import { AggregateSurgePositionsLive } from './aggregateSurgePositions';
-import { AggregateDefiPlazaPositionsLive } from './aggregateDefiPlazaPositions';
-import { AggregateRootFinancePositionsServiceLive } from './aggregateRootFinancePositions';
-import { AggregateWeftFinancePositionsServiceLive } from './aggregateWeftFinancePositions';
-import { AggregateOciswapPositionsLive } from './aggregateOciswapPositions';
 import { AggregateCaviarninePositionsLive } from './aggregateCaviarninePositions';
+import { AggregateDefiPlazaPositionsLive } from './aggregateDefiPlazaPositions';
+import { AggregateOciswapPositionsLive } from './aggregateOciswapPositions';
+import { AggregatePoolPositionsService } from './aggregatePoolPositions';
+import { AggregateRootFinancePositionsServiceLive } from './aggregateRootFinancePositions';
+import { AggregateSurgePositionsLive } from './aggregateSurgePositions';
+import { AggregateWeftFinancePositionsServiceLive } from './aggregateWeftFinancePositions';
 import { XrdBalanceLive } from './aggregateXrdBalance';
 import { accountBalanceFixture } from './fixtures/accountBalances';
-import { FetchService } from '../../common/helpers';
 
 const addressValidationServiceLive = AddressValidationServiceLive;
 

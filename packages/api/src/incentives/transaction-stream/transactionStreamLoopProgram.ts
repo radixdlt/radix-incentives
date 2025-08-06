@@ -1,30 +1,30 @@
-import { Effect, Layer, Config } from 'effect';
+import { Config, Effect, Layer } from 'effect';
 
-import { TransactionStreamLive } from './transactionStream';
-import { TransactionStreamLoopService } from './transactionStreamLoop';
 import { createTransactionStream } from 'radix-transaction-stream';
 import { createRadixNetworkClient } from 'radix-web3.js';
-import { createAppConfigLive, createConfig } from '../config/appConfig';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
+import { createAppConfigLive, createConfig } from '../config/appConfig';
+import { TransactionStreamLive } from './transactionStream';
+import { TransactionStreamLoopService } from './transactionStreamLoop';
 
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { FetchService } from '../../common/helpers/fetch';
 
-import { createDbClientLive } from '../db/dbClient';
 import { db } from 'db/incentives';
-import { FilterTransactionsLive } from './filterTransactions';
-import { AddEventsToDbLive } from '../events/queries/addEventToDb';
+import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
+import { AddComponentCallsLive } from '../component/addComponentCalls';
+import { ConfigService } from '../config/configService';
+import { createDbClientLive } from '../db/dbClient';
 import { AddToEventQueueLive } from '../events/addToEventQueue';
 import { EventQueueClientLive } from '../events/eventQueueClient';
-import { AddTransactionFeeLive } from '../transaction-fee/addTransactionFee';
-import { AddComponentCallsLive } from '../component/addComponentCalls';
-import { ProcessSwapEventTradingVolumeLive } from '../trading-volume/processSwapEventTradingVolume';
+import { AddEventsToDbLive } from '../events/queries/addEventToDb';
 import { GetUsdValueLive } from '../token-price/getUsdValue';
 import { AddTradingVolumeLive } from '../trading-volume/addTradingVolume';
 import { FilterTradingEventsServiceLive } from '../trading-volume/filterTradingEvents';
-import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
+import { ProcessSwapEventTradingVolumeLive } from '../trading-volume/processSwapEventTradingVolume';
+import { AddTransactionFeeLive } from '../transaction-fee/addTransactionFee';
 import { GetUserIdByAccountAddressLive } from '../user/getUserIdByAccountAddress';
-import { ConfigService } from '../config/configService';
+import { FilterTransactionsLive } from './filterTransactions';
 
 const config = createConfig({
   networkId: 1,

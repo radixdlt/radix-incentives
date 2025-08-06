@@ -1,7 +1,7 @@
-import { Context, Layer, Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { type Snapshot, snapshots } from 'db/incentives';
 import { desc, inArray } from 'drizzle-orm';
-import { snapshots, type Snapshot } from 'db/incentives';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type GetLatestSnapshotInput = {
   status: Snapshot['status'][];

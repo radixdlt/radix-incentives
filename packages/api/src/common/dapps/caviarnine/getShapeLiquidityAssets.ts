@@ -8,9 +8,9 @@ import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from '../../gateway/getNonFungibleBalance';
+import { I192 } from '../../helpers/i192';
 import { GetQuantaSwapBinMapService } from './getQuantaSwapBinMap';
 import { GetShapeLiquidityClaimsService } from './getShapeLiquidityClaims';
-import { I192 } from '../../helpers/i192';
 import { calculatePrice, calculateTick } from './tickCalculator';
 
 export class FailedToParseComponentStateError {

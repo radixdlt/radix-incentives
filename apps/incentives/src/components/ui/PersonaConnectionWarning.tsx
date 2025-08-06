@@ -1,5 +1,6 @@
 'use client';
 
+import { AlertTriangle } from 'lucide-react';
 import { useState } from 'react';
 import {
   AlertDialog,
@@ -11,7 +12,6 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '~/components/ui/alert-dialog';
-import { AlertTriangle } from 'lucide-react';
 
 interface PersonaConnectionWarningProps {
   open: boolean;

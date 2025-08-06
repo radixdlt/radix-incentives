@@ -1,11 +1,11 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { Navigation } from './components/Navigation';
-import { HeroSection } from './components/HeroSection';
-import { QuickActions } from './components/QuickActions';
 import { NotificationBar } from '~/components/NotificationBar';
 import { api } from '~/trpc/react';
+import { HeroSection } from './components/HeroSection';
+import { Navigation } from './components/Navigation';
+import { QuickActions } from './components/QuickActions';
 
 export default function Home() {
   const { data: config } = api.config.getPublicConfig.useQuery();

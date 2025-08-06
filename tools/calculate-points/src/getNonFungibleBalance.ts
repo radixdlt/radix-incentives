@@ -1,8 +1,8 @@
-import { Effect, Exit, Layer, Logger } from 'effect';
-import { db } from 'db/incentives';
 import { NodeSdk } from '@effect/opentelemetry';
-import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { db } from 'db/incentives';
+import { Effect, Exit, Layer, Logger } from 'effect';
 
 export const NodeSdkLive = NodeSdk.layer(() => ({
   resource: { serviceName: 'nonFungibleBalance' },
@@ -13,12 +13,14 @@ export const NodeSdkLive = NodeSdk.layer(() => ({
   ),
 }));
 
+import { EntityNonFungibleDataService } from '../../../packages/api/src/common/gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../../packages/api/src/common/gateway/entityNonFungiblesPage';
 // Gateway services
 import { GatewayApiClientLive } from '../../../packages/api/src/common/gateway/gatewayApiClient';
-import { EntityNonFungiblesPageService } from '../../../packages/api/src/common/gateway/entityNonFungiblesPage';
-import { EntityNonFungibleDataService } from '../../../packages/api/src/common/gateway/entityNonFungiblesData';
-import { GetNonFungibleBalanceService } from '../../../packages/api/src/common/gateway/getNonFungibleBalance';
+import { GetAllValidatorsService } from '../../../packages/api/src/common/gateway/getAllValidators';
+import { GetLedgerStateService } from '../../../packages/api/src/common/gateway/getLedgerState';
 import { GetNftResourceManagersService } from '../../../packages/api/src/common/gateway/getNftResourceManagers';
+import { GetNonFungibleBalanceService } from '../../../packages/api/src/common/gateway/getNonFungibleBalance';
 import { GetNonFungibleIdsService } from '../../../packages/api/src/common/gateway/getNonFungibleIds';
 import {
   CaviarNineConstants,
@@ -26,8 +28,6 @@ import {
   RootFinanceConstants,
   WeftFinanceConstants,
 } from '../../../packages/data/src';
-import { GetAllValidatorsService } from '../../../packages/api/src/common/gateway/getAllValidators';
-import { GetLedgerStateService } from '../../../packages/api/src/common/gateway/getLedgerState';
 
 const runnable = Effect.gen(function* () {
   const gatewayApiClientLive = GatewayApiClientLive;

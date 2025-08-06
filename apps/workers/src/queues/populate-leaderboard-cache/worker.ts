@@ -2,8 +2,8 @@ import { dependencyLayer } from 'api/incentives';
 import type { Job } from 'bullmq';
 import { Exit } from 'effect';
 import {
-  populateLeaderboardCacheSchema,
   type PopulateLeaderboardCacheInput,
+  populateLeaderboardCacheSchema,
 } from './schemas';
 
 export const populateLeaderboardCacheWorker = async (

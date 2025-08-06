@@ -1,5 +1,5 @@
-import { Context, Effect, Layer } from 'effect';
 import { Rola } from '@radixdlt/rola';
+import { Context, Effect, Layer } from 'effect';
 import { AppConfigService } from '../config/appConfig';
 
 export class RolaService extends Context.Tag('RolaService')<

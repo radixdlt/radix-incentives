@@ -1,16 +1,16 @@
-import { describe, test, expect, vi } from 'vitest';
-import { Effect, Layer, Cause } from 'effect';
-import {
-  signInWithRolaProof,
-  InvalidProofError,
-  InvalidChallengeError,
-  type SignInWithRolaProofInput,
-} from './signInWithRolaProof';
-import { VerifyRolaProofService } from '../rola/verifyRolaProof';
+import { Cause, Effect, Layer } from 'effect';
+import { describe, expect, test, vi } from 'vitest';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
-import { UpsertUserService } from '../user/upsertUser';
+import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 import { CreateSessionService } from '../session/createSession';
 import { GenerateSessionTokenService } from '../session/generateSessionToken';
+import { UpsertUserService } from '../user/upsertUser';
+import {
+  InvalidChallengeError,
+  InvalidProofError,
+  type SignInWithRolaProofInput,
+  signInWithRolaProof,
+} from './signInWithRolaProof';
 
 // --- Mock Services ---
 

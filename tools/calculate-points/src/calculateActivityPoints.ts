@@ -1,22 +1,22 @@
-import { seasons, weeks, db } from 'db/incentives';
 import path from 'node:path';
+import { createDbClientLive } from 'api/incentives';
+import { db, seasons, weeks } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect, Layer, Logger } from 'effect';
-import { createDbClientLive } from 'api/incentives';
+import { GetAccountAddressByUserIdLive } from '../../../packages/api/src/incentives/account/getAccountAddressByUserId';
 import {
   CalculateActivityPointsLive,
   CalculateActivityPointsService,
 } from '../../../packages/api/src/incentives/activity-points/calculateActivityPoints';
-import { GetWeekByIdLive } from '../../../packages/api/src/incentives/week/getWeekById';
 import { CalculateTWASQLLive } from '../../../packages/api/src/incentives/activity-points/calculateTWASQL';
 import { UpsertAccountActivityPointsLive } from '../../../packages/api/src/incentives/activity-points/upsertAccountActivityPoints';
-import { GetTransactionFeesPaginatedLive } from '../../../packages/api/src/incentives/transaction-fee/getTransactionFees';
-import { GetComponentCallsPaginatedLive } from '../../../packages/api/src/incentives/component/getComponentCalls';
-import { GetTradingVolumeLive } from '../../../packages/api/src/incentives/trading-volume/getTradingVolume';
-import { GetAccountAddressByUserIdLive } from '../../../packages/api/src/incentives/account/getAccountAddressByUserId';
-import { createDbReadOnlyClientLive } from '../../../packages/api/src/incentives/db/dbClient';
 import { ComponentWhitelistService } from '../../../packages/api/src/incentives/component/componentWhitelist';
+import { GetComponentCallsPaginatedLive } from '../../../packages/api/src/incentives/component/getComponentCalls';
 import { createAppConfigLive } from '../../../packages/api/src/incentives/config/appConfig';
+import { createDbReadOnlyClientLive } from '../../../packages/api/src/incentives/db/dbClient';
+import { GetTradingVolumeLive } from '../../../packages/api/src/incentives/trading-volume/getTradingVolume';
+import { GetTransactionFeesPaginatedLive } from '../../../packages/api/src/incentives/transaction-fee/getTransactionFees';
+import { GetWeekByIdLive } from '../../../packages/api/src/incentives/week/getWeekById';
 
 const WEEK_ID = '30da196b-7602-4b06-a558-bbb5b5441186';
 

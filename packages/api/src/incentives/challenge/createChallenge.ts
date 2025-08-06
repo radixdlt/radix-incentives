@@ -1,6 +1,6 @@
+import { challenge } from 'db/consultation';
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
-import { challenge } from 'db/consultation';
 
 export class ChallengeService extends Context.Tag('ChallengeService')<
   ChallengeService,

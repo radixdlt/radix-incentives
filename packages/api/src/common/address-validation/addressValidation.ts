@@ -2,14 +2,14 @@ import { Context, Effect, Layer } from 'effect';
 
 // Import all protocol constants
 import {
-  DappConstants,
   type ActivityId,
-  flatTokenNameMap,
-  nativeAssets,
-  type TokenInfo,
   Assets,
-  matchComponentAddress,
+  DappConstants,
+  type TokenInfo,
+  flatTokenNameMap,
   getTradingActivityIdByComponentAddress,
+  matchComponentAddress,
+  nativeAssets,
 } from 'data';
 
 // Multiplier for constant product market maker pools (less efficient than precision pools)

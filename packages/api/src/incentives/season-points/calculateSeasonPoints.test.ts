@@ -1,39 +1,39 @@
-import { describe, inject } from 'vitest';
-import { Effect, Layer, Logger, LogLevel } from 'effect';
 import { it } from '@effect/vitest';
-import { createDbClientLive } from '../db/dbClient';
-import { CalculateSeasonPointsService } from './calculateSeasonPoints';
-import { drizzle } from 'drizzle-orm/postgres-js';
 import BigNumber from 'bignumber.js';
 import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import { describe, inject } from 'vitest';
+import { createDbClientLive } from '../db/dbClient';
+import { CalculateSeasonPointsService } from './calculateSeasonPoints';
 
 import {
-  schema,
-  seasons,
-  weeks,
+  accountActivityPoints,
+  accounts,
   activities,
   activityCategories,
   activityCategoryWeeks,
   activityWeeks,
-  accountActivityPoints,
+  schema,
   seasonPointsMultiplier,
+  seasons,
   userSeasonPoints,
   users,
-  accounts,
+  weeks,
 } from 'db/incentives';
 
-import postgres from 'postgres';
 import { ActivityCategoryId } from 'data';
+import postgres from 'postgres';
 
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
+import { SeasonService } from '../season/season';
 // Import required services
 import { UserActivityPointsService } from '../user/userActivityPoints';
-import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
-import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { SeasonService } from '../season/season';
 import { WeekService } from '../week/week';
-import { ActivityWeekService } from '../activity-week/activityWeek';
+import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
 
 describe(
   'CalculateSeasonPointsService',

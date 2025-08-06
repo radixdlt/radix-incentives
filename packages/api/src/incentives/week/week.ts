@@ -1,10 +1,10 @@
-import { Data, Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { seasons, weeks } from 'db/incentives';
 import { and, desc, eq, gte, lte } from 'drizzle-orm';
-import { weeks, seasons } from 'db/incentives';
+import { Data, Effect } from 'effect';
 import { z } from 'zod';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
+import { DbClientService, DbError } from '../db/dbClient';
 
 class WeekNotFoundError extends Data.TaggedError('WeekNotFoundError')<{
   message: string;

@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import {
-  EarnPageHeader,
-  ActivityGrid,
-  ActivityCardSkeleton,
-} from './components';
 import { api } from '~/trpc/react';
+import {
+  ActivityCardSkeleton,
+  ActivityGrid,
+  EarnPageHeader,
+} from './components';
 
 export default function EarnPage() {
   const { data: activityData, isLoading } =

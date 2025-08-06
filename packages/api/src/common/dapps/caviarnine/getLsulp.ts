@@ -1,10 +1,10 @@
+import { BigNumber } from 'bignumber.js';
+import { DappConstants } from 'data';
 import { Effect } from 'effect';
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from '../../gateway/getFungibleBalance';
-import { DappConstants } from 'data';
-import { BigNumber } from 'bignumber.js';
 import type { AtLedgerState } from '../../gateway/schemas';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;

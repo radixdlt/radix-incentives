@@ -1,8 +1,8 @@
 import { Effect, Layer } from 'effect';
 import { Context } from 'effect';
 import {
-  EventQueueClientService,
   type EventQueueClientInput,
+  EventQueueClientService,
   type EventQueueClientServiceError,
 } from './eventQueueClient';
 

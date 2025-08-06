@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import inquirer from 'inquirer';
-import { fileURLToPath } from 'node:url';
 import { dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { db } from 'db/incentives';
+import inquirer from 'inquirer';
 
 type QueueType =
   | 'event'

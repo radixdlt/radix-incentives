@@ -1,7 +1,7 @@
-import { Effect, Layer } from 'effect';
-import { GetResourceHoldersService } from './getResourceHolders';
-import { GatewayApiClientLive } from './gatewayApiClient';
 import { it } from '@effect/vitest';
+import { Effect, Layer } from 'effect';
+import { GatewayApiClientLive } from './gatewayApiClient';
+import { GetResourceHoldersService } from './getResourceHolders';
 
 describe('getResourceHolders', () => {
   it.effect(

@@ -1,27 +1,27 @@
 import { Effect, Layer } from 'effect';
-import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
 import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
 
-import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
-import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
 import { CaviarNineConstants } from 'data';
-import { GetResourceHoldersService } from '../../gateway/getResourceHolders';
-import {
-  GetShapeLiquidityAssetsLive,
-  GetShapeLiquidityAssetsService,
-} from './getShapeLiquidityAssets';
-import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
-import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
-import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
-import { GetComponentStateService } from '../../gateway/getComponentState';
-import { GetQuantaSwapBinMapLive } from './getQuantaSwapBinMap';
-import { GetShapeLiquidityClaimsLive } from './getShapeLiquidityClaims';
 import {
   GetNftResourceManagersService,
   GetNonFungibleIdsService,
 } from '../../gateway';
+import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { GetResourceHoldersService } from '../../gateway/getResourceHolders';
+import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
+import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
+import { GetQuantaSwapBinMapLive } from './getQuantaSwapBinMap';
+import {
+  GetShapeLiquidityAssetsLive,
+  GetShapeLiquidityAssetsService,
+} from './getShapeLiquidityAssets';
+import { GetShapeLiquidityClaimsLive } from './getShapeLiquidityClaims';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

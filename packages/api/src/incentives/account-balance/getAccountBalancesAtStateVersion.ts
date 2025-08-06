@@ -1,54 +1,54 @@
 import { Effect } from 'effect';
 import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
 
-import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
 import { GetLsulpService } from '../../common/dapps/caviarnine/getLsulp';
+import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
 
-import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
-import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
-import type { Validator } from '../../common/gateway/getAllValidators';
+import { Assets, DappConstants } from 'data';
 import { GetLsulpValueService } from '../../common/dapps/caviarnine/getLsulpValue';
-import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
-import {
-  type GetWeftFinancePositionsOutput,
-  GetWeftFinancePositionsService,
-} from '../../common/dapps/weftFinance/getWeftFinancePositions';
-import { DappConstants, Assets } from 'data';
-import {
-  type CollaterizedDebtPosition,
-  GetRootFinancePositionsService,
-} from '../../common/dapps/rootFinance/getRootFinancePositions';
-import { validateAtLedgerStateInput } from '../../common/gateway/schemas';
-import type { AtLedgerState } from '../../common/gateway/schemas';
 import {
   GetShapeLiquidityAssetsService,
   type ShapeLiquidityAsset,
 } from '../../common/dapps/caviarnine/getShapeLiquidityAssets';
+import {
+  type CollaterizedDebtPosition,
+  GetRootFinancePositionsService,
+} from '../../common/dapps/rootFinance/getRootFinancePositions';
+import {
+  type GetWeftFinancePositionsOutput,
+  GetWeftFinancePositionsService,
+} from '../../common/dapps/weftFinance/getWeftFinancePositions';
+import type { Validator } from '../../common/gateway/getAllValidators';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
+import { validateAtLedgerStateInput } from '../../common/gateway/schemas';
+import type { AtLedgerState } from '../../common/gateway/schemas';
+import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
 
 import {
   GetOciswapLiquidityAssetsService,
   type OciswapLiquidityAsset,
 } from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
 
+import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
+import BigNumber from 'bignumber.js';
+import {
+  type CaviarnineSimplePoolLiquidityAsset,
+  GetCaviarnineResourcePoolPositionsService,
+} from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
 import {
   type GetDefiPlazaPositionsOutput,
   GetDefiPlazaPositionsService,
 } from '../../common/dapps/defiplaza/getDefiPlazaPositions';
-import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
-import {
-  type GetSurgeLiquidityPositionsOutput,
-  GetSurgeLiquidityPositionsService,
-} from '../../common/dapps/surge/getSurgeLiquidityPositions';
 import {
   GetOciswapResourcePoolPositionsService,
   type OciswapResourcePoolLiquidityAsset,
 } from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
 import {
-  type CaviarnineSimplePoolLiquidityAsset,
-  GetCaviarnineResourcePoolPositionsService,
-} from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
-import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api-sdk';
-import BigNumber from 'bignumber.js';
+  type GetSurgeLiquidityPositionsOutput,
+  GetSurgeLiquidityPositionsService,
+} from '../../common/dapps/surge/getSurgeLiquidityPositions';
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;

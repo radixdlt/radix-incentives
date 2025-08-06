@@ -1,12 +1,12 @@
 'use client';
 
-import Link from 'next/link';
+import { Users, Vote } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useState } from 'react';
-import { RadixConnectButton } from './RadixConnectButton';
 import { Sidebar, SidebarBody, SidebarLink } from '~/components/ui/sidebar';
-import { Users, Vote } from 'lucide-react';
+import { RadixConnectButton } from './RadixConnectButton';
 
 const navItems = [
   {

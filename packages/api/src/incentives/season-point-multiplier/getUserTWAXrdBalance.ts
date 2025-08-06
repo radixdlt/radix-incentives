@@ -1,15 +1,15 @@
+import { BigNumber } from 'bignumber.js';
+import { accounts } from 'db/consultation';
+import { lte } from 'drizzle-orm';
 import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { z } from 'zod';
 import { CalculateTWASQLService } from '../activity-points/calculateTWASQL';
+import { DbClientService, DbError } from '../db/dbClient';
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
   type WeekNotFoundError,
 } from '../week/getWeekById';
-import { accounts } from 'db/consultation';
-import { lte } from 'drizzle-orm';
-import { BigNumber } from 'bignumber.js';
 
 export const GetUserTWAXrdBalanceInputSchema = z.object({
   weekId: z.string(),

@@ -1,8 +1,8 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { accountBalances } from 'db/incentives';
 import { sql } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
 import { chunker } from '../../common';
+import { DbClientService, DbError } from '../db/dbClient';
 
 const BATCH_SIZE = Number.parseInt(process.env.INSERT_BATCH_SIZE || '5000'); // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
 

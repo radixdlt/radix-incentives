@@ -1,7 +1,7 @@
 import { createObjectCsvWriter as csvWriter } from 'csv-writer';
+import { sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { DbClientService } from '../db/dbClient';
-import { sql } from 'drizzle-orm';
 
 type TimeWeightedAverageRow = {
   account_address: string;

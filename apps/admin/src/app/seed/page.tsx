@@ -1,7 +1,9 @@
 'use client';
 
+import { AlertCircle, CheckCircle2, Database, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { api } from '~/trpc/react';
+import { toast } from 'sonner';
+import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -10,9 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
-import { AlertCircle, CheckCircle2, Database, Loader2 } from 'lucide-react';
-import { Alert, AlertDescription, AlertTitle } from '~/components/ui/alert';
-import { toast } from 'sonner';
+import { api } from '~/trpc/react';
 
 export default function SeedPage() {
   const [isSeeding, setIsSeeding] = useState(false);

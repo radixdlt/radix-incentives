@@ -1,11 +1,11 @@
-import { Effect } from 'effect';
-import { groupBy } from 'effect/Array';
 import BigNumber from 'bignumber.js';
 import type { ActivityId } from 'data';
-import { AddTradingVolumeService } from './addTradingVolume';
+import { Effect } from 'effect';
+import { groupBy } from 'effect/Array';
 import type { DbError } from '../db/dbClient';
 import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
 import type { EmittableEvent } from '../events/event-matchers/types';
+import { AddTradingVolumeService } from './addTradingVolume';
 import {
   FilterTradingEventsService,
   type TradingEventWithTokens,

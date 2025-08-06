@@ -1,14 +1,14 @@
 import { Effect, Exit, Layer } from 'effect';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
+import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import {
   GetSurgeLiquidityPositionsLive,
   GetSurgeLiquidityPositionsService,
 } from './getSurgeLiquidityPositions';
-import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
-import { GetComponentStateService } from '../../gateway/getComponentState';
 
 const GetFungibleBalanceLive = GetFungibleBalanceService.Default;
 const GetComponentStateLive = GetComponentStateService.Default;

@@ -1,13 +1,13 @@
+import { DappId } from '../types';
 import { CaviarNineConstants } from './caviarnine/constants';
-import { OciswapConstants } from './ociswap/constants';
 import { DefiPlazaConstants } from './defiPlaza/constants';
+import { OciswapConstants } from './ociswap/constants';
 import { RootFinanceConstants } from './rootFinance/constants';
+import { SurgeConstants } from './surge/constants';
 import {
   WeftFinanceConstants,
   weftFungibleRecourceAddresses,
 } from './weftFinance/constants';
-import { SurgeConstants } from './surge/constants';
-import { DappId } from '../types';
 
 export const dappsData = [
   {

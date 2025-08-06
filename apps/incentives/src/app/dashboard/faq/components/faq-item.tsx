@@ -1,8 +1,8 @@
 'use client';
 
-import * as React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
+import * as React from 'react';
 import { Button } from '~/components/ui/button';
 
 const cn = (...classes: (string | undefined)[]) => {

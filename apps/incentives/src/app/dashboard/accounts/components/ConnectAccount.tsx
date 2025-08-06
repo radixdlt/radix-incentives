@@ -1,12 +1,12 @@
 'use client';
 
-import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
 import { OneTimeDataRequestBuilder } from '@radixdlt/radix-dapp-toolkit';
-import { useDappToolkit } from '~/lib/hooks/useRdt';
-import { Button } from '~/components/ui/button';
-import { api } from '~/trpc/react';
+import { Loader2 } from 'lucide-react';
+import { useState } from 'react';
 import { toast } from 'sonner';
+import { Button } from '~/components/ui/button';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
+import { api } from '~/trpc/react';
 
 export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
   const rdt = useDappToolkit();

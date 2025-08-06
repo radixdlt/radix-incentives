@@ -1,6 +1,6 @@
-import { seasons, weeks } from '../schema';
-import { db } from '../client';
 import { desc, eq } from 'drizzle-orm';
+import { db } from '../client';
+import { seasons, weeks } from '../schema';
 
 export const seedSeason = async () => {
   const seasonId = await db

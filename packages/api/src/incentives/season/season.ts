@@ -1,8 +1,8 @@
-import { Data, Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { type Season, seasons, weeks } from 'db/incentives';
-import { eq, desc, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
+import { Data, Effect } from 'effect';
 import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 class NotFound extends Data.TaggedError('NotFound')<{
   message: string;

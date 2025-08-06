@@ -1,21 +1,21 @@
+import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
 import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 import { GetLedgerStateService } from '../../gateway/getLedgerState';
-import { it } from '@effect/vitest';
 
 import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
 
-import { GetRootFinancePositionsService } from './getRootFinancePositions';
-import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
-import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
-import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
-import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
+import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
 import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
 import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
+import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
 import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
+import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
+import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
 import { poolStatesKvs } from './fixtures/poolStatesKvs';
+import { GetRootFinancePositionsService } from './getRootFinancePositions';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 

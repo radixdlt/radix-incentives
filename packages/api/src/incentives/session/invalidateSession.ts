@@ -1,7 +1,7 @@
-import { Context, Layer, Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { sessions } from 'db/consultation';
 import { eq } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class InvalidateSessionService extends Context.Tag(
   'InvalidateSessionService',

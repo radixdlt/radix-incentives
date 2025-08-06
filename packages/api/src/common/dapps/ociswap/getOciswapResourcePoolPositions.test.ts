@@ -1,14 +1,14 @@
 import { Effect, Layer } from 'effect';
-import { describe, it, expect } from 'vitest';
-import {
-  GetOciswapResourcePoolPositionsService,
-  GetOciswapResourcePoolPositionsLive,
-} from './getOciswapResourcePoolPositions';
+import { describe, expect, it } from 'vitest';
+import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
 import { GetResourcePoolUnitsService } from '../../resource-pool/getResourcePoolUnits';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
+import {
+  GetOciswapResourcePoolPositionsLive,
+  GetOciswapResourcePoolPositionsService,
+} from './getOciswapResourcePoolPositions';
 
 // Test configuration
 const TEST_ACCOUNT_ADDRESS =

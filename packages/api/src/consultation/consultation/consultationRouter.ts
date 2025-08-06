@@ -1,13 +1,13 @@
-import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { TRPCError } from '@trpc/server';
-import { verifyConsultationSignatureInputSchema } from './verifyConsultationSignature';
-import { createConsultationMessageHash } from './createConsultationHash';
 import { toHex } from '../../common/crypto';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { createConsultationMessageHash } from './createConsultationHash';
+import { verifyConsultationSignatureInputSchema } from './verifyConsultationSignature';
 
 import {
   type Consultation,
-  consultationConfig,
   SelectedOptionSchema,
+  consultationConfig,
 } from './consultationConfig';
 
 export const consultationRouter = createTRPCRouter({

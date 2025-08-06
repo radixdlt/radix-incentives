@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { Effect } from 'effect';
+import { z } from 'zod';
 
 export const StateVersionSchema = z.object({
   state_version: z.number(),

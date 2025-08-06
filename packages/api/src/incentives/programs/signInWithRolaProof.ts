@@ -1,11 +1,11 @@
 import { Effect } from 'effect';
 import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 
+import { z } from 'zod';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
-import { UpsertUserService } from '../user/upsertUser';
 import { CreateSessionService } from '../session/createSession';
 import { GenerateSessionTokenService } from '../session/generateSessionToken';
-import { z } from 'zod';
+import { UpsertUserService } from '../user/upsertUser';
 
 export class InvalidChallengeError {
   readonly _tag = 'InvalidChallengeError';

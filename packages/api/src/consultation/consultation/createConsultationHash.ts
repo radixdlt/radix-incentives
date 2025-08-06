@@ -1,5 +1,5 @@
-import { blake2bDigest } from '../../common/crypto/blake2bDigest';
 import { concatBytes } from '@noble/hashes/utils';
+import { blake2bDigest } from '../../common/crypto/blake2bDigest';
 
 export const createConsultationMessageHash = ({
   selectedOption,

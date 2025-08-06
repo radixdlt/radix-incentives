@@ -1,7 +1,7 @@
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
-import { seasons, type Week, type Season } from 'db/incentives';
+import { type Season, type Week, seasons } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 
 export class SeasonNotFoundError {

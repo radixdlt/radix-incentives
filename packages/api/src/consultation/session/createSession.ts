@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { AppConfigService } from '../config/appConfig';
-import { type Session, sessions } from 'db/consultation';
-import { encodeHexLowerCase } from '@oslojs/encoding';
 import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { type Session, sessions } from 'db/consultation';
+import { Effect } from 'effect';
+import { AppConfigService } from '../config/appConfig';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class CreateSessionService extends Effect.Service<CreateSessionService>()(
   'CreateSessionService',

@@ -1,13 +1,13 @@
-import { Config, Effect } from 'effect';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-import { GetUsdValueService } from '../token-price/getUsdValue';
 import { BigNumber } from 'bignumber.js';
 import {
-  DappConstants,
-  Assets,
   type AccountBalanceData,
   ActivityId,
+  Assets,
+  DappConstants,
 } from 'data';
+import { Config, Effect } from 'effect';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 

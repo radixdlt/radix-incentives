@@ -1,7 +1,7 @@
+import { type Account, accounts } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
-import { accounts, type Account } from 'db/incentives';
-import { inArray } from 'drizzle-orm';
 
 type GetAccountsByAddressInput = {
   addresses: string[];

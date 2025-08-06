@@ -2,9 +2,9 @@ import { Effect } from 'effect';
 import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import { type CapturedEvent, createEventMatcher } from './createEventMatcher';
 
-import { parseWithdrawEvent } from './parseWithdrawEvent';
-import { parseDepositEvent } from './parseDepositEvent';
 import { isValidResourceAddress } from '../../../common/address-validation/addressValidation';
+import { parseDepositEvent } from './parseDepositEvent';
+import { parseWithdrawEvent } from './parseWithdrawEvent';
 
 export type CommonEmittableEvents =
   | {

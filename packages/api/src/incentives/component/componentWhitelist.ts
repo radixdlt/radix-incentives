@@ -1,7 +1,7 @@
-import { Effect, Ref } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
 import { componentWhitelist } from 'db/incentives';
+import { Effect, Ref } from 'effect';
 import { AppConfigService } from '../config/appConfig';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class ComponentWhitelistService extends Effect.Service<ComponentWhitelistService>()(
   'ComponentWhitelistService',

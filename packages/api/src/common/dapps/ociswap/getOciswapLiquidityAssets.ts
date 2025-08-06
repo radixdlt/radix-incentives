@@ -1,5 +1,5 @@
-import { Effect } from 'effect';
 import { Decimal } from 'decimal.js';
+import { Effect } from 'effect';
 
 import type { AtLedgerState } from '../../gateway/schemas';
 
@@ -10,7 +10,7 @@ import {
 } from '../../gateway/getNonFungibleBalance';
 import { GetOciswapLiquidityClaimsService } from './getOciswapLiquidityClaims';
 import { PrecisionPool, PrecisionPoolV2 } from './schemas';
-import { tickToPriceSqrt, removableAmounts } from './tickCalculator';
+import { removableAmounts, tickToPriceSqrt } from './tickCalculator';
 
 export class FailedToParseOciswapComponentStateError {
   readonly _tag = 'FailedToParseOciswapComponentStateError';

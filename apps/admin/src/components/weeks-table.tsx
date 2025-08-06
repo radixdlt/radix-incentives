@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
+import type { Week } from 'db/incentives';
+import { Button } from '~/components/ui/button';
 import {
   Table,
   TableBody,
@@ -11,8 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { Button } from '~/components/ui/button';
-import type { Week } from 'db/incentives';
 
 type SortField = 'startDate' | 'endDate' | 'processed';
 type SortOrder = 'asc' | 'desc';

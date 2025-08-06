@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { getAccountHoldersForResource } from './utils.js';
 
 describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(

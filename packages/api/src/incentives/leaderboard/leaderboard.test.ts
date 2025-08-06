@@ -1,28 +1,28 @@
-import { describe, inject } from 'vitest';
-import { Effect, Layer, Logger, LogLevel } from 'effect';
 import { it } from '@effect/vitest';
-import { createDbClientLive } from '../db/dbClient';
-import { LeaderboardService, CacheNotAvailableError } from './leaderboard';
-import { WeekService } from '../week/week';
-import { ActivityWeekService } from '../activity-week/activityWeek';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { SeasonService } from '../season/season';
-import { ActivityCategoryService } from '../activity-category/activityCategory';
 import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import { describe, inject } from 'vitest';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { createDbClientLive } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { CacheNotAvailableError, LeaderboardService } from './leaderboard';
 
 import {
-  schema,
-  seasons,
-  weeks,
-  users,
   accounts,
-  seasonLeaderboardCache,
-  categoryLeaderboardCache,
-  leaderboardStatsCache,
   activities,
   activityCategories,
-  activityWeeks,
   activityCategoryWeeks,
+  activityWeeks,
+  categoryLeaderboardCache,
+  leaderboardStatsCache,
+  schema,
+  seasonLeaderboardCache,
+  seasons,
+  users,
+  weeks,
 } from 'db/incentives';
 
 import postgres from 'postgres';

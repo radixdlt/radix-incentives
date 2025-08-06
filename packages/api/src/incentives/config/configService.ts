@@ -1,8 +1,8 @@
-import { Duration, Effect, Cache } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import { eq } from 'drizzle-orm';
 import { config } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { Cache, Duration, Effect } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class ConfigService extends Effect.Service<ConfigService>()(
   'ConfigService',

@@ -1,10 +1,12 @@
 'use client';
 
-import * as React from 'react';
+import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import * as React from 'react';
 
+import type { Week } from 'db/incentives';
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -14,12 +16,10 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
-import { WeekPicker } from '~/components/ui/week-picker';
-import { Switch } from '~/components/ui/switch'; // Assuming Switch exists
 import { Separator } from '~/components/ui/separator';
+import { Switch } from '~/components/ui/switch'; // Assuming Switch exists
+import { WeekPicker } from '~/components/ui/week-picker';
 import { api } from '~/trpc/react';
-import { toast } from 'sonner';
-import type { Week } from 'db/incentives';
 
 // --- Form Component ---
 function CreateWeekForm({

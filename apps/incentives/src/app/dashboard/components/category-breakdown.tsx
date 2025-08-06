@@ -1,13 +1,13 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
 import { Trophy } from 'lucide-react';
-import { api } from '~/trpc/react';
-import { usePersona } from '~/lib/hooks/usePersona';
+import { useRouter } from 'next/navigation';
 import {
   StackedProgressBar,
   type StackedProgressBarItem,
 } from '~/components/ui/stacked-progress-bar';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { api } from '~/trpc/react';
 
 interface CategoryBreakdownProps {
   weekId: string;

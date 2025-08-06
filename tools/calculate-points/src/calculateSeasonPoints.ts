@@ -1,29 +1,29 @@
-import {
-  activities,
-  seasons,
-  userSeasonPoints,
-  weeks,
-  accounts,
-  accountActivityPoints,
-  db,
-} from 'db/incentives';
+import fs from 'node:fs';
 import path from 'node:path';
-import { eq } from 'drizzle-orm';
-import { Effect, Layer, Logger } from 'effect';
 import {
   ActivityCategoryWeekService,
   AddSeasonPointsToUserService,
   CalculateSeasonPointsService,
-  createDbClientLive,
   GetSeasonPointMultiplierService,
   SeasonService,
   UpdateWeekStatusService,
   UserActivityPointsService,
   WeekService,
+  createDbClientLive,
 } from 'api/incentives';
-import { ActivityWeekService } from '../../../packages/api/src/incentives/activity-week/activityWeek';
-import fs from 'node:fs';
+import {
+  accountActivityPoints,
+  accounts,
+  activities,
+  db,
+  seasons,
+  userSeasonPoints,
+  weeks,
+} from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { Effect, Layer, Logger } from 'effect';
 import { groupBy } from 'effect/Array';
+import { ActivityWeekService } from '../../../packages/api/src/incentives/activity-week/activityWeek';
 import { GetUsersPaginatedLive } from '../../../packages/api/src/incentives/user/getUsersPaginated';
 
 const WEEK_ID = '30da196b-7602-4b06-a558-bbb5b5441186';

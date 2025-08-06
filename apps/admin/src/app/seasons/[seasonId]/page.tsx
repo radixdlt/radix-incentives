@@ -2,9 +2,9 @@
 
 import { useParams, useRouter } from 'next/navigation';
 
-import { Separator } from '~/components/ui/separator';
 import { SeasonHeader } from '~/components/season-header';
 import { SeasonInfoCard } from '~/components/season-info-card';
+import { Separator } from '~/components/ui/separator';
 import { WeeksSection } from '~/components/weeks-section';
 import { api } from '~/trpc/react';
 

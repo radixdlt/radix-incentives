@@ -1,9 +1,9 @@
 #!/usr/bin/env tsx
 
-import { Effect, Layer } from 'effect';
-import { LeaderboardCacheService } from 'api/incentives/leaderboard/leaderboardCache';
-import { createDbClientLive } from 'api/incentives/db/dbClient';
 import { dbClient } from 'api/incentives';
+import { createDbClientLive } from 'api/incentives/db/dbClient';
+import { LeaderboardCacheService } from 'api/incentives/leaderboard/leaderboardCache';
+import { Effect, Layer } from 'effect';
 import { z } from 'zod';
 
 const argsSchema = z.object({
