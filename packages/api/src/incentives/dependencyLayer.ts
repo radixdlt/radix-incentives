@@ -79,15 +79,15 @@ import { UpdateWeekStatusService } from "./week/updateWeekStatus";
 import { AddSeasonPointsToUserService } from "./season-points/addSeasonPointsToUser";
 import { XrdBalanceLive } from "./account-balance/aggregateXrdBalance";
 import {
-  SeasonPointsMultiplierWorkerLive,
+  SeasonPointsMultiplierWorkerServiceLive,
   SeasonPointsMultiplierWorkerService,
 } from "./season-point-multiplier/seasonPointsMultiplierWorker";
 import { GetUserTWAXrdBalanceLive } from "./season-point-multiplier/getUserTWAXrdBalance";
 import { UpsertUserTwaWithMultiplierLive } from "./season-point-multiplier/upsertUserTwaWithMultiplier";
 import { GetSeasonPointMultiplierService } from "./season-point-multiplier/getSeasonPointMultiplier";
 
-import { AggregateWeftFinancePositionsLive } from "./account-balance/aggregateWeftFinancePositions";
-import { AggregateRootFinancePositionsLive } from "./account-balance/aggregateRootFinancePositions";
+import { AggregateWeftFinancePositionsServiceLive } from "./account-balance/aggregateWeftFinancePositions";
+import { AggregateRootFinancePositionsServiceLive } from "./account-balance/aggregateRootFinancePositions";
 import { AggregateDefiPlazaPositionsLive } from "./account-balance/aggregateDefiPlazaPositions";
 import { GetSurgeLiquidityPositionsLive } from "../common/dapps/surge/getSurgeLiquidityPositions";
 import { AggregateSurgePositionsLive } from "./account-balance/aggregateSurgePositions";
@@ -96,6 +96,7 @@ import { GetComponentCallsPaginatedLive } from "./component/getComponentCalls";
 import { ComponentWhitelistService } from "./component/componentWhitelist";
 import { GetTradingVolumeLive } from "./trading-volume/getTradingVolume";
 import { AddressValidationServiceLive } from "../common/address-validation/addressValidation";
+import { FetchService } from "../common/helpers/fetch";
 import {
   type EventWorkerInput,
   EventWorkerLive,
@@ -288,7 +289,8 @@ const updateSnapshotLive = UpdateSnapshotLive.pipe(Layer.provide(dbClientLive));
 const addressValidationServiceLive = AddressValidationServiceLive;
 
 const getUsdValueLive = GetUsdValueLive.pipe(
-  Layer.provide(addressValidationServiceLive)
+  Layer.provide(addressValidationServiceLive),
+  Layer.provide(FetchService.Default)
 );
 const xrdBalanceLive = XrdBalanceLive.pipe(
   Layer.provide(getUsdValueLive),
@@ -308,11 +310,9 @@ const aggregateOciswapPositionsLive = AggregateOciswapPositionsLive.pipe(
   Layer.provide(aggregatePoolPositionsLive)
 );
 
-const aggregateWeftFinancePositionsLive =
-  AggregateWeftFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+const aggregateWeftFinancePositionsLive = AggregateWeftFinancePositionsServiceLive.pipe(Layer.provide(getUsdValueLive));
 
-const aggregateRootFinancePositionsLive =
-  AggregateRootFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+const aggregateRootFinancePositionsLive = AggregateRootFinancePositionsServiceLive.pipe(Layer.provide(getUsdValueLive));
 
 const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
   Layer.provide(getFungibleBalanceLive),
@@ -579,7 +579,7 @@ const calculateSPMultiplierLive = GetUserTWAXrdBalanceLive.pipe(
   Layer.provide(calculateTWASQLLive)
 );
 
-const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerLive.pipe(
+const seasonPointsMultiplierWorkerLive = SeasonPointsMultiplierWorkerServiceLive.pipe(
   Layer.provide(dbClientLive),
   Layer.provide(calculateSPMultiplierLive),
   Layer.provide(getWeekByIdLive),

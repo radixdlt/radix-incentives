@@ -80,7 +80,7 @@ pnpm db:reset
 pnpm format
 
 # Lint and fix issues
-pnpm lint
+pnpm biome lint --write
 
 # Type check all packages
 pnpm check-types
@@ -88,6 +88,22 @@ pnpm check-types
 # Run tests
 pnpm test
 ```
+
+#### Lint & Build Process
+When fixing lint/build issues, follow this order:
+1. **Run lint**: `pnpm biome lint` - fix auto-fixable issues with `--write`
+2. **Manual fixes required**:
+   - Replace `forEach` with `for...of` loops for performance
+   - Add `type` to button elements: `<button type="button">`
+   - Use `import type` for React imports: `import type * as React from "react"`
+   - Add keyboard event handlers for click events (accessibility)
+
+3. **Run build**: `pnpm build` - clean with `pnpm clean` if workspace conflicts occur
+4. **Commit**: All changes including lint fixes, build fixes, and accessibility improvements
+
+**Biome Configuration**: 
+- Ignores `.next`, `**/output/**` directories to prevent linting build artifacts
+- Auto-fixes import types and other style issues with `--write` flag
 
 ### Build & Deploy
 ```bash
@@ -121,6 +137,30 @@ pnpm build:clean
 - Write Vitest unit tests covering all functions
 - Use the `Effect` library for functional composition (`pipe`)
 - Import types: `import type { FC } from "react"` not `import { type FC } from "react"`
+
+### Effect.Service Guidelines
+When creating services using the Effect library:
+- Use `Effect.Service<ServiceName>()` pattern instead of `Context.Tag` + `Layer.effect`
+- Service class structure:
+  ```typescript
+  export class ServiceName extends Effect.Service<ServiceName>()(
+    "ServiceName",
+    {
+      effect: Effect.gen(function* () {
+        // Dependencies
+        const dependency = yield* DependencyService;
+        
+        return Effect.fn(function* (input: InputType) {
+          // Service implementation
+          return result;
+        });
+      }),
+    }
+  ) {}
+  ```
+- Export service live implementation: `export const ServiceNameLive = ServiceName.Default;`
+- Output type should reference the service: `Effect.Effect.Success<Awaited<ReturnType<(typeof ServiceName)["Service"]>>>`
+- Import only necessary Effect modules: `import { Config, Effect } from "effect"`
 
 ### React/Next.js Guidelines
 - Use Tailwind classes for styling (no inline CSS or `<style>` tags)

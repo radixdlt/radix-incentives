@@ -1,4 +1,5 @@
 import { Effect, Layer } from "effect";
+import { it } from "@effect/vitest";
 
 import { GatewayApiClientLive } from "../../gateway/gatewayApiClient";
 import { GetEntityDetailsService } from "../../gateway/getEntityDetails";
@@ -35,36 +36,20 @@ const getLsulpValueLive = GetLsulpValueLive.pipe(
 );
 
 describe("GetLsulpValueService", () => {
-  it("should get lsulp value", async () => {
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const getLsulpValue = yield* GetLsulpValueService;
-        const getLedgerState = yield* GetLedgerStateService;
-
-        const state = yield* getLedgerState({
-          // timestamp: new Date("2025-04-01T00:00:00.000Z"),
-          at_ledger_state: {
-            state_version: 286058118,
-          },
-        });
-
-        return yield* getLsulpValue({
-          at_ledger_state: {
-            state_version: state.state_version,
-          },
-        });
-      }),
-      Layer.mergeAll(
-        gatewayApiClientLive,
-        getFungibleBalanceLive,
-        entityFungiblesPageServiceLive,
-        getLedgerStateLive,
+  it.effect("should get lsulp value", () => {
+    return Effect.gen(function* () {
+      const getLsulpValueService = yield* Effect.provide(
+        GetLsulpValueService,
         getLsulpValueLive
-      )
-    );
+      );
 
-    const result = await Effect.runPromise(program);
+      const result = yield* getLsulpValueService({
+        at_ledger_state: {
+          state_version: 286058118,
+        },
+      });
 
-    expect(result).toBeDefined();
+      expect(result).toBeDefined();
+    });
   });
 });

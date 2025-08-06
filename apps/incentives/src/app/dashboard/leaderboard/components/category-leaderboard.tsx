@@ -52,7 +52,6 @@ export function CategoryLeaderboard() {
         setSelectedCategoryId(urlCategory);
       } else {
         // Default to first category
-        // biome-ignore lint/style/noNonNullAssertion: always categories
         setSelectedCategoryId(categories[0]!.id);
       }
     }
@@ -111,7 +110,7 @@ export function CategoryLeaderboard() {
           refetchLeaderboard();
         });
     }
-  }, [persona, refetchLeaderboard, selectedCategoryId, selectedWeekId, utils]);
+  }, [refetchLeaderboard, selectedCategoryId, selectedWeekId, utils]);
 
   if (weeksLoading || categoriesLoading) {
     return <LoadingState message="Loading data..." />;

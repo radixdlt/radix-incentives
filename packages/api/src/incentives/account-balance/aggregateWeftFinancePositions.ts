@@ -1,10 +1,6 @@
-import { Config, Effect, Layer } from "effect";
+import { Config, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Context } from "effect";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import { ActivityId, Assets, type AccountBalanceData } from "data";
 
@@ -13,29 +9,19 @@ export type AggregateWeftFinancePositionsInput = {
   timestamp: Date;
 };
 
-export type AggregateWeftFinancePositionsOutput = AccountBalanceData;
+export type AggregateWeftFinancePositionsOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof AggregateWeftFinancePositionsService)["Service"]>>
+>;
 
-export class AggregateWeftFinancePositionsService extends Context.Tag(
-  "AggregateWeftFinancePositionsService"
-)<
-  AggregateWeftFinancePositionsService,
-  (
-    input: AggregateWeftFinancePositionsInput
-  ) => Effect.Effect<
-    AggregateWeftFinancePositionsOutput[],
-    GetUsdValueServiceError
-  >
->() {}
-
-export const AggregateWeftFinancePositionsLive = Layer.effect(
-  AggregateWeftFinancePositionsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
-      Config.withDefault(false)
-    );
-    return (input) =>
-      Effect.gen(function* () {
+export class AggregateWeftFinancePositionsService extends Effect.Service<AggregateWeftFinancePositionsService>()(
+  "AggregateWeftFinancePositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const getUsdValueService = yield* GetUsdValueService;
+      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+        Config.withDefault(false)
+      );
+      return Effect.fn(function* (input: AggregateWeftFinancePositionsInput) {
         const accountBalance = input.accountBalance;
 
         // Define supported assets and their activity IDs
@@ -108,5 +94,9 @@ export const AggregateWeftFinancePositionsLive = Layer.effect(
 
         return results;
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const AggregateWeftFinancePositionsServiceLive =
+  AggregateWeftFinancePositionsService.Default;

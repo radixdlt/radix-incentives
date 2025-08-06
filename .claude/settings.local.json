@@ -12,7 +12,16 @@
       "Bash(pnpm check-types:*)",
       "Bash(pnpm tsc:*)",
       "Bash(pnpm biome format:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(pnpm lint:*)",
+      "Bash(pnpm clean:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)",
+      "Bash(pnpm run:*)",
+      "Bash(pnpm -w run build)",
+      "Bash(pnpm -w run clean)",
+      "Bash(./build-docker.sh:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": []
   }

@@ -1,10 +1,6 @@
-import { Config, Effect, Layer } from "effect";
+import { Config, Effect } from "effect";
 import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Context } from "effect";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import { GetUsdValueService } from "../token-price/getUsdValue";
 import { BigNumber } from "bignumber.js";
 import {
   DappConstants,
@@ -20,29 +16,19 @@ export type AggregateRootFinancePositionsInput = {
   timestamp: Date;
 };
 
-export type AggregateRootFinancePositionsOutput = AccountBalanceData;
+export type AggregateRootFinancePositionsOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof AggregateRootFinancePositionsService)["Service"]>>
+>;
 
-export class AggregateRootFinancePositionsService extends Context.Tag(
-  "AggregateRootFinancePositionsService"
-)<
-  AggregateRootFinancePositionsService,
-  (
-    input: AggregateRootFinancePositionsInput
-  ) => Effect.Effect<
-    AggregateRootFinancePositionsOutput[],
-    GetUsdValueServiceError
-  >
->() {}
-
-export const AggregateRootFinancePositionsLive = Layer.effect(
-  AggregateRootFinancePositionsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
-      Config.withDefault(false)
-    );
-    return (input) =>
-      Effect.gen(function* () {
+export class AggregateRootFinancePositionsService extends Effect.Service<AggregateRootFinancePositionsService>()(
+  "AggregateRootFinancePositionsService",
+  {
+    effect: Effect.gen(function* () {
+      const getUsdValueService = yield* GetUsdValueService;
+      const STORE_METADATA = yield* Config.boolean("DEBUG_STORE_METADATA").pipe(
+        Config.withDefault(false)
+      );
+      return Effect.fn(function* (input: AggregateRootFinancePositionsInput) {
         const accountBalance = input.accountBalance;
 
         // Define supported assets and their activity IDs
@@ -129,5 +115,9 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
 
         return results;
       });
-  })
-);
+    }),
+  }
+) {}
+
+export const AggregateRootFinancePositionsServiceLive =
+  AggregateRootFinancePositionsService.Default;

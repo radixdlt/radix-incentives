@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from "effect";
 
 import type { EmittableEvent } from "../events/event-matchers/types";
 import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
@@ -8,10 +8,7 @@ import {
   defiPlazaComponentSet,
   type ActivityId,
 } from "data";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
+import { GetUsdValueService } from "../token-price/getUsdValue";
 import BigNumber from "bignumber.js";
 
 import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
@@ -30,24 +27,17 @@ export type TradingEventWithTokens = {
   usdValue: BigNumber;
 };
 
-export type FilterTradingEventsServiceError = GetUsdValueServiceError;
+export type FilterTradingEventsOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof FilterTradingEventsService)["Service"]>>
+>;
 
-export class FilterTradingEventsService extends Context.Tag(
-  "FilterTradingEventsService"
-)<
-  FilterTradingEventsService,
-  (
-    input: CapturedEvent<EmittableEvent>[]
-  ) => Effect.Effect<TradingEventWithTokens[], FilterTradingEventsServiceError>
->() {}
-
-export const FilterTradingEventsLive = Layer.effect(
-  FilterTradingEventsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const addressValidationService = yield* AddressValidationService;
-    return (input) => {
-      return Effect.gen(function* () {
+export class FilterTradingEventsService extends Effect.Service<FilterTradingEventsService>()(
+  "FilterTradingEventsService",
+  {
+    effect: Effect.gen(function* () {
+      const getUsdValueService = yield* GetUsdValueService;
+      const addressValidationService = yield* AddressValidationService;
+      return Effect.fn(function* (input: CapturedEvent<EmittableEvent>[]) {
         const tradingEvents: TradingEventWithTokens[] = [];
 
         for (const event of input) {
@@ -243,6 +233,9 @@ export const FilterTradingEventsLive = Layer.effect(
 
         return tradingEvents;
       });
-    };
-  })
-);
+    }),
+  }
+) {}
+
+export const FilterTradingEventsServiceLive =
+  FilterTradingEventsService.Default;

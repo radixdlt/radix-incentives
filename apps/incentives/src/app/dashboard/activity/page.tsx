@@ -19,6 +19,8 @@ export default function ActivityPage() {
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
+                role="img"
+                aria-label="Dropdown arrow"
               >
                 <path
                   strokeLinecap="round"
@@ -47,9 +49,9 @@ export default function ActivityPage() {
             </div>
             <div className="text-sm text-muted-foreground">2 hours ago</div>
             <div>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <button type="button" className="text-sm text-primary hover:underline">
                 View Tx
-              </a>
+              </button>
             </div>
           </div>
 
@@ -66,9 +68,9 @@ export default function ActivityPage() {
             </div>
             <div className="text-sm text-muted-foreground">5 hours ago</div>
             <div>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <button type="button" className="text-sm text-primary hover:underline">
                 View Tx
-              </a>
+              </button>
             </div>
           </div>
 
@@ -85,9 +87,9 @@ export default function ActivityPage() {
             </div>
             <div className="text-sm text-muted-foreground">1 day ago</div>
             <div>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <button type="button" className="text-sm text-primary hover:underline">
                 View Tx
-              </a>
+              </button>
             </div>
           </div>
 
@@ -104,9 +106,9 @@ export default function ActivityPage() {
             </div>
             <div className="text-sm text-muted-foreground">2 days ago</div>
             <div>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <button type="button" className="text-sm text-primary hover:underline">
                 View Tx
-              </a>
+              </button>
             </div>
           </div>
 
@@ -123,19 +125,19 @@ export default function ActivityPage() {
             </div>
             <div className="text-sm text-muted-foreground">3 days ago</div>
             <div>
-              <a href="#" className="text-sm text-primary hover:underline">
+              <button type="button" className="text-sm text-primary hover:underline">
                 View Tx
-              </a>
+              </button>
             </div>
           </div>
         </div>
 
         <div className="flex items-center justify-between p-4 border-t">
-          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+          <button type="button" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
             Previous
           </button>
           <div className="text-sm text-muted-foreground">Page 1 of 10</div>
-          <button className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
+          <button type="button" className="inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground h-9 px-4 py-2">
             Next
           </button>
         </div>

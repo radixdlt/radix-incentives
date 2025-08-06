@@ -27,7 +27,6 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
       if (response.isOk()) {
         const value = response.value;
         const accounts = value.accounts;
-        // biome-ignore lint/style/noNonNullAssertion: exists
         const challenge = value.proofs[0]?.challenge!;
         const proofs = value.proofs;
 
@@ -36,7 +35,6 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
             challenge,
             items: proofs.map((proof) => ({
               address: proof.address,
-              // biome-ignore lint/style/noNonNullAssertion: exists
               label: accounts.find(
                 (account) => account.address === proof.address
               )?.label!,

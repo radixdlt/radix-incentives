@@ -8,9 +8,11 @@ import { AggregatePoolPositionsService } from "./aggregatePoolPositions";
 import { getDefaultPositions } from "./getDefaultPositions";
 import { Action, type AccountBalanceData } from "data";
 import BigNumber from "bignumber.js";
+import { FetchService } from "../../common/helpers";
 
 const getUsdValueLive = GetUsdValueLive.pipe(
-  Layer.provide(AddressValidationServiceLive)
+  Layer.provide(AddressValidationServiceLive),
+  Layer.provide(FetchService.Default)
 );
 
 const aggregatePoolPositionsLive = AggregatePoolPositionsService.Default.pipe(
