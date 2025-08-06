@@ -20,9 +20,9 @@ if (args.length === 0) {
 const parseResult = argsSchema.safeParse({ weekId: args[0] });
 if (!parseResult.success) {
   console.error("❌ Invalid arguments:");
-  parseResult.error.errors.forEach(err => {
+  for (const err of parseResult.error.errors) {
     console.error(`  ${err.path.join('.')}: ${err.message}`);
-  });
+  }
   process.exit(1);
 }
 

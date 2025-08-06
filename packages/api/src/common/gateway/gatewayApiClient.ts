@@ -1,6 +1,7 @@
 import { Config, Effect } from "effect";
 import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
 import fetchRetry from "fetch-retry";
+import { fetch } from "undici";
 
 export class GatewayApiClientService extends Effect.Service<GatewayApiClientService>()(
   "GatewayApiClientService",
@@ -30,7 +31,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
        * - Supports retrying POST requests (unlike make-fetch-happen)
        */
 
-      const fetchImpl = fetchRetry(globalThis.fetch, {
+      const fetchImpl = fetchRetry(fetch, {
         retries: gatewayRetryAttempts,
         retryDelay: (attempt, error, response) => {
           const maxDelay = 30_000; // 30 seconds max

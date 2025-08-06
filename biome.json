@@ -13,7 +13,10 @@
       "build",
       "coverage",
       "*.spec.ts",
-      "./packages/sbor-ez-mode/**/*"
+      "./packages/sbor-ez-mode/**/*",
+      ".next",
+      "**/.next/**",
+      "**/output/**"
     ]
   },
   "formatter": {

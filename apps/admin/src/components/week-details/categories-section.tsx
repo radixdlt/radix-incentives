@@ -44,12 +44,9 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     });
   };
 
-  const startEditingPointsPool = (categoryId: string, currentValue: any) => {
+  const startEditingPointsPool = (categoryId: string, currentValue: number | string | { toString(): string }) => {
     setEditingPointsPool(categoryId);
-    const valueString =
-      typeof currentValue === 'object' && currentValue.toString
-        ? currentValue.toString()
-        : currentValue.toString();
+    const valueString = String(currentValue);
     setEditingValue(Number(valueString).toLocaleString());
   };
 
@@ -69,12 +66,9 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     setEditingValue('');
   };
 
-  const startEditingMultiplier = (activityId: string, currentValue: any) => {
+  const startEditingMultiplier = (activityId: string, currentValue: number | string | { toString(): string }) => {
     setEditingMultiplier(activityId);
-    const valueString =
-      typeof currentValue === 'object' && currentValue.toString
-        ? currentValue.toString()
-        : currentValue.toString();
+    const valueString = String(currentValue);
     setEditingMultiplierValue(valueString);
   };
 

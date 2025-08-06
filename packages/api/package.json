@@ -34,6 +34,7 @@
     "@trpc/server": "catalog:",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",
+    "csv-writer": "catalog:",
     "data": "workspace:*",
     "date-fns": "catalog:",
     "db": "workspace:*",
@@ -51,8 +52,7 @@
     "radix-web3.js": "catalog:",
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:",
-    "csv-writer": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:",
@@ -61,6 +61,7 @@
     "@types/aws-lambda": "catalog:",
     "@types/make-fetch-happen": "catalog:",
     "tsup": "catalog:",
+    "undici": "^7.13.0",
     "vitest": "catalog:"
   },
   "publishConfig": {
