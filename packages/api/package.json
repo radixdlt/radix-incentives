@@ -60,6 +60,7 @@
     "@testcontainers/postgresql": "catalog:",
     "@types/aws-lambda": "catalog:",
     "@types/make-fetch-happen": "catalog:",
+    "@vitest/coverage-v8": "^3.2.4",
     "tsup": "catalog:",
     "undici": "^7.13.0",
     "vitest": "catalog:"
