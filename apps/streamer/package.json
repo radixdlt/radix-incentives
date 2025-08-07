@@ -24,6 +24,7 @@
     "@opentelemetry/semantic-conventions": "catalog:",
     "make-fetch-happen": "catalog:",
     "hono": "catalog:",
+    "undici": "catalog:",
     "@hono/node-server": "catalog:"
   },
   "devDependencies": {

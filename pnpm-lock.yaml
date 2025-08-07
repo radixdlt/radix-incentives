@@ -713,6 +713,9 @@ importers:
       pino:
         specifier: 'catalog:'
         version: 9.6.0
+      undici:
+        specifier: 'catalog:'
+        version: 7.13.0
     devDependencies:
       '@types/make-fetch-happen':
         specifier: 'catalog:'
