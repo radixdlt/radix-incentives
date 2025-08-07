@@ -30,6 +30,7 @@
     "ioredis": "catalog:",
     "pino": "catalog:",
     "zod": "catalog:",
+    "undici": "catalog:",
     "make-fetch-happen": "catalog:"
   },
   "devDependencies": {
