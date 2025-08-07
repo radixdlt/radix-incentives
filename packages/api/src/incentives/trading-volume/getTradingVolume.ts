@@ -1,10 +1,9 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import BigNumber from 'bignumber.js';
 import type { ActivityId } from 'data';
 import { tradingVolume } from 'db/incentives';
 import { and, between, inArray } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type GetTradingVolumeServiceInput = {
   endTimestamp: Date;

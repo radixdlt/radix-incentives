@@ -4,8 +4,6 @@ import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import * as React from 'react';
-
-import type { Week } from 'db/incentives';
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import {
@@ -17,7 +15,6 @@ import {
 } from '~/components/ui/card';
 import { Label } from '~/components/ui/label';
 import { Separator } from '~/components/ui/separator';
-import { Switch } from '~/components/ui/switch'; // Assuming Switch exists
 import { WeekPicker } from '~/components/ui/week-picker';
 import { api } from '~/trpc/react';
 
@@ -68,8 +65,8 @@ function CreateWeekForm({
         {selectedWeek && (
           <div className="grid gap-2">
             <Label>Week Range (ISO Format)</Label>
-            <div className="p-3 bg-muted rounded-md">
-              <div className="text-sm space-y-1">
+            <div className="rounded-md bg-muted p-3">
+              <div className="space-y-1 text-sm">
                 <div>
                   <strong>Start:</strong> {selectedWeek.start.toISOString()}{' '}
                   (Monday)
@@ -136,7 +133,7 @@ function CreateWeekPage() {
 
   if (isLoading) {
     return (
-      <div className="container mx-auto py-6 pl-6 pr-6">
+      <div className="container mx-auto py-6 pr-6 pl-6">
         <div className="mb-6 flex items-center gap-4">
           <Link href={`/seasons/${seasonId}`}>
             <Button variant="ghost" size="icon" aria-label="Go back">
@@ -144,7 +141,7 @@ function CreateWeekPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="font-bold text-3xl tracking-tight">
               Create New Week
             </h1>
             <p className="text-muted-foreground">Loading season data...</p>
@@ -157,10 +154,10 @@ function CreateWeekPage() {
           <Card>
             <CardContent className="p-6">
               <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-gray-200 rounded w-1/4" />
-                <div className="h-10 bg-gray-200 rounded" />
-                <div className="h-4 bg-gray-200 rounded w-1/4" />
-                <div className="h-10 bg-gray-200 rounded" />
+                <div className="h-4 w-1/4 rounded bg-gray-200" />
+                <div className="h-10 rounded bg-gray-200" />
+                <div className="h-4 w-1/4 rounded bg-gray-200" />
+                <div className="h-10 rounded bg-gray-200" />
               </div>
             </CardContent>
           </Card>
@@ -171,7 +168,7 @@ function CreateWeekPage() {
 
   if (!seasonData?.season) {
     return (
-      <div className="container mx-auto py-6 pl-6 pr-6">
+      <div className="container mx-auto py-6 pr-6 pl-6">
         <div className="mb-6 flex items-center gap-4">
           <Link href="/seasons">
             <Button variant="ghost" size="icon" aria-label="Go back">
@@ -179,7 +176,7 @@ function CreateWeekPage() {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="font-bold text-3xl tracking-tight">
               Create New Week
             </h1>
             <p className="text-muted-foreground">Season not found</p>
@@ -190,7 +187,7 @@ function CreateWeekPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 pl-6 pr-6">
+    <div className="container mx-auto py-6 pr-6 pl-6">
       <div className="mb-6 flex items-center gap-4">
         <Link href={`/seasons/${seasonId}`}>
           <Button variant="ghost" size="icon" aria-label="Go back">
@@ -198,7 +195,7 @@ function CreateWeekPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Create New Week</h1>
+          <h1 className="font-bold text-3xl tracking-tight">Create New Week</h1>
           <p className="text-muted-foreground">
             Add a new week configuration to Season: {seasonName}
           </p>

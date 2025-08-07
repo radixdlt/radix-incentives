@@ -17,7 +17,7 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
     console.log(`Update multiplier for ${activityId} to ${newMultiplier}`),
 }) => {
   return (
-    <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="mx-auto max-w-7xl space-y-6 p-6">
       <WeekHeader weekData={weekData} seasonId={seasonId} />
 
       <WeekControls weekData={weekData} onProcessWeek={onProcessWeek} />

@@ -1,23 +1,19 @@
+import { BigNumber } from 'bignumber.js';
+import { DappConstants } from 'data';
 import { Effect } from 'effect';
-
-import type { GetNonFungibleBalanceOutput } from '../../gateway/getNonFungibleBalance';
-
+import { GetComponentStateService } from '../../gateway/getComponentState';
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from '../../gateway/getFungibleBalance';
-
-import { BigNumber } from 'bignumber.js';
-import { GetComponentStateService } from '../../gateway/getComponentState';
 import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
-import { CDPData, LendingPoolSchema, SingleResourcePool } from './schemas';
-
-import { DappConstants } from 'data';
+import type { GetNonFungibleBalanceOutput } from '../../gateway/getNonFungibleBalance';
 import type { AtLedgerState } from '../../gateway/schemas';
 import {
   type UnstakingReceipt,
   UnstakingReceiptProcessorService,
 } from '../../staking/unstakingReceiptProcessor';
+import { CDPData, LendingPoolSchema, SingleResourcePool } from './schemas';
 
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;
 const weftFungibleRecourceAddresses =

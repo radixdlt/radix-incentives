@@ -1,17 +1,16 @@
 'use client';
 
-import { ArrowLeft } from 'lucide-react';
-import Link from 'next/link';
-import { useParams, useRouter } from 'next/navigation';
-import * as React from 'react';
-import { toast } from 'sonner';
-
 import type {
   Activity,
   ActivityCategory,
   Dapp,
   UpdateActivityInput,
 } from 'api/incentives';
+import { ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { useParams, useRouter } from 'next/navigation';
+import * as React from 'react';
+import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import {
   Card,
@@ -59,7 +58,7 @@ function ActivityForm({
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSelectChange = (name: string, value: string) => {
+  const _handleSelectChange = (name: string, value: string) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -134,7 +133,7 @@ function ActivityForm({
           }
           disabled={true}
           readOnly={true}
-          className="bg-muted cursor-not-allowed opacity-60"
+          className="cursor-not-allowed bg-muted opacity-60"
           tabIndex={-1}
           onFocus={(e) => e.target.blur()}
           onClick={(e) => e.preventDefault()}
@@ -154,7 +153,7 @@ function ActivityForm({
           }
           disabled={true}
           readOnly={true}
-          className="bg-muted cursor-not-allowed opacity-60"
+          className="cursor-not-allowed bg-muted opacity-60"
           tabIndex={-1}
           onFocus={(e) => e.target.blur()}
           onClick={(e) => e.preventDefault()}
@@ -173,7 +172,7 @@ function ActivityForm({
                 value={address}
                 disabled={true}
                 readOnly={true}
-                className="bg-muted cursor-not-allowed opacity-60 font-mono text-xs"
+                className="cursor-not-allowed bg-muted font-mono text-xs opacity-60"
                 tabIndex={-1}
                 onFocus={(e) => e.target.blur()}
                 onClick={(e) => e.preventDefault()}
@@ -184,7 +183,7 @@ function ActivityForm({
               value="No component addresses configured"
               disabled={true}
               readOnly={true}
-              className="bg-muted cursor-not-allowed opacity-60 italic"
+              className="cursor-not-allowed bg-muted italic opacity-60"
               tabIndex={-1}
               onFocus={(e) => e.target.blur()}
               onClick={(e) => e.preventDefault()}
@@ -208,7 +207,7 @@ function ActivityForm({
         />
         <Label
           htmlFor="showOnEarnPage"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           Show on earn page
         </Label>
@@ -229,7 +228,7 @@ function ActivityForm({
         />
         <Label
           htmlFor="ap"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           Activity Points
         </Label>
@@ -250,7 +249,7 @@ function ActivityForm({
         />
         <Label
           htmlFor="sp"
-          className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+          className="font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
         >
           Multiplier
         </Label>
@@ -309,14 +308,14 @@ function EditActivityPage() {
   if (!activity) {
     // Render a not found message or redirect if activity couldn't be loaded
     return (
-      <div className="container mx-auto py-6 pl-6 pr-6">
+      <div className="container mx-auto py-6 pr-6 pl-6">
         <div className="mb-6 flex items-center gap-4">
           <Link href="/activities">
             <Button variant="ghost" size="icon" aria-label="Go back">
               <ArrowLeft className="h-5 w-5" />
             </Button>
           </Link>
-          <h1 className="text-xl font-semibold">Activity Not Found</h1>
+          <h1 className="font-semibold text-xl">Activity Not Found</h1>
         </div>
         <p>The requested activity could not be found.</p>
       </div>
@@ -324,7 +323,7 @@ function EditActivityPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 pl-6 pr-6">
+    <div className="container mx-auto py-6 pr-6 pl-6">
       {/* Header */}
       <div className="mb-6 flex items-center gap-4">
         {/* Link back to activity list page */}
@@ -334,7 +333,7 @@ function EditActivityPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Activity</h1>
+          <h1 className="font-bold text-3xl tracking-tight">Edit Activity</h1>
           <p className="text-muted-foreground">
             Modify details for: {activity.id}
           </p>

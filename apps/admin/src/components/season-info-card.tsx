@@ -1,7 +1,7 @@
 'use client';
 
 import { Badge } from '~/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import { Card, CardHeader, CardTitle } from '~/components/ui/card';
 
 interface SeasonInfoCardProps {
   season: {

@@ -1,6 +1,5 @@
-import { Config, Effect } from 'effect';
-
 import type { StateEntityDetailsOperationRequest } from '@radixdlt/babylon-gateway-api-sdk';
+import { Config, Effect } from 'effect';
 import { EntityNonFungibleDataService } from './entityNonFungiblesData';
 
 import { GetNftResourceManagersService } from './getNftResourceManagers';

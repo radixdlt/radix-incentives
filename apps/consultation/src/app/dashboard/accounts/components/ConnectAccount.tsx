@@ -27,20 +27,26 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
       if (response.isOk()) {
         const value = response.value;
         const accounts = value.accounts;
-        const challenge = value.proofs[0]?.challenge!;
+        const firstProof = value.proofs[0];
+        if (!firstProof) throw new Error('No proof provided');
+
+        const challenge = firstProof.challenge;
         const proofs = value.proofs;
 
-        const result = await verifyAccountOwnership.mutateAsync(
+        const _result = await verifyAccountOwnership.mutateAsync(
           {
             challenge,
-            items: proofs.map((proof) => ({
-              address: proof.address,
-              label: accounts.find(
+            items: proofs.map((proof) => {
+              const account = accounts.find(
                 (account) => account.address === proof.address,
-              )?.label!,
-              type: 'account',
-              proof: proof.proof,
-            })),
+              );
+              return {
+                address: proof.address,
+                label: account?.label || '',
+                type: 'account',
+                proof: proof.proof,
+              };
+            }),
           },
           {
             onError: (error) => {
@@ -62,7 +68,7 @@ export const ConnectAccount = ({ onConnect }: { onConnect: () => void }) => {
 
   return (
     <div className="flex items-center justify-between">
-      <h2 className="text-2xl font-bold tracking-tight">Account Management</h2>
+      <h2 className="font-bold text-2xl tracking-tight">Account Management</h2>
       <StarBorder
         as="button"
         type="button"

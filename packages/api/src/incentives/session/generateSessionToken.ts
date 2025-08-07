@@ -1,6 +1,5 @@
 import { encodeBase32LowerCaseNoPadding } from '@oslojs/encoding';
-import { Context, Effect } from 'effect';
-import { Layer } from 'effect';
+import { Context, Effect, Layer } from 'effect';
 
 const generateSessionToken = (): string => {
   const bytes = new Uint8Array(20);

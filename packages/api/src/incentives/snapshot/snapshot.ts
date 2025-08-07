@@ -1,11 +1,12 @@
-import { Effect, Either } from 'effect';
+import { Config, Effect, Either } from 'effect';
 import { chunker } from '../../common';
 import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { GetAccountAddressesService } from '../account/getAccounts';
 import { AggregateAccountBalanceService } from '../account-balance/aggregateAccountBalance';
 import { GetAccountBalancesAtStateVersionService } from '../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../account-balance/upsertAccountBalance';
-import { GetAccountAddressesService } from '../account/getAccounts';
+import { ConfigService } from '../config/configService';
 import { CreateSnapshotService } from './createSnapshot';
 import { generateDummySnapshotData } from './generateDummySnapshotData';
 import { UpdateSnapshotService } from './updateSnapshot';
@@ -37,6 +38,37 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
       const aggregateAccountBalanceService =
         yield* AggregateAccountBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
+      const configService = yield* ConfigService;
+
+      const SKIP_STATE_VERSION_CHECK = yield* Config.boolean(
+        'SKIP_STATE_VERSION_CHECK',
+      ).pipe(Config.withDefault(false));
+
+      // prevents snapshot from running if it's ahead of the latest processed state version
+      const verifyStateVersion = Effect.fn(function* (
+        snapshotStateVersion: number,
+      ) {
+        if (SKIP_STATE_VERSION_CHECK) return;
+
+        const latestProcessedStateVersion =
+          yield* configService.getStateVersion();
+
+        if (!latestProcessedStateVersion) {
+          return yield* Effect.fail(
+            new SnapshotError(
+              'No state version found, check if streamer is running',
+            ),
+          );
+        }
+
+        if (snapshotStateVersion > latestProcessedStateVersion) {
+          return yield* Effect.fail(
+            new SnapshotError(
+              'Snapshot state version is ahead of the latest processed state version',
+            ),
+          );
+        }
+      });
 
       return Effect.fn('snapshot')(function* (input: SnapshotInput) {
         yield* Effect.log(
@@ -62,6 +94,8 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
             timestamp: input.timestamp,
           },
         });
+
+        yield* verifyStateVersion(lederState.state_version);
 
         const accountAddresses =
           input.addresses ??
@@ -90,7 +124,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
         // Track overall progress
         let processedAccounts = 0;
-        let totalProcessedEntries = 0;
+        let _totalProcessedEntries = 0;
 
         const enableDummyData = input.addDummyData ?? false;
 
@@ -220,7 +254,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
           // Update progress
           processedAccounts += batch.length;
-          totalProcessedEntries += batchAggregatedAccountBalance.length;
+          _totalProcessedEntries += batchAggregatedAccountBalance.length;
 
           yield* Effect.log(
             'completed batch',

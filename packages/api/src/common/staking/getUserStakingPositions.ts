@@ -12,9 +12,8 @@ import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from '../gateway/getNonFungibleBalance';
-import { claimNftSchema } from './schema';
-
 import type { AtLedgerState } from '../gateway/schemas';
+import { claimNftSchema } from './schema';
 
 export class GetUserStakingPositionsService extends Effect.Service<GetUserStakingPositionsService>()(
   'GetUserStakingPositionsService',

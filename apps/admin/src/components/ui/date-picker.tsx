@@ -2,7 +2,6 @@
 
 import { CalendarIcon } from '@radix-ui/react-icons';
 import { format } from 'date-fns';
-import * as React from 'react';
 
 import { Button } from '~/components/ui/button';
 import { Calendar } from '~/components/ui/calendar';
@@ -25,7 +24,7 @@ export function DatePicker({ date, setDate }: DatePickerProps) {
         <Button
           variant={'outline'}
           className={cn(
-            'w-full justify-start text-left font-normal px-3',
+            'w-full justify-start px-3 text-left font-normal',
             !date && 'text-muted-foreground',
           )}
         >

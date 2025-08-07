@@ -1,11 +1,10 @@
 import { Effect } from 'effect';
-import { VerifyRolaProofService } from '../rola/verifyRolaProof';
-
 import { z } from 'zod';
 import { checkForVirtualAccounts } from '../../common/gateway/checkAccountPersistence';
 import { GetAccountsByAddressService } from '../account/getAccountsByAddress';
 import { UpsertAccountsService } from '../account/upsertAccounts';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
+import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 
 export class InvalidChallengeError {
   readonly _tag = 'InvalidChallengeError';

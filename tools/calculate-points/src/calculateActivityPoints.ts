@@ -21,7 +21,7 @@ import { GetWeekByIdLive } from '../../../packages/api/src/incentives/week/getWe
 const WEEK_ID = '30da196b-7602-4b06-a558-bbb5b5441186';
 
 const runnable = Effect.gen(function* () {
-  const outputDir = path.join(import.meta.dirname, '../output');
+  const _outputDir = path.join(import.meta.dirname, '../output');
 
   yield* Effect.log('Running season points calculation');
 

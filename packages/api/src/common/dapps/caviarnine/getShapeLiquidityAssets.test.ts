@@ -1,18 +1,17 @@
-import { Effect, Layer } from 'effect';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
-import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
-
 import { CaviarNineConstants } from 'data';
+import { Effect, Layer } from 'effect';
 import {
   GetNftResourceManagersService,
   GetNonFungibleIdsService,
 } from '../../gateway';
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
 import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetComponentStateService } from '../../gateway/getComponentState';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
 import { GetResourceHoldersService } from '../../gateway/getResourceHolders';
 import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
@@ -29,7 +28,7 @@ const getLedgerStateLive = GetLedgerStateService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
 );
 
-const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
+const _getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
 );
 

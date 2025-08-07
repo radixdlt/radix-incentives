@@ -3,7 +3,7 @@
 import { AlertTriangle, ChevronDown, ChevronRight } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
-import { cn } from '~/lib/utils';
+
 interface AccountBalanceItem {
   activityId: string;
   usdValue: string;
@@ -62,27 +62,27 @@ export const AccountBalances = ({
     ) || 0;
 
   return (
-    <div className="w-full md:col-span-full rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="w-full rounded-lg border bg-card text-card-foreground shadow-sm md:col-span-full">
       <div className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <h3 className="text-lg font-medium">Account Balances Preview</h3>
-          <div className="inline-flex items-center gap-1 px-2 py-1 bg-orange-100 text-orange-800 text-xs rounded-full">
+        <div className="mb-4 flex items-center gap-2">
+          <h3 className="font-medium text-lg">Account Balances Preview</h3>
+          <div className="inline-flex items-center gap-1 rounded-full bg-orange-100 px-2 py-1 text-orange-800 text-xs">
             <AlertTriangle className="h-3 w-3" />
             Preview Only
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground mb-4">
+        <p className="mb-4 text-muted-foreground text-sm">
           Select one of your connected accounts to view the latest snapshot
           data. This feature will not be available in the production incentives
           program.
         </p>
 
         {balances.length === 0 ? (
-          <div className="text-center py-8">
+          <div className="py-8 text-center">
             <div className="text-muted-foreground">
               <p className="text-sm">No balance snapshots available</p>
-              <p className="text-xs mt-1">
+              <p className="mt-1 text-xs">
                 Snapshots are taken hourly. Check back later for data.
               </p>
             </div>
@@ -125,26 +125,26 @@ export const AccountBalances = ({
             </div>
 
             {selectedBalance && (
-              <div className="border rounded-lg">
-                <div className="p-4 border-b bg-muted/20">
-                  <div className="flex justify-between items-center">
+              <div className="rounded-lg border">
+                <div className="border-b bg-muted/20 p-4">
+                  <div className="flex items-center justify-between">
                     <div>
                       <h4 className="font-medium">
                         {getAccountLabel(selectedBalance.accountAddress)}
                       </h4>
-                      <p className="text-xs text-muted-foreground font-mono">
+                      <p className="font-mono text-muted-foreground text-xs">
                         {selectedBalance.accountAddress}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Last updated:{' '}
                         {selectedBalance.timestamp.toLocaleString()}
                       </p>
                     </div>
                     <div className="text-right">
-                      <p className="text-lg font-semibold">
+                      <p className="font-semibold text-lg">
                         ${totalUsdValue.toFixed(2)}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-muted-foreground text-sm">
                         Total USD Value
                       </p>
                     </div>
@@ -152,7 +152,7 @@ export const AccountBalances = ({
                 </div>
 
                 <div className="max-h-96 overflow-y-auto">
-                  <div className="p-4 space-y-2">
+                  <div className="space-y-2 p-4">
                     {selectedBalance.data
                       .sort(
                         (a, b) =>
@@ -167,9 +167,9 @@ export const AccountBalances = ({
                         );
 
                         return (
-                          <div key={itemKey} className="border rounded p-3">
+                          <div key={itemKey} className="rounded border p-3">
                             <button
-                              className="flex items-center justify-between w-full text-left"
+                              className="flex w-full items-center justify-between text-left"
                               onClick={() => toggleExpand(itemKey)}
                               aria-expanded={isExpanded}
                               type="button"
@@ -184,17 +184,17 @@ export const AccountBalances = ({
                                 ) : (
                                   <div className="w-4" />
                                 )}
-                                <span className="text-sm font-medium">
+                                <span className="font-medium text-sm">
                                   {formatActivityId(item.activityId)}
                                 </span>
                               </div>
-                              <span className="text-sm font-semibold">
+                              <span className="font-semibold text-sm">
                                 ${usdValue.toFixed(6)}
                               </span>
                             </button>
 
                             {isExpanded && item.metadata && (
-                              <div className="mt-2 pl-6 text-xs space-y-1">
+                              <div className="mt-2 space-y-1 pl-6 text-xs">
                                 {Object.entries(item.metadata).map(
                                   ([key, value]) => (
                                     <div

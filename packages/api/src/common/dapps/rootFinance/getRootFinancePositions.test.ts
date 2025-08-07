@@ -1,14 +1,12 @@
 import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
-
 import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
-
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
 import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
+import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import { GetLedgerStateService } from '../../gateway/getLedgerState';
 import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
 import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
 import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
@@ -49,7 +47,7 @@ const keyValueStoreKeysServiceLive = KeyValueStoreKeysService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
 );
 
-const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
+const _getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(keyValueStoreDataServiceLive),
   Layer.provide(keyValueStoreKeysServiceLive),

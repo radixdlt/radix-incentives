@@ -1,12 +1,11 @@
 'use client';
 
+import type { Season } from 'db/incentives';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
 import { use } from 'react';
-
-import type { Season } from 'db/incentives';
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import {
@@ -160,7 +159,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Edit Season</h1>
+            <h1 className="font-bold text-3xl tracking-tight">Edit Season</h1>
             <p className="text-muted-foreground">Loading season details...</p>
           </div>
         </div>
@@ -171,10 +170,10 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
           <Card>
             <CardContent className="p-6">
               <div className="animate-pulse space-y-4">
-                <div className="h-4 bg-gray-200 rounded w-1/4" />
-                <div className="h-10 bg-gray-200 rounded" />
-                <div className="h-4 bg-gray-200 rounded w-1/4" />
-                <div className="h-10 bg-gray-200 rounded" />
+                <div className="h-4 w-1/4 rounded bg-gray-200" />
+                <div className="h-10 rounded bg-gray-200" />
+                <div className="h-4 w-1/4 rounded bg-gray-200" />
+                <div className="h-10 rounded bg-gray-200" />
               </div>
             </CardContent>
           </Card>
@@ -194,7 +193,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">Edit Season</h1>
+            <h1 className="font-bold text-3xl tracking-tight">Edit Season</h1>
             <p className="text-muted-foreground">
               Season not found or error loading season.
             </p>
@@ -228,7 +227,7 @@ function EditSeasonPage({ params: paramsPromise }: EditSeasonPageProps) {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Edit Season</h1>
+          <h1 className="font-bold text-3xl tracking-tight">Edit Season</h1>
           <p className="text-muted-foreground">
             Update the season name and status.
           </p>

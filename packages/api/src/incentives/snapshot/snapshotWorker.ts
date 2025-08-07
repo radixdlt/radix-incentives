@@ -1,11 +1,9 @@
+import { weeks } from 'db/incentives';
 import { and, gt, lte } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
-import { SnapshotService } from './snapshot';
-
-import { weeks } from 'db/incentives';
 import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
+import { SnapshotService } from './snapshot';
 
 export const snapshotJobSchema = z.object({
   addresses: z.array(z.string()).optional(),

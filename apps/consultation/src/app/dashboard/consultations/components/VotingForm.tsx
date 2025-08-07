@@ -28,7 +28,7 @@ export const VotingForm: FC<VotingFormProps> = ({
         className="space-y-2"
         disabled={isLoading}
       >
-        <Label className="text-lg font-semibold">Select your choice:</Label>
+        <Label className="font-semibold text-lg">Select your choice:</Label>
         {options.map((option) => (
           <div key={option.id} className="flex items-center space-x-2">
             <RadioGroupItem

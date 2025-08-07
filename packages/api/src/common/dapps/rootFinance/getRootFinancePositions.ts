@@ -1,6 +1,5 @@
-import { Effect } from 'effect';
-
 import { DappConstants } from 'data';
+import { Effect } from 'effect';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,

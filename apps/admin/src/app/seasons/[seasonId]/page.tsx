@@ -19,7 +19,7 @@ function SeasonDetailPage() {
 
   const season = data?.season;
   const weeks = data?.weeks;
-  const activityWeeks = data?.activityWeeks || [];
+  const _activityWeeks = data?.activityWeeks || [];
 
   const handleWeekRowClick = (weekId: string) => {
     console.log(`Navigate to week: ${weekId} for season ${seasonId}`);
@@ -31,7 +31,7 @@ function SeasonDetailPage() {
   }
 
   return (
-    <div className="container mx-auto py-6 pl-6 pr-6">
+    <div className="container mx-auto py-6 pr-6 pl-6">
       <SeasonHeader seasonName={season.name} seasonId={seasonId} />
 
       <Separator className="my-6" />

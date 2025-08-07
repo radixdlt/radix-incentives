@@ -17,8 +17,8 @@ const CHUNK_SIZE = 1000; // Adjust the chunk size as needed
 
 const numberOfUsers = accountsData.length;
 
-const WEEK_ID = '6b209cf9-5932-487e-bf75-9d6f7d2330dd';
-const SEASON_ID = '036031e3-8bfb-4d2f-b653-f05c76f07704';
+const _WEEK_ID = '6b209cf9-5932-487e-bf75-9d6f7d2330dd';
+const _SEASON_ID = '036031e3-8bfb-4d2f-b653-f05c76f07704';
 
 const usersToSeed = new Array(numberOfUsers).fill(0).map((_, index) => ({
   identityAddress: `user-${index}`,

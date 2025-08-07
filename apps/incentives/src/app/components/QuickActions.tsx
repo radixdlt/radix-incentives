@@ -35,43 +35,43 @@ export const QuickActions = () => {
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
       {actions.map((action, index) => (
         <motion.div
           key={action.title}
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 1.2 + index * 0.1 }}
-          className="h-full group"
+          className="group h-full"
         >
-          <div className="glass-card p-6 rounded-lg h-full flex flex-col hover-lift transition-all duration-300 group-hover:border-white/15">
+          <div className="glass-card hover-lift flex h-full flex-col rounded-lg p-6 transition-all duration-300 group-hover:border-white/15">
             <a
               href={action.href}
               target={action.target}
               className="block h-full"
             >
-              <div className="flex flex-col h-full">
-                <div className="flex items-start space-x-4 flex-1">
+              <div className="flex h-full flex-col">
+                <div className="flex flex-1 items-start space-x-4">
                   <div
-                    className="p-3 rounded-lg flex-shrink-0 transition-transform duration-300 group-hover:scale-105"
+                    className="flex-shrink-0 rounded-lg p-3 transition-transform duration-300 group-hover:scale-105"
                     style={{
                       background: `linear-gradient(to right, ${action.color.from}, ${action.color.to})`,
                     }}
                   >
                     <action.icon className="h-6 w-6 text-white" />
                   </div>
-                  <div className="flex-1 flex flex-col">
-                    <h3 className="text-lg font-semibold text-white mb-2">
+                  <div className="flex flex-1 flex-col">
+                    <h3 className="mb-2 font-semibold text-lg text-white">
                       {action.title}
                     </h3>
-                    <p className="text-white/60 text-sm mb-4 flex-1">
+                    <p className="mb-4 flex-1 text-sm text-white/60">
                       {action.description}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center text-brand-cyan text-sm group-hover:text-brand-pink transition-colors mt-auto">
+                <div className="mt-auto flex items-center text-brand-cyan text-sm transition-colors group-hover:text-brand-pink">
                   Get Started
-                  <ArrowRightIcon className="h-4 w-4 ml-1 group-hover:translate-x-1 transition-transform" />
+                  <ArrowRightIcon className="ml-1 h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </div>
               </div>
             </a>

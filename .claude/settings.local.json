@@ -25,7 +25,9 @@
       "Bash(ls:*)",
       "Bash(npx yaml-lint:*)",
       "Bash(gh pr create:*)",
-      "Bash(gh workflow:*)"
+      "Bash(gh workflow:*)",
+      "Bash(biome check:*)",
+      "Bash(pnpm biome check:*)"
     ],
     "deny": []
   }

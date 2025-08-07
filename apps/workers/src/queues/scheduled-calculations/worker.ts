@@ -1,6 +1,6 @@
 import { dependencyLayer } from 'api/incentives';
-import { FlowProducer } from 'bullmq';
 import type { FlowJob, Job } from 'bullmq';
+import { FlowProducer } from 'bullmq';
 import { Exit } from 'effect';
 import { redisClient } from '../../redis';
 import { QueueName } from '../types';

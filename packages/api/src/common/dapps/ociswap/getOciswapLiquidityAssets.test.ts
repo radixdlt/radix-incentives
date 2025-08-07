@@ -1,19 +1,18 @@
 import { Effect, Layer } from 'effect';
 import { describe, it } from 'vitest';
-import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import {
-  GetOciswapLiquidityAssetsLive,
-  GetOciswapLiquidityAssetsService,
-} from './getOciswapLiquidityAssets';
-import { GetOciswapLiquidityClaimsService } from './getOciswapLiquidityClaims';
-
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
 import { EntityNonFungiblesPageService } from '../../gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
 import { GetComponentStateService } from '../../gateway/getComponentState';
 import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
 import { GetNftResourceManagersService } from '../../gateway/getNftResourceManagers';
 import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
 import { GetNonFungibleIdsService } from '../../gateway/getNonFungibleIds';
+import {
+  GetOciswapLiquidityAssetsLive,
+  GetOciswapLiquidityAssetsService,
+} from './getOciswapLiquidityAssets';
+import { GetOciswapLiquidityClaimsService } from './getOciswapLiquidityClaims';
 
 const TEST_CONFIG = {
   // V1 Pool (xUSDC/XRD)

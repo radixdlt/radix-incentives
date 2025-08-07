@@ -80,7 +80,7 @@ export default function EarnPage() {
   ).length;
 
   return (
-    <div className="container mx-auto p-6 space-y-8">
+    <div className="container mx-auto space-y-8 p-6">
       <EarnPageHeader
         selectedCategory={selectedCategory}
         selectedType={selectedType}
@@ -91,7 +91,7 @@ export default function EarnPage() {
       />
 
       {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           <ActivityCardSkeleton key="skeleton-1" />
           <ActivityCardSkeleton key="skeleton-2" />
           <ActivityCardSkeleton key="skeleton-3" />

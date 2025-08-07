@@ -1,6 +1,5 @@
-import type { FC } from 'react';
-
 import type { ConsultationEntry } from 'api/consultation';
+import type { FC } from 'react';
 import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { ScrollArea } from '~/components/ui/scroll-area';
@@ -33,13 +32,13 @@ export const SubmittedConsultationsCard: FC<
                 <div key={consultation.consultationId} className="space-y-2">
                   <div>
                     <p className="font-medium">{consultation.consultationId}</p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       Created at: {consultation.timestamp.toLocaleDateString()}
                     </p>
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-muted-foreground text-sm">
                       {consultation.accountAddress}
                     </p>
-                    <pre className="text-sm text-muted-foreground">
+                    <pre className="text-muted-foreground text-sm">
                       {JSON.stringify(consultation.rolaProof, null, 2)}
                     </pre>
                   </div>

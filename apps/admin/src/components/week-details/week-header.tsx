@@ -17,7 +17,7 @@ export const WeekHeader: React.FC<WeekHeaderProps> = ({
   seasonId,
 }) => {
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+    <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
       <div className="flex items-center gap-4">
         {seasonId && (
           <Link href={`/seasons/${seasonId}`}>
@@ -27,7 +27,7 @@ export const WeekHeader: React.FC<WeekHeaderProps> = ({
           </Link>
         )}
         <div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+          <div className="mb-2 flex items-center gap-2 text-muted-foreground text-sm">
             <Calendar className="h-4 w-4" />
             {weekData.startDate.toISOString()} -{' '}
             {weekData.endDate.toISOString()}
@@ -38,7 +38,7 @@ export const WeekHeader: React.FC<WeekHeaderProps> = ({
         {weekData.processed && (
           <Badge
             variant="outline"
-            className="bg-blue-100 text-blue-800 border-blue-200"
+            className="border-blue-200 bg-blue-100 text-blue-800"
           >
             Processed
           </Badge>

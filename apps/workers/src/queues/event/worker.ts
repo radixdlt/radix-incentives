@@ -1,6 +1,5 @@
-import type { Job } from 'bullmq';
-
 import { dependencyLayer } from 'api/incentives';
+import type { Job } from 'bullmq';
 import { Exit } from 'effect';
 import { SnapshotPriority } from '../snapshot/constants';
 import { snapshotQueue } from '../snapshot/queue';

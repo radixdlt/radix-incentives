@@ -46,8 +46,8 @@ export default function SeedPage() {
   return (
     <div className="container mx-auto py-6">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold">Database Seeding</h1>
-        <p className="text-muted-foreground mt-2">
+        <h1 className="font-bold text-3xl">Database Seeding</h1>
+        <p className="mt-2 text-muted-foreground">
           Seed the database with initial data for development and testing
         </p>
       </div>
@@ -110,22 +110,22 @@ export default function SeedPage() {
           <CardContent>
             <div className="space-y-4">
               <div>
-                <h4 className="font-semibold mb-1">Activities</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="mb-1 font-semibold">Activities</h4>
+                <p className="text-muted-foreground text-sm">
                   Updates all supported DeFi activities (Ociswap, DefiPlaza,
                   CaviarNine, Root Finance, Surge, Weft Finance, etc.)
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold mb-1">Activity Categories</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="mb-1 font-semibold">Activity Categories</h4>
+                <p className="text-muted-foreground text-sm">
                   Updates activity category configurations with proper
                   multipliers and settings
                 </p>
               </div>
               <div>
-                <h4 className="font-semibold mb-1">DApps</h4>
-                <p className="text-sm text-muted-foreground">
+                <h4 className="mb-1 font-semibold">DApps</h4>
+                <p className="text-muted-foreground text-sm">
                   Updates DApp integrations and protocol configurations
                 </p>
               </div>

@@ -1,13 +1,11 @@
+import { BigNumber } from 'bignumber.js';
+import { Assets, DappConstants } from 'data';
 import { Effect } from 'effect';
-
+import { GetComponentStateService } from '../../gateway/getComponentState';
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from '../../gateway/getFungibleBalance';
-
-import { BigNumber } from 'bignumber.js';
-import { Assets, DappConstants } from 'data';
-import { GetComponentStateService } from '../../gateway/getComponentState';
 import type { AtLedgerState } from '../../gateway/schemas';
 import { MarginPool } from './schemas';
 

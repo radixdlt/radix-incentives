@@ -1,12 +1,5 @@
 import { it } from '@effect/vitest';
 import BigNumber from 'bignumber.js';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { Effect, Layer } from 'effect';
-import { describe, inject } from 'vitest';
-import { createDbClientLive } from '../db/dbClient';
-import { UserActivityPointsService } from './userActivityPoints';
-
 import {
   accountActivityPoints,
   accounts,
@@ -14,7 +7,13 @@ import {
   seasonPointsMultiplier,
   users,
 } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
+import { describe, inject } from 'vitest';
+import { createDbClientLive } from '../db/dbClient';
+import { UserActivityPointsService } from './userActivityPoints';
 
 // TODO: Fix this test
 describe.skip(

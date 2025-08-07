@@ -1,8 +1,7 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import { type Snapshot, snapshots } from 'db/incentives';
 import { eq } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type UpdateSnapshotInput = {
   id: string;

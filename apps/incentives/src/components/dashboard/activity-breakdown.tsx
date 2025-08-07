@@ -12,14 +12,14 @@ interface ActivityBreakdownProps {
 
 export const ActivityBreakdown = ({ activities }: ActivityBreakdownProps) => {
   return (
-    <div className="w-full md:col-span-full rounded-lg border bg-card text-card-foreground shadow-sm">
+    <div className="w-full rounded-lg border bg-card text-card-foreground shadow-sm md:col-span-full">
       <div className="p-6">
-        <h3 className="text-lg font-medium">Activity Breakdown</h3>
+        <h3 className="font-medium text-lg">Activity Breakdown</h3>
         {activities.length === 0 ? (
-          <div className="mt-4 text-center py-8">
+          <div className="mt-4 py-8 text-center">
             <div className="text-muted-foreground">
               <svg
-                className="mx-auto h-12 w-12 mb-4"
+                className="mx-auto mb-4 h-12 w-12"
                 fill="none"
                 viewBox="0 0 24 24"
                 stroke="currentColor"
@@ -33,7 +33,7 @@ export const ActivityBreakdown = ({ activities }: ActivityBreakdownProps) => {
                 />
               </svg>
               <p className="text-sm">No activity data available</p>
-              <p className="text-xs mt-1">
+              <p className="mt-1 text-xs">
                 Start participating in activities to see your breakdown here.
               </p>
             </div>
@@ -44,11 +44,11 @@ export const ActivityBreakdown = ({ activities }: ActivityBreakdownProps) => {
               <div key={activity.name} className="space-y-1">
                 <div className="flex items-center justify-between">
                   <span className="text-sm">{activity.name}</span>
-                  <span className="text-sm font-medium">
+                  <span className="font-medium text-sm">
                     {activity.points.toLocaleString()} pts
                   </span>
                 </div>
-                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200">
                   <div
                     className={cn('h-full bg-primary')}
                     style={{ width: `${activity.percentage}%` }}

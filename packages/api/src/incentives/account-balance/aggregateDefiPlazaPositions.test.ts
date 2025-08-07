@@ -1,8 +1,7 @@
 import { it } from '@effect/vitest';
-import { Effect, Layer } from 'effect';
-
 import BigNumber from 'bignumber.js';
 import { type AccountBalanceData, Action } from 'data';
+import { Effect, Layer } from 'effect';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
 import { FetchService } from '../../common/helpers';
 import { GetUsdValueLive } from '../token-price/getUsdValue';

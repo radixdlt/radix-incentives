@@ -8,8 +8,8 @@ import {
 } from 'db/incentives';
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import { Data, Effect } from 'effect';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
 import { DbClientService, DbError } from '../db/dbClient';
 import { SeasonService } from '../season/season';

@@ -1,13 +1,11 @@
 import { Decimal } from 'decimal.js';
 import { Effect } from 'effect';
-
-import type { AtLedgerState } from '../../gateway/schemas';
-
 import { GetComponentStateService } from '../../gateway/getComponentState';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from '../../gateway/getNonFungibleBalance';
+import type { AtLedgerState } from '../../gateway/schemas';
 import { GetOciswapLiquidityClaimsService } from './getOciswapLiquidityClaims';
 import { PrecisionPool, PrecisionPoolV2 } from './schemas';
 import { removableAmounts, tickToPriceSqrt } from './tickCalculator';

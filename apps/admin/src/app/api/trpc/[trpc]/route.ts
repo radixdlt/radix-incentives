@@ -1,13 +1,11 @@
 import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
-import type { NextRequest } from 'next/server';
-
 import {
   adminAppRouter,
-  appRouter,
   createDependencyLayer,
+  createTRPCContext,
 } from 'api/incentives';
-import { createTRPCContext } from 'api/incentives';
 import { db } from 'db/incentives';
+import type { NextRequest } from 'next/server';
 import { env } from '~/env';
 
 /**
@@ -20,7 +18,7 @@ const createContext = async (req: NextRequest) => {
     dependencyLayer: createDependencyLayer({
       dbClient: db,
     }),
-    setSessionToken: async (token: string, expiresAt: Date) => {
+    setSessionToken: async (_token: string, _expiresAt: Date) => {
       // TODO: Implement setSessionToken
     },
     getSessionToken: async () => {

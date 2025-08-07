@@ -1,8 +1,5 @@
 'use client';
 
-import { type FC, useEffect, useState } from 'react';
-import { toast } from 'sonner';
-
 import { OneTimeDataRequestBuilder } from '@radixdlt/radix-dapp-toolkit';
 import type {
   Consultation,
@@ -11,6 +8,8 @@ import type {
   SelectedOption,
 } from 'api/consultation';
 import { Wallet } from 'lucide-react';
+import { type FC, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Card, CardContent, CardHeader } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
 import { Skeleton } from '~/components/ui/skeleton';
@@ -41,13 +40,12 @@ const VotingPage: FC = () => {
   const {
     data: consultationsData,
     isLoading: isLoadingConsultations,
-    error: consultationError,
     refetch: refetchConsultations,
   } = api.consultation.getConsultations.useQuery();
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     refetchConsultations();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [persona?.identityAddress]);
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
@@ -162,7 +160,7 @@ const VotingPage: FC = () => {
                 <Skeleton className="h-10 w-full" />
                 <Skeleton className="h-10 w-full" />
               </div>
-              <Skeleton className="h-10 w-1/3 mt-4" />
+              <Skeleton className="mt-4 h-10 w-1/3" />
             </CardContent>
           </Card>
           {/* Separator */}
@@ -240,7 +238,7 @@ const VotingPage: FC = () => {
 
   return (
     <ConnectedState>
-      <h1 className="text-3xl font-bold mb-6">Community Consultation</h1>
+      <h1 className="mb-6 font-bold text-3xl">Community Consultation</h1>
       {renderContent()}
     </ConnectedState>
   );

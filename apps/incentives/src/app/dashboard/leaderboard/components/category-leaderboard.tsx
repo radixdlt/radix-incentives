@@ -22,14 +22,14 @@ export function CategoryLeaderboard() {
     api.leaderboard.getAvailableWeeks.useQuery({});
   const { data: categories, isLoading: categoriesLoading } =
     api.leaderboard.getAvailableCategories.useQuery(
-      { weekId: selectedWeekId! },
+      { weekId: selectedWeekId ?? '' },
       { enabled: !!selectedWeekId },
     );
 
   // Set defaults when data loads, or use URL parameters
   useEffect(() => {
     const urlWeek = searchParams.get('week');
-    const urlCategory = searchParams.get('category');
+    const _urlCategory = searchParams.get('category');
 
     if (weeks && weeks.length > 0 && !selectedWeekId) {
       if (urlWeek && weeks.some((w) => w.id === urlWeek)) {
@@ -52,7 +52,10 @@ export function CategoryLeaderboard() {
         setSelectedCategoryId(urlCategory);
       } else {
         // Default to first category
-        setSelectedCategoryId(categories[0]!.id);
+        const firstCategoryId = categories[0]?.id;
+        if (firstCategoryId) {
+          setSelectedCategoryId(firstCategoryId);
+        }
       }
     }
   }, [categories, selectedCategoryId, searchParams]);

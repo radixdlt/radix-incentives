@@ -1,9 +1,8 @@
 'use client';
 
+import type { Week } from 'db/incentives';
 import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
-
-import type { Week } from 'db/incentives';
 import { Button } from '~/components/ui/button';
 import { WeeksTable } from '~/components/weeks-table';
 
@@ -21,7 +20,7 @@ export const WeeksSection: React.FC<WeeksSectionProps> = ({
   return (
     <>
       <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 className="text-2xl font-semibold tracking-tight">
+        <h2 className="font-semibold text-2xl tracking-tight">
           Weeks in this Season
         </h2>
         <Link href={`/seasons/${seasonId}/weeks/new`}>

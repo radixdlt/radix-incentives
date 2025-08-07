@@ -2,7 +2,7 @@ import type { ResourceHoldersCollectionItem } from '@radixdlt/babylon-gateway-ap
 import { BigNumber } from 'bignumber.js';
 import type { ActivityId } from 'data';
 import type { schema } from 'db/incentives';
-import { type PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
 import { AddressValidationServiceLive } from '../common/address-validation/addressValidation.js';

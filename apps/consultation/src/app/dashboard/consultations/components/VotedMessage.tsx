@@ -7,7 +7,7 @@ import type { FC } from 'react';
  */
 export const VotedMessage: FC = () => {
   return (
-    <p className="text-green-600 font-semibold">
+    <p className="font-semibold text-green-600">
       You have already voted in this consultation. (Simulated)
     </p>
   );

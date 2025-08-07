@@ -1,10 +1,9 @@
+import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk';
 import { Context, Effect, Layer } from 'effect';
 import type {
-  TransactionStream,
   createTransactionStream,
+  TransactionStream,
 } from 'radix-transaction-stream';
-
-import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk';
 
 type TransformTransactionResultOutput = ReturnType<
   Awaited<ReturnType<TransactionStream['next']>>['_unsafeUnwrap']

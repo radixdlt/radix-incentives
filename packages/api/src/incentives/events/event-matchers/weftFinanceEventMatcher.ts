@@ -1,6 +1,4 @@
 import { Effect } from 'effect';
-import type { TransformedEvent } from '../../transaction-stream/transformEvent';
-
 import { isWeftFinanceComponent } from '../../../common/address-validation/addressValidation';
 import {
   AddCollateralEvent,
@@ -17,6 +15,7 @@ import {
   RemoveNFTCollateralEvent,
   RepayEvent,
 } from '../../../common/dapps/weftFinance/schemas/lendingMarket';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
   type CapturedEvent,
   createEventMatcher,

@@ -13,7 +13,7 @@ export default function Home() {
 
   return (
     <div
-      className="relative min-h-screen w-full overflow-hidden grid-pattern"
+      className="grid-pattern relative min-h-screen w-full overflow-hidden"
       style={{
         background:
           'radial-gradient(circle at 5% 85%, rgba(225, 52, 176, 0.25) 0%, transparent 35%), radial-gradient(circle at 95% 15%, rgba(30, 249, 186, 0.22) 0%, transparent 35%), #0a0a0a',
@@ -28,8 +28,8 @@ export default function Home() {
       <Navigation />
 
       {/* Main content */}
-      <div className="relative z-10 container mx-auto px-4 md:px-6 pt-12">
-        <div className="max-w-6xl mx-auto">
+      <div className="container relative z-10 mx-auto px-4 pt-12 md:px-6">
+        <div className="mx-auto max-w-6xl">
           {/* Hero section */}
           <HeroSection />
 
@@ -39,7 +39,7 @@ export default function Home() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 1.0 }}
-              className="text-2xl font-bold text-white text-center mb-8"
+              className="mb-8 text-center font-bold text-2xl text-white"
             >
               Quick Actions
             </motion.h2>

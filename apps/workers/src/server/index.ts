@@ -1,27 +1,26 @@
 import { createBullBoard } from '@bull-board/api';
+import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js';
 import { HonoAdapter } from '@bull-board/hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
 import { Hono } from 'hono';
-
-import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js';
 import { showRoutes } from 'hono/dev';
 import { calculateActivityPointsQueue } from '../queues/calculate-activity-points/queue';
 import { calculateActivityPointsJobSchema } from '../queues/calculate-activity-points/schemas';
-import { seasonPointsMultiplierQueue } from '../queues/calculate-season-points-multiplier/queue';
-import { seasonPointsMultiplierJobSchema } from '../queues/calculate-season-points-multiplier/schemas';
 import { calculateSeasonPointsQueue } from '../queues/calculate-season-points/queue';
 import { calculateSeasonPointsJobSchema } from '../queues/calculate-season-points/schemas';
+import { seasonPointsMultiplierQueue } from '../queues/calculate-season-points-multiplier/queue';
+import { seasonPointsMultiplierJobSchema } from '../queues/calculate-season-points-multiplier/schemas';
 import { eventQueue } from '../queues/event/queue';
 import { eventQueueJobSchema } from '../queues/event/schemas';
 import { populateLeaderboardCacheQueue } from '../queues/populate-leaderboard-cache/queue';
 import { populateLeaderboardCacheSchema } from '../queues/populate-leaderboard-cache/schemas';
 import { scheduledCalculationsQueue } from '../queues/scheduled-calculations/queue';
 import { scheduledSnapshotQueue } from '../queues/scheduled-snapshot/queue';
-import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
-import { snapshotDateRangeJobSchema } from '../queues/snapshot-date-range/schemas';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
+import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
+import { snapshotDateRangeJobSchema } from '../queues/snapshot-date-range/schemas';
 
 const app = new Hono();
 const metricsApp = new Hono();

@@ -1,5 +1,5 @@
 import { Slot } from '@radix-ui/react-slot';
-import { type VariantProps, cva } from 'class-variance-authority';
+import { cva, type VariantProps } from 'class-variance-authority';
 import * as React from 'react';
 
 const cn = (...classes: (string | undefined)[]) => {
@@ -7,20 +7,20 @@ const cn = (...classes: (string | undefined)[]) => {
 };
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center whitespace-nowrap rounded-xl text-sm font-semibold transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 hover-lift',
+  'hover-lift inline-flex items-center justify-center whitespace-nowrap rounded-xl font-semibold text-sm transition-all duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
   {
     variants: {
       variant: {
-        default: 'btn-gradient text-white font-bold glow-brand',
+        default: 'btn-gradient glow-brand font-bold text-white',
         destructive:
-          'bg-destructive text-white hover:bg-destructive/80 glow-pink',
+          'glow-pink bg-destructive text-white hover:bg-destructive/80',
         outline:
           'btn-glass border border-white/20 text-white hover:border-white/40',
         secondary: 'glass text-white hover:bg-white/15',
-        ghost: 'text-white/80 hover:text-white hover:bg-white/10',
-        link: 'text-cyan-400 underline-offset-4 hover:underline gradient-text',
+        ghost: 'text-white/80 hover:bg-white/10 hover:text-white',
+        link: 'gradient-text text-cyan-400 underline-offset-4 hover:underline',
         glass: 'btn-glass text-white',
-        gradient: 'btn-gradient text-white font-bold',
+        gradient: 'btn-gradient font-bold text-white',
       },
       size: {
         default: 'h-11 px-6 py-3',

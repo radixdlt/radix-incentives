@@ -1,16 +1,14 @@
 import { Effect } from 'effect';
-
-import type { AtLedgerState } from '../../gateway/schemas';
-import { QuantaSwap } from './schemas';
-
 import { GetComponentStateService } from '../../gateway/getComponentState';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
 } from '../../gateway/getNonFungibleBalance';
+import type { AtLedgerState } from '../../gateway/schemas';
 import { I192 } from '../../helpers/i192';
 import { GetQuantaSwapBinMapService } from './getQuantaSwapBinMap';
 import { GetShapeLiquidityClaimsService } from './getShapeLiquidityClaims';
+import { QuantaSwap } from './schemas';
 import { calculatePrice, calculateTick } from './tickCalculator';
 
 export class FailedToParseComponentStateError {

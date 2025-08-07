@@ -17,7 +17,7 @@ export function NotificationBar({
 }: NotificationBarProps) {
   const [isDismissed, setIsDismissed] = useState(false);
   const [shouldScroll, setShouldScroll] = useState(false);
-  const [textWidth, setTextWidth] = useState(0);
+  const [_textWidth, setTextWidth] = useState(0);
   const [segmentWidth, setSegmentWidth] = useState(0);
   const textRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -74,21 +74,21 @@ export function NotificationBar({
         animate={{ height: 'auto', opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
         transition={{ duration: 0.3, ease: 'easeInOut' }}
-        className={`relative overflow-hidden bg-gradient-to-r from-pink-500/50 to-purple-500/50 backdrop-blur-sm border-b border-pink-500/20 ${className}`}
+        className={`relative overflow-hidden border-pink-500/20 border-b bg-gradient-to-r from-pink-500/50 to-purple-500/50 backdrop-blur-sm ${className}`}
         style={{
           background: 'rgba(225, 52, 176, 0.5)',
         }}
       >
         <div
           ref={containerRef}
-          className="flex items-center justify-between px-4 py-3 max-w-7xl mx-auto"
+          className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3"
         >
-          <div className="flex-1 min-w-0 mr-4">
+          <div className="mr-4 min-w-0 flex-1">
             {shouldScroll ? (
-              <div className="relative overflow-hidden w-full">
+              <div className="relative w-full overflow-hidden">
                 <motion.div
                   ref={textRef}
-                  className="whitespace-nowrap text-white font-medium flex items-center"
+                  className="flex items-center whitespace-nowrap font-medium text-white"
                   animate={{
                     x: [0, -segmentWidth],
                   }}
@@ -103,7 +103,7 @@ export function NotificationBar({
                   {Array.from({ length: 5 }, (_, i) => (
                     // biome-ignore lint/suspicious/noArrayIndexKey: animation repeat, index is safe here
                     <div key={i} className="flex items-center">
-                      <Info className="w-4 h-4 mr-3 opacity-70 flex-shrink-0" />
+                      <Info className="mr-3 h-4 w-4 flex-shrink-0 opacity-70" />
                       <span>{message}</span>
                       <div className="mx-12" />
                     </div>
@@ -113,9 +113,9 @@ export function NotificationBar({
             ) : (
               <div
                 ref={textRef}
-                className="text-white font-medium text-center whitespace-nowrap overflow-hidden text-ellipsis flex items-center justify-center"
+                className="flex items-center justify-center overflow-hidden text-ellipsis whitespace-nowrap text-center font-medium text-white"
               >
-                <Info className="w-4 h-4 mr-3 opacity-70 flex-shrink-0" />
+                <Info className="mr-3 h-4 w-4 flex-shrink-0 opacity-70" />
                 <span>{message}</span>
               </div>
             )}
@@ -124,10 +124,10 @@ export function NotificationBar({
           <button
             type="button"
             onClick={handleDismiss}
-            className="flex-shrink-0 p-1 rounded-full hover:bg-white/20 transition-colors duration-200"
+            className="flex-shrink-0 rounded-full p-1 transition-colors duration-200 hover:bg-white/20"
             aria-label="Dismiss notification"
           >
-            <X className="w-4 h-4 text-white" />
+            <X className="h-4 w-4 text-white" />
           </button>
         </div>
       </motion.div>

@@ -1,12 +1,6 @@
 import { it } from '@effect/vitest';
 import BigNumber from 'bignumber.js';
-import { eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { Effect, Layer, LogLevel, Logger } from 'effect';
-import { describe, inject } from 'vitest';
-import { createDbClientLive } from '../db/dbClient';
-import { CalculateSeasonPointsService } from './calculateSeasonPoints';
-
+import { ActivityCategoryId } from 'data';
 import {
   accountActivityPoints,
   accounts,
@@ -21,19 +15,22 @@ import {
   users,
   weeks,
 } from 'db/incentives';
-
-import { ActivityCategoryId } from 'data';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, Logger, LogLevel } from 'effect';
 import postgres from 'postgres';
-
+import { describe, inject } from 'vitest';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
-import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
+import { createDbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
+import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
 // Import required services
 import { UserActivityPointsService } from '../user/userActivityPoints';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { WeekService } from '../week/week';
 import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
+import { CalculateSeasonPointsService } from './calculateSeasonPoints';
 
 describe(
   'CalculateSeasonPointsService',
@@ -789,7 +786,7 @@ describe(
               db
                 .insert(accountActivityPoints)
                 .values(
-                  userIds.map((id, index) => {
+                  userIds.map((_id, index) => {
                     // Create a varied distribution of activity points
                     // Following a power law distribution where top users have much more activity
                     const basePoints = 10000;

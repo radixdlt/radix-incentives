@@ -142,12 +142,12 @@ function ManageActivitiesPage() {
   }, [activitiesData, searchTerm, sortField, sortDirection]);
 
   return (
-    <div className="container mx-auto py-6 pl-6 pr-6">
+    <div className="container mx-auto py-6 pr-6 pl-6">
       {/* Header Section */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="font-bold text-3xl tracking-tight">
               Manage Activities
             </h1>
             <p className="text-muted-foreground">
@@ -162,8 +162,8 @@ function ManageActivitiesPage() {
 
       {/* Search Input */}
       <div className="mb-4 flex items-center gap-2">
-        <div className="relative flex-1 max-w-sm">
-          <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
           <Input
             placeholder="Search activities..."
             value={searchTerm}
@@ -171,7 +171,7 @@ function ManageActivitiesPage() {
             className="pl-10"
           />
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {filteredAndSortedActivities.length} of {activitiesData?.length || 0}{' '}
           activities
         </div>
@@ -183,7 +183,7 @@ function ManageActivitiesPage() {
           <TableHeader>
             <TableRow>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('id')}
               >
                 <div className="flex items-center">
@@ -192,7 +192,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('name')}
               >
                 <div className="flex items-center">
@@ -201,7 +201,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('description')}
               >
                 <div className="flex items-center">
@@ -210,7 +210,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('category')}
               >
                 <div className="flex items-center">
@@ -219,7 +219,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('dapp')}
               >
                 <div className="flex items-center">
@@ -228,7 +228,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('componentAddresses')}
               >
                 <div className="flex items-center">
@@ -237,7 +237,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('showOnEarnPage')}
               >
                 <div className="flex items-center">
@@ -246,7 +246,7 @@ function ManageActivitiesPage() {
                 </div>
               </TableHead>
               <TableHead
-                className="cursor-pointer hover:bg-muted/50 border-r"
+                className="cursor-pointer border-r hover:bg-muted/50"
                 onClick={() => handleSort('ap')}
               >
                 <div className="flex items-center">
@@ -273,10 +273,10 @@ function ManageActivitiesPage() {
                   onClick={() => handleRowClick(activity.id)}
                   className="cursor-pointer hover:bg-muted/50"
                 >
-                  <TableCell className="font-medium w-1 border-r">
+                  <TableCell className="w-1 border-r font-medium">
                     {activity.id}
                   </TableCell>
-                  <TableCell className="font-medium border-r">
+                  <TableCell className="border-r font-medium">
                     {activity.name}
                   </TableCell>
                   <TableCell className="max-w-md border-r">
@@ -288,14 +288,14 @@ function ManageActivitiesPage() {
                   <TableCell className="border-r">
                     {activity.dapp || '-'}
                   </TableCell>
-                  <TableCell className="border-r max-w-xs">
+                  <TableCell className="max-w-xs border-r">
                     <div className="space-y-1">
                       {(activity.componentAddresses as string[])?.length > 0
                         ? (activity.componentAddresses as string[]).map(
-                            (address, index) => (
+                            (address, _index) => (
                               <div
                                 key={address}
-                                className="text-xs font-mono truncate"
+                                className="truncate font-mono text-xs"
                                 title={address}
                               >
                                 {address}

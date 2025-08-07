@@ -3,7 +3,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ChevronDown } from 'lucide-react';
 import * as React from 'react';
-import { Button } from '~/components/ui/button';
 
 const cn = (...classes: (string | undefined)[]) => {
   return classes.filter(Boolean).join(' ');
@@ -16,7 +15,7 @@ interface FaqItemProps {
 }
 
 export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
-  ({ question, answer, index }, ref) => {
+  ({ question, answer }, ref) => {
     const [isOpen, setIsOpen] = React.useState(false);
     const [isMounted, setIsMounted] = React.useState(false);
 
@@ -28,7 +27,7 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
       <div
         ref={ref}
         className={cn(
-          'group rounded-lg w-full',
+          'group w-full rounded-lg',
           'border border-border/50',
           isOpen
             ? 'bg-gradient-to-br from-background via-muted/50 to-background'
@@ -40,17 +39,17 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
           onClick={() => setIsOpen(!isOpen)}
           aria-expanded={isOpen}
           className={cn(
-            'w-full px-3 sm:px-6 py-3 sm:py-4 cursor-pointer outline-none rounded-lg bg-transparent border-none text-left transition-colors duration-200',
+            'w-full cursor-pointer rounded-lg border-none bg-transparent px-3 py-3 text-left outline-none transition-colors duration-200 sm:px-6 sm:py-4',
             isOpen
               ? ''
               : 'hover:bg-white/5 focus:ring-2 focus:ring-primary/50 focus:ring-offset-2',
           )}
         >
-          <div className="flex items-start justify-between gap-3 w-full">
+          <div className="flex w-full items-start justify-between gap-3">
             <h3
               className={cn(
-                'text-sm sm:text-base font-medium text-left leading-relaxed',
-                'flex-1 min-w-0',
+                'text-left font-medium text-sm leading-relaxed sm:text-base',
+                'min-w-0 flex-1',
                 isOpen ? 'text-foreground' : 'text-foreground/70',
               )}
               style={{
@@ -66,8 +65,8 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
             </h3>
             <div
               className={cn(
-                'p-0.5 rounded-full flex-shrink-0 w-6 h-6 flex items-center justify-center transition-transform duration-200',
-                isOpen ? 'text-primary rotate-180' : 'text-muted-foreground',
+                'flex h-6 w-6 flex-shrink-0 items-center justify-center rounded-full p-0.5 transition-transform duration-200',
+                isOpen ? 'rotate-180 text-primary' : 'text-muted-foreground',
               )}
             >
               <ChevronDown className="h-4 w-4" />
@@ -90,7 +89,7 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
                   transition: { duration: 0.2, ease: 'easeIn' },
                 }}
               >
-                <div className="px-3 sm:px-6 pb-3 sm:pb-4 pt-2">
+                <div className="px-3 pt-2 pb-3 sm:px-6 sm:pb-4">
                   <motion.div
                     initial={{ y: -10, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
@@ -109,7 +108,7 @@ export const FaqItem = React.forwardRef<HTMLDivElement, FaqItemProps>(
           </AnimatePresence>
         ) : (
           isOpen && (
-            <div className="px-3 sm:px-6 pb-3 sm:pb-4 pt-2">
+            <div className="px-3 pt-2 pb-3 sm:px-6 sm:pb-4">
               <div
                 className="text-muted-foreground leading-relaxed"
                 style={{

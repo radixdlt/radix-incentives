@@ -1,7 +1,5 @@
 'use client';
 
-import type { TRPCError } from '@trpc/server';
-import type { Account, User } from 'db/incentives';
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
@@ -14,10 +12,6 @@ import {
   TableRow,
 } from '~/components/ui/table';
 import { api } from '~/trpc/react';
-
-type UserWithAccounts = User & {
-  accounts: Account[];
-};
 
 export default function UsersPage() {
   const [page, setPage] = useState(1);
@@ -56,28 +50,28 @@ export default function UsersPage() {
   if (error) {
     return (
       <div className="container mx-auto p-6">
-        <div className="bg-destructive/10 border border-destructive/20 rounded-lg p-4">
-          <h2 className="text-destructive font-semibold mb-2">
+        <div className="rounded-lg border border-destructive/20 bg-destructive/10 p-4">
+          <h2 className="mb-2 font-semibold text-destructive">
             Error loading users
           </h2>
-          <p className="text-sm text-muted-foreground">{error.message}</p>
+          <p className="text-muted-foreground text-sm">{error.message}</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
+    <div className="container mx-auto space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">Users</h1>
+          <h1 className="font-bold text-3xl">Users</h1>
           <p className="text-muted-foreground">
             Manage and view all users in the platform
           </p>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Show:</span>
+          <span className="text-muted-foreground text-sm">Show:</span>
           <div className="flex gap-1">
             {[10, 25, 50, 100].map((limitOption) => (
               <Button
@@ -93,7 +87,7 @@ export default function UsersPage() {
         </div>
       </div>
 
-      <div className="border rounded-lg">
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -107,7 +101,7 @@ export default function UsersPage() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={5} className="py-8 text-center">
                   <div className="flex items-center justify-center gap-2">
                     <Loader2 className="h-4 w-4 animate-spin" />
                     <span>Loading users...</span>
@@ -146,21 +140,21 @@ export default function UsersPage() {
                         ))}
                       </div>
                     ) : (
-                      <span className="text-muted-foreground italic text-sm">
+                      <span className="text-muted-foreground text-sm italic">
                         No accounts
                       </span>
                     )}
                   </TableCell>
-                  <TableCell className="text-sm text-muted-foreground">
+                  <TableCell className="text-muted-foreground text-sm">
                     {new Date(user.createdAt).toLocaleString()}
                   </TableCell>
                 </TableRow>
               ))
             ) : (
               <TableRow>
-                <TableCell colSpan={5} className="text-center py-8">
+                <TableCell colSpan={5} className="py-8 text-center">
                   <div className="text-muted-foreground">
-                    <p className="text-lg font-medium">No users found</p>
+                    <p className="font-medium text-lg">No users found</p>
                     <p className="text-sm">There are no users to display.</p>
                   </div>
                 </TableCell>
@@ -172,7 +166,7 @@ export default function UsersPage() {
 
       {/* Pagination Controls */}
       <div className="flex items-center justify-between">
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           {totalUsers > 0 ? (
             <>
               Showing {(page - 1) * limit + 1} to{' '}
@@ -196,7 +190,7 @@ export default function UsersPage() {
           </Button>
 
           <div className="flex items-center gap-1">
-            <span className="text-sm text-muted-foreground">
+            <span className="text-muted-foreground text-sm">
               Page {page} of {totalPages || 1}
             </span>
           </div>

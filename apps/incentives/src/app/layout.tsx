@@ -26,7 +26,7 @@ export default function RootLayout({
       <head>
         <meta name="color-scheme" content="dark light" />
       </head>
-      <body className="bg-background text-foreground min-h-screen antialiased">
+      <body className="min-h-screen bg-background text-foreground antialiased">
         <TRPCReactProvider>
           <RadixDappToolkitProvider>
             {children}

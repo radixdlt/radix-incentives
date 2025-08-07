@@ -30,12 +30,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
           sidebarOpen ? 'ml-64' : 'ml-0'
         }`}
       >
-        <div className="pt-16 px-4">{children}</div>
+        <div className="px-4 pt-16">{children}</div>
       </main>
 
       {/* Overlay for mobile */}
       {sidebarOpen && (
-        <div
+        <button
+          type="button"
           className="fixed inset-0 z-20 bg-black/50 lg:hidden"
           onClick={() => setSidebarOpen(false)}
           onKeyDown={(e) => {
@@ -43,8 +44,6 @@ export function Layout({ children }: { children: React.ReactNode }) {
               setSidebarOpen(false);
             }
           }}
-          role="button"
-          tabIndex={0}
           aria-label="Close sidebar"
         />
       )}

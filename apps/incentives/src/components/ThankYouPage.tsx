@@ -18,7 +18,7 @@ export const ThankYouPage = () => {
           height={140}
           rotate={12}
           gradient="from-blue-500/[0.15]"
-          className="left-[-10%] md:left-[-5%] top-[15%] md:top-[20%]"
+          className="top-[15%] left-[-10%] md:top-[20%] md:left-[-5%]"
         />
         <ElegantShape
           delay={0.5}
@@ -26,7 +26,7 @@ export const ThankYouPage = () => {
           height={120}
           rotate={-15}
           gradient="from-purple-500/[0.15]"
-          className="right-[-5%] md:right-[0%] top-[70%] md:top-[75%]"
+          className="top-[70%] right-[-5%] md:top-[75%] md:right-[0%]"
         />
         <ElegantShape
           delay={0.4}
@@ -34,14 +34,14 @@ export const ThankYouPage = () => {
           height={80}
           rotate={-8}
           gradient="from-cyan-500/[0.15]"
-          className="left-[5%] md:left-[10%] bottom-[5%] md:bottom-[10%]"
+          className="bottom-[5%] left-[5%] md:bottom-[10%] md:left-[10%]"
         />
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
+      <div className="relative z-10 flex min-h-screen items-center justify-center">
         <div className="container mx-auto px-4 md:px-6">
-          <div className="max-w-4xl mx-auto text-center">
+          <div className="mx-auto max-w-4xl text-center">
             {/* Thank you message */}
             <motion.div
               initial={{ opacity: 0, y: 40 }}
@@ -49,9 +49,9 @@ export const ThankYouPage = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="mb-8"
             >
-              <div className="inline-flex items-center justify-center w-24 h-24 mb-8 bg-gradient-to-br from-blue-500 to-purple-500 rounded-full">
+              <div className="mb-8 inline-flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-blue-500 to-purple-500">
                 <svg
-                  className="w-12 h-12 text-white"
+                  className="h-12 w-12 text-white"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -68,15 +68,15 @@ export const ThankYouPage = () => {
                 </svg>
               </div>
 
-              <h1 className="text-4xl md:text-6xl font-bold mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text text-transparent">
+              <h1 className="mb-6 bg-gradient-to-r from-blue-400 via-purple-500 to-blue-600 bg-clip-text font-bold text-4xl text-transparent md:text-6xl">
                 Thank You!
               </h1>
 
-              <p className="text-xl md:text-2xl text-slate-300 mb-8 leading-relaxed">
+              <p className="mb-8 text-slate-300 text-xl leading-relaxed md:text-2xl">
                 Thank you for participating in the preview test
               </p>
 
-              <div className="max-w-2xl mx-auto">
+              <div className="mx-auto max-w-2xl">
                 <p className="text-lg text-slate-400 leading-relaxed">
                   Your participation has been invaluable in helping us prepare
                   for the full launch of the Radix Incentives Campaign. The
@@ -90,7 +90,7 @@ export const ThankYouPage = () => {
       </div>
 
       {/* Bottom gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/80 pointer-events-none" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-slate-900/80" />
 
       {/* Glow effect */}
       <div className="relative">

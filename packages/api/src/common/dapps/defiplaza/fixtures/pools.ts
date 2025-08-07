@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import type { GetResourcePoolOutput } from '../../../resource-pool/getResourcePoolUnits';
 import { deserializeBigNumber } from '../../../utils/deserializeBigNumber';
 

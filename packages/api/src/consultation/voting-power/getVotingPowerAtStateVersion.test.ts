@@ -2,18 +2,6 @@ import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { Effect, Layer } from 'effect';
-import { EntityFungiblesPageService } from '../../common/gateway/entityFungiblesPage';
-import { EntityNonFungibleDataService } from '../../common/gateway/entityNonFungiblesData';
-import { EntityNonFungiblesPageService } from '../../common/gateway/entityNonFungiblesPage';
-import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
-import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
-import { GetEntityDetailsService } from '../../common/gateway/getEntityDetails';
-import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
-import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
-import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
-import { accounts } from '../../fixtures/accounts';
-import { GetVotingPowerAtStateVersionService } from './getVotingPowerAtStateVersion';
-
 import { catchAll } from 'effect/Effect';
 import { GetLsulpService } from '../../common/dapps/caviarnine/getLsulp';
 import { GetLsulpValueService } from '../../common/dapps/caviarnine/getLsulpValue';
@@ -23,13 +11,24 @@ import {
   GetNftResourceManagersService,
   GetNonFungibleIdsService,
 } from '../../common/gateway';
+import { EntityFungiblesPageService } from '../../common/gateway/entityFungiblesPage';
+import { EntityNonFungibleDataService } from '../../common/gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../common/gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
+import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
 import { GetComponentStateService } from '../../common/gateway/getComponentState';
+import { GetEntityDetailsService } from '../../common/gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
 import { GetKeyValueStoreService } from '../../common/gateway/getKeyValueStore';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
 import { KeyValueStoreDataService } from '../../common/gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../../common/gateway/keyValueStoreKeys';
 import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
 import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
 import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
+import { accounts } from '../../fixtures/accounts';
+import { GetVotingPowerAtStateVersionService } from './getVotingPowerAtStateVersion';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
@@ -93,7 +92,7 @@ const getLsulpLive = GetLsulpService.Default.pipe(
   Layer.provide(getLedgerStateLive),
 );
 
-const convertLsuToXrdServiceLive = ConvertLsuToXrdService.Default.pipe(
+const _convertLsuToXrdServiceLive = ConvertLsuToXrdService.Default.pipe(
   Layer.provide(getEntityDetailsServiceLive),
   Layer.provide(gatewayApiClientLive),
   Layer.provide(entityFungiblesPageServiceLive),

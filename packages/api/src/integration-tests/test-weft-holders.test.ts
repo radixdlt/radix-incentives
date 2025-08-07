@@ -1,9 +1,8 @@
-import postgres from 'postgres';
-import { afterEach, beforeAll, describe, inject, it } from 'vitest';
-
 import { ActivityId, Assets } from 'data';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
-import { type PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js';
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import { afterEach, beforeAll, describe, inject, it } from 'vitest';
 import {
   checkHolding,
   getAccountHoldersForResource,

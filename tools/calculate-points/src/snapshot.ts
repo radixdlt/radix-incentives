@@ -1,7 +1,7 @@
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { SnapshotService, createDbClientLive } from 'api/incentives';
+import { createDbClientLive, SnapshotService } from 'api/incentives';
 import { db } from 'db/incentives';
 import { Effect, Layer, Logger } from 'effect';
 
@@ -14,6 +14,22 @@ export const NodeSdkLive = NodeSdk.layer(() => ({
   ),
 }));
 
+import { AddressValidationServiceLive } from '../../../packages/api/src/common/address-validation/addressValidation';
+import { GetCaviarnineResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetHyperstakePositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getHyperstakePositions';
+import { GetLsulpLive } from '../../../packages/api/src/common/dapps/caviarnine/getLsulp';
+import { GetLsulpValueLive } from '../../../packages/api/src/common/dapps/caviarnine/getLsulpValue';
+import { GetQuantaSwapBinMapLive } from '../../../packages/api/src/common/dapps/caviarnine/getQuantaSwapBinMap';
+import { GetShapeLiquidityAssetsLive } from '../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityAssets';
+import { GetShapeLiquidityClaimsLive } from '../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityClaims';
+import { GetDefiPlazaPositionsLive } from '../../../packages/api/src/common/dapps/defiplaza/getDefiPlazaPositions';
+import { GetOciswapLiquidityAssetsLive } from '../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityAssets';
+import { GetOciswapLiquidityClaimsService } from '../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityClaims';
+import { GetOciswapResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/ociswap/getOciswapResourcePoolPositions';
+import { GetRootFinancePositionsService } from '../../../packages/api/src/common/dapps/rootFinance/getRootFinancePositions';
+import { GetSurgeLiquidityPositionsLive } from '../../../packages/api/src/common/dapps/surge/getSurgeLiquidityPositions';
+// DApp services
+import { GetWeftFinancePositionsService } from '../../../packages/api/src/common/dapps/weftFinance/getWeftFinancePositions';
 import { EntityFungiblesPageService } from '../../../packages/api/src/common/gateway/entityFungiblesPage';
 import { EntityNonFungibleDataService } from '../../../packages/api/src/common/gateway/entityNonFungiblesData';
 import { EntityNonFungiblesPageService } from '../../../packages/api/src/common/gateway/entityNonFungiblesPage';
@@ -30,50 +46,28 @@ import { GetNonFungibleBalanceService } from '../../../packages/api/src/common/g
 import { GetNonFungibleIdsService } from '../../../packages/api/src/common/gateway/getNonFungibleIds';
 import { KeyValueStoreDataService } from '../../../packages/api/src/common/gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../../../packages/api/src/common/gateway/keyValueStoreKeys';
-
-import { GetLsulpLive } from '../../../packages/api/src/common/dapps/caviarnine/getLsulp';
-import { GetLsulpValueLive } from '../../../packages/api/src/common/dapps/caviarnine/getLsulpValue';
+// Resource pool services
+import { GetResourcePoolUnitsLive } from '../../../packages/api/src/common/resource-pool/getResourcePoolUnits';
 import { ConvertLsuToXrdLive } from '../../../packages/api/src/common/staking/convertLsuToXrd';
 // Staking services
 import { GetUserStakingPositionsLive } from '../../../packages/api/src/common/staking/getUserStakingPositions';
 import { UnstakingReceiptProcessorLive } from '../../../packages/api/src/common/staking/unstakingReceiptProcessor';
-
-import { GetCaviarnineResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
-import { GetHyperstakePositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getHyperstakePositions';
-import { GetQuantaSwapBinMapLive } from '../../../packages/api/src/common/dapps/caviarnine/getQuantaSwapBinMap';
-import { GetShapeLiquidityAssetsLive } from '../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityAssets';
-import { GetShapeLiquidityClaimsLive } from '../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityClaims';
-import { GetDefiPlazaPositionsLive } from '../../../packages/api/src/common/dapps/defiplaza/getDefiPlazaPositions';
-import { GetOciswapLiquidityAssetsLive } from '../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityAssets';
-import { GetOciswapLiquidityClaimsService } from '../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityClaims';
-import { GetOciswapResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/ociswap/getOciswapResourcePoolPositions';
-import { GetRootFinancePositionsService } from '../../../packages/api/src/common/dapps/rootFinance/getRootFinancePositions';
-import { GetSurgeLiquidityPositionsLive } from '../../../packages/api/src/common/dapps/surge/getSurgeLiquidityPositions';
-// DApp services
-import { GetWeftFinancePositionsService } from '../../../packages/api/src/common/dapps/weftFinance/getWeftFinancePositions';
-
-// Resource pool services
-import { GetResourcePoolUnitsLive } from '../../../packages/api/src/common/resource-pool/getResourcePoolUnits';
-
+// Account and balance services
+import { GetAccountAddressesLive } from '../../../packages/api/src/incentives/account/getAccounts';
 import { AggregateAccountBalanceLive } from '../../../packages/api/src/incentives/account-balance/aggregateAccountBalance';
 import { AggregateCaviarninePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateCaviarninePositions';
 import { AggregateDefiPlazaPositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateDefiPlazaPositions';
 import { AggregateOciswapPositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateOciswapPositions';
+import { AggregatePoolPositionsService } from '../../../packages/api/src/incentives/account-balance/aggregatePoolPositions';
 import { AggregateRootFinancePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateRootFinancePositions';
 import { AggregateSurgePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateSurgePositions';
 import { AggregateWeftFinancePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateWeftFinancePositions';
 import { XrdBalanceLive } from '../../../packages/api/src/incentives/account-balance/aggregateXrdBalance';
 import { GetAccountBalancesAtStateVersionLive } from '../../../packages/api/src/incentives/account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesLive } from '../../../packages/api/src/incentives/account-balance/upsertAccountBalance';
-// Account and balance services
-import { GetAccountAddressesLive } from '../../../packages/api/src/incentives/account/getAccounts';
-
 // Snapshot services
 import { CreateSnapshotLive } from '../../../packages/api/src/incentives/snapshot/createSnapshot';
 import { UpdateSnapshotLive } from '../../../packages/api/src/incentives/snapshot/updateSnapshot';
-
-import { AddressValidationServiceLive } from '../../../packages/api/src/common/address-validation/addressValidation';
-import { AggregatePoolPositionsService } from '../../../packages/api/src/incentives/account-balance/aggregatePoolPositions';
 // USD and validation services
 import { GetUsdValueLive } from '../../../packages/api/src/incentives/token-price/getUsdValue';
 

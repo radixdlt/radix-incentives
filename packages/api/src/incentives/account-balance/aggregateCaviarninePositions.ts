@@ -1,12 +1,10 @@
-import { Effect } from 'effect';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-
 import { DappConstants, DappId } from 'data';
-
+import { Effect } from 'effect';
 import {
   AggregatePoolPositionsService,
   type LpPosition,
 } from './aggregatePoolPositions';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 

@@ -2,7 +2,6 @@
 
 import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { api } from '~/trpc/react';
 import { CategoryLeaderboard } from './components/category-leaderboard';
 import { SeasonLeaderboard } from './components/season-leaderboard';
 
@@ -23,18 +22,18 @@ export default function LeaderboardPage() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-3xl font-bold tracking-tight">Leaderboard</h2>
+        <h2 className="font-bold text-3xl tracking-tight">Leaderboard</h2>
       </div>
 
       {/* Tab Navigation */}
-      <div className="flex space-x-1 glass rounded-xl p-1">
+      <div className="glass flex space-x-1 rounded-xl p-1">
         <button
           type="button"
           onClick={() => setActiveTab('season')}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
+          className={`flex-1 rounded-lg px-4 py-3 font-medium text-sm transition-all duration-300 ${
             activeTab === 'season'
-              ? 'glass-card text-white shadow-lg gradient-brand'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'glass-card gradient-brand text-white shadow-lg'
+              : 'text-white/70 hover:bg-white/10 hover:text-white'
           }`}
         >
           Season Points
@@ -42,10 +41,10 @@ export default function LeaderboardPage() {
         <button
           type="button"
           onClick={() => setActiveTab('category')}
-          className={`flex-1 rounded-lg px-4 py-3 text-sm font-medium transition-all duration-300 ${
+          className={`flex-1 rounded-lg px-4 py-3 font-medium text-sm transition-all duration-300 ${
             activeTab === 'category'
-              ? 'glass-card text-white shadow-lg gradient-brand'
-              : 'text-white/70 hover:text-white hover:bg-white/10'
+              ? 'glass-card gradient-brand text-white shadow-lg'
+              : 'text-white/70 hover:bg-white/10 hover:text-white'
           }`}
         >
           Activity Points

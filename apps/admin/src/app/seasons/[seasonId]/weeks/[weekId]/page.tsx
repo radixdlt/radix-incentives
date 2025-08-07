@@ -89,44 +89,44 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   if (isSeasonLoading || isWeekLoading) {
     return (
       <div className="min-h-screen bg-background">
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="mx-auto max-w-7xl space-y-6 p-6">
           <div className="animate-pulse">
             {/* Header skeleton */}
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-10 h-10 bg-gray-200 rounded" />
+            <div className="mb-6 flex items-center gap-4">
+              <div className="h-10 w-10 rounded bg-gray-200" />
               <div className="space-y-2">
-                <div className="h-4 bg-gray-200 rounded w-48" />
-                <div className="h-3 bg-gray-200 rounded w-32" />
+                <div className="h-4 w-48 rounded bg-gray-200" />
+                <div className="h-3 w-32 rounded bg-gray-200" />
               </div>
             </div>
 
             {/* Controls skeleton */}
-            <div className="bg-white rounded-lg border p-6 mb-6">
-              <div className="flex justify-between items-center">
+            <div className="mb-6 rounded-lg border bg-white p-6">
+              <div className="flex items-center justify-between">
                 <div className="space-y-2">
-                  <div className="h-5 bg-gray-200 rounded w-36" />
-                  <div className="h-4 bg-gray-200 rounded w-64" />
+                  <div className="h-5 w-36 rounded bg-gray-200" />
+                  <div className="h-4 w-64 rounded bg-gray-200" />
                 </div>
                 <div className="flex gap-2">
-                  <div className="h-10 bg-gray-200 rounded w-32" />
-                  <div className="h-10 bg-gray-200 rounded w-28" />
+                  <div className="h-10 w-32 rounded bg-gray-200" />
+                  <div className="h-10 w-28 rounded bg-gray-200" />
                 </div>
               </div>
             </div>
 
             {/* Categories skeleton */}
             <div className="space-y-4">
-              <div className="h-8 bg-gray-200 rounded w-48" />
+              <div className="h-8 w-48 rounded bg-gray-200" />
               {[1, 2, 3].map((i) => (
-                <div key={i} className="bg-white rounded-lg border p-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <div className="h-6 bg-gray-200 rounded w-40" />
-                    <div className="h-4 bg-gray-200 rounded w-24" />
+                <div key={i} className="rounded-lg border bg-white p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <div className="h-6 w-40 rounded bg-gray-200" />
+                    <div className="h-4 w-24 rounded bg-gray-200" />
                   </div>
                   <div className="space-y-2">
-                    <div className="h-4 bg-gray-200 rounded w-32" />
-                    <div className="border rounded p-3">
-                      <div className="h-4 bg-gray-200 rounded w-full" />
+                    <div className="h-4 w-32 rounded bg-gray-200" />
+                    <div className="rounded border p-3">
+                      <div className="h-4 w-full rounded bg-gray-200" />
                     </div>
                   </div>
                 </div>
@@ -141,12 +141,12 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   // Handle errors
   if (seasonError || weekError) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-red-600 mb-2">
+          <h1 className="mb-2 font-bold text-2xl text-red-600">
             Error Loading Week
           </h1>
-          <p className="text-gray-600 mb-4">
+          <p className="mb-4 text-gray-600">
             {seasonError?.message ||
               weekError?.message ||
               'An unexpected error occurred'}
@@ -157,7 +157,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
               if (seasonError) refetchSeason();
               if (weekError) refetchWeek();
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+            className="rounded bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
           >
             Try Again
           </button>
@@ -169,9 +169,9 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   // Handle not found
   if (!week || !season) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className="flex min-h-screen items-center justify-center bg-background">
         <div className="text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">
+          <h1 className="mb-2 font-bold text-2xl text-gray-900">
             {!week ? 'Week Not Found' : 'Season Not Found'}
           </h1>
           <p className="text-gray-600">
