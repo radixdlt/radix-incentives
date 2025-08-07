@@ -100,6 +100,7 @@ import { ActivityCategoryWeekService } from './activity-category-week/activityCa
 import { ActivityWeekService } from './activity-week/activityWeek';
 import { ComponentWhitelistService } from './component/componentWhitelist';
 import { GetComponentCallsPaginatedLive } from './component/getComponentCalls';
+import { ConfigService } from './config/configService';
 import {
   type EventWorkerInput,
   EventWorkerLive,
@@ -417,6 +418,10 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getFungibleBalanceLive),
   );
 
+const configServiceLive = ConfigService.Default.pipe(
+  Layer.provide(dbClientLive),
+);
+
 const snapshotLive = SnapshotLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getAccountBalancesAtStateVersionLive),
@@ -428,6 +433,8 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(aggregateAccountBalanceLive),
   Layer.provide(getAllValidatorsServiceLive),
   Layer.provide(getResourcePoolUnitsLive),
+  Layer.provide(configServiceLive),
+  Layer.provide(getLedgerStateLive),
 );
 
 const getNonFungibleLocationLive = GetNonFungibleLocationService.Default.pipe(
