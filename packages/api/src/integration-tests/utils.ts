@@ -1,7 +1,8 @@
 import type { ResourceHoldersCollectionItem } from '@radixdlt/babylon-gateway-api-sdk';
 import { BigNumber } from 'bignumber.js';
 import type { ActivityId } from 'data';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import type { schema } from 'db/incentives';
+import { type PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js';
 import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
 import { AddressValidationServiceLive } from '../common/address-validation/addressValidation.js';
@@ -19,8 +20,10 @@ import {
  * @param db - Database client
  * @param dbUrl - Database URL
  */
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
-export const truncateAllTables = async (db: any, dbUrl: string) => {
+export const truncateAllTables = async (
+  db: PostgresJsDatabase<typeof schema>,
+  dbUrl: string,
+) => {
   // Safety check: only allow truncation on localhost
   const databaseUrl = dbUrl;
   const isLocalhost = databaseUrl.includes('@localhost:') || !databaseUrl; // Allow if no URL (likely using testDbUrl from inject)
@@ -50,10 +53,8 @@ export const runSnapshotWorker = async (input: SnapshotWorkerInput) => {
   const { dependencyLayer } = await import('../incentives/dependencyLayer.js');
   return dependencyLayer.snapshotWorker(input);
 };
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const createTestUserAndAccounts = async (
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  db: any,
+  db: PostgresJsDatabase<typeof schema>,
   accountAddresses: string[],
 ) => {
   const { accounts, users } = await import('db/incentives');
@@ -134,14 +135,11 @@ export const getAccountHoldersForResource = async (
   } catch (error) {
     console.error('Error getting account holders for resource:', error);
     throw error;
-    // return [];
   }
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const getLendingHoldingUsdValue = async (
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  client: any,
+  client: postgres.Sql,
   activityId: ActivityId,
 ) => {
   // Check if account_balances table exists and what's in it
@@ -198,10 +196,8 @@ export const getLendingHoldingUsdValue = async (
   return totalUsdValue;
 };
 
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
 export const getPoolHoldingQuantity = async (
-  // biome-ignore lint/suspicious/noExplicitAny: <explanation>
-  client: any,
+  client: postgres.Sql,
   activityId: ActivityId,
 ) => {
   // Check if account_balances table exists and what's in it

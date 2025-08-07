@@ -3,7 +3,7 @@ import { afterEach, beforeAll, describe, inject, it } from 'vitest';
 
 import { ActivityId, Assets } from 'data';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
-import { drizzle } from 'drizzle-orm/postgres-js';
+import { type PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js';
 import {
   checkHolding,
   getAccountHoldersForResource,
@@ -35,7 +35,9 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
       const { schema } = await import('db/incentives');
 
       const client = postgres(dbUrl);
-      const db = drizzle(client, { schema });
+      const db: PostgresJsDatabase<typeof schema> = drizzle(client, {
+        schema,
+      });
       await truncateAllTables(db, dbUrl);
       await client.end();
     });
