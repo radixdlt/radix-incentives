@@ -744,6 +744,9 @@ importers:
       sbor-ez-mode:
         specifier: workspace:*
         version: link:../../packages/sbor-ez-mode
+      undici:
+        specifier: 'catalog:'
+        version: 7.13.0
     devDependencies:
       '@types/node':
         specifier: ^22.13.10
