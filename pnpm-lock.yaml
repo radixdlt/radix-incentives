@@ -201,6 +201,9 @@ catalogs:
     tsx:
       specifier: ^4.19.3
       version: 4.19.3
+    undici:
+      specifier: ^7.13.0
+      version: 7.13.0
     vitest:
       specifier: ^3.0.9
       version: 3.1.1
@@ -1055,6 +1058,9 @@ importers:
       superjson:
         specifier: 'catalog:'
         version: 2.2.2
+      undici:
+        specifier: 'catalog:'
+        version: 7.13.0
       zod:
         specifier: 'catalog:'
         version: 3.24.2
@@ -1080,9 +1086,6 @@ importers:
       tsup:
         specifier: 'catalog:'
         version: 8.4.0(jiti@2.4.2)(postcss@8.5.3)(tsx@4.19.3)(typescript@5.8.2)(yaml@2.8.0)
-      undici:
-        specifier: ^7.13.0
-        version: 7.13.0
       vitest:
         specifier: 'catalog:'
         version: 3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0)
