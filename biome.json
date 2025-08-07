@@ -14,9 +14,11 @@
       "!.next",
       "!node_modules",
       "!turbo",
+      "!dist",
       "!packages/db/src/incentives/seed/data/**/*",
       "!packages/sbor-ez-mode",
-      "!packages/api/coverage"
+      "!packages/api/coverage",
+      "!tools/calculate-points/output"
     ]
   },
   "formatter": {
