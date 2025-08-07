@@ -8,12 +8,11 @@ import {
     GetUsdValueLive,
     GetUsdValueService,
 } from '../incentives/token-price/getUsdValue.js';
-import { AddressValidationServiceLive } from '../common/address-validation/addressValidation.js';
-import { BigNumber } from 'bignumber.js';
 import type { SnapshotWorkerInput } from '../incentives/snapshot/snapshotWorker.js';
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import type { ActivityId } from 'data';
+import { FetchService } from '../common/helpers/index.js';
 
 /**
  * Truncates all tables in the database, respecting foreign key constraints
@@ -310,7 +309,7 @@ export const getPriceForResource = async (
             });
             return xwbtcPrice;
         }),
-        GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive)),
+        GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive)).pipe(Layer.provide(FetchService.Default)),
     );
 
     const price = await Effect.runPromise(getUsdValueProgram);

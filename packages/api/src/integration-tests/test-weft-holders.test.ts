@@ -2,18 +2,14 @@
 import postgres from 'postgres';
 import { afterEach, beforeAll, describe, inject, it } from 'vitest';
 
-import { Assets } from 'data';
+import { ActivityId, Assets } from 'data';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import type { SnapshotWorkerInput } from '../incentives/snapshot/snapshotWorker.js';
 import {
   checkHolding,
   getAccountHoldersForResource,
   truncateAllTables,
 } from './utils.js';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
-import { Assets } from 'data';
 
 describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
   'Weft Lending Holders Snapshot Test',
