@@ -1,6 +1,6 @@
 'use client';
 
-import { ChevronDown, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import {
   Select,
   SelectContent,
@@ -64,12 +64,12 @@ export function SeasonSelector({
     <div className="space-y-6">
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg gradient-brand flex items-center justify-center flex-shrink-0">
+          <div className="gradient-brand flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg">
             <Trophy className="h-4 w-4 text-white" />
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-foreground">Season</h2>
-            <p className="text-sm text-muted-foreground">
+            <h2 className="font-semibold text-foreground text-lg">Season</h2>
+            <p className="text-muted-foreground text-sm">
               Choose a season to view the leaderboard
             </p>
           </div>
@@ -78,8 +78,8 @@ export function SeasonSelector({
 
       <div className="relative">
         <Select value={selectedSeasonId || ''} onValueChange={onSeasonChange}>
-          <SelectTrigger className="w-full h-16 px-4 glass-card border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl">
-            <div className="flex items-center w-full">
+          <SelectTrigger className="glass-card h-16 w-full rounded-xl border border-white/20 px-4 transition-all duration-300 hover:border-white/30">
+            <div className="flex w-full items-center">
               <div className="flex items-center gap-3">
                 {selectedSeasonData && (
                   <>
@@ -90,7 +90,7 @@ export function SeasonSelector({
                           selectedSeasonData.startDate,
                           selectedSeasonData.endDate,
                         ) === 'current'
-                          ? 'bg-green-400 animate-pulse'
+                          ? 'animate-pulse bg-green-400'
                           : getSeasonStatus(
                                 selectedSeasonData.status,
                                 selectedSeasonData.startDate,
@@ -101,10 +101,10 @@ export function SeasonSelector({
                       }`}
                     />
                     <div className="text-left">
-                      <div className="text-base font-medium text-white text-left">
+                      <div className="text-left font-medium text-base text-white">
                         Season {getSeasonNumber(selectedSeasonData.name)}
                       </div>
-                      <div className="text-sm text-white/60 flex items-center gap-2 text-left">
+                      <div className="flex items-center gap-2 text-left text-sm text-white/60">
                         {formatSeasonRange(
                           selectedSeasonData.startDate,
                           selectedSeasonData.endDate,
@@ -119,7 +119,7 @@ export function SeasonSelector({
               </div>
             </div>
           </SelectTrigger>
-          <SelectContent className="w-full rounded-xl border border-white/20 glass shadow-xl">
+          <SelectContent className="glass w-full rounded-xl border border-white/20 shadow-xl">
             {seasons.map((season) => {
               const status = getSeasonStatus(
                 season.status,
@@ -130,23 +130,23 @@ export function SeasonSelector({
                 <SelectItem
                   key={season.id}
                   value={season.id}
-                  className="h-16 px-4 py-3 cursor-pointer transition-all duration-300 hover:bg-white/10 text-white"
+                  className="h-16 cursor-pointer px-4 py-3 text-white transition-all duration-300 hover:bg-white/10"
                 >
-                  <div className="flex items-center gap-3 w-full">
+                  <div className="flex w-full items-center gap-3">
                     <div
                       className={`h-3 w-3 rounded-full ${
                         status === 'current'
-                          ? 'bg-green-400 animate-pulse'
+                          ? 'animate-pulse bg-green-400'
                           : status === 'past'
                             ? 'bg-cyan-400'
                             : 'bg-pink-400'
                       }`}
                     />
                     <div className="flex-1 text-left">
-                      <div className="font-medium text-left">
+                      <div className="text-left font-medium">
                         Season {getSeasonNumber(season.name)}
                       </div>
-                      <div className="text-sm opacity-60 flex items-center gap-2 text-left">
+                      <div className="flex items-center gap-2 text-left text-sm opacity-60">
                         {formatSeasonRange(season.startDate, season.endDate)}
                       </div>
                     </div>

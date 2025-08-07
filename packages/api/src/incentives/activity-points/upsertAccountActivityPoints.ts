@@ -1,9 +1,8 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import { accountActivityPoints, activities } from 'db/incentives';
 import { inArray, sql } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
 import { chunker } from '../../common';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class UpsertAccountActivityPointsService extends Context.Tag(
   'UpsertAccountActivityPointsService',

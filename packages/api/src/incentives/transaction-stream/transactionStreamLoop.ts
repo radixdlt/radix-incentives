@@ -1,6 +1,4 @@
 import { Effect } from 'effect';
-import { TransactionStreamService } from './transactionStream';
-
 import { AddComponentCallsService } from '../component/addComponentCalls';
 import { ConfigService } from '../config/configService';
 import { AddToEventQueueService } from '../events/addToEventQueue';
@@ -17,6 +15,7 @@ import { AddEventsToDbService } from '../events/queries/addEventToDb';
 import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processSwapEventTradingVolume';
 import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
 import { FilterTransactionsService } from './filterTransactions';
+import { TransactionStreamService } from './transactionStream';
 
 export class TransactionStreamLoopService extends Effect.Service<TransactionStreamLoopService>()(
   'TransactionStreamLoopService',

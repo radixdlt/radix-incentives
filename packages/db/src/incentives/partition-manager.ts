@@ -358,12 +358,12 @@ export const createBatchInserter = (
     }
 
     // Ensure all required partitions exist and insert data
-    for (const [weekKey, weekRecords] of weekGroups) {
+    for (const [_weekKey, weekRecords] of weekGroups) {
       const timestamp = weekRecords[0]?.timestamp;
       if (!timestamp) continue;
 
       // Ensure partitions exist for this week
-      const partitionNames =
+      const _partitionNames =
         await partitionManager.ensurePartitionExists(timestamp);
 
       // Insert all records for this week (PostgreSQL will automatically route to correct hash partition)

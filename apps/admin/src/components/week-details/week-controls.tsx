@@ -29,10 +29,10 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
 }) => {
   return (
     <Card className="p-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h3 className="text-lg font-semibold">Week Management</h3>
-          <p className="text-sm text-muted-foreground">
+          <h3 className="font-semibold text-lg">Week Management</h3>
+          <p className="text-muted-foreground text-sm">
             Control the week status and process end-of-week calculations
           </p>
         </div>
@@ -40,7 +40,7 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="default">
-                <CheckCircle className="h-4 w-4 mr-2" />
+                <CheckCircle className="mr-2 h-4 w-4" />
                 {weekData.processed ? 'Recalculate Points' : 'Close Week'}
               </Button>
             </AlertDialogTrigger>

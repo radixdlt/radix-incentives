@@ -3,7 +3,7 @@ import path from 'node:path';
 import { Effect, pipe } from 'effect';
 import { groupBy } from 'effect/Array';
 import { ActivityCategoryId } from './activityCategories';
-import { AssetType, Assets } from './assets';
+import { Assets, AssetType } from './assets';
 import { CaviarNineConstants } from './dapps/caviarnine/constants';
 import { DefiPlazaConstants } from './dapps/defiPlaza/constants';
 import { OciswapConstants } from './dapps/ociswap/constants';
@@ -14,8 +14,8 @@ import {
   weftFungibleRecourceAddresses,
 } from './dapps/weftFinance/constants';
 import {
-  type TokenDetails,
   getTokenPairFromResourceAddresses,
+  type TokenDetails,
 } from './helpers/getTokenPair';
 import { deduplicate, flatten, sort } from './helpers/utils';
 import { Action, type ActivityData, DappId, deriveLpActivityId } from './types';
@@ -377,7 +377,7 @@ const runnable = Effect.gen(function* () {
 
   const deduplicatedActivities = Object.entries(groupedActivities).map(
     ([_, activities]) => {
-      const { componentAddress, ...firstActivity } = activities[0];
+      const firstActivity = activities[0];
       const componentAddresses = new Set(
         activities
           .map((item) => item.componentAddress)

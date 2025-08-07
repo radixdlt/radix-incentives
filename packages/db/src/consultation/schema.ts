@@ -1,13 +1,8 @@
 import { type InferSelectModel, relations } from 'drizzle-orm';
-import { date } from 'drizzle-orm/mysql-core';
 import {
-  boolean,
   char,
-  decimal,
   index,
-  json,
   jsonb,
-  pgEnum,
   pgTableCreator,
   primaryKey,
   text,

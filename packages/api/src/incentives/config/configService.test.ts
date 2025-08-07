@@ -1,9 +1,9 @@
 import { it } from '@effect/vitest';
-import { config, schema } from 'db/incentives';
 import type { Db } from 'db/incentives';
+import { config, schema } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { ConfigProvider, Effect, Layer } from 'effect';
+import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
 import { beforeEach, describe, expect, inject, vi } from 'vitest';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';

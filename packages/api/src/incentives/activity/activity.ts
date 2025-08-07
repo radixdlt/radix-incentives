@@ -1,4 +1,4 @@
-import { type NewActivity, activities } from 'db/incentives';
+import { activities, type NewActivity } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { z } from 'zod';

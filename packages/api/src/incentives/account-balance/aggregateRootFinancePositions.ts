@@ -76,7 +76,7 @@ export class AggregateRootFinancePositionsService extends Effect.Service<Aggrega
                     }
                     acc[resourceAddress] = acc[resourceAddress].plus(amountBN);
                   }
-                } catch (error) {
+                } catch (_error) {
                   console.warn(
                     `Invalid Root Finance collateral amount: ${amount} for ${resourceAddress}`,
                   );

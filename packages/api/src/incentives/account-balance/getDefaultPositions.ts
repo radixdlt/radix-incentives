@@ -1,8 +1,8 @@
 import {
   type AccountBalanceData,
   type Action,
-  type DappId,
   activityDataByDappId,
+  type DappId,
 } from 'data';
 import { Effect } from 'effect';
 

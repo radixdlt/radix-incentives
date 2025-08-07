@@ -1,7 +1,7 @@
-import { createCallerFactory, createTRPCRouter } from '.';
 import { accountRouter } from '../account/accountRouter';
 import { authRouter } from '../auth/authRouter';
 import { consultationRouter } from '../consultation/consultationRouter';
+import { createCallerFactory, createTRPCRouter } from '.';
 /**
  * This is the primary router for your server.
  *

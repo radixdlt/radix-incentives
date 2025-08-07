@@ -43,20 +43,20 @@ export function CategoryInfo({ week, category }: CategoryInfoProps) {
     <div className="rounded-lg border bg-card p-6">
       <div className="flex-1">
         {/* Title and Status - Mobile Responsive */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-          <h3 className="text-xl font-semibold">{category.name}</h3>
-          <span className={`text-sm font-medium ${statusColor} sm:ml-auto`}>
+        <div className="mb-2 flex flex-col gap-2 sm:flex-row sm:items-center">
+          <h3 className="font-semibold text-xl">{category.name}</h3>
+          <span className={`font-medium text-sm ${statusColor} sm:ml-auto`}>
             {statusText}
           </span>
         </div>
 
         {category.description && (
-          <p className="text-sm text-muted-foreground mb-3">
+          <p className="mb-3 text-muted-foreground text-sm">
             {category.description}
           </p>
         )}
 
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <Calendar className="h-4 w-4" />
           <span>{formatDateRange(week.startDate, week.endDate)}</span>
           <span className="text-xs">•</span>

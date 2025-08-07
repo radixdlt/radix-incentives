@@ -16,7 +16,6 @@ interface MetricCardProps {
 
 export const MetricCard = ({
   title,
-  subtitle,
   value,
   trend,
   icon: Icon,
@@ -24,20 +23,20 @@ export const MetricCard = ({
   iconColor = 'text-cyan-400',
 }: MetricCardProps) => {
   return (
-    <Card className="overflow-hidden group">
-      <div className="p-6 flex flex-col space-y-4">
+    <Card className="group overflow-hidden">
+      <div className="flex flex-col space-y-4 p-6">
         <div className="flex items-center justify-between">
-          <span className="text-sm font-medium text-white/80">{title}</span>
+          <span className="font-medium text-sm text-white/80">{title}</span>
           {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
         </div>
 
         <div className="flex items-end gap-3">
-          <span className="text-4xl font-bold tracking-tight text-white gradient-text">
+          <span className="gradient-text font-bold text-4xl text-white tracking-tight">
             {value}
           </span>
           {trend && (
             <div
-              className={`flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-xs font-medium mb-1 ${
+              className={`mb-1 flex items-center gap-1 rounded-lg bg-white/10 px-2 py-1 font-medium text-xs ${
                 trend.isPositive ? 'text-green-400' : 'text-red-400'
               }`}
             >

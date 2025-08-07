@@ -1,10 +1,9 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import type { Account, User } from 'db/incentives';
 import { accounts, users } from 'db/incentives';
 import { count, desc, inArray } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
+import { DbClientService, DbError } from '../db/dbClient';
 
 type UserWithAccounts = User & {
   accounts: Account[];

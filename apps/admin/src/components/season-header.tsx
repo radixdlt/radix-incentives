@@ -23,7 +23,7 @@ export const SeasonHeader: React.FC<SeasonHeaderProps> = ({
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Season Details</h1>
+          <h1 className="font-bold text-3xl tracking-tight">Season Details</h1>
           <p className="text-muted-foreground">
             View details for {seasonName}.
           </p>

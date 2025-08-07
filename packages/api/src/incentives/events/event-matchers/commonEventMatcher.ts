@@ -1,8 +1,7 @@
 import { Effect } from 'effect';
+import { isValidResourceAddress } from '../../../common/address-validation/addressValidation';
 import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import { type CapturedEvent, createEventMatcher } from './createEventMatcher';
-
-import { isValidResourceAddress } from '../../../common/address-validation/addressValidation';
 import { parseDepositEvent } from './parseDepositEvent';
 import { parseWithdrawEvent } from './parseWithdrawEvent';
 

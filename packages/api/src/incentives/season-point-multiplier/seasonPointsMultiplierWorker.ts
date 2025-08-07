@@ -1,24 +1,19 @@
 import { BigNumber } from 'bignumber.js';
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-import {
-  GetUserTWAXrdBalanceService,
-  type UsersWithTwaBalance,
-} from './getUserTWAXrdBalance';
-
 import { Assets } from 'data';
 import { accounts, users } from 'db/incentives';
 import { eq, inArray, lte } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { z } from 'zod';
 import { chunker } from '../../common';
 import { Thresholds } from '../../common/config/constants';
 import { InvalidInputError } from '../../common/errors';
+import { DbClientService, DbError } from '../db/dbClient';
 import { GetUsdValueService } from '../token-price/getUsdValue';
+import { GetWeekByIdService } from '../week/getWeekById';
 import {
-  type GetWeekByIdError,
-  GetWeekByIdService,
-  type WeekNotFoundError,
-} from '../week/getWeekById';
+  GetUserTWAXrdBalanceService,
+  type UsersWithTwaBalance,
+} from './getUserTWAXrdBalance';
 import { UpsertUserTwaWithMultiplierService } from './upsertUserTwaWithMultiplier';
 
 export const seasonPointsMultiplierJobSchema = z.object({

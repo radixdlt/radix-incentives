@@ -11,7 +11,6 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
-import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
 import { Switch } from '~/components/ui/switch';
 import { Textarea } from '~/components/ui/textarea';
@@ -67,10 +66,10 @@ export default function NotificationsPage() {
     enabled !== (config?.notification?.enabled || false);
 
   return (
-    <div className="container max-w-4xl mx-auto p-6 space-y-6">
+    <div className="container mx-auto max-w-4xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="font-bold text-3xl tracking-tight">
             Notification Settings
           </h1>
           <p className="text-muted-foreground">
@@ -97,7 +96,7 @@ export default function NotificationsPage() {
               checked={enabled}
               onCheckedChange={setEnabled}
             />
-            <Label htmlFor="enabled" className="text-sm font-medium">
+            <Label htmlFor="enabled" className="font-medium text-sm">
               Show notification bar
             </Label>
           </div>
@@ -112,7 +111,7 @@ export default function NotificationsPage() {
               rows={3}
               className="resize-none"
             />
-            <p className="text-xs text-muted-foreground">
+            <p className="text-muted-foreground text-xs">
               On mobile devices, long messages will scroll horizontally to
               ensure readability.
             </p>
@@ -122,7 +121,7 @@ export default function NotificationsPage() {
             <div className="space-y-2">
               <Label>Preview</Label>
               <div
-                className="p-3 rounded-lg border text-sm text-white font-medium text-center"
+                className="rounded-lg border p-3 text-center font-medium text-sm text-white"
                 style={{
                   background: 'rgba(225, 52, 176, 0.5)',
                 }}
@@ -132,7 +131,7 @@ export default function NotificationsPage() {
             </div>
           )}
 
-          <div className="flex items-center gap-3 pt-4 border-t">
+          <div className="flex items-center gap-3 border-t pt-4">
             <Button
               onClick={handleSave}
               disabled={updateNotification.isPending || !hasChanges}
@@ -155,7 +154,7 @@ export default function NotificationsPage() {
             </Button>
 
             {hasChanges && (
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 You have unsaved changes
               </p>
             )}
@@ -173,9 +172,9 @@ export default function NotificationsPage() {
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="text-sm font-medium">Status:</span>
+              <span className="font-medium text-sm">Status:</span>
               <span
-                className={`text-sm px-2 py-1 rounded-full ${
+                className={`rounded-full px-2 py-1 text-sm ${
                   config?.notification?.enabled
                     ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
                     : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
@@ -185,8 +184,8 @@ export default function NotificationsPage() {
               </span>
             </div>
             <div className="flex items-start justify-between">
-              <span className="text-sm font-medium">Message:</span>
-              <span className="text-sm text-right max-w-md">
+              <span className="font-medium text-sm">Message:</span>
+              <span className="max-w-md text-right text-sm">
                 {config?.notification?.message || 'No message set'}
               </span>
             </div>

@@ -1,12 +1,11 @@
 'use client';
 
-import { Award, Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
+import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { MetricCard } from '~/components/dashboard';
 import { WeekSelector } from '~/components/dashboard/WeekSelector';
 import { EmptyState } from '~/components/ui/empty-state';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { useDappToolkit } from '~/lib/hooks/useRdt';
 import { getNextUpdateTime } from '~/lib/utils';
 import { api } from '~/trpc/react';
 import { CategoryBreakdown } from './components/category-breakdown';
@@ -25,8 +24,8 @@ const NextUpdateNotification = () => {
   }, []);
 
   return (
-    <div className="bg-card border rounded-lg p-4 mb-6">
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+    <div className="mb-6 rounded-lg border bg-card p-4">
+      <div className="flex items-center gap-2 text-muted-foreground text-sm">
         <Clock className="h-4 w-4" />
         <span>
           Points calculations update every 2 hours. Next update in{' '}
@@ -80,7 +79,7 @@ export default function DashboardPage() {
 
   if (accounts.isLoading || weeks.isLoading) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex h-96 items-center justify-center">
         <div className="text-2xl">Loading...</div>
       </div>
     );
@@ -88,7 +87,7 @@ export default function DashboardPage() {
 
   if (accounts.isError || weeks.isError) {
     return (
-      <div className="flex justify-center items-center h-96">
+      <div className="flex h-96 items-center justify-center">
         <div className="text-2xl text-red-500">Error loading data.</div>
       </div>
     );

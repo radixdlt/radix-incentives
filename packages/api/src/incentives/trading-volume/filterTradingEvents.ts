@@ -1,20 +1,18 @@
-import { Effect } from 'effect';
-
 import BigNumber from 'bignumber.js';
 import {
   type ActivityId,
   defiPlazaComponentSet,
   shapeLiquidityComponentSet,
 } from 'data';
+import { Effect } from 'effect';
+import { AddressValidationService } from '../../common/address-validation/addressValidation';
 import type { CaviarnineSwapEvent } from '../events/event-matchers/caviarnineEventMatcher';
 import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
-import type { EmittableEvent } from '../events/event-matchers/types';
-import { GetUsdValueService } from '../token-price/getUsdValue';
-
-import { AddressValidationService } from '../../common/address-validation/addressValidation';
 import type { DefiPlazaSwapEvent } from '../events/event-matchers/defiPlazaEventMatcher';
 import type { HLPEmittableEvents } from '../events/event-matchers/hlpEventMatcher';
 import type { OciswapSwapEvent } from '../events/event-matchers/ociswapEventMatcher';
+import type { EmittableEvent } from '../events/event-matchers/types';
+import { GetUsdValueService } from '../token-price/getUsdValue';
 
 export type TradingEvent = CaviarnineSwapEvent;
 

@@ -1,16 +1,13 @@
-import { Effect } from 'effect';
-
-import {
-  type GetEntityDetailsOptions,
-  GetEntityDetailsService,
-} from '../gateway/getEntityDetails';
-
 import type {
   ProgrammaticScryptoSborValue,
   StateEntityDetailsVaultResponseItem,
 } from '@radixdlt/babylon-gateway-api-sdk';
-
+import { Effect } from 'effect';
 import type { ParsedType, StructDefinition, StructSchema } from 'sbor-ez-mode';
+import {
+  type GetEntityDetailsOptions,
+  GetEntityDetailsService,
+} from '../gateway/getEntityDetails';
 import type { AtLedgerState } from './schemas';
 
 export class InvalidComponentStateError {

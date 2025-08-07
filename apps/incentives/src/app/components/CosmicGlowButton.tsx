@@ -22,9 +22,9 @@ export const CosmicGlowButton = ({
   return (
     <button
       className={cn(
-        'relative inline-flex items-center justify-center py-4 px-8 rounded-2xl font-semibold text-base cursor-pointer',
+        'relative inline-flex cursor-pointer items-center justify-center rounded-2xl px-8 py-4 font-semibold text-base',
         'bg-gradient-to-r from-gray-900 via-gray-800 to-gray-900',
-        'text-white shadow-lg shadow-[rgba(0,0,0,0.4)]',
+        'text-white shadow-[rgba(0,0,0,0.4)] shadow-lg',
         'overflow-hidden',
         className,
       )}
@@ -32,7 +32,7 @@ export const CosmicGlowButton = ({
       {...props}
     >
       <span
-        className="absolute inset-0 rounded-2xl blur-lg opacity-40 animate-glow-scale"
+        className="absolute inset-0 animate-glow-scale rounded-2xl opacity-40 blur-lg"
         style={{
           background: `radial-gradient(circle at center, ${glowColor} 10%, transparent 60%)`,
           animationDuration: speed,
@@ -40,7 +40,7 @@ export const CosmicGlowButton = ({
         }}
       />
       <span
-        className="absolute inset-0 rounded-2xl opacity-20 animate-glow-slide"
+        className="absolute inset-0 animate-glow-slide rounded-2xl opacity-20"
         style={{
           background: `conic-gradient(from 90deg at 50% 50%, transparent 0deg, ${glowColor} 120deg, transparent 240deg)`,
           animationDuration: speed,

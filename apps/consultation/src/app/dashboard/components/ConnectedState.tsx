@@ -1,13 +1,10 @@
 import { Loader2, Wallet } from 'lucide-react';
-import { useEffect } from 'react';
-import { useState } from 'react';
+import type { FC, ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/button';
-
+import { EmptyState } from '~/components/ui/empty-state';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
-
-import type { FC, ReactNode } from 'react';
-import { EmptyState } from '~/components/ui/empty-state';
 
 interface ConnectedStateProps {
   children: ReactNode;
@@ -33,7 +30,7 @@ export const ConnectedState: FC<ConnectedStateProps> = ({ children }) => {
 
   if (!persona) {
     return (
-      <div className="space-y-6 flex flex-col items-center justify-center pt-16">
+      <div className="flex flex-col items-center justify-center space-y-6 pt-16">
         <div className="space-y-4">
           <EmptyState
             title="Not connected"

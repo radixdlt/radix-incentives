@@ -18,13 +18,13 @@ export const HeroSection = () => {
   };
 
   return (
-    <div className="text-center mb-16">
+    <div className="mb-16 text-center">
       <motion.div
         custom={0}
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.05] border border-white/[0.1] mb-8"
+        className="mb-8 inline-flex items-center gap-2 rounded-full border border-white/[0.1] bg-white/[0.05] px-4 py-2"
       >
         <TrophyIcon className="h-4 w-4 text-brand-cyan" />
         <span className="text-sm text-white/80 tracking-wide">
@@ -38,8 +38,8 @@ export const HeroSection = () => {
         initial="hidden"
         animate="visible"
       >
-        <h1 className="text-4xl sm:text-6xl md:text-7xl font-bold mb-6 tracking-tight">
-          <span className="bg-clip-text text-transparent bg-gradient-to-b from-white to-white/80">
+        <h1 className="mb-6 font-bold text-4xl tracking-tight sm:text-6xl md:text-7xl">
+          <span className="bg-gradient-to-b from-white to-white/80 bg-clip-text text-transparent">
             Earn Rewards on
           </span>
           <br />
@@ -53,7 +53,7 @@ export const HeroSection = () => {
         initial="hidden"
         animate="visible"
       >
-        <p className="text-lg sm:text-xl text-white/60 mb-8 leading-relaxed font-light max-w-2xl mx-auto">
+        <p className="mx-auto mb-8 max-w-2xl font-light text-lg text-white/60 leading-relaxed sm:text-xl">
           Participate in the incentives campaign, earn XRD rewards, and help
           grow the Radix ecosystem. Connect your wallet to get started.
         </p>
@@ -64,7 +64,7 @@ export const HeroSection = () => {
         variants={fadeUpVariants}
         initial="hidden"
         animate="visible"
-        className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
+        className="mb-16 flex flex-col items-center justify-center gap-4 sm:flex-row"
       >
         <Link href="/dashboard">
           <Button size="xl" className="btn-gradient">

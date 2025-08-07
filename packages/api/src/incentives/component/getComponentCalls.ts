@@ -1,10 +1,8 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import { componentCalls } from 'db/incentives';
 import { and, between } from 'drizzle-orm';
-
+import { Context, Effect, Layer } from 'effect';
 import { GetAccountAddressByUserIdService } from '../account/getAccountAddressByUserId';
+import { DbClientService, DbError } from '../db/dbClient';
 import { ComponentWhitelistService } from './componentWhitelist';
 
 export type GetComponentCallsServiceInput = {

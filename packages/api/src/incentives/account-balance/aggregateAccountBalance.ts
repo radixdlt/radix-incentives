@@ -1,14 +1,13 @@
+import type { AccountBalance } from 'db/incentives';
 import { Effect } from 'effect';
 import { AggregateCaviarninePositionsService } from './aggregateCaviarninePositions';
-import { AggregateOciswapPositionsService } from './aggregateOciswapPositions';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-
-import type { AccountBalance } from 'db/incentives';
 import { AggregateDefiPlazaPositionsService } from './aggregateDefiPlazaPositions';
+import { AggregateOciswapPositionsService } from './aggregateOciswapPositions';
 import { AggregateRootFinancePositionsService } from './aggregateRootFinancePositions';
 import { AggregateSurgePositionsService } from './aggregateSurgePositions';
 import { AggregateWeftFinancePositionsService } from './aggregateWeftFinancePositions';
 import { XrdBalanceService } from './aggregateXrdBalance';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 type AggregateAccountBalanceInput = {
   accountBalances: AccountBalanceFromSnapshot[];

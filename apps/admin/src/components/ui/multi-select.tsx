@@ -42,7 +42,6 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
       onChange,
       className,
       placeholder = 'Select options...',
-      ...props
     },
     ref,
   ) => {
@@ -63,10 +62,10 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
     return (
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
+          {/* biome-ignore lint/a11y/useSemanticElements: Custom multi-select requires combobox role for accessibility */}
           <Button
             ref={ref}
             variant="outline"
-            // biome-ignore lint/a11y/useSemanticElements: Custom multi-select requires combobox pattern
             role="combobox"
             aria-expanded={open}
             className={`w-full justify-between ${selected.length > 0 ? 'h-full' : 'h-10'}`}
@@ -80,7 +79,7 @@ const MultiSelect = React.forwardRef<HTMLButtonElement, MultiSelectProps>(
                     <Badge
                       variant="secondary"
                       key={value}
-                      className="mb-1 mr-1"
+                      className="mr-1 mb-1"
                       onClick={(e) => {
                         e.stopPropagation(); // Prevent popover from closing
                         handleRemove(value);

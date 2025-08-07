@@ -1,5 +1,5 @@
 {
-  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
   "vcs": {
     "enabled": false,
     "clientKind": "git",
@@ -7,19 +7,16 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "include": ["**/apps/**", "**/packages/**", "**/tools/**"],
-    "ignore": [
-      "node_modules",
-      "dist",
-      "build",
-      "coverage",
-      "*.spec.ts",
-      "./packages/sbor-ez-mode/**/*",
-      ".next",
-      "**/.next/**",
-      "**/output/**",
-      "**/.turbo/**",
-      "**/packages/db/src/incentives/seed/data/*"
+    "includes": [
+      "apps/**",
+      "packages/**",
+      "tools/**",
+      "!.next",
+      "!node_modules",
+      "!turbo",
+      "!packages/db/src/incentives/seed/data/**/*",
+      "!packages/sbor-ez-mode",
+      "!packages/api/coverage"
     ]
   },
   "formatter": {
@@ -27,11 +24,8 @@
     "indentStyle": "space",
     "indentWidth": 2
   },
-  "organizeImports": {
-    "enabled": true
-  },
+  "assist": { "actions": { "source": { "organizeImports": "on" } } },
   "linter": {
-    "ignore": ["./packages/sbor-ex-mode/**/*.*"],
     "enabled": true,
     "rules": {
       "recommended": true,
@@ -40,6 +34,10 @@
       },
       "correctness": {
         "useYield": "off"
+      },
+      "a11y": {
+        "noStaticElementInteractions": "warn",
+        "useSemanticElements": "warn"
       }
     }
   },

@@ -1,16 +1,15 @@
 import 'server-only';
 
 import { createHydrationHelpers } from '@trpc/react-query/rsc';
-import { headers } from 'next/headers';
-import { cache } from 'react';
-
 import {
   type AdminAppRouter,
   createAdminCaller,
   createDependencyLayer,
+  createTRPCContext,
 } from 'api/incentives';
-import { createTRPCContext } from 'api/incentives';
 import { db } from 'db/incentives';
+import { headers } from 'next/headers';
+import { cache } from 'react';
 import { createQueryClient } from './query-client';
 
 /**
@@ -26,7 +25,7 @@ const createContext = cache(async () => {
     dependencyLayer: createDependencyLayer({
       dbClient: db,
     }),
-    setSessionToken: async (token: string, expiresAt: Date) => {
+    setSessionToken: async (_token: string, _expiresAt: Date) => {
       // TODO: Implement setSessionToken
     },
     getSessionToken: async () => {

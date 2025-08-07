@@ -4,12 +4,12 @@ import {
   ActivityCategoryWeekService,
   AddSeasonPointsToUserService,
   CalculateSeasonPointsService,
+  createDbClientLive,
   GetSeasonPointMultiplierService,
   SeasonService,
   UpdateWeekStatusService,
   UserActivityPointsService,
   WeekService,
-  createDbClientLive,
 } from 'api/incentives';
 import {
   accountActivityPoints,
@@ -162,25 +162,23 @@ const runnable = Effect.gen(function* () {
     ({ userId, points }) => ({
       userId,
       seasonPoints: points,
-      activityPoints: groupedByUserId[userId]?.map(
-        ({ activityPoints, accountAddress, activityId }) => {
-          const groupByActivityCategory = Object.entries(
-            groupBy(groupedByUserId[userId], (item) => item.activityCategory),
-          ).map(([activityCategory, items]) => ({
-            activityCategory,
-            activities: items.map((item) => ({
-              activityId: item.activityId,
-              activityPoints: item.activityPoints,
-              accountAddress: item.accountAddress,
-            })),
-          }));
+      activityPoints: groupedByUserId[userId]?.map(({ accountAddress }) => {
+        const groupByActivityCategory = Object.entries(
+          groupBy(groupedByUserId[userId], (item) => item.activityCategory),
+        ).map(([activityCategory, items]) => ({
+          activityCategory,
+          activities: items.map((item) => ({
+            activityId: item.activityId,
+            activityPoints: item.activityPoints,
+            accountAddress: item.accountAddress,
+          })),
+        }));
 
-          return {
-            accountAddress,
-            categories: groupByActivityCategory,
-          };
-        },
-      ),
+        return {
+          accountAddress,
+          categories: groupByActivityCategory,
+        };
+      }),
     }),
   );
 

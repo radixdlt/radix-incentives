@@ -4,9 +4,9 @@ export const ConnectAccountInstructions = () => {
   return (
     <div className="rounded-lg border bg-card shadow-sm">
       <div className="p-6">
-        <h3 className="text-lg font-medium">Account Linking Instructions</h3>
+        <h3 className="font-medium text-lg">Account Linking Instructions</h3>
 
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-muted-foreground text-sm">
           How to connect account(s):
         </p>
 
@@ -51,7 +51,7 @@ export const ConnectAccountInstructions = () => {
           </li>
         </ol>
 
-        <p className="text-sm text-muted-foreground mt-1">
+        <p className="mt-1 text-muted-foreground text-sm">
           Please note, an account can only be connected to the dApp with 1
           Persona and once linked cannot be removed.
         </p>

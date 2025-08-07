@@ -1,10 +1,6 @@
-import { PostgreSqlContainer } from '@testcontainers/postgresql';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { migrate } from 'drizzle-orm/postgres-js/migrator';
-
-import { activityCategoriesData, activityData, dappsData } from 'data';
-
 import path from 'node:path';
+import { PostgreSqlContainer } from '@testcontainers/postgresql';
+import { activityCategoriesData, activityData, dappsData } from 'data';
 import {
   activities,
   activityCategories,
@@ -15,6 +11,8 @@ import {
   weeks,
 } from 'db/incentives';
 import { sql } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { migrate } from 'drizzle-orm/postgres-js/migrator';
 import postgres from 'postgres';
 
 declare module 'vitest' {

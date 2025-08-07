@@ -110,31 +110,32 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  deploy-coverage:
-    name: Deploy Coverage Report
-    needs: lint-test-build
-    runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+  # TODO: Uncomment this when we have a way to deploy the coverage report to GitHub Pages
+  # deploy-coverage:
+  #   name: Deploy Coverage Report
+  #   needs: lint-test-build
+  #   runs-on: ubuntu-latest
+  #   if: github.event_name == 'pull_request' && github.repository == 'radixdlt/radix-incentives'
     
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+    # environment:
+    #   name: github-pages
+    #   url: ${{ steps.deployment.outputs.page_url }}
     
-    steps:
-      - name: Download coverage artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: coverage
-          path: ./coverage
+    # steps:
+    #   - name: Download coverage artifact
+    #     uses: actions/download-artifact@v4
+    #     with:
+    #       name: coverage
+    #       path: ./coverage
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
+    #   - name: Setup Pages
+    #     uses: actions/configure-pages@v4
         
-      - name: Upload to GitHub Pages
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./coverage
+    #   - name: Upload to GitHub Pages
+    #     uses: actions/upload-pages-artifact@v3
+    #     with:
+    #       path: ./coverage
           
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
+    #   - name: Deploy to GitHub Pages
+    #     id: deployment
+    #     uses: actions/deploy-pages@v4

@@ -1,8 +1,7 @@
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import { weeks } from 'db/incentives';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type UpdateWeekStatusError = DbError;
 

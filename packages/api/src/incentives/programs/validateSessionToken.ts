@@ -1,12 +1,10 @@
-import { Effect } from 'effect';
-
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
 import { sessions } from 'db/incentives';
 import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
 import { AppConfigService } from '../config/appConfig';
-import { DbError } from '../db/dbClient';
-import { DbClientService } from '../db/dbClient';
+import { DbClientService, DbError } from '../db/dbClient';
 import { GetSessionService } from '../session/getSession';
 import { InvalidateSessionService } from '../session/invalidateSession';
 

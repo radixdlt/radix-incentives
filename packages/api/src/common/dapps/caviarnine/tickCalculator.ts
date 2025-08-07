@@ -1,7 +1,7 @@
 import { Decimal } from 'decimal.js';
 
 const MIN_PRICE = new Decimal('0.000000000001892254');
-const MAX_TICK = new Decimal('4294967295');
+const _MAX_TICK = new Decimal('4294967295');
 const TICK_SIZE = new Decimal('1.00100025');
 
 /**

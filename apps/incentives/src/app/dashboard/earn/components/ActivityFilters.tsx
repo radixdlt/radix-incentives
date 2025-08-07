@@ -1,4 +1,3 @@
-import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 
 interface ActivityFiltersProps {
@@ -18,7 +17,7 @@ interface ActivityFiltersProps {
   activeCount: number;
 }
 
-const categoryDescriptions = {
+const _categoryDescriptions = {
   all: 'View all available activities',
   passive: 'Automatic rewards from holding assets',
   active: 'Engage with protocols to earn points',
@@ -34,20 +33,16 @@ const typeDescriptions = {
 } as const;
 
 export const ActivityFilters = ({
-  selectedCategory,
   selectedType,
-  onCategoryChange,
   onTypeChange,
-  passiveCount,
-  activeCount,
 }: ActivityFiltersProps) => {
   return (
     <div className="space-y-6">
       {/* Types */}
       <div className="space-y-3">
         <div>
-          <h3 className=" font-medium text-foreground mb-1">Activity Types</h3>
-          <p className=" text-muted-foreground">
+          <h3 className="mb-1 font-medium text-foreground">Activity Types</h3>
+          <p className="text-muted-foreground">
             {typeDescriptions[selectedType]}
           </p>
         </div>

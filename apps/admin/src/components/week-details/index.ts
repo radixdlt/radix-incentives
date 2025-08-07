@@ -1,5 +1,5 @@
-export { WeekHeader } from './week-header';
-export { WeekControls } from './week-controls';
-export { CategoriesSection } from './categories-section';
 export { ButtonGroup } from './button-group';
-export type { WeekDetailsData, AdminWeekDetailsProps } from './types';
+export { CategoriesSection } from './categories-section';
+export type { AdminWeekDetailsProps, WeekDetailsData } from './types';
+export { WeekControls } from './week-controls';
+export { WeekHeader } from './week-header';

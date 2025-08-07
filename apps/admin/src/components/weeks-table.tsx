@@ -1,9 +1,8 @@
 'use client';
 
+import type { Week } from 'db/incentives';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useMemo, useState } from 'react';
-
-import type { Week } from 'db/incentives';
 import { Button } from '~/components/ui/button';
 import {
   Table,
@@ -77,14 +76,14 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
     );
   };
   return (
-    <div className="border overflow-hidden">
+    <div className="overflow-hidden border">
       <Table>
         <TableHeader>
           <TableRow className="border-b">
             <TableHead className="border-r p-0">
               <Button
                 variant="ghost"
-                className="w-full h-full justify-between rounded-none font-semibold hover:bg-muted/50"
+                className="h-full w-full justify-between rounded-none font-semibold hover:bg-muted/50"
                 onClick={() => handleSort('startDate')}
               >
                 Start Date
@@ -94,7 +93,7 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
             <TableHead className="border-r p-0">
               <Button
                 variant="ghost"
-                className="w-full h-full justify-between rounded-none font-semibold hover:bg-muted/50"
+                className="h-full w-full justify-between rounded-none font-semibold hover:bg-muted/50"
                 onClick={() => handleSort('endDate')}
               >
                 End Date
@@ -104,7 +103,7 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
             <TableHead className="border-r p-0">
               <Button
                 variant="ghost"
-                className="w-full h-full justify-between rounded-none font-semibold hover:bg-muted/50"
+                className="h-full w-full justify-between rounded-none font-semibold hover:bg-muted/50"
                 onClick={() => handleSort('processed')}
               >
                 Processed
@@ -118,7 +117,7 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
             sortedWeeks.map((week) => (
               <TableRow
                 key={week.id}
-                className="cursor-pointer hover:bg-muted/50 border-b"
+                className="cursor-pointer border-b hover:bg-muted/50"
               >
                 <TableCell
                   className="border-r"

@@ -1,11 +1,9 @@
-import { Effect, Layer, Logger } from 'effect';
-import { GatewayApiClientLive } from '../common/gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../common/gateway/getEntityDetails';
-
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { db, readOnlyDb } from 'db/incentives';
+import { Effect, Layer, Logger } from 'effect';
+import { AddressValidationServiceLive } from '../common/address-validation/addressValidation';
 import { GetCaviarnineResourcePoolPositionsLive } from '../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
 import { GetHyperstakePositionsLive } from '../common/dapps/caviarnine/getHyperstakePositions';
 import { GetLsulpLive } from '../common/dapps/caviarnine/getLsulp';
@@ -18,13 +16,16 @@ import { GetOciswapLiquidityAssetsLive } from '../common/dapps/ociswap/getOciswa
 import { GetOciswapLiquidityClaimsService } from '../common/dapps/ociswap/getOciswapLiquidityClaims';
 import { GetOciswapResourcePoolPositionsLive } from '../common/dapps/ociswap/getOciswapResourcePoolPositions';
 import { GetRootFinancePositionsService } from '../common/dapps/rootFinance/getRootFinancePositions';
+import { GetSurgeLiquidityPositionsLive } from '../common/dapps/surge/getSurgeLiquidityPositions';
 import { GetWeftFinancePositionsService } from '../common/dapps/weftFinance/getWeftFinancePositions';
 import { EntityFungiblesPageService } from '../common/gateway/entityFungiblesPage';
 import { EntityNonFungibleDataService } from '../common/gateway/entityNonFungiblesData';
 import { EntityNonFungiblesPageService } from '../common/gateway/entityNonFungiblesPage';
+import { GatewayApiClientLive } from '../common/gateway/gatewayApiClient';
 import { GetAddressByNonFungibleService } from '../common/gateway/getAddressByNonFungible';
 import { GetAllValidatorsService } from '../common/gateway/getAllValidators';
 import { GetComponentStateService } from '../common/gateway/getComponentState';
+import { GetEntityDetailsService } from '../common/gateway/getEntityDetails';
 import { GetFungibleBalanceService } from '../common/gateway/getFungibleBalance';
 import { GetKeyValueStoreService } from '../common/gateway/getKeyValueStore';
 import {
@@ -37,19 +38,29 @@ import { GetNonFungibleIdsService } from '../common/gateway/getNonFungibleIds';
 import { GetNonFungibleLocationService } from '../common/gateway/getNonFungibleLocation';
 import { KeyValueStoreDataService } from '../common/gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../common/gateway/keyValueStoreKeys';
+import { FetchService } from '../common/helpers/fetch';
 import { GetResourcePoolUnitsLive } from '../common/resource-pool/getResourcePoolUnits';
 import { ConvertLsuToXrdLive } from '../common/staking/convertLsuToXrd';
 import { GetUserStakingPositionsLive } from '../common/staking/getUserStakingPositions';
 import { UnstakingReceiptProcessorLive } from '../common/staking/unstakingReceiptProcessor';
+import { AccountAddressService } from './account/accountAddressService';
+import { GetAccountAddressByUserIdLive } from './account/getAccountAddressByUserId';
+import { GetAccountAddressesLive } from './account/getAccounts';
+import { GetAccountsIntersectionLive } from './account/getAccountsIntersection';
 import { AccountBalanceService } from './account-balance/accountBalance';
 import { AggregateAccountBalanceLive } from './account-balance/aggregateAccountBalance';
 import { AggregateCaviarninePositionsLive } from './account-balance/aggregateCaviarninePositions';
+import { AggregateDefiPlazaPositionsLive } from './account-balance/aggregateDefiPlazaPositions';
 import { AggregateOciswapPositionsLive } from './account-balance/aggregateOciswapPositions';
+import { AggregatePoolPositionsService } from './account-balance/aggregatePoolPositions';
+import { AggregateRootFinancePositionsServiceLive } from './account-balance/aggregateRootFinancePositions';
+import { AggregateSurgePositionsLive } from './account-balance/aggregateSurgePositions';
+import { AggregateWeftFinancePositionsServiceLive } from './account-balance/aggregateWeftFinancePositions';
 import { XrdBalanceLive } from './account-balance/aggregateXrdBalance';
 import { GetAccountBalancesAtStateVersionLive } from './account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesLive } from './account-balance/upsertAccountBalance';
-import { GetAccountAddressesLive } from './account/getAccounts';
-import { GetAccountsIntersectionLive } from './account/getAccountsIntersection';
+import { GetActivitiesByWeekIdLive } from './activity/getActivitiesByWeekId';
+import { ActivityCategoryWeekService } from './activity-category-week/activityCategoryWeek';
 import { CalculateActivityPointsLive } from './activity-points/calculateActivityPoints';
 import {
   CalculateActivityPointsWorkerLive,
@@ -57,16 +68,26 @@ import {
 } from './activity-points/calculateActivityPointsWorker';
 import { CalculateTWASQLLive } from './activity-points/calculateTWASQL';
 import { UpsertAccountActivityPointsLive } from './activity-points/upsertAccountActivityPoints';
-import { GetActivitiesByWeekIdLive } from './activity/getActivitiesByWeekId';
+import { ActivityWeekService } from './activity-week/activityWeek';
+import { ComponentWhitelistService } from './component/componentWhitelist';
+import { GetComponentCallsPaginatedLive } from './component/getComponentCalls';
 import { createAppConfigLive, createConfig } from './config/appConfig';
+import { ConfigService } from './config/configService';
 import { createDbClientLive, createDbReadOnlyClientLive } from './db/dbClient';
 import {
   type DeriveAccountFromEventInput,
   DeriveAccountFromEventLive,
   DeriveAccountFromEventService,
 } from './events/deriveAccountFromEvent';
+import {
+  type EventWorkerInput,
+  EventWorkerLive,
+  EventWorkerService,
+} from './events/eventWorker';
 import { GetEventsFromDbLive } from './events/queries/getEventsFromDb';
 import { LeaderboardCacheService } from './leaderboard/leaderboardCache';
+import { GetSeasonByIdLive } from './season/getSeasonById';
+import { SeasonService } from './season/season';
 import { GetSeasonPointMultiplierService } from './season-point-multiplier/getSeasonPointMultiplier';
 import { GetUserTWAXrdBalanceLive } from './season-point-multiplier/getUserTWAXrdBalance';
 import {
@@ -76,44 +97,23 @@ import {
 import { UpsertUserTwaWithMultiplierLive } from './season-point-multiplier/upsertUserTwaWithMultiplier';
 import { AddSeasonPointsToUserService } from './season-points/addSeasonPointsToUser';
 import { CalculateSeasonPointsService } from './season-points/calculateSeasonPoints';
-import { GetSeasonByIdLive } from './season/getSeasonById';
 import { CreateSnapshotLive } from './snapshot/createSnapshot';
 import { SnapshotLive } from './snapshot/snapshot';
-import { UpdateSnapshotLive } from './snapshot/updateSnapshot';
-import { GetUsdValueLive } from './token-price/getUsdValue';
-import { GetUsersPaginatedLive } from './user/getUsersPaginated';
-import { UserActivityPointsService } from './user/userActivityPoints';
-import { GetWeekByIdLive } from './week/getWeekById';
-import { UpdateWeekStatusService } from './week/updateWeekStatus';
-
-import { AddressValidationServiceLive } from '../common/address-validation/addressValidation';
-import { GetSurgeLiquidityPositionsLive } from '../common/dapps/surge/getSurgeLiquidityPositions';
-import { FetchService } from '../common/helpers/fetch';
-import { AggregateDefiPlazaPositionsLive } from './account-balance/aggregateDefiPlazaPositions';
-import { AggregatePoolPositionsService } from './account-balance/aggregatePoolPositions';
-import { AggregateRootFinancePositionsServiceLive } from './account-balance/aggregateRootFinancePositions';
-import { AggregateSurgePositionsLive } from './account-balance/aggregateSurgePositions';
-import { AggregateWeftFinancePositionsServiceLive } from './account-balance/aggregateWeftFinancePositions';
-import { AccountAddressService } from './account/accountAddressService';
-import { GetAccountAddressByUserIdLive } from './account/getAccountAddressByUserId';
-import { ActivityCategoryWeekService } from './activity-category-week/activityCategoryWeek';
-import { ActivityWeekService } from './activity-week/activityWeek';
-import { ComponentWhitelistService } from './component/componentWhitelist';
-import { GetComponentCallsPaginatedLive } from './component/getComponentCalls';
-import {
-  type EventWorkerInput,
-  EventWorkerLive,
-  EventWorkerService,
-} from './events/eventWorker';
-import { SeasonService } from './season/season';
 import {
   type SnapshotWorkerInput,
   SnapshotWorkerLive,
   SnapshotWorkerService,
 } from './snapshot/snapshotWorker';
+import { UpdateSnapshotLive } from './snapshot/updateSnapshot';
+import { GetUsdValueLive } from './token-price/getUsdValue';
 import { GetTradingVolumeLive } from './trading-volume/getTradingVolume';
 import { GetTransactionFeesPaginatedLive } from './transaction-fee/getTransactionFees';
+import { GetUsersPaginatedLive } from './user/getUsersPaginated';
+import { UserActivityPointsService } from './user/userActivityPoints';
+import { GetWeekByIdLive } from './week/getWeekById';
+import { UpdateWeekStatusService } from './week/updateWeekStatus';
 import { WeekService } from './week/week';
+
 const appConfig = createConfig();
 
 const dbClientLive = createDbClientLive(db);
@@ -417,6 +417,10 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getFungibleBalanceLive),
   );
 
+const configServiceLive = ConfigService.Default.pipe(
+  Layer.provide(dbClientLive),
+);
+
 const snapshotLive = SnapshotLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getAccountBalancesAtStateVersionLive),
@@ -428,6 +432,8 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(aggregateAccountBalanceLive),
   Layer.provide(getAllValidatorsServiceLive),
   Layer.provide(getResourcePoolUnitsLive),
+  Layer.provide(configServiceLive),
+  Layer.provide(getLedgerStateLive),
 );
 
 const getNonFungibleLocationLive = GetNonFungibleLocationService.Default.pipe(
