@@ -1,15 +1,14 @@
-
 import postgres from 'postgres';
 import { afterEach, beforeAll, describe, inject, it } from 'vitest';
 
 import { ActivityId, Assets } from 'data';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import {
   checkHolding,
   getAccountHoldersForResource,
   truncateAllTables,
 } from './utils.js';
-import { drizzle } from 'drizzle-orm/postgres-js';
 
 describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
   'Weft Lending Holders Snapshot Test',
@@ -17,7 +16,10 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
     let dbUrl: string;
     process.env.SNAPSHOT_BATCH_SIZE = '1000';
 
-    const values: Record<string, { totalUsdValue: string, price: string, estimatedTokens: number }> = {};
+    const values: Record<
+      string,
+      { totalUsdValue: string; price: string; estimatedTokens: number }
+    > = {};
 
     beforeAll(async () => {
       console.log('Setting up PostgreSQL container for snapshot test');
@@ -173,4 +175,5 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
         };
       },
     );
-  });
+  },
+);

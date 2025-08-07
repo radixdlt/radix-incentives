@@ -4,6 +4,7 @@
 
 import type { ActivityData, DappId } from "../types";
 
+// {DAPP_ID}_{lp | le | tr | ho}_{sta | der | nat | blu}_{PAIR | ASSET}
 export const ActivityId = {
   "c9_ho_floop-xrd": "c9_ho_floop-xrd",
   "c9_ho_lsulp-reddicks": "c9_ho_lsulp-reddicks",
@@ -112,7 +113,7 @@ export const ActivityId = {
 export type ActivityId = (typeof ActivityId)[keyof typeof ActivityId];
 
 export const matchActivityId = (input: string) =>
-    !!ActivityId[input as keyof typeof ActivityId];
+  !!ActivityId[input as keyof typeof ActivityId];
 
 const componentAddresses = [
   "component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed",
@@ -146,7 +147,7 @@ const componentAddresses = [
 const componentAddressSet = new Set(componentAddresses);
 
 export const matchComponentAddress = (input: string) =>
-    componentAddressSet.has(input);
+  componentAddressSet.has(input);
 
 const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
   "component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas": "c9_tr_lsulp-xrd",
@@ -175,7 +176,7 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
 }
 
 export const getTradingActivityIdByComponentAddress = (componentAddress: string): ActivityId | undefined =>
-    componentAddressTradingActivityIdMap[componentAddress];
+  componentAddressTradingActivityIdMap[componentAddress];
 
 const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
   "component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas": "c9_lp_der_lsulp-xrd",
@@ -205,7 +206,7 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
 }
 
 export const getLpActivityIdByComponentAddress = (componentAddress: string): ActivityId | undefined =>
-    componentAddressLpActivityIdMap[componentAddress];
+  componentAddressLpActivityIdMap[componentAddress];
 
 export const activityDataByDappId: Record<DappId, ActivityData[]> = {
   "c9": [
