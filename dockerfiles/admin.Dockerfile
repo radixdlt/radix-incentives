@@ -27,10 +27,8 @@ FROM base AS installer
 COPY --from=builder /app/out/json/ .
 RUN pnpm install
 
-# Copy source code and build (excluding node_modules)
-COPY --from=builder /app/out/full/apps/ apps/
-COPY --from=builder /app/out/full/packages/ packages/
-COPY --from=builder /app/out/full/turbo.json turbo.json
+# Copy source code and build
+COPY --from=builder /app/out/full/ .
 RUN pnpm turbo run build --filter=admin...
 
 # Production image
