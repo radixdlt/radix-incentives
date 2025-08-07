@@ -11,8 +11,7 @@ import { api } from '~/trpc/react';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
 
-// biome-ignore lint/style/useConst: <explanation>
-let rdtSingleton: RadixDappToolkit | undefined = undefined;
+let rdtSingleton: RadixDappToolkit | undefined;
 
 export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   const signIn = api.auth.signIn.useMutation({ retry: false, retryDelay: 0 });
@@ -20,7 +19,6 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   const generateChallenge = api.auth.generateChallenge.useMutation({});
   const [rdt, setRdt] = useState<RadixDappToolkit | undefined>(undefined);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     // RDT is not available on server
     if (typeof window === 'undefined') return;
@@ -65,14 +63,14 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       const { label } = request.persona;
 
       try {
-        const result = await signIn.mutateAsync({
+        const _result = await signIn.mutateAsync({
           address,
           type,
           label,
           challenge,
           proof,
         });
-      } catch (error) {
+      } catch (_error) {
         rdt.disconnect();
       }
     });

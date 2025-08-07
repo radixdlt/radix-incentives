@@ -43,10 +43,10 @@ export const ConsultationCard: FC<ConsultationCardProps> = ({
       <CardHeader>
         <CardTitle>{consultation.title}</CardTitle>
         <CardDescription
-          // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+          // biome-ignore lint/security/noDangerouslySetInnerHtml: Consultation question content is trusted and sanitized server-side
           dangerouslySetInnerHTML={{ __html: consultation.question }}
         />
-        <p className="text-sm text-muted-foreground">
+        <p className="text-muted-foreground text-sm">
           Consultation Period: {consultation.startDate.toLocaleDateString()} -{' '}
           {consultation.endDate.toLocaleDateString()}
         </p>

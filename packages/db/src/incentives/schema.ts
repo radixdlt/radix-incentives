@@ -1,7 +1,6 @@
 import type { ActivityCategoryId, ActivityId } from 'data';
 import { type InferSelectModel, relations } from 'drizzle-orm';
 import {
-  bigint,
   boolean,
   char,
   decimal,

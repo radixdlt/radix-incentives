@@ -4,11 +4,11 @@ import { Button } from '~/components/ui/button';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
 
 export const Navigation = () => {
-  const rdt = useDappToolkit();
+  const _rdt = useDappToolkit();
 
   return (
-    <nav className="relative z-20 w-full px-6 py-3 ">
-      <div className=" mx-auto flex items-center justify-between">
+    <nav className="relative z-20 w-full px-6 py-3">
+      <div className="mx-auto flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Logo />
         </div>

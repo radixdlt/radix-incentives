@@ -1,8 +1,5 @@
 'use client';
 
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
-
 import {
   Activity,
   Bell,
@@ -12,6 +9,8 @@ import {
   Shield,
   Users,
 } from 'lucide-react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 
 import { cn } from '../lib/utils';
 
@@ -71,7 +70,7 @@ export function Sidebar({ isOpen }: { isOpen: boolean }) {
             key={item.href}
             href={item.href}
             className={cn(
-              'flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors',
+              'flex items-center gap-3 rounded-md px-3 py-2 font-medium text-sm transition-colors',
               pathname === item.href
                 ? 'bg-muted text-foreground'
                 : 'text-muted-foreground hover:bg-muted hover:text-foreground',
@@ -85,7 +84,7 @@ export function Sidebar({ isOpen }: { isOpen: boolean }) {
       <div className="mt-auto border-t p-2">
         <button
           type="button"
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 font-medium text-muted-foreground text-sm transition-colors hover:bg-muted hover:text-foreground"
         >
           <LogOut className="h-5 w-5" />
           Sign Out

@@ -31,7 +31,7 @@ export function UserStats({
     return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
   };
 
-  const getRankSuffix = (rank: number) => {
+  const _getRankSuffix = (rank: number) => {
     if (rank >= 11 && rank <= 13) return 'th';
     switch (rank % 10) {
       case 1:
@@ -57,32 +57,32 @@ export function UserStats({
 
     return (
       <div className="space-y-6">
-        <div className="text-center p-6 rounded-lg border bg-card">
-          <div className="text-lg font-medium mb-2">{title}</div>
-          <p className="text-sm text-muted-foreground mb-4">{description}</p>
-          <div className="text-xs text-muted-foreground">
+        <div className="rounded-lg border bg-card p-6 text-center">
+          <div className="mb-2 font-medium text-lg">{title}</div>
+          <p className="mb-4 text-muted-foreground text-sm">{description}</p>
+          <div className="text-muted-foreground text-xs">
             Total participants: {globalStats.totalUsers.toLocaleString()}
           </div>
         </div>
 
         {/* Still show global stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 rounded-lg border bg-card">
-            <h4 className="font-medium mb-2">Community Average</h4>
-            <div className="text-lg font-semibold">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <div className="rounded-lg border bg-card p-4">
+            <h4 className="mb-2 font-medium">Community Average</h4>
+            <div className="font-semibold text-lg">
               {formatPoints(globalStats.average)}
             </div>
-            <div className="text-sm text-muted-foreground mt-1">
+            <div className="mt-1 text-muted-foreground text-sm">
               {pointsLabel} per participant
             </div>
           </div>
 
-          <div className="p-4 rounded-lg border bg-card">
-            <h4 className="font-medium mb-2">Community Median</h4>
-            <div className="text-lg font-semibold">
+          <div className="rounded-lg border bg-card p-4">
+            <h4 className="mb-2 font-medium">Community Median</h4>
+            <div className="font-semibold text-lg">
               {formatPoints(globalStats.median)}
             </div>
-            <div className="text-sm text-muted-foreground mt-1">
+            <div className="mt-1 text-muted-foreground text-sm">
               {pointsLabel} per participant
             </div>
           </div>
@@ -94,50 +94,50 @@ export function UserStats({
   return (
     <div className="space-y-4 sm:space-y-6">
       {/* Main Stats Grid - Better mobile layout */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-        <div className="text-center p-3 sm:p-4 rounded-lg glass-card col-span-2 sm:col-span-1">
-          <div className="text-sm font-medium text-white/80 mb-2">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4">
+        <div className="glass-card col-span-2 rounded-lg p-3 text-center sm:col-span-1 sm:p-4">
+          <div className="mb-2 font-medium text-sm text-white/80">
             Your {pointsLabel}
           </div>
-          <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
+          <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             {formatPoints(stats.totalPoints)}
           </div>
         </div>
 
-        <div className="text-center p-3 sm:p-4 rounded-lg glass-card">
-          <div className="text-sm font-medium text-white/80 mb-2">Ranking</div>
-          <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
+        <div className="glass-card rounded-lg p-3 text-center sm:p-4">
+          <div className="mb-2 font-medium text-sm text-white/80">Ranking</div>
+          <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             #{stats.rank}
           </div>
-          <div className="text-xs text-white/60 mt-1">
+          <div className="mt-1 text-white/60 text-xs">
             of {globalStats.totalUsers.toLocaleString()}
           </div>
         </div>
 
-        <div className="text-center p-3 sm:p-4 rounded-lg glass-card">
-          <div className="text-sm font-medium text-white/80 mb-2">
+        <div className="glass-card rounded-lg p-3 text-center sm:p-4">
+          <div className="mb-2 font-medium text-sm text-white/80">
             Percentile
           </div>
-          <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
+          <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             {stats.percentile}%
           </div>
         </div>
       </div>
 
       {/* Performance Comparison and Global Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-        <div className="p-3 sm:p-4 rounded-lg border bg-card">
-          <h4 className="font-medium mb-2 text-sm sm:text-base">vs. Average</h4>
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
+        <div className="rounded-lg border bg-card p-3 sm:p-4">
+          <h4 className="mb-2 font-medium text-sm sm:text-base">vs. Average</h4>
           <div className="flex items-center gap-2">
-            <div className="text-base sm:text-lg font-semibold">
+            <div className="font-semibold text-base sm:text-lg">
               {formatPoints(stats.totalPoints)}
             </div>
-            <div className="text-xs sm:text-sm text-muted-foreground">vs</div>
+            <div className="text-muted-foreground text-xs sm:text-sm">vs</div>
             <div className="text-base sm:text-lg">
               {formatPoints(globalStats.average)}
             </div>
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1">
+          <div className="mt-1 text-muted-foreground text-xs sm:text-sm">
             {Number.parseFloat(stats.totalPoints) >
             Number.parseFloat(globalStats.average)
               ? 'Above average'
@@ -148,18 +148,18 @@ export function UserStats({
           </div>
         </div>
 
-        <div className="p-3 sm:p-4 rounded-lg border bg-card">
-          <h4 className="font-medium mb-2 text-sm sm:text-base">vs. Median</h4>
+        <div className="rounded-lg border bg-card p-3 sm:p-4">
+          <h4 className="mb-2 font-medium text-sm sm:text-base">vs. Median</h4>
           <div className="flex items-center gap-2">
-            <div className="text-base sm:text-lg font-semibold">
+            <div className="font-semibold text-base sm:text-lg">
               {formatPoints(stats.totalPoints)}
             </div>
-            <div className="text-xs sm:text-sm text-muted-foreground">vs</div>
+            <div className="text-muted-foreground text-xs sm:text-sm">vs</div>
             <div className="text-base sm:text-lg">
               {formatPoints(globalStats.median)}
             </div>
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1">
+          <div className="mt-1 text-muted-foreground text-xs sm:text-sm">
             {Number.parseFloat(stats.totalPoints) >
             Number.parseFloat(globalStats.median)
               ? 'Above median'
@@ -170,14 +170,14 @@ export function UserStats({
           </div>
         </div>
 
-        <div className="p-3 sm:p-4 rounded-lg border bg-card sm:col-span-2 lg:col-span-1">
-          <h4 className="font-medium mb-2 text-sm sm:text-base">
+        <div className="rounded-lg border bg-card p-3 sm:col-span-2 sm:p-4 lg:col-span-1">
+          <h4 className="mb-2 font-medium text-sm sm:text-base">
             Participants
           </h4>
-          <div className="text-base sm:text-lg font-semibold">
+          <div className="font-semibold text-base sm:text-lg">
             {globalStats.totalUsers.toLocaleString()}
           </div>
-          <div className="text-xs sm:text-sm text-muted-foreground mt-1">
+          <div className="mt-1 text-muted-foreground text-xs sm:text-sm">
             Total users
           </div>
         </div>

@@ -1,9 +1,8 @@
 import https from 'node:https';
 import { CoreApiClient } from '@radixdlt/babylon-core-api-sdk';
-import { Context, Effect, Layer } from 'effect';
-
 import type { PublicKey as GatewayPublicKey } from '@radixdlt/babylon-gateway-api-sdk';
 import type { PublicKey } from '@radixdlt/radix-engine-toolkit';
+import { Context, Effect, Layer } from 'effect';
 
 export class CoreNodeError {
   readonly _tag = 'CoreNodeError';

@@ -1,8 +1,7 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import { type Week, weeks } from 'db/incentives';
 import { eq } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class WeekNotFoundError {
   readonly _tag = 'WeekNotFoundError';

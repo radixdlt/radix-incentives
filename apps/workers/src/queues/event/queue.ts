@@ -8,7 +8,7 @@ export const eventQueue = createQueue<EventQueueJob, void>({
   name: QueueName.event,
   redisClient,
   worker: eventQueueWorker,
-  onError: async (job, error) => {
+  onError: async (_job, error) => {
     console.error(error);
   },
 });

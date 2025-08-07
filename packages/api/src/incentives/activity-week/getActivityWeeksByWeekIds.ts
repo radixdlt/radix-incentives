@@ -1,9 +1,8 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
-
 import type { ActivityId } from 'data';
 import { type ActivityWeek, activityWeeks } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type GetActivityWeeksError = DbError;
 

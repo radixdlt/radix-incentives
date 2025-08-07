@@ -13,14 +13,14 @@ const navItems = [
     label: 'Accounts',
     href: '/dashboard/accounts',
     icon: (
-      <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      <Users className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
     ),
   },
   {
     label: 'Consultations',
     href: '/dashboard/consultations',
     icon: (
-      <Vote className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+      <Vote className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
     ),
   },
 ];
@@ -37,7 +37,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
   return (
     <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-b border-border bg-background px-4 md:px-6">
+      <header className="sticky top-0 z-10 flex h-16 items-center gap-4 border-border border-b bg-background px-4 md:px-6">
         <div className="flex flex-1 items-center gap-2">
           <Link
             href="/"
@@ -55,10 +55,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
           <RadixConnectButton />
         </nav>
       </header>
-      <div className="flex flex-1 h-full">
+      <div className="flex h-full flex-1">
         <Sidebar open={open} setOpen={setOpen}>
           <SidebarBody className="justify-between gap-10">
-            <div className="flex flex-col flex-1 overflow-y-auto overflow-x-hidden">
+            <div className="flex flex-1 flex-col overflow-y-auto overflow-x-hidden">
               <div className="flex flex-col gap-2 px-4">
                 {navItems.map((link) => (
                   <SidebarLink
@@ -72,7 +72,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
             </div>
           </SidebarBody>
         </Sidebar>
-        <main className="flex-1 p-4 md:p-6 bg-muted/50 overflow-auto">
+        <main className="flex-1 overflow-auto bg-muted/50 p-4 md:p-6">
           {children}
         </main>
       </div>

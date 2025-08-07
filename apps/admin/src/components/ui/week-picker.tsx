@@ -1,7 +1,7 @@
 'use client';
 
 import { CalendarIcon } from '@radix-ui/react-icons';
-import { endOfWeek, format, startOfWeek } from 'date-fns';
+import { format } from 'date-fns';
 import * as React from 'react';
 
 import { Button } from '~/components/ui/button';
@@ -66,7 +66,7 @@ export function WeekPicker({ selectedWeek, onWeekSelect }: WeekPickerProps) {
         <Button
           variant={'outline'}
           className={cn(
-            'w-full justify-start text-left font-normal px-3',
+            'w-full justify-start px-3 text-left font-normal',
             !selectedWeek && 'text-muted-foreground',
           )}
         >

@@ -1,5 +1,5 @@
 // Polyfill fetch for Node.js environment
-import { Headers, Request, Response, fetch } from 'undici';
+import { fetch, Headers, Request, Response } from 'undici';
 
 if (!globalThis.fetch) {
   globalThis.fetch = fetch as typeof globalThis.fetch;

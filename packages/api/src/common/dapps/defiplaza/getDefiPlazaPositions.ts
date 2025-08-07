@@ -1,12 +1,10 @@
 import BigNumber from 'bignumber.js';
-import { Data, Effect } from 'effect';
-
+import { DappConstants } from 'data';
+import { Effect } from 'effect';
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from '../../gateway/getFungibleBalance';
-
-import { DappConstants } from 'data';
 import type { AtLedgerState } from '../../gateway/schemas';
 
 const DefiPlazaConstants = DappConstants.DefiPlaza.constants;

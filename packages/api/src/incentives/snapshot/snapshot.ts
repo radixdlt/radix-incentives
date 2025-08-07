@@ -2,10 +2,10 @@ import { Config, Effect, Either } from 'effect';
 import { chunker } from '../../common';
 import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import { GetAccountAddressesService } from '../account/getAccounts';
 import { AggregateAccountBalanceService } from '../account-balance/aggregateAccountBalance';
 import { GetAccountBalancesAtStateVersionService } from '../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../account-balance/upsertAccountBalance';
-import { GetAccountAddressesService } from '../account/getAccounts';
 import { ConfigService } from '../config/configService';
 import { CreateSnapshotService } from './createSnapshot';
 import { generateDummySnapshotData } from './generateDummySnapshotData';
@@ -124,7 +124,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
         // Track overall progress
         let processedAccounts = 0;
-        let totalProcessedEntries = 0;
+        let _totalProcessedEntries = 0;
 
         const enableDummyData = input.addDummyData ?? false;
 
@@ -254,7 +254,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
           // Update progress
           processedAccounts += batch.length;
-          totalProcessedEntries += batchAggregatedAccountBalance.length;
+          _totalProcessedEntries += batchAggregatedAccountBalance.length;
 
           yield* Effect.log(
             'completed batch',

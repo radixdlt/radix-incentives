@@ -4,11 +4,10 @@ import type {
 } from '@radixdlt/babylon-gateway-api-sdk';
 import { BigNumber } from 'bignumber.js';
 import { Config, Effect } from 'effect';
+import { chunker } from '../helpers/chunker';
 import { EntityFungiblesPageService } from './entityFungiblesPage';
 import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
-
-import { chunker } from '../helpers/chunker';
 
 import type { AtLedgerState } from './schemas';
 

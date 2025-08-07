@@ -14,16 +14,12 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
 import { describe, inject } from 'vitest';
-import { AccountBalanceService } from '../account-balance/accountBalance';
 import { GetAccountAddressByUserIdLive } from '../account/getAccountAddressByUserId';
+import { AccountBalanceService } from '../account-balance/accountBalance';
 import { ComponentWhitelistService } from '../component/componentWhitelist';
 import { GetComponentCallsPaginatedLive } from '../component/getComponentCalls';
-import {
-  AppConfigService,
-  createAppConfigLive,
-  defaultAppConfig,
-} from '../config/appConfig';
-import { DbReadOnlyClientService, createDbClientLive } from '../db/dbClient';
+import { createAppConfigLive, defaultAppConfig } from '../config/appConfig';
+import { createDbClientLive, DbReadOnlyClientService } from '../db/dbClient';
 import { GetTradingVolumeLive } from '../trading-volume/getTradingVolume';
 import { GetTransactionFeesPaginatedLive } from '../transaction-fee/getTransactionFees';
 import { GetWeekByIdLive } from '../week/getWeekById';
@@ -103,7 +99,7 @@ describe('calculateActivityPoints', () => {
   const TEST_ACCOUNT_1 = 'account_rdx12test1_calculate_activity_points';
   const TEST_ACCOUNT_2 = 'account_rdx12test2_calculate_activity_points';
 
-  const setupTestData = Effect.gen(function* () {
+  const _setupTestData = Effect.gen(function* () {
     // Create test season
     yield* Effect.promise(() =>
       db
@@ -196,7 +192,7 @@ describe('calculateActivityPoints', () => {
     );
   });
 
-  const cleanupTestData = Effect.gen(function* () {
+  const _cleanupTestData = Effect.gen(function* () {
     yield* Effect.promise(() =>
       db.delete(accounts).where(eq(accounts.address, TEST_ACCOUNT_1)),
     );
@@ -245,7 +241,7 @@ describe('calculateActivityPoints', () => {
 
       // Test calculation for a small set of test accounts
       // This mainly tests that the service can be instantiated and called without errors
-      const result = yield* calculateActivityPointsService({
+      const _result = yield* calculateActivityPointsService({
         weekId: existingWeek[0].id,
         addresses: [TEST_ACCOUNT_1, TEST_ACCOUNT_2],
       });

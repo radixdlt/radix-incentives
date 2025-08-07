@@ -40,7 +40,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'Dashboard',
       href: '/dashboard',
       icon: (
-        <Home className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <Home className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       hide: isLimitAccessEnabled,
     },
@@ -48,7 +48,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'Earn',
       href: '/dashboard/earn',
       icon: (
-        <Target className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <Target className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       hide: isLimitAccessEnabled,
     },
@@ -56,7 +56,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'Ranking',
       href: '/dashboard/leaderboard',
       icon: (
-        <List className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <List className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       hide: isLimitAccessEnabled,
     },
@@ -64,7 +64,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'Accounts',
       href: '/dashboard/accounts',
       icon: (
-        <Users className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <Users className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       hide: false,
     },
@@ -72,7 +72,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       label: 'FAQ',
       href: '/dashboard/faq',
       icon: (
-        <HelpCircle className="text-neutral-700 dark:text-neutral-200 h-5 w-5 flex-shrink-0" />
+        <HelpCircle className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       hide: false,
     },
@@ -90,7 +90,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       {/* Top Navigation Bar */}
       <header
-        className="sticky top-0 z-50 w-full border-b border-white/10"
+        className="sticky top-0 z-50 w-full border-white/10 border-b"
         style={{
           background: 'rgba(255, 255, 255, 0.08)',
           boxShadow: '0 8px 32px rgba(0, 0, 0, 0.4)',
@@ -112,26 +112,26 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
 
       <div className="flex flex-1">
         {/* Desktop Sidebar */}
-        <aside className="hidden md:flex flex-col glass-card border-r border-white/10 grid-pattern-sm sticky top-[65px] h-[calc(100vh-65px)]">
+        <aside className="glass-card grid-pattern-sm sticky top-[65px] hidden h-[calc(100vh-65px)] flex-col border-white/10 border-r md:flex">
           <div
             className={cn(
-              'flex flex-col h-full transition-all duration-300 ease-in-out',
+              'flex h-full flex-col transition-all duration-300 ease-in-out',
               isCollapsed ? 'w-20' : 'w-64',
             )}
           >
             {/* Sidebar Toggle - Sticky */}
-            <div className="px-3 py-3 border-b border-white/10 sticky top-0 bg-inherit z-10">
+            <div className="sticky top-0 z-10 border-white/10 border-b bg-inherit px-3 py-3">
               <Button
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  'h-10 w-full transition-all duration-300 hover:bg-white/10 bg-white/5 border border-white/10',
-                  isCollapsed ? 'px-0 justify-center' : 'justify-between px-3',
+                  'h-10 w-full border border-white/10 bg-white/5 transition-all duration-300 hover:bg-white/10',
+                  isCollapsed ? 'justify-center px-0' : 'justify-between px-3',
                 )}
                 onClick={() => setIsCollapsed(!isCollapsed)}
               >
                 {!isCollapsed && (
-                  <span className="text-sm text-white/70 font-medium">
+                  <span className="font-medium text-sm text-white/70">
                     Navigation
                   </span>
                 )}
@@ -155,11 +155,11 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                         key={item.href}
                         href={item.href}
                         className={cn(
-                          'flex items-center rounded-xl py-3 text-sm font-medium transition-all duration-300 hover-lift',
+                          'hover-lift flex items-center rounded-xl py-3 font-medium text-sm transition-all duration-300',
                           isCollapsed ? 'justify-center px-3' : 'gap-3 px-3',
                           isActive
-                            ? 'glass text-white glow-brand gradient-brand'
-                            : 'text-white/70 hover:text-white hover:bg-white/10 hover:glass',
+                            ? 'glass glow-brand gradient-brand text-white'
+                            : 'hover:glass text-white/70 hover:bg-white/10 hover:text-white',
                         )}
                       >
                         <div className="flex-shrink-0">
@@ -184,8 +184,8 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         </aside>
 
         {/* Mobile Bottom Navigation */}
-        <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
-          <nav className="glass border-t border-white/10 grid-pattern-sm">
+        <div className="fixed right-0 bottom-0 left-0 z-50 md:hidden">
+          <nav className="glass grid-pattern-sm border-white/10 border-t">
             <div className="relative flex items-center justify-around px-2 py-2">
               {mobileNavItems.map((item) => {
                 const isActive = pathname === item.href;
@@ -194,10 +194,10 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      'flex flex-col items-center gap-1 px-3 py-3 rounded-xl transition-all duration-300 min-w-0 flex-1 hover-lift',
+                      'hover-lift flex min-w-0 flex-1 flex-col items-center gap-1 rounded-xl px-3 py-3 transition-all duration-300',
                       isActive
-                        ? 'glass text-white glow-brand gradient-brand'
-                        : 'text-white/70 hover:text-white hover:bg-white/10',
+                        ? 'glass glow-brand gradient-brand text-white'
+                        : 'text-white/70 hover:bg-white/10 hover:text-white',
                     )}
                   >
                     <div className="flex-shrink-0">
@@ -208,7 +208,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
                         ),
                       })}
                     </div>
-                    <span className="text-xs font-medium truncate">
+                    <span className="truncate font-medium text-xs">
                       {item.label}
                     </span>
                   </Link>

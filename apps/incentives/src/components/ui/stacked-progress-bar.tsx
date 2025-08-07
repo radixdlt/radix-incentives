@@ -85,19 +85,19 @@ export function StackedProgressBar({
   );
 
   return (
-    <div className={`rounded-lg glass-card p-6 ${className}`}>
+    <div className={`glass-card rounded-lg p-6 ${className}`}>
       <div className="space-y-4">
         {/* Header */}
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-white">{title}</h3>
-          <h3 className="text-lg font-semibold text-white">
+          <h3 className="font-semibold text-lg text-white">{title}</h3>
+          <h3 className="font-semibold text-lg text-white">
             Total: {formatValue(total)}
             {valueSuffix}
           </h3>
         </div>
 
         {onItemClick && (
-          <div className="text-sm text-white/60 flex items-center gap-2">
+          <div className="flex items-center gap-2 text-sm text-white/60">
             <Trophy className="h-4 w-4 text-cyan-400" />
             Click any {title.toLowerCase().replace(' categories', ' category')}{' '}
             to view its leaderboard
@@ -109,7 +109,7 @@ export function StackedProgressBar({
           {/* Stacked Bar */}
           <div className="pt-1">
             <div
-              className={`w-full h-8 bg-white/10 rounded-lg relative ${onItemClick ? 'cursor-pointer hover:shadow-md' : ''} transition-shadow duration-200`}
+              className={`relative h-8 w-full rounded-lg bg-white/10 ${onItemClick ? 'cursor-pointer hover:shadow-md' : ''} transition-shadow duration-200`}
             >
               {(() => {
                 let cumulativeValue = 0;
@@ -136,11 +136,12 @@ export function StackedProgressBar({
                   const formattedValue = formatValue(item.value);
 
                   const segment = (
+                    // biome-ignore lint/a11y/noStaticElementInteractions: Role is conditionally applied based on interactivity
                     <div
                       key={item.id}
-                      role={onItemClick ? 'button' : undefined}
+                      role={onItemClick ? 'button' : 'presentation'}
                       tabIndex={onItemClick ? 0 : undefined}
-                      className={`absolute top-0 h-full ${colorClass} ${onItemClick ? 'cursor-pointer' : ''} transition-all duration-300 hover:scale-y-110 hover:brightness-110 hover:shadow-md group ${roundingClass}`}
+                      className={`absolute top-0 h-full ${colorClass} ${onItemClick ? 'cursor-pointer' : ''} group transition-all duration-300 hover:scale-y-110 hover:shadow-md hover:brightness-110 ${roundingClass}`}
                       style={{
                         left: `${leftPercentage}%`,
                         width: `${widthPercentage}%`,
@@ -159,7 +160,7 @@ export function StackedProgressBar({
                     >
                       {/* Tooltip */}
                       <div
-                        className="absolute bottom-full mb-3 px-3 py-2 bg-black border border-white/30 text-white text-xs rounded-md shadow-xl opacity-0 group-hover:opacity-100 transition-opacity duration-200 whitespace-nowrap z-50 pointer-events-none"
+                        className="pointer-events-none absolute bottom-full z-50 mb-3 whitespace-nowrap rounded-md border border-white/30 bg-black px-3 py-2 text-white text-xs opacity-0 shadow-xl transition-opacity duration-200 group-hover:opacity-100"
                         style={{
                           left: '50%',
                           transform: 'translateX(-50%)',
@@ -173,7 +174,7 @@ export function StackedProgressBar({
                               formattedValue,
                             )}
                         {/* Arrow */}
-                        <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-black" />
+                        <div className="-translate-x-1/2 absolute top-full left-1/2 h-0 w-0 transform border-transparent border-t-4 border-t-black border-r-4 border-l-4" />
                       </div>
                     </div>
                   );
@@ -195,11 +196,12 @@ export function StackedProgressBar({
                 const formattedValue = formatValue(item.value);
 
                 return (
+                  // biome-ignore lint/a11y/noStaticElementInteractions: Role is conditionally applied based on interactivity
                   <div
                     key={item.id}
-                    role={onItemClick ? 'button' : undefined}
+                    role={onItemClick ? 'button' : 'listitem'}
                     tabIndex={onItemClick ? 0 : undefined}
-                    className={`group flex items-center gap-3 ${onItemClick ? 'cursor-pointer hover:bg-white/10 hover:shadow-sm' : ''} p-2 rounded-md transition-all duration-200 ${onItemClick ? 'border border-transparent hover:border-white/20' : ''}`}
+                    className={`group flex items-center gap-3 ${onItemClick ? 'cursor-pointer hover:bg-white/10 hover:shadow-sm' : ''} rounded-md p-2 transition-all duration-200 ${onItemClick ? 'border border-transparent hover:border-white/20' : ''}`}
                     onClick={() => onItemClick?.(item)}
                     onKeyDown={(e) => {
                       if (onItemClick && (e.key === 'Enter' || e.key === ' ')) {
@@ -210,25 +212,25 @@ export function StackedProgressBar({
                     title={onItemClick ? 'Click to view details' : undefined}
                   >
                     <div
-                      className={`w-4 h-4 rounded ${colorClass} flex-shrink-0`}
+                      className={`h-4 w-4 rounded ${colorClass} flex-shrink-0`}
                     />
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate text-white">
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate font-medium text-sm text-white">
                         {item.name}
                       </div>
                     </div>
-                    <div className="text-right flex-shrink-0 flex items-center gap-2">
+                    <div className="flex flex-shrink-0 items-center gap-2 text-right">
                       <div>
-                        <div className="text-sm font-medium text-white">
+                        <div className="font-medium text-sm text-white">
                           {formattedValue}
                           {valueSuffix}
                         </div>
-                        <div className="text-xs text-white/60">
+                        <div className="text-white/60 text-xs">
                           {widthPercentage.toFixed(1)}%
                         </div>
                       </div>
                       {showNavigationIndicators && onItemClick && (
-                        <ChevronRight className="h-4 w-4 text-white/60 group-hover:text-cyan-400 transition-colors" />
+                        <ChevronRight className="h-4 w-4 text-white/60 transition-colors group-hover:text-cyan-400" />
                       )}
                     </div>
                   </div>

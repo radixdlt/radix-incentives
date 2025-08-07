@@ -1,9 +1,8 @@
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../../db/dbClient';
-
-import { events, type Event } from 'db/incentives';
+import { type Event, events } from 'db/incentives';
 import { and, eq, or } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
 import SuperJSON from 'superjson';
+import { DbClientService, DbError } from '../../db/dbClient';
 import type { EmittableEvent } from '../event-matchers/types';
 
 export type GetEventsFromDbOutput = (Omit<Event, 'eventData'> & {

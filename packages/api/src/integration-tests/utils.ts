@@ -14,7 +14,7 @@ import {
  * @param db - Database client
  * @param dbUrl - Database URL
  */
-// biome-ignore lint/suspicious/noExplicitAny: <explanation>
+// biome-ignore lint/suspicious/noExplicitAny: Database type varies between test environments
 export const truncateAllTables = async (db: any, dbUrl: string) => {
   // Safety check: only allow truncation on localhost
   const databaseUrl = dbUrl;

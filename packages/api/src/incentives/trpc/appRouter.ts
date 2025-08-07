@@ -1,4 +1,3 @@
-import { createCallerFactory, createTRPCRouter } from '.';
 import { accountRouter } from '../account/accountRouter';
 import {
   activityRouter,
@@ -13,6 +12,7 @@ import { adminSeasonRouter } from '../season/seasonRouter';
 import { adminSeedRouter } from '../seed/seedRouter';
 import { adminUserRouter, userRouter } from '../user/userRouter';
 import { weekAdminRouter, weekRouter } from '../week/weekRouter';
+import { createCallerFactory, createTRPCRouter } from '.';
 
 /**
  * This is the primary router for your server.

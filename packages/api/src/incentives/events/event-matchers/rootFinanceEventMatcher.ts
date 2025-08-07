@@ -1,6 +1,4 @@
 import { Effect } from 'effect';
-import type { TransformedEvent } from '../../transaction-stream/transformEvent';
-
 import { isRootFinanceComponent } from '../../../common/address-validation/addressValidation';
 import {
   type CDPLiquidableEvent as CDPLiquidableEventType,
@@ -8,6 +6,7 @@ import {
   type CDPUpdatedEvent as CDPUpdatedEventType,
   type LendingPoolUpdatedEvent as LendingPoolUpdatedEventType,
 } from '../../../common/dapps/rootFinance/schema';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
   type CapturedEvent,
   createEventMatcher,

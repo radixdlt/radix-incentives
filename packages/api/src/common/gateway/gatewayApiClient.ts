@@ -33,12 +33,12 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
 
       const fetchImpl = fetchRetry(fetch, {
         retries: gatewayRetryAttempts,
-        retryDelay: (attempt, error, response) => {
+        retryDelay: (attempt, _error, _response) => {
           const maxDelay = 30_000; // 30 seconds max
           const baseDelay = Math.min(2 ** attempt * 1000, maxDelay); // 1000, 2000, 4000ms etc up to max
           return Math.floor(baseDelay);
         },
-        retryOn: (attempt, error, response) => {
+        retryOn: (_attempt, error, response) => {
           // Retry on network errors
           if (error !== null) {
             return false;

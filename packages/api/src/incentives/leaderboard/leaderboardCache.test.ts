@@ -1,15 +1,5 @@
 import { it } from '@effect/vitest';
-import { and, eq } from 'drizzle-orm';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { Effect, Layer, LogLevel, Logger } from 'effect';
-import { describe, inject } from 'vitest';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { ActivityWeekService } from '../activity-week/activityWeek';
-import { createDbClientLive } from '../db/dbClient';
-import { SeasonService } from '../season/season';
-import { WeekService } from '../week/week';
-import { LeaderboardCacheService } from './leaderboardCache';
-
+import { ActivityCategoryId, ActivityId } from 'data';
 import {
   accountActivityPoints,
   accounts,
@@ -24,11 +14,19 @@ import {
   users,
   weeks,
 } from 'db/incentives';
-
-import { ActivityCategoryId, ActivityId } from 'data';
+import { and, eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
+import { describe, inject } from 'vitest';
 import { truncateAllTables } from '../../integration-tests/utils';
 import { createActivities } from '../../test-config/helpers';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { createDbClientLive } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { LeaderboardCacheService } from './leaderboardCache';
 
 const dbUrl = inject('testDbUrl');
 const client = postgres(dbUrl);

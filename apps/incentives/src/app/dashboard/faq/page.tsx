@@ -1,17 +1,14 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import * as React from 'react';
-import { ContactSection } from './components/contact-section';
 import { faqItems } from './components/faq-data';
 import { FaqHeader } from './components/faq-header';
 import { FaqItem } from './components/faq-item';
-import { FaqNavigation } from './components/faq-navigation';
 
 export default function FaqPage() {
   return (
     <div className="min-h-screen">
-      <div className="container mx-auto px-3 sm:px-4 lg:px-6 py-4 sm:py-6 lg:py-8 max-w-4xl">
+      <div className="container mx-auto max-w-4xl px-3 py-4 sm:px-4 sm:py-6 lg:px-6 lg:py-8">
         {/* Header Section */}
         <div className="mb-6 sm:mb-8">
           <FaqHeader />
@@ -22,7 +19,7 @@ export default function FaqPage() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="space-y-3 sm:space-y-4 mb-8 sm:mb-12"
+          className="mb-8 space-y-3 sm:mb-12 sm:space-y-4"
         >
           {faqItems.map((item, index) => (
             <motion.div

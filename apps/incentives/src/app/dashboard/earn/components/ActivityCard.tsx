@@ -1,18 +1,13 @@
 import type { Activity, ActivityCategory, Dapp } from 'api/incentives';
 import {
-  Banknote,
   Coins,
   CreditCard,
   Droplet,
   ExternalLink,
   FileText,
-  HandCoins,
-  PiggyBank,
   Settings,
   TrendingUp,
   Wallet,
-  Waves,
-  Zap,
 } from 'lucide-react';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -25,7 +20,6 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
-import type { IconName } from '../utils/getActivityIcon';
 
 export const ActivityCard = ({
   activity,
@@ -87,7 +81,7 @@ export const ActivityCard = ({
   return (
     <Card
       className={cn(
-        'h-full hover:shadow-lg transition-all duration-200',
+        'h-full transition-all duration-200 hover:shadow-lg',
         'border-2 hover:border-primary/50',
       )}
     >
@@ -96,7 +90,7 @@ export const ActivityCard = ({
           <div className="flex items-center gap-3">
             <div
               className={cn(
-                'p-2 rounded-lg',
+                'rounded-lg p-2',
                 getCategoryColor(activity.category),
               )}
             >
@@ -114,7 +108,7 @@ export const ActivityCard = ({
             </Badge>
           )}
         </div>
-        <div className="flex gap-1 mt-2">
+        <div className="mt-2 flex gap-1">
           {activity?.data?.ap && (
             <Badge variant="secondary" className="text-xs">
               AP
@@ -134,10 +128,10 @@ export const ActivityCard = ({
         </CardDescription>
 
         <div>
-          <h4 className="text-sm font-medium text-foreground mb-2">
+          <h4 className="mb-2 font-medium text-foreground text-sm">
             Category:
           </h4>
-          <p className="text-xs text-muted-foreground">
+          <p className="text-muted-foreground text-xs">
             {activityCategory?.name}
           </p>
         </div>

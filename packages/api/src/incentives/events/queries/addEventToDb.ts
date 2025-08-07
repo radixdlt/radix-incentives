@@ -1,8 +1,7 @@
+import { type Event, events } from 'db/incentives';
 import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../../db/dbClient';
-
-import { events, type Event } from 'db/incentives';
 import SuperJSON from 'superjson';
+import { DbClientService, DbError } from '../../db/dbClient';
 
 export class AddEventsToDbService extends Context.Tag('AddEventsToDbService')<
   AddEventsToDbService,

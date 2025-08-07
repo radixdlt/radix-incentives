@@ -93,7 +93,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
               }
             }
             return true;
-          } catch (e) {
+          } catch (_e) {
             return 'Invalid JSON format';
           }
         },
@@ -114,7 +114,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           try {
             new Date(input as string).toISOString();
             return true;
-          } catch (e) {
+          } catch (_e) {
             return 'Invalid timestamp format. Use ISO format like 2024-01-01T00:00:00.000Z';
           }
         },
@@ -128,7 +128,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           try {
             new Date(input as string).toISOString();
             return true;
-          } catch (e) {
+          } catch (_e) {
             return 'Invalid timestamp format. Use ISO format like 2024-01-01T00:00:00.000Z';
           }
         },

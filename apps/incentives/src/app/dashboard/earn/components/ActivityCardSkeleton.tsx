@@ -19,7 +19,7 @@ export const ActivityCardSkeleton = () => {
           </div>
           <Skeleton className="h-5 w-16 rounded-full" />
         </div>
-        <div className="flex gap-1 mt-2">
+        <div className="mt-2 flex gap-1">
           <Skeleton className="h-5 w-8 rounded-full" />
           <Skeleton className="h-5 w-16 rounded-full" />
         </div>
@@ -32,12 +32,12 @@ export const ActivityCardSkeleton = () => {
         </div>
 
         <div>
-          <Skeleton className="h-4 w-20 mb-2" />
+          <Skeleton className="mb-2 h-4 w-20" />
           <Skeleton className="h-3 w-24" />
         </div>
 
         <div>
-          <Skeleton className="h-4 w-16 mb-2" />
+          <Skeleton className="mb-2 h-4 w-16" />
           <Skeleton className="h-3 w-32" />
         </div>
       </CardContent>

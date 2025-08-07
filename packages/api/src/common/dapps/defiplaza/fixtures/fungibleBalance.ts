@@ -1,4 +1,3 @@
-import BigNumber from 'bignumber.js';
 import type { GetFungibleBalanceOutput } from '../../../gateway/getFungibleBalance';
 import { deserializeBigNumber } from '../../../utils/deserializeBigNumber';
 

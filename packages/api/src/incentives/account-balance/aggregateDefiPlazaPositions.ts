@@ -1,11 +1,10 @@
 import { DappId, defiPlazaLpResourceAddressToComponentAddress } from 'data';
 import { Data, Effect } from 'effect';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-
 import {
   AggregatePoolPositionsService,
   type LpPosition,
 } from './aggregatePoolPositions';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 export class InvalidDefiPlazaPositionError extends Data.TaggedClass(
   'InvalidDefiPlazaPositionError',

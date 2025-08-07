@@ -1,18 +1,13 @@
+import { db } from 'db/incentives';
 import { Config, Effect, Layer } from 'effect';
-
 import { createTransactionStream } from 'radix-transaction-stream';
 import { createRadixNetworkClient } from 'radix-web3.js';
+import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
-import { createAppConfigLive, createConfig } from '../config/appConfig';
-import { TransactionStreamLive } from './transactionStream';
-import { TransactionStreamLoopService } from './transactionStreamLoop';
-
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { FetchService } from '../../common/helpers/fetch';
-
-import { db } from 'db/incentives';
-import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
 import { AddComponentCallsLive } from '../component/addComponentCalls';
+import { createAppConfigLive, createConfig } from '../config/appConfig';
 import { ConfigService } from '../config/configService';
 import { createDbClientLive } from '../db/dbClient';
 import { AddToEventQueueLive } from '../events/addToEventQueue';
@@ -25,6 +20,8 @@ import { ProcessSwapEventTradingVolumeLive } from '../trading-volume/processSwap
 import { AddTransactionFeeLive } from '../transaction-fee/addTransactionFee';
 import { GetUserIdByAccountAddressLive } from '../user/getUserIdByAccountAddress';
 import { FilterTransactionsLive } from './filterTransactions';
+import { TransactionStreamLive } from './transactionStream';
+import { TransactionStreamLoopService } from './transactionStreamLoop';
 
 const config = createConfig({
   networkId: 1,

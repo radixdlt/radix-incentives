@@ -17,15 +17,15 @@ function ParticipationInstructions() {
     <Card>
       <CardContent className="p-6">
         <div className="flex items-start gap-3">
-          <Info className="h-5 w-5 text-cyan-400 mt-0.5 flex-shrink-0" />
+          <Info className="mt-0.5 h-5 w-5 flex-shrink-0 text-cyan-400" />
           <div className="space-y-4">
             <h3 className="font-semibold text-white">
               How to Participate in the Radix Rewards Program
             </h3>
-            <div className="text-sm text-white/70 space-y-4">
+            <div className="space-y-4 text-sm text-white/70">
               <div>
-                <h4 className="font-semibold text-white mb-2">Requirements:</h4>
-                <ul className="list-disc list-inside space-y-1 ml-2">
+                <h4 className="mb-2 font-semibold text-white">Requirements:</h4>
+                <ul className="ml-2 list-inside list-disc space-y-1">
                   <li>
                     You will need to connect a Persona. This may be visible on
                     the leaderboard.
@@ -47,10 +47,10 @@ function ParticipationInstructions() {
               </div>
 
               <div>
-                <h4 className="font-semibold text-white mb-2">
+                <h4 className="mb-2 font-semibold text-white">
                   Step-by-step instructions:
                 </h4>
-                <ol className="list-decimal list-inside space-y-1 ml-2">
+                <ol className="ml-2 list-inside list-decimal space-y-1">
                   <li>Click the "Connect New Account" button below.</li>
                   <li>
                     Open your Radix Wallet on your mobile device. Use the check

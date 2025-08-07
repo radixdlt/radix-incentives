@@ -8,13 +8,6 @@ import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
 import { AccountBalanceService } from '../account/accountBalance';
 import { GetAccountsByAddressLive } from '../account/getAccountsByAddress';
 import { UpsertAccountsLive } from '../account/upsertAccounts';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { ActivityCategoryService } from '../activity-category/activityCategory';
-import { ActivityWeekService } from '../activity-week/activityWeek';
-import {
-  GetActivityWeeksByWeekIdsLive,
-  GetActivityWeeksByWeekIdsService,
-} from '../activity-week/getActivityWeeksByWeekIds';
 import {
   ActivityService,
   type UpdateActivityInput,
@@ -28,16 +21,20 @@ import {
   GetActivityByIdLive,
   GetActivityByIdService,
 } from '../activity/getActivityById';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import {
+  GetActivityWeeksByWeekIdsLive,
+  GetActivityWeeksByWeekIdsService,
+} from '../activity-week/getActivityWeeksByWeekIds';
 import {
   CreateChallengeLive,
   createChallengeProgram,
 } from '../challenge/createChallenge';
 import { VerifyChallengeLive } from '../challenge/verifyChallenge';
 import { ComponentWhitelistService } from '../component/componentWhitelist';
-import {
-  type CsvParsingError,
-  parseCsvWhitelist,
-} from '../component/parseCsvWhitelist';
+import { parseCsvWhitelist } from '../component/parseCsvWhitelist';
 import {
   type AppConfig,
   createAppConfigLive,

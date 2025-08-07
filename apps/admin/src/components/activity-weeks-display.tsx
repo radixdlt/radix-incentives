@@ -1,9 +1,8 @@
 'use client';
 
+import type { ActivityWeek } from 'db/incentives';
 import { ChevronDown, ChevronRight } from 'lucide-react';
 import * as React from 'react';
-
-import type { ActivityWeek } from 'db/incentives';
 import { Button } from '~/components/ui/button';
 import {
   Collapsible,
@@ -26,7 +25,7 @@ export const ActivityWeeksDisplay: React.FC<ActivityWeeksDisplayProps> = ({
 
   if (weekActivityWeeks.length === 0) {
     return (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         No activities assigned
       </div>
     );
@@ -35,14 +34,14 @@ export const ActivityWeeksDisplay: React.FC<ActivityWeeksDisplayProps> = ({
   return (
     <Collapsible open={isExpanded} onOpenChange={setIsExpanded}>
       <CollapsibleTrigger asChild>
-        <Button variant="ghost" size="sm" className="p-0 h-auto">
+        <Button variant="ghost" size="sm" className="h-auto p-0">
           <div className="flex items-center gap-2">
             {isExpanded ? (
               <ChevronDown className="h-4 w-4" />
             ) : (
               <ChevronRight className="h-4 w-4" />
             )}
-            <span className="text-sm font-medium">
+            <span className="font-medium text-sm">
               {weekActivityWeeks.length}{' '}
               {weekActivityWeeks.length === 1 ? 'activity' : 'activities'}
             </span>
@@ -55,13 +54,13 @@ export const ActivityWeeksDisplay: React.FC<ActivityWeeksDisplayProps> = ({
           {weekActivityWeeks.map((activityWeek) => (
             <div
               key={`${activityWeek.activityId}-${activityWeek.weekId}`}
-              className="flex items-center justify-between p-2 bg-muted/50 rounded-md"
+              className="flex items-center justify-between rounded-md bg-muted/50 p-2"
             >
               <div className="flex-1">
-                <div className="text-sm font-medium">
+                <div className="font-medium text-sm">
                   Activity {activityWeek.activityId}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   ID: {activityWeek.activityId}
                 </div>
               </div>

@@ -1,12 +1,10 @@
 'use client';
 
-import { format } from 'date-fns'; // For date formatting
-import { ArrowLeft, PlusCircle } from 'lucide-react';
+import type { Season } from 'db/incentives';
+import { PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-
-import type { Season } from 'db/incentives';
 import { Badge } from '~/components/ui/badge'; // To display status nicely
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
@@ -51,12 +49,12 @@ function ManageSeasonsPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 pl-6 pr-6">
+    <div className="container mx-auto py-6 pr-6 pl-6">
       {/* Header Section */}
       <div className="mb-6 flex items-center justify-between gap-4">
         <div className="flex items-center gap-4">
           <div>
-            <h1 className="text-3xl font-bold tracking-tight">
+            <h1 className="font-bold text-3xl tracking-tight">
               Manage Seasons
             </h1>
             <p className="text-muted-foreground">

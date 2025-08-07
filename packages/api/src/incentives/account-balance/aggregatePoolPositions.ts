@@ -1,16 +1,15 @@
-import { Config, Effect } from 'effect';
-
 import { BigNumber } from 'bignumber.js';
 import {
   type AccountBalanceData,
   Action,
   type DappId,
-  type TokenDetails,
   deriveHoldActivityId,
   deriveLpActivityId,
   getTokenDetailsFromResourceAddress,
   getTokenPairFromResourceAddresses,
+  type TokenDetails,
 } from 'data';
+import { Config, Effect } from 'effect';
 import { groupBy } from 'effect/Array';
 
 import {
@@ -212,7 +211,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
           totalOutsidePriceBounds: BigNumber;
         }[],
         timestamp: Date,
-        applyMultiplier: boolean,
+        _applyMultiplier: boolean,
       ) {
         const groupedByActivityId = groupBy(items, (item) => item.activityId);
 
@@ -262,7 +261,6 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                 .map(({ metadata }) => {
                   if (!metadata) return;
                   const {
-                    activityId,
                     totalOutsidePriceBounds,
                     totalWithinPriceBounds,
                     ...rest

@@ -1,12 +1,23 @@
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { Effect, Exit, Layer, LogLevel, Logger } from 'effect';
+import { Effect, Exit, Layer, Logger, LogLevel } from 'effect';
 import { describe, expect, it } from 'vitest';
-
-// Test target
-import { GetAccountBalancesAtStateVersionService } from './getAccountBalancesAtStateVersion';
-
+import { GetCaviarnineResourcePoolPositionsService } from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
+// DApp services
+import { GetLsulpLive } from '../../common/dapps/caviarnine/getLsulp';
+import { GetLsulpValueLive } from '../../common/dapps/caviarnine/getLsulpValue';
+import { GetQuantaSwapBinMapLive } from '../../common/dapps/caviarnine/getQuantaSwapBinMap';
+import { GetShapeLiquidityAssetsLive } from '../../common/dapps/caviarnine/getShapeLiquidityAssets';
+import { GetShapeLiquidityClaimsLive } from '../../common/dapps/caviarnine/getShapeLiquidityClaims';
+import { GetDefiPlazaPositionsLive } from '../../common/dapps/defiplaza/getDefiPlazaPositions';
+import { GetOciswapLiquidityAssetsService } from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
+import { GetOciswapLiquidityClaimsService } from '../../common/dapps/ociswap/getOciswapLiquidityClaims';
+import { GetOciswapResourcePoolPositionsService } from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
+import { GetRootFinancePositionsService } from '../../common/dapps/rootFinance/getRootFinancePositions';
+import { GetSurgeLiquidityPositionsService } from '../../common/dapps/surge/getSurgeLiquidityPositions';
+import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/getWeftFinancePositions';
 import { EntityFungiblesPageService } from '../../common/gateway/entityFungiblesPage';
 import { EntityNonFungibleDataService } from '../../common/gateway/entityNonFungiblesData';
 import { EntityNonFungiblesPageService } from '../../common/gateway/entityNonFungiblesPage';
@@ -23,33 +34,16 @@ import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibl
 import { GetNonFungibleIdsService } from '../../common/gateway/getNonFungibleIds';
 import { KeyValueStoreDataService } from '../../common/gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../../common/gateway/keyValueStoreKeys';
-
+// Resource pool services
+import { GetResourcePoolUnitsLive } from '../../common/resource-pool/getResourcePoolUnits';
 import { ConvertLsuToXrdLive } from '../../common/staking/convertLsuToXrd';
 // Staking services
 import { GetUserStakingPositionsLive } from '../../common/staking/getUserStakingPositions';
-
-// DApp services
-import { GetLsulpLive } from '../../common/dapps/caviarnine/getLsulp';
-import { GetLsulpValueLive } from '../../common/dapps/caviarnine/getLsulpValue';
-import { GetQuantaSwapBinMapLive } from '../../common/dapps/caviarnine/getQuantaSwapBinMap';
-import { GetShapeLiquidityAssetsLive } from '../../common/dapps/caviarnine/getShapeLiquidityAssets';
-import { GetShapeLiquidityClaimsLive } from '../../common/dapps/caviarnine/getShapeLiquidityClaims';
-import { GetDefiPlazaPositionsLive } from '../../common/dapps/defiplaza/getDefiPlazaPositions';
-import { GetRootFinancePositionsService } from '../../common/dapps/rootFinance/getRootFinancePositions';
-import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/getWeftFinancePositions';
-
-// Resource pool services
-import { GetResourcePoolUnitsLive } from '../../common/resource-pool/getResourcePoolUnits';
-
-import { GetCaviarnineResourcePoolPositionsService } from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
-import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
-import { GetOciswapLiquidityAssetsService } from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
-import { GetOciswapLiquidityClaimsService } from '../../common/dapps/ociswap/getOciswapLiquidityClaims';
-import { GetOciswapResourcePoolPositionsService } from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
-import { GetSurgeLiquidityPositionsService } from '../../common/dapps/surge/getSurgeLiquidityPositions';
 import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
 // Config and fixtures
 import { createAppConfigLive } from '../config/appConfig';
+// Test target
+import { GetAccountBalancesAtStateVersionService } from './getAccountBalancesAtStateVersion';
 
 const appConfigServiceLive = createAppConfigLive();
 

@@ -2,11 +2,11 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
-import Link from 'next/link'; // Keep default import for usage
 import type { LinkProps } from 'next/link'; // Type-only import
+import Link from 'next/link'; // Keep default import for usage
 import type React from 'react'; // Make React import type-only
-import { createContext, useContext, useEffect, useState } from 'react'; // Keep specific hooks
 import type { JSX, ReactNode } from 'react'; // Type-only imports
+import { createContext, useContext, useState } from 'react'; // Keep specific hooks
 import { cn } from '~/lib/utils'; // Adjusted path
 
 interface Links {
@@ -88,12 +88,10 @@ export const DesktopSidebar = ({
   children,
   ...props
 }: React.ComponentProps<typeof motion.div>) => {
-  const { open } = useSidebar();
-
   return (
     <motion.div
       className={cn(
-        'h-full px-4 py-4 hidden md:flex md:flex-col  w-[300px] flex-shrink-0',
+        'hidden h-full w-[300px] flex-shrink-0 px-4 py-4 md:flex md:flex-col',
         className,
       )}
       style={{ width: '300px' }}
@@ -124,57 +122,55 @@ export const MobileSidebar = ({
   };
 
   return (
-    <>
-      <div
-        className={cn(
-          'h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 h-full',
-        )}
-        {...props}
-      >
-        <div className="flex justify-end z-20 w-full">
-          {/* Use button element for semantics and accessibility */}
-          <button
-            type="button"
-            className="text-neutral-800 dark:text-neutral-200 cursor-pointer p-1 rounded focus:outline-none focus:ring-2 focus:ring-ring"
-            onClick={() => handleToggle()}
-            onKeyDown={handleKeyDown}
-            aria-label={open ? 'Close sidebar' : 'Open sidebar'}
-            aria-expanded={open}
-          >
-            <Menu />
-          </button>
-        </div>
-        <AnimatePresence>
-          {open && (
-            <motion.div
-              initial={{ x: '-100%', opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              exit={{ x: '-100%', opacity: 0 }}
-              transition={{
-                duration: 0.3,
-                ease: 'easeInOut',
-              }}
-              className={cn(
-                'fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between',
-                className,
-              )}
-            >
-              {/* Add accessibility handlers to the close button */}
-              <button
-                type="button"
-                className="absolute right-10 top-10 z-50 text-neutral-800 dark:text-neutral-200 cursor-pointer p-1 rounded focus:outline-none focus:ring-2 focus:ring-ring"
-                onClick={handleToggle}
-                onKeyDown={handleKeyDown}
-                aria-label="Close sidebar"
-              >
-                <X />
-              </button>
-              {children}
-            </motion.div>
-          )}
-        </AnimatePresence>
+    <div
+      className={cn(
+        'flex h-10 h-full flex-row items-center justify-between bg-neutral-100 px-4 py-4 md:hidden dark:bg-neutral-800',
+      )}
+      {...props}
+    >
+      <div className="z-20 flex w-full justify-end">
+        {/* Use button element for semantics and accessibility */}
+        <button
+          type="button"
+          className="cursor-pointer rounded p-1 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring dark:text-neutral-200"
+          onClick={() => handleToggle()}
+          onKeyDown={handleKeyDown}
+          aria-label={open ? 'Close sidebar' : 'Open sidebar'}
+          aria-expanded={open}
+        >
+          <Menu />
+        </button>
       </div>
-    </>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ x: '-100%', opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: '-100%', opacity: 0 }}
+            transition={{
+              duration: 0.3,
+              ease: 'easeInOut',
+            }}
+            className={cn(
+              'fixed inset-0 z-[100] flex h-full w-full flex-col justify-between bg-white p-10 dark:bg-neutral-900',
+              className,
+            )}
+          >
+            {/* Add accessibility handlers to the close button */}
+            <button
+              type="button"
+              className="absolute top-10 right-10 z-50 cursor-pointer rounded p-1 text-neutral-800 focus:outline-none focus:ring-2 focus:ring-ring dark:text-neutral-200"
+              onClick={handleToggle}
+              onKeyDown={handleKeyDown}
+              aria-label="Close sidebar"
+            >
+              <X />
+            </button>
+            {children}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 
@@ -189,7 +185,7 @@ export const SidebarLink = ({
   pathname: string;
   props?: LinkProps;
 }) => {
-  const { open, setOpen } = useSidebar();
+  const { setOpen } = useSidebar();
   const isActive = pathname === link.href;
 
   const handleClick = () => {
@@ -200,7 +196,7 @@ export const SidebarLink = ({
     <Link
       href={link.href}
       className={cn(
-        'flex items-center justify-start gap-2 group/sidebar py-2 px-3 rounded-md text-sm font-medium transition-colors',
+        'group/sidebar flex items-center justify-start gap-2 rounded-md px-3 py-2 font-medium text-sm transition-colors',
         isActive
           ? 'bg-muted text-primary hover:text-primary'
           : 'text-muted-foreground hover:text-foreground',
@@ -213,7 +209,7 @@ export const SidebarLink = ({
 
       <span
         className={cn(
-          'font-medium text-neutral-700 dark:text-neutral-200 whitespace-pre inline-block',
+          'inline-block whitespace-pre font-medium text-neutral-700 dark:text-neutral-200',
         )}
       >
         {link.label}

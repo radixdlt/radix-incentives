@@ -46,7 +46,7 @@ export function LeaderboardContent({
 }: LeaderboardContentProps) {
   if (topUsers.length === 0) {
     return (
-      <div className="text-center py-12">
+      <div className="py-12 text-center">
         <div className="text-muted-foreground">{emptyMessage}</div>
       </div>
     );
@@ -56,7 +56,7 @@ export function LeaderboardContent({
     <div className="space-y-8">
       {/* Podium */}
       <div className="rounded-lg border bg-card p-6">
-        <h3 className="text-lg font-semibold mb-4">Top Performers</h3>
+        <h3 className="mb-4 font-semibold text-lg">Top Performers</h3>
         <Podium
           users={topUsers}
           pointsLabel={pointsLabel}
@@ -73,7 +73,7 @@ export function LeaderboardContent({
 
       {/* User Stats - Always show */}
       <div className="rounded-lg border bg-card p-6">
-        <h3 className="text-lg font-semibold mb-4">Your Performance</h3>
+        <h3 className="mb-4 font-semibold text-lg">Your Performance</h3>
         <UserStats
           stats={userStats}
           globalStats={globalStats}

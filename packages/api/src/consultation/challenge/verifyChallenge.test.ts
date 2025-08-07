@@ -1,8 +1,8 @@
-import { type Db, challenge } from 'db/consultation';
+import { challenge, type Db } from 'db/consultation';
 import { Cause, Effect, Layer } from 'effect';
 import { describe, expect, test, vi } from 'vitest';
 import { AppConfigService, createAppConfigLive } from '../config/appConfig';
-import { DbClientService, DbError, createDbClientLive } from '../db/dbClient';
+import { createDbClientLive, DbClientService, DbError } from '../db/dbClient';
 import { VerifyChallengeService } from './verifyChallenge';
 
 // Mock the DbClientService

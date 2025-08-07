@@ -1,4 +1,4 @@
-import { Cause, Effect, Layer, LogLevel, Logger } from 'effect';
+import { Cause, Effect, Layer, Logger, LogLevel } from 'effect';
 import { describe, expect, test } from 'vitest';
 import { ZodError } from 'zod';
 import { createAppConfigLive, defaultAppConfig } from '../config/appConfig';

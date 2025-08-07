@@ -1,12 +1,11 @@
 // Set a placeholder DATABASE_URL before any imports to prevent drizzle config errors
 
-// import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
-import postgres from 'postgres';
-import { afterEach, beforeAll, describe, inject, it } from 'vitest';
-
 import { Assets } from 'data';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
 import { drizzle } from 'drizzle-orm/postgres-js';
+// import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import postgres from 'postgres';
+import { afterEach, beforeAll, describe, inject, it } from 'vitest';
 import type { SnapshotWorkerInput } from '../incentives/snapshot/snapshotWorker.js';
 import {
   createTestUserAndAccounts,

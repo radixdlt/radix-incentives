@@ -26,15 +26,15 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        'bg-background border-border hover:border-border/80 text-center',
-        'border-2 border-dashed rounded-xl p-14 w-full',
-        'group hover:bg-muted/50 transition duration-500 hover:duration-200',
+        'border-border bg-background text-center hover:border-border/80',
+        'w-full rounded-xl border-2 border-dashed p-14',
+        'group transition duration-500 hover:bg-muted/50 hover:duration-200',
         className,
       )}
     >
       {icon && (
-        <div className="flex justify-center isolate mb-6">
-          <div className="bg-background size-12 grid place-items-center rounded-xl shadow-lg ring-1 ring-border group-hover:-translate-y-0.5 transition duration-500 group-hover:duration-200">
+        <div className="isolate mb-6 flex justify-center">
+          <div className="group-hover:-translate-y-0.5 grid size-12 place-items-center rounded-xl bg-background shadow-lg ring-1 ring-border transition duration-500 group-hover:duration-200">
             {React.createElement(icon, {
               className: 'w-6 h-6 text-muted-foreground',
             })}
@@ -42,11 +42,11 @@ export function EmptyState({
         </div>
       )}
       <h2
-        className="text-foreground font-medium"
-        // biome-ignore lint/security/noDangerouslySetInnerHtml: <explanation>
+        className="font-medium text-foreground"
+        // biome-ignore lint/security/noDangerouslySetInnerHtml: Title content is controlled by the application
         dangerouslySetInnerHTML={{ __html: title }}
       />
-      <p className="text-sm text-muted-foreground mt-1 whitespace-pre-line">
+      <p className="mt-1 whitespace-pre-line text-muted-foreground text-sm">
         {description}
       </p>
       {action && (

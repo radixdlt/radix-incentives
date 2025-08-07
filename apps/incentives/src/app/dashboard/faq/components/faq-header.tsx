@@ -22,12 +22,12 @@ export const FaqHeader = React.forwardRef<HTMLDivElement, FaqHeaderProps>(
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.1 }}
-        className="text-center mb-8 sm:mb-12"
+        className="mb-8 text-center sm:mb-12"
       >
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 bg-gradient-to-r from-foreground via-foreground/80 to-foreground bg-clip-text text-transparent leading-tight">
+        <h1 className="mb-3 bg-gradient-to-r from-foreground via-foreground/80 to-foreground bg-clip-text font-bold text-2xl text-transparent leading-tight sm:mb-4 sm:text-3xl lg:text-4xl">
           {title}
         </h1>
-        <p className="text-sm sm:text-base lg:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed px-2">
+        <p className="mx-auto max-w-2xl px-2 text-muted-foreground text-sm leading-relaxed sm:text-base lg:text-lg">
           {description}
         </p>
       </motion.div>

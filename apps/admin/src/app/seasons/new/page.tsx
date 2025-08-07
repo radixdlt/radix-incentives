@@ -1,11 +1,10 @@
 'use client';
 
+import type { Season } from 'db/incentives';
 import { ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-
-import type { Season } from 'db/incentives';
 import { toast } from 'sonner';
 import { Button } from '~/components/ui/button';
 import {
@@ -17,15 +16,7 @@ import {
 } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
 import { Separator } from '~/components/ui/separator';
-import { Textarea } from '~/components/ui/textarea';
 import { api } from '~/trpc/react';
 
 interface CreateSeasonFormProps {
@@ -40,7 +31,7 @@ function CreateSeasonForm({
   onCancel,
 }: CreateSeasonFormProps) {
   const [name, setName] = React.useState('');
-  const [status, setStatus] = React.useState<
+  const [_status, _setStatus] = React.useState<
     'active' | 'upcoming' | 'completed'
   >('upcoming');
 
@@ -88,7 +79,7 @@ function CreateSeasonPage() {
 
   const handleCreateSeason = async (data: Omit<Season, 'id'>) => {
     try {
-      const newSeason = await createSeason.mutateAsync(data);
+      const _newSeason = await createSeason.mutateAsync(data);
       toast.success('Season created successfully!');
       await utils.season.getSeasons.invalidate();
       router.push('/seasons');
@@ -111,7 +102,7 @@ function CreateSeasonPage() {
           </Button>
         </Link>
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="font-bold text-3xl tracking-tight">
             Create New Season
           </h1>
           <p className="text-muted-foreground">

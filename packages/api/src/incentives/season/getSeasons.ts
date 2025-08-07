@@ -1,7 +1,6 @@
+import { type Season, seasons } from 'db/incentives';
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
-
-import { type Season, seasons } from 'db/incentives';
 
 export type GetSeasonsError = DbError;
 

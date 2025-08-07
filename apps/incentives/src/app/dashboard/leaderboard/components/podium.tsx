@@ -49,25 +49,25 @@ export function Podium({
       <div className="relative mt-4">
         {/* Mobile Layout: Platform on top, cards below */}
         <div className="sm:hidden">
-          <div className="flex items-end justify-center gap-2 h-32 mb-4">
+          <div className="mb-4 flex h-32 items-end justify-center gap-2">
             {/* Second Place Platform */}
             {topThree[1] && (
-              <div className="w-12 h-16 bg-gradient-to-t from-gray-300 to-gray-200 rounded-t-lg flex items-end justify-center pb-1">
-                <span className="text-sm font-bold text-gray-700">#2</span>
+              <div className="flex h-16 w-12 items-end justify-center rounded-t-lg bg-gradient-to-t from-gray-300 to-gray-200 pb-1">
+                <span className="font-bold text-gray-700 text-sm">#2</span>
               </div>
             )}
 
             {/* First Place Platform - Taller */}
             {topThree[0] && (
-              <div className="w-16 h-24 bg-gradient-to-t from-yellow-400 to-yellow-300 rounded-t-lg flex items-end justify-center pb-1">
-                <span className="text-base font-bold text-yellow-800">#1</span>
+              <div className="flex h-24 w-16 items-end justify-center rounded-t-lg bg-gradient-to-t from-yellow-400 to-yellow-300 pb-1">
+                <span className="font-bold text-base text-yellow-800">#1</span>
               </div>
             )}
 
             {/* Third Place Platform */}
             {topThree[2] && (
-              <div className="w-12 h-12 bg-gradient-to-t from-orange-400 to-orange-300 rounded-t-lg flex items-end justify-center pb-1">
-                <span className="text-sm font-bold text-orange-800">#3</span>
+              <div className="flex h-12 w-12 items-end justify-center rounded-t-lg bg-gradient-to-t from-orange-400 to-orange-300 pb-1">
+                <span className="font-bold text-orange-800 text-sm">#3</span>
               </div>
             )}
           </div>
@@ -77,21 +77,21 @@ export function Podium({
             {/* Second Place Card */}
             {topThree[1] && (
               <div
-                className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
+                className={`max-w-[100px] flex-1 rounded-lg border p-2 text-center ${
                   isCurrentUser(topThree[1])
-                    ? 'bg-primary/5 border-primary/30'
-                    : 'bg-card border-border'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card'
                 }`}
               >
-                <div className="text-lg mb-1">🥈</div>
+                <div className="mb-1 text-lg">🥈</div>
                 <div className="font-medium text-xs">
                   {getDisplayName(topThree[1])}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {formatPoints(topThree[1].totalPoints)} {pointsLabel}
                 </div>
                 {isCurrentUser(topThree[1]) && (
-                  <div className="text-xs font-medium text-primary mt-1">
+                  <div className="mt-1 font-medium text-primary text-xs">
                     You!
                   </div>
                 )}
@@ -101,21 +101,21 @@ export function Podium({
             {/* First Place Card */}
             {topThree[0] && (
               <div
-                className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
+                className={`max-w-[100px] flex-1 rounded-lg border p-2 text-center ${
                   isCurrentUser(topThree[0])
-                    ? 'bg-primary/5 border-primary/30'
-                    : 'bg-card border-border'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card'
                 }`}
               >
-                <div className="text-xl mb-1">🏆</div>
+                <div className="mb-1 text-xl">🏆</div>
                 <div className="font-bold text-xs">
                   {getDisplayName(topThree[0])}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {formatPoints(topThree[0].totalPoints)} {pointsLabel}
                 </div>
                 {isCurrentUser(topThree[0]) && (
-                  <div className="text-xs font-medium text-primary mt-1">
+                  <div className="mt-1 font-medium text-primary text-xs">
                     You!
                   </div>
                 )}
@@ -125,21 +125,21 @@ export function Podium({
             {/* Third Place Card */}
             {topThree[2] && (
               <div
-                className={`text-center p-2 rounded-lg border flex-1 max-w-[100px] ${
+                className={`max-w-[100px] flex-1 rounded-lg border p-2 text-center ${
                   isCurrentUser(topThree[2])
-                    ? 'bg-primary/5 border-primary/30'
-                    : 'bg-card border-border'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card'
                 }`}
               >
-                <div className="text-lg mb-1">🥉</div>
+                <div className="mb-1 text-lg">🥉</div>
                 <div className="font-medium text-xs">
                   {getDisplayName(topThree[2])}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {formatPoints(topThree[2].totalPoints)} {pointsLabel}
                 </div>
                 {isCurrentUser(topThree[2]) && (
-                  <div className="text-xs font-medium text-primary mt-1">
+                  <div className="mt-1 font-medium text-primary text-xs">
                     You!
                   </div>
                 )}
@@ -149,32 +149,32 @@ export function Podium({
         </div>
 
         {/* Desktop Layout: Original design */}
-        <div className="hidden sm:flex items-end justify-center gap-4 h-48">
+        <div className="hidden h-48 items-end justify-center gap-4 sm:flex">
           {/* Second Place */}
           {topThree[1] && (
             <div className="flex flex-col items-center">
               <div
-                className={`text-center mb-2 p-3 rounded-lg border ${
+                className={`mb-2 rounded-lg border p-3 text-center ${
                   isCurrentUser(topThree[1])
-                    ? 'bg-primary/5 border-primary/30'
-                    : 'bg-card border-border'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card'
                 }`}
               >
-                <div className="text-2xl mb-1">🥈</div>
+                <div className="mb-1 text-2xl">🥈</div>
                 <div className="font-medium text-sm">
                   {getDisplayName(topThree[1])}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {formatPoints(topThree[1].totalPoints)} {pointsLabel}
                 </div>
                 {isCurrentUser(topThree[1]) && (
-                  <div className="text-xs font-medium text-primary mt-1">
+                  <div className="mt-1 font-medium text-primary text-xs">
                     You!
                   </div>
                 )}
               </div>
-              <div className="w-20 h-24 bg-gradient-to-t from-gray-300 to-gray-200 rounded-t-lg flex items-end justify-center pb-2">
-                <span className="text-lg font-bold text-gray-700">#2</span>
+              <div className="flex h-24 w-20 items-end justify-center rounded-t-lg bg-gradient-to-t from-gray-300 to-gray-200 pb-2">
+                <span className="font-bold text-gray-700 text-lg">#2</span>
               </div>
             </div>
           )}
@@ -183,27 +183,27 @@ export function Podium({
           {topThree[0] && (
             <div className="flex flex-col items-center">
               <div
-                className={`text-center mb-2 p-4 rounded-lg border ${
+                className={`mb-2 rounded-lg border p-4 text-center ${
                   isCurrentUser(topThree[0])
-                    ? 'bg-primary/5 border-primary/30'
-                    : 'bg-card border-border'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card'
                 }`}
               >
-                <div className="text-3xl mb-1">🏆</div>
+                <div className="mb-1 text-3xl">🏆</div>
                 <div className="font-bold text-base">
                   {getDisplayName(topThree[0])}
                 </div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {formatPoints(topThree[0].totalPoints)} {pointsLabel}
                 </div>
                 {isCurrentUser(topThree[0]) && (
-                  <div className="text-sm font-medium text-primary mt-1">
+                  <div className="mt-1 font-medium text-primary text-sm">
                     You!
                   </div>
                 )}
               </div>
-              <div className="w-24 h-32 bg-gradient-to-t from-yellow-400 to-yellow-300 rounded-t-lg flex items-end justify-center pb-2">
-                <span className="text-xl font-bold text-yellow-800">#1</span>
+              <div className="flex h-32 w-24 items-end justify-center rounded-t-lg bg-gradient-to-t from-yellow-400 to-yellow-300 pb-2">
+                <span className="font-bold text-xl text-yellow-800">#1</span>
               </div>
             </div>
           )}
@@ -212,27 +212,27 @@ export function Podium({
           {topThree[2] && (
             <div className="flex flex-col items-center">
               <div
-                className={`text-center mb-2 p-3 rounded-lg border ${
+                className={`mb-2 rounded-lg border p-3 text-center ${
                   isCurrentUser(topThree[2])
-                    ? 'bg-primary/5 border-primary/30'
-                    : 'bg-card border-border'
+                    ? 'border-primary/30 bg-primary/5'
+                    : 'border-border bg-card'
                 }`}
               >
-                <div className="text-2xl mb-1">🥉</div>
+                <div className="mb-1 text-2xl">🥉</div>
                 <div className="font-medium text-sm">
                   {getDisplayName(topThree[2])}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {formatPoints(topThree[2].totalPoints)} {pointsLabel}
                 </div>
                 {isCurrentUser(topThree[2]) && (
-                  <div className="text-xs font-medium text-primary mt-1">
+                  <div className="mt-1 font-medium text-primary text-xs">
                     You!
                   </div>
                 )}
               </div>
-              <div className="w-20 h-20 bg-gradient-to-t from-orange-400 to-orange-300 rounded-t-lg flex items-end justify-center pb-2">
-                <span className="text-lg font-bold text-orange-800">#3</span>
+              <div className="flex h-20 w-20 items-end justify-center rounded-t-lg bg-gradient-to-t from-orange-400 to-orange-300 pb-2">
+                <span className="font-bold text-lg text-orange-800">#3</span>
               </div>
             </div>
           )}
@@ -245,21 +245,21 @@ export function Podium({
           {remaining.map((user) => (
             <div
               key={user.userId}
-              className={`flex items-center justify-between p-3 rounded-lg border ${
+              className={`flex items-center justify-between rounded-lg border p-3 ${
                 isCurrentUser(user)
-                  ? 'bg-primary/5 border-primary/30'
-                  : 'bg-card border-border'
+                  ? 'border-primary/30 bg-primary/5'
+                  : 'border-border bg-card'
               }`}
             >
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-muted flex items-center justify-center text-sm font-medium">
+                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-muted font-medium text-sm">
                   {user.rank}
                 </div>
                 <div>
                   <div className="font-medium">
                     {getDisplayName(user)}
                     {isCurrentUser(user) && (
-                      <span className="text-xs font-medium text-white/70 ml-2">
+                      <span className="ml-2 font-medium text-white/70 text-xs">
                         (You)
                       </span>
                     )}
@@ -270,7 +270,7 @@ export function Podium({
                 <div className="font-medium">
                   {formatPoints(user.totalPoints)}
                 </div>
-                <div className="text-xs text-muted-foreground">
+                <div className="text-muted-foreground text-xs">
                   {pointsLabel}
                 </div>
               </div>
@@ -282,18 +282,18 @@ export function Podium({
       {/* Current user placement if not in top 5 */}
       {!currentUserInTop5 && userStats && (
         <div className="space-y-2">
-          <div className="text-center text-sm text-muted-foreground">
+          <div className="text-center text-muted-foreground text-sm">
             {userStats.rank > 5 ? '...' : ''}
           </div>
-          <div className="flex items-center justify-between p-3 rounded-lg border bg-primary/5 border-primary/30 ring-2 ring-primary/20">
+          <div className="flex items-center justify-between rounded-lg border border-primary/30 bg-primary/5 p-3 ring-2 ring-primary/20">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center text-sm font-medium text-white">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/10 font-medium text-sm text-white">
                 {userStats.rank}
               </div>
               <div>
                 <div className="font-medium">
                   Your Position
-                  <span className="text-xs font-medium text-white/70 ml-2">
+                  <span className="ml-2 font-medium text-white/70 text-xs">
                     (You)
                   </span>
                 </div>
@@ -303,7 +303,7 @@ export function Podium({
               <div className="font-medium">
                 {formatPoints(userStats.totalPoints)}
               </div>
-              <div className="text-xs text-muted-foreground">{pointsLabel}</div>
+              <div className="text-muted-foreground text-xs">{pointsLabel}</div>
             </div>
           </div>
         </div>

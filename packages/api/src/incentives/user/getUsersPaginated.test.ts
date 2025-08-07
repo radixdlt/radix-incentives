@@ -1,15 +1,14 @@
 import { it } from '@effect/vitest';
+import { accounts, schema, users } from 'db/incentives';
+import { drizzle } from 'drizzle-orm/postgres-js';
 import { Effect, Layer } from 'effect';
+import postgres from 'postgres';
 import { describe, inject } from 'vitest';
 import { createDbClientLive } from '../db/dbClient';
 import {
   GetUsersPaginatedLive,
   GetUsersPaginatedService,
 } from './getUsersPaginated';
-
-import { accounts, schema, users } from 'db/incentives';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
 
 describe(
   'GetUsersPaginatedService',

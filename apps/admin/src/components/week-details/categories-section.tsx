@@ -106,7 +106,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
 
   return (
     <div className="space-y-4">
-      <h2 className="text-2xl font-semibold tracking-tight">
+      <h2 className="font-semibold text-2xl tracking-tight">
         Activity Categories
       </h2>
 
@@ -127,21 +127,21 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                     <CardTitle className="text-lg">
                       {category.categoryId}
                     </CardTitle>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="text-muted-foreground text-sm">
                       ({category.activities.length} activities)
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
                     {editingPointsPool === category.categoryId ? (
                       <div className="flex items-center gap-1">
-                        <span className="text-sm text-muted-foreground">
+                        <span className="text-muted-foreground text-sm">
                           Points Pool:
                         </span>
                         <Input
                           type="number"
                           value={editingValue}
                           onChange={(e) => setEditingValue(e.target.value)}
-                          className="w-32 h-8 text-sm"
+                          className="h-8 w-32 text-sm"
                           min="0"
                           step="0.01"
                           onClick={(e) => e.stopPropagation()}
@@ -178,7 +178,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                         </Button>
                       </div>
                     ) : (
-                      <span className="text-sm text-muted-foreground">
+                      <span className="text-muted-foreground text-sm">
                         Points Pool:{' '}
                         {Number(
                           category.pointsPool.toString(),
@@ -214,16 +214,16 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                 <CardContent>
                   {category.activities.length > 0 ? (
                     <div className="space-y-2">
-                      <h4 className="font-medium text-sm text-muted-foreground uppercase tracking-wide">
+                      <h4 className="font-medium text-muted-foreground text-sm uppercase tracking-wide">
                         Activities ({category.activities.length})
                       </h4>
-                      <div className="border rounded-lg overflow-hidden">
+                      <div className="overflow-hidden rounded-lg border">
                         {category.activities
                           .sort((a, b) => a.id.localeCompare(b.id))
                           .map((activity, index) => (
                             <div
                               key={activity.id}
-                              className={`p-3 flex items-center justify-between ${
+                              className={`flex items-center justify-between p-3 ${
                                 index !== category.activities.length - 1
                                   ? 'border-b'
                                   : ''
@@ -233,7 +233,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                 <div className="font-medium">{activity.id}</div>
                               </div>
                               <div className="flex items-center gap-3">
-                                <div className="text-sm text-muted-foreground">
+                                <div className="text-muted-foreground text-sm">
                                   {editingMultiplier === activity.id ? (
                                     <div className="flex items-center gap-1">
                                       <span>Multiplier:</span>
@@ -245,7 +245,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                             e.target.value,
                                           )
                                         }
-                                        className="w-20 h-6 text-sm"
+                                        className="h-6 w-20 text-sm"
                                         min="0"
                                         step="0.1"
                                         onKeyDown={(e) => {

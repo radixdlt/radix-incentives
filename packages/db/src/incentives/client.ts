@@ -1,7 +1,6 @@
-import { type PostgresJsDatabase, drizzle } from 'drizzle-orm/postgres-js';
-import postgres from 'postgres';
-
 import { withReplicas } from 'drizzle-orm/pg-core';
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
 import * as schema from './schema';
 
 const DATABASE_URL = process.env.DATABASE_URL;

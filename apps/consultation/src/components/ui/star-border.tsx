@@ -24,14 +24,14 @@ export function StarBorder<T extends ElementType = 'button'>({
   return (
     <Component
       className={cn(
-        'relative inline-block py-[1px] overflow-hidden rounded-[20px]',
+        'relative inline-block overflow-hidden rounded-[20px] py-[1px]',
         className,
       )}
       {...props}
     >
       <div
         className={cn(
-          'absolute w-[300%] h-[50%] bottom-[-11px] right-[-250%] rounded-full animate-star-movement-bottom z-0',
+          'absolute right-[-250%] bottom-[-11px] z-0 h-[50%] w-[300%] animate-star-movement-bottom rounded-full',
           'opacity-20 dark:opacity-70',
         )}
         style={{
@@ -41,7 +41,7 @@ export function StarBorder<T extends ElementType = 'button'>({
       />
       <div
         className={cn(
-          'absolute w-[300%] h-[50%] top-[-10px] left-[-250%] rounded-full animate-star-movement-top z-0',
+          'absolute top-[-10px] left-[-250%] z-0 h-[50%] w-[300%] animate-star-movement-top rounded-full',
           'opacity-20 dark:opacity-70',
         )}
         style={{
@@ -51,9 +51,9 @@ export function StarBorder<T extends ElementType = 'button'>({
       />
       <div
         className={cn(
-          'relative z-1 border text-foreground text-center text-sm py-2 px-3 rounded-[20px] cursor-pointer',
-          'bg-gradient-to-b from-background/90 to-muted/90 border-border/40',
-          'dark:from-background dark:to-muted dark:border-border',
+          'relative z-1 cursor-pointer rounded-[20px] border px-3 py-2 text-center text-foreground text-sm',
+          'border-border/40 bg-gradient-to-b from-background/90 to-muted/90',
+          'dark:border-border dark:from-background dark:to-muted',
         )}
       >
         {children}

@@ -28,5 +28,5 @@ export type IconName = keyof typeof iconMap;
 
 export const getActivityIcon = (iconName: IconName) => {
   const IconComponent = iconMap[iconName];
-  return <IconComponent className="w-5 h-5" />;
+  return <IconComponent className="h-5 w-5" />;
 };

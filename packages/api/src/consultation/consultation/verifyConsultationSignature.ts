@@ -1,15 +1,13 @@
 import { Effect } from 'effect';
-
-import {
-  VerifyRolaProofService,
-  signedChallengeSchema,
-} from '../rola/verifyRolaProof';
-
 import { fromHex } from 'radix-connect';
 import { z } from 'zod';
 import { areUint8ArraysEqual } from '../../common/crypto/areEqual';
 import { AddConsultationToDbService } from '../consultation/addConsultationToDb';
 import { CreateConsultationMessageService } from '../consultation/createConsultationMessage';
+import {
+  signedChallengeSchema,
+  VerifyRolaProofService,
+} from '../rola/verifyRolaProof';
 
 export class VerifyConsultationSignatureError {
   readonly _tag = 'VerifyConsultationSignatureError';

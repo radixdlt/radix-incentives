@@ -1,12 +1,11 @@
+import { BigNumber } from 'bignumber.js';
 import { DappId } from 'data';
 import { Effect } from 'effect';
-import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
-
-import { BigNumber } from 'bignumber.js';
 import {
   AggregatePoolPositionsService,
   type LpPosition,
 } from './aggregatePoolPositions';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 export type AggregateOciswapPositionsOutput = Effect.Effect.Success<
   ReturnType<typeof AggregateOciswapPositionsService.Service>
