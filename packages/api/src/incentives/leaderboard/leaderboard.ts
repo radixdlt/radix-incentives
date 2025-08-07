@@ -1,22 +1,24 @@
-import { Effect, Data } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { WeekService } from "../week/week";
-import { SeasonService } from "../season/season";
-import { ActivityCategoryService } from "../activity-category/activityCategory";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { ActivityWeekService } from "../activity-week/activityWeek";
-import type { Db } from "db/incentives";
+import type { Db } from 'db/incentives';
 import {
-  users,
   activities,
-  seasonLeaderboardCache,
   categoryLeaderboardCache,
   leaderboardStatsCache,
-} from "db/incentives";
-import { eq, asc, sql, and, inArray } from "drizzle-orm";
+  seasonLeaderboardCache,
+  users,
+} from 'db/incentives';
+import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { Data, Effect } from 'effect';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { DbClientService, DbError } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
 
 // Custom error for when cache is being built
-export class CacheNotAvailableError extends Data.TaggedError("CacheNotAvailableError")<{
+export class CacheNotAvailableError extends Data.TaggedError(
+  'CacheNotAvailableError',
+)<{
   message: string;
 }> {}
 
@@ -56,7 +58,7 @@ const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
     const userEntry = cachedData.find((user) => user.userId === userId);
     if (userEntry) {
       const percentile = Math.round(
-        (1 - (userEntry.rank - 1) / cachedData.length) * 100
+        (1 - (userEntry.rank - 1) / cachedData.length) * 100,
       );
       userStats = {
         rank: userEntry.rank,
@@ -70,8 +72,8 @@ const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
 
   const globalStats = {
     totalUsers: statsCache?.totalUsers || cachedData.length,
-    median: statsCache?.median || "0",
-    average: statsCache?.average || "0",
+    median: statsCache?.median || '0',
+    average: statsCache?.average || '0',
   };
 
   return { topUsers, userStats, globalStats };
@@ -90,7 +92,7 @@ const getActivityBreakdown = function* (params: {
   // Parse activity breakdown from cached JSONB, should be Record<string, number>
   const activityBreakdown =
     userEntry.activityBreakdown &&
-    typeof userEntry.activityBreakdown === "object" &&
+    typeof userEntry.activityBreakdown === 'object' &&
     userEntry.activityBreakdown !== null &&
     !Array.isArray(userEntry.activityBreakdown)
       ? (userEntry.activityBreakdown as Record<string, number>)
@@ -111,29 +113,29 @@ const getActivityBreakdown = function* (params: {
           activityName: activities.name,
         })
         .from(activities)
-        .where(inArray(activities.id, Object.keys(activityBreakdown)))
+        .where(inArray(activities.id, Object.keys(activityBreakdown))),
     ).pipe(
       Effect.catchAll((error) =>
         Effect.gen(function* () {
           yield* Effect.logError(
-            "Failed to fetch activity breakdown for activity names",
-            error
+            'Failed to fetch activity breakdown for activity names',
+            error,
           );
           return [];
-        })
-      )
+        }),
+      ),
     );
 
     // Create a map of activity ID to name for quick lookup
     const activityNameMap = breakdown.reduce(
       (
         acc: Record<string, string>,
-        activity: { activityId: string; activityName: string | null }
+        activity: { activityId: string; activityName: string | null },
       ) => {
         acc[activity.activityId] = activity.activityName || activity.activityId;
         return acc;
       },
-      {} as Record<string, string>
+      {} as Record<string, string>,
     );
 
     // Map the breakdown data, using activity ID as fallback if name not found
@@ -210,7 +212,7 @@ export interface SeasonLeaderboardData {
 }
 
 export class LeaderboardService extends Effect.Service<LeaderboardService>()(
-  "LeaderboardService",
+  'LeaderboardService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -233,15 +235,15 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .select({ count: sql<number>`count(*)` })
             .from(seasonLeaderboardCache)
             .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
-            .then((result) => result[0]?.count || 0)
+            .then((result) => result[0]?.count || 0),
         ).pipe(Effect.catchAll(() => Effect.succeed(0)));
 
         if (cacheCount === 0) {
           yield* Effect.log(`No cache available for season ${input.seasonId}`);
           return yield* Effect.fail(
             new CacheNotAvailableError({
-              message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
-            })
+              message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`,
+            }),
           );
         }
 
@@ -265,7 +267,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Check if cache is empty (which shouldn't happen in normal operation)
         if (cachedData.length === 0) {
           yield* Effect.log(
-            `No cached data found for season ${input.seasonId}`
+            `No cached data found for season ${input.seasonId}`,
           );
 
           // real-time calculation would go here as a fallback, e.g.:
@@ -280,13 +282,13 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
           return yield* Effect.fail(
             new CacheNotAvailableError({
-              message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`
-            })
+              message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`,
+            }),
           );
         }
 
         yield* Effect.log(
-          `Using cached season leaderboard data (${cachedData.length} users)`
+          `Using cached season leaderboard data (${cachedData.length} users)`,
         );
 
         // Get global stats from cache
@@ -295,10 +297,10 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .select()
             .from(leaderboardStatsCache)
             .where(
-              eq(leaderboardStatsCache.cacheKey, `season_${input.seasonId}`)
+              eq(leaderboardStatsCache.cacheKey, `season_${input.seasonId}`),
             )
             .limit(1)
-            .then((result) => result[0])
+            .then((result) => result[0]),
         ).pipe(Effect.catchAll(() => Effect.succeed(null)));
 
         // Build common leaderboard response
@@ -339,7 +341,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       }) {
         // Get category info
         const categoryInfo = yield* activityCategoryService.getById(
-          input.categoryId
+          input.categoryId,
         );
 
         // Get week info
@@ -354,7 +356,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
         if (categoryActivities.length === 0) {
           return yield* Effect.fail(
-            new Error("No activities found for this category")
+            new Error('No activities found for this category'),
           );
         }
 
@@ -368,20 +370,20 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .where(
               and(
                 eq(categoryLeaderboardCache.weekId, input.weekId),
-                eq(categoryLeaderboardCache.categoryId, input.categoryId)
-              )
+                eq(categoryLeaderboardCache.categoryId, input.categoryId),
+              ),
             )
-            .then((result) => result[0]?.count || 0)
+            .then((result) => result[0]?.count || 0),
         ).pipe(Effect.catchAll(() => Effect.succeed(0)));
 
         if (cacheCount === 0) {
           yield* Effect.log(
-            `No cache available for week ${input.weekId}, category ${input.categoryId}`
+            `No cache available for week ${input.weekId}, category ${input.categoryId}`,
           );
           return yield* Effect.fail(
             new CacheNotAvailableError({
-              message: `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
-            })
+              message: `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`,
+            }),
           );
         }
 
@@ -401,8 +403,8 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
               .where(
                 and(
                   eq(categoryLeaderboardCache.weekId, input.weekId),
-                  eq(categoryLeaderboardCache.categoryId, input.categoryId)
-                )
+                  eq(categoryLeaderboardCache.categoryId, input.categoryId),
+                ),
               )
               .orderBy(asc(categoryLeaderboardCache.rank)),
           catch: (error) => new DbError(error),
@@ -411,7 +413,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Check if cache is empty (which shouldn't happen in normal operation)
         if (cachedData.length === 0) {
           yield* Effect.log(
-            `No cached data found for week ${input.weekId}, category ${input.categoryId}`
+            `No cached data found for week ${input.weekId}, category ${input.categoryId}`,
           );
 
           // note, we don't do real-time calculation as a fall-back for no cache here
@@ -419,13 +421,13 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
           return yield* Effect.fail(
             new CacheNotAvailableError({
-              message: `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`
-            })
+              message: `Category leaderboard cache is being built for week ${input.weekId}, category ${input.categoryId}. Please check back in a few minutes.`,
+            }),
           );
         }
 
         yield* Effect.log(
-          `Using cached category leaderboard data (${cachedData.length} users)`
+          `Using cached category leaderboard data (${cachedData.length} users)`,
         );
 
         // Get global stats from cache
@@ -436,18 +438,18 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .where(
               eq(
                 leaderboardStatsCache.cacheKey,
-                `category_${input.weekId}_${input.categoryId}`
-              )
+                `category_${input.weekId}_${input.categoryId}`,
+              ),
             )
             .limit(1)
-            .then((result) => result[0])
+            .then((result) => result[0]),
         ).pipe(Effect.catchAll(() => Effect.succeed(null)));
 
         // Get activity breakdown for user if needed
         let additionalUserData: Record<string, unknown> = {};
         if (input.userId) {
           const userEntry = cachedData.find(
-            (user) => user.userId === input.userId
+            (user) => user.userId === input.userId,
           );
           if (userEntry) {
             const activityBreakdownData = yield* getActivityBreakdown({
@@ -477,7 +479,11 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             id: input.categoryId,
             name: categoryInfo.name || input.categoryId,
           },
-          weekInfo,
+          weekInfo: {
+            id: weekInfo.id,
+            startDate: weekInfo.startDate,
+            endDate: weekInfo.endDate,
+          },
         };
       });
 
@@ -489,5 +495,5 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         getAvailableCategories,
       };
     }),
-  }
+  },
 ) {}

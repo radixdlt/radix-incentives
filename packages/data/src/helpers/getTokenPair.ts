@@ -1,3 +1,4 @@
+import { Data, Effect } from 'effect';
 import {
   AssetType,
   bluechipAssets,
@@ -5,8 +6,7 @@ import {
   nativeAssets,
   stableAssets,
   xrdDerivativeAssets,
-} from "../assets";
-import { Data, Effect } from "effect";
+} from '../assets';
 
 /**
  * Sort tokens in ascending alphabetical order
@@ -16,25 +16,25 @@ import { Data, Effect } from "effect";
  */
 export const getTokenPair = (token1: string, token2: string) => {
   const [firstToken, secondToken] = [token1, token2].sort((a, b) =>
-    a.localeCompare(b)
+    a.localeCompare(b),
   );
   return `${firstToken}-${secondToken}`;
 };
 
-class TokenNotFoundError extends Data.TaggedError("TokenNotFoundError")<{
+class TokenNotFoundError extends Data.TaggedError('TokenNotFoundError')<{
   resourceAddress: string;
   message: string;
 }> {}
 
 class AssetTypeNotFoundError extends Data.TaggedError(
-  "AssetTypeNotFoundError"
+  'AssetTypeNotFoundError',
 )<{
   resourceAddress: string;
   message: string;
 }> {}
 
 export const getAssetTypeFromResourceAddress = Effect.fn(function* (
-  resourceAddress: string
+  resourceAddress: string,
 ) {
   if (xrdDerivativeAssets.has(resourceAddress)) {
     return AssetType.XRD_DERIVATIVE;
@@ -52,7 +52,7 @@ export const getAssetTypeFromResourceAddress = Effect.fn(function* (
     new AssetTypeNotFoundError({
       resourceAddress,
       message: `Asset type not found for resource address: ${resourceAddress}`,
-    })
+    }),
   );
 });
 
@@ -63,7 +63,7 @@ export type TokenDetails = {
 };
 
 export const getTokenDetailsFromResourceAddress = Effect.fn(function* (
-  resourceAddress: string
+  resourceAddress: string,
 ) {
   const maybeToken =
     flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
@@ -73,7 +73,7 @@ export const getTokenDetailsFromResourceAddress = Effect.fn(function* (
       new TokenNotFoundError({
         resourceAddress,
         message: `Token not found for resource address: ${resourceAddress}`,
-      })
+      }),
     );
   }
   const assetType = yield* getAssetTypeFromResourceAddress(resourceAddress);
@@ -86,7 +86,7 @@ export const getTokenDetailsFromResourceAddress = Effect.fn(function* (
 
 export const getTokenPairFromResourceAddresses = Effect.fn(function* (
   resourceAddress1: string,
-  resourceAddress2: string
+  resourceAddress2: string,
 ) {
   const tokenA = yield* getTokenDetailsFromResourceAddress(resourceAddress1);
   const tokenB = yield* getTokenDetailsFromResourceAddress(resourceAddress2);

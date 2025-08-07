@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { Calendar, Trophy } from "lucide-react";
+import { Calendar, Trophy } from 'lucide-react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from '~/components/ui/select';
 
 interface Week {
   id: string;
@@ -41,14 +41,14 @@ export function CategorySelectors({
   onCategoryChange,
 }: CategorySelectorsProps) {
   const formatWeekRange = (startDate: Date, endDate: Date) => {
-    const start = new Date(startDate).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
+    const start = new Date(startDate).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
     });
-    const end = new Date(endDate).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    const end = new Date(endDate).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
     return `${start} - ${end}`;
   };
@@ -58,20 +58,20 @@ export function CategorySelectors({
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    if (now >= start && now <= end) return "current";
-    if (now > end) return "past";
-    return "future";
+    if (now >= start && now <= end) return 'current';
+    if (now > end) return 'past';
+    return 'future';
   };
 
   const selectedWeekData = weeks.find((w) => w.id === selectedWeekId);
   const selectedCategoryData = categories.find(
-    (c) => c.id === selectedCategoryId
+    (c) => c.id === selectedCategoryId,
   );
 
   const truncateAfterWords = (text: string, maxWords = 3) => {
-    const words = text.split(" ");
+    const words = text.split(' ');
     if (words.length > maxWords) {
-      return `${words.slice(0, maxWords).join(" ")}...`;
+      return `${words.slice(0, maxWords).join(' ')}...`;
     }
     return text;
   };
@@ -110,22 +110,22 @@ export function CategorySelectors({
                           className={`h-3 w-3 rounded-full ${
                             getWeekStatus(
                               selectedWeekData.startDate,
-                              selectedWeekData.endDate
-                            ) === "current"
-                              ? "bg-green-400 animate-pulse"
+                              selectedWeekData.endDate,
+                            ) === 'current'
+                              ? 'bg-green-400 animate-pulse'
                               : getWeekStatus(
                                     selectedWeekData.startDate,
-                                    selectedWeekData.endDate
-                                  ) === "past"
-                                ? "bg-cyan-400"
-                                : "bg-pink-400"
+                                    selectedWeekData.endDate,
+                                  ) === 'past'
+                                ? 'bg-cyan-400'
+                                : 'bg-pink-400'
                           }`}
                         />
                         <div className="text-left">
                           <div className="text-base font-medium text-white text-left">
                             {formatWeekRange(
                               selectedWeekData.startDate,
-                              selectedWeekData.endDate
+                              selectedWeekData.endDate,
                             )}
                           </div>
                           <div className="text-sm text-white/60 flex items-center gap-2 text-left">
@@ -133,8 +133,8 @@ export function CategorySelectors({
                             <span className="text-xs px-2 py-0.5 rounded-full bg-muted">
                               {getWeekStatus(
                                 selectedWeekData.startDate,
-                                selectedWeekData.endDate
-                              ) === "current" && "Active"}
+                                selectedWeekData.endDate,
+                              ) === 'current' && 'Active'}
                             </span>
                           </div>
                         </div>
@@ -158,11 +158,11 @@ export function CategorySelectors({
                       <div className="flex items-center gap-3 w-full">
                         <div
                           className={`h-3 w-3 rounded-full ${
-                            status === "current"
-                              ? "bg-green-400 animate-pulse"
-                              : status === "past"
-                                ? "bg-cyan-400"
-                                : "bg-pink-400"
+                            status === 'current'
+                              ? 'bg-green-400 animate-pulse'
+                              : status === 'past'
+                                ? 'bg-cyan-400'
+                                : 'bg-pink-400'
                           }`}
                         />
                         <div className="flex-1 text-left">
@@ -172,7 +172,7 @@ export function CategorySelectors({
                           <div className="text-sm opacity-60 flex items-center gap-2 text-left">
                             {week.seasonName}
                             <span className="text-xs px-2 py-0.5 rounded-full bg-muted/50">
-                              {status === "current" && "Active"}
+                              {status === 'current' && 'Active'}
                             </span>
                           </div>
                         </div>

@@ -40,12 +40,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -177,12 +173,8 @@
           "name": "consultation_account_address_account_address_fk",
           "tableFrom": "consultation",
           "tableTo": "account",
-          "columnsFrom": [
-            "account_address"
-          ],
-          "columnsTo": [
-            "address"
-          ],
+          "columnsFrom": ["account_address"],
+          "columnsTo": ["address"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -219,12 +211,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -270,9 +258,7 @@
         "user_identity_address_unique": {
           "name": "user_identity_address_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "identity_address"
-          ]
+          "columns": ["identity_address"]
         }
       }
     },
@@ -304,10 +290,7 @@
       "compositePrimaryKeys": {
         "verification_token_identifier_token_pk": {
           "name": "verification_token_identifier_token_pk",
-          "columns": [
-            "identifier",
-            "token"
-          ]
+          "columns": ["identifier", "token"]
         }
       },
       "uniqueConstraints": {}
@@ -348,12 +331,8 @@
           "name": "voting_power_account_address_account_address_fk",
           "tableFrom": "voting_power",
           "tableTo": "account",
-          "columnsFrom": [
-            "account_address"
-          ],
-          "columnsTo": [
-            "address"
-          ],
+          "columnsFrom": ["account_address"],
+          "columnsTo": ["address"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -361,10 +340,7 @@
       "compositePrimaryKeys": {
         "voting_power_timestamp_account_address_pk": {
           "name": "voting_power_timestamp_account_address_pk",
-          "columns": [
-            "timestamp",
-            "account_address"
-          ]
+          "columns": ["timestamp", "account_address"]
         }
       },
       "uniqueConstraints": {}

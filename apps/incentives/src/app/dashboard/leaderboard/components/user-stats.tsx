@@ -1,4 +1,4 @@
-import { StackedProgressBar } from "~/components/ui/stacked-progress-bar";
+import { StackedProgressBar } from '~/components/ui/stacked-progress-bar';
 
 interface UserStatsProps {
   stats: {
@@ -23,7 +23,7 @@ interface UserStatsProps {
 export function UserStats({
   stats,
   globalStats,
-  pointsLabel = "points",
+  pointsLabel = 'points',
   isUserConnected = false,
 }: UserStatsProps) {
   const formatPoints = (points: string) => {
@@ -31,26 +31,25 @@ export function UserStats({
     return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
   };
 
-
   const getRankSuffix = (rank: number) => {
-    if (rank >= 11 && rank <= 13) return "th";
+    if (rank >= 11 && rank <= 13) return 'th';
     switch (rank % 10) {
       case 1:
-        return "st";
+        return 'st';
       case 2:
-        return "nd";
+        return 'nd';
       case 3:
-        return "rd";
+        return 'rd';
       default:
-        return "th";
+        return 'th';
     }
   };
 
   // If no stats, show appropriate message based on connection status
   if (!stats) {
     const title = isUserConnected
-      ? "No Points Yet"
-      : "Not Currently Participating";
+      ? 'No Points Yet'
+      : 'Not Currently Participating';
 
     const description = isUserConnected
       ? `You haven't earned any ${pointsLabel} in this category yet. Start participating to see your stats here!`
@@ -97,7 +96,9 @@ export function UserStats({
       {/* Main Stats Grid - Better mobile layout */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
         <div className="text-center p-3 sm:p-4 rounded-lg glass-card col-span-2 sm:col-span-1">
-          <div className="text-sm font-medium text-white/80 mb-2">Your {pointsLabel}</div>
+          <div className="text-sm font-medium text-white/80 mb-2">
+            Your {pointsLabel}
+          </div>
           <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
             {formatPoints(stats.totalPoints)}
           </div>
@@ -114,7 +115,9 @@ export function UserStats({
         </div>
 
         <div className="text-center p-3 sm:p-4 rounded-lg glass-card">
-          <div className="text-sm font-medium text-white/80 mb-2">Percentile</div>
+          <div className="text-sm font-medium text-white/80 mb-2">
+            Percentile
+          </div>
           <div className="text-2xl sm:text-4xl font-bold tracking-tight text-white gradient-text">
             {stats.percentile}%
           </div>
@@ -137,11 +140,11 @@ export function UserStats({
           <div className="text-xs sm:text-sm text-muted-foreground mt-1">
             {Number.parseFloat(stats.totalPoints) >
             Number.parseFloat(globalStats.average)
-              ? "Above average"
+              ? 'Above average'
               : Number.parseFloat(stats.totalPoints) ===
                   Number.parseFloat(globalStats.average)
-                ? "At average"
-                : "Below average"}
+                ? 'At average'
+                : 'Below average'}
           </div>
         </div>
 
@@ -159,11 +162,11 @@ export function UserStats({
           <div className="text-xs sm:text-sm text-muted-foreground mt-1">
             {Number.parseFloat(stats.totalPoints) >
             Number.parseFloat(globalStats.median)
-              ? "Above median"
+              ? 'Above median'
               : Number.parseFloat(stats.totalPoints) ===
                   Number.parseFloat(globalStats.median)
-                ? "At median"
-                : "Below median"}
+                ? 'At median'
+                : 'Below median'}
           </div>
         </div>
 
@@ -195,7 +198,6 @@ export function UserStats({
           />
         </div>
       )}
-
     </div>
   );
 }

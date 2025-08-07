@@ -1,10 +1,10 @@
 'use client';
 
+import { ArrowLeft, Calendar } from 'lucide-react';
 import Link from 'next/link';
-import { Calendar, ArrowLeft } from 'lucide-react';
 
-import { Button } from '~/components/ui/button';
 import { Badge } from '~/components/ui/badge';
+import { Button } from '~/components/ui/button';
 import type { WeekDetailsData } from './types';
 
 interface WeekHeaderProps {
@@ -29,7 +29,8 @@ export const WeekHeader: React.FC<WeekHeaderProps> = ({
         <div>
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <Calendar className="h-4 w-4" />
-            {weekData.startDate.toISOString()} - {weekData.endDate.toISOString()}
+            {weekData.startDate.toISOString()} -{' '}
+            {weekData.endDate.toISOString()}
           </div>
         </div>
       </div>

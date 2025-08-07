@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useRouter } from "next/navigation";
-import { Trophy } from "lucide-react";
-import { api } from "~/trpc/react";
-import { usePersona } from "~/lib/hooks/usePersona";
+import { Trophy } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import {
   StackedProgressBar,
   type StackedProgressBarItem,
-} from "~/components/ui/stacked-progress-bar";
+} from '~/components/ui/stacked-progress-bar';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { api } from '~/trpc/react';
 
 interface CategoryBreakdownProps {
   weekId: string;
@@ -21,7 +21,7 @@ export function CategoryBreakdown({ weekId }: CategoryBreakdownProps) {
   const { data: categoryData = [] } =
     api.user.getUserCategoryBreakdown.useQuery(
       { weekId },
-      { enabled: !!persona && !!weekId }
+      { enabled: !!persona && !!weekId },
     );
 
   if (!persona || !weekId) {

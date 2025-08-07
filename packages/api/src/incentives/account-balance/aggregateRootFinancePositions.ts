@@ -1,17 +1,13 @@
-import { Effect, Layer } from "effect";
-import type { AccountBalance as AccountBalanceFromSnapshot } from "./getAccountBalancesAtStateVersion";
-import { Context } from "effect";
+import { BigNumber } from 'bignumber.js';
 import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
-import { BigNumber } from "bignumber.js";
-import {
-  DappConstants,
-  Assets,
   type AccountBalanceData,
   ActivityId,
-} from "data";
+  Assets,
+  DappConstants,
+} from 'data';
+import { Config, Effect } from 'effect';
+import { GetUsdValueService } from '../token-price/getUsdValue';
+import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 
@@ -20,26 +16,19 @@ export type AggregateRootFinancePositionsInput = {
   timestamp: Date;
 };
 
-export type AggregateRootFinancePositionsOutput = AccountBalanceData;
+export type AggregateRootFinancePositionsOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof AggregateRootFinancePositionsService)['Service']>>
+>;
 
-export class AggregateRootFinancePositionsService extends Context.Tag(
-  "AggregateRootFinancePositionsService"
-)<
-  AggregateRootFinancePositionsService,
-  (
-    input: AggregateRootFinancePositionsInput
-  ) => Effect.Effect<
-    AggregateRootFinancePositionsOutput[],
-    GetUsdValueServiceError
-  >
->() {}
-
-export const AggregateRootFinancePositionsLive = Layer.effect(
-  AggregateRootFinancePositionsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    return (input) =>
-      Effect.gen(function* () {
+export class AggregateRootFinancePositionsService extends Effect.Service<AggregateRootFinancePositionsService>()(
+  'AggregateRootFinancePositionsService',
+  {
+    effect: Effect.gen(function* () {
+      const getUsdValueService = yield* GetUsdValueService;
+      const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
+        Config.withDefault(false),
+      );
+      return Effect.fn(function* (input: AggregateRootFinancePositionsInput) {
         const accountBalance = input.accountBalance;
 
         // Define supported assets and their activity IDs
@@ -63,7 +52,7 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
               ({
                 activityId,
                 usdValue: new BigNumber(0).toString(),
-              }) satisfies AccountBalanceData
+              }) satisfies AccountBalanceData,
           );
         }
 
@@ -72,12 +61,12 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
           (acc, position) => {
             // Process collaterals (the lent/deposited assets)
             for (const [resourceAddress, amount] of Object.entries(
-              position.collaterals
+              position.collaterals,
             )) {
               if (
                 resourceAddress in supportedAssets &&
                 amount != null &&
-                amount !== ""
+                amount !== ''
               ) {
                 try {
                   const amountBN = new BigNumber(amount);
@@ -89,21 +78,21 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
                   }
                 } catch (error) {
                   console.warn(
-                    `Invalid Root Finance collateral amount: ${amount} for ${resourceAddress}`
+                    `Invalid Root Finance collateral amount: ${amount} for ${resourceAddress}`,
                   );
                 }
               }
             }
             return acc;
           },
-          {} as Record<string, BigNumber>
+          {} as Record<string, BigNumber>,
         );
 
         // Calculate USD values for each asset
         const results: AccountBalanceData[] = [];
 
         for (const [resourceAddress, activityId] of Object.entries(
-          supportedAssets
+          supportedAssets,
         )) {
           const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
 
@@ -116,13 +105,19 @@ export const AggregateRootFinancePositionsLive = Layer.effect(
           results.push({
             activityId,
             usdValue: usdValue.toString(),
-            metadata: {
-              [resourceAddress]: amount.toString(),
-            },
+            metadata: STORE_METADATA
+              ? {
+                  [resourceAddress]: amount.toString(),
+                }
+              : undefined,
           });
         }
 
         return results;
       });
-  })
-);
+    }),
+  },
+) {}
+
+export const AggregateRootFinancePositionsServiceLive =
+  AggregateRootFinancePositionsService.Default;

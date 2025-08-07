@@ -1,12 +1,12 @@
 'use client';
 
-import * as React from 'react';
 import { motion } from 'framer-motion';
-import { FaqNavigation } from './components/faq-navigation';
-import { FaqHeader } from './components/faq-header';
-import { FaqItem } from './components/faq-item';
+import * as React from 'react';
 import { ContactSection } from './components/contact-section';
 import { faqItems } from './components/faq-data';
+import { FaqHeader } from './components/faq-header';
+import { FaqItem } from './components/faq-item';
+import { FaqNavigation } from './components/faq-navigation';
 
 export default function FaqPage() {
   return (

@@ -1,16 +1,16 @@
 'use client';
 
-import { ConnectAccount } from './components/ConnectAccount';
-import { api } from '~/trpc/react';
+import { AlertTriangle, Info, Wallet } from 'lucide-react';
 import { useEffect } from 'react';
-import { ConnectedAccounts } from './components/ConnectedAccounts';
+import { Card, CardContent } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
-import { AlertTriangle, Wallet, Info } from 'lucide-react';
 import { Skeleton } from '~/components/ui/skeleton';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { ConnectedState } from '../components/ConnectedState';
 import { useDappToolkit } from '~/lib/hooks/useRdt';
-import { Card, CardContent } from '~/components/ui/card';
+import { api } from '~/trpc/react';
+import { ConnectedState } from '../components/ConnectedState';
+import { ConnectAccount } from './components/ConnectAccount';
+import { ConnectedAccounts } from './components/ConnectedAccounts';
 
 function ParticipationInstructions() {
   return (
@@ -27,13 +27,13 @@ function ParticipationInstructions() {
                 <h4 className="font-semibold text-white mb-2">Requirements:</h4>
                 <ul className="list-disc list-inside space-y-1 ml-2">
                   <li>
-                    You will need to connect a Persona. This may be visible on the
-                    leaderboard.
+                    You will need to connect a Persona. This may be visible on
+                    the leaderboard.
                   </li>
                   <li>
-                    You will need to connect at least one account. You can connect
-                    multiple accounts and any rewards/points/multiplier earned
-                    will be shared across all accounts.
+                    You will need to connect at least one account. You can
+                    connect multiple accounts and any rewards/points/multiplier
+                    earned will be shared across all accounts.
                   </li>
                   <li>
                     You must have at least $50 of XRD total across all linked
@@ -45,23 +45,25 @@ function ParticipationInstructions() {
                   </li>
                 </ul>
               </div>
-              
+
               <div>
-                <h4 className="font-semibold text-white mb-2">Step-by-step instructions:</h4>
+                <h4 className="font-semibold text-white mb-2">
+                  Step-by-step instructions:
+                </h4>
                 <ol className="list-decimal list-inside space-y-1 ml-2">
                   <li>Click the "Connect New Account" button below.</li>
                   <li>
-                    Open your Radix Wallet on your mobile device. Use the check boxes
-                    to select which accounts you want to connect, then click
-                    "Continue" in the wallet app.
+                    Open your Radix Wallet on your mobile device. Use the check
+                    boxes to select which accounts you want to connect, then
+                    click "Continue" in the wallet app.
                   </li>
                   <li>
-                    Sign the verification message in the Radix Wallet app to prove
-                    ownership of the account(s) you're linking.
+                    Sign the verification message in the Radix Wallet app to
+                    prove ownership of the account(s) you're linking.
                   </li>
                   <li>
-                    Connected accounts will show below. You can repeat this process to
-                    connect additional accounts.
+                    Connected accounts will show below. You can repeat this
+                    process to connect additional accounts.
                   </li>
                 </ol>
                 <p className="mt-2 text-sm">
@@ -174,7 +176,6 @@ export default function AccountsPage() {
           className="max-w-full"
         />
       )}
-
     </div>
   );
 }

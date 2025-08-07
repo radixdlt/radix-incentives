@@ -1,5 +1,5 @@
-import { BigNumber } from "bignumber.js";
-import { Effect } from "effect";
+import { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
 
 /**
  * Filters users based on cumulative percentage threshold.
@@ -12,12 +12,12 @@ import { Effect } from "effect";
  */
 export const supplyPercentileTrim = (
   users: { points: BigNumber; userId: string }[],
-  options: { lowerBoundsPercentage: number }
+  options: { lowerBoundsPercentage: number },
 ) =>
   Effect.gen(function* () {
     const totalPoints = users.reduce(
       (acc, curr) => acc.plus(curr.points),
-      new BigNumber(0)
+      new BigNumber(0),
     );
 
     // Handle edge case where total points is zero
@@ -40,7 +40,7 @@ export const supplyPercentileTrim = (
         acc.push(curr.points.plus(pointsBefore));
         return acc;
       },
-      []
+      [],
     );
 
     // Create a Set of userIds that meet the threshold for efficient lookup

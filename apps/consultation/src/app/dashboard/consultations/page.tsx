@@ -1,25 +1,25 @@
 'use client';
 
-import { type FC, useState, useEffect } from 'react';
+import { type FC, useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import { ConsultationCard } from './components/ConsultationCard';
-import { SubmittedConsultationsCard } from './components/SubmittedConsultationsCard';
-import { useDappToolkit } from '~/lib/hooks/useRdt';
-import { ConnectedState } from '../components/ConnectedState';
 import { OneTimeDataRequestBuilder } from '@radixdlt/radix-dapp-toolkit';
-import { api } from '~/trpc/react';
-import { Skeleton } from '~/components/ui/skeleton';
-import { Card, CardContent, CardHeader } from '~/components/ui/card';
-import { usePersona } from '~/lib/hooks/usePersona';
-import { EmptyState } from '~/components/ui/empty-state';
-import { Wallet } from 'lucide-react';
 import type {
   Consultation,
   ConsultationId,
   ConsultationOptionId,
   SelectedOption,
 } from 'api/consultation';
+import { Wallet } from 'lucide-react';
+import { Card, CardContent, CardHeader } from '~/components/ui/card';
+import { EmptyState } from '~/components/ui/empty-state';
+import { Skeleton } from '~/components/ui/skeleton';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
+import { api } from '~/trpc/react';
+import { ConnectedState } from '../components/ConnectedState';
+import { ConsultationCard } from './components/ConsultationCard';
+import { SubmittedConsultationsCard } from './components/SubmittedConsultationsCard';
 
 /**
  * VotingPage Component

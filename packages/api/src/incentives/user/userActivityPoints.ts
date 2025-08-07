@@ -1,16 +1,16 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
+import BigNumber from 'bignumber.js';
 import {
   accountActivityPoints,
   accounts,
   seasonPointsMultiplier,
-} from "db/incentives";
-import { and, asc, eq, gte, sum } from "drizzle-orm";
-import BigNumber from "bignumber.js";
+} from 'db/incentives';
+import { and, asc, eq, gte, sum } from 'drizzle-orm';
 
 export class UserActivityPointsService extends Effect.Service<UserActivityPointsService>()(
-  "UserActivityPointsService",
+  'UserActivityPointsService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -35,27 +35,27 @@ export class UserActivityPointsService extends Effect.Service<UserActivityPoints
                     eq(accountActivityPoints.activityId, input.activityId),
                     gte(
                       seasonPointsMultiplier.totalTWABalance,
-                      input.minTWABalance.toString()
-                    )
-                  )
+                      input.minTWABalance.toString(),
+                    ),
+                  ),
                 )
                 .innerJoin(
                   accounts,
-                  eq(accounts.address, accountActivityPoints.accountAddress)
+                  eq(accounts.address, accountActivityPoints.accountAddress),
                 )
                 .innerJoin(
                   seasonPointsMultiplier,
                   and(
                     eq(seasonPointsMultiplier.userId, accounts.userId),
-                    eq(seasonPointsMultiplier.weekId, input.weekId)
-                  )
+                    eq(seasonPointsMultiplier.weekId, input.weekId),
+                  ),
                 )
                 .groupBy(accounts.userId)
                 .having(
                   gte(
                     sum(accountActivityPoints.activityPoints),
-                    input.minPoints
-                  )
+                    input.minPoints,
+                  ),
                 )
                 .orderBy(asc(sum(accountActivityPoints.activityPoints))),
             catch: (error) => new DbError(error),
@@ -70,5 +70,5 @@ export class UserActivityPointsService extends Effect.Service<UserActivityPoints
         }),
       };
     }),
-  }
+  },
 ) {}

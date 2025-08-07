@@ -1,31 +1,39 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { api } from "~/trpc/react";
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
-import { Switch } from "~/components/ui/switch";
-import { Textarea } from "~/components/ui/textarea";
-import { toast } from "sonner";
-import { Loader2, Save, Eye } from "lucide-react";
+import { Eye, Loader2, Save } from 'lucide-react';
+import React, { useState } from 'react';
+import { toast } from 'sonner';
+import { Button } from '~/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '~/components/ui/card';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
+import { Switch } from '~/components/ui/switch';
+import { Textarea } from '~/components/ui/textarea';
+import { api } from '~/trpc/react';
 
 export default function NotificationsPage() {
   const { data: config, refetch } = api.config.getPublicConfig.useQuery();
   const updateNotification = api.config.updateNotificationSettings.useMutation({
     onSuccess: () => {
-      toast.success("Notification settings updated successfully");
+      toast.success('Notification settings updated successfully');
       refetch();
     },
     onError: (error) => {
-      toast.error("Failed to update notification settings");
+      toast.error('Failed to update notification settings');
       console.error(error);
     },
   });
 
-  const [message, setMessage] = useState(config?.notification?.message || "");
-  const [enabled, setEnabled] = useState(config?.notification?.enabled || false);
+  const [message, setMessage] = useState(config?.notification?.message || '');
+  const [enabled, setEnabled] = useState(
+    config?.notification?.enabled || false,
+  );
 
   // Update local state when data loads
   React.useEffect(() => {
@@ -37,7 +45,7 @@ export default function NotificationsPage() {
 
   const handleSave = () => {
     if (!message.trim() && enabled) {
-      toast.error("Message cannot be empty when notification is enabled");
+      toast.error('Message cannot be empty when notification is enabled');
       return;
     }
 
@@ -54,17 +62,20 @@ export default function NotificationsPage() {
     }
   };
 
-  const hasChanges = 
-    message !== (config?.notification?.message || "") ||
+  const hasChanges =
+    message !== (config?.notification?.message || '') ||
     enabled !== (config?.notification?.enabled || false);
 
   return (
     <div className="container max-w-4xl mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Notification Settings</h1>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Notification Settings
+          </h1>
           <p className="text-muted-foreground">
-            Manage the notification bar that appears at the top of the application
+            Manage the notification bar that appears at the top of the
+            application
           </p>
         </div>
       </div>
@@ -102,14 +113,15 @@ export default function NotificationsPage() {
               className="resize-none"
             />
             <p className="text-xs text-muted-foreground">
-              On mobile devices, long messages will scroll horizontally to ensure readability.
+              On mobile devices, long messages will scroll horizontally to
+              ensure readability.
             </p>
           </div>
 
           {message && (
             <div className="space-y-2">
               <Label>Preview</Label>
-              <div 
+              <div
                 className="p-3 rounded-lg border text-sm text-white font-medium text-center"
                 style={{
                   background: 'rgba(225, 52, 176, 0.5)',
@@ -123,7 +135,7 @@ export default function NotificationsPage() {
           <div className="flex items-center gap-3 pt-4 border-t">
             <Button
               onClick={handleSave}
-              disabled={updateNotification.isPending || (!hasChanges)}
+              disabled={updateNotification.isPending || !hasChanges}
               className="flex items-center gap-2"
             >
               {updateNotification.isPending ? (
@@ -133,7 +145,7 @@ export default function NotificationsPage() {
               )}
               Save Changes
             </Button>
-            
+
             <Button
               variant="outline"
               onClick={handleReset}
@@ -162,11 +174,13 @@ export default function NotificationsPage() {
           <div className="space-y-3">
             <div className="flex items-center justify-between">
               <span className="text-sm font-medium">Status:</span>
-              <span className={`text-sm px-2 py-1 rounded-full ${
-                config?.notification?.enabled 
-                  ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
-                  : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
-              }`}>
+              <span
+                className={`text-sm px-2 py-1 rounded-full ${
+                  config?.notification?.enabled
+                    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300'
+                    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-300'
+                }`}
+              >
                 {config?.notification?.enabled ? 'Visible' : 'Hidden'}
               </span>
             </div>

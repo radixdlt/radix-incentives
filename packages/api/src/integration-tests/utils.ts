@@ -1,7 +1,9 @@
-import { Effect, Layer } from 'effect';
-import { GetResourceHoldersService } from '../common/gateway/getResourceHolders.js';
-import { GatewayApiClientLive } from '../common/gateway/gatewayApiClient.js';
 import type { ResourceHoldersCollectionItem } from '@radixdlt/babylon-gateway-api-sdk';
+import { BigNumber } from 'bignumber.js';
+import { Effect, Layer } from 'effect';
+import { AddressValidationServiceLive } from '../common/address-validation/addressValidation.js';
+import { GatewayApiClientLive } from '../common/gateway/gatewayApiClient.js';
+import { GetResourceHoldersService } from '../common/gateway/getResourceHolders.js';
 import {
     GetUsdValueLive,
     GetUsdValueService,

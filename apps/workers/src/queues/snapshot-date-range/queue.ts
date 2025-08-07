@@ -1,7 +1,7 @@
-import { createQueue } from "../createQueue";
-import { redisClient } from "../../redis";
-import { snapshotDateRangeWorker } from "./worker";
-import { QueueName } from "../types";
+import { redisClient } from '../../redis';
+import { createQueue } from '../createQueue';
+import { QueueName } from '../types';
+import { snapshotDateRangeWorker } from './worker';
 
 export const snapshotDateRangeQueue = createQueue({
   name: QueueName.snapshotDateRange,

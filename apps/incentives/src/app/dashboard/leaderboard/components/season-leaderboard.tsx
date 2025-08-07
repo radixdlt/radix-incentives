@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { api } from "~/trpc/react";
-import { usePersona } from "~/lib/hooks/usePersona";
-import { SeasonSelector } from "./season-selector";
-import { LeaderboardContent } from "./leaderboard-content";
-import { LoadingState } from "./loading-state";
-import { EmptyState } from "./empty-state";
+import { useEffect, useState } from 'react';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { api } from '~/trpc/react';
+import { EmptyState } from './empty-state';
+import { LeaderboardContent } from './leaderboard-content';
+import { LoadingState } from './loading-state';
+import { SeasonSelector } from './season-selector';
 
 export function SeasonLeaderboard() {
-  const [selectedSeasonId, setSelectedSeasonId] = useState<string>("");
+  const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');
   const persona = usePersona();
   const utils = api.useUtils();
 
@@ -22,7 +22,7 @@ export function SeasonLeaderboard() {
     if (seasons && seasons.length > 0 && !selectedSeasonId) {
       // Default to the most recent active or completed season
       const activeSeason =
-        seasons.find((s) => s.status === "active") || seasons[0];
+        seasons.find((s) => s.status === 'active') || seasons[0];
       if (activeSeason) {
         setSelectedSeasonId(activeSeason.id);
 
@@ -55,12 +55,12 @@ export function SeasonLeaderboard() {
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
         // Don't retry if it's a cache building error
-        if (error?.data?.code === "PRECONDITION_FAILED") {
+        if (error?.data?.code === 'PRECONDITION_FAILED') {
           return false;
         }
         return failureCount < 2;
       },
-    }
+    },
   );
 
   // Refetch leaderboard data when persona changes to ensure fresh data
@@ -71,7 +71,7 @@ export function SeasonLeaderboard() {
         refetchLeaderboard();
       });
     }
-  }, [persona, refetchLeaderboard, selectedSeasonId, utils]);
+  }, [refetchLeaderboard, selectedSeasonId, utils]);
 
   if (seasonsLoading) {
     return <LoadingState message="Loading seasons..." />;
@@ -95,10 +95,10 @@ export function SeasonLeaderboard() {
       ) : leaderboardError ? (
         <EmptyState
           message={
-            leaderboardError.data?.code === "PRECONDITION_FAILED"
+            leaderboardError.data?.code === 'PRECONDITION_FAILED'
               ? leaderboardError.message ||
-                "Leaderboard data is being processed. Please check back in a few minutes."
-              : "Failed to load leaderboard data. Please try again later."
+                'Leaderboard data is being processed. Please check back in a few minutes.'
+              : 'Failed to load leaderboard data. Please try again later.'
           }
         />
       ) : leaderboardData ? (

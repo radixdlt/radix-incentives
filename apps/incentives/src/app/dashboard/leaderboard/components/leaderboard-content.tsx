@@ -1,7 +1,7 @@
-"use client";
+'use client';
 
-import { Podium } from "./podium";
-import { UserStats } from "./user-stats";
+import { Podium } from './podium';
+import { UserStats } from './user-stats';
 
 interface User {
   userId: string;

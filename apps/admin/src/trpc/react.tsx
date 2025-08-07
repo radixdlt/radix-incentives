@@ -1,12 +1,12 @@
 'use client';
 
-import { QueryClientProvider, type QueryClient } from '@tanstack/react-query';
+import { type QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchStreamLink, loggerLink } from '@trpc/client';
 import { createTRPCReact } from '@trpc/react-query';
 import type { inferRouterInputs, inferRouterOutputs } from '@trpc/server';
+import { BigNumber } from 'bignumber.js';
 import { useState } from 'react';
 import SuperJSON from 'superjson';
-import { BigNumber } from 'bignumber.js';
 
 import type { AdminAppRouter } from 'api/incentives';
 import { createQueryClient } from './query-client';
@@ -15,10 +15,10 @@ import { createQueryClient } from './query-client';
 SuperJSON.registerCustom<BigNumber, string>(
   {
     isApplicable: (v): v is BigNumber => BigNumber.isBigNumber(v),
-    serialize: v => v.toString(),
-    deserialize: v => new BigNumber(v)
+    serialize: (v) => v.toString(),
+    deserialize: (v) => new BigNumber(v),
   },
-  'BigNumber'
+  'BigNumber',
 );
 
 let clientQueryClientSingleton: QueryClient | undefined = undefined;

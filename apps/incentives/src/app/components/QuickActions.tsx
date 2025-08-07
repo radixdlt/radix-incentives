@@ -1,8 +1,8 @@
 import { motion } from 'framer-motion';
 import {
+  ArrowLeftRightIcon,
   ArrowRightIcon,
   CreditCardIcon,
-  ArrowLeftRightIcon,
   TrophyIcon,
 } from 'lucide-react';
 

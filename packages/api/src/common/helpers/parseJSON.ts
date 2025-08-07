@@ -1,7 +1,7 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
 export class ParseJSONError {
-  readonly _tag = "ParseJSONError";
+  readonly _tag = 'ParseJSONError';
   constructor(readonly error: unknown) {}
 }
 

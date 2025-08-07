@@ -1,26 +1,26 @@
 import {
-  defaultShouldDehydrateQuery,
   QueryClient,
-} from "@tanstack/react-query";
-import SuperJSON from "superjson";
+  defaultShouldDehydrateQuery,
+} from '@tanstack/react-query';
+import SuperJSON from 'superjson';
 
 const getStaleTimeForQuery = (queryKey: unknown[]): number => {
   // Check if this is a tRPC query key structure: [["leaderboard", "method"], input]
   const trpcKey = queryKey[0];
-  if (Array.isArray(trpcKey) && trpcKey[0] === "leaderboard") {
+  if (Array.isArray(trpcKey) && trpcKey[0] === 'leaderboard') {
     const method = trpcKey[1];
 
     if (
-      method === "getAvailableSeasons" ||
-      method === "getAvailableWeeks" ||
-      method === "getAvailableCategories"
+      method === 'getAvailableSeasons' ||
+      method === 'getAvailableWeeks' ||
+      method === 'getAvailableCategories'
     ) {
       return 5 * 60 * 1000; // 5 minutes
     }
 
     if (
-      method === "getSeasonLeaderboard" ||
-      method === "getActivityCategoryLeaderboard"
+      method === 'getSeasonLeaderboard' ||
+      method === 'getActivityCategoryLeaderboard'
     ) {
       return 2 * 60 * 1000; // 2 minutes
     }
@@ -45,7 +45,7 @@ export const createQueryClient = () => {
         serializeData: SuperJSON.serialize,
         shouldDehydrateQuery: (query) =>
           defaultShouldDehydrateQuery(query) ||
-          query.state.status === "pending",
+          query.state.status === 'pending',
       },
       hydrate: {
         deserializeData: SuperJSON.deserialize,

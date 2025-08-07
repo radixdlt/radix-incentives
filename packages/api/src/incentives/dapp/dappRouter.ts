@@ -1,6 +1,6 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { TRPCError } from "@trpc/server";
-import { Exit } from "effect";
+import { TRPCError } from '@trpc/server';
+import { Exit } from 'effect';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 export const adminDappRouter = createTRPCRouter({
   getDapps: publicProcedure.query(async ({ ctx }) => {
@@ -13,8 +13,8 @@ export const adminDappRouter = createTRPCRouter({
       onFailure: (error) => {
         console.error(error);
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred',
         });
       },
     });
@@ -31,8 +31,8 @@ export const dappRouter = createTRPCRouter({
       onFailure: (error) => {
         console.error(error);
         throw new TRPCError({
-          code: "INTERNAL_SERVER_ERROR",
-          message: "An unexpected error occurred",
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'An unexpected error occurred',
         });
       },
     });

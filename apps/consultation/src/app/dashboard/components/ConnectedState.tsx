@@ -1,13 +1,13 @@
-import { Loader2, Wallet } from "lucide-react";
-import { useEffect } from "react";
-import { useState } from "react";
-import { Button } from "~/components/ui/button";
+import { Loader2, Wallet } from 'lucide-react';
+import { useEffect } from 'react';
+import { useState } from 'react';
+import { Button } from '~/components/ui/button';
 
-import { usePersona } from "~/lib/hooks/usePersona";
-import { useDappToolkit } from "~/lib/hooks/useRdt";
+import { usePersona } from '~/lib/hooks/usePersona';
+import { useDappToolkit } from '~/lib/hooks/useRdt';
 
-import type { FC, ReactNode } from "react";
-import { EmptyState } from "~/components/ui/empty-state";
+import type { FC, ReactNode } from 'react';
+import { EmptyState } from '~/components/ui/empty-state';
 
 interface ConnectedStateProps {
   children: ReactNode;
@@ -25,7 +25,7 @@ export const ConnectedState: FC<ConnectedStateProps> = ({ children }) => {
 
   useEffect(() => {
     const subscription = rdt?.buttonApi.status$.subscribe((status) => {
-      setIsConnecting(status === "pending");
+      setIsConnecting(status === 'pending');
     });
 
     return () => subscription?.unsubscribe();
@@ -52,7 +52,7 @@ export const ConnectedState: FC<ConnectedStateProps> = ({ children }) => {
                   Connecting...
                 </>
               ) : (
-                "Connect Wallet"
+                'Connect Wallet'
               )}
             </Button>
           </EmptyState>

@@ -1,2 +1,2 @@
-import "./server";
-import "./telemetry";
+import './server';
+import './telemetry';

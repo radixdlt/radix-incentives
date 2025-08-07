@@ -1,7 +1,7 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { sessions } from "db/consultation";
-import { eq } from "drizzle-orm";
+import { sessions } from 'db/consultation';
+import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const signOutProgram = (userId: string) =>
   Effect.gen(function* () {

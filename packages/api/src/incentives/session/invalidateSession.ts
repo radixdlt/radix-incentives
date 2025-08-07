@@ -1,10 +1,10 @@
-import { Context, Layer, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { sessions } from "db/consultation";
-import { eq } from "drizzle-orm";
+import { sessions } from 'db/consultation';
+import { eq } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export class InvalidateSessionService extends Context.Tag(
-  "InvalidateSessionService"
+  'InvalidateSessionService',
 )<
   InvalidateSessionService,
   (sessionId: string) => Effect.Effect<void, DbError>
@@ -20,5 +20,5 @@ export const InvalidateSessionLive = Layer.effect(
         try: () => db.delete(sessions).where(eq(sessions.id, sessionId)),
         catch: (error) => new DbError(error),
       });
-  })
+  }),
 );

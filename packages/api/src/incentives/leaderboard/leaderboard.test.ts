@@ -1,62 +1,63 @@
-import { describe, inject } from "vitest";
-import { Effect, Layer, Logger, LogLevel } from "effect";
-import { it } from "@effect/vitest";
-import { createDbClientLive } from "../db/dbClient";
-import { LeaderboardService, CacheNotAvailableError } from "./leaderboard";
-import { WeekService } from "../week/week";
-import { ActivityWeekService } from "../activity-week/activityWeek";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { SeasonService } from "../season/season";
-import { ActivityCategoryService } from "../activity-category/activityCategory";
-import { drizzle } from "drizzle-orm/postgres-js";
+import { it } from '@effect/vitest';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import { describe, inject } from 'vitest';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityCategoryService } from '../activity-category/activityCategory';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { createDbClientLive } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { CacheNotAvailableError, LeaderboardService } from './leaderboard';
 
 import {
-  schema,
-  seasons,
-  weeks,
-  users,
   accounts,
-  seasonLeaderboardCache,
+  activities,
+  activityCategories,
+  activityCategoryWeeks,
+  activityWeeks,
   categoryLeaderboardCache,
   leaderboardStatsCache,
-} from "db/incentives";
+  schema,
+  seasonLeaderboardCache,
+  seasons,
+  users,
+  weeks,
+} from 'db/incentives';
 
-import postgres from "postgres";
+import postgres from 'postgres';
 
 describe(
-  "LeaderboardService",
+  'LeaderboardService',
   {
     timeout: 60_000,
   },
   () => {
-    const dbUrl = inject("testDbUrl");
+    const dbUrl = inject('testDbUrl');
     const client = postgres(dbUrl);
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);
-    
+
     const activityWeekServiceLive = ActivityWeekService.Default.pipe(
-      Layer.provide(dbLive)
+      Layer.provide(dbLive),
     );
-    
-    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const activityCategoryWeekServiceLive =
+      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+
     const weekLive = WeekService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(activityCategoryWeekServiceLive),
-      Layer.provide(activityWeekServiceLive)
+      Layer.provide(activityWeekServiceLive),
     );
-    
-    const seasonLive = SeasonService.Default.pipe(
-      Layer.provide(dbLive)
-    );
-    
+
+    const seasonLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+
     const activityCategoryServiceLive = ActivityCategoryService.Default.pipe(
-      Layer.provide(dbLive)
+      Layer.provide(dbLive),
     );
-    
+
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(weekLive),
@@ -64,15 +65,15 @@ describe(
       Layer.provide(activityCategoryServiceLive),
       Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(activityWeekServiceLive),
-      Layer.provide(Logger.minimumLogLevel(LogLevel.None))
+      Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
     );
 
     // Test data constants
-    const SEASON_ID = "11111111-1111-1111-1111-111111111111";
-    const WEEK_ID = "33333333-3333-3333-3333-333333333333";
-    const USER_ID_1 = "55555555-5555-5555-5555-555555555555";
-    const USER_ID_2 = "66666666-6666-6666-6666-666666666666";
-    const USER_ID_3 = "77777777-7777-7777-7777-777777777777";
+    const SEASON_ID = '11111111-1111-1111-1111-111111111111';
+    const WEEK_ID = '33333333-3333-3333-3333-333333333333';
+    const USER_ID_1 = '55555555-5555-5555-5555-555555555555';
+    const USER_ID_2 = '66666666-6666-6666-6666-666666666666';
+    const USER_ID_3 = '77777777-7777-7777-7777-777777777777';
 
     const setupTestData = Effect.gen(function* () {
       // Clean up cache tables
@@ -83,6 +84,10 @@ describe(
       // Clean up data tables
       yield* Effect.promise(() => db.delete(accounts));
       yield* Effect.promise(() => db.delete(users));
+      yield* Effect.promise(() => db.delete(activityWeeks));
+      yield* Effect.promise(() => db.delete(activityCategoryWeeks));
+      yield* Effect.promise(() => db.delete(activities));
+      yield* Effect.promise(() => db.delete(activityCategories));
       yield* Effect.promise(() => db.delete(weeks));
       yield* Effect.promise(() => db.delete(seasons));
 
@@ -90,7 +95,7 @@ describe(
       yield* Effect.promise(() =>
         db
           .insert(seasons)
-          .values([{ id: SEASON_ID, name: "Test Season", status: "active" }])
+          .values([{ id: SEASON_ID, name: 'Test Season', status: 'active' }]),
       );
 
       yield* Effect.promise(() =>
@@ -98,10 +103,10 @@ describe(
           {
             id: WEEK_ID,
             seasonId: SEASON_ID,
-            startDate: new Date("2025-01-01"),
-            endDate: new Date("2025-01-07"),
+            startDate: new Date('2025-01-01'),
+            endDate: new Date('2025-01-07'),
           },
-        ])
+        ]),
       );
 
       yield* Effect.promise(() =>
@@ -109,25 +114,81 @@ describe(
           {
             id: USER_ID_1,
             identityAddress: `identity_${USER_ID_1}`,
-            label: "TopPlayer",
+            label: 'TopPlayer',
           },
           {
             id: USER_ID_2,
             identityAddress: `identity_${USER_ID_2}`,
-            label: "MiddlePlayer",
+            label: 'MiddlePlayer',
           },
           {
             id: USER_ID_3,
             identityAddress: `identity_${USER_ID_3}`,
-            label: "NewPlayer",
+            label: 'NewPlayer',
           },
-        ])
+        ]),
+      );
+
+      // Insert activity categories
+      yield* Effect.promise(() =>
+        db.insert(activityCategories).values([
+          {
+            id: 'tradingVolume',
+            name: 'Trading volume',
+            description: 'Total trading volume across all DEXs',
+          },
+        ]),
+      );
+
+      // Insert activities
+      yield* Effect.promise(() =>
+        db.insert(activities).values([
+          {
+            id: 'c9_trade_xrd-xusdc',
+            name: 'c9_trade_xrd-xusdc',
+            category: 'tradingVolume',
+            description: 'CaviarNine XRD/XUSDC trading',
+          },
+          {
+            id: 'c9_trade_xrd-xusdt',
+            name: 'c9_trade_xrd-xusdt',
+            category: 'tradingVolume',
+            description: 'CaviarNine XRD/XUSDT trading',
+          },
+        ]),
+      );
+
+      // Insert activity weeks
+      yield* Effect.promise(() =>
+        db.insert(activityWeeks).values([
+          {
+            activityId: 'c9_trade_xrd-xusdc',
+            weekId: WEEK_ID,
+            multiplier: '1',
+          },
+          {
+            activityId: 'c9_trade_xrd-xusdt',
+            weekId: WEEK_ID,
+            multiplier: '1',
+          },
+        ]),
+      );
+
+      // Insert activity category weeks
+      yield* Effect.promise(() =>
+        db.insert(activityCategoryWeeks).values([
+          {
+            activityCategoryId: 'tradingVolume',
+            weekId: WEEK_ID,
+            pointsPool: 10000,
+          },
+        ]),
       );
     });
 
-    describe("getSeasonLeaderboard", () => {
+    describe('getSeasonLeaderboard', { retry: 0 }, () => {
       it.effect(
-        "should return season leaderboard when cache is available",
+        'should return season leaderboard when cache is available',
         () =>
           Effect.gen(function* () {
             yield* setupTestData;
@@ -138,22 +199,22 @@ describe(
                 {
                   seasonId: SEASON_ID,
                   userId: USER_ID_1,
-                  totalPoints: "1000.50",
+                  totalPoints: '1000.50',
                   rank: 1,
                 },
                 {
                   seasonId: SEASON_ID,
                   userId: USER_ID_2,
-                  totalPoints: "750.25",
+                  totalPoints: '750.25',
                   rank: 2,
                 },
                 {
                   seasonId: SEASON_ID,
                   userId: USER_ID_3,
-                  totalPoints: "250.75",
+                  totalPoints: '250.75',
                   rank: 3,
                 },
-              ])
+              ]),
             );
 
             // Insert stats cache
@@ -162,10 +223,10 @@ describe(
                 {
                   cacheKey: `season_${SEASON_ID}`,
                   totalUsers: 3,
-                  median: "750.250000",
-                  average: "667.170000",
+                  median: '750.250000',
+                  average: '667.170000',
                 },
-              ])
+              ]),
             );
 
             const leaderboardService = yield* LeaderboardService;
@@ -177,27 +238,28 @@ describe(
             expect(result.topUsers).toHaveLength(3);
             expect(result.topUsers[0]).toEqual({
               userId: USER_ID_1,
-              label: "TopPlayer",
-              totalPoints: "1000.500000",
+              label: 'TopPlayer',
+              totalPoints: '1000.500000',
               rank: 1,
             });
 
             expect(result.globalStats).toEqual({
               totalUsers: 3,
-              median: "750.250000",
-              average: "667.170000",
+              median: '750.250000',
+              average: '667.170000',
             });
 
             expect(result.seasonInfo).toEqual({
               id: SEASON_ID,
-              name: "Test Season",
+              name: 'Test Season',
+              status: 'active',
             });
 
             expect(result.userStats).toBeNull(); // No userId provided
-          }).pipe(Effect.provide(leaderboardServiceLive))
+          }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
-      it.effect("should return user stats when userId is provided", () =>
+      it.effect('should return user stats when userId is provided', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -205,16 +267,18 @@ describe(
           yield* Effect.promise(() =>
             db.insert(users).values([
               {
-                id: "44444444-4444-4444-4444-444444444444",
-                identityAddress: "identity_44444444-4444-4444-4444-444444444444",
-                label: "TestUser4",
+                id: '44444444-4444-4444-4444-444444444444',
+                identityAddress:
+                  'identity_44444444-4444-4444-4444-444444444444',
+                label: 'TestUser4',
               },
               {
-                id: "99999999-9999-9999-9999-999999999999",
-                identityAddress: "identity_99999999-9999-9999-9999-999999999999",
-                label: "TestUser5",
+                id: '99999999-9999-9999-9999-999999999999',
+                identityAddress:
+                  'identity_99999999-9999-9999-9999-999999999999',
+                label: 'TestUser5',
               },
-            ])
+            ]),
           );
 
           // Insert mock cache data
@@ -223,35 +287,35 @@ describe(
               {
                 seasonId: SEASON_ID,
                 userId: USER_ID_1,
-                totalPoints: "1000.000000",
+                totalPoints: '1000.000000',
                 rank: 1,
               },
               {
                 seasonId: SEASON_ID,
                 userId: USER_ID_2,
-                totalPoints: "750.000000",
+                totalPoints: '750.000000',
                 rank: 2,
               },
               {
                 seasonId: SEASON_ID,
                 userId: USER_ID_3,
-                totalPoints: "250.000000",
+                totalPoints: '250.000000',
                 rank: 3,
               },
               // Add more users to test percentile calculation
               {
                 seasonId: SEASON_ID,
-                userId: "44444444-4444-4444-4444-444444444444",
-                totalPoints: "100.000000",
+                userId: '44444444-4444-4444-4444-444444444444',
+                totalPoints: '100.000000',
                 rank: 4,
               },
               {
                 seasonId: SEASON_ID,
-                userId: "99999999-9999-9999-9999-999999999999",
-                totalPoints: "50.000000",
+                userId: '99999999-9999-9999-9999-999999999999',
+                totalPoints: '50.000000',
                 rank: 5,
               },
-            ])
+            ]),
           );
 
           const leaderboardService = yield* LeaderboardService;
@@ -262,17 +326,17 @@ describe(
 
           expect(result.userStats).toEqual({
             rank: 2,
-            totalPoints: "750.000000",
+            totalPoints: '750.000000',
             percentile: 80, // (1 - (2-1)/5) * 100 = 80th percentile
           });
 
           // Top 5 should be limited to actual top 5
           expect(result.topUsers).toHaveLength(5);
-        }).pipe(Effect.provide(leaderboardServiceLive))
+        }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
       it.effect(
-        "should fail with CacheNotAvailableError when cache is empty",
+        'should fail with CacheNotAvailableError when cache is empty',
         () =>
           Effect.gen(function* () {
             yield* setupTestData;
@@ -282,41 +346,46 @@ describe(
             const result = yield* Effect.either(
               leaderboardService.getSeasonLeaderboard({
                 seasonId: SEASON_ID,
-              })
+              }),
             );
 
-            expect(result._tag).toBe("Left");
-            if (result._tag === "Left") {
+            expect(result._tag).toBe('Left');
+            if (result._tag === 'Left') {
               expect(result.left).toBeInstanceOf(CacheNotAvailableError);
-              expect(result.left.message).toContain("cache is being built");
+              expect(result.left.message).toContain('cache is being built');
             }
-          }).pipe(Effect.provide(leaderboardServiceLive))
+          }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
-      it.effect("should fail when season does not exist", () =>
+      it.effect('should fail when season does not exist', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
-          const leaderboardService = yield* LeaderboardService;
-          const nonExistentSeasonId = "99999999-9999-9999-9999-999999999999";
+          const leaderboardService = yield* Effect.provide(
+            LeaderboardService,
+            leaderboardServiceLive,
+          );
+          const nonExistentSeasonId = '99999999-9999-9999-9999-999999999999';
 
-          const result = yield* Effect.either(
-            leaderboardService.getSeasonLeaderboard({
+          yield* leaderboardService
+            .getSeasonLeaderboard({
               seasonId: nonExistentSeasonId,
             })
-          );
-
-          expect(result._tag).toBe("Left");
-          if (result._tag === "Left") {
-            expect(result.left.message).toBe("Season not found");
-          }
-        }).pipe(Effect.provide(leaderboardServiceLive))
+            .pipe(
+              Effect.catchTag('NotFound', (e) => {
+                expect(e.message).toBe(
+                  `Season ${nonExistentSeasonId} not found`,
+                );
+                return Effect.succeed(e);
+              }),
+            );
+        }),
       );
     });
 
-    describe("getActivityCategoryLeaderboard", () => {
+    describe('getActivityCategoryLeaderboard', { retry: 0 }, () => {
       it.effect(
-        "should return category leaderboard with activity breakdown",
+        'should return category leaderboard with activity breakdown',
         () =>
           Effect.gen(function* () {
             yield* setupTestData;
@@ -326,24 +395,24 @@ describe(
               db.insert(categoryLeaderboardCache).values([
                 {
                   weekId: WEEK_ID,
-                  categoryId: "tradingVolume",
+                  categoryId: 'tradingVolume',
                   userId: USER_ID_1,
-                  totalPoints: "500.000000",
+                  totalPoints: '500.000000',
                   rank: 1,
                   activityBreakdown: {
-                    "c9_trade_xrd-xusdc": 300,
-                    "c9_trade_xrd-xusdt": 200,
+                    'c9_trade_xrd-xusdc': 300,
+                    'c9_trade_xrd-xusdt': 200,
                   },
                 },
                 {
                   weekId: WEEK_ID,
-                  categoryId: "tradingVolume",
+                  categoryId: 'tradingVolume',
                   userId: USER_ID_2,
-                  totalPoints: "300.000000",
+                  totalPoints: '300.000000',
                   rank: 2,
-                  activityBreakdown: { "c9_trade_xrd-xusdc": 300 },
+                  activityBreakdown: { 'c9_trade_xrd-xusdc': 300 },
                 },
-              ])
+              ]),
             );
 
             // Insert stats cache
@@ -352,16 +421,16 @@ describe(
                 {
                   cacheKey: `category_${WEEK_ID}_tradingVolume`,
                   totalUsers: 2,
-                  median: "400.000000",
-                  average: "400.000000",
+                  median: '400.000000',
+                  average: '400.000000',
                 },
-              ])
+              ]),
             );
 
             const leaderboardService = yield* LeaderboardService;
             const result =
               yield* leaderboardService.getActivityCategoryLeaderboard({
-                categoryId: "tradingVolume",
+                categoryId: 'tradingVolume',
                 weekId: WEEK_ID,
                 userId: USER_ID_1,
               });
@@ -369,43 +438,43 @@ describe(
             expect(result.topUsers).toHaveLength(2);
             expect(result.topUsers[0]).toEqual({
               userId: USER_ID_1,
-              label: "TopPlayer",
-              totalPoints: "500.000000",
+              label: 'TopPlayer',
+              totalPoints: '500.000000',
               rank: 1,
             });
 
             expect(result.userStats).toEqual({
               rank: 1,
-              totalPoints: "500.000000",
+              totalPoints: '500.000000',
               percentile: 100, // Top user = 100th percentile
               activityBreakdown: [
                 {
-                  activityId: "c9_trade_xrd-xusdc",
-                  activityName: "c9_trade_xrd-xusdc",
-                  points: "300",
+                  activityId: 'c9_trade_xrd-xusdc',
+                  activityName: 'c9_trade_xrd-xusdc',
+                  points: '300',
                 },
                 {
-                  activityId: "c9_trade_xrd-xusdt",
-                  activityName: "c9_trade_xrd-xusdt",
-                  points: "200",
+                  activityId: 'c9_trade_xrd-xusdt',
+                  activityName: 'c9_trade_xrd-xusdt',
+                  points: '200',
                 },
               ],
             });
 
             expect(result.categoryInfo).toEqual({
-              id: "tradingVolume",
-              name: "Trading volume",
+              id: 'tradingVolume',
+              name: 'Trading volume',
             });
 
             expect(result.weekInfo).toEqual({
               id: WEEK_ID,
-              startDate: new Date("2025-01-01"),
-              endDate: new Date("2025-01-07"),
+              startDate: new Date('2025-01-01'),
+              endDate: new Date('2025-01-07'),
             });
-          }).pipe(Effect.provide(leaderboardServiceLive))
+          }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
-      it.effect("should handle missing activity breakdown gracefully", () =>
+      it.effect('should handle missing activity breakdown gracefully', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -414,32 +483,32 @@ describe(
             db.insert(categoryLeaderboardCache).values([
               {
                 weekId: WEEK_ID,
-                categoryId: "tradingVolume",
+                categoryId: 'tradingVolume',
                 userId: USER_ID_1,
-                totalPoints: "500.000000",
+                totalPoints: '500.000000',
                 rank: 1,
                 activityBreakdown: {}, // Empty breakdown
               },
-            ])
+            ]),
           );
 
           const leaderboardService = yield* LeaderboardService;
           const result =
             yield* leaderboardService.getActivityCategoryLeaderboard({
-              categoryId: "tradingVolume",
+              categoryId: 'tradingVolume',
               weekId: WEEK_ID,
               userId: USER_ID_1,
             });
 
           expect(
-            result.userStats && "activityBreakdown" in result.userStats
+            result.userStats && 'activityBreakdown' in result.userStats
               ? result.userStats.activityBreakdown
-              : undefined
+              : undefined,
           ).toEqual([]);
-        }).pipe(Effect.provide(leaderboardServiceLive))
+        }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
-      it.effect("should fail when category or week does not exist", () =>
+      it.effect('should fail when category or week does not exist', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -448,36 +517,38 @@ describe(
           // Test non-existent category
           const categoryResult = yield* Effect.either(
             leaderboardService.getActivityCategoryLeaderboard({
-              categoryId: "non-existent",
+              categoryId: 'non-existent',
               weekId: WEEK_ID,
-            })
+            }),
           );
 
-          expect(categoryResult._tag).toBe("Left");
-          if (categoryResult._tag === "Left") {
+          expect(categoryResult._tag).toBe('Left');
+          if (categoryResult._tag === 'Left') {
             expect(categoryResult.left.message).toBe(
-              "Activity category not found"
+              'Activity category non-existent not found',
             );
           }
 
           // Test non-existent week
           const weekResult = yield* Effect.either(
             leaderboardService.getActivityCategoryLeaderboard({
-              categoryId: "tradingVolume",
-              weekId: "99999999-9999-9999-9999-999999999999",
-            })
+              categoryId: 'tradingVolume',
+              weekId: '99999999-9999-9999-9999-999999999999',
+            }),
           );
 
-          expect(weekResult._tag).toBe("Left");
-          if (weekResult._tag === "Left") {
-            expect(weekResult.left.message).toBe("Week not found");
+          expect(weekResult._tag).toBe('Left');
+          if (weekResult._tag === 'Left') {
+            expect(weekResult.left.message).toBe(
+              'Week 99999999-9999-9999-9999-999999999999 not found',
+            );
           }
-        }).pipe(Effect.provide(leaderboardServiceLive))
+        }).pipe(Effect.provide(leaderboardServiceLive)),
       );
     });
 
-    describe("getAvailable* methods", () => {
-      it.effect("should return available seasons", () =>
+    describe('getAvailable* methods', () => {
+      it.effect('should return available seasons', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -487,15 +558,15 @@ describe(
           expect(seasons).toHaveLength(1);
           expect(seasons[0]).toEqual({
             id: SEASON_ID,
-            name: "Test Season",
-            status: "active",
-            startDate: "2025-01-01 00:00:00+00",
-            endDate: "2025-01-07 00:00:00+00",
+            name: 'Test Season',
+            status: 'active',
+            startDate: '2025-01-01 00:00:00+00',
+            endDate: '2025-01-07 00:00:00+00',
           });
-        }).pipe(Effect.provide(leaderboardServiceLive))
+        }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
-      it.effect("should return available weeks", () =>
+      it.effect('should return available weeks', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
@@ -506,28 +577,29 @@ describe(
           expect(weeks[0]).toEqual({
             id: WEEK_ID,
             seasonId: SEASON_ID,
-            startDate: new Date("2025-01-01"),
-            endDate: new Date("2025-01-07"),
-            seasonName: "Test Season",
+            startDate: new Date('2025-01-01'),
+            endDate: new Date('2025-01-07'),
+            seasonName: 'Test Season',
           });
-        }).pipe(Effect.provide(leaderboardServiceLive))
+        }).pipe(Effect.provide(leaderboardServiceLive)),
       );
 
-      it.effect("should return available categories", () =>
+      it.effect('should return available categories', () =>
         Effect.gen(function* () {
           yield* setupTestData;
 
           const leaderboardService = yield* LeaderboardService;
-          const categories = yield* leaderboardService.getAvailableCategories({ weekId: WEEK_ID });
+          const categories = yield* leaderboardService.getAvailableCategories({
+            weekId: WEEK_ID,
+          });
 
           // Should return categories that have non-hold, non-common activities
           expect(categories.length).toBeGreaterThan(0);
-          expect(categories[0]).toHaveProperty("id");
-          expect(categories[0]).toHaveProperty("name");
-          expect(categories[0]).toHaveProperty("description");
-        }).pipe(Effect.provide(leaderboardServiceLive))
+          expect(categories[0]).toHaveProperty('id');
+          expect(categories[0]).toHaveProperty('name');
+          expect(categories[0]).toHaveProperty('description');
+        }).pipe(Effect.provide(leaderboardServiceLive)),
       );
-
     });
-  }
+  },
 );

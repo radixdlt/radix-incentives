@@ -1,10 +1,10 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import type { Account, User } from "db/incentives";
-import { accounts, users } from "db/incentives";
-import { count, desc, inArray } from "drizzle-orm";
-import { groupBy } from "effect/Array";
+import type { Account, User } from 'db/incentives';
+import { accounts, users } from 'db/incentives';
+import { count, desc, inArray } from 'drizzle-orm';
+import { groupBy } from 'effect/Array';
 
 type UserWithAccounts = User & {
   accounts: Account[];
@@ -16,7 +16,7 @@ type GetUsersPaginatedResponse = {
 };
 
 export class GetUsersPaginatedService extends Effect.Service<GetUsersPaginatedService>()(
-  "GetUsersPaginatedService",
+  'GetUsersPaginatedService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -45,13 +45,13 @@ export class GetUsersPaginatedService extends Effect.Service<GetUsersPaginatedSe
             const accountsResults = await db.query.accounts.findMany({
               where: inArray(
                 accounts.userId,
-                paginatedUsers.map((user) => user.id)
+                paginatedUsers.map((user) => user.id),
               ),
             });
 
             const accountsByUserId = groupBy(
               accountsResults,
-              (account) => account.userId
+              (account) => account.userId,
             );
 
             const usersWithAccounts = paginatedUsers.map((user) => ({
@@ -70,7 +70,7 @@ export class GetUsersPaginatedService extends Effect.Service<GetUsersPaginatedSe
         return result;
       });
     }),
-  }
+  },
 ) {}
 
 export const GetUsersPaginatedLive = GetUsersPaginatedService.Default;

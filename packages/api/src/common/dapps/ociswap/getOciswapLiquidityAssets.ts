@@ -1,19 +1,19 @@
-import { Effect } from "effect";
-import { Decimal } from "decimal.js";
+import { Decimal } from 'decimal.js';
+import { Effect } from 'effect';
 
-import type { AtLedgerState } from "../../gateway/schemas";
+import type { AtLedgerState } from '../../gateway/schemas';
 
-import { GetComponentStateService } from "../../gateway/getComponentState";
+import { GetComponentStateService } from '../../gateway/getComponentState';
 import {
   type GetNonFungibleBalanceOutput,
   GetNonFungibleBalanceService,
-} from "../../gateway/getNonFungibleBalance";
-import { GetOciswapLiquidityClaimsService } from "./getOciswapLiquidityClaims";
-import { PrecisionPool, PrecisionPoolV2 } from "./schemas";
-import { tickToPriceSqrt, removableAmounts } from "./tickCalculator";
+} from '../../gateway/getNonFungibleBalance';
+import { GetOciswapLiquidityClaimsService } from './getOciswapLiquidityClaims';
+import { PrecisionPool, PrecisionPoolV2 } from './schemas';
+import { removableAmounts, tickToPriceSqrt } from './tickCalculator';
 
 export class FailedToParseOciswapComponentStateError {
-  readonly _tag = "FailedToParseOciswapComponentStateError";
+  readonly _tag = 'FailedToParseOciswapComponentStateError';
   constructor(readonly error: unknown) {}
 }
 
@@ -32,7 +32,7 @@ export type OciswapLiquidityAsset = {
 };
 
 export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapLiquidityAssetsService>()(
-  "GetOciswapLiquidityAssetsService",
+  'GetOciswapLiquidityAssetsService',
   {
     effect: Effect.gen(function* () {
       const getComponentStateService = yield* GetComponentStateService;
@@ -50,14 +50,14 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
         tokenYAddress: string;
         tokenXDivisibility: number;
         tokenYDivisibility: number;
-        schemaVersion?: "v1" | "v2";
+        schemaVersion?: 'v1' | 'v2';
         priceBounds?: {
           lower: number;
           upper: number;
         };
       }) {
         const componentStateResult =
-          input.schemaVersion === "v2"
+          input.schemaVersion === 'v2'
             ? yield* getComponentStateService.run({
                 addresses: [input.componentAddress],
                 schema: PrecisionPoolV2,
@@ -71,7 +71,7 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
 
         if (componentStateResult.length === 0) {
           return yield* Effect.fail(
-            new FailedToParseOciswapComponentStateError("Component not found")
+            new FailedToParseOciswapComponentStateError('Component not found'),
           );
         }
 
@@ -79,8 +79,8 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
         if (!componentResult) {
           return yield* Effect.fail(
             new FailedToParseOciswapComponentStateError(
-              "Component result is undefined"
-            )
+              'Component result is undefined',
+            ),
           );
         }
 
@@ -97,7 +97,7 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
           item.nonFungibleResources
             .filter((nft) => nft.resourceAddress === input.lpResourceAddress)
             .flatMap((nft) => nft.items)
-            .map((nft) => ({ ...nft, address: item.address }))
+            .map((nft) => ({ ...nft, address: item.address })),
         );
 
         const nftIds = ociswapLiquidityNfts.map((nft) => nft.id);
@@ -113,7 +113,7 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
 
         const currentPriceSqrt = new Decimal(poolState.price_sqrt.toString());
         const currentTick =
-          poolState.active_tick?.variant === "Some"
+          poolState.active_tick?.variant === 'Some'
             ? poolState.active_tick.value
             : null;
 
@@ -136,13 +136,13 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
           nonFungibleLocalIds: nftIds,
           at_ledger_state: input.at_ledger_state,
         }).pipe(
-          Effect.withSpan("getOciswapLiquidityClaimsService"),
+          Effect.withSpan('getOciswapLiquidityClaimsService'),
           Effect.map((items) =>
             items.map((nft) => ({
               ...nft,
               address: nftOwnerMap.get(nft.nonFungibleId)!,
-            }))
-          )
+            })),
+          ),
         );
 
         return yield* Effect.forEach(nfts, ({ liquidityPosition, address }) => {
@@ -166,7 +166,7 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
               positionLeftPriceSqrt,
               positionRightPriceSqrt,
               input.tokenXDivisibility,
-              input.tokenYDivisibility
+              input.tokenYDivisibility,
             );
 
             let xBoundedAmount: Decimal;
@@ -190,11 +190,11 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
                 // Calculate effective bounds (intersection of position bounds and price bounds)
                 const effectiveLeftPriceSqrt = Decimal.max(
                   positionLeftPriceSqrt,
-                  lowerBoundPriceSqrt!
+                  lowerBoundPriceSqrt!,
                 );
                 const effectiveRightPriceSqrt = Decimal.min(
                   positionRightPriceSqrt,
-                  upperBoundPriceSqrt!
+                  upperBoundPriceSqrt!,
                 );
 
                 // Calculate bounded amounts using effective bounds
@@ -204,7 +204,7 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
                   effectiveLeftPriceSqrt,
                   effectiveRightPriceSqrt,
                   input.tokenXDivisibility,
-                  input.tokenYDivisibility
+                  input.tokenYDivisibility,
                 );
               }
             }
@@ -241,13 +241,13 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
               ([address, items]) => ({
                 address,
                 items,
-              })
+              }),
             );
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const GetOciswapLiquidityAssetsLive =

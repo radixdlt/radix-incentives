@@ -1,12 +1,12 @@
-import { Data, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { and, desc, eq, gte, lte } from "drizzle-orm";
-import { weeks, seasons } from "db/incentives";
-import { z } from "zod";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { ActivityWeekService } from "../activity-week/activityWeek";
+import { seasons, weeks } from 'db/incentives';
+import { and, desc, eq, gte, lte } from 'drizzle-orm';
+import { Data, Effect } from 'effect';
+import { z } from 'zod';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { DbClientService, DbError } from '../db/dbClient';
 
-class WeekNotFoundError extends Data.TaggedError("WeekNotFoundError")<{
+class WeekNotFoundError extends Data.TaggedError('WeekNotFoundError')<{
   message: string;
 }> {}
 
@@ -18,7 +18,7 @@ export const CreateWeekSchema = z.object({
 
 export type CreateWeekInput = z.infer<typeof CreateWeekSchema>;
 
-export class WeekService extends Effect.Service<WeekService>()("WeekService", {
+export class WeekService extends Effect.Service<WeekService>()('WeekService', {
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
     const activityWeekService = yield* ActivityWeekService;
@@ -38,7 +38,7 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
           return yield* Effect.fail(
             new WeekNotFoundError({
               message: `No week found for date ${date.toISOString()}`,
-            })
+            }),
           );
         }
 
@@ -52,7 +52,7 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
 
         if (!week) {
           return yield* Effect.fail(
-            new WeekNotFoundError({ message: `Week ${id} not found` })
+            new WeekNotFoundError({ message: `Week ${id} not found` }),
           );
         }
 
@@ -81,11 +81,13 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
         });
 
         if (!newWeek) {
-          return yield* Effect.fail(new DbError(new Error("Failed to create week")));
+          return yield* Effect.fail(
+            new DbError(new Error('Failed to create week')),
+          );
         }
 
         yield* Effect.log(
-          `Cloning activities from ${lastWeekId ?? 'none'} to ${newWeek.id}`
+          `Cloning activities from ${lastWeekId ?? 'none'} to ${newWeek.id}`,
         );
 
         yield* Effect.all([
@@ -116,8 +118,8 @@ export class WeekService extends Effect.Service<WeekService>()("WeekService", {
               // Only show weeks that have started (using UTC time)
               lte(weeks.startDate, now),
               // Add seasonId filter if provided
-              input.seasonId ? eq(weeks.seasonId, input.seasonId) : undefined
-            )
+              input.seasonId ? eq(weeks.seasonId, input.seasonId) : undefined,
+            ),
           );
 
         return yield* Effect.tryPromise({

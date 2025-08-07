@@ -1,7 +1,7 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { config } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { config } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type NotificationSettings = {
   message: string;
@@ -9,7 +9,7 @@ export type NotificationSettings = {
 };
 
 export class NotificationService extends Effect.Service<NotificationService>()(
-  "NotificationService",
+  'NotificationService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -21,7 +21,7 @@ export class NotificationService extends Effect.Service<NotificationService>()(
               db
                 .select()
                 .from(config)
-                .where(eq(config.key, "notification"))
+                .where(eq(config.key, 'notification'))
                 .limit(1)
                 .then((result) => {
                   if (result.length > 0) {
@@ -34,14 +34,14 @@ export class NotificationService extends Effect.Service<NotificationService>()(
         }),
 
         updateNotificationSettings: Effect.fn(function* (
-          settings: NotificationSettings
+          settings: NotificationSettings,
         ) {
           return yield* Effect.tryPromise({
             try: () =>
               db
                 .insert(config)
                 .values({
-                  key: "notification",
+                  key: 'notification',
                   value: settings,
                 })
                 .onConflictDoUpdate({
@@ -56,5 +56,5 @@ export class NotificationService extends Effect.Service<NotificationService>()(
         }),
       };
     }),
-  }
+  },
 ) {}

@@ -1,9 +1,9 @@
-import { Effect } from "effect";
-import { GatewayApiClientService } from "./gatewayApiClient";
-import { GatewayError } from "./errors";
+import { Effect } from 'effect';
+import { GatewayError } from './errors';
+import { GatewayApiClientService } from './gatewayApiClient';
 
 export class CheckAccountPersistenceService extends Effect.Service<CheckAccountPersistenceService>()(
-  "CheckAccountPersistenceService",
+  'CheckAccountPersistenceService',
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
@@ -19,13 +19,13 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
                 gatewayClient.state.innerClient.stateEntityDetails({
                   stateEntityDetailsRequest: {
                     addresses: [address],
-                    aggregation_level: "Vault",
+                    aggregation_level: 'Vault',
                     opt_ins: {
                       ancestor_identities: false,
                       component_royalty_vault_balance: false,
                       package_royalty_vault_balance: false,
                       non_fungible_include_nfids: false,
-                      explicit_metadata: ["owner_keys", "owner_badge"],
+                      explicit_metadata: ['owner_keys', 'owner_badge'],
                     },
                   },
                 }),
@@ -46,10 +46,10 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
 
             // Look for owner_keys or owner_badge metadata with state_version > 0
             const ownerKeysMetadata = metadata.find(
-              (item) => item.key === "owner_keys"
+              (item) => item.key === 'owner_keys',
             );
             const ownerBadgeMetadata = metadata.find(
-              (item) => item.key === "owner_badge"
+              (item) => item.key === 'owner_badge',
             );
 
             const ownerKeysStateVersion =
@@ -62,7 +62,7 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
               ownerKeysStateVersion > 0 || ownerBadgeStateVersion > 0;
             const stateVersion = Math.max(
               ownerKeysStateVersion,
-              ownerBadgeStateVersion
+              ownerBadgeStateVersion,
             );
 
             return {
@@ -70,18 +70,18 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
               isPersisted,
               stateVersion: isPersisted ? stateVersion : undefined,
             };
-          })
+          }),
         );
       });
     }),
-  }
+  },
 ) {}
 
 export const CheckAccountPersistenceServiceLive =
   CheckAccountPersistenceService.Default;
 
 export class VirtualAccountError {
-  readonly _tag = "VirtualAccountError";
+  readonly _tag = 'VirtualAccountError';
   constructor(readonly address: string) {}
 }
 
@@ -98,7 +98,7 @@ export const checkForVirtualAccounts = (addresses: string[]) =>
       const firstVirtualAccount = virtualAccounts[0];
       if (firstVirtualAccount) {
         return yield* Effect.fail(
-          new VirtualAccountError(firstVirtualAccount.address)
+          new VirtualAccountError(firstVirtualAccount.address),
         );
       }
     }

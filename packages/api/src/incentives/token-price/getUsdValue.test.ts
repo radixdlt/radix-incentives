@@ -1,11 +1,12 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
-import { Effect, Layer } from "effect";
-import { BigNumber } from "bignumber.js";
-import { Assets } from "data";
-import { GetUsdValueLive, GetUsdValueService } from "./getUsdValue";
-import { AddressValidationServiceLive } from "../../common/address-validation/addressValidation";
+import { BigNumber } from 'bignumber.js';
+import { Assets } from 'data';
+import { Effect, Layer } from 'effect';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
+import { FetchService } from '../../common/helpers';
+import { GetUsdValueLive, GetUsdValueService } from './getUsdValue';
 
-describe("GetUsdValueService", () => {
+describe('GetUsdValueService', () => {
   const mockFetch = vi.fn();
   global.fetch = mockFetch;
 
@@ -13,9 +14,13 @@ describe("GetUsdValueService", () => {
     vi.clearAllMocks();
   });
 
-  it("should return USD value for xUSDC", async () => {
-    const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+  const getUsdValueLive = GetUsdValueLive.pipe(
+    Layer.provide(AddressValidationServiceLive),
+  );
+
+  it('should return USD value for xUSDC', async () => {
+    const amount = new BigNumber('100');
+    const timestamp = new Date('2025-01-01');
     const expectedPrice = 1;
 
     mockFetch.mockResolvedValueOnce({
@@ -37,24 +42,24 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive,
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     const result = await Effect.runPromise(program);
 
-    expect(result.toString()).toBe("100");
+    expect(result.toString()).toBe('100');
     expect(mockFetch).toHaveBeenCalledWith(
-      "https://token-price-service.radixdlt.com/price/historicalPrice",
+      'https://token-price-service.radixdlt.com/price/historicalPrice',
       expect.objectContaining({
-        method: "POST",
+        method: 'POST',
         body: expect.stringContaining(Assets.Fungible.xUSDC),
-      })
+      }),
     );
   });
 
-  it("should return USD value for XRD", async () => {
-    const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+  it('should return USD value for XRD', async () => {
+    const amount = new BigNumber('100');
+    const timestamp = new Date('2025-01-01');
     const expectedPrice = 0.01;
 
     mockFetch.mockResolvedValueOnce({
@@ -76,18 +81,18 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive,
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     const result = await Effect.runPromise(program);
 
-    expect(result.toString()).toBe("1");
+    expect(result.toString()).toBe('1');
   });
 
-  it("should fail with InvalidResourceAddressError for unknown token", async () => {
-    const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
-    const invalidAddress = "invalid_address";
+  it('should fail with InvalidResourceAddressError for unknown token', async () => {
+    const amount = new BigNumber('100');
+    const timestamp = new Date('2025-01-01');
+    const invalidAddress = 'invalid_address';
 
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -98,21 +103,21 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive,
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
       message: expect.stringContaining(
-        "Invalid resource address: invalid_address"
+        'Invalid resource address: invalid_address',
       ),
     });
   });
 
-  it("should fail with ApiError when API call fails", async () => {
-    const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+  it('should fail with ApiError when API call fails', async () => {
+    const amount = new BigNumber('100');
+    const timestamp = new Date('2025-01-01');
 
-    mockFetch.mockRejectedValueOnce(new Error("Network error"));
+    mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -123,17 +128,17 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive,
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining("PriceServiceApiError"),
+      name: expect.stringContaining('PriceServiceApiError'),
     });
   });
 
-  it("should fail with ApiError when API returns invalid response", async () => {
-    const amount = new BigNumber("100");
-    const timestamp = new Date("2024-01-01");
+  it('should fail with ApiError when API returns invalid response', async () => {
+    const amount = new BigNumber('100');
+    const timestamp = new Date('2025-01-01');
 
     mockFetch.mockResolvedValueOnce({
       ok: true,
@@ -152,11 +157,11 @@ describe("GetUsdValueService", () => {
           timestamp,
         });
       }),
-      GetUsdValueLive.pipe(Layer.provide(AddressValidationServiceLive))
-    );
+      getUsdValueLive,
+    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining("PriceServiceApiError"),
+      name: expect.stringContaining('PriceServiceApiError'),
     });
   });
 });

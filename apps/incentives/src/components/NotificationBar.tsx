@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
-import { X, Info } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from 'framer-motion';
+import { Info, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 
 type NotificationBarProps = {
   message: string;
@@ -13,7 +13,7 @@ type NotificationBarProps = {
 export function NotificationBar({
   message,
   onDismiss,
-  className = "",
+  className = '',
 }: NotificationBarProps) {
   const [isDismissed, setIsDismissed] = useState(false);
   const [shouldScroll, setShouldScroll] = useState(false);
@@ -26,13 +26,13 @@ export function NotificationBar({
     const checkScrollNeeded = () => {
       if (textRef.current && containerRef.current) {
         // Create a temporary element to measure text width with icon
-        const temp = document.createElement("div");
-        temp.style.visibility = "hidden";
-        temp.style.position = "absolute";
-        temp.style.whiteSpace = "nowrap";
+        const temp = document.createElement('div');
+        temp.style.visibility = 'hidden';
+        temp.style.position = 'absolute';
+        temp.style.whiteSpace = 'nowrap';
         temp.style.font = window.getComputedStyle(textRef.current).font;
-        temp.style.display = "flex";
-        temp.style.alignItems = "center";
+        temp.style.display = 'flex';
+        temp.style.alignItems = 'center';
         temp.innerHTML = `<svg width="16" height="16" style="margin-right: 0.75rem; flex-shrink: 0;"><circle cx="8" cy="8" r="6"/></svg><span>${message}</span>`;
         document.body.appendChild(temp);
 
@@ -53,10 +53,10 @@ export function NotificationBar({
     // Delay the check to ensure DOM is ready
     const timeoutId = setTimeout(checkScrollNeeded, 100);
 
-    window.addEventListener("resize", checkScrollNeeded);
+    window.addEventListener('resize', checkScrollNeeded);
     return () => {
       clearTimeout(timeoutId);
-      window.removeEventListener("resize", checkScrollNeeded);
+      window.removeEventListener('resize', checkScrollNeeded);
     };
   }, [message]);
 
@@ -71,12 +71,12 @@ export function NotificationBar({
     <AnimatePresence>
       <motion.div
         initial={{ height: 0, opacity: 0 }}
-        animate={{ height: "auto", opacity: 1 }}
+        animate={{ height: 'auto', opacity: 1 }}
         exit={{ height: 0, opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
+        transition={{ duration: 0.3, ease: 'easeInOut' }}
         className={`relative overflow-hidden bg-gradient-to-r from-pink-500/50 to-purple-500/50 backdrop-blur-sm border-b border-pink-500/20 ${className}`}
         style={{
-          background: "rgba(225, 52, 176, 0.5)",
+          background: 'rgba(225, 52, 176, 0.5)',
         }}
       >
         <div
@@ -96,7 +96,7 @@ export function NotificationBar({
                   transition={{
                     duration: Math.max(8, segmentWidth / 100),
                     repeat: Number.POSITIVE_INFINITY,
-                    ease: "linear",
+                    ease: 'linear',
                     repeatDelay: 0,
                   }}
                 >

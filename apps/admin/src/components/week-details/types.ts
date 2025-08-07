@@ -1,6 +1,6 @@
-import type { RouterOutputs } from "~/trpc/react";
+import type { RouterOutputs } from '~/trpc/react';
 
-export type WeekDetailsData = RouterOutputs["week"]["getWeekDetails"];
+export type WeekDetailsData = RouterOutputs['week']['getWeekDetails'];
 
 export interface AdminWeekDetailsProps {
   weekData: WeekDetailsData;

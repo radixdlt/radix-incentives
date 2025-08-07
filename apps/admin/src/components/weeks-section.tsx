@@ -1,11 +1,11 @@
 'use client';
 
-import Link from 'next/link';
 import { PlusCircle } from 'lucide-react';
+import Link from 'next/link';
 
+import type { Week } from 'db/incentives';
 import { Button } from '~/components/ui/button';
 import { WeeksTable } from '~/components/weeks-table';
-import type { Week } from 'db/incentives';
 
 interface WeeksSectionProps {
   seasonId: string;

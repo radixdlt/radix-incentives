@@ -1,7 +1,10 @@
 'use client';
 
+import type { TRPCError } from '@trpc/server';
+import type { Account, User } from 'db/incentives';
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useState } from 'react';
-import { api } from '~/trpc/react';
+import { Button } from '~/components/ui/button';
 import {
   Table,
   TableBody,
@@ -10,10 +13,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { Button } from '~/components/ui/button';
-import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
-import type { User, Account } from 'db/incentives';
-import type { TRPCError } from '@trpc/server';
+import { api } from '~/trpc/react';
 
 type UserWithAccounts = User & {
   accounts: Account[];

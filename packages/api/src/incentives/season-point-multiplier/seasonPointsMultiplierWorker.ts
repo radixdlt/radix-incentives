@@ -1,28 +1,25 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { BigNumber } from 'bignumber.js';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 import {
   GetUserTWAXrdBalanceService,
   type UsersWithTwaBalance,
-} from "./getUserTWAXrdBalance";
-import { BigNumber } from "bignumber.js";
+} from './getUserTWAXrdBalance';
 
-import { z } from "zod";
-import { InvalidInputError } from "../../common/errors";
-import { chunker } from "../../common";
-import { accounts, users } from "db/incentives";
-import { inArray, lte, eq } from "drizzle-orm";
+import { Assets } from 'data';
+import { accounts, users } from 'db/incentives';
+import { eq, inArray, lte } from 'drizzle-orm';
+import { z } from 'zod';
+import { chunker } from '../../common';
+import { Thresholds } from '../../common/config/constants';
+import { InvalidInputError } from '../../common/errors';
+import { GetUsdValueService } from '../token-price/getUsdValue';
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
   type WeekNotFoundError,
-} from "../week/getWeekById";
-import { UpsertUserTwaWithMultiplierService } from "./upsertUserTwaWithMultiplier";
-import { Thresholds } from "../../common/config/constants";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
-import { Assets } from "data";
+} from '../week/getWeekById';
+import { UpsertUserTwaWithMultiplierService } from './upsertUserTwaWithMultiplier';
 
 export const seasonPointsMultiplierJobSchema = z.object({
   weekId: z.string(),
@@ -62,7 +59,7 @@ const applyMultiplierToUsers = (
     cumulativeTWABalance: string;
     weekId: string;
   }>,
-  xrdPrice: BigNumber
+  xrdPrice: BigNumber,
 ) => {
   return Effect.forEach(users, (user) =>
     Effect.gen(function* () {
@@ -76,38 +73,26 @@ const applyMultiplierToUsers = (
         ...user,
         multiplier: multiplier.toFixed(2),
       };
-    })
+    }),
   );
 };
 
-export class SeasonPointsMultiplierWorkerService extends Context.Tag(
-  "SeasonPointsMultiplierWorkerService"
-)<
-  SeasonPointsMultiplierWorkerService,
-  (
-    input: SeasonPointsMultiplierJob
-  ) => Effect.Effect<
-    void,
-    | InvalidInputError
-    | DbError
-    | WeekNotFoundError
-    | GetWeekByIdError
-    | GetUsdValueServiceError
-  >
->() {}
+export type SeasonPointsMultiplierWorkerOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof SeasonPointsMultiplierWorkerService)['Service']>>
+>;
 
-export const SeasonPointsMultiplierWorkerLive = Layer.effect(
-  SeasonPointsMultiplierWorkerService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-    const getUserTWAXrdBalanceService = yield* GetUserTWAXrdBalanceService;
-    const getWeekByIdService = yield* GetWeekByIdService;
-    const upsertUserTwaWithMultiplier =
-      yield* UpsertUserTwaWithMultiplierService;
-    const getUsdValueService = yield* GetUsdValueService;
-    return (input) =>
-      Effect.gen(function* () {
-        yield* Effect.log("Calculating season points multiplier");
+export class SeasonPointsMultiplierWorkerService extends Effect.Service<SeasonPointsMultiplierWorkerService>()(
+  'SeasonPointsMultiplierWorkerService',
+  {
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      const getUserTWAXrdBalanceService = yield* GetUserTWAXrdBalanceService;
+      const getWeekByIdService = yield* GetWeekByIdService;
+      const upsertUserTwaWithMultiplier =
+        yield* UpsertUserTwaWithMultiplierService;
+      const getUsdValueService = yield* GetUsdValueService;
+      return Effect.fn(function* (input: SeasonPointsMultiplierJob) {
+        yield* Effect.log('Calculating season points multiplier');
         const parsedInput = seasonPointsMultiplierJobSchema.safeParse(input);
         if (!parsedInput.success) {
           return yield* Effect.fail(new InvalidInputError(parsedInput.error));
@@ -138,7 +123,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
               console.error(error);
               return new DbError(error);
             },
-          }).pipe(Effect.withSpan("getPaginatedUserIds"));
+          }).pipe(Effect.withSpan('getPaginatedUserIds'));
 
         const getAccountsForUserIds = (userIds: string[]) =>
           Effect.tryPromise({
@@ -153,7 +138,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
               console.error(error);
               return new DbError(error);
             },
-          }).pipe(Effect.withSpan("getAccountsForUserIds"));
+          }).pipe(Effect.withSpan('getAccountsForUserIds'));
 
         let allUserTwaBalances: UsersWithTwaBalance[] = [];
 
@@ -165,10 +150,10 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
               getUserTWAXrdBalanceService({
                 weekId: input.weekId,
                 addresses: chunk.map(
-                  (address: { address: string }) => address.address
+                  (address: { address: string }) => address.address,
                 ),
-              })
-          ).pipe(Effect.withSpan("getUserTWAXrdBalanceService"));
+              }),
+          ).pipe(Effect.withSpan('getUserTWAXrdBalanceService'));
           allUserTwaBalances = results.flat();
         } else {
           let offset = 0;
@@ -193,7 +178,7 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
             const userTwaBalances = yield* getUserTWAXrdBalanceService({
               weekId: input.weekId,
               addresses: addresses.map(
-                (address: { address: string }) => address.address
+                (address: { address: string }) => address.address,
               ),
             });
             allUserTwaBalances.push(...userTwaBalances);
@@ -204,17 +189,17 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
 
         allUserTwaBalances.sort(
           (a: UsersWithTwaBalance, b: UsersWithTwaBalance) =>
-            a.totalTWABalance.comparedTo(b.totalTWABalance) || 0
+            a.totalTWABalance.comparedTo(b.totalTWABalance) || 0,
         );
 
         // Split users into two groups: those with balance >= 10000 and those with balance < 10000
         const filteredUserTwaBalances = allUserTwaBalances.filter(
           (u: UsersWithTwaBalance) =>
-            u.totalTWABalance.gte(Thresholds.XRD_BALANCE_THRESHOLD)
+            u.totalTWABalance.gte(Thresholds.XRD_BALANCE_THRESHOLD),
         );
         const belowThresholdUsers = allUserTwaBalances.filter(
           (u: UsersWithTwaBalance) =>
-            u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD)
+            u.totalTWABalance.lt(Thresholds.XRD_BALANCE_THRESHOLD),
         );
 
         const xrdPrice = yield* getUsdValueService({
@@ -228,9 +213,9 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
             userId: user.userId,
             totalTWABalance: user.totalTWABalance.toString(),
             weekId: week.id,
-            cumulativeTWABalance: "0", //TODO remove cumulativeTWABalance from the db
+            cumulativeTWABalance: '0', //TODO remove cumulativeTWABalance from the db
           })),
-          xrdPrice
+          xrdPrice,
         );
 
         // Add users with balance < 10000 with 0.0 multiplier and cumulative balance
@@ -238,22 +223,26 @@ export const SeasonPointsMultiplierWorkerLive = Layer.effect(
           (user) => ({
             userId: user.userId,
             totalTWABalance: user.totalTWABalance.toString(),
-            cumulativeTWABalance: "0",
+            cumulativeTWABalance: '0',
             weekId: week.id,
-            multiplier: "0.0",
-          })
+            multiplier: '0.0',
+          }),
         );
 
         yield* Effect.log(
-          `Upserting user TWA with multiplier ${userTwaWithMultiplier.length}`
+          `Upserting user TWA with multiplier ${userTwaWithMultiplier.length}`,
         );
         yield* upsertUserTwaWithMultiplier(userTwaWithMultiplier);
-        yield* Effect.log("Season points multiplier calculated");
+        yield* Effect.log('Season points multiplier calculated');
 
         yield* Effect.log(
-          `Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`
+          `Upserting user TWA with multiplier ${belowThresholdUsersWithDefaults.length}`,
         );
         yield* upsertUserTwaWithMultiplier(belowThresholdUsersWithDefaults);
       });
-  })
-);
+    }),
+  },
+) {}
+
+export const SeasonPointsMultiplierWorkerServiceLive =
+  SeasonPointsMultiplierWorkerService.Default;

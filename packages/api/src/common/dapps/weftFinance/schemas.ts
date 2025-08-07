@@ -1,4 +1,4 @@
-import s from "sbor-ez-mode";
+import s from 'sbor-ez-mode';
 
 export const ContributionStateSchema = s.struct({
   divisibility: s.number(),
@@ -22,9 +22,9 @@ export const SingleResourcePool = s.struct({
 
 // EfficiencyMode enum
 export const EfficiencyMode = s.enum([
-  { variant: "None", schema: s.tuple([]) },
-  { variant: "EfficiencyGroup", schema: s.tuple([s.number()]) }, // u16 as number
-  { variant: "IdenticalResource", schema: s.tuple([]) },
+  { variant: 'None', schema: s.tuple([]) },
+  { variant: 'EfficiencyGroup', schema: s.tuple([s.number()]) }, // u16 as number
+  { variant: 'IdenticalResource', schema: s.tuple([]) },
 ]);
 
 // CollateralConfigVersion struct

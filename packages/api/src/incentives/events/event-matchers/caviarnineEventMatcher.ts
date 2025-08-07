@@ -1,35 +1,35 @@
-import { Effect } from "effect";
-import type { TransformedEvent } from "../../transaction-stream/transformEvent";
+import { Effect } from 'effect';
+import {
+  isCaviarNineHyperstakePoolComponent,
+  isCaviarNinePrecisionPoolComponent,
+  isCaviarNineSimplePoolComponent,
+} from '../../../common/address-validation/addressValidation';
 import {
   AddLiquidityEvent,
-  RemoveLiquidityEvent,
-  SwapEvent,
   HLPSwapEvent,
+  RemoveLiquidityEvent,
   SimplePoolSwapEvent,
-} from "../../../common/dapps/caviarnine/schemas";
+  SwapEvent,
+} from '../../../common/dapps/caviarnine/schemas';
+import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
-  parseEventData,
   type CapturedEvent,
   createEventMatcher,
-} from "./createEventMatcher";
-import {
-  isCaviarNinePrecisionPoolComponent,
-  isCaviarNineHyperstakePoolComponent,
-  isCaviarNineSimplePoolComponent,
-} from "../../../common/address-validation/addressValidation";
+  parseEventData,
+} from './createEventMatcher';
 
 export type CaviarninePrecisionPoolSwapEvent = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: SwapEvent;
 };
 
 export type CaviarnineHyperstakePoolSwapEvent = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: HLPSwapEvent;
 };
 
 export type CaviarnineSimplePoolSwapEvent = {
-  readonly type: "SwapEvent";
+  readonly type: 'SwapEvent';
   data: SimplePoolSwapEvent;
 };
 
@@ -39,8 +39,8 @@ export type CaviarnineSwapEvent =
   | CaviarnineSimplePoolSwapEvent;
 
 export type CaviarnineEmittableEvents =
-  | { readonly type: "AddLiquidityEvent"; data: AddLiquidityEvent }
-  | { readonly type: "RemoveLiquidityEvent"; data: RemoveLiquidityEvent }
+  | { readonly type: 'AddLiquidityEvent'; data: AddLiquidityEvent }
+  | { readonly type: 'RemoveLiquidityEvent'; data: RemoveLiquidityEvent }
   | CaviarnineSwapEvent;
 
 export type CapturedCaviarnineEvent = CapturedEvent<CaviarnineEmittableEvents>;
@@ -61,19 +61,19 @@ export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
     }
 
     switch (input?.event.name) {
-      case "AddLiquidityEvent":
+      case 'AddLiquidityEvent':
         // Only precision pools have AddLiquidity/RemoveLiquidity events
         if (isPrecisionPool) {
           return yield* parseEventData(input, AddLiquidityEvent);
         }
         break;
-      case "RemoveLiquidityEvent":
+      case 'RemoveLiquidityEvent':
         // Only precision pools have AddLiquidity/RemoveLiquidity events
         if (isPrecisionPool) {
           return yield* parseEventData(input, RemoveLiquidityEvent);
         }
         break;
-      case "SwapEvent":
+      case 'SwapEvent':
         // Parse with the appropriate schema based on pool type
         if (isPrecisionPool) {
           return yield* parseEventData(input, SwapEvent);
@@ -85,25 +85,25 @@ export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
           return yield* parseEventData(input, SimplePoolSwapEvent);
         }
         yield* Effect.log(
-          `Unknown CaviarNine pool type for component: ${componentAddress}`
+          `Unknown CaviarNine pool type for component: ${componentAddress}`,
         );
         return yield* Effect.succeed(null);
       // ignore these events
-      case "WithdrawEvent":
-      case "DepositEvent":
-      case "ProtocolFeeEvent":
-      case "ValuationEvent":
-      case "LiquidityFeeEvent":
-      case "BurnLiquidityReceiptEvent":
-      case "MintLiquidityReceiptEvent":
-      case "SetFeeShareEvent":
-      case "LiquidityChangeEvent":
-      case "NewPoolEvent":
+      case 'WithdrawEvent':
+      case 'DepositEvent':
+      case 'ProtocolFeeEvent':
+      case 'ValuationEvent':
+      case 'LiquidityFeeEvent':
+      case 'BurnLiquidityReceiptEvent':
+      case 'MintLiquidityReceiptEvent':
+      case 'SetFeeShareEvent':
+      case 'LiquidityChangeEvent':
+      case 'NewPoolEvent':
         return yield* Effect.succeed(null);
     }
 
     yield* Effect.log(
-      `No match found for event: caviarnine.${input?.event.name}`
+      `No match found for event: caviarnine.${input?.event.name}`,
     );
 
     return yield* Effect.succeed(null);
@@ -111,8 +111,8 @@ export const caviarnineEventMatcherFn = (input: TransformedEvent) =>
 
 export const caviarnineEventMatcher = createEventMatcher(
   {
-    dApp: "Caviarnine",
-    category: "DEX",
+    dApp: 'Caviarnine',
+    category: 'DEX',
   },
-  caviarnineEventMatcherFn
+  caviarnineEventMatcherFn,
 );

@@ -1,11 +1,11 @@
-import { fetchRequestHandler } from "@trpc/server/adapters/fetch";
-import type { NextRequest } from "next/server";
+import { fetchRequestHandler } from '@trpc/server/adapters/fetch';
+import type { NextRequest } from 'next/server';
 
-import { env } from "~/env";
-import { appRouter, createDependencyLayer } from "api/incentives";
-import { createTRPCContext } from "api/incentives";
-import { db } from "db/incentives";
-import { cookies } from "next/headers";
+import { appRouter, createDependencyLayer } from 'api/incentives';
+import { createTRPCContext } from 'api/incentives';
+import { db } from 'db/incentives';
+import { cookies } from 'next/headers';
+import { env } from '~/env';
 
 /**
  * This wraps the `createTRPCContext` helper and provides the required context for the tRPC API when
@@ -18,19 +18,19 @@ const createContext = async (req: NextRequest) => {
       dbClient: db,
     }),
     setSessionToken: async (token: string, expiresAt: Date) => {
-      console.log("setting session token", { token, expiresAt });
+      console.log('setting session token', { token, expiresAt });
       const cookieStore = await cookies();
-      cookieStore.set("session", token, {
+      cookieStore.set('session', token, {
         expires: expiresAt,
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        path: "/",
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        path: '/',
       });
     },
     getSessionToken: async () => {
       const cookieStore = await cookies();
-      const sessionToken = cookieStore.get("session")?.value;
+      const sessionToken = cookieStore.get('session')?.value;
 
       return sessionToken ?? null;
     },
@@ -39,15 +39,15 @@ const createContext = async (req: NextRequest) => {
 
 const handler = (req: NextRequest) =>
   fetchRequestHandler({
-    endpoint: "/api/trpc",
+    endpoint: '/api/trpc',
     req,
     router: appRouter,
     createContext: () => createContext(req),
     onError:
-      env.NODE_ENV === "development"
+      env.NODE_ENV === 'development'
         ? ({ path, error }) => {
             console.error(
-              `❌ tRPC failed on ${path ?? "<no-path>"}: ${error.message}`
+              `❌ tRPC failed on ${path ?? '<no-path>'}: ${error.message}`,
             );
           }
         : undefined,

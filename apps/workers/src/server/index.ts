@@ -1,36 +1,36 @@
-import { Hono } from "hono";
-import { serve } from "@hono/node-server";
-import { HonoAdapter } from "@bull-board/hono";
-import { createBullBoard } from "@bull-board/api";
-import { serveStatic } from "@hono/node-server/serve-static";
+import { createBullBoard } from '@bull-board/api';
+import { HonoAdapter } from '@bull-board/hono';
+import { serve } from '@hono/node-server';
+import { serveStatic } from '@hono/node-server/serve-static';
+import { Hono } from 'hono';
 
-import { showRoutes } from "hono/dev";
-import { BullMQAdapter } from "@bull-board/api/dist/src/queueAdapters/bullMQ.js";
-import { snapshotQueue } from "../queues/snapshot/queue";
-import { scheduledSnapshotQueue } from "../queues/scheduled-snapshot/queue";
-import { eventQueue } from "../queues/event/queue";
-import { snapshotDateRangeQueue } from "../queues/snapshot-date-range/queue";
-import { calculateActivityPointsQueue } from "../queues/calculate-activity-points/queue";
-import { eventQueueJobSchema } from "../queues/event/schemas";
-import { snapshotDateRangeJobSchema } from "../queues/snapshot-date-range/schemas";
-import { calculateActivityPointsJobSchema } from "../queues/calculate-activity-points/schemas";
-import { calculateSeasonPointsJobSchema } from "../queues/calculate-season-points/schemas";
-import { seasonPointsMultiplierJobSchema } from "../queues/calculate-season-points-multiplier/schemas";
-import { calculateSeasonPointsQueue } from "../queues/calculate-season-points/queue";
-import { seasonPointsMultiplierQueue } from "../queues/calculate-season-points-multiplier/queue";
-import { scheduledCalculationsQueue } from "../queues/scheduled-calculations/queue";
-import { snapshotJobSchema } from "../queues/snapshot/schemas";
-import { populateLeaderboardCacheQueue } from "../queues/populate-leaderboard-cache/queue";
-import { populateLeaderboardCacheSchema } from "../queues/populate-leaderboard-cache/schemas";
+import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js';
+import { showRoutes } from 'hono/dev';
+import { calculateActivityPointsQueue } from '../queues/calculate-activity-points/queue';
+import { calculateActivityPointsJobSchema } from '../queues/calculate-activity-points/schemas';
+import { seasonPointsMultiplierQueue } from '../queues/calculate-season-points-multiplier/queue';
+import { seasonPointsMultiplierJobSchema } from '../queues/calculate-season-points-multiplier/schemas';
+import { calculateSeasonPointsQueue } from '../queues/calculate-season-points/queue';
+import { calculateSeasonPointsJobSchema } from '../queues/calculate-season-points/schemas';
+import { eventQueue } from '../queues/event/queue';
+import { eventQueueJobSchema } from '../queues/event/schemas';
+import { populateLeaderboardCacheQueue } from '../queues/populate-leaderboard-cache/queue';
+import { populateLeaderboardCacheSchema } from '../queues/populate-leaderboard-cache/schemas';
+import { scheduledCalculationsQueue } from '../queues/scheduled-calculations/queue';
+import { scheduledSnapshotQueue } from '../queues/scheduled-snapshot/queue';
+import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
+import { snapshotDateRangeJobSchema } from '../queues/snapshot-date-range/schemas';
+import { snapshotQueue } from '../queues/snapshot/queue';
+import { snapshotJobSchema } from '../queues/snapshot/schemas';
 
 const app = new Hono();
 const metricsApp = new Hono();
 
-app.get("/health", (c) => {
-  return c.text("ok");
+app.get('/health', (c) => {
+  return c.text('ok');
 });
 
-metricsApp.get("/metrics", async (c) => {
+metricsApp.get('/metrics', async (c) => {
   const snapshotQueueMetrics =
     await snapshotQueue.queue.exportPrometheusMetrics();
   const scheduledSnapshotQueueMetrics =
@@ -53,97 +53,97 @@ metricsApp.get("/metrics", async (c) => {
       calculateActivityPointsQueueMetrics,
       scheduledCalculationsQueueMetrics,
       populateLeaderboardCacheQueueMetrics,
-    ].join("\n")
+    ].join('\n'),
   );
 });
 
-app.post("/queues/event/add", async (c) => {
+app.post('/queues/event/add', async (c) => {
   const input = await c.req.json();
 
   const parsedInput = eventQueueJobSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
-  await eventQueue.queue.add("event", parsedInput.data);
-  return c.text("ok");
+  await eventQueue.queue.add('event', parsedInput.data);
+  return c.text('ok');
 });
 
-app.post("/queues/snapshot/add", async (c) => {
+app.post('/queues/snapshot/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = snapshotJobSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
-  await snapshotQueue.queue.add("snapshot", parsedInput.data);
-  return c.text("ok");
+  await snapshotQueue.queue.add('snapshot', parsedInput.data);
+  return c.text('ok');
 });
 
-app.post("/queues/snapshot-date-range/add", async (c) => {
+app.post('/queues/snapshot-date-range/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = snapshotDateRangeJobSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
-  await snapshotDateRangeQueue.queue.add("snapshotDateRange", parsedInput.data);
-  return c.text("ok");
+  await snapshotDateRangeQueue.queue.add('snapshotDateRange', parsedInput.data);
+  return c.text('ok');
 });
 
-app.post("/queues/calculate-activity-points/add", async (c) => {
+app.post('/queues/calculate-activity-points/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = calculateActivityPointsJobSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
   await calculateActivityPointsQueue.queue.add(
-    "calculateActivityPoints",
-    parsedInput.data
+    'calculateActivityPoints',
+    parsedInput.data,
   );
-  return c.text("ok");
+  return c.text('ok');
 });
 
-app.post("/queues/calculate-season-points/add", async (c) => {
+app.post('/queues/calculate-season-points/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = calculateSeasonPointsJobSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
   await calculateSeasonPointsQueue.queue.add(
-    "calculateSeasonPoints",
-    parsedInput.data
+    'calculateSeasonPoints',
+    parsedInput.data,
   );
-  return c.text("ok");
+  return c.text('ok');
 });
 
-app.post("/queues/calculate-season-points-multiplier/add", async (c) => {
+app.post('/queues/calculate-season-points-multiplier/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = seasonPointsMultiplierJobSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
   await seasonPointsMultiplierQueue.queue.add(
-    "seasonPointsMultiplier",
-    parsedInput.data
+    'seasonPointsMultiplier',
+    parsedInput.data,
   );
-  return c.text("ok");
+  return c.text('ok');
 });
 
-app.post("/queues/scheduled-calculations/add", async (c) => {
+app.post('/queues/scheduled-calculations/add', async (c) => {
   const input = await c.req.json();
-  await scheduledCalculationsQueue.queue.add("manual-trigger", input);
-  return c.text("ok");
+  await scheduledCalculationsQueue.queue.add('manual-trigger', input);
+  return c.text('ok');
 });
 
-app.post("/queues/populate-leaderboard-cache/add", async (c) => {
+app.post('/queues/populate-leaderboard-cache/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = populateLeaderboardCacheSchema.safeParse(input);
   if (!parsedInput.success) {
     return c.json({ error: parsedInput.error.message }, 400);
   }
   await populateLeaderboardCacheQueue.queue.add(
-    "populateLeaderboardCache",
-    parsedInput.data
+    'populateLeaderboardCache',
+    parsedInput.data,
   );
-  return c.text("ok");
+  return c.text('ok');
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
@@ -171,7 +171,7 @@ createBullBoard({
   serverAdapter,
 });
 
-const basePath = "/ui";
+const basePath = '/ui';
 serverAdapter.setBasePath(basePath);
 app.route(basePath, serverAdapter.registerPlugin());
 
@@ -184,7 +184,7 @@ serve(
   },
   () => {
     console.log(`✅ Server is now running on http://localhost:${port}`);
-  }
+  },
 );
 
 serve(
@@ -194,9 +194,9 @@ serve(
   },
   () => {
     console.log(
-      `✅ Metrics server running on http://localhost:${metricsPort}/metrics`
+      `✅ Metrics server running on http://localhost:${metricsPort}/metrics`,
     );
-  }
+  },
 );
 
 showRoutes(app);

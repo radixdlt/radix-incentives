@@ -1,18 +1,18 @@
-import type { TransformedEvent } from "../../transaction-stream";
+import type { TransformedEvent } from '../../transaction-stream';
 import {
   WithdrawFungibleEventSchema,
   WithdrawNonFungibleEventSchema,
-} from "./schemas";
+} from './schemas';
 
 export const parseWithdrawEvent = (
   input: TransformedEvent,
   options: {
     isWhiteListedResourceAddress: (resourceAddress: string) => boolean;
-  }
+  },
 ) => {
-  if (input?.event.name === "WithdrawEvent") {
+  if (input?.event.name === 'WithdrawEvent') {
     const nonFungibleResult = WithdrawNonFungibleEventSchema.safeParse(
-      input?.event.payload
+      input?.event.payload,
     );
 
     if (nonFungibleResult.isOk()) {
@@ -25,7 +25,7 @@ export const parseWithdrawEvent = (
           blueprint: input.package.blueprint,
           eventName: input.event.name,
           eventData: {
-            type: "WithdrawNonFungibleEvent",
+            type: 'WithdrawNonFungibleEvent',
             data: {
               resourceAddress,
               nftIds,
@@ -37,7 +37,7 @@ export const parseWithdrawEvent = (
     }
 
     const fungibleResult = WithdrawFungibleEventSchema.safeParse(
-      input?.event.payload
+      input?.event.payload,
     );
 
     if (fungibleResult.isOk()) {
@@ -50,7 +50,7 @@ export const parseWithdrawEvent = (
           blueprint: input.package.blueprint,
           eventName: input.event.name,
           eventData: {
-            type: "WithdrawFungibleEvent",
+            type: 'WithdrawFungibleEvent',
             data: {
               resourceAddress,
               amount,

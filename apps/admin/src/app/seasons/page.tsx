@@ -1,12 +1,15 @@
 'use client';
 
-import * as React from 'react';
+import { format } from 'date-fns'; // For date formatting
+import { ArrowLeft, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft, PlusCircle } from 'lucide-react';
-import { format } from 'date-fns'; // For date formatting
+import * as React from 'react';
 
+import type { Season } from 'db/incentives';
+import { Badge } from '~/components/ui/badge'; // To display status nicely
 import { Button } from '~/components/ui/button';
+import { Separator } from '~/components/ui/separator';
 import {
   Table,
   TableBody,
@@ -15,10 +18,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { Badge } from '~/components/ui/badge'; // To display status nicely
-import { Separator } from '~/components/ui/separator';
 import { api } from '~/trpc/react';
-import type { Season } from 'db/incentives';
 
 // Helper to get Badge variant based on status
 const getStatusVariant = (

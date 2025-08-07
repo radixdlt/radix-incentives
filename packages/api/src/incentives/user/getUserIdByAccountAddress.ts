@@ -1,7 +1,7 @@
-import { Context, Effect, Layer } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { accounts } from "db/incentives";
-import { inArray } from "drizzle-orm";
+import { accounts } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 type GetAccountsByAddressInput = string[];
 
@@ -9,11 +9,11 @@ type AccountAddress = string;
 type UserId = string;
 
 export class GetUserIdByAccountAddressService extends Context.Tag(
-  "GetUserIdByAccountAddressService"
+  'GetUserIdByAccountAddressService',
 )<
   GetUserIdByAccountAddressService,
   (
-    input: GetAccountsByAddressInput
+    input: GetAccountsByAddressInput,
   ) => Effect.Effect<Map<AccountAddress, UserId>, DbError>
 >() {}
 
@@ -38,8 +38,8 @@ export const GetUserIdByAccountAddressLive = Layer.effect(
           result.reduce((acc, curr) => {
             acc.set(curr.accountAddress, curr.userId);
             return acc;
-          }, new Map<AccountAddress, UserId>())
-        )
+          }, new Map<AccountAddress, UserId>()),
+        ),
       );
-  })
+  }),
 );

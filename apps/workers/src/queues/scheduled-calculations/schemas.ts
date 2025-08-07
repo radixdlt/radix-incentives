@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const scheduledCalculationsJobSchema = z.object({
   weekId: z.string().optional(),

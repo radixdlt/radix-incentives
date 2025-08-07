@@ -1,11 +1,11 @@
-import { Context, Layer, Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { AppConfigService } from "../config/appConfig";
-import { type Session, sessions } from "db/consultation";
-import { encodeHexLowerCase } from "@oslojs/encoding";
-import { sha256 } from "@oslojs/crypto/sha2";
+import { sha256 } from '@oslojs/crypto/sha2';
+import { encodeHexLowerCase } from '@oslojs/encoding';
+import { type Session, sessions } from 'db/consultation';
+import { Context, Effect, Layer } from 'effect';
+import { AppConfigService } from '../config/appConfig';
+import { DbClientService, DbError } from '../db/dbClient';
 
-export class CreateSessionService extends Context.Tag("CreateSessionService")<
+export class CreateSessionService extends Context.Tag('CreateSessionService')<
   CreateSessionService,
   (input: { token: string; userId: string }) => Effect.Effect<Session, DbError>
 >() {}
@@ -18,7 +18,7 @@ export const CreateSessionLive = Layer.effect(
 
     return (input: { token: string; userId: string }) => {
       const sessionId = encodeHexLowerCase(
-        sha256(new TextEncoder().encode(input.token))
+        sha256(new TextEncoder().encode(input.token)),
       );
       return Effect.tryPromise({
         try: () =>
@@ -33,5 +33,5 @@ export const CreateSessionLive = Layer.effect(
         catch: (error) => new DbError(error),
       }).pipe(Effect.map(([session]) => session as Session));
     };
-  })
+  }),
 );

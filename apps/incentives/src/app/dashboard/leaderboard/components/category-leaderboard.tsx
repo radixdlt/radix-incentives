@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { api } from "~/trpc/react";
-import { usePersona } from "~/lib/hooks/usePersona";
-import { CategorySelectors } from "./category-selectors";
-import { CategoryInfo } from "./category-info";
-import { LeaderboardContent } from "./leaderboard-content";
-import { LoadingState } from "./loading-state";
-import { EmptyState } from "./empty-state";
+import { useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { usePersona } from '~/lib/hooks/usePersona';
+import { api } from '~/trpc/react';
+import { CategoryInfo } from './category-info';
+import { CategorySelectors } from './category-selectors';
+import { EmptyState } from './empty-state';
+import { LeaderboardContent } from './leaderboard-content';
+import { LoadingState } from './loading-state';
 
 export function CategoryLeaderboard() {
-  const [selectedWeekId, setSelectedWeekId] = useState<string>("");
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [selectedWeekId, setSelectedWeekId] = useState<string>('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const persona = usePersona();
   const searchParams = useSearchParams();
   const utils = api.useUtils();
@@ -23,13 +23,13 @@ export function CategoryLeaderboard() {
   const { data: categories, isLoading: categoriesLoading } =
     api.leaderboard.getAvailableCategories.useQuery(
       { weekId: selectedWeekId! },
-      { enabled: !!selectedWeekId }
+      { enabled: !!selectedWeekId },
     );
 
   // Set defaults when data loads, or use URL parameters
   useEffect(() => {
-    const urlWeek = searchParams.get("week");
-    const urlCategory = searchParams.get("category");
+    const urlWeek = searchParams.get('week');
+    const urlCategory = searchParams.get('category');
 
     if (weeks && weeks.length > 0 && !selectedWeekId) {
       if (urlWeek && weeks.some((w) => w.id === urlWeek)) {
@@ -45,14 +45,13 @@ export function CategoryLeaderboard() {
   }, [weeks, selectedWeekId, searchParams]);
 
   useEffect(() => {
-    const urlCategory = searchParams.get("category");
+    const urlCategory = searchParams.get('category');
 
     if (categories && categories.length > 0 && !selectedCategoryId) {
       if (urlCategory && categories.some((c) => c.id === urlCategory)) {
         setSelectedCategoryId(urlCategory);
       } else {
         // Default to first category
-        // biome-ignore lint/style/noNonNullAssertion: always categories
         setSelectedCategoryId(categories[0]!.id);
       }
     }
@@ -93,25 +92,23 @@ export function CategoryLeaderboard() {
       refetchOnWindowFocus: false,
       retry: (failureCount, error) => {
         // Don't retry if it's a cache building error
-        if (error?.data?.code === "PRECONDITION_FAILED") {
+        if (error?.data?.code === 'PRECONDITION_FAILED') {
           return false;
         }
         return failureCount < 2;
       },
-    }
+    },
   );
 
   // Refetch leaderboard data when persona changes to ensure fresh data
   useEffect(() => {
     // Force invalidation and refetch when user connects/disconnects
     if (selectedCategoryId && selectedWeekId) {
-      utils.leaderboard.getActivityCategoryLeaderboard
-        .invalidate()
-        .then(() => {
-          refetchLeaderboard();
-        });
+      utils.leaderboard.getActivityCategoryLeaderboard.invalidate().then(() => {
+        refetchLeaderboard();
+      });
     }
-  }, [persona, refetchLeaderboard, selectedCategoryId, selectedWeekId, utils]);
+  }, [refetchLeaderboard, selectedCategoryId, selectedWeekId, utils]);
 
   if (weeksLoading || categoriesLoading) {
     return <LoadingState message="Loading data..." />;
@@ -150,10 +147,10 @@ export function CategoryLeaderboard() {
       ) : leaderboardError ? (
         <EmptyState
           message={
-            leaderboardError.data?.code === "PRECONDITION_FAILED"
+            leaderboardError.data?.code === 'PRECONDITION_FAILED'
               ? leaderboardError.message ||
-                "Leaderboard data is being processed. Please check back in a few minutes."
-              : "Failed to load leaderboard data. Please try again later."
+                'Leaderboard data is being processed. Please check back in a few minutes.'
+              : 'Failed to load leaderboard data. Please try again later.'
           }
         />
       ) : leaderboardData ? (

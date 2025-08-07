@@ -1,6 +1,6 @@
-import { encodeBase32LowerCaseNoPadding } from "@oslojs/encoding";
-import { Context, Effect } from "effect";
-import { Layer } from "effect";
+import { encodeBase32LowerCaseNoPadding } from '@oslojs/encoding';
+import { Context, Effect } from 'effect';
+import { Layer } from 'effect';
 
 const generateSessionToken = (): string => {
   const bytes = new Uint8Array(20);
@@ -11,10 +11,10 @@ const generateSessionToken = (): string => {
 };
 
 export class GenerateSessionTokenService extends Context.Tag(
-  "GenerateSessionTokenService"
+  'GenerateSessionTokenService',
 )<GenerateSessionTokenService, () => string>() {}
 
 export const GenerateSessionTokenLive = Layer.effect(
   GenerateSessionTokenService,
-  Effect.succeed(generateSessionToken)
+  Effect.succeed(generateSessionToken),
 );

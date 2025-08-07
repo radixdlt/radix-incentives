@@ -1,5 +1,5 @@
 export const extractComponentAddressFromMethodCalls = (
-  manifest: string
+  manifest: string,
 ): string[] => {
   const regex = /Address\("(component_rdx1[a-z0-9]+)"\)/g;
 

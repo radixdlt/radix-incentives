@@ -1,34 +1,43 @@
+import { describe, expect, it } from 'vitest';
+import { getAccountHoldersForResource } from './utils.js';
 
-import { describe, it, expect } from "vitest";
-import { getAccountHoldersForResource } from "./utils.js";
+describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
+  'Resource Holders Integration Test',
+  { retry: 0 },
+  () => {
+    it('should get account holders for NFT resource and include expected account', async () => {
+      const resourceAddress =
+        'resource_rdx1nft63kjp38agw0z8nnwkyjhcgpzwjer84945h5z8yr663fgukjyp3l';
+      const expectedAccount =
+        'account_rdx168rkx0shgda9r6ku3zrsvevm477le2qlpnmrlurqma0k9lxh9662wh';
 
-describe("Resource Holders Integration Test", { retry: 0 }, () => {
-  it("should get account holders for NFT resource and include expected account", async () => {
-    const resourceAddress = "resource_rdx1nft63kjp38agw0z8nnwkyjhcgpzwjer84945h5z8yr663fgukjyp3l";
-    const expectedAccount = "account_rdx168rkx0shgda9r6ku3zrsvevm477le2qlpnmrlurqma0k9lxh9662wh";
+      console.log(`Testing resource address: ${resourceAddress}`);
+      console.log(`Looking for expected account: ${expectedAccount}`);
 
-    console.log(`Testing resource address: ${resourceAddress}`);
-    console.log(`Looking for expected account: ${expectedAccount}`);
+      const accountHolders =
+        await getAccountHoldersForResource(resourceAddress);
 
-    const accountHolders = await getAccountHoldersForResource(resourceAddress);
+      console.log(
+        `Found ${accountHolders.length} account holders:`,
+        accountHolders,
+      );
 
-    console.log(`Found ${accountHolders.length} account holders:`, accountHolders);
+      // Check that we got some results
+      expect(accountHolders).toBeDefined();
+      expect(Array.isArray(accountHolders)).toBe(true);
+      expect(accountHolders.length).toBeGreaterThan(0);
 
-    // Check that we got some results
-    expect(accountHolders).toBeDefined();
-    expect(Array.isArray(accountHolders)).toBe(true);
-    expect(accountHolders.length).toBeGreaterThan(0);
+      // Check that the expected account is in the results
+      expect(accountHolders).toContain(expectedAccount);
 
-    // Check that the expected account is in the results
-    expect(accountHolders).toContain(expectedAccount);
+      // Verify all returned addresses are account addresses
+      for (const address of accountHolders) {
+        expect(address).toMatch(/^account_rdx[a-z0-9]+$/);
+      }
 
-    // Verify all returned addresses are account addresses
-    for (const address of accountHolders) {
-      expect(address).toMatch(/^account_rdx[a-z0-9]+$/);
-    }
-
-    console.log(`✅ Successfully found expected account ${expectedAccount} among ${accountHolders.length} holders`);
-  },  300000 );
-
-
-});
+      console.log(
+        `✅ Successfully found expected account ${expectedAccount} among ${accountHolders.length} holders`,
+      );
+    }, 300000);
+  },
+);

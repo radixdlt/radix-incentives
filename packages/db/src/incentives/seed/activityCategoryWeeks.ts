@@ -1,12 +1,12 @@
-import { sql } from "drizzle-orm";
-import { db } from "../client";
+import { sql } from 'drizzle-orm';
+import { db } from '../client';
 import {
   activities,
   activityCategories,
   activityCategoryWeeks,
   activityWeeks,
   weeks,
-} from "../schema";
+} from '../schema';
 
 export const seedActivityCategoryWeeks = async () => {
   const activityCategoriesResults = await db.select().from(activityCategories);
@@ -22,11 +22,11 @@ export const seedActivityCategoryWeeks = async () => {
         activityCategoriesResults.map((item) => ({
           activityId: item.id,
           weekId: week.id,
-          pointsPool: ["common", "maintainXrdBalance"].includes(item.id)
+          pointsPool: ['common', 'maintainXrdBalance'].includes(item.id)
             ? 0
             : 100_000,
           activityCategoryId: item.id,
-        }))
+        })),
       )
       .returning()
       .onConflictDoUpdate({
@@ -46,10 +46,10 @@ export const seedActivityCategoryWeeks = async () => {
           activityId: item.id,
           weekId: week.id,
           multiplier: 1,
-        }))
+        })),
       )
       .onConflictDoNothing();
   }
 
-  console.log("Activity category weeks seeded");
+  console.log('Activity category weeks seeded');
 };

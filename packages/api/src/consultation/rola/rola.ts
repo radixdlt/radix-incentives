@@ -1,8 +1,8 @@
-import { Effect } from "effect";
-import { Rola } from "@radixdlt/rola";
-import { AppConfigService } from "../config/appConfig";
+import { Rola } from '@radixdlt/rola';
+import { Effect } from 'effect';
+import { AppConfigService } from '../config/appConfig';
 
-export class RolaService extends Effect.Service<RolaService>()("RolaService", {
+export class RolaService extends Effect.Service<RolaService>()('RolaService', {
   effect: Effect.gen(function* () {
     const {
       networkId,
@@ -18,7 +18,7 @@ export class RolaService extends Effect.Service<RolaService>()("RolaService", {
       expectedOrigin,
     });
 
-    yield* Effect.log("rolaConfig", {
+    yield* Effect.log('rolaConfig', {
       networkId,
       applicationName,
       dAppDefinitionAddress,
@@ -27,7 +27,7 @@ export class RolaService extends Effect.Service<RolaService>()("RolaService", {
 
     return {
       run: Effect.fn(function* (
-        input: Parameters<typeof verifySignedChallenge>[0]
+        input: Parameters<typeof verifySignedChallenge>[0],
       ) {
         return yield* Effect.tryPromise(() => verifySignedChallenge(input));
       }),

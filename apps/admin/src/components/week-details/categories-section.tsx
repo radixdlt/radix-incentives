@@ -1,9 +1,9 @@
 'use client';
 
+import { Check, ChevronDown, ChevronUp, Edit, X } from 'lucide-react';
 import { useState } from 'react';
-import { ChevronDown, ChevronUp, Edit, Check, X } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Button } from '~/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 import { Input } from '~/components/ui/input';
 import type { WeekDetailsData } from './types';
 
@@ -44,12 +44,12 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     });
   };
 
-  const startEditingPointsPool = (categoryId: string, currentValue: any) => {
+  const startEditingPointsPool = (
+    categoryId: string,
+    currentValue: number | string | { toString(): string },
+  ) => {
     setEditingPointsPool(categoryId);
-    const valueString =
-      typeof currentValue === 'object' && currentValue.toString
-        ? currentValue.toString()
-        : currentValue.toString();
+    const valueString = String(currentValue);
     setEditingValue(Number(valueString).toLocaleString());
   };
 
@@ -69,12 +69,12 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     setEditingValue('');
   };
 
-  const startEditingMultiplier = (activityId: string, currentValue: any) => {
+  const startEditingMultiplier = (
+    activityId: string,
+    currentValue: number | string | { toString(): string },
+  ) => {
     setEditingMultiplier(activityId);
-    const valueString =
-      typeof currentValue === 'object' && currentValue.toString
-        ? currentValue.toString()
-        : currentValue.toString();
+    const valueString = String(currentValue);
     setEditingMultiplierValue(valueString);
   };
 
@@ -185,22 +185,23 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                         ).toLocaleString()}
                       </span>
                     )}
-                    {onUpdatePointsPool && editingPointsPool !== category.categoryId && (
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        className="h-8 w-8 p-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          startEditingPointsPool(
-                            category.categoryId,
-                            category.pointsPool,
-                          );
-                        }}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    )}
+                    {onUpdatePointsPool &&
+                      editingPointsPool !== category.categoryId && (
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            startEditingPointsPool(
+                              category.categoryId,
+                              category.pointsPool,
+                            );
+                          }}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                      )}
                     {isExpanded ? (
                       <ChevronUp className="h-4 w-4" />
                     ) : (
@@ -285,21 +286,22 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                   )}
                                 </div>
                                 <div className="flex gap-2">
-                                  {onUpdateMultiplier && editingMultiplier !== activity.id && (
-                                    <Button
-                                      size="sm"
-                                      variant="outline"
-                                      className="h-8 w-8 p-0"
-                                      onClick={() =>
-                                        startEditingMultiplier(
-                                          activity.id,
-                                          activity.multiplier,
-                                        )
-                                      }
-                                    >
-                                      <Edit className="h-4 w-4" />
-                                    </Button>
-                                  )}
+                                  {onUpdateMultiplier &&
+                                    editingMultiplier !== activity.id && (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="h-8 w-8 p-0"
+                                        onClick={() =>
+                                          startEditingMultiplier(
+                                            activity.id,
+                                            activity.multiplier,
+                                          )
+                                        }
+                                      >
+                                        <Edit className="h-4 w-4" />
+                                      </Button>
+                                    )}
                                 </div>
                               </div>
                             </div>

@@ -1,13 +1,13 @@
 'use client';
 
-import { cn } from '~/lib/utils'; // Adjusted path
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
 import Link from 'next/link'; // Keep default import for usage
 import type { LinkProps } from 'next/link'; // Type-only import
 import type React from 'react'; // Make React import type-only
-import { useState, createContext, useContext, useEffect } from 'react'; // Keep specific hooks
-import type { ReactNode, JSX } from 'react'; // Type-only imports
-import { AnimatePresence, motion } from 'framer-motion';
-import { Menu, X } from 'lucide-react';
+import { createContext, useContext, useEffect, useState } from 'react'; // Keep specific hooks
+import type { JSX, ReactNode } from 'react'; // Type-only imports
+import { cn } from '~/lib/utils'; // Adjusted path
 
 interface Links {
   label: string;

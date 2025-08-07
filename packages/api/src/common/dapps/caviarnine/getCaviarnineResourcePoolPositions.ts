@@ -1,22 +1,22 @@
-import { Effect } from "effect";
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
+import { Effect } from 'effect';
 
 import {
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
-} from "../../gateway/getFungibleBalance";
+} from '../../gateway/getFungibleBalance';
 
-import { DappConstants } from "data";
-import type { AtLedgerState } from "../../gateway/schemas";
+import { DappConstants } from 'data';
+import type { AtLedgerState } from '../../gateway/schemas';
 
-import { GetResourcePoolUnitsService } from "../../resource-pool/getResourcePoolUnits";
+import { GetResourcePoolUnitsService } from '../../resource-pool/getResourcePoolUnits';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 export class InvalidResourcePoolError extends Error {
-  readonly _tag = "InvalidResourcePoolError";
+  readonly _tag = 'InvalidResourcePoolError';
   constructor(error: unknown) {
     super(
-      `Invalid resource pool error: ${error instanceof Error ? error.message : error}`
+      `Invalid resource pool error: ${error instanceof Error ? error.message : error}`,
     );
   }
 }
@@ -45,7 +45,7 @@ export type GetCaviarnineResourcePoolPositionsOutput = {
 type AccountAddress = string;
 
 export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<GetCaviarnineResourcePoolPositionsService>()(
-  "GetCaviarnineResourcePoolPositionsService",
+  'GetCaviarnineResourcePoolPositionsService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -59,7 +59,7 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
         }) =>
           Effect.gen(function* () {
             const allPoolAddresses = Object.values(
-              CaviarNineConstants.simplePools
+              CaviarNineConstants.simplePools,
             ).map((pool) => pool.poolAddress);
 
             // Get pool units for all simple pools
@@ -71,7 +71,7 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
             // Create a map of pool address to pool configuration
             const poolConfigMap = new Map();
             for (const [key, pool] of Object.entries(
-              CaviarNineConstants.simplePools
+              CaviarNineConstants.simplePools,
             )) {
               poolConfigMap.set(pool.poolAddress, { key, ...pool });
             }
@@ -97,12 +97,12 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
 
               for (const address of input.addresses) {
                 const addressBalance = fungibleBalance.find(
-                  (item) => item.address === address
+                  (item) => item.address === address,
                 );
 
                 const lpBalance = addressBalance?.fungibleResources.find(
                   (resource) =>
-                    resource.resourceAddress === poolUnit.lpResourceAddress
+                    resource.resourceAddress === poolUnit.lpResourceAddress,
                 );
 
                 if (!lpBalance || new BigNumber(lpBalance.amount).eq(0)) {
@@ -117,29 +117,29 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
                 const lpAmount = new BigNumber(lpBalance.amount);
 
                 const xTokenPool = poolUnit.poolResources.find(
-                  (resource) => resource.resourceAddress === poolConfig.token_x
+                  (resource) => resource.resourceAddress === poolConfig.token_x,
                 );
                 const yTokenPool = poolUnit.poolResources.find(
-                  (resource) => resource.resourceAddress === poolConfig.token_y
+                  (resource) => resource.resourceAddress === poolConfig.token_y,
                 );
 
                 // poolUnitValue already represents the value per LP token, so just multiply by LP balance
                 const xTokenAmount = xTokenPool
                   ? xTokenPool.poolUnitValue.multipliedBy(lpAmount).toString()
-                  : "0";
+                  : '0';
                 const yTokenAmount = yTokenPool
                   ? yTokenPool.poolUnitValue.multipliedBy(lpAmount).toString()
-                  : "0";
+                  : '0';
 
                 const liquidityAsset: CaviarnineSimplePoolLiquidityAsset = {
                   xToken: {
                     withinPriceBounds: xTokenAmount, // For simple pools, all liquidity is "within bounds"
-                    outsidePriceBounds: "0", // Simple pools don't have concentrated liquidity
+                    outsidePriceBounds: '0', // Simple pools don't have concentrated liquidity
                     resourceAddress: poolConfig.token_x,
                   },
                   yToken: {
                     withinPriceBounds: yTokenAmount, // For simple pools, all liquidity is "within bounds"
-                    outsidePriceBounds: "0", // Simple pools don't have concentrated liquidity
+                    outsidePriceBounds: '0', // Simple pools don't have concentrated liquidity
                     resourceAddress: poolConfig.token_y,
                   },
                 };
@@ -160,7 +160,7 @@ export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<Ge
           }),
       };
     }),
-  }
+  },
 ) {}
 
 export const GetCaviarnineResourcePoolPositionsLive =

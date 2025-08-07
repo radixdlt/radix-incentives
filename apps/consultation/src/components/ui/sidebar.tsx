@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { cn } from "~/lib/utils"; // Adjusted path
-import Link from "next/link"; // Keep default import for usage
-import type { LinkProps } from "next/link"; // Type-only import
-import type React from "react"; // Make React import type-only
-import { useState, createContext, useContext, useEffect } from "react"; // Keep specific hooks
-import type { ReactNode, JSX } from "react"; // Type-only imports
-import { AnimatePresence, motion } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { AnimatePresence, motion } from 'framer-motion';
+import { Menu, X } from 'lucide-react';
+import Link from 'next/link'; // Keep default import for usage
+import type { LinkProps } from 'next/link'; // Type-only import
+import type React from 'react'; // Make React import type-only
+import { createContext, useContext, useEffect, useState } from 'react'; // Keep specific hooks
+import type { JSX, ReactNode } from 'react'; // Type-only imports
+import { cn } from '~/lib/utils'; // Adjusted path
 
 interface Links {
   label: string;
@@ -21,13 +21,13 @@ interface SidebarContextProps {
 }
 
 const SidebarContext = createContext<SidebarContextProps | undefined>(
-  undefined
+  undefined,
 );
 
 export const useSidebar = () => {
   const context = useContext(SidebarContext);
   if (!context) {
-    throw new Error("useSidebar must be used within a SidebarProvider");
+    throw new Error('useSidebar must be used within a SidebarProvider');
   }
   return {
     open: context.open,
@@ -78,7 +78,7 @@ export const SidebarBody = (props: React.ComponentProps<typeof motion.div>) => {
   return (
     <>
       <DesktopSidebar {...props} />
-      <MobileSidebar {...(props as React.ComponentProps<"div">)} />
+      <MobileSidebar {...(props as React.ComponentProps<'div'>)} />
     </>
   );
 };
@@ -93,10 +93,10 @@ export const DesktopSidebar = ({
   return (
     <motion.div
       className={cn(
-        "h-full px-4 py-4 hidden md:flex md:flex-col  w-[300px] flex-shrink-0",
-        className
+        'h-full px-4 py-4 hidden md:flex md:flex-col  w-[300px] flex-shrink-0',
+        className,
       )}
-      style={{ width: "300px" }}
+      style={{ width: '300px' }}
       {...props}
     >
       {children}
@@ -108,7 +108,7 @@ export const MobileSidebar = ({
   className,
   children,
   ...props
-}: React.ComponentProps<"div">) => {
+}: React.ComponentProps<'div'>) => {
   const { open, setOpen } = useSidebar();
 
   // Combined handler for toggle actions
@@ -118,7 +118,7 @@ export const MobileSidebar = ({
 
   // Keyboard handler for toggle actions
   const handleKeyDown = (event: React.KeyboardEvent<HTMLElement>) => {
-    if (event.key === "Enter" || event.key === " ") {
+    if (event.key === 'Enter' || event.key === ' ') {
       handleToggle();
     }
   };
@@ -127,7 +127,7 @@ export const MobileSidebar = ({
     <>
       <div
         className={cn(
-          "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 h-full"
+          'h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 h-full',
         )}
         {...props}
       >
@@ -140,7 +140,7 @@ export const MobileSidebar = ({
               handleToggle();
             }}
             onKeyDown={handleKeyDown}
-            aria-label={open ? "Close sidebar" : "Open sidebar"}
+            aria-label={open ? 'Close sidebar' : 'Open sidebar'}
             aria-expanded={open}
           >
             <Menu />
@@ -149,16 +149,16 @@ export const MobileSidebar = ({
         <AnimatePresence>
           {open && (
             <motion.div
-              initial={{ x: "-100%", opacity: 0 }}
+              initial={{ x: '-100%', opacity: 0 }}
               animate={{ x: 0, opacity: 1 }}
-              exit={{ x: "-100%", opacity: 0 }}
+              exit={{ x: '-100%', opacity: 0 }}
               transition={{
                 duration: 0.3,
-                ease: "easeInOut",
+                ease: 'easeInOut',
               }}
               className={cn(
-                "fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between",
-                className
+                'fixed h-full w-full inset-0 bg-white dark:bg-neutral-900 p-10 z-[100] flex flex-col justify-between',
+                className,
               )}
             >
               {/* Add accessibility handlers to the close button */}
@@ -207,11 +207,11 @@ export const SidebarLink = ({
       href={link.href}
       onClick={handleClick}
       className={cn(
-        "flex items-center justify-start gap-2 group/sidebar py-2 px-3 rounded-md text-sm font-medium transition-colors",
+        'flex items-center justify-start gap-2 group/sidebar py-2 px-3 rounded-md text-sm font-medium transition-colors',
         isActive
-          ? "bg-muted text-primary hover:text-primary"
-          : "text-muted-foreground hover:text-foreground",
-        className
+          ? 'bg-muted text-primary hover:text-primary'
+          : 'text-muted-foreground hover:text-foreground',
+        className,
       )}
       {...props}
     >
@@ -219,7 +219,7 @@ export const SidebarLink = ({
 
       <span
         className={cn(
-          "font-medium text-neutral-700 dark:text-neutral-200 whitespace-pre inline-block"
+          'font-medium text-neutral-700 dark:text-neutral-200 whitespace-pre inline-block',
         )}
       >
         {link.label}

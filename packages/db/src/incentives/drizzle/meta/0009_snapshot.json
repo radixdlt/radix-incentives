@@ -39,12 +39,8 @@
           "name": "account_activity_points_account_address_account_address_fk",
           "tableFrom": "account_activity_points",
           "tableTo": "account",
-          "columnsFrom": [
-            "account_address"
-          ],
-          "columnsTo": [
-            "address"
-          ],
+          "columnsFrom": ["account_address"],
+          "columnsTo": ["address"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -52,12 +48,8 @@
           "name": "account_activity_points_week_id_week_id_fk",
           "tableFrom": "account_activity_points",
           "tableTo": "week",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -65,12 +57,8 @@
           "name": "account_activity_points_activity_id_activity_id_fk",
           "tableFrom": "account_activity_points",
           "tableTo": "activity",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["activity_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -78,11 +66,7 @@
       "compositePrimaryKeys": {
         "account_activity_points_account_address_week_id_activity_id_pk": {
           "name": "account_activity_points_account_address_week_id_activity_id_pk",
-          "columns": [
-            "account_address",
-            "week_id",
-            "activity_id"
-          ]
+          "columns": ["account_address", "week_id", "activity_id"]
         }
       },
       "uniqueConstraints": {}
@@ -156,12 +140,8 @@
           "name": "account_balances_account_address_account_address_fk",
           "tableFrom": "account_balances",
           "tableTo": "account",
-          "columnsFrom": [
-            "account_address"
-          ],
-          "columnsTo": [
-            "address"
-          ],
+          "columnsFrom": ["account_address"],
+          "columnsTo": ["address"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -169,12 +149,8 @@
           "name": "account_balances_activity_id_activity_id_fk",
           "tableFrom": "account_balances",
           "tableTo": "activity",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["activity_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -182,11 +158,7 @@
       "compositePrimaryKeys": {
         "account_balances_account_address_timestamp_activity_id_pk": {
           "name": "account_balances_account_address_timestamp_activity_id_pk",
-          "columns": [
-            "account_address",
-            "timestamp",
-            "activity_id"
-          ]
+          "columns": ["account_address", "timestamp", "activity_id"]
         }
       },
       "uniqueConstraints": {}
@@ -227,12 +199,8 @@
           "name": "account_user_id_user_id_fk",
           "tableFrom": "account",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -332,12 +300,8 @@
           "name": "activity_week_activity_id_activity_id_fk",
           "tableFrom": "activity_week",
           "tableTo": "activity",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["activity_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -345,12 +309,8 @@
           "name": "activity_week_week_id_week_id_fk",
           "tableFrom": "activity_week",
           "tableTo": "week",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -358,10 +318,7 @@
       "compositePrimaryKeys": {
         "activity_week_pk": {
           "name": "activity_week_pk",
-          "columns": [
-            "activity_id",
-            "week_id"
-          ]
+          "columns": ["activity_id", "week_id"]
         }
       },
       "uniqueConstraints": {}
@@ -466,12 +423,8 @@
           "name": "event_activity_id_activity_id_fk",
           "tableFrom": "event",
           "tableTo": "activity",
-          "columnsFrom": [
-            "activity_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["activity_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -479,12 +432,8 @@
           "name": "event_transaction_id_transaction_transaction_id_fk",
           "tableFrom": "event",
           "tableTo": "transaction",
-          "columnsFrom": [
-            "transaction_id"
-          ],
-          "columnsTo": [
-            "transaction_id"
-          ],
+          "columnsFrom": ["transaction_id"],
+          "columnsTo": ["transaction_id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -492,10 +441,7 @@
       "compositePrimaryKeys": {
         "event_transaction_id_event_index_pk": {
           "name": "event_transaction_id_event_index_pk",
-          "columns": [
-            "transaction_id",
-            "event_index"
-          ]
+          "columns": ["transaction_id", "event_index"]
         }
       },
       "uniqueConstraints": {}
@@ -541,12 +487,8 @@
           "name": "season_points_multiplier_user_id_user_id_fk",
           "tableFrom": "season_points_multiplier",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -554,12 +496,8 @@
           "name": "season_points_multiplier_week_id_week_id_fk",
           "tableFrom": "season_points_multiplier",
           "tableTo": "week",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -567,10 +505,7 @@
       "compositePrimaryKeys": {
         "season_points_multiplier_user_id_week_id_pk": {
           "name": "season_points_multiplier_user_id_week_id_pk",
-          "columns": [
-            "user_id",
-            "week_id"
-          ]
+          "columns": ["user_id", "week_id"]
         }
       },
       "uniqueConstraints": {}
@@ -647,12 +582,8 @@
           "name": "session_user_id_user_id_fk",
           "tableFrom": "session",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -733,12 +664,8 @@
           "name": "transaction_fees_account_address_account_address_fk",
           "tableFrom": "transaction_fees",
           "tableTo": "account",
-          "columnsFrom": [
-            "account_address"
-          ],
-          "columnsTo": [
-            "address"
-          ],
+          "columnsFrom": ["account_address"],
+          "columnsTo": ["address"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -746,11 +673,7 @@
       "compositePrimaryKeys": {
         "transaction_fees_timestamp_account_address_transaction_id_pk": {
           "name": "transaction_fees_timestamp_account_address_transaction_id_pk",
-          "columns": [
-            "timestamp",
-            "account_address",
-            "transaction_id"
-          ]
+          "columns": ["timestamp", "account_address", "transaction_id"]
         }
       },
       "uniqueConstraints": {}
@@ -815,9 +738,7 @@
         "user_identity_address_unique": {
           "name": "user_identity_address_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "identity_address"
-          ]
+          "columns": ["identity_address"]
         }
       }
     },
@@ -856,12 +777,8 @@
           "name": "user_season_points_user_id_user_id_fk",
           "tableFrom": "user_season_points",
           "tableTo": "user",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -869,12 +786,8 @@
           "name": "user_season_points_season_id_season_id_fk",
           "tableFrom": "user_season_points",
           "tableTo": "season",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -882,12 +795,8 @@
           "name": "user_season_points_week_id_week_id_fk",
           "tableFrom": "user_season_points",
           "tableTo": "week",
-          "columnsFrom": [
-            "week_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -895,11 +804,7 @@
       "compositePrimaryKeys": {
         "user_season_points_user_id_season_id_week_id_pk": {
           "name": "user_season_points_user_id_season_id_week_id_pk",
-          "columns": [
-            "user_id",
-            "season_id",
-            "week_id"
-          ]
+          "columns": ["user_id", "season_id", "week_id"]
         }
       },
       "uniqueConstraints": {}
@@ -932,10 +837,7 @@
       "compositePrimaryKeys": {
         "verification_token_identifier_token_pk": {
           "name": "verification_token_identifier_token_pk",
-          "columns": [
-            "identifier",
-            "token"
-          ]
+          "columns": ["identifier", "token"]
         }
       },
       "uniqueConstraints": {}
@@ -984,12 +886,8 @@
           "name": "week_season_id_season_id_fk",
           "tableFrom": "week",
           "tableTo": "season",
-          "columnsFrom": [
-            "season_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -1017,54 +915,32 @@
     "public.activity_type": {
       "name": "activity_type",
       "schema": "public",
-      "values": [
-        "passive",
-        "active"
-      ]
+      "values": ["passive", "active"]
     },
     "public.activity_week_status": {
       "name": "activity_week_status",
       "schema": "public",
-      "values": [
-        "active",
-        "inactive"
-      ]
+      "values": ["active", "inactive"]
     },
     "public.reward_type": {
       "name": "reward_type",
       "schema": "public",
-      "values": [
-        "points",
-        "multiplier"
-      ]
+      "values": ["points", "multiplier"]
     },
     "public.season_status": {
       "name": "season_status",
       "schema": "public",
-      "values": [
-        "upcoming",
-        "active",
-        "completed"
-      ]
+      "values": ["upcoming", "active", "completed"]
     },
     "public.snapshot_status": {
       "name": "snapshot_status",
       "schema": "public",
-      "values": [
-        "not_started",
-        "processing",
-        "completed",
-        "failed"
-      ]
+      "values": ["not_started", "processing", "completed", "failed"]
     },
     "public.week_status": {
       "name": "week_status",
       "schema": "public",
-      "values": [
-        "upcoming",
-        "active",
-        "completed"
-      ]
+      "values": ["upcoming", "active", "completed"]
     }
   },
   "schemas": {},

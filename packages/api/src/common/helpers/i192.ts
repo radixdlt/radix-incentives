@@ -1,4 +1,4 @@
-import { Decimal } from "decimal.js";
+import { Decimal } from 'decimal.js';
 
 // Configure Decimal.js to handle higher precision
 // We need at least 40 digits of precision to safely handle 18 decimal places during calculations
@@ -6,16 +6,16 @@ Decimal.set({ precision: 40, rounding: Decimal.ROUND_DOWN });
 
 /**
  * I192 class to mimic Scrypto Decimal's I192 behavior
- * 
+ *
  * This class handles 192-bit representation of fixed-scale decimal numbers with 18 decimal places,
  * matching Scrypto's Decimal type as closely as possible.
- * 
+ *
  * Key features:
  * 1. Represents numbers with exactly 18 decimal places of precision
  * 2. Performs truncation (toward zero) after each operation to match Scrypto's behavior
  * 3. Enforces the same value range as Scrypto's Decimal type
  * 4. Always outputs values with exactly 18 decimal places
- * 
+ *
  * Truncation vs. Rounding:
  * - Scrypto's Decimal type truncates values toward zero after each operation
  * - For positive numbers, this means flooring the value (removing all digits beyond 18 decimals)
@@ -27,12 +27,16 @@ export class I192 {
   // Constants
   private static readonly DECIMALS = 18;
   private static readonly DECIMAL_FACTOR = new Decimal(10).pow(I192.DECIMALS);
-  
+
   // Maximum and minimum values for I192 (as per Scrypto's Decimal)
   // Max: 3138550867693340381917894711603833208051.177722232017256447
   // Min: -3138550867693340381917894711603833208051.177722232017256448
-  private static readonly MAX_VALUE = new Decimal("3138550867693340381917894711603833208051.177722232017256447");
-  private static readonly MIN_VALUE = new Decimal("-3138550867693340381917894711603833208051.177722232017256448");
+  private static readonly MAX_VALUE = new Decimal(
+    '3138550867693340381917894711603833208051.177722232017256447',
+  );
+  private static readonly MIN_VALUE = new Decimal(
+    '-3138550867693340381917894711603833208051.177722232017256448',
+  );
 
   // Internal value as Decimal
   private value: Decimal;
@@ -42,15 +46,15 @@ export class I192 {
    * @param value A string, number, or Decimal value
    */
   constructor(value: string | number | Decimal) {
-    if (typeof value === "string" || typeof value === "number") {
+    if (typeof value === 'string' || typeof value === 'number') {
       this.value = new Decimal(value);
     } else {
       this.value = value;
     }
-    
+
     // Truncate to 18 decimal places to ensure precise representation
     this.value = this.truncateToDecimals(this.value);
-    
+
     // Ensure value is within I192 range
     this.checkRange();
   }
@@ -58,7 +62,7 @@ export class I192 {
   /**
    * Truncate a value to exactly 18 decimal places (floor for positive, ceiling for negative)
    * This mimics Scrypto's behavior of truncation toward zero after each operation.
-   * 
+   *
    * Examples:
    * 123.4567890123456789123 -> 123.456789012345678900 (truncated)
    * -123.4567890123456789123 -> -123.456789012345678900 (truncated)
@@ -66,9 +70,9 @@ export class I192 {
   private truncateToDecimals(value: Decimal): Decimal {
     // Multiply by 10^18, truncate to integer, then divide by 10^18
     const multiplied = value.times(I192.DECIMAL_FACTOR);
-    const truncated = value.isNegative() 
-        ? multiplied.ceil() // For negative numbers, ceil is truncation toward zero
-        : multiplied.floor(); // For positive numbers, floor is truncation toward zero
+    const truncated = value.isNegative()
+      ? multiplied.ceil() // For negative numbers, ceil is truncation toward zero
+      : multiplied.floor(); // For positive numbers, floor is truncation toward zero
     return truncated.dividedBy(I192.DECIMAL_FACTOR);
   }
 
@@ -98,80 +102,82 @@ export class I192 {
 
   /**
    * Addition with intermediate truncation
-   * 
+   *
    * Both the input and the result are truncated to 18 decimal places,
    * mimicking Scrypto's behavior of truncating after each operation.
    */
   public add(other: I192 | string | number | Decimal): I192 {
     const otherValue = other instanceof I192 ? other.value : new Decimal(other);
-    
+
     // Truncate the other value to 18 decimals first
     const truncatedOther = this.truncateToDecimals(otherValue);
-    
+
     // Perform addition and truncate the result
     const result = this.truncateToDecimals(this.value.plus(truncatedOther));
-    
+
     return new I192(result);
   }
 
   /**
    * Subtraction with intermediate truncation
-   * 
+   *
    * Both the input and the result are truncated to 18 decimal places,
    * mimicking Scrypto's behavior of truncating after each operation.
    */
   public subtract(other: I192 | string | number | Decimal): I192 {
     const otherValue = other instanceof I192 ? other.value : new Decimal(other);
-    
+
     // Truncate the other value to 18 decimals first
     const truncatedOther = this.truncateToDecimals(otherValue);
-    
+
     // Perform subtraction and truncate the result
     const result = this.truncateToDecimals(this.value.minus(truncatedOther));
-    
+
     return new I192(result);
   }
 
   /**
    * Multiplication with intermediate truncation
-   * 
+   *
    * Both the input and the result are truncated to 18 decimal places,
    * mimicking Scrypto's behavior of truncating after each operation.
    */
   public multiply(other: I192 | string | number | Decimal): I192 {
     const otherValue = other instanceof I192 ? other.value : new Decimal(other);
-    
+
     // Truncate the other value to 18 decimals first
     const truncatedOther = this.truncateToDecimals(otherValue);
-    
+
     // Perform multiplication and truncate the result
     const result = this.truncateToDecimals(this.value.times(truncatedOther));
-    
+
     return new I192(result);
   }
 
   /**
    * Division with intermediate truncation
-   * 
+   *
    * Both the input and the result are truncated to 18 decimal places,
    * mimicking Scrypto's behavior of truncating after each operation.
-   * 
+   *
    * This operation is particularly sensitive to truncation, which can
    * cause different results compared to regular rounding methods.
    */
   public divide(other: I192 | string | number | Decimal): I192 {
     const otherValue = other instanceof I192 ? other.value : new Decimal(other);
-    
+
     // Truncate the other value to 18 decimals first
     const truncatedOther = this.truncateToDecimals(otherValue);
-    
+
     if (truncatedOther.isZero()) {
-      throw new Error("Division by zero");
+      throw new Error('Division by zero');
     }
-    
+
     // Perform division and truncate the result
-    const result = this.truncateToDecimals(this.value.dividedBy(truncatedOther));
-    
+    const result = this.truncateToDecimals(
+      this.value.dividedBy(truncatedOther),
+    );
+
     return new I192(result);
   }
 
@@ -187,7 +193,9 @@ export class I192 {
   /**
    * Returns true if this value is greater than or equal to other
    */
-  public greaterThanOrEqualTo(other: I192 | string | number | Decimal): boolean {
+  public greaterThanOrEqualTo(
+    other: I192 | string | number | Decimal,
+  ): boolean {
     const otherValue = other instanceof I192 ? other.value : new Decimal(other);
     const truncatedOther = this.truncateToDecimals(otherValue);
     return this.value.greaterThanOrEqualTo(truncatedOther);
@@ -249,7 +257,7 @@ export class I192 {
     // Use decimal.js toFixed to get exact decimal precision
     // toFixed returns a string with the exact number of decimal places
     const stringValue = this.value.toFixed(I192.DECIMALS);
-    
+
     return stringValue;
   }
 
@@ -266,10 +274,10 @@ export class I192 {
    */
   private checkRange(): void {
     if (this.value.greaterThan(I192.MAX_VALUE)) {
-      throw new Error("I192 overflow");
+      throw new Error('I192 overflow');
     }
     if (this.value.lessThan(I192.MIN_VALUE)) {
-      throw new Error("I192 underflow");
+      throw new Error('I192 underflow');
     }
   }
 }

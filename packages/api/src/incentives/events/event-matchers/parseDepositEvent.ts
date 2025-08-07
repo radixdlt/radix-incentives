@@ -1,18 +1,18 @@
-import type { TransformedEvent } from "../../transaction-stream";
+import type { TransformedEvent } from '../../transaction-stream';
 import {
   DepositFungibleEventSchema,
   DepositNonFungibleEventSchema,
-} from "./schemas";
+} from './schemas';
 
 export const parseDepositEvent = (
   input: TransformedEvent,
   options: {
     isWhiteListedResourceAddress: (resourceAddress: string) => boolean;
-  }
+  },
 ) => {
-  if (input?.event.name === "DepositEvent") {
+  if (input?.event.name === 'DepositEvent') {
     const result = DepositNonFungibleEventSchema.safeParse(
-      input?.event.payload
+      input?.event.payload,
     );
 
     if (result.isOk()) {
@@ -25,7 +25,7 @@ export const parseDepositEvent = (
           blueprint: input.package.blueprint,
           eventName: input.event.name,
           eventData: {
-            type: "DepositNonFungibleEvent",
+            type: 'DepositNonFungibleEvent',
             data: {
               resourceAddress,
               nftIds,
@@ -37,7 +37,7 @@ export const parseDepositEvent = (
     }
 
     const fungibleResult = DepositFungibleEventSchema.safeParse(
-      input?.event.payload
+      input?.event.payload,
     );
 
     if (fungibleResult.isOk()) {
@@ -50,7 +50,7 @@ export const parseDepositEvent = (
           blueprint: input.package.blueprint,
           eventName: input.event.name,
           eventData: {
-            type: "DepositFungibleEvent",
+            type: 'DepositFungibleEvent',
             data: {
               resourceAddress,
               amount,

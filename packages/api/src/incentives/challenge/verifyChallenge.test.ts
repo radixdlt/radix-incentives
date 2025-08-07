@@ -1,9 +1,9 @@
-import { describe, test, expect, vi } from "vitest";
-import { Effect, Layer, Cause } from "effect";
-import { VerifyChallengeService, VerifyChallengeLive } from "./verifyChallenge";
-import { createDbClientLive, DbClientService, DbError } from "../db/dbClient";
-import { AppConfigService, createAppConfigLive } from "../config/appConfig";
-import { challenge, type Db } from "db/consultation";
+import { type Db, challenge } from 'db/consultation';
+import { Cause, Effect, Layer } from 'effect';
+import { describe, expect, test, vi } from 'vitest';
+import { AppConfigService, createAppConfigLive } from '../config/appConfig';
+import { DbClientService, DbError, createDbClientLive } from '../db/dbClient';
+import { VerifyChallengeLive, VerifyChallengeService } from './verifyChallenge';
 
 // Mock the DbClientService
 const mockDbClient = {
@@ -11,7 +11,7 @@ const mockDbClient = {
 };
 const DbClientTest = Layer.succeed(DbClientService, {
   // @ts-expect-error - Mocking DB client
-  _tag: "DbClientService",
+  _tag: 'DbClientService',
   ...mockDbClient,
 });
 
@@ -21,7 +21,7 @@ const mockAppConfig = {
 };
 const AppConfigTest = Layer.succeed(AppConfigService, {
   // @ts-expect-error - Mocking AppConfigService
-  _tag: "AppConfigService",
+  _tag: 'AppConfigService',
   ...mockAppConfig,
 });
 
@@ -32,12 +32,12 @@ const dbClientLive = createDbClientLive(mockDbClient as unknown as Db);
 
 const verifyChallengeLive = VerifyChallengeLive.pipe(
   Layer.provide(dbClientLive),
-  Layer.provide(appConfigLive)
+  Layer.provide(appConfigLive),
 );
 
-describe("VerifyChallengeLive", () => {
-  test("should return true when challenge exists and is not expired", async () => {
-    const inputChallenge = "valid_challenge";
+describe('VerifyChallengeLive', () => {
+  test('should return true when challenge exists and is not expired', async () => {
+    const inputChallenge = 'valid_challenge';
     const mockReturningValue = {
       challenge: inputChallenge,
       createdAt: new Date(),
@@ -56,8 +56,8 @@ describe("VerifyChallengeLive", () => {
     const result = await Effect.runPromise(
       Effect.provide(
         program,
-        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest)
-      )
+        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest),
+      ),
     );
 
     expect(result).toBe(true);
@@ -65,8 +65,8 @@ describe("VerifyChallengeLive", () => {
     // More specific checks on the where clause could be added if needed
   });
 
-  test("should return false when challenge does not exist", async () => {
-    const inputChallenge = "non_existent_challenge";
+  test('should return false when challenge does not exist', async () => {
+    const inputChallenge = 'non_existent_challenge';
 
     mockDbClient.delete.mockImplementation(() => ({
       where: vi.fn().mockReturnThis(),
@@ -74,22 +74,22 @@ describe("VerifyChallengeLive", () => {
     }));
 
     const program = Effect.flatMap(VerifyChallengeService, (service) =>
-      service(inputChallenge)
+      service(inputChallenge),
     );
 
     const result = await Effect.runPromise(
       Effect.provide(
         program,
-        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest)
-      )
+        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest),
+      ),
     );
 
     expect(result).toBe(false);
     expect(mockDbClient.delete).toHaveBeenCalledWith(challenge);
   });
 
-  test("should return false when challenge exists but is expired", async () => {
-    const inputChallenge = "expired_challenge";
+  test('should return false when challenge exists but is expired', async () => {
+    const inputChallenge = 'expired_challenge';
 
     mockDbClient.delete.mockImplementation(() => ({
       where: vi.fn().mockReturnThis(),
@@ -97,14 +97,14 @@ describe("VerifyChallengeLive", () => {
     }));
 
     const program = Effect.flatMap(VerifyChallengeService, (service) =>
-      service(inputChallenge)
+      service(inputChallenge),
     );
 
     const result = await Effect.runPromise(
       Effect.provide(
         program,
-        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest)
-      )
+        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest),
+      ),
     );
 
     expect(result).toBe(false);
@@ -113,9 +113,9 @@ describe("VerifyChallengeLive", () => {
     // We simulate this by returning an empty array.
   });
 
-  test("should return DbError when database operation fails", async () => {
-    const inputChallenge = "error_challenge";
-    const dbError = new Error("Database connection failed");
+  test('should return DbError when database operation fails', async () => {
+    const inputChallenge = 'error_challenge';
+    const dbError = new Error('Database connection failed');
 
     mockDbClient.delete.mockImplementation(() => ({
       where: vi.fn().mockReturnThis(),
@@ -123,21 +123,21 @@ describe("VerifyChallengeLive", () => {
     }));
 
     const program = Effect.flatMap(VerifyChallengeService, (service) =>
-      service(inputChallenge)
+      service(inputChallenge),
     );
 
     const result = await Effect.runPromiseExit(
       Effect.provide(
         program,
-        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest)
-      )
+        Layer.mergeAll(verifyChallengeLive, DbClientTest, AppConfigTest),
+      ),
     );
 
-    expect(result._tag).toBe("Failure");
-    if (result._tag === "Failure") {
+    expect(result._tag).toBe('Failure');
+    if (result._tag === 'Failure') {
       const failure = Cause.failureOption(result.cause);
-      expect(failure._tag).toBe("Some");
-      if (failure._tag === "Some") {
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
         expect(failure.value).toBeInstanceOf(DbError);
         expect((failure.value as DbError).error).toBe(dbError);
       }

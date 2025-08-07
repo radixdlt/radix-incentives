@@ -30,23 +30,23 @@ export const MetricCard = ({
           <span className="text-sm font-medium text-white/80">{title}</span>
           {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
         </div>
-        
+
         <div className="flex items-end gap-3">
           <span className="text-4xl font-bold tracking-tight text-white gradient-text">
             {value}
           </span>
           {trend && (
-            <div className={`flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-xs font-medium mb-1 ${
-              trend.isPositive 
-                ? 'text-green-400' 
-                : 'text-red-400'
-            }`}>
+            <div
+              className={`flex items-center gap-1 px-2 py-1 rounded-lg bg-white/10 text-xs font-medium mb-1 ${
+                trend.isPositive ? 'text-green-400' : 'text-red-400'
+              }`}
+            >
               <span>{trend.isPositive ? '↗' : '↘'}</span>
               <span>{trend.value}</span>
             </div>
           )}
         </div>
-        
+
         <div className="text-sm text-white/60">{description}</div>
       </div>
     </Card>

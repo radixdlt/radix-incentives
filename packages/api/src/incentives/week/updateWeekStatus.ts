@@ -1,13 +1,13 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { weeks } from "db/incentives";
-import { eq } from "drizzle-orm";
+import { weeks } from 'db/incentives';
+import { eq } from 'drizzle-orm';
 
 export type UpdateWeekStatusError = DbError;
 
 export class UpdateWeekStatusService extends Effect.Service<UpdateWeekStatusService>()(
-  "UpdateWeekStatusService",
+  'UpdateWeekStatusService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -24,5 +24,5 @@ export class UpdateWeekStatusService extends Effect.Service<UpdateWeekStatusServ
         }),
       };
     }),
-  }
+  },
 ) {}

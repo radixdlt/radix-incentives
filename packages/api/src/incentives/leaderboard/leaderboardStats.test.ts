@@ -1,81 +1,78 @@
-import { describe, inject } from "vitest";
-import { Effect, Layer, Logger, LogLevel } from "effect";
-import { it } from "@effect/vitest";
-import { createDbClientLive } from "../db/dbClient";
-import { LeaderboardCacheService } from "./leaderboardCache";
-import { SeasonService } from "../season/season";
-import { WeekService } from "../week/week";
-import { ActivityCategoryWeekService } from "../activity-category-week/activityCategoryWeek";
-import { ActivityWeekService } from "../activity-week/activityWeek";
-import { drizzle } from "drizzle-orm/postgres-js";
-import { eq } from "drizzle-orm";
+import { it } from '@effect/vitest';
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+import { Effect, Layer, LogLevel, Logger } from 'effect';
+import { describe, inject } from 'vitest';
+import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import { ActivityWeekService } from '../activity-week/activityWeek';
+import { createDbClientLive } from '../db/dbClient';
+import { SeasonService } from '../season/season';
+import { WeekService } from '../week/week';
+import { LeaderboardCacheService } from './leaderboardCache';
 
 import {
-  schema,
-  seasons,
-  weeks,
-  users,
-  accounts,
-  userSeasonPoints,
   accountActivityPoints,
-  seasonLeaderboardCache,
+  accounts,
+  activityCategoryWeeks,
+  activityWeeks,
   categoryLeaderboardCache,
   leaderboardStatsCache,
-} from "db/incentives";
+  schema,
+  seasonLeaderboardCache,
+  seasons,
+  userSeasonPoints,
+  users,
+  weeks,
+} from 'db/incentives';
 
-import postgres from "postgres";
+import { ActivityCategoryId, ActivityId } from 'data';
+import postgres from 'postgres';
+import { truncateAllTables } from '../../integration-tests/utils';
+import { createActivities } from '../../test-config/helpers';
+
+const dbUrl = inject('testDbUrl');
+const client = postgres(dbUrl);
+const db = drizzle(client, { schema });
+
+const dbLive = createDbClientLive(db);
+const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLive));
+const activityCategoryWeekServiceLive =
+  ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
+const activityWeekServiceLive = ActivityWeekService.Default.pipe(
+  Layer.provide(dbLive),
+);
+const weekServiceLive = WeekService.Default.pipe(
+  Layer.provide(dbLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(activityWeekServiceLive),
+);
+const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
+  Layer.provide(dbLive),
+  Layer.provide(seasonServiceLive),
+  Layer.provide(weekServiceLive),
+  Layer.provide(activityCategoryWeekServiceLive),
+  Layer.provide(activityWeekServiceLive),
+  Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
+);
+
+// Test data constants
+const SEASON_ID = '11111111-1111-1111-1111-111111111111';
+const WEEK_ID = '33333333-3333-3333-3333-333333333333';
 
 describe(
-  "Leaderboard Statistics SQL Aggregation",
+  'Leaderboard Statistics SQL Aggregation',
   {
     timeout: 60_000,
   },
   () => {
-    const dbUrl = inject("testDbUrl");
-    const client = postgres(dbUrl);
-    const db = drizzle(client, { schema });
-
-    const dbLive = createDbClientLive(db);
-    const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLive));
-    const activityCategoryWeekServiceLive = ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLive));
-    const activityWeekServiceLive = ActivityWeekService.Default.pipe(Layer.provide(dbLive));
-    const weekServiceLive = WeekService.Default.pipe(
-      Layer.provide(dbLive),
-      Layer.provide(activityCategoryWeekServiceLive),
-      Layer.provide(activityWeekServiceLive)
-    );
-    const leaderboardCacheServiceLive = LeaderboardCacheService.Default.pipe(
-      Layer.provide(dbLive),
-      Layer.provide(seasonServiceLive),
-      Layer.provide(weekServiceLive),
-      Layer.provide(activityCategoryWeekServiceLive),
-      Layer.provide(activityWeekServiceLive),
-      Layer.provide(Logger.minimumLogLevel(LogLevel.None))
-    );
-
-    // Test data constants
-    const SEASON_ID = "11111111-1111-1111-1111-111111111111";
-    const WEEK_ID = "33333333-3333-3333-3333-333333333333";
-
     const setupTestData = Effect.gen(function* () {
-      // Clean up all tables
-      yield* Effect.promise(() => db.delete(seasonLeaderboardCache));
-      yield* Effect.promise(() => db.delete(categoryLeaderboardCache));
-      yield* Effect.promise(() => db.delete(leaderboardStatsCache));
-      yield* Effect.promise(() => db.delete(accountActivityPoints));
-      yield* Effect.promise(() => db.delete(userSeasonPoints));
-      yield* Effect.promise(() => db.delete(accounts));
-      yield* Effect.promise(() => db.delete(users));
-      yield* Effect.promise(() => db.delete(weeks));
-      yield* Effect.promise(() => db.delete(seasons));
-
       // Insert test data
       yield* Effect.promise(() =>
         db
           .insert(seasons)
           .values([
-            { id: SEASON_ID, name: "Stats Test Season", status: "active" },
-          ])
+            { id: SEASON_ID, name: 'Stats Test Season', status: 'active' },
+          ]),
       );
 
       yield* Effect.promise(() =>
@@ -83,15 +80,20 @@ describe(
           {
             id: WEEK_ID,
             seasonId: SEASON_ID,
-            startDate: new Date("2025-01-01"),
-            endDate: new Date("2025-01-07"),
+            startDate: new Date('2025-01-01'),
+            endDate: new Date('2025-01-07'),
           },
-        ])
+        ]),
       );
     });
 
+    beforeEach(async () => {
+      await truncateAllTables(db, dbUrl);
+      await createActivities(db);
+    });
+
     it.effect(
-      "should calculate statistics correctly with SQL aggregation",
+      'should calculate statistics correctly with SQL aggregation',
       () =>
         Effect.gen(function* () {
           yield* setupTestData;
@@ -117,7 +119,7 @@ describe(
           // Create 5 users with points: 100, 200, 300, 400, 500
           // Expected median: 300, Expected average: 300
           for (let i = 1; i <= 5; i++) {
-            const userId = `${i.toString().padStart(8, "0")}-${i.toString().padStart(4, "0")}-${i.toString().padStart(4, "0")}-${i.toString().padStart(4, "0")}-${i.toString().padStart(12, "0")}`;
+            const userId = `${i.toString().padStart(8, '0')}-${i.toString().padStart(4, '0')}-${i.toString().padStart(4, '0')}-${i.toString().padStart(4, '0')}-${i.toString().padStart(12, '0')}`;
             testUsers.push({
               id: userId,
               identityAddress: `identity_${userId}`,
@@ -139,7 +141,7 @@ describe(
           yield* Effect.promise(() => db.insert(users).values(testUsers));
           yield* Effect.promise(() => db.insert(accounts).values(testAccounts));
           yield* Effect.promise(() =>
-            db.insert(userSeasonPoints).values(testSeasonPoints)
+            db.insert(userSeasonPoints).values(testSeasonPoints),
           );
 
           const leaderboardCacheService = yield* LeaderboardCacheService;
@@ -152,7 +154,7 @@ describe(
             db
               .select()
               .from(leaderboardStatsCache)
-              .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`))
+              .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`)),
           );
 
           expect(statsCache).toHaveLength(1);
@@ -165,32 +167,32 @@ describe(
 
           // Verify SQL calculated average
           expect(Number.parseFloat(stats.average!)).toBe(300);
-        }).pipe(Effect.provide(leaderboardCacheServiceLive))
+        }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
-    it.effect("should handle edge cases in statistics calculation", () =>
+    it.effect('should handle edge cases in statistics calculation', () =>
       Effect.gen(function* () {
         yield* setupTestData;
 
         // Test with single user
-        const singleUserId = "00000000-0000-0000-0000-000000000001";
+        const singleUserId = '00000000-0000-0000-0000-000000000001';
         yield* Effect.promise(() =>
           db.insert(users).values([
             {
               id: singleUserId,
               identityAddress: `identity_${singleUserId}`,
-              label: "SingleUser",
+              label: 'SingleUser',
             },
-          ])
+          ]),
         );
         yield* Effect.promise(() =>
           db.insert(accounts).values([
             {
               userId: singleUserId,
-              address: "account_single",
-              label: "Single Account",
+              address: 'account_single',
+              label: 'Single Account',
             },
-          ])
+          ]),
         );
         yield* Effect.promise(() =>
           db.insert(userSeasonPoints).values([
@@ -198,9 +200,9 @@ describe(
               userId: singleUserId,
               seasonId: SEASON_ID,
               weekId: WEEK_ID,
-              points: "150.5",
+              points: '150.5',
             },
-          ])
+          ]),
         );
 
         const leaderboardCacheService = yield* LeaderboardCacheService;
@@ -210,7 +212,7 @@ describe(
           db
             .select()
             .from(leaderboardStatsCache)
-            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`))
+            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`)),
         );
 
         expect(statsCache).toHaveLength(1);
@@ -220,10 +222,10 @@ describe(
         expect(stats.totalUsers).toBe(1);
         expect(Number.parseFloat(stats.median!)).toBe(150.5);
         expect(Number.parseFloat(stats.average!)).toBe(150.5);
-      }).pipe(Effect.provide(leaderboardCacheServiceLive))
+      }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
-    it.effect("should handle decimal precision correctly", () =>
+    it.effect('should handle decimal precision correctly', () =>
       Effect.gen(function* () {
         yield* setupTestData;
 
@@ -245,7 +247,7 @@ describe(
           points: string;
         }> = [];
 
-        const decimalValues = ["123.456", "789.012", "456.789"];
+        const decimalValues = ['123.456', '789.012', '456.789'];
         for (let i = 0; i < decimalValues.length; i++) {
           const userId = `0000000${i}-0000-0000-0000-000000000001`;
           testUsers.push({
@@ -269,7 +271,7 @@ describe(
         yield* Effect.promise(() => db.insert(users).values(testUsers));
         yield* Effect.promise(() => db.insert(accounts).values(testAccounts));
         yield* Effect.promise(() =>
-          db.insert(userSeasonPoints).values(testSeasonPoints)
+          db.insert(userSeasonPoints).values(testSeasonPoints),
         );
 
         const leaderboardCacheService = yield* LeaderboardCacheService;
@@ -279,7 +281,7 @@ describe(
           db
             .select()
             .from(leaderboardStatsCache)
-            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`))
+            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`)),
         );
 
         expect(statsCache).toHaveLength(1);
@@ -292,10 +294,10 @@ describe(
 
         // Expected average: (123.456 + 456.789 + 789.012) / 3 = 456.419
         expect(Number.parseFloat(stats.average!)).toBeCloseTo(456.419, 3);
-      }).pipe(Effect.provide(leaderboardCacheServiceLive))
+      }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
-    it.effect("should calculate category statistics correctly", () =>
+    it.effect('should calculate category statistics correctly', () =>
       Effect.gen(function* () {
         yield* setupTestData;
 
@@ -335,7 +337,7 @@ describe(
           testActivityPoints.push({
             accountAddress: address,
             weekId: WEEK_ID,
-            activityId: "c9_trade_xrd-xusdc",
+            activityId: ActivityId['c9_tr_xrd-xusdc'],
             activityPoints: (i * 50).toString(),
           });
         }
@@ -343,7 +345,37 @@ describe(
         yield* Effect.promise(() => db.insert(users).values(testUsers));
         yield* Effect.promise(() => db.insert(accounts).values(testAccounts));
         yield* Effect.promise(() =>
-          db.insert(accountActivityPoints).values(testActivityPoints)
+          db.insert(accountActivityPoints).values(testActivityPoints),
+        );
+
+        yield* Effect.promise(() =>
+          db.insert(activityCategoryWeeks).values([
+            {
+              activityCategoryId: ActivityCategoryId.tradingVolume,
+              weekId: WEEK_ID,
+              pointsPool: 100,
+            },
+          ]),
+        );
+
+        yield* Effect.promise(() =>
+          db.insert(activityWeeks).values([
+            {
+              activityId: ActivityId['c9_tr_xrd-xusdc'],
+              weekId: WEEK_ID,
+              multiplier: '1',
+            },
+            {
+              activityId: ActivityId['c9_tr_xrd-xusdt'],
+              weekId: WEEK_ID,
+              multiplier: '1',
+            },
+            {
+              activityId: ActivityId['c9_tr_xeth-xrd'],
+              weekId: WEEK_ID,
+              multiplier: '1',
+            },
+          ]),
         );
 
         const leaderboardCacheService = yield* LeaderboardCacheService;
@@ -357,9 +389,9 @@ describe(
             .where(
               eq(
                 leaderboardStatsCache.cacheKey,
-                `category_${WEEK_ID}_tradingVolume`
-              )
-            )
+                `category_${WEEK_ID}_tradingVolume`,
+              ),
+            ),
         );
 
         expect(categoryStatsCache).toHaveLength(1);
@@ -368,10 +400,10 @@ describe(
         expect(categoryStats.totalUsers).toBe(3);
         expect(Number.parseFloat(categoryStats.median!)).toBe(100); // Middle of 50, 100, 150
         expect(Number.parseFloat(categoryStats.average!)).toBe(100); // (50 + 100 + 150) / 3
-      }).pipe(Effect.provide(leaderboardCacheServiceLive))
+      }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
-    it.effect("should not create stats for empty datasets", () =>
+    it.effect('should not create stats for empty datasets', () =>
       Effect.gen(function* () {
         yield* setupTestData;
 
@@ -382,10 +414,10 @@ describe(
 
         // Should not create stats entries for empty datasets
         const statsCache = yield* Effect.promise(() =>
-          db.select().from(leaderboardStatsCache)
+          db.select().from(leaderboardStatsCache),
         );
         expect(statsCache).toHaveLength(0);
-      }).pipe(Effect.provide(leaderboardCacheServiceLive))
+      }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
-  }
+  },
 );

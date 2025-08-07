@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { Trophy, ChevronDown } from "lucide-react";
+import { ChevronDown, Trophy } from 'lucide-react';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "~/components/ui/select";
+} from '~/components/ui/select';
 
 interface Season {
   id: string;
@@ -29,15 +29,15 @@ export function SeasonSelector({
   onSeasonChange,
 }: SeasonSelectorProps) {
   const formatSeasonRange = (startDate: Date, endDate: Date) => {
-    const start = new Date(startDate).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    const start = new Date(startDate).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
-    const end = new Date(endDate).toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
+    const end = new Date(endDate).toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
     });
     return `${start} - ${end}`;
   };
@@ -47,9 +47,9 @@ export function SeasonSelector({
     const start = new Date(startDate);
     const end = new Date(endDate);
 
-    if (status === "active" || (now >= start && now <= end)) return "current";
-    if (now > end || status === "completed") return "past";
-    return "future";
+    if (status === 'active' || (now >= start && now <= end)) return 'current';
+    if (now > end || status === 'completed') return 'past';
+    return 'future';
   };
 
   const getSeasonNumber = (name: string) => {
@@ -77,7 +77,7 @@ export function SeasonSelector({
       </div>
 
       <div className="relative">
-        <Select value={selectedSeasonId || ""} onValueChange={onSeasonChange}>
+        <Select value={selectedSeasonId || ''} onValueChange={onSeasonChange}>
           <SelectTrigger className="w-full h-16 px-4 glass-card border border-white/20 hover:border-white/30 transition-all duration-300 rounded-xl">
             <div className="flex items-center w-full">
               <div className="flex items-center gap-3">
@@ -88,16 +88,16 @@ export function SeasonSelector({
                         getSeasonStatus(
                           selectedSeasonData.status,
                           selectedSeasonData.startDate,
-                          selectedSeasonData.endDate
-                        ) === "current"
-                          ? "bg-green-400 animate-pulse"
+                          selectedSeasonData.endDate,
+                        ) === 'current'
+                          ? 'bg-green-400 animate-pulse'
                           : getSeasonStatus(
                                 selectedSeasonData.status,
                                 selectedSeasonData.startDate,
-                                selectedSeasonData.endDate
-                              ) === "past"
-                            ? "bg-cyan-400"
-                            : "bg-pink-400"
+                                selectedSeasonData.endDate,
+                              ) === 'past'
+                            ? 'bg-cyan-400'
+                            : 'bg-pink-400'
                       }`}
                     />
                     <div className="text-left">
@@ -107,7 +107,7 @@ export function SeasonSelector({
                       <div className="text-sm text-white/60 flex items-center gap-2 text-left">
                         {formatSeasonRange(
                           selectedSeasonData.startDate,
-                          selectedSeasonData.endDate
+                          selectedSeasonData.endDate,
                         )}
                       </div>
                     </div>
@@ -124,7 +124,7 @@ export function SeasonSelector({
               const status = getSeasonStatus(
                 season.status,
                 season.startDate,
-                season.endDate
+                season.endDate,
               );
               return (
                 <SelectItem
@@ -135,11 +135,11 @@ export function SeasonSelector({
                   <div className="flex items-center gap-3 w-full">
                     <div
                       className={`h-3 w-3 rounded-full ${
-                        status === "current"
-                          ? "bg-green-400 animate-pulse"
-                          : status === "past"
-                            ? "bg-cyan-400"
-                            : "bg-pink-400"
+                        status === 'current'
+                          ? 'bg-green-400 animate-pulse'
+                          : status === 'past'
+                            ? 'bg-cyan-400'
+                            : 'bg-pink-400'
                       }`}
                     />
                     <div className="flex-1 text-left">

@@ -1,8 +1,8 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { activities, type NewActivity } from "db/incentives";
-import { eq } from "drizzle-orm";
-import { z } from "zod";
+import { type NewActivity, activities } from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { z } from 'zod';
+import { DbClientService, DbError } from '../db/dbClient';
 
 const ActivityDataSchema = z.object({
   showOnEarnPage: z.boolean(),
@@ -36,7 +36,7 @@ export type UpdateActivityInput = z.infer<typeof UpdateActivitySchema>;
 export type Activity = z.infer<typeof ActivitySchema>;
 
 export class ActivityService extends Effect.Service<ActivityService>()(
-  "ActivityService",
+  'ActivityService',
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -98,5 +98,5 @@ export class ActivityService extends Effect.Service<ActivityService>()(
         }),
       };
     }),
-  }
+  },
 ) {}

@@ -1,13 +1,13 @@
-import { Effect } from "effect";
+import { Effect } from 'effect';
 
-import type { AtLedgerState } from "../../gateway/schemas";
-import { GetKeyValueStoreService } from "../../gateway/getKeyValueStore";
-import s from "sbor-ez-mode";
+import s from 'sbor-ez-mode';
+import { GetKeyValueStoreService } from '../../gateway/getKeyValueStore';
+import type { AtLedgerState } from '../../gateway/schemas';
 
-import { I192 } from "../../helpers/i192";
+import { I192 } from '../../helpers/i192';
 
 export class FailedToParseComponentStateError {
-  readonly _tag = "FailedToParseComponentStateError";
+  readonly _tag = 'FailedToParseComponentStateError';
   constructor(readonly error: unknown) {}
 }
 
@@ -24,7 +24,7 @@ export type GetQuantaSwapBinMapServiceOutput = Map<
 >;
 
 export class GetQuantaSwapBinMapService extends Effect.Service<GetQuantaSwapBinMapService>()(
-  "GetQuantaSwapBinMapService",
+  'GetQuantaSwapBinMapService',
   {
     effect: Effect.gen(function* () {
       const getKeyValueStoreService = yield* GetKeyValueStoreService;
@@ -40,21 +40,21 @@ export class GetQuantaSwapBinMapService extends Effect.Service<GetQuantaSwapBinM
         const binData = yield* Effect.forEach(keyValueStore.entries, (entry) =>
           Effect.gen(function* () {
             const parsedKey = binMapKeyValueStoreKeySchema.safeParse(
-              entry.key.programmatic_json
+              entry.key.programmatic_json,
             );
             const parsedValue = binMapKeyValueStoreValueSchema.safeParse(
-              entry.value.programmatic_json
+              entry.value.programmatic_json,
             );
 
             if (parsedKey.isErr()) {
               return yield* Effect.fail(
-                new FailedToParseComponentStateError(parsedKey.error)
+                new FailedToParseComponentStateError(parsedKey.error),
               );
             }
 
             if (parsedValue.isErr()) {
               return yield* Effect.fail(
-                new FailedToParseComponentStateError(parsedValue.error)
+                new FailedToParseComponentStateError(parsedValue.error),
               );
             }
 
@@ -62,7 +62,7 @@ export class GetQuantaSwapBinMapService extends Effect.Service<GetQuantaSwapBinM
             const value = parsedValue.value;
 
             return { key, value };
-          })
+          }),
         ).pipe(
           Effect.map((items) =>
             items.reduce<Map<number, { amount: I192; total_claim: I192 }>>(
@@ -73,15 +73,15 @@ export class GetQuantaSwapBinMapService extends Effect.Service<GetQuantaSwapBinM
                 });
                 return acc;
               },
-              new Map<number, { amount: I192; total_claim: I192 }>()
-            )
-          )
+              new Map<number, { amount: I192; total_claim: I192 }>(),
+            ),
+          ),
         );
 
         return binData;
       });
     }),
-  }
+  },
 ) {}
 
 export const GetQuantaSwapBinMapLive = GetQuantaSwapBinMapService.Default;

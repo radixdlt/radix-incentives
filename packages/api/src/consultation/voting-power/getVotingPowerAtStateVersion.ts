@@ -1,16 +1,16 @@
-import { Effect } from "effect";
-import { GetFungibleBalanceService } from "../../common/gateway/getFungibleBalance";
-import { BigNumber } from "bignumber.js";
-import { Assets, CaviarNineConstants } from "data";
-import { GetUserStakingPositionsService } from "../../common/staking/getUserStakingPositions";
-import { GetLsulpService } from "../../common/dapps/caviarnine/getLsulp";
-import { GetLedgerStateService } from "../../common/gateway/getLedgerState";
-import { GetLsulpValueService } from "../../common/dapps/caviarnine/getLsulpValue";
-import { ConvertLsuToXrdService } from "../../common/staking/convertLsuToXrd";
-import { GetWeftFinancePositionsService } from "../../common/dapps/weftFinance/getWeftFinancePositions";
-import { GetRootFinancePositionsService } from "../../common/dapps/rootFinance/getRootFinancePositions";
-import { validateStateInput } from "./schemas";
-import type { AtLedgerState } from "../../common/gateway/schemas";
+import { BigNumber } from 'bignumber.js';
+import { Assets, CaviarNineConstants } from 'data';
+import { Effect } from 'effect';
+import { GetLsulpService } from '../../common/dapps/caviarnine/getLsulp';
+import { GetLsulpValueService } from '../../common/dapps/caviarnine/getLsulpValue';
+import { GetRootFinancePositionsService } from '../../common/dapps/rootFinance/getRootFinancePositions';
+import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/getWeftFinancePositions';
+import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
+import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
+import type { AtLedgerState } from '../../common/gateway/schemas';
+import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
+import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
+import { validateStateInput } from './schemas';
 
 export type GetVotingPowerAtStateVersionInput = {
   addresses: string[];
@@ -36,7 +36,7 @@ export type GetVotingPowerAtStateVersionOutput =
   GetVotingPowerAtStateVersionOutputItem[];
 
 export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotingPowerAtStateVersionService>()(
-  "GetVotingPowerAtStateVersionService",
+  'GetVotingPowerAtStateVersionService',
   {
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -61,7 +61,7 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
           // convert timestamp to state version
           const { state_version } = yield* getLedgerStateService({
             at_ledger_state: input.at_ledger_state,
-          }).pipe(Effect.withSpan("getLedgerStateService"));
+          }).pipe(Effect.withSpan('getLedgerStateService'));
 
           const atLedgerState = {
             state_version,
@@ -71,21 +71,21 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
           const userStakingPositions = yield* getUserStakingPositionsService({
             addresses: input.addresses,
             at_ledger_state: atLedgerState,
-          }).pipe(Effect.withSpan("getUserStakingPositionsService"));
+          }).pipe(Effect.withSpan('getUserStakingPositionsService'));
 
           const lsulpResults = yield* getLsulpService({
             addresses: input.addresses,
             at_ledger_state: atLedgerState,
-          }).pipe(Effect.withSpan("getLsulpService"));
+          }).pipe(Effect.withSpan('getLsulpService'));
 
           const fungibleBalanceResults = yield* getFungibleBalanceService({
             addresses: input.addresses,
             at_ledger_state: atLedgerState,
-          }).pipe(Effect.withSpan("getFungibleBalanceService"));
+          }).pipe(Effect.withSpan('getFungibleBalanceService'));
 
           const lsulpValue = yield* getLsulpValueService({
             at_ledger_state: atLedgerState,
-          }).pipe(Effect.withSpan("getLsulpValueService"));
+          }).pipe(Effect.withSpan('getLsulpValueService'));
 
           const weftFinancePositions = yield* getWeftFinancePositionsService
             .run({
@@ -94,20 +94,20 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
               // TODO: add validator claim nft map
               validatorClaimNftMap: new Map(),
             })
-            .pipe(Effect.withSpan("getWeftFinancePositionsService"));
+            .pipe(Effect.withSpan('getWeftFinancePositionsService'));
 
           const rootFinancePositions = yield* getRootFinancePositionsService
             .run({
               accountAddresses: input.addresses,
               at_ledger_state: atLedgerState,
             })
-            .pipe(Effect.withSpan("getRootFinancePositionsService"));
+            .pipe(Effect.withSpan('getRootFinancePositionsService'));
 
           const lsuResourceAddresses = [
             ...new Set(
               userStakingPositions.items.flatMap((item) =>
-                item.staked.map((item) => item.resourceAddress)
-              )
+                item.staked.map((item) => item.resourceAddress),
+              ),
             ),
           ];
 
@@ -121,10 +121,10 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
                   results.map((item) => [
                     item.lsuResourceAddress,
                     item.converter,
-                  ])
-                )
+                  ]),
+                ),
             ),
-            Effect.withSpan("convertLsuToXrdService")
+            Effect.withSpan('convertLsuToXrdService'),
           );
 
           const results: GetVotingPowerAtStateVersionOutput = [];
@@ -132,7 +132,7 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
           for (const item of fungibleBalanceResults) {
             const xrd =
               item.fungibleResources.find(
-                (resource) => resource.resourceAddress === Assets.Fungible.XRD
+                (resource) => resource.resourceAddress === Assets.Fungible.XRD,
               )?.amount ?? new BigNumber(0);
 
             const lsulp =
@@ -140,7 +140,7 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
                 ?.lsulp.amount ?? new BigNumber(0);
 
             const stakingPosition = userStakingPositions.items.find(
-              (position) => position.address === item.address
+              (position) => position.address === item.address,
             );
 
             const staked = stakingPosition?.staked ?? [];
@@ -149,7 +149,7 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
 
             for (const stakedItem of staked) {
               const converter = convertLsuToXrdMap.get(
-                stakedItem.resourceAddress
+                stakedItem.resourceAddress,
               );
               if (!converter) continue;
               const xrdStaked = converter(stakedItem.amount);
@@ -158,18 +158,18 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
 
             const lsus = staked.reduce(
               (acc, resource) => acc.plus(resource.amount),
-              new BigNumber(0)
+              new BigNumber(0),
             );
 
             const unstaked = stakingPosition?.unstaked ?? [];
 
             const unstakedClaims = unstaked.reduce(
               (acc, resource) => acc.plus(resource.amount),
-              new BigNumber(0)
+              new BigNumber(0),
             );
 
             const weftFinanceAccountPositions = weftFinancePositions.find(
-              (position) => position.address === item.address
+              (position) => position.address === item.address,
             );
 
             const weftFinanceLending =
@@ -191,11 +191,11 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
 
                   return acc;
                 },
-                { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+                { xrd: new BigNumber(0), lsulp: new BigNumber(0) },
               ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
 
             const rootFinanceAccountPositions = rootFinancePositions.items.find(
-              (position) => position.accountAddress === item.address
+              (position) => position.accountAddress === item.address,
             );
 
             const rootFinanceLending =
@@ -203,7 +203,7 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
                 (acc, position) => {
                   if (position.nft.resourceAddress === Assets.Fungible.XRD) {
                     acc.xrd = acc.xrd.plus(
-                      position.loans?.[Assets.Fungible.XRD] ?? "0"
+                      position.loans?.[Assets.Fungible.XRD] ?? '0',
                     );
                   }
 
@@ -214,12 +214,12 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
                     acc.lsulp = acc.lsulp.plus(
                       position.loans?.[
                         CaviarNineConstants.LSULP.resourceAddress
-                      ] ?? "0"
+                      ] ?? '0',
                     );
                   }
                   return acc;
                 },
-                { xrd: new BigNumber(0), lsulp: new BigNumber(0) }
+                { xrd: new BigNumber(0), lsulp: new BigNumber(0) },
               ) ?? { xrd: new BigNumber(0), lsulp: new BigNumber(0) };
 
             const votingPower = new BigNumber(0)
@@ -229,11 +229,11 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
               .plus(stakedXrd)
               .plus(weftFinanceLending.xrd)
               .plus(
-                weftFinanceLending.lsulp.multipliedBy(lsulpValue.lsulpValue)
+                weftFinanceLending.lsulp.multipliedBy(lsulpValue.lsulpValue),
               )
               .plus(rootFinanceLending.xrd)
               .plus(
-                rootFinanceLending.lsulp.multipliedBy(lsulpValue.lsulpValue)
+                rootFinanceLending.lsulp.multipliedBy(lsulpValue.lsulpValue),
               );
 
             const resultItem = {
@@ -259,5 +259,5 @@ export class GetVotingPowerAtStateVersionService extends Effect.Service<GetVotin
         }),
       };
     }),
-  }
+  },
 ) {}

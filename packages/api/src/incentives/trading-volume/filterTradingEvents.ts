@@ -1,23 +1,20 @@
-import { Context, Effect, Layer } from "effect";
+import { Effect } from 'effect';
 
-import type { EmittableEvent } from "../events/event-matchers/types";
-import type { CapturedEvent } from "../events/event-matchers/createEventMatcher";
-import type { CaviarnineSwapEvent } from "../events/event-matchers/caviarnineEventMatcher";
+import BigNumber from 'bignumber.js';
 import {
-  shapeLiquidityComponentSet,
-  defiPlazaComponentSet,
   type ActivityId,
-} from "data";
-import {
-  GetUsdValueService,
-  type GetUsdValueServiceError,
-} from "../token-price/getUsdValue";
-import BigNumber from "bignumber.js";
+  defiPlazaComponentSet,
+  shapeLiquidityComponentSet,
+} from 'data';
+import type { CaviarnineSwapEvent } from '../events/event-matchers/caviarnineEventMatcher';
+import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
+import type { EmittableEvent } from '../events/event-matchers/types';
+import { GetUsdValueService } from '../token-price/getUsdValue';
 
-import type { DefiPlazaSwapEvent } from "../events/event-matchers/defiPlazaEventMatcher";
-import type { HLPEmittableEvents } from "../events/event-matchers/hlpEventMatcher";
-import type { OciswapSwapEvent } from "../events/event-matchers/ociswapEventMatcher";
-import { AddressValidationService } from "../../common/address-validation/addressValidation";
+import { AddressValidationService } from '../../common/address-validation/addressValidation';
+import type { DefiPlazaSwapEvent } from '../events/event-matchers/defiPlazaEventMatcher';
+import type { HLPEmittableEvents } from '../events/event-matchers/hlpEventMatcher';
+import type { OciswapSwapEvent } from '../events/event-matchers/ociswapEventMatcher';
 
 export type TradingEvent = CaviarnineSwapEvent;
 
@@ -30,35 +27,28 @@ export type TradingEventWithTokens = {
   usdValue: BigNumber;
 };
 
-export type FilterTradingEventsServiceError = GetUsdValueServiceError;
+export type FilterTradingEventsOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof FilterTradingEventsService)['Service']>>
+>;
 
-export class FilterTradingEventsService extends Context.Tag(
-  "FilterTradingEventsService"
-)<
-  FilterTradingEventsService,
-  (
-    input: CapturedEvent<EmittableEvent>[]
-  ) => Effect.Effect<TradingEventWithTokens[], FilterTradingEventsServiceError>
->() {}
-
-export const FilterTradingEventsLive = Layer.effect(
-  FilterTradingEventsService,
-  Effect.gen(function* () {
-    const getUsdValueService = yield* GetUsdValueService;
-    const addressValidationService = yield* AddressValidationService;
-    return (input) => {
-      return Effect.gen(function* () {
+export class FilterTradingEventsService extends Effect.Service<FilterTradingEventsService>()(
+  'FilterTradingEventsService',
+  {
+    effect: Effect.gen(function* () {
+      const getUsdValueService = yield* GetUsdValueService;
+      const addressValidationService = yield* AddressValidationService;
+      return Effect.fn(function* (input: CapturedEvent<EmittableEvent>[]) {
         const tradingEvents: TradingEventWithTokens[] = [];
 
         for (const event of input) {
           if (
-            event.dApp === "Caviarnine" &&
-            event.eventData.type === "SwapEvent"
+            event.dApp === 'Caviarnine' &&
+            event.eventData.type === 'SwapEvent'
           ) {
             const swapEvent = event as CapturedEvent<CaviarnineSwapEvent>;
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (activityId) {
@@ -68,12 +58,12 @@ export const FilterTradingEventsLive = Layer.effect(
 
               // Check if this is a precision pool SwapEvent (has amount_change_x/y)
               if (
-                "amount_change_x" in swapData &&
-                "amount_change_y" in swapData
+                'amount_change_x' in swapData &&
+                'amount_change_y' in swapData
               ) {
                 // Precision pool swap event
                 const pool = shapeLiquidityComponentSet.get(
-                  swapEvent.globalEmitter
+                  swapEvent.globalEmitter,
                 );
 
                 if (pool) {
@@ -100,8 +90,8 @@ export const FilterTradingEventsLive = Layer.effect(
                   }
                 }
               } else if (
-                "input_resource" in swapData &&
-                "input_amount" in swapData
+                'input_resource' in swapData &&
+                'input_amount' in swapData
               ) {
                 // HLP or SimplePool swap event
                 inputToken = swapData.input_resource;
@@ -128,15 +118,15 @@ export const FilterTradingEventsLive = Layer.effect(
           }
 
           if (
-            event.dApp === "DefiPlaza" &&
-            event.eventData.type === "SwapEvent"
+            event.dApp === 'DefiPlaza' &&
+            event.eventData.type === 'SwapEvent'
           ) {
             const swapEvent = event as CapturedEvent<DefiPlazaSwapEvent>;
 
             const pool = defiPlazaComponentSet.get(swapEvent.globalEmitter);
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (pool && activityId) {
@@ -179,11 +169,11 @@ export const FilterTradingEventsLive = Layer.effect(
             }
           }
 
-          if (event.dApp === "HLP" && event.eventData.type === "SwapEvent") {
+          if (event.dApp === 'HLP' && event.eventData.type === 'SwapEvent') {
             const swapEvent = event as CapturedEvent<HLPEmittableEvents>;
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (activityId) {
@@ -209,13 +199,13 @@ export const FilterTradingEventsLive = Layer.effect(
           }
 
           if (
-            event.dApp === "Ociswap" &&
-            event.eventData.type === "SwapEvent"
+            event.dApp === 'Ociswap' &&
+            event.eventData.type === 'SwapEvent'
           ) {
             const swapEvent = event as CapturedEvent<OciswapSwapEvent>;
             const activityId =
               addressValidationService.getTradingActivityIdForPool(
-                swapEvent.globalEmitter
+                swapEvent.globalEmitter,
               );
 
             if (activityId) {
@@ -243,6 +233,9 @@ export const FilterTradingEventsLive = Layer.effect(
 
         return tradingEvents;
       });
-    };
-  })
-);
+    }),
+  },
+) {}
+
+export const FilterTradingEventsServiceLive =
+  FilterTradingEventsService.Default;

@@ -10,7 +10,8 @@
   "scripts": {
     "test": "vitest ",
     "test:inspect": "vitest --inspect-brk --poolOptions.threads.isolate false",
-    "test:ci": "vitest --run"
+    "test:ci": "vitest --run --coverage",
+    "test:integration": "vitest --run ./src/integration-tests/*.test.ts"
   },
   "dependencies": {
     "@aws-sdk/client-sqs": "catalog:",
@@ -33,6 +34,7 @@
     "@trpc/server": "catalog:",
     "bignumber.js": "catalog:",
     "blakejs": "catalog:",
+    "csv-writer": "catalog:",
     "data": "workspace:*",
     "date-fns": "catalog:",
     "db": "workspace:*",
@@ -50,8 +52,7 @@
     "radix-web3.js": "catalog:",
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
-    "zod": "catalog:",
-    "csv-writer": "catalog:"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:",
@@ -59,7 +60,9 @@
     "@testcontainers/postgresql": "catalog:",
     "@types/aws-lambda": "catalog:",
     "@types/make-fetch-happen": "catalog:",
+    "@vitest/coverage-v8": "^3.2.4",
     "tsup": "catalog:",
+    "undici": "^7.13.0",
     "vitest": "catalog:"
   },
   "publishConfig": {

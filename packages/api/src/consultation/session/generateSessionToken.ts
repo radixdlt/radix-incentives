@@ -1,5 +1,5 @@
-import { encodeBase32LowerCaseNoPadding } from "@oslojs/encoding";
-import { Effect } from "effect";
+import { encodeBase32LowerCaseNoPadding } from '@oslojs/encoding';
+import { Effect } from 'effect';
 
 const generateSessionToken = (): string => {
   const bytes = new Uint8Array(20);
@@ -10,7 +10,7 @@ const generateSessionToken = (): string => {
 };
 
 export class GenerateSessionTokenService extends Effect.Service<GenerateSessionTokenService>()(
-  "GenerateSessionTokenService",
+  'GenerateSessionTokenService',
   {
     effect: Effect.gen(function* () {
       return {
@@ -19,5 +19,5 @@ export class GenerateSessionTokenService extends Effect.Service<GenerateSessionT
         }),
       };
     }),
-  }
+  },
 ) {}

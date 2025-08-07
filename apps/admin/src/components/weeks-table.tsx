@@ -1,8 +1,10 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { ChevronUp, ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useMemo, useState } from 'react';
 
+import type { Week } from 'db/incentives';
+import { Button } from '~/components/ui/button';
 import {
   Table,
   TableBody,
@@ -11,8 +13,6 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
-import { Button } from '~/components/ui/button';
-import type { Week } from 'db/incentives';
 
 type SortField = 'startDate' | 'endDate' | 'processed';
 type SortOrder = 'asc' | 'desc';
@@ -40,11 +40,11 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
 
   const sortedWeeks = useMemo(() => {
     if (!weeks) return [];
-    
+
     return [...weeks].sort((a, b) => {
       let aValue: Date | number;
       let bValue: Date | number;
-      
+
       switch (sortField) {
         case 'startDate':
           aValue = new Date(a.startDate);
@@ -61,7 +61,7 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
         default:
           return 0;
       }
-      
+
       if (aValue < bValue) return sortOrder === 'asc' ? -1 : 1;
       if (aValue > bValue) return sortOrder === 'asc' ? 1 : -1;
       return 0;
@@ -70,9 +70,11 @@ export const WeeksTable: React.FC<WeeksTableProps> = ({
 
   const getSortIcon = (field: SortField) => {
     if (sortField !== field) return null;
-    return sortOrder === 'asc' ? 
-      <ChevronUp className="h-4 w-4" /> : 
-      <ChevronDown className="h-4 w-4" />;
+    return sortOrder === 'asc' ? (
+      <ChevronUp className="h-4 w-4" />
+    ) : (
+      <ChevronDown className="h-4 w-4" />
+    );
   };
   return (
     <div className="border overflow-hidden">

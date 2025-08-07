@@ -1,11 +1,11 @@
-import { Effect } from "effect";
-import { DbClientService, DbError } from "../db/dbClient";
-import { and, gt, lte } from "drizzle-orm";
+import { and, gt, lte } from 'drizzle-orm';
+import { Effect } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
-import { SnapshotService } from "./snapshot";
+import { SnapshotService } from './snapshot';
 
-import { z } from "zod";
-import { weeks } from "db/incentives";
+import { weeks } from 'db/incentives';
+import { z } from 'zod';
 
 export const snapshotJobSchema = z.object({
   addresses: z.array(z.string()).optional(),
@@ -18,14 +18,14 @@ export const snapshotJobSchema = z.object({
 export type SnapshotWorkerInput = z.infer<typeof snapshotJobSchema>;
 
 export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>()(
-  "SnapshotWorkerService",
+  'SnapshotWorkerService',
   {
     effect: Effect.gen(function* () {
       const snapshotService = yield* SnapshotService;
       const db = yield* DbClientService;
 
       return Effect.fn(function* (input: SnapshotWorkerInput) {
-        yield* Effect.log("Snapshot started", input);
+        yield* Effect.log('Snapshot started', input);
 
         yield* snapshotService(input);
 
@@ -39,7 +39,7 @@ export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>
             db.query.weeks.findFirst({
               where: and(
                 lte(weeks.startDate, input.timestamp),
-                gt(weeks.endDate, input.timestamp)
+                gt(weeks.endDate, input.timestamp),
               ),
             }),
           catch: (error) => new DbError(error),
@@ -47,7 +47,7 @@ export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>
 
         if (!maybeWeek) {
           yield* Effect.log(
-            "No week found, skipping activity points calculation"
+            'No week found, skipping activity points calculation',
           );
           return;
         }
@@ -55,7 +55,7 @@ export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>
         return { weekId: maybeWeek.id };
       });
     }),
-  }
+  },
 ) {}
 
 export const SnapshotWorkerLive = SnapshotWorkerService.Default;

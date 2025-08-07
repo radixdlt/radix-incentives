@@ -1,26 +1,27 @@
-import { Config, Effect } from "effect";
-import { GatewayApiClient } from "@radixdlt/babylon-gateway-api-sdk";
-import fetchRetry from "fetch-retry";
+import { GatewayApiClient } from '@radixdlt/babylon-gateway-api-sdk';
+import { Config, Effect } from 'effect';
+import fetchRetry from 'fetch-retry';
+import { fetch } from 'undici';
 
 export class GatewayApiClientService extends Effect.Service<GatewayApiClientService>()(
-  "GatewayApiClientService",
+  'GatewayApiClientService',
   {
     effect: Effect.gen(function* () {
-      const networkId = yield* Config.number("NETWORK_ID").pipe(
-        Config.withDefault(1)
+      const networkId = yield* Config.number('NETWORK_ID').pipe(
+        Config.withDefault(1),
       );
-      const basePath = yield* Config.string("GATEWAY_URL").pipe(
-        Config.withDefault(undefined)
+      const basePath = yield* Config.string('GATEWAY_URL').pipe(
+        Config.withDefault(undefined),
       );
-      const applicationName = yield* Config.string("APPLICATION_NAME").pipe(
-        Config.withDefault("radix-web3.js")
+      const applicationName = yield* Config.string('APPLICATION_NAME').pipe(
+        Config.withDefault('radix-web3.js'),
       );
-      const gatewayApiKey = yield* Config.string("GATEWAY_BASIC_AUTH").pipe(
-        Config.withDefault(undefined)
+      const gatewayApiKey = yield* Config.string('GATEWAY_BASIC_AUTH').pipe(
+        Config.withDefault(undefined),
       );
 
       const gatewayRetryAttempts = yield* Config.number(
-        "GATEWAY_RETRY_ATTEMPTS"
+        'GATEWAY_RETRY_ATTEMPTS',
       ).pipe(Config.withDefault(5));
 
       /**
@@ -30,7 +31,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
        * - Supports retrying POST requests (unlike make-fetch-happen)
        */
 
-      const fetchImpl = fetchRetry(globalThis.fetch, {
+      const fetchImpl = fetchRetry(fetch, {
         retries: gatewayRetryAttempts,
         retryDelay: (attempt, error, response) => {
           const maxDelay = 30_000; // 30 seconds max
@@ -49,7 +50,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
 
           return false;
         },
-      }) as unknown as (typeof globalThis)["fetch"];
+      });
 
       const client = GatewayApiClient.initialize({
         networkId,
@@ -58,12 +59,13 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
         headers: gatewayApiKey
           ? { Authorization: `Basic ${gatewayApiKey}` }
           : undefined,
-        fetchApi: fetchImpl,
+        // biome-ignore lint/suspicious/noExplicitAny: Fetch-retry types are incompatible with expected fetch API
+        fetchApi: fetchImpl as any,
       });
 
       return client;
     }),
-  }
+  },
 ) {}
 
 export const GatewayApiClientLive = GatewayApiClientService.Default;

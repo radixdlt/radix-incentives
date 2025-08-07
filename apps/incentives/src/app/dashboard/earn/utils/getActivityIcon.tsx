@@ -1,14 +1,14 @@
 import {
-  Coins,
   ArrowLeftRight,
-  TrendingUp,
   Banknote,
-  Wallet,
-  Target,
-  Zap,
+  Coins,
   DollarSign,
-  Users,
   Network,
+  Target,
+  TrendingUp,
+  Users,
+  Wallet,
+  Zap,
 } from 'lucide-react';
 
 const iconMap = {

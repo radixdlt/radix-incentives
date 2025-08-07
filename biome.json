@@ -7,13 +7,19 @@
   },
   "files": {
     "ignoreUnknown": false,
+    "include": ["**/apps/**", "**/packages/**", "**/tools/**"],
     "ignore": [
       "node_modules",
       "dist",
       "build",
       "coverage",
       "*.spec.ts",
-      "./packages/sbor-ez-mode/**/*"
+      "./packages/sbor-ez-mode/**/*",
+      ".next",
+      "**/.next/**",
+      "**/output/**",
+      "**/.turbo/**",
+      "**/packages/db/src/incentives/seed/data/*"
     ]
   },
   "formatter": {

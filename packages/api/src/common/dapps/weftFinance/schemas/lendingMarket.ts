@@ -1,24 +1,24 @@
-import s from "sbor-ez-mode";
+import s from 'sbor-ez-mode';
 
 export const ServiceManager = s.struct({
   entries: s.internalAddress(),
 });
 
 export const UpdateSetInput_105 = s.enum([
-  { variant: "Add", schema: s.tuple([s.number()]) },
-  { variant: "Remove", schema: s.tuple([s.number()]) },
+  { variant: 'Add', schema: s.tuple([s.number()]) },
+  { variant: 'Remove', schema: s.tuple([s.number()]) },
 ]);
 
 export const UpdateCollateralResourceConfigInput = s.enum([
-  { variant: "CollateralConfigId", schema: s.tuple([s.number()]) },
-  { variant: "IsolationGroupId", schema: s.tuple([s.number()]) },
-  { variant: "EfficiencyGroupIds", schema: s.tuple([s.number()]) },
+  { variant: 'CollateralConfigId', schema: s.tuple([s.number()]) },
+  { variant: 'IsolationGroupId', schema: s.tuple([s.number()]) },
+  { variant: 'EfficiencyGroupIds', schema: s.tuple([s.number()]) },
 ]);
 
 export const UpdateLoanResourceConfigInput = s.enum([
-  { variant: "LoanConfigId", schema: s.tuple([s.number()]) },
-  { variant: "ExcludedIsolationGroupIds", schema: s.tuple([s.number()]) },
-  { variant: "EfficiencyGroupId", schema: s.tuple([s.number()]) },
+  { variant: 'LoanConfigId', schema: s.tuple([s.number()]) },
+  { variant: 'ExcludedIsolationGroupIds', schema: s.tuple([s.number()]) },
+  { variant: 'EfficiencyGroupId', schema: s.tuple([s.number()]) },
 ]);
 
 export const CollateralResourceConfig = s.struct({
@@ -34,10 +34,10 @@ export const LoanResourceConfig = s.struct({
 });
 
 export const PriceFeedComponentSignature = s.enum([
-  { variant: "PriceAndTimestamp", schema: s.tuple([]) },
-  { variant: "TimestampAndPrice", schema: s.tuple([]) },
-  { variant: "OptionPriceAndTimestamp", schema: s.tuple([]) },
-  { variant: "OptionTimestampAndPrice", schema: s.tuple([]) },
+  { variant: 'PriceAndTimestamp', schema: s.tuple([]) },
+  { variant: 'TimestampAndPrice', schema: s.tuple([]) },
+  { variant: 'OptionPriceAndTimestamp', schema: s.tuple([]) },
+  { variant: 'OptionTimestampAndPrice', schema: s.tuple([]) },
 ]);
 
 export const LendingPoolProxy = s.struct({
@@ -48,12 +48,12 @@ export const LendingPoolProxy = s.struct({
 });
 
 export const UpdateIsolationGroupInput = s.enum([
-  { variant: "Description", schema: s.tuple([s.string()]) },
+  { variant: 'Description', schema: s.tuple([s.string()]) },
 ]);
 
 export const UpdateEfficiencyGroupInput = s.enum([
-  { variant: "Description", schema: s.tuple([s.string()]) },
-  { variant: "CollateralConfigId", schema: s.tuple([s.string()]) },
+  { variant: 'Description', schema: s.tuple([s.string()]) },
+  { variant: 'CollateralConfigId', schema: s.tuple([s.string()]) },
 ]);
 
 export const EfficiencyGroup = s.struct({
@@ -72,24 +72,24 @@ export const PriceFeedComponentInfo = s.struct({
 });
 
 export const StatusChangeType = s.enum([
-  { variant: "AdminSetAndLock", schema: s.tuple([]) },
-  { variant: "AdminSetAndUnlock", schema: s.tuple([]) },
-  { variant: "ModeratorSet", schema: s.tuple([]) },
+  { variant: 'AdminSetAndLock', schema: s.tuple([]) },
+  { variant: 'AdminSetAndUnlock', schema: s.tuple([]) },
+  { variant: 'ModeratorSet', schema: s.tuple([]) },
 ]);
 
 export const CollateralService = s.enum([
-  { variant: "Add", schema: s.tuple([]) },
-  { variant: "Remove", schema: s.tuple([]) },
-  { variant: "FlashOperation", schema: s.tuple([]) },
-  { variant: "RemoveForLiquidation", schema: s.tuple([]) },
+  { variant: 'Add', schema: s.tuple([]) },
+  { variant: 'Remove', schema: s.tuple([]) },
+  { variant: 'FlashOperation', schema: s.tuple([]) },
+  { variant: 'RemoveForLiquidation', schema: s.tuple([]) },
 ]);
 
 export const LoanService = s.enum([
-  { variant: "Borrow", schema: s.tuple([]) },
-  { variant: "Repay", schema: s.tuple([]) },
-  { variant: "RepayForRefinance", schema: s.tuple([]) },
-  { variant: "RepayForLiquidation", schema: s.tuple([]) },
-  { variant: "RepayForNFTLiquidation", schema: s.tuple([]) },
+  { variant: 'Borrow', schema: s.tuple([]) },
+  { variant: 'Repay', schema: s.tuple([]) },
+  { variant: 'RepayForRefinance', schema: s.tuple([]) },
+  { variant: 'RepayForLiquidation', schema: s.tuple([]) },
+  { variant: 'RepayForNFTLiquidation', schema: s.tuple([]) },
 ]);
 
 export const OperatingStatus = s.struct({
@@ -102,9 +102,9 @@ export const ServiceStatus = s.tuple([
 ]);
 
 export const MarketService = s.enum([
-  { variant: "CreateCDP", schema: s.tuple([]) },
-  { variant: "UpdateCDP", schema: s.tuple([]) },
-  { variant: "BurnCDP", schema: s.tuple([]) },
+  { variant: 'CreateCDP', schema: s.tuple([]) },
+  { variant: 'UpdateCDP', schema: s.tuple([]) },
+  { variant: 'BurnCDP', schema: s.tuple([]) },
 ]);
 
 export const ConfigurationManager_138 = s.struct({
@@ -128,8 +128,8 @@ export const ConfigurationManager_136 = s.struct({
 });
 
 export const PriceCacheMode = s.enum([
-  { variant: "Hash", schema: s.tuple([]) },
-  { variant: "Debounce", schema: s.tuple([]) },
+  { variant: 'Hash', schema: s.tuple([]) },
+  { variant: 'Debounce', schema: s.tuple([]) },
 ]);
 
 export const CollateralConfigVersionExpired = s.tuple([s.number()]);
@@ -142,10 +142,10 @@ export const MarketProtocolFeeConfig = s.struct({
 });
 
 export const UpdateCollateralConfigInput = s.enum([
-  { variant: "Description", schema: s.tuple([s.string()]) },
-  { variant: "LoanToValueRatio", schema: s.tuple([s.string()]) },
-  { variant: "LiquidationThresholdSpread", schema: s.tuple([s.string()]) },
-  { variant: "LiquidationBonusRate", schema: s.tuple([s.string()]) },
+  { variant: 'Description', schema: s.tuple([s.string()]) },
+  { variant: 'LoanToValueRatio', schema: s.tuple([s.string()]) },
+  { variant: 'LiquidationThresholdSpread', schema: s.tuple([s.string()]) },
+  { variant: 'LiquidationBonusRate', schema: s.tuple([s.string()]) },
 ]);
 
 export const ConfigurationManager_134 = s.struct({
@@ -159,9 +159,9 @@ export const ConfigurationManager_134 = s.struct({
 });
 
 export const UpdateLoanConfigInput = s.enum([
-  { variant: "Description", schema: s.tuple([s.string()]) },
-  { variant: "LoanValueFactor", schema: s.tuple([s.string()]) },
-  { variant: "LoanCloseFactor", schema: s.tuple([s.string()]) },
+  { variant: 'Description', schema: s.tuple([s.string()]) },
+  { variant: 'LoanValueFactor', schema: s.tuple([s.string()]) },
+  { variant: 'LoanCloseFactor', schema: s.tuple([s.string()]) },
 ]);
 
 export const ConfigurationManager_132 = s.struct({
@@ -184,15 +184,15 @@ export const MarketConfig = s.struct({
 });
 
 export const UpdateMarketConfigInput = s.enum([
-  { variant: "CdpMaxPositions", schema: s.tuple([s.number()]) },
+  { variant: 'CdpMaxPositions', schema: s.tuple([s.number()]) },
   {
-    variant: "CdpWithNftCollateralMaxPositions",
+    variant: 'CdpWithNftCollateralMaxPositions',
     schema: s.tuple([s.number()]),
   },
-  { variant: "PriceExpirationPeriod", schema: s.tuple([s.number()]) },
-  { variant: "PriceCacheMode", schema: s.tuple([s.number()]) },
-  { variant: "DefaultEfficiencyConfigId", schema: s.tuple([s.number()]) },
-  { variant: "MaxClaimNftValue", schema: s.tuple([s.number()]) },
+  { variant: 'PriceExpirationPeriod', schema: s.tuple([s.number()]) },
+  { variant: 'PriceCacheMode', schema: s.tuple([s.number()]) },
+  { variant: 'DefaultEfficiencyConfigId', schema: s.tuple([s.number()]) },
+  { variant: 'MaxClaimNftValue', schema: s.tuple([s.number()]) },
 ]);
 
 export const CollateralConfig = s.struct({
@@ -209,8 +209,8 @@ export const LoanConfig = s.struct({
 });
 
 export const UpdatePriceFeedInput = s.enum([
-  { variant: "Description", schema: s.tuple([s.string()]) },
-  { variant: "PriceFeedType", schema: s.tuple([s.string()]) },
+  { variant: 'Description', schema: s.tuple([s.string()]) },
+  { variant: 'PriceFeedType', schema: s.tuple([s.string()]) },
 ]);
 
 export const ConfigurationManager_130 = s.struct({
@@ -224,8 +224,8 @@ export const ConfigurationManager_130 = s.struct({
 });
 
 export const PriceFeedType = s.enum([
-  { variant: "FixedPrice", schema: s.tuple([s.decimal()]) },
-  { variant: "PriceFeedComponent", schema: s.tuple([s.decimal()]) },
+  { variant: 'FixedPrice', schema: s.tuple([s.decimal()]) },
+  { variant: 'PriceFeedComponent', schema: s.tuple([s.decimal()]) },
 ]);
 
 export const PriceFeed = s.struct({
@@ -234,9 +234,9 @@ export const PriceFeed = s.struct({
 });
 
 export const UpdateMarketProtocolFeeConfigInput = s.enum([
-  { variant: "ProtocolCdpCreationFee", schema: s.tuple([s.decimal()]) },
+  { variant: 'ProtocolCdpCreationFee', schema: s.tuple([s.decimal()]) },
   {
-    variant: "ProtocolLiquidationBonusFeeRate",
+    variant: 'ProtocolLiquidationBonusFeeRate',
     schema: s.tuple([s.decimal()]),
   },
 ]);
@@ -274,72 +274,72 @@ export const LendingMarket = s.struct({
 });
 
 export const UpdateSetInput_113 = s.enum([
-  { variant: "Add", schema: s.tuple([s.address()]) },
-  { variant: "Remove", schema: s.tuple([s.address()]) },
+  { variant: 'Add', schema: s.tuple([s.address()]) },
+  { variant: 'Remove', schema: s.tuple([s.address()]) },
 ]);
 
 export const UpdateNFTCollateralConfigInput = s.enum([
-  { variant: "ValuatorComponent", schema: s.tuple([s.address()]) },
-  { variant: "ValuatorMethod", schema: s.tuple([s.address()]) },
-  { variant: "UnderlyingResources", schema: s.tuple([s.address()]) },
-  { variant: "MaxCollateralValue", schema: s.tuple([s.address()]) },
+  { variant: 'ValuatorComponent', schema: s.tuple([s.address()]) },
+  { variant: 'ValuatorMethod', schema: s.tuple([s.address()]) },
+  { variant: 'UnderlyingResources', schema: s.tuple([s.address()]) },
+  { variant: 'MaxCollateralValue', schema: s.tuple([s.address()]) },
 ]);
 
 export const MarketUpdateConfigItemInput = s.enum([
   {
-    variant: "UpdateMarketConfig",
+    variant: 'UpdateMarketConfig',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdatePriceFeed",
+    variant: 'UpdatePriceFeed',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateLoanConfig",
+    variant: 'UpdateLoanConfig',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateDefaultLoanConfigExpiryPeriod",
+    variant: 'UpdateDefaultLoanConfigExpiryPeriod',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "MarkLoanConfigExpired",
+    variant: 'MarkLoanConfigExpired',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateCollateralConfig",
+    variant: 'UpdateCollateralConfig',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateDefaultCollateralConfigExpiryPeriod",
+    variant: 'UpdateDefaultCollateralConfigExpiryPeriod',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "MarkCollateralConfigExpired",
+    variant: 'MarkCollateralConfigExpired',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateEfficiencyGroup",
+    variant: 'UpdateEfficiencyGroup',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateIsolationGroup",
+    variant: 'UpdateIsolationGroup',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdatePriceFeedId",
+    variant: 'UpdatePriceFeedId',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateLoanResourceConfig",
+    variant: 'UpdateLoanResourceConfig',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateCollateralResourceConfig",
+    variant: 'UpdateCollateralResourceConfig',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
   {
-    variant: "UpdateNFTCollateralConfig",
+    variant: 'UpdateNFTCollateralConfig',
     schema: s.tuple([s.array(UpdateMarketConfigInput)]),
   },
 ]);
@@ -371,43 +371,43 @@ export const RegisterLoanResourceInput = s.struct({
 });
 
 export const MarketCreateConfigItemInput = s.enum([
-  { variant: "PriceFeed", schema: s.tuple([PriceFeed]) },
-  { variant: "LoanConfig", schema: s.tuple([PriceFeed]) },
-  { variant: "CollateralConfig", schema: s.tuple([PriceFeed]) },
-  { variant: "IsolationGroupe", schema: s.tuple([PriceFeed]) },
-  { variant: "EfficiencyGroup", schema: s.tuple([PriceFeed]) },
-  { variant: "RegisterLoanResource", schema: s.tuple([PriceFeed]) },
-  { variant: "RegisterCollateralResource", schema: s.tuple([PriceFeed]) },
-  { variant: "RegisterNFTCollateralResource", schema: s.tuple([PriceFeed]) },
+  { variant: 'PriceFeed', schema: s.tuple([PriceFeed]) },
+  { variant: 'LoanConfig', schema: s.tuple([PriceFeed]) },
+  { variant: 'CollateralConfig', schema: s.tuple([PriceFeed]) },
+  { variant: 'IsolationGroupe', schema: s.tuple([PriceFeed]) },
+  { variant: 'EfficiencyGroup', schema: s.tuple([PriceFeed]) },
+  { variant: 'RegisterLoanResource', schema: s.tuple([PriceFeed]) },
+  { variant: 'RegisterCollateralResource', schema: s.tuple([PriceFeed]) },
+  { variant: 'RegisterNFTCollateralResource', schema: s.tuple([PriceFeed]) },
 ]);
 
 export const ConfigItemCreationEvent = s.tuple([MarketCreateConfigItemInput]);
 
 export const CollateralServiceKey = s.enum([
-  { variant: "GlobalResource", schema: s.tuple([]) },
-  { variant: "GlobalNFT", schema: s.tuple([]) },
-  { variant: "GlobalLSU", schema: s.tuple([]) },
-  { variant: "GlobalClaimNFT", schema: s.tuple([]) },
-  { variant: "Resource", schema: s.tuple([]) },
-  { variant: "NFT", schema: s.tuple([]) },
+  { variant: 'GlobalResource', schema: s.tuple([]) },
+  { variant: 'GlobalNFT', schema: s.tuple([]) },
+  { variant: 'GlobalLSU', schema: s.tuple([]) },
+  { variant: 'GlobalClaimNFT', schema: s.tuple([]) },
+  { variant: 'Resource', schema: s.tuple([]) },
+  { variant: 'NFT', schema: s.tuple([]) },
 ]);
 
 export const LoanServiceKey = s.enum([
-  { variant: "Global", schema: s.tuple([]) },
-  { variant: "Resource", schema: s.tuple([]) },
+  { variant: 'Global', schema: s.tuple([]) },
+  { variant: 'Resource', schema: s.tuple([]) },
 ]);
 
 export const MarketUpdateServiceStatusInput = s.enum([
   {
-    variant: "MarketServiceStatus",
+    variant: 'MarketServiceStatus',
     schema: s.tuple([s.map({ key: MarketService, value: s.number() })]),
   },
   {
-    variant: "LoanServiceStatus",
+    variant: 'LoanServiceStatus',
     schema: s.tuple([s.map({ key: MarketService, value: s.number() })]),
   },
   {
-    variant: "CollateralServiceStatus",
+    variant: 'CollateralServiceStatus',
     schema: s.tuple([s.map({ key: MarketService, value: s.number() })]),
   },
 ]);

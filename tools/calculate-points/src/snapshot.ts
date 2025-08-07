@@ -1,81 +1,81 @@
-import { Effect, Layer, Logger } from "effect";
-import { createDbClientLive, SnapshotService } from "api/incentives";
-import { db } from "db/incentives";
-import { NodeSdk } from "@effect/opentelemetry";
-import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
-import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
+import { NodeSdk } from '@effect/opentelemetry';
+import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
+import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
+import { SnapshotService, createDbClientLive } from 'api/incentives';
+import { db } from 'db/incentives';
+import { Effect, Layer, Logger } from 'effect';
 
 export const NodeSdkLive = NodeSdk.layer(() => ({
-  resource: { serviceName: "snapshot" },
+  resource: { serviceName: 'snapshot' },
   spanProcessor: new BatchSpanProcessor(
     new OTLPTraceExporter({
-      url: "http://127.0.0.1:4318/v1/traces",
-    })
+      url: 'http://127.0.0.1:4318/v1/traces',
+    }),
   ),
 }));
 
+import { EntityFungiblesPageService } from '../../../packages/api/src/common/gateway/entityFungiblesPage';
+import { EntityNonFungibleDataService } from '../../../packages/api/src/common/gateway/entityNonFungiblesData';
+import { EntityNonFungiblesPageService } from '../../../packages/api/src/common/gateway/entityNonFungiblesPage';
 // Gateway services
-import { GatewayApiClientLive } from "../../../packages/api/src/common/gateway/gatewayApiClient";
-import { GetEntityDetailsService } from "../../../packages/api/src/common/gateway/getEntityDetails";
-import { GetLedgerStateService } from "../../../packages/api/src/common/gateway/getLedgerState";
-import { GetFungibleBalanceService } from "../../../packages/api/src/common/gateway/getFungibleBalance";
-import { EntityFungiblesPageService } from "../../../packages/api/src/common/gateway/entityFungiblesPage";
-import { EntityNonFungiblesPageService } from "../../../packages/api/src/common/gateway/entityNonFungiblesPage";
-import { EntityNonFungibleDataService } from "../../../packages/api/src/common/gateway/entityNonFungiblesData";
-import { GetNonFungibleBalanceService } from "../../../packages/api/src/common/gateway/getNonFungibleBalance";
-import { GetAllValidatorsService } from "../../../packages/api/src/common/gateway/getAllValidators";
-import { GetComponentStateService } from "../../../packages/api/src/common/gateway/getComponentState";
-import { KeyValueStoreDataService } from "../../../packages/api/src/common/gateway/keyValueStoreData";
-import { KeyValueStoreKeysService } from "../../../packages/api/src/common/gateway/keyValueStoreKeys";
-import { GetKeyValueStoreService } from "../../../packages/api/src/common/gateway/getKeyValueStore";
-import { GetNftResourceManagersService } from "../../../packages/api/src/common/gateway/getNftResourceManagers";
-import { GetNonFungibleIdsService } from "../../../packages/api/src/common/gateway/getNonFungibleIds";
+import { GatewayApiClientLive } from '../../../packages/api/src/common/gateway/gatewayApiClient';
+import { GetAllValidatorsService } from '../../../packages/api/src/common/gateway/getAllValidators';
+import { GetComponentStateService } from '../../../packages/api/src/common/gateway/getComponentState';
+import { GetEntityDetailsService } from '../../../packages/api/src/common/gateway/getEntityDetails';
+import { GetFungibleBalanceService } from '../../../packages/api/src/common/gateway/getFungibleBalance';
+import { GetKeyValueStoreService } from '../../../packages/api/src/common/gateway/getKeyValueStore';
+import { GetLedgerStateService } from '../../../packages/api/src/common/gateway/getLedgerState';
+import { GetNftResourceManagersService } from '../../../packages/api/src/common/gateway/getNftResourceManagers';
+import { GetNonFungibleBalanceService } from '../../../packages/api/src/common/gateway/getNonFungibleBalance';
+import { GetNonFungibleIdsService } from '../../../packages/api/src/common/gateway/getNonFungibleIds';
+import { KeyValueStoreDataService } from '../../../packages/api/src/common/gateway/keyValueStoreData';
+import { KeyValueStoreKeysService } from '../../../packages/api/src/common/gateway/keyValueStoreKeys';
 
+import { GetLsulpLive } from '../../../packages/api/src/common/dapps/caviarnine/getLsulp';
+import { GetLsulpValueLive } from '../../../packages/api/src/common/dapps/caviarnine/getLsulpValue';
+import { ConvertLsuToXrdLive } from '../../../packages/api/src/common/staking/convertLsuToXrd';
 // Staking services
-import { GetUserStakingPositionsLive } from "../../../packages/api/src/common/staking/getUserStakingPositions";
-import { GetLsulpLive } from "../../../packages/api/src/common/dapps/caviarnine/getLsulp";
-import { GetLsulpValueLive } from "../../../packages/api/src/common/dapps/caviarnine/getLsulpValue";
-import { ConvertLsuToXrdLive } from "../../../packages/api/src/common/staking/convertLsuToXrd";
-import { UnstakingReceiptProcessorLive } from "../../../packages/api/src/common/staking/unstakingReceiptProcessor";
+import { GetUserStakingPositionsLive } from '../../../packages/api/src/common/staking/getUserStakingPositions';
+import { UnstakingReceiptProcessorLive } from '../../../packages/api/src/common/staking/unstakingReceiptProcessor';
 
+import { GetCaviarnineResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
+import { GetHyperstakePositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getHyperstakePositions';
+import { GetQuantaSwapBinMapLive } from '../../../packages/api/src/common/dapps/caviarnine/getQuantaSwapBinMap';
+import { GetShapeLiquidityAssetsLive } from '../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityAssets';
+import { GetShapeLiquidityClaimsLive } from '../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityClaims';
+import { GetDefiPlazaPositionsLive } from '../../../packages/api/src/common/dapps/defiplaza/getDefiPlazaPositions';
+import { GetOciswapLiquidityAssetsLive } from '../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityAssets';
+import { GetOciswapLiquidityClaimsService } from '../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityClaims';
+import { GetOciswapResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/ociswap/getOciswapResourcePoolPositions';
+import { GetRootFinancePositionsService } from '../../../packages/api/src/common/dapps/rootFinance/getRootFinancePositions';
+import { GetSurgeLiquidityPositionsLive } from '../../../packages/api/src/common/dapps/surge/getSurgeLiquidityPositions';
 // DApp services
-import { GetWeftFinancePositionsService } from "../../../packages/api/src/common/dapps/weftFinance/getWeftFinancePositions";
-import { GetRootFinancePositionsService } from "../../../packages/api/src/common/dapps/rootFinance/getRootFinancePositions";
-import { GetQuantaSwapBinMapLive } from "../../../packages/api/src/common/dapps/caviarnine/getQuantaSwapBinMap";
-import { GetShapeLiquidityClaimsLive } from "../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityClaims";
-import { GetShapeLiquidityAssetsLive } from "../../../packages/api/src/common/dapps/caviarnine/getShapeLiquidityAssets";
-import { GetOciswapLiquidityAssetsLive } from "../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityAssets";
-import { GetOciswapLiquidityClaimsService } from "../../../packages/api/src/common/dapps/ociswap/getOciswapLiquidityClaims";
-import { GetOciswapResourcePoolPositionsLive } from "../../../packages/api/src/common/dapps/ociswap/getOciswapResourcePoolPositions";
-import { GetCaviarnineResourcePoolPositionsLive } from "../../../packages/api/src/common/dapps/caviarnine/getCaviarnineResourcePoolPositions";
-import { GetDefiPlazaPositionsLive } from "../../../packages/api/src/common/dapps/defiplaza/getDefiPlazaPositions";
-import { GetHyperstakePositionsLive } from "../../../packages/api/src/common/dapps/caviarnine/getHyperstakePositions";
-import { GetSurgeLiquidityPositionsLive } from "../../../packages/api/src/common/dapps/surge/getSurgeLiquidityPositions";
+import { GetWeftFinancePositionsService } from '../../../packages/api/src/common/dapps/weftFinance/getWeftFinancePositions';
 
 // Resource pool services
-import { GetResourcePoolUnitsLive } from "../../../packages/api/src/common/resource-pool/getResourcePoolUnits";
+import { GetResourcePoolUnitsLive } from '../../../packages/api/src/common/resource-pool/getResourcePoolUnits';
 
+import { AggregateAccountBalanceLive } from '../../../packages/api/src/incentives/account-balance/aggregateAccountBalance';
+import { AggregateCaviarninePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateCaviarninePositions';
+import { AggregateDefiPlazaPositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateDefiPlazaPositions';
+import { AggregateOciswapPositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateOciswapPositions';
+import { AggregateRootFinancePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateRootFinancePositions';
+import { AggregateSurgePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateSurgePositions';
+import { AggregateWeftFinancePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateWeftFinancePositions';
+import { XrdBalanceLive } from '../../../packages/api/src/incentives/account-balance/aggregateXrdBalance';
+import { GetAccountBalancesAtStateVersionLive } from '../../../packages/api/src/incentives/account-balance/getAccountBalancesAtStateVersion';
+import { UpsertAccountBalancesLive } from '../../../packages/api/src/incentives/account-balance/upsertAccountBalance';
 // Account and balance services
-import { GetAccountAddressesLive } from "../../../packages/api/src/incentives/account/getAccounts";
-import { GetAccountBalancesAtStateVersionLive } from "../../../packages/api/src/incentives/account-balance/getAccountBalancesAtStateVersion";
-import { UpsertAccountBalancesLive } from "../../../packages/api/src/incentives/account-balance/upsertAccountBalance";
-import { AggregateAccountBalanceLive } from "../../../packages/api/src/incentives/account-balance/aggregateAccountBalance";
-import { AggregateCaviarninePositionsLive } from "../../../packages/api/src/incentives/account-balance/aggregateCaviarninePositions";
-import { AggregateOciswapPositionsLive } from "../../../packages/api/src/incentives/account-balance/aggregateOciswapPositions";
-import { AggregateWeftFinancePositionsLive } from "../../../packages/api/src/incentives/account-balance/aggregateWeftFinancePositions";
-import { AggregateRootFinancePositionsLive } from "../../../packages/api/src/incentives/account-balance/aggregateRootFinancePositions";
-import { AggregateDefiPlazaPositionsLive } from "../../../packages/api/src/incentives/account-balance/aggregateDefiPlazaPositions";
-import { AggregateSurgePositionsLive } from "../../../packages/api/src/incentives/account-balance/aggregateSurgePositions";
-import { XrdBalanceLive } from "../../../packages/api/src/incentives/account-balance/aggregateXrdBalance";
+import { GetAccountAddressesLive } from '../../../packages/api/src/incentives/account/getAccounts';
 
 // Snapshot services
-import { CreateSnapshotLive } from "../../../packages/api/src/incentives/snapshot/createSnapshot";
-import { UpdateSnapshotLive } from "../../../packages/api/src/incentives/snapshot/updateSnapshot";
+import { CreateSnapshotLive } from '../../../packages/api/src/incentives/snapshot/createSnapshot';
+import { UpdateSnapshotLive } from '../../../packages/api/src/incentives/snapshot/updateSnapshot';
 
+import { AddressValidationServiceLive } from '../../../packages/api/src/common/address-validation/addressValidation';
+import { AggregatePoolPositionsService } from '../../../packages/api/src/incentives/account-balance/aggregatePoolPositions';
 // USD and validation services
-import { GetUsdValueLive } from "../../../packages/api/src/incentives/token-price/getUsdValue";
-import { AddressValidationServiceLive } from "../../../packages/api/src/common/address-validation/addressValidation";
-import { AggregatePoolPositionsService } from "../../../packages/api/src/incentives/account-balance/aggregatePoolPositions";
+import { GetUsdValueLive } from '../../../packages/api/src/incentives/token-price/getUsdValue';
 
 const runnable = Effect.gen(function* () {
   const dbClientLive = createDbClientLive(db);
@@ -83,94 +83,94 @@ const runnable = Effect.gen(function* () {
   const gatewayApiClientLive = GatewayApiClientLive;
 
   const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const getLedgerStateLive = GetLedgerStateService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const getAllValidatorsServiceLive = GetAllValidatorsService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const entityFungiblesPageServiceLive =
     EntityFungiblesPageService.Default.pipe(
-      Layer.provide(gatewayApiClientLive)
+      Layer.provide(gatewayApiClientLive),
     );
 
   const stateEntityDetailsLive = GetFungibleBalanceService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
-    Layer.provide(entityFungiblesPageServiceLive)
+    Layer.provide(entityFungiblesPageServiceLive),
   );
 
   const entityNonFungiblesPageServiceLive =
     EntityNonFungiblesPageService.Default.pipe(
-      Layer.provide(gatewayApiClientLive)
+      Layer.provide(gatewayApiClientLive),
     );
 
   const entityNonFungibleDataServiceLive =
     EntityNonFungibleDataService.Default.pipe(
-      Layer.provide(gatewayApiClientLive)
+      Layer.provide(gatewayApiClientLive),
     );
 
   const getNonFungibleIdsLive = GetNonFungibleIdsService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const getNftResourceManagersLive = GetNftResourceManagersService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(entityNonFungiblesPageServiceLive),
-    Layer.provide(getNonFungibleIdsLive)
+    Layer.provide(getNonFungibleIdsLive),
   );
 
   const getNonFungibleBalanceLive = GetNonFungibleBalanceService.Default.pipe(
     Layer.provide(entityNonFungibleDataServiceLive),
-    Layer.provide(getNftResourceManagersLive)
+    Layer.provide(getNftResourceManagersLive),
   );
 
   const getUserStakingPositionsLive = GetUserStakingPositionsLive.pipe(
     Layer.provide(getAllValidatorsServiceLive),
     Layer.provide(entityFungiblesPageServiceLive),
-    Layer.provide(getNonFungibleBalanceLive)
+    Layer.provide(getNonFungibleBalanceLive),
   );
 
   const getLsulpLive = GetLsulpLive.pipe(
-    Layer.provide(entityFungiblesPageServiceLive)
+    Layer.provide(entityFungiblesPageServiceLive),
   );
 
   const convertLsuToXrdLive = ConvertLsuToXrdLive.pipe(
-    Layer.provide(getEntityDetailsServiceLive)
+    Layer.provide(getEntityDetailsServiceLive),
   );
 
   const getLsulpValueLive = GetLsulpValueLive.pipe(
-    Layer.provide(entityFungiblesPageServiceLive)
+    Layer.provide(entityFungiblesPageServiceLive),
   );
 
   const getComponentStateServiceLive = GetComponentStateService.Default.pipe(
-    Layer.provide(getEntityDetailsServiceLive)
+    Layer.provide(getEntityDetailsServiceLive),
   );
 
   const keyValueStoreDataServiceLive = KeyValueStoreDataService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const keyValueStoreKeysServiceLive = KeyValueStoreKeysService.Default.pipe(
-    Layer.provide(gatewayApiClientLive)
+    Layer.provide(gatewayApiClientLive),
   );
 
   const getKeyValueStoreServiceLive = GetKeyValueStoreService.Default.pipe(
     Layer.provide(keyValueStoreDataServiceLive),
-    Layer.provide(keyValueStoreKeysServiceLive)
+    Layer.provide(keyValueStoreKeysServiceLive),
   );
 
   const getFungibleBalanceLive = GetFungibleBalanceService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
-    Layer.provide(entityFungiblesPageServiceLive)
+    Layer.provide(entityFungiblesPageServiceLive),
   );
 
   const unstakingReceiptProcessorLive = UnstakingReceiptProcessorLive.pipe(
-    Layer.provide(entityNonFungibleDataServiceLive)
+    Layer.provide(entityNonFungibleDataServiceLive),
   );
 
   const getWeftFinancePositionsLive =
@@ -179,108 +179,108 @@ const runnable = Effect.gen(function* () {
       Layer.provide(getNonFungibleBalanceLive),
       Layer.provide(getKeyValueStoreServiceLive),
       Layer.provide(getComponentStateServiceLive),
-      Layer.provide(unstakingReceiptProcessorLive)
+      Layer.provide(unstakingReceiptProcessorLive),
     );
 
   const getRootFinancePositionLive =
     GetRootFinancePositionsService.Default.pipe(
       Layer.provide(getNonFungibleBalanceLive),
-      Layer.provide(getKeyValueStoreServiceLive)
+      Layer.provide(getKeyValueStoreServiceLive),
     );
 
   const getQuantaSwapBinMapLive = GetQuantaSwapBinMapLive.pipe(
-    Layer.provide(getKeyValueStoreServiceLive)
+    Layer.provide(getKeyValueStoreServiceLive),
   );
 
   const getShapeLiquidityClaimsLive = GetShapeLiquidityClaimsLive.pipe(
-    Layer.provide(entityNonFungibleDataServiceLive)
+    Layer.provide(entityNonFungibleDataServiceLive),
   );
 
   const getShapeLiquidityAssetsLive = GetShapeLiquidityAssetsLive.pipe(
     Layer.provide(getComponentStateServiceLive),
     Layer.provide(getQuantaSwapBinMapLive),
     Layer.provide(getShapeLiquidityClaimsLive),
-    Layer.provide(getNonFungibleBalanceLive)
+    Layer.provide(getNonFungibleBalanceLive),
   );
 
   const getOciswapLiquidityClaimsLive =
     GetOciswapLiquidityClaimsService.Default.pipe(
-      Layer.provide(entityNonFungibleDataServiceLive)
+      Layer.provide(entityNonFungibleDataServiceLive),
     );
 
   const getOciswapLiquidityAssetsLive = GetOciswapLiquidityAssetsLive.pipe(
     Layer.provide(getComponentStateServiceLive),
     Layer.provide(getOciswapLiquidityClaimsLive),
-    Layer.provide(getNonFungibleBalanceLive)
+    Layer.provide(getNonFungibleBalanceLive),
   );
 
   const getResourcePoolUnitsLive = GetResourcePoolUnitsLive.pipe(
     Layer.provide(getFungibleBalanceLive),
-    Layer.provide(getEntityDetailsServiceLive)
+    Layer.provide(getEntityDetailsServiceLive),
   );
 
   const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
     Layer.provide(getFungibleBalanceLive),
-    Layer.provide(getResourcePoolUnitsLive)
+    Layer.provide(getResourcePoolUnitsLive),
   );
 
   const getHyperstakePositionsLive = GetHyperstakePositionsLive.pipe(
     Layer.provide(getFungibleBalanceLive),
-    Layer.provide(getResourcePoolUnitsLive)
+    Layer.provide(getResourcePoolUnitsLive),
   );
 
   const getOciswapResourcePoolPositionsLive =
     GetOciswapResourcePoolPositionsLive.pipe(
       Layer.provide(getFungibleBalanceLive),
-      Layer.provide(getResourcePoolUnitsLive)
+      Layer.provide(getResourcePoolUnitsLive),
     );
 
   const getCaviarnineResourcePoolPositionsLive =
     GetCaviarnineResourcePoolPositionsLive.pipe(
       Layer.provide(getFungibleBalanceLive),
-      Layer.provide(getResourcePoolUnitsLive)
+      Layer.provide(getResourcePoolUnitsLive),
     );
 
   const getSurgeLiquidityPositionsLive = GetSurgeLiquidityPositionsLive.pipe(
     Layer.provide(getFungibleBalanceLive),
-    Layer.provide(getComponentStateServiceLive)
+    Layer.provide(getComponentStateServiceLive),
   );
 
   const getAccountAddressesLive = GetAccountAddressesLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const upsertAccountBalancesLive = UpsertAccountBalancesLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const createSnapshotLive = CreateSnapshotLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
   const updateSnapshotLive = UpdateSnapshotLive.pipe(
-    Layer.provide(dbClientLive)
+    Layer.provide(dbClientLive),
   );
 
   const addressValidationServiceLive = AddressValidationServiceLive;
 
   const getUsdValueLive = GetUsdValueLive.pipe(
-    Layer.provide(addressValidationServiceLive)
+    Layer.provide(addressValidationServiceLive),
   );
 
   const xrdBalanceLive = XrdBalanceLive.pipe(
     Layer.provide(getUsdValueLive),
-    Layer.provide(addressValidationServiceLive)
+    Layer.provide(addressValidationServiceLive),
   );
 
   const aggregateCaviarninePositionsLive =
     AggregateCaviarninePositionsLive.pipe(
       Layer.provide(getUsdValueLive),
-      Layer.provide(addressValidationServiceLive)
+      Layer.provide(addressValidationServiceLive),
     );
 
   const aggregateOciswapPositionsLive = AggregateOciswapPositionsLive.pipe(
     Layer.provide(getUsdValueLive),
-    Layer.provide(addressValidationServiceLive)
+    Layer.provide(addressValidationServiceLive),
   );
 
   const aggregateWeftFinancePositionsLive =
@@ -291,11 +291,11 @@ const runnable = Effect.gen(function* () {
 
   const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
     Layer.provide(getUsdValueLive),
-    Layer.provide(addressValidationServiceLive)
+    Layer.provide(addressValidationServiceLive),
   );
 
   const aggregateSurgePositionsLive = AggregateSurgePositionsLive.pipe(
-    Layer.provide(getUsdValueLive)
+    Layer.provide(getUsdValueLive),
   );
 
   const aggregateAccountBalanceLive = AggregateAccountBalanceLive.pipe(
@@ -305,7 +305,7 @@ const runnable = Effect.gen(function* () {
     Layer.provide(aggregateWeftFinancePositionsLive),
     Layer.provide(aggregateRootFinancePositionsLive),
     Layer.provide(aggregateDefiPlazaPositionsLive),
-    Layer.provide(aggregateSurgePositionsLive)
+    Layer.provide(aggregateSurgePositionsLive),
   );
 
   const gatewayLive = Layer.mergeAll(
@@ -320,7 +320,7 @@ const runnable = Effect.gen(function* () {
     getNonFungibleIdsLive,
     getEntityDetailsServiceLive,
     getResourcePoolUnitsLive,
-    getFungibleBalanceLive
+    getFungibleBalanceLive,
   );
 
   const stakingLive = Layer.mergeAll(
@@ -328,7 +328,7 @@ const runnable = Effect.gen(function* () {
     getLsulpLive,
     convertLsuToXrdLive,
     getLsulpValueLive,
-    getAllValidatorsServiceLive
+    getAllValidatorsServiceLive,
   );
 
   const dappsLive = Layer.mergeAll(
@@ -343,13 +343,13 @@ const runnable = Effect.gen(function* () {
     getOciswapLiquidityClaimsLive,
     getOciswapResourcePoolPositionsLive,
     getCaviarnineResourcePoolPositionsLive,
-    getSurgeLiquidityPositionsLive
+    getSurgeLiquidityPositionsLive,
   );
 
   const accountBalanceLive = Layer.mergeAll(
     getAccountAddressesLive,
     upsertAccountBalancesLive,
-    updateSnapshotLive
+    updateSnapshotLive,
   );
 
   const getAccountBalancesAtStateVersionLive =
@@ -357,12 +357,12 @@ const runnable = Effect.gen(function* () {
       Layer.provide(gatewayLive),
       Layer.provide(stakingLive),
       Layer.provide(dappsLive),
-      Layer.provide(getFungibleBalanceLive)
+      Layer.provide(getFungibleBalanceLive),
     );
 
   const aggregatePoolPositionsLive = AggregatePoolPositionsService.Default.pipe(
     Layer.provide(getUsdValueLive),
-    Layer.provide(addressValidationServiceLive)
+    Layer.provide(addressValidationServiceLive),
   );
 
   const snapshotLive = SnapshotService.Default.pipe(
@@ -375,7 +375,7 @@ const runnable = Effect.gen(function* () {
     Layer.provide(getUsdValueLive),
     Layer.provide(aggregateAccountBalanceLive),
     Layer.provide(getAllValidatorsServiceLive),
-    Layer.provide(aggregatePoolPositionsLive)
+    Layer.provide(aggregatePoolPositionsLive),
   );
 
   const service = yield* Effect.provide(SnapshotService, snapshotLive);
@@ -385,13 +385,13 @@ const runnable = Effect.gen(function* () {
       .findMany({
         limit: 10,
       })
-      .then((res) => res.map((r) => r.address))
+      .then((res) => res.map((r) => r.address)),
   );
 
   const testAccountAddress = process.env.TEST_ACCOUNT_ADDRESS;
 
   yield* service({
-    timestamp: new Date("2025-07-20T00:00:00.000Z"),
+    timestamp: new Date('2025-07-20T00:00:00.000Z'),
     batchSize: 10_000,
     addresses: testAccountAddress ? [testAccountAddress] : addresses,
   }).pipe(Effect.provide(NodeSdkLive));

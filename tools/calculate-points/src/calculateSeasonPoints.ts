@@ -1,44 +1,44 @@
-import {
-  activities,
-  seasons,
-  userSeasonPoints,
-  weeks,
-  accounts,
-  accountActivityPoints,
-  db,
-} from "db/incentives";
-import path from "node:path";
-import { eq } from "drizzle-orm";
-import { Effect, Layer, Logger } from "effect";
+import fs from 'node:fs';
+import path from 'node:path';
 import {
   ActivityCategoryWeekService,
   AddSeasonPointsToUserService,
   CalculateSeasonPointsService,
-  createDbClientLive,
   GetSeasonPointMultiplierService,
   SeasonService,
   UpdateWeekStatusService,
   UserActivityPointsService,
   WeekService,
-} from "api/incentives";
-import { ActivityWeekService } from "../../../packages/api/src/incentives/activity-week/activityWeek";
-import fs from "node:fs";
-import { groupBy } from "effect/Array";
-import { GetUsersPaginatedLive } from "../../../packages/api/src/incentives/user/getUsersPaginated";
+  createDbClientLive,
+} from 'api/incentives';
+import {
+  accountActivityPoints,
+  accounts,
+  activities,
+  db,
+  seasons,
+  userSeasonPoints,
+  weeks,
+} from 'db/incentives';
+import { eq } from 'drizzle-orm';
+import { Effect, Layer, Logger } from 'effect';
+import { groupBy } from 'effect/Array';
+import { ActivityWeekService } from '../../../packages/api/src/incentives/activity-week/activityWeek';
+import { GetUsersPaginatedLive } from '../../../packages/api/src/incentives/user/getUsersPaginated';
 
-const WEEK_ID = "30da196b-7602-4b06-a558-bbb5b5441186";
+const WEEK_ID = '30da196b-7602-4b06-a558-bbb5b5441186';
 
 const runnable = Effect.gen(function* () {
-  const outputDir = path.join(import.meta.dirname, "../output");
+  const outputDir = path.join(import.meta.dirname, '../output');
 
-  yield* Effect.log("Running season points calculation");
+  yield* Effect.log('Running season points calculation');
 
   const dbLayer = createDbClientLive(db);
 
   const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLayer));
 
   const activityWeekServiceLive = ActivityWeekService.Default.pipe(
-    Layer.provide(dbLayer)
+    Layer.provide(dbLayer),
   );
   const activityCategoryWeekServiceLive =
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLayer));
@@ -46,10 +46,10 @@ const runnable = Effect.gen(function* () {
   const weekServiceLive = WeekService.Default.pipe(
     Layer.provide(dbLayer),
     Layer.provide(activityCategoryWeekServiceLive),
-    Layer.provide(activityWeekServiceLive)
+    Layer.provide(activityWeekServiceLive),
   );
   const userActivityPointsServiceLive = UserActivityPointsService.Default.pipe(
-    Layer.provide(dbLayer)
+    Layer.provide(dbLayer),
   );
   const getSeasonPointMultiplierServiceLive =
     GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbLayer));
@@ -58,11 +58,11 @@ const runnable = Effect.gen(function* () {
     AddSeasonPointsToUserService.Default.pipe(Layer.provide(dbLayer));
 
   const updateWeekStatusServiceLive = UpdateWeekStatusService.Default.pipe(
-    Layer.provide(dbLayer)
+    Layer.provide(dbLayer),
   );
 
   const getUsersPaginatedServiceLive = GetUsersPaginatedLive.pipe(
-    Layer.provide(dbLayer)
+    Layer.provide(dbLayer),
   );
 
   const calculateSeasonPointsServiceLive =
@@ -76,42 +76,42 @@ const runnable = Effect.gen(function* () {
       Layer.provide(addSeasonPointsToUserServiceLive),
       Layer.provide(updateWeekStatusServiceLive),
       Layer.provide(getUsersPaginatedServiceLive),
-      Layer.provide(activityWeekServiceLive)
+      Layer.provide(activityWeekServiceLive),
     );
 
   const service = yield* Effect.provide(
     CalculateSeasonPointsService,
-    calculateSeasonPointsServiceLive
+    calculateSeasonPointsServiceLive,
   );
 
   const seasonId = yield* Effect.tryPromise(() =>
     db.query.seasons
       .findFirst({
-        where: eq(seasons.status, "active"),
+        where: eq(seasons.status, 'active'),
       })
-      .then((result) => result?.id)
+      .then((result) => result?.id),
   );
 
   const week = yield* Effect.tryPromise(() =>
     db.query.weeks.findFirst({
       where: eq(weeks.id, WEEK_ID),
-    })
+    }),
   );
 
   if (!week) {
-    return yield* Effect.fail("Week not found");
+    return yield* Effect.fail('Week not found');
   }
 
   const activityCategoryWeeks = yield* Effect.tryPromise(() =>
-    db.query.activityCategoryWeeks.findMany()
+    db.query.activityCategoryWeeks.findMany(),
   );
 
   if (!seasonId) {
-    return yield* Effect.fail("Season not found");
+    return yield* Effect.fail('Season not found');
   }
 
   if (activityCategoryWeeks.length === 0) {
-    return yield* Effect.fail("Activity category weeks not found");
+    return yield* Effect.fail('Activity category weeks not found');
   }
 
   yield* service.run({
@@ -120,15 +120,15 @@ const runnable = Effect.gen(function* () {
     markAsProcessed: false,
   });
 
-  yield* Effect.log("Season points calculation complete");
+  yield* Effect.log('Season points calculation complete');
 
-  yield* Effect.log("Writing results to file");
+  yield* Effect.log('Writing results to file');
 
   const userSeasonPointsResults = yield* Effect.tryPromise(() =>
     db
       .select()
       .from(userSeasonPoints)
-      .where(eq(userSeasonPoints.weekId, week.id))
+      .where(eq(userSeasonPoints.weekId, week.id)),
   );
 
   const accountActivityPointsResults = yield* Effect.tryPromise(() =>
@@ -145,17 +145,17 @@ const runnable = Effect.gen(function* () {
       .where(eq(accountActivityPoints.weekId, week.id))
       .innerJoin(
         accounts,
-        eq(accountActivityPoints.accountAddress, accounts.address)
+        eq(accountActivityPoints.accountAddress, accounts.address),
       )
       .innerJoin(
         activities,
-        eq(accountActivityPoints.activityId, activities.id)
-      )
+        eq(accountActivityPoints.activityId, activities.id),
+      ),
   );
 
   const groupedByUserId = groupBy(
     accountActivityPointsResults,
-    (item) => item.userId
+    (item) => item.userId,
   );
 
   const withActivityPoints = userSeasonPointsResults.map(
@@ -165,7 +165,7 @@ const runnable = Effect.gen(function* () {
       activityPoints: groupedByUserId[userId]?.map(
         ({ activityPoints, accountAddress, activityId }) => {
           const groupByActivityCategory = Object.entries(
-            groupBy(groupedByUserId[userId], (item) => item.activityCategory)
+            groupBy(groupedByUserId[userId], (item) => item.activityCategory),
           ).map(([activityCategory, items]) => ({
             activityCategory,
             activities: items.map((item) => ({
@@ -179,9 +179,9 @@ const runnable = Effect.gen(function* () {
             accountAddress,
             categories: groupByActivityCategory,
           };
-        }
+        },
       ),
-    })
+    }),
   );
 
   // Ensure output directory exists
@@ -190,11 +190,11 @@ const runnable = Effect.gen(function* () {
   }
 
   fs.writeFileSync(
-    path.join(outputDir, "results.json"),
-    JSON.stringify(withActivityPoints, null, 2)
+    path.join(outputDir, 'results.json'),
+    JSON.stringify(withActivityPoints, null, 2),
   );
 
-  yield* Effect.log("Results written to file");
+  yield* Effect.log('Results written to file');
 });
 
 await Effect.runPromise(runnable.pipe(Effect.provide(Logger.pretty)));

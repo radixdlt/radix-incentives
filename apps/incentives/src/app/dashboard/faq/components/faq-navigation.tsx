@@ -1,13 +1,13 @@
 'use client';
 
-import * as React from 'react';
 import { motion } from 'framer-motion';
-import { Home, HelpCircle } from 'lucide-react';
+import { HelpCircle, Home } from 'lucide-react';
+import * as React from 'react';
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbList,
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from '~/components/ui/breadcrumb';
