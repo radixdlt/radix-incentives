@@ -826,6 +826,9 @@ importers:
       pino:
         specifier: 'catalog:'
         version: 9.6.0
+      undici:
+        specifier: 'catalog:'
+        version: 7.13.0
       zod:
         specifier: 'catalog:'
         version: 3.24.2
