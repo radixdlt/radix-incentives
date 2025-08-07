@@ -13,7 +13,6 @@ import type { SnapshotWorkerInput } from '../incentives/snapshot/snapshotWorker.
 import postgres from 'postgres';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import type { ActivityId } from 'data';
-import { dependencyLayer } from '../incentives/dependencyLayer.js';
 
 /**
  * Truncates all tables in the database, respecting foreign key constraints
@@ -321,6 +320,9 @@ export const checkHoldingForPool = async (dbUrl: string, activityId: ActivityId,
         timestamp: timestamp,
         jobId: `snapshot-holders-${activityId}`,
     };
+    const { dependencyLayer } = await import(
+        '../incentives/dependencyLayer.js'
+    );
     const result = await dependencyLayer.snapshotWorker(snapshotInput);
 
     console.log('Snapshot worker result:', result);
@@ -359,6 +361,9 @@ export const checkHolding = async (dbUrl: string, asset: string, activityId: Act
         timestamp: timestamp,
         jobId: `snapshot-holders-${activityId}`,
     };
+    const { dependencyLayer } = await import(
+        '../incentives/dependencyLayer.js'
+    );
     const result = await dependencyLayer.snapshotWorker(snapshotInput);
 
     console.log('Snapshot worker result:', result);
