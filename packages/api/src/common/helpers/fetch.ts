@@ -11,7 +11,7 @@ export class FetchService extends Effect.Service<FetchService>()(
         retryOn: (_, error, __) => {
           // Retry on network errors
           if (error !== null) {
-            return false;
+            return true;
           }
 
           return false;

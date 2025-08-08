@@ -1,29 +1,21 @@
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import {
   type EventQueueClientInput,
   EventQueueClientService,
-  type EventQueueClientServiceError,
 } from './eventQueueClient';
 
 type AddToEventQueueInput = EventQueueClientInput;
 
-export class AddToEventQueueService extends Context.Tag(
+export class AddToEventQueueService extends Effect.Service<AddToEventQueueService>()(
   'AddToEventQueueService',
-)<
-  AddToEventQueueService,
-  (
-    input: AddToEventQueueInput,
-  ) => Effect.Effect<void, EventQueueClientServiceError>
->() {}
-
-export const AddToEventQueueLive = Layer.effect(
-  AddToEventQueueService,
-  Effect.gen(function* () {
-    const eventQueueClientService = yield* EventQueueClientService;
-
-    return (input) =>
-      Effect.gen(function* () {
-        yield* eventQueueClientService(input);
+  {
+    effect: Effect.gen(function* () {
+      const eventQueueClientService = yield* EventQueueClientService;
+      return Effect.fn(function* (input: AddToEventQueueInput) {
+        return yield* eventQueueClientService(input);
       });
-  }),
-);
+    }),
+  },
+) {}
+
+export const AddToEventQueueLive = AddToEventQueueService.Default;

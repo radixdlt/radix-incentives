@@ -112,7 +112,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
               if (allCapturedEvents.length > 0) {
                 yield* addEventsToDbService(allCapturedEvents);
 
-                yield* Effect.log(
+                yield* Effect.logDebug(
                   'adding events to event queue',
                   allCapturedEvents.map((item) => ({
                     dApp: item.dApp,
@@ -158,6 +158,9 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
 
             if (nextStateVersion !== stateVersion) {
               // updates state version and continue loop
+              yield* Effect.log(
+                `state version processed ${stateVersion} -> ${nextStateVersion}`,
+              );
               yield* configService.setStateVersion(nextStateVersion);
             }
           }
