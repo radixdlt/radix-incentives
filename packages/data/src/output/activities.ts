@@ -4,6 +4,7 @@
 
 import type { ActivityData, DappId } from '../types';
 
+// {DAPP_ID}_{lp | le | tr | ho}_{sta | der | nat | blu}_{PAIR | ASSET}
 export const ActivityId = {
   'c9_ho_floop-xrd': 'c9_ho_floop-xrd',
   'c9_ho_lsulp-reddicks': 'c9_ho_lsulp-reddicks',

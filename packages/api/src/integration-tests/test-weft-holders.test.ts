@@ -1,27 +1,24 @@
-// Set a placeholder DATABASE_URL before any imports to prevent drizzle config errors
-
-import { Assets } from 'data';
+import { ActivityId, Assets } from 'data';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
-import { drizzle } from 'drizzle-orm/postgres-js';
-// import { PostgreSqlContainer, type StartedPostgreSqlContainer } from "@testcontainers/postgresql";
+import { drizzle, type PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import postgres from 'postgres';
 import { afterEach, beforeAll, describe, inject, it } from 'vitest';
-import type { SnapshotWorkerInput } from '../incentives/snapshot/snapshotWorker.js';
 import {
-  createTestUserAndAccounts,
+  checkHolding,
   getAccountHoldersForResource,
-  getPriceForResource,
-  getTotalUsdValueForActivity,
   truncateAllTables,
 } from './utils.js';
 
 describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
   'Weft Lending Holders Snapshot Test',
   () => {
-    // let postgresContainer: StartedPostgreSqlContainer;
     let dbUrl: string;
     process.env.SNAPSHOT_BATCH_SIZE = '1000';
-    // let teardownFn: (() => Promise<void>) | null = null;
+
+    const values: Record<
+      string,
+      { totalUsdValue: string; price: string; estimatedTokens: number }
+    > = {};
 
     beforeAll(async () => {
       console.log('Setting up PostgreSQL container for snapshot test');
@@ -37,18 +34,16 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
       const { schema } = await import('db/incentives');
 
       const client = postgres(dbUrl);
-      const db = drizzle(client, { schema });
+      const db: PostgresJsDatabase<typeof schema> = drizzle(client, {
+        schema,
+      });
       await truncateAllTables(db, dbUrl);
       await client.end();
     });
 
-    const runSnapshotWorker = async (input: SnapshotWorkerInput) => {
-      // Use dynamic import to load dependency layer after DATABASE_URL is set
-      const { dependencyLayer } = await import(
-        '../incentives/dependencyLayer.js'
-      );
-      return dependencyLayer.snapshotWorker(input);
-    };
+    afterAll(async () => {
+      console.log('Values', values);
+    });
 
     it(
       'should process snapshot for Weft xwbtc holders',
@@ -69,53 +64,17 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
         const mergedAccounts = [
           ...new Set([...testAccounts, ...testWeftyAccounts]),
         ];
-        const { schema } = await import('db/incentives');
-
-        const client = postgres(dbUrl);
-        const db = drizzle(client, { schema });
-
-        await createTestUserAndAccounts(db, mergedAccounts);
-
-        const timestamp = new Date();
-        const snapshotInput: SnapshotWorkerInput = {
-          timestamp: timestamp,
-          jobId: 'test-weft-xwbtc-holders',
+        const { totalUsdValue, price, estimatedTokens } = await checkHolding(
+          dbUrl,
+          Assets.Fungible.wxBTC,
+          ActivityId.we_le_blu_xwbtc,
+          mergedAccounts,
+        );
+        values[ActivityId.we_le_blu_xwbtc] = {
+          totalUsdValue: totalUsdValue.toString(),
+          price: price.toString(),
+          estimatedTokens,
         };
-
-        const result = await runSnapshotWorker(snapshotInput);
-
-        console.log('Snapshot worker result:', result);
-        if (result._tag === 'Failure') {
-          console.error('Snapshot worker failed:', result.cause);
-          throw result.cause;
-        }
-
-        try {
-          const xwbtcPrice = await getPriceForResource(
-            Assets.Fungible.wxBTC,
-            timestamp,
-          );
-          console.log('wxBTC price:', xwbtcPrice.toString());
-
-          const weftActivityId = 'we_le_blu_xwbtc';
-          console.log('Getting total USD value for activity', weftActivityId);
-          const totalUsdValue = await getTotalUsdValueForActivity(
-            client,
-            weftActivityId,
-          );
-          console.log(
-            `Total USD value for ${weftActivityId}: ${totalUsdValue}`,
-          );
-
-          console.log(`Price per unit: $${xwbtcPrice.toString()}`);
-          if (totalUsdValue && Number(totalUsdValue) > 0) {
-            const estimatedTokens =
-              Number(totalUsdValue) / Number(xwbtcPrice.toString());
-            console.log(`Estimated tokens based on price: ${estimatedTokens}`);
-          }
-        } finally {
-          await client.end();
-        }
       },
     );
 
@@ -138,56 +97,21 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
         const mergedAccounts = [
           ...new Set([...testAccounts, ...testWeftyAccounts]),
         ];
-        const { schema } = await import('db/incentives');
-
-        const client = postgres(dbUrl);
-        const db = drizzle(client, { schema });
-
-        console.log('Creating test user and accounts');
-        await createTestUserAndAccounts(db, mergedAccounts);
-        console.log('Database url', process.env.DATABASE_URL);
-        const timestamp = new Date();
-        const snapshotInput: SnapshotWorkerInput = {
-          timestamp: timestamp,
-          jobId: 'test-weft-xeth-holders',
+        const { totalUsdValue, price, estimatedTokens } = await checkHolding(
+          dbUrl,
+          Assets.Fungible.xETH,
+          ActivityId.we_le_blu_xeth,
+          mergedAccounts,
+        );
+        values[ActivityId.we_le_blu_xeth] = {
+          totalUsdValue: totalUsdValue.toString(),
+          price: price.toString(),
+          estimatedTokens,
         };
-
-        const result = await runSnapshotWorker(snapshotInput);
-
-        console.log('Snapshot worker result:', result);
-        if (result._tag === 'Failure') {
-          console.error('Snapshot worker failed:', result.cause);
-          throw result.cause;
-        }
-
-        try {
-          const xethPrice = await getPriceForResource(
-            Assets.Fungible.xETH,
-            timestamp,
-          );
-          console.log('wETH price:', xethPrice.toString());
-          const weftActivityId = 'we_le_blu_xeth';
-          console.log('Getting total USD value for activity', weftActivityId);
-          const totalUsdValue = await getTotalUsdValueForActivity(
-            client,
-            weftActivityId,
-          );
-          console.log(
-            `Total USD value for ${weftActivityId}: ${totalUsdValue}`,
-          );
-          console.log(`Price per unit: $${xethPrice.toString()}`);
-          if (totalUsdValue && Number(totalUsdValue) > 0) {
-            const estimatedTokens =
-              Number(totalUsdValue) / Number(xethPrice.toString());
-            console.log(`Estimated tokens based on price: ${estimatedTokens}`);
-          }
-        } finally {
-          await client.end();
-        }
       },
     );
 
-    it.skip(
+    it(
       'should process snapshot for Weft xUSDCholders',
       { retry: 0, timeout: 300000 },
       async () => {
@@ -206,55 +130,21 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
         const mergedAccounts = [
           ...new Set([...testAccounts, ...testWeftyAccounts]),
         ];
-        const { schema } = await import('db/incentives');
-
-        const client = postgres(dbUrl);
-        const db = drizzle(client, { schema });
-
-        await createTestUserAndAccounts(db, mergedAccounts);
-
-        const timestamp = new Date();
-        const snapshotInput: SnapshotWorkerInput = {
-          timestamp: timestamp,
-          jobId: 'test-weft-xrd-xusdc-holders',
+        const { totalUsdValue, price, estimatedTokens } = await checkHolding(
+          dbUrl,
+          Assets.Fungible.xUSDC,
+          ActivityId.we_le_sta_xusdc,
+          mergedAccounts,
+        );
+        values[ActivityId.we_le_sta_xusdc] = {
+          totalUsdValue: totalUsdValue.toString(),
+          price: price.toString(),
+          estimatedTokens,
         };
-
-        const result = await runSnapshotWorker(snapshotInput);
-
-        console.log('Snapshot worker result:', result);
-        if (result._tag === 'Failure') {
-          console.error('Snapshot worker failed:', result.cause);
-          throw result.cause;
-        }
-
-        try {
-          const xusdcPrice = await getPriceForResource(
-            Assets.Fungible.xUSDC,
-            timestamp,
-          );
-          console.log('wUSDC price:', xusdcPrice.toString());
-          const weftActivityId = 'we_le_sta_xusdc';
-          console.log('Getting total USD value for activity', weftActivityId);
-          const totalUsdValue = await getTotalUsdValueForActivity(
-            client,
-            weftActivityId,
-          );
-          console.log(
-            `Total USD value for ${weftActivityId}: ${totalUsdValue}`,
-          );
-          console.log(`Price per unit: $${xusdcPrice.toString()}`);
-          if (totalUsdValue && Number(totalUsdValue) > 0) {
-            const estimatedTokens =
-              Number(totalUsdValue) / Number(xusdcPrice.toString());
-            console.log(`Estimated tokens based on price: ${estimatedTokens}`);
-          }
-        } finally {
-          await client.end();
-        }
       },
     );
 
-    it.skip(
+    it(
       'should process snapshot for Weft XRD holders',
       { retry: 0, timeout: 300000 },
       async () => {
@@ -273,52 +163,17 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
         const mergedAccounts = [
           ...new Set([...testAccounts, ...testWeftyAccounts]),
         ];
-        const { schema } = await import('db/incentives');
-
-        const client = postgres(dbUrl);
-        const db = drizzle(client, { schema });
-
-        await createTestUserAndAccounts(db, mergedAccounts);
-
-        const timestamp = new Date();
-        const snapshotInput: SnapshotWorkerInput = {
-          timestamp: timestamp,
-          jobId: 'test-weft-xrd-xusdc-holders',
+        const { totalUsdValue, price, estimatedTokens } = await checkHolding(
+          dbUrl,
+          Assets.Fungible.XRD,
+          ActivityId.we_le_der_xrd,
+          mergedAccounts,
+        );
+        values[ActivityId.we_le_der_xrd] = {
+          totalUsdValue: totalUsdValue.toString(),
+          price: price.toString(),
+          estimatedTokens,
         };
-
-        const result = await runSnapshotWorker(snapshotInput);
-
-        console.log('Snapshot worker result:', result);
-        if (result._tag === 'Failure') {
-          console.error('Snapshot worker failed:', result.cause);
-          throw result.cause;
-        }
-        try {
-          const xrdPrice = await getPriceForResource(
-            Assets.Fungible.XRD,
-            timestamp,
-          );
-          console.log('XRD price:', xrdPrice.toString());
-          const weftActivityId = 'weft_lend_xrd';
-          console.log('Getting total USD value for activity', weftActivityId);
-          const totalUsdValue = await getTotalUsdValueForActivity(
-            client,
-            weftActivityId,
-          );
-          console.log(
-            `Total USD value for ${weftActivityId}: ${totalUsdValue}`,
-          );
-
-          // Now xrdPrice can be used for further calculations
-          console.log(`Price per unit: $${xrdPrice.toString()}`);
-          if (totalUsdValue && Number(totalUsdValue) > 0) {
-            const estimatedTokens =
-              Number(totalUsdValue) / Number(xrdPrice.toString());
-            console.log(`Estimated tokens based on price: ${estimatedTokens}`);
-          }
-        } finally {
-          await client.end();
-        }
       },
     );
   },
