@@ -74,7 +74,13 @@ export const verifyAccountOwnershipProgram = (
       (account) => account.address,
     );
 
-    if (existingAccounts.length > 0) {
+    // Filter out accounts that are already registered
+    const remainingAccounts = input.items.filter(
+      (item) => !existingAccountAddresses.includes(item.address),
+    );
+
+    // If all accounts are already registered, fail
+    if (existingAccounts.length > 0 && remainingAccounts.length === 0) {
       return yield* Effect.fail(
         new AccountAlreadyRegisteredError(
           `accounts with addresses ${existingAccountAddresses.join(
@@ -84,9 +90,10 @@ export const verifyAccountOwnershipProgram = (
       );
     }
 
+    // Upsert remaining accounts
     const accounts = yield* upsertAccounts({
       userId: input.userId,
-      accounts: input.items,
+      accounts: remainingAccounts,
     });
 
     return accounts;
