@@ -53,7 +53,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
 
                 // account is not registered in incentives program
                 if (registeredAccounts.length === 0) {
-                  yield* Effect.log(
+                  yield* Effect.logDebug(
                     `Skipping ${result.address}, not registered in incentives program`,
                   );
                   return null;
@@ -81,7 +81,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
 
                 // account is not registered in incentives program
                 if (registeredAccounts.length === 0) {
-                  yield* Effect.log(
+                  yield* Effect.logDebug(
                     `Skipping ${eventData.data.accountAddress}, not registered in incentives program`,
                   );
                   return {
@@ -100,7 +100,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
 
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === 'WeftFinance') {
-              yield* Effect.log('WeftFinance event', event.eventData);
+              yield* Effect.logDebug('WeftFinance event', event.eventData);
 
               const eventData = (event.eventData as WeftFinanceEmittableEvents)
                 .data[0];
@@ -146,7 +146,7 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
 
             // TODO: should only handle Liquidation events, rest is handled by withdraw/deposit events
             if (event.dApp === 'RootFinance') {
-              yield* Effect.log('RootFinance event', event.eventData);
+              yield* Effect.logDebug('RootFinance event', event.eventData);
 
               const eventData = event.eventData as RootFinanceEmittableEvents;
 

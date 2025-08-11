@@ -1,4 +1,5 @@
-import { Config, Effect, Either } from 'effect';
+import { Config, Data, Effect } from 'effect';
+import { z } from 'zod';
 import { chunker } from '../../common';
 import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
@@ -7,22 +8,28 @@ import { AggregateAccountBalanceService } from '../account-balance/aggregateAcco
 import { GetAccountBalancesAtStateVersionService } from '../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../account-balance/upsertAccountBalance';
 import { ConfigService } from '../config/configService';
-import { CreateSnapshotService } from './createSnapshot';
 import { generateDummySnapshotData } from './generateDummySnapshotData';
-import { UpdateSnapshotService } from './updateSnapshot';
 
-export class SnapshotError {
-  _tag = 'SnapshotError';
-  constructor(public readonly message: string) {}
-}
+export class SnapshotError extends Data.TaggedError('SnapshotError')<{
+  message: string;
+}> {}
 
-export type SnapshotInput = {
-  addresses?: string[];
-  timestamp: Date;
-  batchSize?: number;
-  jobId?: string;
-  addDummyData?: boolean;
-};
+export const SnapshotInputSchema = z.object({
+  addresses: z.array(z.string()).optional(),
+  timestamp: z.date(),
+  batchSize: z.number().optional(),
+  jobId: z.string().optional(),
+  addDummyData: z.boolean().optional(),
+  includeActivityIds: z.array(z.string()).optional(),
+  usdThreshold: z.string().optional(),
+});
+
+export type SnapshotInput = z.infer<typeof SnapshotInputSchema>;
+
+export class InvalidInputError extends Data.TaggedError('InvalidInputError')<{
+  message: string;
+  error: z.ZodError<SnapshotInput>;
+}> {}
 
 export class SnapshotService extends Effect.Service<SnapshotService>()(
   'SnapshotService',
@@ -31,8 +38,6 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
       const getLedgerState = yield* GetLedgerStateService;
       const getAccountBalancesAtStateVersion =
         yield* GetAccountBalancesAtStateVersionService;
-      const createSnapshot = yield* CreateSnapshotService;
-      const updateSnapshot = yield* UpdateSnapshotService;
       const getAccountAddresses = yield* GetAccountAddressesService;
       const upsertAccountBalances = yield* UpsertAccountBalancesService;
       const aggregateAccountBalanceService =
@@ -43,6 +48,10 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
       const SKIP_STATE_VERSION_CHECK = yield* Config.boolean(
         'SKIP_STATE_VERSION_CHECK',
       ).pipe(Config.withDefault(false));
+
+      const DEFAULT_BATCH_SIZE = yield* Config.number(
+        'SNAPSHOT_BATCH_SIZE',
+      ).pipe(Config.withDefault(30_000));
 
       // prevents snapshot from running if it's ahead of the latest processed state version
       const verifyStateVersion = Effect.fn(function* (
@@ -55,39 +64,54 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
         if (!latestProcessedStateVersion) {
           return yield* Effect.fail(
-            new SnapshotError(
-              'No state version found, check if streamer is running',
-            ),
+            new SnapshotError({
+              message: 'No state version found, check if streamer is running',
+            }),
           );
         }
 
         if (snapshotStateVersion > latestProcessedStateVersion) {
           return yield* Effect.fail(
-            new SnapshotError(
-              'Snapshot state version is ahead of the latest processed state version',
-            ),
+            new SnapshotError({
+              message:
+                'Snapshot state version is ahead of the latest processed state version',
+            }),
           );
         }
       });
 
+      const validateInput = Effect.fn('validateInput')(function* (
+        input: SnapshotInput,
+      ) {
+        const parsedInput = SnapshotInputSchema.safeParse(input);
+        if (!parsedInput.success) {
+          return yield* Effect.fail(
+            new InvalidInputError({
+              message: parsedInput.error.message,
+              error: parsedInput.error,
+            }),
+          );
+        }
+        return parsedInput.data;
+      });
+
       return Effect.fn('snapshot')(function* (input: SnapshotInput) {
+        const batchSize = input.batchSize ?? DEFAULT_BATCH_SIZE;
+        const enableDummyData = input.addDummyData ?? false;
+
+        const includeActivityIds = input.includeActivityIds
+          ? new Set(input.includeActivityIds)
+          : null;
+
+        const usdThreshold = input.usdThreshold
+          ? new BigNumber(input.usdThreshold)
+          : null;
+
         yield* Effect.log(
-          'running snapshot',
-          JSON.stringify({
-            timestamp: input.timestamp,
-            addresses: input.addresses,
-            batchSize: input.batchSize,
-            jobId: input.jobId,
-          }),
+          `running snapshot job ${input.jobId} at timestamp: ${input.timestamp}`,
         );
 
-        if (!input.timestamp)
-          return yield* Effect.fail(new SnapshotError('Timestamp is required'));
-
-        // Get batch size from input or environment variable, default to 1000
-        const batchSize =
-          input.batchSize ??
-          Number.parseInt(process.env.SNAPSHOT_BATCH_SIZE ?? '30000', 10);
+        yield* validateInput(input);
 
         const lederState = yield* getLedgerState({
           at_ledger_state: {
@@ -103,201 +127,94 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
             createdAt: input.timestamp,
           }));
 
-        yield* Effect.log(
-          'processing accounts in batches',
-          JSON.stringify({
-            totalAccounts: accountAddresses.length,
-            batchSize,
-            totalBatches: Math.ceil(accountAddresses.length / batchSize),
-          }),
-        );
-
-        const { id: snapshotId } = yield* createSnapshot({
-          timestamp: input.timestamp,
-          status: 'processing',
-        });
-
-        const validators = yield* getAllValidatorsService();
-
         // Split accounts into batches
         const accountBatches = chunker(accountAddresses, batchSize);
 
-        // Track overall progress
-        let processedAccounts = 0;
-        let _totalProcessedEntries = 0;
+        yield* Effect.log(
+          `processing accounts in batches, total accounts: ${accountAddresses.length}`,
+        );
 
-        const enableDummyData = input.addDummyData ?? false;
+        // Gets all validators from the gateway. This should be done once per job.
+        const validators = yield* getAllValidatorsService();
 
-        // Process each batch sequentially
-        for (
-          let batchIndex = 0;
-          batchIndex < accountBatches.length;
-          batchIndex++
-        ) {
-          const batch = accountBatches[batchIndex];
+        yield* Effect.forEach(
+          accountBatches,
+          Effect.fn(function* (accountsAddresses, batchIndex) {
+            if (accountBatches.length > 1)
+              yield* Effect.log(
+                `processing batch ${batchIndex + 1} out of ${accountBatches.length}`,
+              );
 
-          if (!batch) {
-            return yield* Effect.fail(
-              new SnapshotError(`Batch ${batchIndex} is undefined`),
-            );
-          }
-
-          yield* Effect.log(
-            'getting account balances for batch',
-            JSON.stringify({
-              batchIndex: batchIndex + 1,
-              totalBatches: accountBatches.length,
-              batchSize: batch.length,
-              processedAccounts,
-              totalAccounts: accountAddresses.length,
-              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            }),
-          );
-
-          const [accountBalancesResult] = yield* Effect.all(
-            [
-              getAccountBalancesAtStateVersion({
-                addresses: batch,
-                at_ledger_state: {
-                  state_version: lederState.state_version,
-                },
-                validators: validators,
-              }).pipe(
-                Effect.withSpan(
-                  `getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`,
-                ),
+            yield* Effect.log(`getting account balances`);
+            const accountBalances = yield* getAccountBalancesAtStateVersion({
+              addresses: accountsAddresses,
+              at_ledger_state: {
+                state_version: lederState.state_version,
+              },
+              validators,
+            }).pipe(
+              Effect.withSpan(
+                `getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`,
               ),
-            ],
-            { mode: 'either' },
-          );
+            );
 
-          if (Either.isLeft(accountBalancesResult)) {
-            yield* updateSnapshot({
-              id: snapshotId,
-              status: 'failed',
-            });
-            const error = accountBalancesResult.left;
-            return yield* Effect.fail(error);
-          }
-
-          const accountBalances = accountBalancesResult.right;
-
-          yield* Effect.log(
-            'aggregating account balances and converting into USD for batch',
-            JSON.stringify({
-              batchIndex: batchIndex + 1,
-              totalBatches: accountBatches.length,
-              batchSize: batch.length,
-              processedAccounts,
-              totalAccounts: accountAddresses.length,
-              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            }),
-          );
-
-          const [aggregateAccountBalanceResult] = yield* Effect.all(
-            [
-              aggregateAccountBalanceService({
+            yield* Effect.log(`aggregating account balances`);
+            let aggregatedAccountBalance =
+              yield* aggregateAccountBalanceService({
                 accountBalances: accountBalances.items,
                 timestamp: input.timestamp,
               }).pipe(
                 Effect.withSpan(
                   `aggregateAccountBalance_batch_${batchIndex + 1}`,
                 ),
-              ),
-            ],
-            { mode: 'either' },
-          );
+              );
 
-          if (Either.isLeft(aggregateAccountBalanceResult)) {
-            const error = aggregateAccountBalanceResult.left;
-            yield* Effect.logError('Account balance aggregation failed', error);
-            yield* updateSnapshot({
-              id: snapshotId,
-              status: 'failed',
-            });
-            return yield* Effect.fail(
-              new SnapshotError(
-                `Failed to convert account balances for batch ${batchIndex + 1}: ${error}`,
-              ),
+            if (enableDummyData) {
+              yield* Effect.log(`generating dummy data`);
+              // @ts-expect-error: used for testing
+              aggregatedAccountBalance = yield* generateDummySnapshotData({
+                batchAggregatedAccountBalance: aggregatedAccountBalance,
+                batch: accountsAddresses,
+                jobInput: input,
+                batchIndex: batchIndex,
+              });
+            }
+
+            // Filter out accounts with activity ids not in the includeActivityIds set
+            if (includeActivityIds) {
+              aggregatedAccountBalance = aggregatedAccountBalance.map(
+                (accountBalance) => ({
+                  ...accountBalance,
+                  data: accountBalance.data.filter((data) =>
+                    includeActivityIds.has(data.activityId),
+                  ),
+                }),
+              );
+            }
+
+            // Filter out accounts with total USD value less than the threshold
+            if (usdThreshold) {
+              aggregatedAccountBalance = aggregatedAccountBalance.filter(
+                (accountBalance) => {
+                  const totalUsdValue = accountBalance.data.reduce(
+                    (acc, data) => acc.plus(data.usdValue),
+                    new BigNumber(0),
+                  );
+                  return totalUsdValue.gte(usdThreshold);
+                },
+              );
+            }
+
+            yield* Effect.log(`upserting account balances`);
+            yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
+              Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
             );
-          }
-
-          let batchAggregatedAccountBalance =
-            aggregateAccountBalanceResult.right;
-
-          if (enableDummyData) {
-            // @ts-expect-error: used for testing
-            batchAggregatedAccountBalance = yield* generateDummySnapshotData({
-              batchAggregatedAccountBalance,
-              batch,
-              jobInput: input,
-              batchIndex: batchIndex,
-            });
-          }
-
-          yield* Effect.log(
-            'upserting account balances for batch',
-            JSON.stringify({
-              batchIndex: batchIndex + 1,
-              totalBatches: accountBatches.length,
-              batchSize: batch.length,
-              processedAccounts,
-              totalAccounts: accountAddresses.length,
-              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            }),
-          );
-
-          // Upsert results for this batch immediately
-          yield* upsertAccountBalances(batchAggregatedAccountBalance).pipe(
-            Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
-          );
-
-          // Update progress
-          processedAccounts += batch.length;
-          _totalProcessedEntries += batchAggregatedAccountBalance.length;
-
-          yield* Effect.log(
-            'completed batch',
-            JSON.stringify({
-              batchIndex: batchIndex + 1,
-              totalBatches: accountBatches.length,
-              batchSize: batch.length,
-              processedAccounts,
-              totalAccounts: accountAddresses.length,
-              progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
-            }),
-          );
-
-          // Clear batch data from memory to reduce memory usage
-          batchAggregatedAccountBalance = [];
-        }
-
-        yield* Effect.log(
-          'all batches completed for job',
-          JSON.stringify({
-            totalBatches: accountBatches.length,
-            processedAccounts,
-            totalAccounts: accountAddresses.length,
-            progress: `${Math.round((processedAccounts / accountAddresses.length) * 100)}%`,
           }),
+          // discard the result of the effect to reduce memory usage
+          { discard: true },
         );
 
-        yield* Effect.log(
-          'updating snapshot for job',
-          JSON.stringify({
-            jobId: input.jobId,
-            timestamp: input.timestamp,
-          }),
-        );
-
-        yield* updateSnapshot({
-          id: snapshotId,
-          status: 'completed',
-        });
-
-        yield* Effect.log(`snapshot completed for job ${input.jobId}
-        timestamp: ${input.timestamp}
-        `);
+        yield* Effect.log(`snapshot completed for job`);
       });
     }),
   },

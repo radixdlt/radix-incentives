@@ -2,6 +2,7 @@ import type { ProgrammaticScryptoSborValue } from '@radixdlt/babylon-gateway-api
 import BigNumber from 'bignumber.js';
 import { Assets, DappConstants } from 'data';
 import { Effect } from 'effect';
+import { z } from 'zod';
 import {
   type CaviarnineSimplePoolLiquidityAsset,
   GetCaviarnineResourcePoolPositionsService,
@@ -37,12 +38,15 @@ import {
   type GetWeftFinancePositionsOutput,
   GetWeftFinancePositionsService,
 } from '../../common/dapps/weftFinance/getWeftFinancePositions';
-import type { Validator } from '../../common/gateway/getAllValidators';
+import { ValidatorSchema } from '../../common/gateway/getAllValidators';
 import { GetFungibleBalanceService } from '../../common/gateway/getFungibleBalance';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { GetNonFungibleBalanceService } from '../../common/gateway/getNonFungibleBalance';
 import type { AtLedgerState } from '../../common/gateway/schemas';
-import { validateAtLedgerStateInput } from '../../common/gateway/schemas';
+import {
+  AtLedgerStateSchema,
+  validateAtLedgerStateInput,
+} from '../../common/gateway/schemas';
 import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
 import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
 
@@ -121,6 +125,16 @@ export type AccountBalance = {
   convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
 };
 
+export const GetAccountBalancesAtStateVersionInputSchema = z.object({
+  addresses: z.array(z.string()),
+  at_ledger_state: AtLedgerStateSchema,
+  validators: z.array(ValidatorSchema),
+});
+
+export type GetAccountBalancesAtStateVersionInput = z.infer<
+  typeof GetAccountBalancesAtStateVersionInputSchema
+>;
+
 export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetAccountBalancesAtStateVersionService>()(
   'GetAccountBalancesAtStateVersionService',
   {
@@ -151,11 +165,9 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
       const getCaviarnineResourcePoolPositionsService =
         yield* GetCaviarnineResourcePoolPositionsService;
 
-      return Effect.fn(function* (input: {
-        addresses: string[];
-        at_ledger_state: AtLedgerState;
-        validators: Validator[];
-      }) {
+      return Effect.fn(function* (
+        input: GetAccountBalancesAtStateVersionInput,
+      ) {
         yield* validateAtLedgerStateInput(input.at_ledger_state);
 
         // convert timestamp to state version
@@ -177,7 +189,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           ]),
         );
 
-        yield* Effect.log('getting non fungible and fungible balance');
+        yield* Effect.logDebug('getting non fungible and fungible balance');
         const [nonFungibleBalanceResults, fungibleBalanceResults] =
           yield* Effect.all(
             [
@@ -216,7 +228,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         const allOciswapPools = Object.values(OciswapConstants.pools);
         const allOciswapPoolsV2 = Object.values(OciswapConstants.poolsV2);
 
-        yield* Effect.log(
+        yield* Effect.logDebug(
           'getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, lsulp value',
         );
         const [
@@ -625,7 +637,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
             }),
         ).pipe(Effect.withSpan('PositionsToAccountBalance'));
 
-        yield* Effect.log('account balances fetched');
+        yield* Effect.logDebug('account balances fetched');
 
         return { items: accountBalances, ledgerState };
       });

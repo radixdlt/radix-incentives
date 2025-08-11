@@ -23,7 +23,9 @@ export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>
       const db = yield* DbClientService;
 
       return Effect.fn(function* (input: SnapshotWorkerInput) {
-        yield* Effect.log('Snapshot started', input);
+        yield* Effect.log(
+          `Snapshot started for job: ${input.jobId} at timestamp: ${input.timestamp}`,
+        );
 
         yield* snapshotService(input);
 
