@@ -168252,12 +168252,6 @@ export const accountsData = [
     "created_at": "2025-02-15T18:45:37.495Z"
   },
   {
-    "address": "account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k",
-    "user_id": "f2043cb7-ab77-4f11-a19f-ab63eb88ec10",
-    "label": "Sigma",
-    "created_at": "2024-12-24T02:12:16.956Z"
-  },
-  {
     "address": "account_rdx129vnyt7ehy68wld885urhte4efx0xl4mc0v5wfp0hz0w2hey8526tk",
     "user_id": "6d469e8c-55c3-4d86-b07b-1d63e9f54a2f",
     "label": "Flux",
@@ -169228,12 +169222,6 @@ export const accountsData = [
     "user_id": "f3ec4111-57ff-4f93-9317-70554fd77c57",
     "label": "Flux",
     "created_at": "2025-04-09T13:45:37.739Z"
-  },
-  {
-    "address": "account_rdx1298u9gp0eepff97nz5lcd6lrnykqqg9rkrglz5sc3c39j35sz7xwvr",
-    "user_id": "5c4484ac-f08e-418a-9828-d232affa697f",
-    "label": "Pulse",
-    "created_at": "2025-01-07T14:19:11.724Z"
   },
   {
     "address": "account_rdx12xjeqnrqvtgzjs2d6wkjeztp44guvs6rsmrmkvpe2eze66kyxtx8vl",
