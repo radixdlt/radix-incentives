@@ -62,11 +62,14 @@ export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLi
                 });
 
               if (!marginPoolComponentState) {
-                return yield* Effect.fail(
-                  new SlpNotFoundError(
-                    'Margin pool component not found at state version',
-                  ),
-                );
+                // If margin pool component state is not found, return 0 liquidity position for all accounts
+                return input.accountAddresses.map((address) => ({
+                  address,
+                  liquidityPosition: {
+                    resourceAddress: Assets.Fungible.xUSDC,
+                    amount: new BigNumber(0),
+                  },
+                }));
               }
 
               // Get SLP total supply and sUSD balance of margin pool
