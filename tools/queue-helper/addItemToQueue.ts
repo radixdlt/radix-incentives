@@ -7,6 +7,7 @@ import inquirer from 'inquirer';
 
 type QueueType =
   | 'event'
+  | 'snapshot'
   | 'snapshot-date-range'
   | 'calculate-activity-points'
   | 'calculate-season-points'
@@ -96,6 +97,85 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           } catch (_e) {
             return 'Invalid JSON format';
           }
+        },
+      },
+    ],
+  },
+  snapshot: {
+    name: 'Snapshot Queue',
+    endpoint: '/queues/snapshot/add',
+    description:
+      'Create a snapshot for specific addresses at a given timestamp',
+    promptFields: [
+      {
+        name: 'timestamp',
+        type: 'input',
+        message:
+          'Enter timestamp (ISO format, e.g., 2024-01-01T00:00:00.000Z):',
+        validate: (input) => {
+          try {
+            new Date(input as string).toISOString();
+            return true;
+          } catch (_e) {
+            return 'Invalid timestamp format. Use ISO format like 2024-01-01T00:00:00.000Z';
+          }
+        },
+      },
+      {
+        name: 'addresses',
+        type: 'input',
+        message: 'Enter addresses (comma-separated, optional):',
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          const addresses = (input as string)
+            .split(',')
+            .map((addr: string) => addr.trim());
+          for (const addr of addresses) {
+            if (!addr.startsWith('account_rdx')) {
+              return 'All addresses must start with "account_rdx"';
+            }
+          }
+          return true;
+        },
+      },
+      {
+        name: 'addDummyData',
+        type: 'confirm',
+        message: 'Add dummy data?',
+        default: false,
+      },
+      {
+        name: 'includeActivityIds',
+        type: 'input',
+        message: 'Enter activity IDs to include (comma-separated, optional):',
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          return true;
+        },
+      },
+      {
+        name: 'usdThreshold',
+        type: 'input',
+        message: 'Enter USD threshold (optional, e.g., 50):',
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          const num = Number(input);
+          if (Number.isNaN(num) || num < 0) {
+            return 'USD threshold must be a positive number';
+          }
+          return true;
+        },
+      },
+      {
+        name: 'batchSize',
+        type: 'number',
+        message: 'Enter batch size (optional, default: 100):',
+        validate: (input) => {
+          if (!input) return true; // Optional field
+          if ((input as number) <= 0) {
+            return 'Batch size must be greater than 0';
+          }
+          return true;
         },
       },
     ],
@@ -319,6 +399,30 @@ const buildPayload = (
   switch (queueType) {
     case 'event':
       return JSON.parse(answers.events as string);
+
+    case 'snapshot':
+      return {
+        timestamp: answers.timestamp,
+        ...(answers.addresses && {
+          addresses: (answers.addresses as string)
+            .split(',')
+            .map((addr: string) => addr.trim())
+            .filter((addr: string) => addr.length > 0),
+        }),
+        addDummyData: answers.addDummyData,
+        ...(answers.includeActivityIds && {
+          includeActivityIds: (answers.includeActivityIds as string)
+            .split(',')
+            .map((id: string) => id.trim())
+            .filter((id: string) => id.length > 0),
+        }),
+        ...(answers.usdThreshold && {
+          usdThreshold: answers.usdThreshold,
+        }),
+        ...(answers.batchSize && {
+          batchSize: answers.batchSize,
+        }),
+      };
 
     case 'snapshot-date-range':
       return {
