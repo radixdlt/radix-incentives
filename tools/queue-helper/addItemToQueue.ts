@@ -2,6 +2,7 @@
 
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ActivityId } from 'data';
 import { db } from 'db/incentives';
 import inquirer from 'inquirer';
 
@@ -155,6 +156,26 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           'Enter patterns:',
         validate: (input) => {
           if (!(input as string).trim()) return true; // Optional field
+
+          const patterns = (input as string)
+            .split(',')
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0);
+
+          if (patterns.length === 0) return true;
+
+          const matchedIds = matchActivityPatterns(patterns);
+          if (matchedIds.length === 0) {
+            return 'No activity IDs match the provided patterns';
+          }
+
+          console.log(`\n✓ Matched ${matchedIds.length} activity IDs`);
+          if (matchedIds.length <= 10) {
+            console.log(`  Matched: ${matchedIds.join(', ')}`);
+          } else {
+            console.log(`  First 10: ${matchedIds.slice(0, 10).join(', ')}...`);
+          }
+
           return true;
         },
       },
@@ -397,6 +418,29 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
 
 type QueuePayload = Record<string, unknown>;
 
+// Function to convert glob patterns to matching activity IDs
+const matchActivityPatterns = (patterns: string[]): string[] => {
+  const allActivityIds = Object.keys(ActivityId);
+  const matchedIds = new Set<string>();
+
+  for (const pattern of patterns) {
+    // Convert glob pattern to regex
+    const regexPattern = pattern
+      .replace(/\*/g, '.*') // Replace * with .*
+      .replace(/\?/g, '.'); // Replace ? with .
+
+    const regex = new RegExp(`^${regexPattern}$`);
+
+    for (const activityId of allActivityIds) {
+      if (regex.test(activityId)) {
+        matchedIds.add(activityId);
+      }
+    }
+  }
+
+  return Array.from(matchedIds);
+};
+
 const buildPayload = (
   queueType: QueueType,
   answers: Record<string, PromptAnswer>,
@@ -416,10 +460,16 @@ const buildPayload = (
         }),
         addDummyData: answers.addDummyData,
         ...(answers.includeActivityIds && {
-          includeActivityIds: (answers.includeActivityIds as string)
-            .split(',')
-            .map((pattern: string) => pattern.trim())
-            .filter((pattern: string) => pattern.length > 0),
+          includeActivityIds: (() => {
+            const patterns = (answers.includeActivityIds as string)
+              .split(',')
+              .map((pattern: string) => pattern.trim())
+              .filter((pattern: string) => pattern.length > 0);
+
+            return patterns.length > 0
+              ? matchActivityPatterns(patterns)
+              : undefined;
+          })(),
         }),
         ...(answers.usdThreshold && {
           usdThreshold: answers.usdThreshold,
