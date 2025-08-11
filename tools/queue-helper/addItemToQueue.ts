@@ -147,7 +147,12 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       {
         name: 'includeActivityIds',
         type: 'input',
-        message: 'Enter activity IDs to include (comma-separated, optional):',
+        message:
+          'Enter activity ID patterns (comma-separated, optional, supports wildcards):\n' +
+          'Examples: c9_*, *_ho_*, dp_lp_*, oc_tr_xrd-xusdc\n' +
+          'Available prefixes: c9 (CaviarNine), dp (DefiPlaza), oc (Ociswap), ro (RootFinance), su (Surge), we (WeftFinance)\n' +
+          'Categories: ho (holding), lp (liquidity), tr (trading), le (lending)\n' +
+          'Enter patterns:',
         validate: (input) => {
           if (!(input as string).trim()) return true; // Optional field
           return true;
@@ -413,8 +418,8 @@ const buildPayload = (
         ...(answers.includeActivityIds && {
           includeActivityIds: (answers.includeActivityIds as string)
             .split(',')
-            .map((id: string) => id.trim())
-            .filter((id: string) => id.length > 0),
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0),
         }),
         ...(answers.usdThreshold && {
           usdThreshold: answers.usdThreshold,
