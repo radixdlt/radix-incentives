@@ -13,17 +13,22 @@ export type AccountData = {
 /**
  * Reads the c9holders.csv file and generates account data
  */
-const generateAccountsC9xUsdcHolders = (): AccountData[] => {
+const generateAccounts = (): AccountData[] => {
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filename);
-  const csvPath = path.join(__dirname, 'weftv2xUsdcHolders.csv');
+  const csvPath = path.join(__dirname, 'all_accounts.csv');
   const csvContent = fs.readFileSync(csvPath, 'utf-8');
 
-  // Split by lines and filter out empty lines
   const accountAddresses = csvContent
-    .split('\n')
+    .split(/\r?\n/)
     .map((line) => line.trim())
-    .filter((line) => line.length > 0);
+    .filter((line) => line.length > 0)
+    .filter((line) => !line.toLowerCase().startsWith('#,address,'))
+    .map((line) => {
+      const [/* idx */, address] = line.split(',');
+      return (address ?? '').replace(/^"|"$/g, '').trim();
+    })
+    .filter((address) => address.length > 0);
 
   const accounts: AccountData[] = accountAddresses.map((address) => {
     const userId = randomUUID();
@@ -32,7 +37,7 @@ const generateAccountsC9xUsdcHolders = (): AccountData[] => {
     return {
       user_id: userId,
       address: address,
-      label: 'Weft v2 xUSDC Holder',
+      label: 'All-accounts',
       created_at: createdAt,
     };
   });
@@ -40,9 +45,13 @@ const generateAccountsC9xUsdcHolders = (): AccountData[] => {
   return accounts;
 };
 
-export const accountsC9xUsdcHolders = generateAccountsC9xUsdcHolders();
+export const accounts = generateAccounts();
 
-// For debugging
+
 if (import.meta.url === `file://${process.argv[1]}`) {
-  console.log(accountsC9xUsdcHolders);
+  const __filename = fileURLToPath(import.meta.url);
+  const __dirname = path.dirname(__filename);
+  const outputPath = path.join(__dirname, 'accounts.json');
+  fs.writeFileSync(outputPath, JSON.stringify(accounts, null, 2), 'utf-8');
+  console.log(`Saved ${accounts.length} accounts to: ${outputPath}`);
 }

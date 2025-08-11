@@ -18,7 +18,8 @@
       "!packages/db/src/incentives/seed/data/**/*",
       "!packages/sbor-ez-mode",
       "!packages/api/coverage",
-      "!tools/calculate-points/output"
+      "!tools/calculate-points/output",
+      "!packages/db/src/incentives/seed/data/*"
     ]
   },
   "formatter": {

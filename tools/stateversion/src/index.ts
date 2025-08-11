@@ -6,7 +6,7 @@ const gatewayApiClient = GatewayApiClient.initialize({
   applicationVersion: '1.0.0',
 });
 
-const START_DATE = new Date('2025-04-14T00:00:00Z');
+const START_DATE = new Date('2024-09-01T00:00:00Z');
 const END_DATE = new Date('2025-04-20T23:59:59Z');
 
 const getStateVersion = async (date: Date) => {

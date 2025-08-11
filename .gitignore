@@ -41,6 +41,8 @@ yarn-error.log*
 .idea/*
 apps/vote-collector/src/data/*
 apps/vote-collector/time_weighted_averages.csv
+packages/db/src/incentives/seed/data/*.csv
+packages/db/src/incentives/seed/data/accounts500KData.ts
 
 # Claude code artifacts
 requirements
