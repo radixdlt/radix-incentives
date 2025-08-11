@@ -5,6 +5,11 @@ import { fileURLToPath } from 'node:url';
 import { ActivityId } from 'data';
 import { db } from 'db/incentives';
 import inquirer from 'inquirer';
+// @ts-ignore - inquirer-autocomplete-prompt doesn't have types
+import autocomplete from 'inquirer-autocomplete-prompt';
+
+// Register the autocomplete prompt type
+inquirer.registerPrompt('autocomplete', autocomplete);
 
 type QueueType =
   | 'event'
@@ -148,13 +153,77 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       },
       {
         name: 'includeActivityIds',
-        type: 'input',
+        type: 'autocomplete',
         message:
           'Enter activity ID patterns (comma-separated, optional, supports wildcards):\n' +
           'Examples: c9_*, *_ho_*, dp_lp_*, oc_tr_xrd-xusdc\n' +
           'Available prefixes: c9 (CaviarNine), dp (DefiPlaza), oc (Ociswap), ro (RootFinance), su (Surge), we (WeftFinance)\n' +
-          'Categories: ho (holding), lp (liquidity), tr (trading), le (lending)\n' +
-          'Enter patterns:',
+          'Categories: ho (holding), lp (liquidity), tr (trading), le (lending)',
+        source: async (
+          _answers: Record<string, PromptAnswer>,
+          input: string,
+        ) => {
+          if (!input || !input.trim()) {
+            return [
+              {
+                name: 'Press Enter to skip (include all activities)',
+                value: '',
+              },
+            ];
+          }
+
+          const patterns = input
+            .split(',')
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0);
+
+          if (patterns.length === 0) {
+            return [
+              {
+                name: 'Press Enter to skip (include all activities)',
+                value: '',
+              },
+            ];
+          }
+
+          const matchedIds = matchActivityPatterns(patterns);
+          const matchCount = matchedIds.length;
+
+          if (matchCount === 0) {
+            return [
+              {
+                name: `No matches found for: ${input}`,
+                value: input,
+              },
+            ];
+          }
+
+          // Show the current input with match count
+          const choices = [
+            {
+              name: `Use current patterns: ${input} (${matchCount} matches)`,
+              value: input,
+            },
+          ];
+
+          // Show preview of matches
+          if (matchCount <= 5) {
+            choices.push({
+              name: `  Matches: ${matchedIds.join(', ')}`,
+              value: input,
+              disabled: true,
+            });
+          } else {
+            choices.push({
+              name: `  Preview: ${matchedIds.slice(0, 5).join(', ')}... and ${matchCount - 5} more`,
+              value: input,
+              disabled: true,
+            });
+          }
+
+          return choices;
+        },
+        suggestOnly: true,
         validate: (input) => {
           if (!(input as string).trim()) return true; // Optional field
 
@@ -168,13 +237,6 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
           const matchedIds = matchActivityPatterns(patterns);
           if (matchedIds.length === 0) {
             return 'No activity IDs match the provided patterns';
-          }
-
-          console.log(`\n✓ Matched ${matchedIds.length} activity IDs`);
-          if (matchedIds.length <= 10) {
-            console.log(`  Matched: ${matchedIds.join(', ')}`);
-          } else {
-            console.log(`  First 10: ${matchedIds.slice(0, 10).join(', ')}...`);
           }
 
           return true;
