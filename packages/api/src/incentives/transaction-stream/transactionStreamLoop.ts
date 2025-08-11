@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
 import { AddComponentCallsService } from '../component/addComponentCalls';
 import { ConfigService } from '../config/configService';
 import { AddToEventQueueService } from '../events/addToEventQueue';
@@ -30,6 +30,11 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
       const addComponentCallsService = yield* AddComponentCallsService;
       const processSwapEventTradingVolumeService =
         yield* ProcessSwapEventTradingVolumeService;
+
+      const eventProcessingEnabled = yield* Config.boolean(
+        'TRANSACTION_STREAM_EVENT_PROCESSING_ENABLED',
+      ).pipe(Config.withDefault(true));
+
       return {
         run: Effect.fn(function* () {
           while (true) {
@@ -49,7 +54,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
               Effect.flatMap(filterTransactionsService),
             );
 
-            if (filteredTransactions.length > 0) {
+            if (filteredTransactions.length > 0 && eventProcessingEnabled) {
               // remove duplicate transactions using Map for O(n) performance
               const transactionMap = new Map(
                 filteredTransactions
