@@ -2,11 +2,18 @@
 
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { ActivityId } from 'data';
 import { db } from 'db/incentives';
 import inquirer from 'inquirer';
+// @ts-ignore - inquirer-autocomplete-prompt doesn't have types
+import autocomplete from 'inquirer-autocomplete-prompt';
+
+// Register the autocomplete prompt type
+inquirer.registerPrompt('autocomplete', autocomplete);
 
 type QueueType =
   | 'event'
+  | 'snapshot'
   | 'snapshot-date-range'
   | 'calculate-activity-points'
   | 'calculate-season-points'
@@ -100,6 +107,169 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       },
     ],
   },
+  snapshot: {
+    name: 'Snapshot Queue',
+    endpoint: '/queues/snapshot/add',
+    description:
+      'Create a snapshot for specific addresses at a given timestamp',
+    promptFields: [
+      {
+        name: 'timestamp',
+        type: 'input',
+        message:
+          'Enter timestamp (ISO format, e.g., 2024-01-01T00:00:00.000Z):',
+        default: new Date().toISOString(),
+        validate: (input) => {
+          try {
+            new Date(input as string).toISOString();
+            return true;
+          } catch (_e) {
+            return 'Invalid timestamp format. Use ISO format like 2024-01-01T00:00:00.000Z';
+          }
+        },
+      },
+      {
+        name: 'addresses',
+        type: 'input',
+        message: 'Enter addresses (comma-separated, optional):',
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          const addresses = (input as string)
+            .split(',')
+            .map((addr: string) => addr.trim());
+          for (const addr of addresses) {
+            if (!addr.startsWith('account_rdx')) {
+              return 'All addresses must start with "account_rdx"';
+            }
+          }
+          return true;
+        },
+      },
+      {
+        name: 'addDummyData',
+        type: 'confirm',
+        message: 'Add dummy data?',
+        default: false,
+      },
+      {
+        name: 'includeActivityIds',
+        type: 'autocomplete',
+        message:
+          'Enter activity ID patterns (comma-separated, optional, supports wildcards):\n' +
+          'Examples: c9_*, *_ho_*, dp_lp_*, oc_tr_xrd-xusdc\n' +
+          'Available prefixes: c9 (CaviarNine), dp (DefiPlaza), oc (Ociswap), ro (RootFinance), su (Surge), we (WeftFinance)\n' +
+          'Categories: ho (holding), lp (liquidity), tr (trading), le (lending)',
+        source: async (
+          _answers: Record<string, PromptAnswer>,
+          input: string,
+        ) => {
+          if (!input || !input.trim()) {
+            return [
+              {
+                name: 'Press Enter to skip (include all activities)',
+                value: '',
+              },
+            ];
+          }
+
+          const patterns = input
+            .split(',')
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0);
+
+          if (patterns.length === 0) {
+            return [
+              {
+                name: 'Press Enter to skip (include all activities)',
+                value: '',
+              },
+            ];
+          }
+
+          const matchedIds = matchActivityPatterns(patterns);
+          const matchCount = matchedIds.length;
+
+          if (matchCount === 0) {
+            return [
+              {
+                name: `No matches found for: ${input}`,
+                value: input,
+              },
+            ];
+          }
+
+          // Show the current input with match count
+          const choices = [
+            {
+              name: `Use current patterns: ${input} (${matchCount} matches)`,
+              value: input,
+            },
+          ];
+
+          // Show preview of matches
+          if (matchCount <= 5) {
+            choices.push({
+              name: `  Matches: ${matchedIds.join(', ')}`,
+              value: input,
+              disabled: true,
+            });
+          } else {
+            choices.push({
+              name: `  Preview: ${matchedIds.slice(0, 5).join(', ')}... and ${matchCount - 5} more`,
+              value: input,
+              disabled: true,
+            });
+          }
+
+          return choices;
+        },
+        suggestOnly: true,
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+
+          const patterns = (input as string)
+            .split(',')
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0);
+
+          if (patterns.length === 0) return true;
+
+          const matchedIds = matchActivityPatterns(patterns);
+          if (matchedIds.length === 0) {
+            return 'No activity IDs match the provided patterns';
+          }
+
+          return true;
+        },
+      },
+      {
+        name: 'usdThreshold',
+        type: 'input',
+        message: 'Enter USD threshold (optional, e.g., 50):',
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          const num = Number(input);
+          if (Number.isNaN(num) || num < 0) {
+            return 'USD threshold must be a positive number';
+          }
+          return true;
+        },
+      },
+      {
+        name: 'batchSize',
+        type: 'number',
+        message: 'Enter batch size (optional, default: 10000):',
+        default: 10000,
+        validate: (input) => {
+          if (!input) return true; // Optional field
+          if ((input as number) <= 0) {
+            return 'Batch size must be greater than 0';
+          }
+          return true;
+        },
+      },
+    ],
+  },
   'snapshot-date-range': {
     name: 'Snapshot Date Range Queue',
     endpoint: '/queues/snapshot-date-range/add',
@@ -163,6 +333,123 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'confirm',
         message: 'Add dummy data?',
         default: false,
+      },
+      {
+        name: 'includeActivityIds',
+        type: 'autocomplete',
+        message:
+          'Enter activity ID patterns (comma-separated, optional, supports wildcards):\n' +
+          'Examples: c9_*, *_ho_*, dp_lp_*, oc_tr_xrd-xusdc\n' +
+          'Available prefixes: c9 (CaviarNine), dp (DefiPlaza), oc (Ociswap), ro (RootFinance), su (Surge), we (WeftFinance)\n' +
+          'Categories: ho (holding), lp (liquidity), tr (trading), le (lending)',
+        source: async (
+          _answers: Record<string, PromptAnswer>,
+          input: string,
+        ) => {
+          if (!input || !input.trim()) {
+            return [
+              {
+                name: 'Press Enter to skip (include all activities)',
+                value: '',
+              },
+            ];
+          }
+
+          const patterns = input
+            .split(',')
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0);
+
+          if (patterns.length === 0) {
+            return [
+              {
+                name: 'Press Enter to skip (include all activities)',
+                value: '',
+              },
+            ];
+          }
+
+          const matchedIds = matchActivityPatterns(patterns);
+          const matchCount = matchedIds.length;
+
+          if (matchCount === 0) {
+            return [
+              {
+                name: `No matches found for: ${input}`,
+                value: input,
+              },
+            ];
+          }
+
+          // Show the current input with match count
+          const choices = [
+            {
+              name: `Use current patterns: ${input} (${matchCount} matches)`,
+              value: input,
+            },
+          ];
+
+          // Show preview of matches
+          if (matchCount <= 5) {
+            choices.push({
+              name: `  Matches: ${matchedIds.join(', ')}`,
+              value: input,
+              disabled: true,
+            });
+          } else {
+            choices.push({
+              name: `  Preview: ${matchedIds.slice(0, 5).join(', ')}... and ${matchCount - 5} more`,
+              value: input,
+              disabled: true,
+            });
+          }
+
+          return choices;
+        },
+        suggestOnly: true,
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+
+          const patterns = (input as string)
+            .split(',')
+            .map((pattern: string) => pattern.trim())
+            .filter((pattern: string) => pattern.length > 0);
+
+          if (patterns.length === 0) return true;
+
+          const matchedIds = matchActivityPatterns(patterns);
+          if (matchedIds.length === 0) {
+            return 'No activity IDs match the provided patterns';
+          }
+
+          return true;
+        },
+      },
+      {
+        name: 'usdThreshold',
+        type: 'input',
+        message: 'Enter USD threshold (optional, e.g., 50):',
+        validate: (input) => {
+          if (!(input as string).trim()) return true; // Optional field
+          const num = Number(input);
+          if (Number.isNaN(num) || num < 0) {
+            return 'USD threshold must be a positive number';
+          }
+          return true;
+        },
+      },
+      {
+        name: 'batchSize',
+        type: 'number',
+        message: 'Enter batch size (optional, default: 10000):',
+        default: 10000,
+        validate: (input) => {
+          if (!input) return true; // Optional field
+          if ((input as number) <= 0) {
+            return 'Batch size must be greater than 0';
+          }
+          return true;
+        },
       },
     ],
   },
@@ -312,6 +599,29 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
 
 type QueuePayload = Record<string, unknown>;
 
+// Function to convert glob patterns to matching activity IDs
+const matchActivityPatterns = (patterns: string[]): string[] => {
+  const allActivityIds = Object.keys(ActivityId);
+  const matchedIds = new Set<string>();
+
+  for (const pattern of patterns) {
+    // Convert glob pattern to regex
+    const regexPattern = pattern
+      .replace(/\*/g, '.*') // Replace * with .*
+      .replace(/\?/g, '.'); // Replace ? with .
+
+    const regex = new RegExp(`^${regexPattern}$`);
+
+    for (const activityId of allActivityIds) {
+      if (regex.test(activityId)) {
+        matchedIds.add(activityId);
+      }
+    }
+  }
+
+  return Array.from(matchedIds);
+};
+
 const buildPayload = (
   queueType: QueueType,
   answers: Record<string, PromptAnswer>,
@@ -319,6 +629,36 @@ const buildPayload = (
   switch (queueType) {
     case 'event':
       return JSON.parse(answers.events as string);
+
+    case 'snapshot':
+      return {
+        timestamp: answers.timestamp,
+        ...(answers.addresses && {
+          addresses: (answers.addresses as string)
+            .split(',')
+            .map((addr: string) => addr.trim())
+            .filter((addr: string) => addr.length > 0),
+        }),
+        addDummyData: answers.addDummyData,
+        ...(answers.includeActivityIds && {
+          includeActivityIds: (() => {
+            const patterns = (answers.includeActivityIds as string)
+              .split(',')
+              .map((pattern: string) => pattern.trim())
+              .filter((pattern: string) => pattern.length > 0);
+
+            return patterns.length > 0
+              ? matchActivityPatterns(patterns)
+              : undefined;
+          })(),
+        }),
+        ...(answers.usdThreshold && {
+          usdThreshold: answers.usdThreshold,
+        }),
+        ...(answers.batchSize && {
+          batchSize: answers.batchSize,
+        }),
+      };
 
     case 'snapshot-date-range':
       return {
@@ -331,6 +671,24 @@ const buildPayload = (
         }),
         intervalInHours: answers.intervalInHours,
         addDummyData: answers.addDummyData,
+        ...(answers.includeActivityIds && {
+          includeActivityIds: (() => {
+            const patterns = (answers.includeActivityIds as string)
+              .split(',')
+              .map((pattern: string) => pattern.trim())
+              .filter((pattern: string) => pattern.length > 0);
+
+            return patterns.length > 0
+              ? matchActivityPatterns(patterns)
+              : undefined;
+          })(),
+        }),
+        ...(answers.usdThreshold && {
+          usdThreshold: answers.usdThreshold,
+        }),
+        ...(answers.batchSize && {
+          batchSize: answers.batchSize,
+        }),
       };
 
     case 'calculate-activity-points':
