@@ -1216,6 +1216,9 @@ importers:
 
   tools/queue-helper:
     dependencies:
+      data:
+        specifier: workspace:*
+        version: link:../../packages/data
       db:
         specifier: workspace:*
         version: link:../../packages/db

@@ -9,7 +9,8 @@
   "dependencies": {
     "tsx": "catalog:",
     "inquirer": "catalog:",
-    "db": "workspace:*"
+    "db": "workspace:*",
+    "data": "workspace:*"
   },
   "devDependencies": {
     "@types/inquirer": "catalog:",

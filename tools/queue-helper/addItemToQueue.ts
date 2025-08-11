@@ -113,6 +113,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message:
           'Enter timestamp (ISO format, e.g., 2024-01-01T00:00:00.000Z):',
+        default: new Date().toISOString(),
         validate: (input) => {
           try {
             new Date(input as string).toISOString();
