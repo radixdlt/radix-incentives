@@ -27,7 +27,8 @@
       "Bash(gh pr create:*)",
       "Bash(gh workflow:*)",
       "Bash(biome check:*)",
-      "Bash(pnpm biome check:*)"
+      "Bash(pnpm biome check:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }

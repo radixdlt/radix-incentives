@@ -14,7 +14,9 @@ const GetFungibleBalanceLive = GetFungibleBalanceService.Default;
 const GetComponentStateLive = GetComponentStateService.Default;
 const GetEntityDetailsServiceLive = GetEntityDetailsService.Default;
 const EntityFungiblesPageLive = EntityFungiblesPageService.Default;
-const GetLedgerStateLive = GetLedgerStateService.Default;
+const GetLedgerStateLive = GetLedgerStateService.Default.pipe(
+  Layer.provide(GatewayApiClientLive),
+);
 
 const getSurgeLiquidityPositionsLive = GetSurgeLiquidityPositionsLive.pipe(
   Layer.provide(GetFungibleBalanceLive),
@@ -29,14 +31,26 @@ describe('GetSurgeLiquidityPositionsService', () => {
   it('should get surge liquidity positions', async () => {
     const result = await Effect.runPromiseExit(
       Effect.gen(function* () {
-        const service = yield* GetSurgeLiquidityPositionsService;
+        const service = yield* Effect.provide(
+          GetSurgeLiquidityPositionsService,
+          getSurgeLiquidityPositionsLive,
+        );
+        const getLedgerState = yield* Effect.provide(
+          GetLedgerStateService,
+          GetLedgerStateLive,
+        );
+
+        const state = yield* getLedgerState({
+          at_ledger_state: { timestamp: new Date('2024-09-01T00:00:00Z') },
+        });
+
         return yield* service.getSurgeLiquidityPositions({
           accountAddresses: [
             'account_rdx12x7dulvhrvz2ney3992n5y4y590cqj58ge5y2xesjlkzgrydg8xdd7',
           ],
-          at_ledger_state: { state_version: 325927555 },
+          at_ledger_state: { state_version: state.state_version },
         });
-      }).pipe(Effect.provide(getSurgeLiquidityPositionsLive)),
+      }),
     );
 
     Exit.match(result, {
