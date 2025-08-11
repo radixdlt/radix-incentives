@@ -74,7 +74,7 @@ export const CalculateActivityPointsLive = Layer.effect(
           startDate: week.startDate,
           endDate: endDate,
           calculationType: 'USDValueHighPrecision',
-          filterType: 'exclude_hold',
+          filterType: 'include_hold',
           filterZeroValues: true,
         }).pipe(
           Effect.tap(() => Effect.log('Calculated activity points using SQL')),

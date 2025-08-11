@@ -286,13 +286,13 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             // multiply season points by multiplier
             Effect.map((items) =>
               Object.entries(items).map(([userId, seasonPoints]) => {
-                const multiplier =
+                const _multiplier =
                   seasonPointMultipliers[userId]?.[0]?.multiplier ?? '0';
 
                 return {
                   userId,
                   seasonId: season.id,
-                  points: seasonPoints.multipliedBy(multiplier),
+                  points: seasonPoints.multipliedBy(1),
                   weekId: input.weekId,
                 };
               }),
