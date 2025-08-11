@@ -14,6 +14,8 @@ master:
     limits:
       cpu: 1
       memory: 256Mi
+  disableCommands:
+  - FLUSHALL
 metrics:
   enabled: true
   image:
