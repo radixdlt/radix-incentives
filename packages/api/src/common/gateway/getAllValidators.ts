@@ -1,13 +1,16 @@
 import { Effect } from 'effect';
+import { z } from 'zod';
 import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 
-export type Validator = {
-  address: string;
-  name: string;
-  lsuResourceAddress: string;
-  claimNftResourceAddress: string;
-};
+export const ValidatorSchema = z.object({
+  address: z.string(),
+  name: z.string(),
+  lsuResourceAddress: z.string(),
+  claimNftResourceAddress: z.string(),
+});
+
+export type Validator = z.infer<typeof ValidatorSchema>;
 
 export class GetAllValidatorsService extends Effect.Service<GetAllValidatorsService>()(
   'GetAllValidatorsService',
