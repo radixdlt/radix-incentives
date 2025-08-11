@@ -196,7 +196,8 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       {
         name: 'batchSize',
         type: 'number',
-        message: 'Enter batch size (optional, default: 100):',
+        message: 'Enter batch size (optional, default: 10000):',
+        default: 10000,
         validate: (input) => {
           if (!input) return true; // Optional field
           if ((input as number) <= 0) {
