@@ -10,6 +10,7 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
     addresses: input.data.addresses,
     timestamp: new Date(input.data.timestamp),
     addDummyData: input.data.addDummyData,
+    includeActivityIds: input.data.includeActivityIds,
   });
 
   if (Exit.isFailure(result)) {
