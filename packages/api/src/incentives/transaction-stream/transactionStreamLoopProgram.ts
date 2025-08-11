@@ -123,6 +123,15 @@ const transactionStreamLoopLive = TransactionStreamLoopService.Default.pipe(
 export const transactionStreamLoopProgram = () => {
   const runnable = Effect.provide(
     Effect.gen(function* () {
+      const transactionStreamEnabled = yield* Config.boolean(
+        'TRANSACTION_STREAM_ENABLED',
+      ).pipe(Config.withDefault(true));
+
+      if (!transactionStreamEnabled) {
+        yield* Effect.log('Transaction streamer is disabled');
+        return;
+      }
+
       const transactionStreamLoopService = yield* TransactionStreamLoopService;
       const configService = yield* ConfigService;
 
