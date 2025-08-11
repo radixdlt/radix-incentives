@@ -7,9 +7,11 @@
     "queue": "tsx addItemToQueue.ts"
   },
   "dependencies": {
-    "tsx": "catalog:",
+    "data": "workspace:*",
+    "db": "workspace:*",
     "inquirer": "catalog:",
-    "db": "workspace:*"
+    "inquirer-autocomplete-prompt": "^3.0.1",
+    "tsx": "catalog:"
   },
   "devDependencies": {
     "@types/inquirer": "catalog:",

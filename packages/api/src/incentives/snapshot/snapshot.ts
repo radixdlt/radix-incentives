@@ -107,8 +107,10 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
           ? new BigNumber(input.usdThreshold)
           : null;
 
+        yield* Effect.log(`==============================================`);
+
         yield* Effect.log(
-          `running snapshot job ${input.jobId} at timestamp: ${input.timestamp}`,
+          `starting snapshot job ${input.jobId} at timestamp: ${input.timestamp}`,
         );
 
         yield* validateInput(input);
@@ -145,7 +147,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
                 `processing batch ${batchIndex + 1} out of ${accountBatches.length}`,
               );
 
-            yield* Effect.log(`getting account balances`);
+            yield* Effect.log(`phase 1: fetch account balances`);
             const accountBalances = yield* getAccountBalancesAtStateVersion({
               addresses: accountsAddresses,
               at_ledger_state: {
@@ -158,7 +160,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               ),
             );
 
-            yield* Effect.log(`aggregating account balances`);
+            yield* Effect.log(`phase 2: aggregate account balances`);
             let aggregatedAccountBalance =
               yield* aggregateAccountBalanceService({
                 accountBalances: accountBalances.items,
@@ -170,7 +172,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               );
 
             if (enableDummyData) {
-              yield* Effect.log(`generating dummy data`);
+              yield* Effect.log(`[DEBUG] generating dummy data`);
               // @ts-expect-error: used for testing
               aggregatedAccountBalance = yield* generateDummySnapshotData({
                 batchAggregatedAccountBalance: aggregatedAccountBalance,
@@ -205,7 +207,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               );
             }
 
-            yield* Effect.log(`upserting account balances`);
+            yield* Effect.log(`phase 3: save account balances`);
             yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
               Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
             );
@@ -214,7 +216,8 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
           { discard: true },
         );
 
-        yield* Effect.log(`snapshot completed for job`);
+        yield* Effect.log(`snapshot completed for job: ${input.jobId}`);
+        yield* Effect.log(`==============================================`);
       });
     }),
   },
