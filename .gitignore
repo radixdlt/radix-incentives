@@ -46,3 +46,5 @@ packages/db/src/incentives/seed/data/accounts500KData.ts
 
 # Claude code artifacts
 requirements
+
+packages/db/src/incentives/seed/data/accounts500KData.ts
