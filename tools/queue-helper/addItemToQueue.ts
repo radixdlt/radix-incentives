@@ -652,12 +652,14 @@ const buildPayload = (
               : undefined;
           })(),
         }),
-        ...(answers.usdThreshold && {
-          usdThreshold: answers.usdThreshold,
-        }),
-        ...(answers.batchSize && {
-          batchSize: answers.batchSize,
-        }),
+        ...(answers.usdThreshold !== undefined &&
+          (answers.usdThreshold as string).trim() !== '' && {
+            usdThreshold: answers.usdThreshold,
+          }),
+        ...(answers.batchSize !== undefined &&
+          answers.batchSize !== '' && {
+            batchSize: Number(answers.batchSize),
+          }),
       };
 
     case 'snapshot-date-range':
@@ -683,12 +685,14 @@ const buildPayload = (
               : undefined;
           })(),
         }),
-        ...(answers.usdThreshold && {
-          usdThreshold: answers.usdThreshold,
-        }),
-        ...(answers.batchSize && {
-          batchSize: answers.batchSize,
-        }),
+        ...(answers.usdThreshold !== undefined &&
+          (answers.usdThreshold as string).trim() !== '' && {
+            usdThreshold: answers.usdThreshold,
+          }),
+        ...(answers.batchSize !== undefined &&
+          answers.batchSize !== '' && {
+            batchSize: Number(answers.batchSize),
+          }),
       };
 
     case 'calculate-activity-points':

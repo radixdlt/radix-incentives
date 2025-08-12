@@ -44,3 +44,5 @@ apps/vote-collector/time_weighted_averages.csv
 
 # Claude code artifacts
 requirements
+
+packages/db/src/incentives/seed/data/accounts500KData.ts
