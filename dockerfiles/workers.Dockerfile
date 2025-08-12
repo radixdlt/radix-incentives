@@ -37,4 +37,6 @@ COPY --from=installer /app/apps/ apps
 COPY --from=installer /app/packages/ packages
 COPY --from=installer /app/node_modules/ node_modules
 
+RUN apt-get update && apt-get install -y procps
+
 CMD sh -c 'if [ -n "$NODE_MAX_OLD_SPACE_SIZE" ]; then node --max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE apps/workers/dist/index.js; else node apps/workers/dist/index.js; fi'

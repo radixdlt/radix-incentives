@@ -213,6 +213,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
             yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
               Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
             );
+            yield* Effect.log('memory usage', process.memoryUsage());
           }),
           // discard the result of the effect to reduce memory usage
           { discard: true },
@@ -220,6 +221,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
         yield* Effect.log(`snapshot completed for job: ${input.jobId}`);
         yield* Effect.log(`==============================================`);
+        yield* Effect.log('memory usage', process.memoryUsage());
       });
     }),
   },
