@@ -1,7 +1,8 @@
+import { it } from '@effect/vitest';
 import { BigNumber } from 'bignumber.js';
 import { Assets } from 'data';
 import { Effect, Layer } from 'effect';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, vi } from 'vitest';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
 import { FetchService } from '../../common/helpers';
 import { GetUsdValueLive, GetUsdValueService } from './getUsdValue';
@@ -17,6 +18,8 @@ describe('GetUsdValueService', () => {
   const getUsdValueLive = GetUsdValueLive.pipe(
     Layer.provide(AddressValidationServiceLive),
   );
+
+  const fetchServiceLive = FetchService.Default;
 
   it('should return USD value for xUSDC', async () => {
     const amount = new BigNumber('100');
@@ -164,4 +167,26 @@ describe('GetUsdValueService', () => {
       name: expect.stringContaining('PriceServiceApiError'),
     });
   });
+
+  it.effect('should return 0 if price is missing', () =>
+    Effect.gen(function* () {
+      const getUsdValueLive = GetUsdValueLive.pipe(
+        Layer.provide(AddressValidationServiceLive),
+        Layer.provide(fetchServiceLive),
+      );
+
+      const getUsdService = yield* Effect.provide(
+        GetUsdValueService,
+        getUsdValueLive,
+      );
+
+      const result = yield* getUsdService({
+        amount: new BigNumber('100'),
+        resourceAddress: Assets.Fungible.EARLY,
+        timestamp: new Date('2024-01-01'),
+      });
+
+      expect(result.toString()).toBe('0');
+    }),
+  );
 });
