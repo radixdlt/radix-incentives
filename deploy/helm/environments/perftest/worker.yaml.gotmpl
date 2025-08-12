@@ -8,7 +8,7 @@ params:
   LOG_LEVEL: trace
   EVENT_WORKER_CONCURRENCY: 20
   TRANSACTION_WORKER_CONCURRENCY: 20
-  GATEWAY_URL: "https://mainnet.radixdlt.com"
+  GATEWAY_URL: "https://internal-mainnet-blue-babylon-gateway.rtlj-prod.extratools.works"
   OTLP_BASE_URL: http://opentelemetry-collector.monitoring:4318
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
@@ -32,6 +32,11 @@ secrets:
     aws_secret_name: "rdx-works-main/eks/incentives/perftest/secrets"
     aws_secret_key: "token_price_service_key"
     secret_key: "token_price_service_key"
+  - external_secret_name: workers-token-gateway-auth
+    env_variable: "GATEWAY_BASIC_AUTH"
+    aws_secret_name: "rdx-works-main/eks/incentives/perftest/secrets"
+    aws_secret_key: "internal_gw_auth"
+    secret_key: "internal_gw_auth"
 
 ingress:
   enabled: false
