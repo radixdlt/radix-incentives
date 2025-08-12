@@ -22,12 +22,6 @@ export class PriceServiceApiError extends Data.TaggedError(
   timestamp: number;
 }> {}
 
-class MissingPriceError extends Data.TaggedError('MissingPriceError')<{
-  message: string;
-  resourceAddress: string;
-  timestamp: number;
-}> {}
-
 type PriceCacheKey = `${string}:${number}`;
 
 export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
@@ -86,13 +80,7 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
           });
 
           if (responseText.includes('Price missing for tokens')) {
-            return yield* Effect.fail(
-              new MissingPriceError({
-                message: 'Price missing for tokens',
-                resourceAddress,
-                timestamp,
-              }),
-            );
+            return yield* Effect.succeed(new BigNumber(0));
           }
 
           return yield* Effect.fail(
