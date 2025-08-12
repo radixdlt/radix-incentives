@@ -14,6 +14,7 @@ export const NodeSdkLive = NodeSdk.layer(() => ({
   ),
 }));
 
+import { FetchService } from 'api/common';
 import { AddressValidationServiceLive } from '../../../packages/api/src/common/address-validation/addressValidation';
 import { GetCaviarnineResourcePoolPositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
 import { GetHyperstakePositionsLive } from '../../../packages/api/src/common/dapps/caviarnine/getHyperstakePositions';
@@ -59,12 +60,13 @@ import { AggregateCaviarninePositionsLive } from '../../../packages/api/src/ince
 import { AggregateDefiPlazaPositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateDefiPlazaPositions';
 import { AggregateOciswapPositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateOciswapPositions';
 import { AggregatePoolPositionsService } from '../../../packages/api/src/incentives/account-balance/aggregatePoolPositions';
-import { AggregateRootFinancePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateRootFinancePositions';
+import { AggregateRootFinancePositionsService } from '../../../packages/api/src/incentives/account-balance/aggregateRootFinancePositions';
 import { AggregateSurgePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateSurgePositions';
-import { AggregateWeftFinancePositionsLive } from '../../../packages/api/src/incentives/account-balance/aggregateWeftFinancePositions';
+import { AggregateWeftFinancePositionsService } from '../../../packages/api/src/incentives/account-balance/aggregateWeftFinancePositions';
 import { XrdBalanceLive } from '../../../packages/api/src/incentives/account-balance/aggregateXrdBalance';
 import { GetAccountBalancesAtStateVersionLive } from '../../../packages/api/src/incentives/account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesLive } from '../../../packages/api/src/incentives/account-balance/upsertAccountBalance';
+import { ConfigService } from '../../../packages/api/src/incentives/config/configService';
 // Snapshot services
 import { CreateSnapshotLive } from '../../../packages/api/src/incentives/snapshot/createSnapshot';
 import { UpdateSnapshotLive } from '../../../packages/api/src/incentives/snapshot/updateSnapshot';
@@ -278,10 +280,14 @@ const runnable = Effect.gen(function* () {
   );
 
   const aggregateWeftFinancePositionsLive =
-    AggregateWeftFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+    AggregateWeftFinancePositionsService.Default.pipe(
+      Layer.provide(getUsdValueLive),
+    );
 
   const aggregateRootFinancePositionsLive =
-    AggregateRootFinancePositionsLive.pipe(Layer.provide(getUsdValueLive));
+    AggregateRootFinancePositionsService.Default.pipe(
+      Layer.provide(getUsdValueLive),
+    );
 
   const aggregateDefiPlazaPositionsLive = AggregateDefiPlazaPositionsLive.pipe(
     Layer.provide(getUsdValueLive),
@@ -359,6 +365,9 @@ const runnable = Effect.gen(function* () {
     Layer.provide(addressValidationServiceLive),
   );
 
+  const configServiceLive = ConfigService.Default;
+  const fetchServiceLive = FetchService.Default;
+
   const snapshotLive = SnapshotService.Default.pipe(
     Layer.provide(gatewayApiClientLive),
     Layer.provide(getAccountBalancesAtStateVersionLive),
@@ -370,11 +379,15 @@ const runnable = Effect.gen(function* () {
     Layer.provide(aggregateAccountBalanceLive),
     Layer.provide(getAllValidatorsServiceLive),
     Layer.provide(aggregatePoolPositionsLive),
+    Layer.provide(configServiceLive),
+    Layer.provide(fetchServiceLive),
+    Layer.provide(getLedgerStateLive),
+    Layer.provide(dbClientLive),
   );
 
   const service = yield* Effect.provide(SnapshotService, snapshotLive);
 
-  const addresses = yield* Effect.tryPromise(() =>
+  const _addresses = yield* Effect.tryPromise(() =>
     db.query.accounts
       .findMany({
         limit: 10,
@@ -382,12 +395,44 @@ const runnable = Effect.gen(function* () {
       .then((res) => res.map((r) => r.address)),
   );
 
-  const testAccountAddress = process.env.TEST_ACCOUNT_ADDRESS;
+  const _testAccountAddress = process.env.TEST_ACCOUNT_ADDRESS;
 
   yield* service({
-    timestamp: new Date('2025-07-20T00:00:00.000Z'),
+    timestamp: new Date('2024-09-01T00:00:00.000Z'),
     batchSize: 10_000,
-    addresses: testAccountAddress ? [testAccountAddress] : addresses,
+    addresses: [
+      'account_rdx1280003ttgydsuus9dl3ag4mn7l37lktqtt3z9rqun3cecx8spj0xmw',
+      'account_rdx1280007fzy8wxjvlw2u23lge4p5kyttnuzezmww8j44rlcr708s75qs',
+      'account_rdx128000lh2huxqyfjug5gux3tqgxs723693uu7dyfwkx9fsdpj9r7la7',
+    ],
+    addDummyData: false,
+    includeActivityIds: [
+      'c9_ho_floop-xrd',
+      'c9_ho_lsulp-reddicks',
+      'c9_ho_lsulp-xrd',
+      'c9_ho_xeth-xrd',
+      'c9_ho_xrd-xusdc',
+      'c9_ho_xrd-xusdt',
+      'c9_ho_xrd-xwbtc',
+      'dp_ho_dfp2-xrd',
+      'dp_ho_xeth-xrd',
+      'dp_ho_xrd-xusdc',
+      'dp_ho_xrd-xusdt',
+      'dp_ho_xrd-xwbtc',
+      'oc_ho_early-xrd',
+      'oc_ho_ilis-xrd',
+      'oc_ho_oci-xrd',
+      'oc_ho_xeth-xrd',
+      'oc_ho_xrd-xusdc',
+      'oc_ho_xrd-xusdt',
+      'oc_ho_xrd-xwbtc',
+      'ro_ho_lsulp',
+      'ro_ho_xrd',
+      'we_ho_lsulp',
+      'we_ho_stakedXrd',
+      'we_ho_unstakedXrd',
+      'we_ho_xrd',
+    ],
   }).pipe(Effect.provide(NodeSdkLive));
 });
 
