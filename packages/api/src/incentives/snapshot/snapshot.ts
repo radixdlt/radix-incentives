@@ -177,7 +177,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               );
 
             yield* Effect.log(`phase 1: fetch account balances`);
-            const accountBalances = yield* getAccountBalancesAtStateVersion({
+            let accountBalances = yield* getAccountBalancesAtStateVersion({
               addresses: accountsAddresses,
               at_ledger_state: {
                 state_version: lederState.state_version,
@@ -202,6 +202,11 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
                   {},
                 ),
               );
+
+            accountBalances = {
+              items: [],
+              ledgerState: accountBalances.ledgerState,
+            };
 
             if (enableDummyData) {
               yield* Effect.log(`[DEBUG] generating dummy data`);
@@ -245,6 +250,8 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
             yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
               Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
             );
+            aggregatedAccountBalance = [];
+
             yield* Effect.log('memory usage', process.memoryUsage());
           }),
           // discard the result of the effect to reduce memory usage
