@@ -1,3 +1,4 @@
+import * as v8 from 'node:v8';
 import { createBullBoard } from '@bull-board/api';
 import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js';
 import { HonoAdapter } from '@bull-board/hono';
@@ -24,6 +25,39 @@ import { snapshotDateRangeJobSchema } from '../queues/snapshot-date-range/schema
 
 const app = new Hono();
 const metricsApp = new Hono();
+
+// --- Memory / Heap logging ---------------------------------------------------
+const formatMb = (bytes: number): string => (bytes / 1024 / 1024).toFixed(2);
+
+const logHeapUsage = (label?: string): void => {
+  const mem = process.memoryUsage();
+  // eslint-disable-next-line no-console
+  console.log(
+    `🧠 Heap${label ? ` (${label})` : ''}: used=${formatMb(mem.heapUsed)} MB, total=${formatMb(mem.heapTotal)} MB, rss=${formatMb(mem.rss)} MB, external=${formatMb(mem.external)} MB`,
+  );
+};
+
+const getMaxOldSpaceFromArgv = (): number | undefined => {
+  const arg = process.execArgv.find((a) =>
+    a.startsWith('--max-old-space-size='),
+  );
+  if (!arg) return undefined;
+  const value = Number.parseInt(arg.split('=')[1] ?? '', 10);
+  return Number.isFinite(value) ? value : undefined;
+};
+
+const logHeapLimits = (): void => {
+  const heapStats = v8.getHeapStatistics();
+  const heapLimitMb = Number.parseInt(formatMb(heapStats.heap_size_limit), 10);
+  const argvOldSpaceMb = getMaxOldSpaceFromArgv();
+  const envOldSpaceMb = process.env.NODE_MAX_OLD_SPACE_SIZE
+    ? Number.parseInt(process.env.NODE_MAX_OLD_SPACE_SIZE, 10)
+    : undefined;
+  // eslint-disable-next-line no-console
+  console.log(
+    `🧱 Heap limits: v8HeapLimit=${heapLimitMb} MB, argvMaxOldSpace=${argvOldSpaceMb ?? 'not set'} MB, env.NODE_MAX_OLD_SPACE_SIZE=${envOldSpaceMb ?? 'not set'} MB`,
+  );
+};
 
 app.get('/health', (c) => {
   return c.text('ok');
@@ -149,9 +183,14 @@ const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
   : 9210;
+const heapLogIntervalMs = process.env.HEAP_LOG_INTERVAL_MS
+  ? Number.parseInt(process.env.HEAP_LOG_INTERVAL_MS)
+  : undefined;
 
 console.log(`🚀 Starting server on port ${port}`);
 console.log(`📍 Server will be available at: http://localhost:${port}`);
+logHeapLimits();
+logHeapUsage('startup');
 
 const serverAdapter = new HonoAdapter(serveStatic);
 
@@ -185,6 +224,15 @@ serve(
     console.log(`✅ Server is now running on http://localhost:${port}`);
   },
 );
+
+// Optional: periodic heap logging if env set
+if (
+  heapLogIntervalMs &&
+  Number.isFinite(heapLogIntervalMs) &&
+  heapLogIntervalMs > 0
+) {
+  setInterval(() => logHeapUsage('interval'), heapLogIntervalMs).unref();
+}
 
 serve(
   {
