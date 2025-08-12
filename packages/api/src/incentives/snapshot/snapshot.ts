@@ -1,3 +1,4 @@
+import os from 'node:os';
 import BigNumber from 'bignumber.js';
 import { Config, Data, Effect } from 'effect';
 import { z } from 'zod';
@@ -96,6 +97,20 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         return parsedInput.data;
       });
 
+      const bytesToGB = (bytes: number) =>
+        (bytes / 1024 / 1024 / 1024).toFixed(2);
+
+      const logMemoryUsage = Effect.fn(function* () {
+        const totalMemory = os.totalmem(); // Total system memory in bytes
+        const freeMemory = os.freemem(); // Free system memory in bytes
+        const usedMemory = totalMemory - freeMemory;
+        yield* Effect.log('memory usage', {
+          totalMemory: `${bytesToGB(totalMemory)} GB`,
+          freeMemory: `${bytesToGB(freeMemory)} GB`,
+          usedMemory: `${bytesToGB(usedMemory)} GB`,
+        });
+      });
+
       return Effect.fn('snapshot')(function* (input: SnapshotInput) {
         const batchSize = input.batchSize ?? DEFAULT_BATCH_SIZE;
         const enableDummyData = input.addDummyData ?? false;
@@ -143,6 +158,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         yield* Effect.forEach(
           accountBatches,
           Effect.fn(function* (accountsAddresses, batchIndex) {
+            yield* logMemoryUsage();
             if (accountBatches.length > 1)
               yield* Effect.log(
                 `processing batch ${batchIndex + 1} out of ${accountBatches.length}`,
