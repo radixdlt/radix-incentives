@@ -11,6 +11,7 @@ export const snapshotJobSchema = z.object({
   addDummyData: z.boolean().optional(),
   jobId: z.string(),
   batchSize: z.number().optional(),
+  usdThreshold: z.string().optional(),
   includeActivityIds: z.array(z.string()).optional(),
 });
 

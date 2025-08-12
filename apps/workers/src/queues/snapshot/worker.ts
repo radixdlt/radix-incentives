@@ -11,6 +11,8 @@ export const snapshotWorker = async (input: Job<SnapshotJob>) => {
     timestamp: new Date(input.data.timestamp),
     addDummyData: input.data.addDummyData,
     includeActivityIds: input.data.includeActivityIds,
+    usdThreshold: input.data.usdThreshold,
+    batchSize: input.data.batchSize,
   });
 
   if (Exit.isFailure(result)) {
