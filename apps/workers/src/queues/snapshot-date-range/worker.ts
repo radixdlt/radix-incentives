@@ -29,6 +29,9 @@ export const snapshotDateRangeWorker = async (
         timestamp: date.toISOString(),
         addresses: input.data.addresses,
         addDummyData: input.data.addDummyData,
+        includeActivityIds: input.data.includeActivityIds,
+        usdThreshold: input.data.usdThreshold,
+        batchSize: input.data.batchSize,
       },
       {
         priority: SnapshotPriority.Scheduled,
