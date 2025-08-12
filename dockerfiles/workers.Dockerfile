@@ -44,7 +44,7 @@ RUN npm install pm2 -g && \
 
 CMD sh -c '\
   if [ -n "$NODE_MAX_OLD_SPACE_SIZE" ]; then \
-    pm2-runtime start NODE_OPTIONS="--max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE" apps/workers/dist/index.js  ; \
+    pm2-runtime start apps/workers/dist/index.js --node-args="--max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE" ; \
   else \
     pm2-runtime start apps/workers/dist/index.js; \
   fi'
