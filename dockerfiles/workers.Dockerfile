@@ -42,4 +42,6 @@ RUN apt-get update && apt-get install -y procps
 RUN npm install pm2 -g && \
     pm2 install pm2-metrics
 
-CMD sh -c 'if [ -n "$NODE_MAX_OLD_SPACE_SIZE" ]; then pm2 start apps/workers/dist/index.js --node-args="--max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE"; else pm2 start apps/workers/dist/index.js; fi'
+CMD sh -c 'if [ -n "$NODE_MAX_OLD_SPACE_SIZE" ]; then pm2-runtime start apps/workers/dist/index.js --node-args="--max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE"; else pm2-runtime start apps/workers/dist/index.js; fi'
+
+# CMD ["pm2-runtime","apps/workers/dist/index.js","--node-args","--max-old-space-size=$NODE_MAX_OLD_SPACE_SIZE"]
