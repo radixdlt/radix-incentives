@@ -1,3 +1,4 @@
+import BigNumber from 'bignumber.js';
 import { Config, Data, Effect } from 'effect';
 import { z } from 'zod';
 import { chunker } from '../../common';
@@ -168,6 +169,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
               }).pipe(
                 Effect.withSpan(
                   `aggregateAccountBalance_batch_${batchIndex + 1}`,
+                  {},
                 ),
               );
 

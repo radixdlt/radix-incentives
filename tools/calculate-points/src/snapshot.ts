@@ -399,13 +399,9 @@ const runnable = Effect.gen(function* () {
 
   yield* service({
     timestamp: new Date('2024-09-01T00:00:00.000Z'),
-    batchSize: 10_000,
-    addresses: [
-      'account_rdx1280003ttgydsuus9dl3ag4mn7l37lktqtt3z9rqun3cecx8spj0xmw',
-      'account_rdx1280007fzy8wxjvlw2u23lge4p5kyttnuzezmww8j44rlcr708s75qs',
-      'account_rdx128000lh2huxqyfjug5gux3tqgxs723693uu7dyfwkx9fsdpj9r7la7',
-    ],
+    batchSize: 30_000,
     addDummyData: false,
+    usdThreshold: '10',
     includeActivityIds: [
       'c9_ho_floop-xrd',
       'c9_ho_lsulp-reddicks',

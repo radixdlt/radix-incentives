@@ -1,6 +1,6 @@
 import { db } from '../client';
 import { accounts, users } from '../schema';
-import { accountsData } from './data/accounts30KData';
+import { accountsData } from './data/accounts500KData';
 
 const chunker = <T>(array: T[], size: number) => {
   return array.reduce((acc, item, index) => {
@@ -22,7 +22,7 @@ const _SEASON_ID = '036031e3-8bfb-4d2f-b653-f05c76f07704';
 
 const usersToSeed = new Array(numberOfUsers).fill(0).map((_, index) => ({
   identityAddress: `user-${index}`,
-  createdAt: new Date('2025-01-01:00:00:00Z'),
+  createdAt: new Date('2024-01-01:00:00:00Z'),
   label: `User ${index}`,
   id: crypto.randomUUID(),
 }));
@@ -37,7 +37,7 @@ console.log('Users seeded');
 
 const accountsToSeed = accountsData.map((account, index) => ({
   address: account.address,
-  createdAt: new Date(account.created_at),
+  createdAt: new Date('2024-01-01:00:00:00Z'),
   label: account.label,
   userId: usersToSeed[index].id,
 }));

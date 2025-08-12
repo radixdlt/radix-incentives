@@ -89,6 +89,7 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
               ],
             };
           }),
+          { concurrency: 1000 },
         );
       });
     }),
