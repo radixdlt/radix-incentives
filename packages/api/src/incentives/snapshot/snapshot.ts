@@ -1,4 +1,3 @@
-import os from 'node:os';
 import BigNumber from 'bignumber.js';
 import { Config, Data, Effect } from 'effect';
 import { z } from 'zod';
@@ -97,17 +96,28 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         return parsedInput.data;
       });
 
-      const bytesToGB = (bytes: number) =>
-        (bytes / 1024 / 1024 / 1024).toFixed(2);
+      let initialMemory: NodeJS.MemoryUsage | null = null;
 
-      const logMemoryUsage = Effect.fn(function* () {
-        const totalMemory = os.totalmem(); // Total system memory in bytes
-        const freeMemory = os.freemem(); // Free system memory in bytes
-        const usedMemory = totalMemory - freeMemory;
-        yield* Effect.log('memory usage', {
-          totalMemory: `${bytesToGB(totalMemory)} GB`,
-          freeMemory: `${bytesToGB(freeMemory)} GB`,
-          usedMemory: `${bytesToGB(usedMemory)} GB`,
+      const logMemoryUsage = Effect.fn(function* (label?: string) {
+        const memUsage = process.memoryUsage();
+
+        if (!initialMemory) {
+          initialMemory = memUsage;
+        }
+
+        const mb = (bytes: number) => (bytes / 1024 / 1024).toFixed(2);
+
+        yield* Effect.log(`Memory ${label || 'usage'}:`, {
+          current: {
+            rss: `${mb(memUsage.rss)} MB`,
+            heapUsed: `${mb(memUsage.heapUsed)} MB`,
+            heapTotal: `${mb(memUsage.heapTotal)} MB`,
+            external: `${mb(memUsage.external)} MB`,
+          },
+          delta: {
+            rss: `+${mb(memUsage.rss - initialMemory.rss)} MB`,
+            heapUsed: `+${mb(memUsage.heapUsed - initialMemory.heapUsed)} MB`,
+          },
         });
       });
 
@@ -158,7 +168,9 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
         yield* Effect.forEach(
           accountBatches,
           Effect.fn(function* (accountsAddresses, batchIndex) {
-            yield* logMemoryUsage();
+            yield* logMemoryUsage(
+              `batch ${batchIndex + 1}/${accountBatches.length}`,
+            );
             if (accountBatches.length > 1)
               yield* Effect.log(
                 `processing batch ${batchIndex + 1} out of ${accountBatches.length}`,
@@ -176,7 +188,9 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
                 `getAccountBalancesAtStateVersion_batch_${batchIndex + 1}`,
               ),
             );
-
+            yield* logMemoryUsage(
+              `batch ${batchIndex + 1}/${accountBatches.length}`,
+            );
             yield* Effect.log(`phase 2: aggregate account balances`);
             let aggregatedAccountBalance =
               yield* aggregateAccountBalanceService({
@@ -224,7 +238,9 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
                 },
               );
             }
-
+            yield* logMemoryUsage(
+              `batch ${batchIndex + 1}/${accountBatches.length}`,
+            );
             yield* Effect.log(`phase 3: save account balances`);
             yield* upsertAccountBalances(aggregatedAccountBalance).pipe(
               Effect.withSpan(`upsertAccountBalances_batch_${batchIndex + 1}`),
