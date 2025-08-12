@@ -24,12 +24,7 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
         'GATEWAY_RETRY_ATTEMPTS',
       ).pipe(Config.withDefault(5));
 
-      /**
-       * Enable retries for ALL requests including POST
-       * - Retry on network errors and 4xx/5xx status codes
-       * - Uses exponential backoff with randomization
-       * - Supports retrying POST requests (unlike make-fetch-happen)
-       */
+      const noRetryStatusCodes = new Set([400, 404]);
 
       const fetchImpl = fetchRetry(fetch, {
         retries: gatewayRetryAttempts,
@@ -43,8 +38,11 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
           if (error !== null) {
             return false;
           }
+
           // Retry on 4xx/5xx status codes (including for POST requests)
-          if (response && response.status > 400) {
+          if (response && !response.ok) {
+            if (noRetryStatusCodes.has(response.status)) return false;
+
             return true;
           }
 
