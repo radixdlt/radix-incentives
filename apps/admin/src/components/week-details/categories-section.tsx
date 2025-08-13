@@ -19,6 +19,7 @@ interface CategoriesSectionProps {
   weekData: WeekDetailsData;
   seasonId?: string;
   weekId?: string;
+  activityUserCounts?: { activityId: string; numberOfAccounts: number }[];
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
   onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
 }
@@ -27,6 +28,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   weekData,
   seasonId,
   weekId,
+  activityUserCounts,
   onUpdatePointsPool,
   onUpdateMultiplier,
 }) => {
@@ -34,6 +36,14 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(),
   );
+
+  // Helper function to get user count for an activity
+  const getUserCount = (activityId: string): number => {
+    const countData = activityUserCounts?.find(
+      (count) => count.activityId === activityId,
+    );
+    return countData?.numberOfAccounts || 0;
+  };
   const [editingPointsPool, setEditingPointsPool] = useState<string | null>(
     null,
   );
@@ -243,6 +253,10 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                             >
                               <div>
                                 <div className="font-medium">{activity.id}</div>
+                                <div className="text-muted-foreground text-xs">
+                                  {getUserCount(activity.id)} user
+                                  {getUserCount(activity.id) !== 1 ? 's' : ''}
+                                </div>
                               </div>
                               <div className="flex items-center gap-3">
                                 <div className="text-muted-foreground text-sm">

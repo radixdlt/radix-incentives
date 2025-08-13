@@ -37,6 +37,10 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     weekId: params.weekId,
   });
 
+  const { data: activityCount } = api.admin.activity.userCount.useQuery({
+    weekId: params.weekId,
+  });
+
   const season = seasonData?.season;
   const week = weekData;
 
@@ -190,6 +194,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         seasonId={params.seasonId}
         weekId={params.weekId}
         weekData={week}
+        activityUserCounts={activityCount}
         onProcessWeek={handleProcessWeek}
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}

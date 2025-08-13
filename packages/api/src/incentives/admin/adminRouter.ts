@@ -1,7 +1,7 @@
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
-import { and, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import {
   accountActivityPoints,
   accountBalances,
@@ -57,6 +57,23 @@ export const adminRouter = createTRPCRouter({
       }),
   },
   activity: {
+    userCount: publicProcedure
+      .input(
+        z.object({
+          weekId: z.string(),
+        }),
+      )
+      .query(async ({ input }) => {
+        return db
+          .select({
+            numberOfAccounts: count(),
+            activityId: accountActivityPoints.activityId,
+          })
+          .from(accountActivityPoints)
+          .where(eq(accountActivityPoints.weekId, input.weekId))
+          .groupBy(accountActivityPoints.activityId);
+      }),
+
     getUsers: publicProcedure
       .input(
         z.object({
@@ -71,7 +88,11 @@ export const adminRouter = createTRPCRouter({
             eq(accountActivityPoints.weekId, input.weekId),
           ),
           with: {
-            account: true,
+            account: {
+              with: {
+                user: true,
+              },
+            },
           },
         });
       }),
