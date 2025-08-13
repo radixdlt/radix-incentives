@@ -1,6 +1,14 @@
 'use client';
 
-import { Check, ChevronDown, ChevronUp, Edit, X } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Edit,
+  ExternalLink,
+  X,
+} from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -9,12 +17,16 @@ import type { WeekDetailsData } from './types';
 
 interface CategoriesSectionProps {
   weekData: WeekDetailsData;
+  seasonId?: string;
+  weekId?: string;
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
   onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
 }
 
 export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   weekData,
+  seasonId,
+  weekId,
   onUpdatePointsPool,
   onUpdateMultiplier,
 }) => {
@@ -286,6 +298,16 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                   )}
                                 </div>
                                 <div className="flex gap-2">
+                                  {seasonId && weekId && (
+                                    <Button size="sm" variant="outline" asChild>
+                                      <Link
+                                        href={`/seasons/${seasonId}/weeks/${weekId}/activities/${activity.id}`}
+                                      >
+                                        <ExternalLink className="mr-1 h-3 w-3" />
+                                        View
+                                      </Link>
+                                    </Button>
+                                  )}
                                   {onUpdateMultiplier &&
                                     editingMultiplier !== activity.id && (
                                       <Button

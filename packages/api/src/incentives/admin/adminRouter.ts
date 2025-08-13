@@ -56,4 +56,24 @@ export const adminRouter = createTRPCRouter({
         });
       }),
   },
+  activity: {
+    getUsers: publicProcedure
+      .input(
+        z.object({
+          activityId: z.string(),
+          weekId: z.string(),
+        }),
+      )
+      .query(async ({ input }) => {
+        return db.query.accountActivityPoints.findMany({
+          where: and(
+            eq(accountActivityPoints.activityId, input.activityId),
+            eq(accountActivityPoints.weekId, input.weekId),
+          ),
+          with: {
+            account: true,
+          },
+        });
+      }),
+  },
 });
