@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import {
@@ -14,6 +15,7 @@ import {
 import { api } from '~/trpc/react';
 
 export default function UsersPage() {
+  const router = useRouter();
   const [page, setPage] = useState(1);
   const [limit, setLimit] = useState(50);
 
@@ -45,6 +47,10 @@ export default function UsersPage() {
   const handleLimitChange = (newLimit: number) => {
     setLimit(newLimit);
     setPage(1); // Reset to first page when changing limit
+  };
+
+  const handleUserClick = (userId: string) => {
+    router.push(`/users/${userId}`);
   };
 
   if (error) {
@@ -110,7 +116,11 @@ export default function UsersPage() {
               </TableRow>
             ) : users && users.length > 0 ? (
               users.map((user) => (
-                <TableRow key={user.id}>
+                <TableRow
+                  key={user.id}
+                  className="cursor-pointer transition-colors hover:bg-muted/50"
+                  onClick={() => handleUserClick(user.id)}
+                >
                   <TableCell className="font-mono text-sm">
                     {user.id.slice(0, 8)}...
                   </TableCell>

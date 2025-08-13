@@ -13,6 +13,7 @@ import { adminSeedRouter } from '../seed/seedRouter';
 import { adminUserRouter, userRouter } from '../user/userRouter';
 import { weekAdminRouter, weekRouter } from '../week/weekRouter';
 import { createCallerFactory, createTRPCRouter } from '.';
+import { adminRouter } from '../admin/adminRouter';
 
 /**
  * This is the primary router for your server.
@@ -42,6 +43,7 @@ export const adminAppRouter = createTRPCRouter({
   week: weekAdminRouter,
   componentWhitelist: adminComponentWhitelistRouter,
   seed: adminSeedRouter,
+  admin: adminRouter,
 });
 
 // export type definition of API
