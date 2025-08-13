@@ -3633,6 +3633,10 @@ export const accountBalanceFixture = {
         usdValue: '0.2054970348210219561598396059371148015129370248',
       },
       {
+        activityId: 'we_ho_stakedXrd',
+        usdValue: '0',
+      },
+      {
         activityId: 'we_ho_unstakedXrd',
         usdValue: '7.18212599999999999409375756',
       },
