@@ -8,6 +8,7 @@ export interface AdminWeekDetailsProps {
   weekId?: string;
   activityUserCounts?: { activityId: string; numberOfAccounts: number }[];
   onProcessWeek?: () => void;
+  onTriggerActivityPoints?: () => void;
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
   onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
 }

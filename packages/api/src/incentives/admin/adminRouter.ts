@@ -1,3 +1,4 @@
+import { TRPCError } from '@trpc/server';
 import {
   accountActivityPoints,
   accountBalances,
@@ -109,6 +110,32 @@ export const adminRouter = createTRPCRouter({
               eq(seasonPointsMultiplier.weekId, input.weekId),
             ),
           );
+      }),
+
+    triggerActivityPointsCalculation: publicProcedure
+      .input(
+        z.object({
+          weekId: z.string(),
+          addresses: z.array(z.string()).optional(),
+        }),
+      )
+      .mutation(async ({ input }) => {
+        const response = await fetch(
+          `${process.env.WORKERS_API_BASE_URL}/queues/calculate-activity-points/add`,
+          {
+            method: 'POST',
+            body: JSON.stringify({
+              weekId: input.weekId,
+              addresses: input.addresses,
+            }),
+          },
+        );
+
+        if (!response.ok) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        }
       }),
   },
 });

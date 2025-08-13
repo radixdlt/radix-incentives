@@ -1,7 +1,7 @@
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import type { Db, Season } from 'db/incentives';
+import { type Db, readOnlyDb, type Season } from 'db/incentives';
 import { Effect, Layer } from 'effect';
 import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
@@ -23,6 +23,11 @@ import {
 } from '../activity/getActivityById';
 import { ActivityCategoryService } from '../activity-category/activityCategory';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
+import {
+  type CalculateTWASQLInput,
+  CalculateTWASQLLive,
+  CalculateTWASQLService,
+} from '../activity-points/calculateTWASQL';
 import { ActivityWeekService } from '../activity-week/activityWeek';
 import {
   GetActivityWeeksByWeekIdsLive,
@@ -45,7 +50,7 @@ import {
   type NotificationSettings,
 } from '../config/notificationService';
 import { DappService } from '../dapp/dapp';
-import { createDbClientLive } from '../db/dbClient';
+import { createDbClientLive, createDbReadOnlyClientLive } from '../db/dbClient';
 import { LeaderboardService } from '../leaderboard/leaderboard';
 import { getAccountsProgram } from '../programs/getAccounts';
 import {
@@ -720,6 +725,25 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const dbReadOnlyClientLive = createDbReadOnlyClientLive(readOnlyDb);
+
+  const calculateTWASQLLive = CalculateTWASQLLive.pipe(
+    Layer.provide(dbReadOnlyClientLive),
+    Layer.provide(dbClientLive),
+  );
+
+  const calculateTWASQL = (input: CalculateTWASQLInput) => {
+    const program = Effect.gen(function* () {
+      const calculateTWASQLService = yield* Effect.provide(
+        CalculateTWASQLService,
+        calculateTWASQLLive,
+      );
+      return yield* calculateTWASQLService(input);
+    });
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -756,5 +780,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     uploadComponentWhitelistCsv,
     getNotificationSettings,
     updateNotificationSettings,
+    calculateTWASQL,
   };
 };
