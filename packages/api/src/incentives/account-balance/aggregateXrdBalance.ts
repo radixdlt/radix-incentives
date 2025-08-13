@@ -215,12 +215,10 @@ const processLendingProtocols = (
     );
 
     // Add aggregated staked XRD from LSU collaterals
-    if (weftCollateralStakedXrd.gt(0)) {
-      output.push({
-        activityId: ActivityId.we_ho_stakedXrd,
-        usdValue: yield* xrdToUsd(weftCollateralStakedXrd),
-      });
-    }
+    output.push({
+      activityId: ActivityId.we_ho_stakedXrd,
+      usdValue: yield* xrdToUsd(weftCollateralStakedXrd),
+    });
 
     // Process Weft unstaking receipts from NFT collaterals
     // Aggregate all unstaking receipts into a single entry
@@ -229,12 +227,10 @@ const processLendingProtocols = (
       new BigNumber(0),
     );
 
-    if (totalUnstakingXrd.gt(0)) {
-      output.push({
-        activityId: ActivityId.we_ho_unstakedXrd,
-        usdValue: yield* xrdToUsd(totalUnstakingXrd),
-      });
-    }
+    output.push({
+      activityId: ActivityId.we_ho_unstakedXrd,
+      usdValue: yield* xrdToUsd(totalUnstakingXrd),
+    });
 
     return output;
   });
