@@ -47,6 +47,7 @@ import { AccountAddressService } from './account/accountAddressService';
 import { GetAccountAddressByUserIdLive } from './account/getAccountAddressByUserId';
 import { GetAccountAddressesLive } from './account/getAccounts';
 import { GetAccountsIntersectionLive } from './account/getAccountsIntersection';
+import { GetAccountsWithoutBalancesLive } from './account/getAccountsWithoutBalances';
 import { AccountBalanceService } from './account-balance/accountBalance';
 import { AggregateAccountBalanceLive } from './account-balance/aggregateAccountBalance';
 import { AggregateCaviarninePositionsLive } from './account-balance/aggregateCaviarninePositions';
@@ -421,6 +422,10 @@ const configServiceLive = ConfigService.Default.pipe(
   Layer.provide(dbClientLive),
 );
 
+const getAccountsWithoutBalancesLive = GetAccountsWithoutBalancesLive.pipe(
+  Layer.provide(dbClientLive),
+);
+
 const snapshotLive = SnapshotLive.pipe(
   Layer.provide(gatewayApiClientLive),
   Layer.provide(getAccountBalancesAtStateVersionLive),
@@ -434,6 +439,7 @@ const snapshotLive = SnapshotLive.pipe(
   Layer.provide(getResourcePoolUnitsLive),
   Layer.provide(configServiceLive),
   Layer.provide(getLedgerStateLive),
+  Layer.provide(getAccountsWithoutBalancesLive),
 );
 
 const getNonFungibleLocationLive = GetNonFungibleLocationService.Default.pipe(

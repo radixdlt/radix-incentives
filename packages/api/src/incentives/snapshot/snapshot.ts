@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { chunker } from '../../common';
 import { GetAllValidatorsService } from '../../common/gateway/getAllValidators';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
-import { GetAccountAddressesService } from '../account/getAccounts';
+import { GetAccountsWithoutBalancesService } from '../account/getAccountsWithoutBalances';
 import { AggregateAccountBalanceService } from '../account-balance/aggregateAccountBalance';
 import { GetAccountBalancesAtStateVersionService } from '../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../account-balance/upsertAccountBalance';
@@ -39,12 +39,13 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
       const getLedgerState = yield* GetLedgerStateService;
       const getAccountBalancesAtStateVersion =
         yield* GetAccountBalancesAtStateVersionService;
-      const getAccountAddresses = yield* GetAccountAddressesService;
       const upsertAccountBalances = yield* UpsertAccountBalancesService;
       const aggregateAccountBalanceService =
         yield* AggregateAccountBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
       const configService = yield* ConfigService;
+      const getAccountsWithoutBalances =
+        yield* GetAccountsWithoutBalancesService;
 
       const SKIP_STATE_VERSION_CHECK = yield* Config.boolean(
         'SKIP_STATE_VERSION_CHECK',
@@ -141,18 +142,18 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
 
         yield* validateInput(input);
 
-        const lederState = yield* getLedgerState({
+        const ledgerState = yield* getLedgerState({
           at_ledger_state: {
             timestamp: input.timestamp,
           },
         });
 
-        yield* verifyStateVersion(lederState.state_version);
+        yield* verifyStateVersion(ledgerState.state_version);
 
         const accountAddresses =
           input.addresses ??
-          (yield* getAccountAddresses({
-            createdAt: input.timestamp,
+          (yield* getAccountsWithoutBalances({
+            timestamp: input.timestamp,
           }));
 
         // Split accounts into batches
@@ -180,7 +181,7 @@ export class SnapshotService extends Effect.Service<SnapshotService>()(
             let accountBalances = yield* getAccountBalancesAtStateVersion({
               addresses: accountsAddresses,
               at_ledger_state: {
-                state_version: lederState.state_version,
+                state_version: ledgerState.state_version,
               },
               validators,
             }).pipe(
