@@ -7,6 +7,7 @@ import {
   accountBalances,
   accounts,
   db,
+  seasonPointsMultiplier,
   user,
 } from 'db/incentives';
 
@@ -82,19 +83,33 @@ export const adminRouter = createTRPCRouter({
         }),
       )
       .query(async ({ input }) => {
-        return db.query.accountActivityPoints.findMany({
-          where: and(
-            eq(accountActivityPoints.activityId, input.activityId),
-            eq(accountActivityPoints.weekId, input.weekId),
-          ),
-          with: {
-            account: {
-              with: {
-                user: true,
-              },
-            },
-          },
-        });
+        return db
+          .select({
+            accountAddress: accountActivityPoints.accountAddress,
+            activityPoints: accountActivityPoints.activityPoints,
+            accountLabel: user.label,
+            accountId: user.id,
+            multiplier: seasonPointsMultiplier.multiplier,
+          })
+          .from(accountActivityPoints)
+          .where(
+            and(
+              eq(accountActivityPoints.activityId, input.activityId),
+              eq(accountActivityPoints.weekId, input.weekId),
+            ),
+          )
+          .innerJoin(
+            accounts,
+            eq(accountActivityPoints.accountAddress, accounts.address),
+          )
+          .innerJoin(user, eq(accounts.userId, user.id))
+          .leftJoin(
+            seasonPointsMultiplier,
+            and(
+              eq(accounts.userId, seasonPointsMultiplier.userId),
+              eq(seasonPointsMultiplier.weekId, input.weekId),
+            ),
+          );
       }),
   },
 });

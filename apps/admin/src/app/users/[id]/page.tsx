@@ -153,7 +153,12 @@ export default function UserPage() {
                   user.accounts.map((account) => (
                     <TableRow key={account.address}>
                       <TableCell className="font-mono text-sm">
-                        {account.address}
+                        <Link
+                          href={`/users/${id}/account/${account.address}`}
+                          className="hover:text-primary underline-offset-4 hover:underline"
+                        >
+                          {account.address}
+                        </Link>
                       </TableCell>
                       <TableCell>
                         {account.label || (

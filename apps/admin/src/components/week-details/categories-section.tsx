@@ -318,7 +318,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                         href={`/seasons/${seasonId}/weeks/${weekId}/activities/${activity.id}`}
                                       >
                                         <ExternalLink className="mr-1 h-3 w-3" />
-                                        View
+                                        AP
                                       </Link>
                                     </Button>
                                   )}

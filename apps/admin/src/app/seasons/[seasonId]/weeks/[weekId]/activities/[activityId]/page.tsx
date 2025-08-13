@@ -33,10 +33,15 @@ export default function ActivityPage() {
     data: users,
     isLoading,
     error,
-  } = api.admin.activity.getUsers.useQuery({
-    activityId,
-    weekId,
-  });
+  } = api.admin.activity.getUsers.useQuery(
+    {
+      activityId,
+      weekId,
+    },
+    {
+      enabled: !!activityId && !!weekId,
+    }
+  );
 
   if (error) {
     return (
@@ -101,7 +106,8 @@ export default function ActivityPage() {
               <TableHeader>
                 <TableRow>
                   <TableHead>Account Address</TableHead>
-
+                  <TableHead>User</TableHead>
+                  <TableHead className="text-right">Multiplier</TableHead>
                   <TableHead className="text-right">Activity Points</TableHead>
                 </TableRow>
               </TableHeader>
@@ -121,11 +127,31 @@ export default function ActivityPage() {
                             asChild
                           >
                             <Link
-                              href={`/users/${userPoint.account?.userId}/account/${userPoint.accountAddress}`}
+                              href={`/users/${userPoint.accountId}/account/${userPoint.accountAddress}`}
                             >
                               {userPoint.accountAddress}
                             </Link>
                           </Button>
+                        </TableCell>
+                        <TableCell className="text-sm">
+                          <Button
+                            variant="link"
+                            className="h-auto p-0 text-sm"
+                            asChild
+                          >
+                            <Link href={`/users/${userPoint.accountId}`}>
+                              {userPoint.accountLabel || (
+                                <span className="text-muted-foreground italic">
+                                  No label
+                                </span>
+                              )}
+                            </Link>
+                          </Button>
+                        </TableCell>
+                        <TableCell className="text-right font-mono">
+                          {userPoint.multiplier
+                            ? `${Number(userPoint.multiplier).toLocaleString()}x`
+                            : 'N/A'}
                         </TableCell>
                         <TableCell className="text-right font-mono">
                           {Number(userPoint.activityPoints).toLocaleString(
@@ -140,7 +166,7 @@ export default function ActivityPage() {
                     ))
                 ) : (
                   <TableRow>
-                    <TableCell colSpan={3} className="h-24 text-center">
+                    <TableCell colSpan={4} className="h-24 text-center">
                       No users found for this activity.
                     </TableCell>
                   </TableRow>
