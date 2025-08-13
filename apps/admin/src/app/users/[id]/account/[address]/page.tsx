@@ -95,7 +95,9 @@ export default function AccountPage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <div className="text-muted-foreground text-sm">Address</div>
-              <div className="font-mono text-sm break-all">{account.address}</div>
+              <div className="break-all font-mono text-sm">
+                {account.address}
+              </div>
             </div>
             <div>
               <div className="text-muted-foreground text-sm">Label</div>

@@ -1,9 +1,7 @@
-import type { Db, ReadOnlyDb } from 'db/incentives';
-import { Config, Context, Effect, Layer } from 'effect';
-
 import * as PgDrizzle from '@effect/sql-drizzle/Pg';
 import { PgClient } from '@effect/sql-pg';
-import type { schema } from 'db/incentives';
+import type { Db, ReadOnlyDb, schema } from 'db/incentives';
+import { Config, Context, Effect, Layer } from 'effect';
 
 const PgLive = PgClient.layerConfig({
   url: Config.redacted('DATABASE_URL'),

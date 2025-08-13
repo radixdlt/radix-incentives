@@ -3,6 +3,7 @@ import {
   activityRouter,
   adminActivityRouter,
 } from '../activity/activityRouter';
+import { adminRouter } from '../admin/adminRouter';
 import { authRouter } from '../auth/authRouter';
 import { adminComponentWhitelistRouter } from '../component/componentWhitelistRouter';
 import { adminConfigRouter, configRouter } from '../config/configRouter';
@@ -13,7 +14,6 @@ import { adminSeedRouter } from '../seed/seedRouter';
 import { adminUserRouter, userRouter } from '../user/userRouter';
 import { weekAdminRouter, weekRouter } from '../week/weekRouter';
 import { createCallerFactory, createTRPCRouter } from '.';
-import { adminRouter } from '../admin/adminRouter';
 
 /**
  * This is the primary router for your server.

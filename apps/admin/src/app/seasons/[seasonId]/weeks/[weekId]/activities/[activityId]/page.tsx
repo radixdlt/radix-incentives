@@ -40,7 +40,7 @@ export default function ActivityPage() {
     },
     {
       enabled: !!activityId && !!weekId,
-    }
+    },
   );
 
   if (error) {

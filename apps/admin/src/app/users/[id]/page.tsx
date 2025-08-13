@@ -155,7 +155,7 @@ export default function UserPage() {
                       <TableCell className="font-mono text-sm">
                         <Link
                           href={`/users/${id}/account/${account.address}`}
-                          className="hover:text-primary underline-offset-4 hover:underline"
+                          className="underline-offset-4 hover:text-primary hover:underline"
                         >
                           {account.address}
                         </Link>
