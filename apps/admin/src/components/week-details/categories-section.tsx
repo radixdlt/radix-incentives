@@ -1,6 +1,14 @@
 'use client';
 
-import { Check, ChevronDown, ChevronUp, Edit, X } from 'lucide-react';
+import {
+  Check,
+  ChevronDown,
+  ChevronUp,
+  Edit,
+  ExternalLink,
+  X,
+} from 'lucide-react';
+import Link from 'next/link';
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
@@ -9,12 +17,18 @@ import type { WeekDetailsData } from './types';
 
 interface CategoriesSectionProps {
   weekData: WeekDetailsData;
+  seasonId?: string;
+  weekId?: string;
+  activityUserCounts?: { activityId: string; numberOfAccounts: number }[];
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
   onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
 }
 
 export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   weekData,
+  seasonId,
+  weekId,
+  activityUserCounts,
   onUpdatePointsPool,
   onUpdateMultiplier,
 }) => {
@@ -22,6 +36,14 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
     new Set(),
   );
+
+  // Helper function to get user count for an activity
+  const getUserCount = (activityId: string): number => {
+    const countData = activityUserCounts?.find(
+      (count) => count.activityId === activityId,
+    );
+    return countData?.numberOfAccounts || 0;
+  };
   const [editingPointsPool, setEditingPointsPool] = useState<string | null>(
     null,
   );
@@ -231,6 +253,10 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                             >
                               <div>
                                 <div className="font-medium">{activity.id}</div>
+                                <div className="text-muted-foreground text-xs">
+                                  {getUserCount(activity.id)} user
+                                  {getUserCount(activity.id) !== 1 ? 's' : ''}
+                                </div>
                               </div>
                               <div className="flex items-center gap-3">
                                 <div className="text-muted-foreground text-sm">
@@ -286,6 +312,16 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                                   )}
                                 </div>
                                 <div className="flex gap-2">
+                                  {seasonId && weekId && (
+                                    <Button size="sm" variant="outline" asChild>
+                                      <Link
+                                        href={`/seasons/${seasonId}/weeks/${weekId}/activities/${activity.id}`}
+                                      >
+                                        <ExternalLink className="mr-1 h-3 w-3" />
+                                        AP
+                                      </Link>
+                                    </Button>
+                                  )}
                                   {onUpdateMultiplier &&
                                     editingMultiplier !== activity.id && (
                                       <Button

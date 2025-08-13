@@ -37,6 +37,13 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     weekId: params.weekId,
   });
 
+  const { data: activityCount } = api.admin.activity.userCount.useQuery({
+    weekId: params.weekId,
+  });
+
+  const triggerActivityPointsCalculation =
+    api.admin.activity.triggerActivityPointsCalculation.useMutation();
+
   const season = seasonData?.season;
   const week = weekData;
 
@@ -82,6 +89,21 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
       await refetchWeek();
     } catch (error) {
       console.error('Failed to update multiplier:', error);
+    }
+  };
+
+  const handleTriggerActivityPoints = async () => {
+    try {
+      await triggerActivityPointsCalculation.mutateAsync({
+        weekId: params.weekId,
+      });
+
+      toast.info('Activity points calculation started', {
+        description: 'This may take a few minutes to complete',
+      });
+    } catch (error) {
+      console.error('Failed to trigger activity points calculation:', error);
+      toast.error('Failed to start activity points calculation');
     }
   };
 
@@ -190,7 +212,9 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         seasonId={params.seasonId}
         weekId={params.weekId}
         weekData={week}
+        activityUserCounts={activityCount}
         onProcessWeek={handleProcessWeek}
+        onTriggerActivityPoints={handleTriggerActivityPoints}
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}
       />

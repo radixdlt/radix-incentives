@@ -24,6 +24,9 @@ catalogs:
     '@effect/opentelemetry':
       specifier: ^0.47.0
       version: 0.47.0
+    '@effect/sql-drizzle':
+      specifier: ^0.43.0
+      version: 0.43.0
     '@hono/node-server':
       specifier: ^1.14.2
       version: 1.14.3
@@ -965,6 +968,12 @@ importers:
       '@effect/opentelemetry':
         specifier: ^0.47.0
         version: 0.47.0(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.34.0)(effect@3.14.6)
+      '@effect/sql-drizzle':
+        specifier: 'catalog:'
+        version: 0.43.0(@effect/sql@0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6))(drizzle-orm@0.33.0(@opentelemetry/api@1.9.0)(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0))(effect@3.14.6)
+      '@effect/sql-pg':
+        specifier: ^0.45.0
+        version: 0.45.0(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(@effect/sql@0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)
       '@noble/hashes':
         specifier: 'catalog:'
         version: 1.8.0
@@ -1515,6 +1524,19 @@ packages:
   '@drizzle-team/brocli@0.10.2':
     resolution: {integrity: sha512-z33Il7l5dKjUgGULTqBsQBQwckHh5AbIuxhdsIxDDiZAzBOrZO6q9ogcWC65kU382AfynTfgNumVcNIjuIua6w==}
 
+  '@effect/experimental@0.54.5':
+    resolution: {integrity: sha512-0lIad4BL8SgEn3Mb2QceNIilxjGHmfOiDkgqAYQ0gCqoEvYQM+LuqnT6mOD7UyY+m9pAN1W/0SCfF0zP3XOMgg==}
+    peerDependencies:
+      '@effect/platform': ^0.90.1
+      effect: ^3.17.7
+      ioredis: ^5
+      lmdb: ^3
+    peerDependenciesMeta:
+      ioredis:
+        optional: true
+      lmdb:
+        optional: true
+
   '@effect/language-service@0.27.2':
     resolution: {integrity: sha512-AFgxoIZ6xpfwCZp7+1mj3f1HsK3Yqe9I0iUfpf8Iu2gl9F3dmdFiOvuoLRVSkfVsK2BTQr8kv2zPi53Lst2haw==}
     hasBin: true
@@ -1552,6 +1574,28 @@ packages:
     resolution: {integrity: sha512-RZ0pqpSUET0Ab3CBjOhJ12C2/vWLQsy+SLJbGNxjcOm9xZAwQowggWCs4S3ZXhdnNTR5WJHH02WlAWHJDaMKhA==}
     peerDependencies:
       effect: ^3.14.21
+
+  '@effect/sql-drizzle@0.43.0':
+    resolution: {integrity: sha512-udfXOY+8RVCXZSqMH0wo3OTbIOc4RpGNq4XA+jv6QAa0NkMHytPYT5CtpqoQesnJKOgAlxU3pyQEvjl69amcNQ==}
+    peerDependencies:
+      '@effect/sql': ^0.44.0
+      drizzle-orm: '>=0.43.1 <0.50'
+      effect: ^3.17.0
+
+  '@effect/sql-pg@0.45.0':
+    resolution: {integrity: sha512-zDBY5be4IiPWE0e+wC16QY3RO0mFxNkSRWD8Zb7bATlLICkZzgBTZjRRbpp9UUpSiHD/5gWM9pzTwB33RT78fQ==}
+    peerDependencies:
+      '@effect/experimental': ^0.54.0
+      '@effect/platform': ^0.90.0
+      '@effect/sql': ^0.44.0
+      effect: ^3.17.0
+
+  '@effect/sql@0.44.1':
+    resolution: {integrity: sha512-h8/WdEG+dswVcN6QjAZRFT7AJ8g3wHMQFR9b8ul14idqXuBcPZxx9OFSsUT3tOTtUKmRMrlU8iMiUq0LIsm5SQ==}
+    peerDependencies:
+      '@effect/experimental': ^0.54.4
+      '@effect/platform': ^0.90.0
+      effect: ^3.17.6
 
   '@effect/vitest@0.20.10':
     resolution: {integrity: sha512-DsmGILQRLe89NIyn3akkW03lZxgVjZCIpQj6RzR0sPFgBNeZzmVaIFKJer5ggEUP3axKL7exOp1pRKWnIEl2Ng==}
@@ -5934,6 +5978,10 @@ packages:
     resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==}
     hasBin: true
 
+  uuid@11.1.0:
+    resolution: {integrity: sha512-0/A9rDy9P7cJ+8w1c9WD9V//9Wj15Ce2MPz8Ri6032usz+NfePxx5AcN3bN+r6ZL6jEo066/yNYB3tn4pQEx+A==}
+    hasBin: true
+
   uuid@9.0.1:
     resolution: {integrity: sha512-b+1eJOlsR9K8HJpow9Ok3fiWOWSIcIzXodvv0rQjVoOVNpWMpxf1wZNpt4y9h10odCNrqnYp1OBzRktckBe3sA==}
     hasBin: true
@@ -6589,6 +6637,14 @@ snapshots:
 
   '@drizzle-team/brocli@0.10.2': {}
 
+  '@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0)':
+    dependencies:
+      '@effect/platform': 0.81.0(effect@3.14.6)
+      effect: 3.14.6
+      uuid: 11.1.0
+    optionalDependencies:
+      ioredis: 5.6.0
+
   '@effect/language-service@0.27.2': {}
 
   '@effect/opentelemetry@0.47.0(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.0.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.34.0)(effect@3.14.6)':
@@ -6623,6 +6679,29 @@ snapshots:
       find-my-way-ts: 0.1.5
       msgpackr: 1.11.2
       multipasta: 0.2.5
+
+  '@effect/sql-drizzle@0.43.0(@effect/sql@0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6))(drizzle-orm@0.33.0(@opentelemetry/api@1.9.0)(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0))(effect@3.14.6)':
+    dependencies:
+      '@effect/sql': 0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)
+      drizzle-orm: 0.33.0(@opentelemetry/api@1.9.0)(@types/react@19.1.0)(postgres@3.4.5)(react@19.1.0)
+      effect: 3.14.6
+
+  '@effect/sql-pg@0.45.0(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(@effect/sql@0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6))(effect@3.14.6)':
+    dependencies:
+      '@effect/experimental': 0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0)
+      '@effect/platform': 0.81.0(effect@3.14.6)
+      '@effect/sql': 0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      effect: 3.14.6
+      postgres: 3.4.5
+
+  '@effect/sql@0.44.1(@effect/experimental@0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0))(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)':
+    dependencies:
+      '@effect/experimental': 0.54.5(@effect/platform@0.81.0(effect@3.14.6))(effect@3.14.6)(ioredis@5.6.0)
+      '@effect/platform': 0.81.0(effect@3.14.6)
+      '@opentelemetry/semantic-conventions': 1.34.0
+      effect: 3.14.6
+      uuid: 11.1.0
 
   '@effect/vitest@0.20.10(effect@3.14.6)(vitest@3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0))':
     dependencies:
@@ -10947,6 +11026,8 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   uuid@10.0.0: {}
+
+  uuid@11.1.0: {}
 
   uuid@9.0.1: {}
 

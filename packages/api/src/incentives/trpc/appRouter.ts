@@ -3,6 +3,7 @@ import {
   activityRouter,
   adminActivityRouter,
 } from '../activity/activityRouter';
+import { adminRouter } from '../admin/adminRouter';
 import { authRouter } from '../auth/authRouter';
 import { adminComponentWhitelistRouter } from '../component/componentWhitelistRouter';
 import { adminConfigRouter, configRouter } from '../config/configRouter';
@@ -42,6 +43,7 @@ export const adminAppRouter = createTRPCRouter({
   week: weekAdminRouter,
   componentWhitelist: adminComponentWhitelistRouter,
   seed: adminSeedRouter,
+  admin: adminRouter,
 });
 
 // export type definition of API

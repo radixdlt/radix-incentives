@@ -1,6 +1,6 @@
 'use client';
 
-import { CheckCircle } from 'lucide-react';
+import { Calculator, CheckCircle } from 'lucide-react';
 
 import {
   AlertDialog,
@@ -21,11 +21,13 @@ import type { WeekDetailsData } from './types';
 interface WeekControlsProps {
   weekData: WeekDetailsData;
   onProcessWeek: () => void;
+  onTriggerActivityPoints: () => void;
 }
 
 export const WeekControls: React.FC<WeekControlsProps> = ({
   weekData,
   onProcessWeek,
+  onTriggerActivityPoints,
 }) => {
   return (
     <Card className="p-6">
@@ -37,6 +39,30 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
           </p>
         </div>
         <ButtonGroup>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="outline">
+                <Calculator className="mr-2 h-4 w-4" />
+                Calculate Activity Points
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Calculate Activity Points</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This will trigger activity points calculation for all accounts
+                  in this week. This process may take a few minutes to complete.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction onClick={onTriggerActivityPoints}>
+                  Start Calculation
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="default">
