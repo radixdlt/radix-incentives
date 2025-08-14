@@ -4,6 +4,16 @@ import { Cache, Duration, Effect } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { DbClientService, DbError } from '../db/dbClient';
 
+export const TransactionStreamStateKeys = {
+  Starting: 'STARTING',
+  Running: 'RUNNING',
+  Paused: 'PAUSED',
+  Pausing: 'PAUSING',
+} as const;
+
+export type TransactionStreamStateKeys =
+  (typeof TransactionStreamStateKeys)[keyof typeof TransactionStreamStateKeys];
+
 export class ConfigService extends Effect.Service<ConfigService>()(
   'ConfigService',
   {
@@ -69,12 +79,12 @@ export class ConfigService extends Effect.Service<ConfigService>()(
           yield* setConfig('stateVersion', stateVersion);
         }),
         getTransactionStreamState: Effect.fn(function* () {
-          return yield* getConfig<'RUNNING' | 'PAUSED'>(
+          return yield* getConfig<TransactionStreamStateKeys>(
             'transactionStreamState',
           ).pipe(Effect.map((state) => state ?? 'RUNNING'));
         }),
         setTransactionStreamState: Effect.fn(function* (
-          value: 'RUNNING' | 'PAUSED',
+          value: TransactionStreamStateKeys,
         ) {
           yield* setConfig('transactionStreamState', value);
         }),

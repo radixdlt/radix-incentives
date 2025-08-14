@@ -1,5 +1,8 @@
 import { serve } from '@hono/node-server';
-import { setTransactionStreamStateProgram } from 'api/incentives';
+import {
+  setTransactionStreamStateProgram,
+  setTransactionStreamStateVersionProgram,
+} from 'api/incentives';
 import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
 
@@ -9,12 +12,36 @@ app.get('/health', (c) => {
   return c.text('ok');
 });
 
+const ALLOWED_STATES = ['PAUSE', 'START'];
+
 app.post('/state', async (c) => {
   const { state } = await c.req.json();
-  await setTransactionStreamStateProgram(state);
+
+  if (!ALLOWED_STATES.includes(state)) {
+    return c.json(
+      {
+        message: `Invalid input state: ${state}`,
+        allowedStates: ALLOWED_STATES,
+      },
+      400,
+    );
+  }
+
+  const input = state === 'PAUSE' ? 'PAUSING' : 'STARTING';
+
+  await setTransactionStreamStateProgram(input);
   return c.json({
     message: 'State updated',
     state,
+  });
+});
+
+app.post('/state-version', async (c) => {
+  const { stateVersion } = await c.req.json();
+  await setTransactionStreamStateVersionProgram(stateVersion);
+  return c.json({
+    message: 'State version updated',
+    stateVersion,
   });
 });
 

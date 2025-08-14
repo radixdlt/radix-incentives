@@ -1,5 +1,5 @@
 import { db } from 'db/incentives';
-import { Config, Effect, Layer } from 'effect';
+import { Config, Duration, Effect, Layer, Schedule } from 'effect';
 import { createTransactionStream } from 'radix-transaction-stream';
 import { createRadixNetworkClient } from 'radix-web3.js';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
@@ -24,8 +24,8 @@ import { TransactionStreamLive } from './transactionStream';
 import { TransactionStreamLoopService } from './transactionStreamLoop';
 import {
   setTransactionStreamState,
+  sharedTransactionStreamState,
   TransactionStreamLoopState,
-  transactionStreamLoopState,
 } from './transactionStreamState';
 
 const config = createConfig({
@@ -125,6 +125,12 @@ const transactionStreamLoopLive = TransactionStreamLoopService.Default.pipe(
   Layer.provide(FetchService.Default),
 );
 
+const RETRY_DELAY = Config.number('TRANSACTION_STREAM_RETRY_DELAY').pipe(
+  Config.withDefault(10),
+);
+
+const retryDelay = Effect.runSync(RETRY_DELAY);
+
 export const transactionStreamLoopProgram = () => {
   const runnable = Effect.provide(
     Effect.gen(function* () {
@@ -137,12 +143,24 @@ export const transactionStreamLoopProgram = () => {
         return;
       }
 
-      const transactionStreamLoopService = yield* TransactionStreamLoopService;
       const configService = yield* ConfigService;
-      const getLedgerStateService = yield* GetLedgerStateService;
 
       const transactionStreamState =
         yield* configService.getTransactionStreamState();
+
+      if (
+        yield* configService
+          .getTransactionStreamState()
+          .pipe(Effect.map((state) => state === 'PAUSED'))
+      ) {
+        yield* Effect.log(
+          `Transaction streamer is ${transactionStreamState} retrying in ${retryDelay} seconds`,
+        );
+        return;
+      }
+
+      const transactionStreamLoopService = yield* TransactionStreamLoopService;
+      const getLedgerStateService = yield* GetLedgerStateService;
 
       yield* setTransactionStreamState(transactionStreamState);
 
@@ -173,7 +191,11 @@ export const transactionStreamLoopProgram = () => {
         yield* configService.setStartStateVersion(new Date());
       }
 
-      return yield* transactionStreamLoopService.run();
+      yield* transactionStreamLoopService.run();
+
+      if ((yield* configService.getTransactionStreamState()) !== 'PAUSED') {
+        yield* setTransactionStreamState('PAUSED');
+      }
     }),
     Layer.mergeAll(
       transactionStreamLoopLive,
@@ -181,11 +203,18 @@ export const transactionStreamLoopProgram = () => {
       getLedgerStateLive,
     ),
   ).pipe(
-    Effect.provideServiceEffect(
+    Effect.provideService(
       TransactionStreamLoopState,
-      transactionStreamLoopState,
+      sharedTransactionStreamState,
     ),
   );
 
-  return Effect.runPromise(runnable);
+  return Effect.runPromise(
+    Effect.repeat(
+      runnable,
+      Schedule.forever.pipe(
+        Schedule.addDelay(() => Duration.seconds(retryDelay)),
+      ),
+    ),
+  );
 };

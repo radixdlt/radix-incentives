@@ -16,7 +16,10 @@ import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processS
 import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
 import { FilterTransactionsService } from './filterTransactions';
 import { TransactionStreamService } from './transactionStream';
-import { TransactionStreamLoopState } from './transactionStreamState';
+import {
+  setTransactionStreamState,
+  TransactionStreamLoopState,
+} from './transactionStreamState';
 
 export class TransactionStreamLoopService extends Effect.Service<TransactionStreamLoopService>()(
   'TransactionStreamLoopService',
@@ -38,15 +41,19 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
 
       return {
         run: Effect.fn(function* () {
+          const currentState = yield* Ref.get(
+            yield* TransactionStreamLoopState,
+          );
+
+          if (currentState === 'STARTING') {
+            yield* setTransactionStreamState('RUNNING');
+          }
+
           while (
             yield* Ref.get(yield* TransactionStreamLoopState).pipe(
               Effect.map((state) => state === 'RUNNING'),
             )
           ) {
-            yield* Effect.log(
-              yield* Ref.get(yield* TransactionStreamLoopState),
-            );
-
             const stateVersion = yield* configService.getStateVersion();
 
             if (!stateVersion)
@@ -175,8 +182,6 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
               yield* configService.setStateVersion(nextStateVersion);
             }
           }
-
-          yield* Effect.log('Transaction stream loop stopped');
         }),
       };
     }),
