@@ -168,7 +168,7 @@ export const setTransactionStreamStateVersionProgram = (value: number) =>
         yield* Effect.log(
           `Transaction stream state is not ${TransactionStreamStateKeys.Paused}, setting to paused`,
         );
-        yield* setTransactionStreamState(TransactionStreamStateKeys.Paused);
+        yield* setTransactionStreamState(TransactionStreamStateKeys.Pausing);
         yield* waitForStateChange(TransactionStreamStateKeys.Paused);
       }
 

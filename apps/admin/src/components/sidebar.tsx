@@ -6,6 +6,7 @@ import {
   CalendarDays,
   Database,
   LogOut,
+  Play,
   Shield,
   Users,
 } from 'lucide-react';
@@ -44,6 +45,11 @@ const navigationItems = [
     title: 'Database Seed',
     href: '/seed',
     icon: <Database className="h-5 w-5" />,
+  },
+  {
+    title: 'Transaction Stream',
+    href: '/transaction-stream',
+    icon: <Play className="h-5 w-5" />,
   },
 ];
 

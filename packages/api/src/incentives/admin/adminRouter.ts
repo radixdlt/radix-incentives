@@ -8,6 +8,7 @@ import {
   user,
 } from 'db/incentives';
 import { and, count, eq } from 'drizzle-orm';
+import { Exit } from 'effect';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
@@ -136,6 +137,94 @@ export const adminRouter = createTRPCRouter({
             code: 'INTERNAL_SERVER_ERROR',
           });
         }
+      }),
+  },
+  transactionStream: {
+    getState: publicProcedure.query(async ({ ctx }) => {
+      const result = await ctx.dependencyLayer.getTransactionStreamState();
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        },
+      });
+    }),
+    getStateVersion: publicProcedure.query(async ({ ctx }) => {
+      const result =
+        await ctx.dependencyLayer.getTransactionStreamStateVersion();
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        },
+      });
+    }),
+    setState: publicProcedure
+      .input(z.object({ state: z.enum(['START', 'PAUSE']) }))
+      .mutation(async ({ input }) => {
+        const response = await fetch(
+          `${process.env.STREAMER_API_BASE_URL}/state`,
+          {
+            method: 'POST',
+            body: JSON.stringify(input),
+          },
+        );
+
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: JSON.stringify(json),
+          });
+        }
+
+        return json;
+      }),
+    setStateVersion: publicProcedure
+      .input(z.object({ timestamp: z.date() }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.getLedgerState({
+          at_ledger_state: {
+            timestamp: input.timestamp,
+          },
+        });
+
+        const stateVersion = Exit.match(result, {
+          onSuccess: (value) => value.state_version,
+          onFailure: (error) => {
+            console.error(error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+
+        const response = await fetch(
+          `${process.env.STREAMER_API_BASE_URL}/state-version`,
+          {
+            method: 'POST',
+            body: JSON.stringify({ stateVersion }),
+          },
+        );
+
+        const json = await response.json();
+
+        if (!response.ok) {
+          throw new TRPCError({
+            code: 'BAD_REQUEST',
+            message: JSON.stringify(json),
+          });
+        }
+
+        return json;
       }),
   },
 });
