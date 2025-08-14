@@ -68,6 +68,16 @@ export class ConfigService extends Effect.Service<ConfigService>()(
         setStateVersion: Effect.fn(function* (stateVersion: number) {
           yield* setConfig('stateVersion', stateVersion);
         }),
+        getTransactionStreamState: Effect.fn(function* () {
+          return yield* getConfig<'RUNNING' | 'PAUSED'>(
+            'transactionStreamState',
+          ).pipe(Effect.map((state) => state ?? 'RUNNING'));
+        }),
+        setTransactionStreamState: Effect.fn(function* (
+          value: 'RUNNING' | 'PAUSED',
+        ) {
+          yield* setConfig('transactionStreamState', value);
+        }),
       };
     }),
   },

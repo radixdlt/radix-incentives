@@ -22,6 +22,11 @@ import { GetUserIdByAccountAddressLive } from '../user/getUserIdByAccountAddress
 import { FilterTransactionsLive } from './filterTransactions';
 import { TransactionStreamLive } from './transactionStream';
 import { TransactionStreamLoopService } from './transactionStreamLoop';
+import {
+  setTransactionStreamState,
+  TransactionStreamLoopState,
+  transactionStreamLoopState,
+} from './transactionStreamState';
 
 const config = createConfig({
   networkId: 1,
@@ -134,6 +139,12 @@ export const transactionStreamLoopProgram = () => {
 
       const transactionStreamLoopService = yield* TransactionStreamLoopService;
       const configService = yield* ConfigService;
+      const getLedgerStateService = yield* GetLedgerStateService;
+
+      const transactionStreamState =
+        yield* configService.getTransactionStreamState();
+
+      yield* setTransactionStreamState(transactionStreamState);
 
       const startTimestamp = yield* Config.string('START_TIMESTAMP').pipe(
         Config.withDefault(null),
@@ -147,8 +158,13 @@ export const transactionStreamLoopProgram = () => {
         );
         yield* configService.setStartStateVersion(new Date(startTimestamp));
       } else if (lastProcessedStateVersion) {
+        const ledgerState = yield* getLedgerStateService({
+          at_ledger_state: {
+            state_version: lastProcessedStateVersion,
+          },
+        });
         yield* Effect.log(
-          `Starting streamer from last processed state version: ${lastProcessedStateVersion}`,
+          `Starting streamer from last processed state version: ${lastProcessedStateVersion}, timestamp: ${ledgerState.proposer_round_timestamp}`,
         );
       } else {
         yield* Effect.log(
@@ -159,7 +175,16 @@ export const transactionStreamLoopProgram = () => {
 
       return yield* transactionStreamLoopService.run();
     }),
-    Layer.merge(transactionStreamLoopLive, configServiceLive),
+    Layer.mergeAll(
+      transactionStreamLoopLive,
+      configServiceLive,
+      getLedgerStateLive,
+    ),
+  ).pipe(
+    Effect.provideServiceEffect(
+      TransactionStreamLoopState,
+      transactionStreamLoopState,
+    ),
   );
 
   return Effect.runPromise(runnable);

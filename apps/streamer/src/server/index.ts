@@ -1,4 +1,5 @@
 import { serve } from '@hono/node-server';
+import { setTransactionStreamStateProgram } from 'api/incentives';
 import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
 
@@ -6,6 +7,15 @@ const app = new Hono();
 
 app.get('/health', (c) => {
   return c.text('ok');
+});
+
+app.post('/state', async (c) => {
+  const { state } = await c.req.json();
+  await setTransactionStreamStateProgram(state);
+  return c.json({
+    message: 'State updated',
+    state,
+  });
 });
 
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3004;
