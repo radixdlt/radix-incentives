@@ -5,7 +5,7 @@ params:
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
-  WORKERS_API_BASE_URL: "http://worker:3000"
+  WORKERS_API_BASE_URL: "http://worker:3003"
   GATEWAY_URL: "https://internal-mainnet-blue-babylon-gateway.rtlj-prod.extratools.works"
   OTLP_BASE_URL: "http://opentelemetry-collector.monitoring:4318"
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
