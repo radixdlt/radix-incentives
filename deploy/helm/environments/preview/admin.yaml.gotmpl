@@ -8,6 +8,8 @@ params:
   REDIS_HOST: "redis-master"
   REDIS_PORT: "6379"
   REDIS_PASSWORD: ""
+  WORKERS_API_BASE_URL: "http://worker:3003"
+  STREAMER_API_BASE_URL: "http://transaction-stream:3004"
 
 secrets:
   - external_secret_name: admin-postgres-url
