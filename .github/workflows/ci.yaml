@@ -38,7 +38,7 @@ permissions:
 
 jobs:
   setup-tags:
-    runs-on: ubuntu-latest
+    runs-on: selfhosted-ec2-ubuntu-22-2core
     steps:
       - uses: RDXWorks-actions/checkout@main
         with:
@@ -106,7 +106,7 @@ jobs:
       - setup-tags
     uses: radixdlt/public-iac-resuable-artifacts/.github/workflows/docker-build.yml@main
     with:
-      runs_on: ubuntu-latest
+      runs_on: selfhosted-ec2-ubuntu-22-2core
       image_registry: 'docker.io'
       image_organization: 'radixdlt'
       target: 'runner'
@@ -126,7 +126,7 @@ jobs:
       - setup-tags
     uses: radixdlt/public-iac-resuable-artifacts/.github/workflows/docker-build.yml@main
     with:
-      runs_on: ubuntu-latest
+      runs_on: selfhosted-ec2-ubuntu-22-2core
       image_registry: 'docker.io'
       image_organization: 'radixdlt'
       target: 'runner'
@@ -146,7 +146,7 @@ jobs:
       - setup-tags
     uses: radixdlt/public-iac-resuable-artifacts/.github/workflows/docker-build.yml@main
     with:
-      runs_on: ubuntu-latest
+      runs_on: selfhosted-ec2-ubuntu-22-2core
       image_registry: 'docker.io'
       image_organization: 'radixdlt'
       target: 'runner'
@@ -166,7 +166,7 @@ jobs:
       - setup-tags
     uses: radixdlt/public-iac-resuable-artifacts/.github/workflows/docker-build.yml@main
     with:
-      runs_on: ubuntu-latest
+      runs_on: selfhosted-ec2-ubuntu-22-2core
       image_registry: 'docker.io'
       image_organization: 'radixdlt'
       target: 'runner'
@@ -182,7 +182,7 @@ jobs:
 
   check-gateway-label:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: selfhosted-ec2-ubuntu-22-2core
     steps:
       - name: Check for 'set-gateway' label
         id: check_label
@@ -197,7 +197,7 @@ jobs:
 
   check-install-connector-label:
     if: github.event_name == 'pull_request' || github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: selfhosted-ec2-ubuntu-22-2core
     steps:
       - name: Check for 'install-connector' label
         id: check_label
