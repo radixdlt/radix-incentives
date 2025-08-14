@@ -17,7 +17,7 @@ export class TransactionStreamLoopState extends Context.Tag(
 )<TransactionStreamLoopState, Ref.Ref<TransactionStreamStateKeys>>() {}
 
 export const transactionStreamLoopState =
-  Ref.make<TransactionStreamStateKeys>('STARTING');
+  Ref.make<TransactionStreamStateKeys>('INITIALIZING');
 
 // Create a shared state instance
 export const sharedTransactionStreamState = Effect.runSync(
@@ -52,9 +52,18 @@ export const setTransactionStreamState = Effect.fn(function* (
 ) {
   const state = yield* TransactionStreamLoopState;
   const configService = yield* Effect.provide(ConfigService, configServiceLive);
+
+  const currentState = yield* Ref.get(state);
+
+  if (currentState === value) {
+    return;
+  }
+
   yield* Ref.update(state, () => value);
   yield* configService.setTransactionStreamState(value);
-  yield* Effect.log(`Transaction stream state set to: ${value}`);
+  yield* Effect.log(
+    `Transaction stream state set to: ${value}, previous state: ${currentState}`,
+  );
 });
 
 export const setTransactionStreamStateVersion = Effect.fn(function* (
@@ -81,7 +90,55 @@ export const setTransactionStreamStateProgram = (
       if (!parsedState.success) {
         return yield* Effect.fail(parsedState.error.message);
       }
+      const expectedState = parsedState.data;
+      const currentState = yield* Ref.get(yield* TransactionStreamLoopState);
+
+      // if the current state is the same as the expected state, skip
+      const shouldSkip =
+        (expectedState === TransactionStreamStateKeys.Pausing &&
+          currentState === TransactionStreamStateKeys.Paused) ||
+        (expectedState === TransactionStreamStateKeys.Starting &&
+          currentState === TransactionStreamStateKeys.Running) ||
+        expectedState === currentState;
+
+      if (shouldSkip) {
+        return;
+      }
+
       yield* setTransactionStreamState(parsedState.data);
+    }).pipe(
+      Effect.provideService(
+        TransactionStreamLoopState,
+        sharedTransactionStreamState,
+      ),
+    ),
+  );
+
+const waitForStateChange = Effect.fn(function* (
+  expectedState: TransactionStreamStateKeys,
+) {
+  const parsedState = transactionStreamStateSchema.safeParse(expectedState);
+  if (!parsedState.success) {
+    return yield* Effect.fail(parsedState.error.message);
+  }
+
+  yield* Effect.repeat(
+    Effect.gen(function* () {
+      const state = yield* Ref.get(yield* TransactionStreamLoopState);
+      return state;
+    }),
+    {
+      until: (state) => state === expectedState,
+    },
+  );
+});
+
+export const waitForStateChangeProgram = (
+  expectedState: TransactionStreamStateKeys,
+) =>
+  Effect.runPromise(
+    Effect.gen(function* () {
+      yield* waitForStateChange(expectedState);
     }).pipe(
       Effect.provideService(
         TransactionStreamLoopState,
@@ -95,11 +152,34 @@ const transactionStreamStateVersionSchema = z.number();
 export const setTransactionStreamStateVersionProgram = (value: number) =>
   Effect.runPromise(
     Effect.gen(function* () {
+      yield* Effect.log(
+        `Setting transaction stream state version to: ${value}`,
+      );
+      const currentState = yield* Ref.get(yield* TransactionStreamLoopState);
+
       const parsedStateVersion =
         transactionStreamStateVersionSchema.safeParse(value);
+
       if (!parsedStateVersion.success) {
         return yield* Effect.fail(parsedStateVersion.error.message);
       }
+
+      if (currentState !== TransactionStreamStateKeys.Paused) {
+        yield* Effect.log(
+          `Transaction stream state is not ${TransactionStreamStateKeys.Paused}, setting to paused`,
+        );
+        yield* setTransactionStreamState(TransactionStreamStateKeys.Paused);
+        yield* waitForStateChange(TransactionStreamStateKeys.Paused);
+      }
+
       yield* setTransactionStreamStateVersion(parsedStateVersion.data);
-    }),
+
+      yield* setTransactionStreamState(currentState);
+      yield* waitForStateChange(currentState);
+    }).pipe(
+      Effect.provideService(
+        TransactionStreamLoopState,
+        sharedTransactionStreamState,
+      ),
+    ),
   );

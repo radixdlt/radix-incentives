@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import {
   setTransactionStreamStateProgram,
   setTransactionStreamStateVersionProgram,
+  waitForStateChangeProgram,
 } from 'api/incentives';
 import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
@@ -28,11 +29,13 @@ app.post('/state', async (c) => {
   }
 
   const input = state === 'PAUSE' ? 'PAUSING' : 'STARTING';
+  const expectedState = state === 'PAUSE' ? 'PAUSED' : 'RUNNING';
 
   await setTransactionStreamStateProgram(input);
+  await waitForStateChangeProgram(expectedState);
   return c.json({
     message: 'State updated',
-    state,
+    state: expectedState,
   });
 });
 

@@ -129,9 +129,26 @@ const RETRY_DELAY = Config.number('TRANSACTION_STREAM_RETRY_DELAY').pipe(
   Config.withDefault(10),
 );
 
-const retryDelay = Effect.runSync(RETRY_DELAY);
+export const transactionStreamLoopProgram = async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const configService = yield* Effect.provide(
+        ConfigService,
+        configServiceLive,
+      );
 
-export const transactionStreamLoopProgram = () => {
+      const transactionStreamState =
+        yield* configService.getTransactionStreamState();
+
+      yield* setTransactionStreamState(transactionStreamState);
+    }).pipe(
+      Effect.provideService(
+        TransactionStreamLoopState,
+        sharedTransactionStreamState,
+      ),
+    ),
+  );
+
   const runnable = Effect.provide(
     Effect.gen(function* () {
       const transactionStreamEnabled = yield* Config.boolean(
@@ -139,7 +156,9 @@ export const transactionStreamLoopProgram = () => {
       ).pipe(Config.withDefault(true));
 
       if (!transactionStreamEnabled) {
-        yield* Effect.log('Transaction streamer is disabled');
+        yield* Effect.log(
+          'Transaction streamer is disabled through TRANSACTION_STREAM_ENABLED',
+        );
         return;
       }
 
@@ -153,9 +172,6 @@ export const transactionStreamLoopProgram = () => {
           .getTransactionStreamState()
           .pipe(Effect.map((state) => state === 'PAUSED'))
       ) {
-        yield* Effect.log(
-          `Transaction streamer is ${transactionStreamState} retrying in ${retryDelay} seconds`,
-        );
         return;
       }
 
@@ -209,12 +225,5 @@ export const transactionStreamLoopProgram = () => {
     ),
   );
 
-  return Effect.runPromise(
-    Effect.repeat(
-      runnable,
-      Schedule.forever.pipe(
-        Schedule.addDelay(() => Duration.seconds(retryDelay)),
-      ),
-    ),
-  );
+  return Effect.runPromise(Effect.repeat(runnable, Schedule.forever));
 };

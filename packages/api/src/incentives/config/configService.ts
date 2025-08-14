@@ -5,6 +5,7 @@ import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { DbClientService, DbError } from '../db/dbClient';
 
 export const TransactionStreamStateKeys = {
+  Initializing: 'INITIALIZING',
   Starting: 'STARTING',
   Running: 'RUNNING',
   Paused: 'PAUSED',
