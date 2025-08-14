@@ -1,5 +1,5 @@
 import { db } from 'db/incentives';
-import { Config, Effect, Layer } from 'effect';
+import { Config, Effect, Layer, Schedule } from 'effect';
 import { createTransactionStream } from 'radix-transaction-stream';
 import { createRadixNetworkClient } from 'radix-web3.js';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
@@ -22,6 +22,11 @@ import { GetUserIdByAccountAddressLive } from '../user/getUserIdByAccountAddress
 import { FilterTransactionsLive } from './filterTransactions';
 import { TransactionStreamLive } from './transactionStream';
 import { TransactionStreamLoopService } from './transactionStreamLoop';
+import {
+  setTransactionStreamState,
+  sharedTransactionStreamState,
+  TransactionStreamLoopState,
+} from './transactionStreamState';
 
 const config = createConfig({
   networkId: 1,
@@ -120,7 +125,31 @@ const transactionStreamLoopLive = TransactionStreamLoopService.Default.pipe(
   Layer.provide(FetchService.Default),
 );
 
-export const transactionStreamLoopProgram = () => {
+const _RETRY_DELAY = Config.number('TRANSACTION_STREAM_RETRY_DELAY').pipe(
+  Config.withDefault(10),
+);
+
+export const transactionStreamLoopProgram = async () => {
+  await Effect.runPromise(
+    Effect.gen(function* () {
+      const configService = yield* Effect.provide(
+        ConfigService,
+        configServiceLive,
+      );
+
+      const transactionStreamState =
+        yield* configService.getTransactionStreamState();
+
+      yield* setTransactionStreamState(transactionStreamState);
+    }).pipe(
+      Effect.provide(configServiceLive),
+      Effect.provideService(
+        TransactionStreamLoopState,
+        sharedTransactionStreamState,
+      ),
+    ),
+  );
+
   const runnable = Effect.provide(
     Effect.gen(function* () {
       const transactionStreamEnabled = yield* Config.boolean(
@@ -128,12 +157,29 @@ export const transactionStreamLoopProgram = () => {
       ).pipe(Config.withDefault(true));
 
       if (!transactionStreamEnabled) {
-        yield* Effect.log('Transaction streamer is disabled');
+        yield* Effect.log(
+          'Transaction streamer is disabled through TRANSACTION_STREAM_ENABLED',
+        );
+        return;
+      }
+
+      const configService = yield* ConfigService;
+
+      const transactionStreamState =
+        yield* configService.getTransactionStreamState();
+
+      if (
+        yield* configService
+          .getTransactionStreamState()
+          .pipe(Effect.map((state) => state === 'PAUSED'))
+      ) {
         return;
       }
 
       const transactionStreamLoopService = yield* TransactionStreamLoopService;
-      const configService = yield* ConfigService;
+      const getLedgerStateService = yield* GetLedgerStateService;
+
+      yield* setTransactionStreamState(transactionStreamState);
 
       const startTimestamp = yield* Config.string('START_TIMESTAMP').pipe(
         Config.withDefault(null),
@@ -147,8 +193,13 @@ export const transactionStreamLoopProgram = () => {
         );
         yield* configService.setStartStateVersion(new Date(startTimestamp));
       } else if (lastProcessedStateVersion) {
+        const ledgerState = yield* getLedgerStateService({
+          at_ledger_state: {
+            state_version: lastProcessedStateVersion,
+          },
+        });
         yield* Effect.log(
-          `Starting streamer from last processed state version: ${lastProcessedStateVersion}`,
+          `Starting streamer from last processed state version: ${lastProcessedStateVersion}, timestamp: ${ledgerState.proposer_round_timestamp}`,
         );
       } else {
         yield* Effect.log(
@@ -157,10 +208,23 @@ export const transactionStreamLoopProgram = () => {
         yield* configService.setStartStateVersion(new Date());
       }
 
-      return yield* transactionStreamLoopService.run();
+      yield* transactionStreamLoopService.run();
+
+      if ((yield* configService.getTransactionStreamState()) !== 'PAUSED') {
+        yield* setTransactionStreamState('PAUSED');
+      }
     }),
-    Layer.merge(transactionStreamLoopLive, configServiceLive),
+    Layer.mergeAll(
+      transactionStreamLoopLive,
+      configServiceLive,
+      getLedgerStateLive,
+    ),
+  ).pipe(
+    Effect.provideService(
+      TransactionStreamLoopState,
+      sharedTransactionStreamState,
+    ),
   );
 
-  return Effect.runPromise(runnable);
+  return Effect.runPromise(Effect.repeat(runnable, Schedule.forever));
 };

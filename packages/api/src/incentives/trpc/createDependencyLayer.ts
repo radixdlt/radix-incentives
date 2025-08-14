@@ -3,6 +3,10 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { type Db, readOnlyDb, type Season } from 'db/incentives';
 import { Effect, Layer } from 'effect';
+import {
+  type GetLedgerStateInput,
+  GetLedgerStateService,
+} from '../../common/gateway';
 import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
 import { AccountBalanceService } from '../account/accountBalance';
@@ -45,6 +49,7 @@ import {
   createAppConfigLive,
   createConfig,
 } from '../config/appConfig';
+import { ConfigService } from '../config/configService';
 import {
   NotificationService,
   type NotificationSettings,
@@ -744,6 +749,72 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getLedgerStateServiceLive = GetLedgerStateService.Default.pipe(
+    Layer.provide(gatewayApiClientLive),
+  );
+
+  const configServiceLive = ConfigService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(getLedgerStateServiceLive),
+  );
+
+  const getTransactionStreamState = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const configService = yield* Effect.provide(
+          ConfigService,
+          configServiceLive,
+        );
+        return yield* configService.getTransactionStreamState();
+      }),
+      configServiceLive,
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getTransactionStreamStateVersion = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const configService = yield* Effect.provide(
+          ConfigService,
+          configServiceLive,
+        );
+        const getLedgerStateService = yield* Effect.provide(
+          GetLedgerStateService,
+          getLedgerStateServiceLive,
+        );
+        const stateVersion = yield* configService.getStateVersion();
+        if (!stateVersion) {
+          return undefined;
+        }
+        const ledgerState = yield* getLedgerStateService({
+          at_ledger_state: {
+            state_version: stateVersion,
+          },
+        });
+        return {
+          stateVersion: ledgerState.state_version,
+          timestamp: ledgerState.proposer_round_timestamp,
+        };
+      }),
+      configServiceLive,
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getLedgerState = (input: GetLedgerStateInput) => {
+    const program = Effect.gen(function* () {
+      const getLedgerStateService = yield* Effect.provide(
+        GetLedgerStateService,
+        getLedgerStateServiceLive,
+      );
+      return yield* getLedgerStateService(input);
+    });
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -781,5 +852,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getNotificationSettings,
     updateNotificationSettings,
     calculateTWASQL,
+    getTransactionStreamState,
+    getTransactionStreamStateVersion,
+    getLedgerState,
   };
 };

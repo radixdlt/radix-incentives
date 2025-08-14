@@ -1,4 +1,4 @@
-import { Config, Effect } from 'effect';
+import { Config, Effect, Ref } from 'effect';
 import { AddComponentCallsService } from '../component/addComponentCalls';
 import { ConfigService } from '../config/configService';
 import { AddToEventQueueService } from '../events/addToEventQueue';
@@ -16,6 +16,10 @@ import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processS
 import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
 import { FilterTransactionsService } from './filterTransactions';
 import { TransactionStreamService } from './transactionStream';
+import {
+  setTransactionStreamState,
+  TransactionStreamLoopState,
+} from './transactionStreamState';
 
 export class TransactionStreamLoopService extends Effect.Service<TransactionStreamLoopService>()(
   'TransactionStreamLoopService',
@@ -37,7 +41,19 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
 
       return {
         run: Effect.fn(function* () {
-          while (true) {
+          const currentState = yield* Ref.get(
+            yield* TransactionStreamLoopState,
+          );
+
+          if (currentState === 'STARTING') {
+            yield* setTransactionStreamState('RUNNING');
+          }
+
+          while (
+            yield* Ref.get(yield* TransactionStreamLoopState).pipe(
+              Effect.map((state) => state === 'RUNNING'),
+            )
+          ) {
             const stateVersion = yield* configService.getStateVersion();
 
             if (!stateVersion)

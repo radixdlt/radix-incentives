@@ -242,5 +242,17 @@ When working with React components:
 - Use workspace protocol for internal package dependencies
 - **Always use pnpm or pnpm dlx**
 
+## Commit Message Format
+Follow Conventional Commits specification: https://www.conventionalcommits.org/en/v1.0.0/
+
+- Format: `<type>[optional scope]: <description>`
+- Types: `feat`, `fix`, `docs`, `style`, `refactor`, `test`, `chore`
+- Breaking changes: Add `!` after type/scope and/or `BREAKING CHANGE:` in footer
+- Examples:
+  - `feat: add user authentication`
+  - `fix(api): resolve database connection issue`
+  - `feat!: change API response format`
+  - `docs: update README with installation steps`
+
 ## Linting 
 - Use pnpm biome lint to check for linting errors
