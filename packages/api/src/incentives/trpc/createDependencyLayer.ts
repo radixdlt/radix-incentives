@@ -3,6 +3,10 @@ import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { type Db, readOnlyDb, type Season } from 'db/incentives';
 import { Effect, Layer } from 'effect';
+import {
+  type GetLedgerStateInput,
+  GetLedgerStateService,
+} from '../../common/gateway';
 import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
 import { AccountBalanceService } from '../account/accountBalance';
@@ -45,6 +49,7 @@ import {
   createAppConfigLive,
   createConfig,
 } from '../config/appConfig';
+import { ConfigService } from '../config/configService';
 import {
   NotificationService,
   type NotificationSettings,
@@ -83,11 +88,6 @@ import { UpsertUserLive } from '../user/upsertUser';
 import { UserService } from '../user/user';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
-import { ConfigService } from '../config/configService';
-import {
-  type GetLedgerStateInput,
-  GetLedgerStateService,
-} from '../../common/gateway';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 

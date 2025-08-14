@@ -1,5 +1,5 @@
 import { db } from 'db/incentives';
-import { Config, Duration, Effect, Layer, Schedule } from 'effect';
+import { Config, Effect, Layer, Schedule } from 'effect';
 import { createTransactionStream } from 'radix-transaction-stream';
 import { createRadixNetworkClient } from 'radix-web3.js';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
@@ -125,7 +125,7 @@ const transactionStreamLoopLive = TransactionStreamLoopService.Default.pipe(
   Layer.provide(FetchService.Default),
 );
 
-const RETRY_DELAY = Config.number('TRANSACTION_STREAM_RETRY_DELAY').pipe(
+const _RETRY_DELAY = Config.number('TRANSACTION_STREAM_RETRY_DELAY').pipe(
   Config.withDefault(10),
 );
 
