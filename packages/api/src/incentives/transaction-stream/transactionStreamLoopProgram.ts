@@ -142,6 +142,7 @@ export const transactionStreamLoopProgram = async () => {
 
       yield* setTransactionStreamState(transactionStreamState);
     }).pipe(
+      Effect.provide(configServiceLive),
       Effect.provideService(
         TransactionStreamLoopState,
         sharedTransactionStreamState,

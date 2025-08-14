@@ -51,7 +51,7 @@ export const setTransactionStreamState = Effect.fn(function* (
   value: TransactionStreamStateKeys,
 ) {
   const state = yield* TransactionStreamLoopState;
-  const configService = yield* Effect.provide(ConfigService, configServiceLive);
+  const configService = yield* ConfigService;
 
   const currentState = yield* Ref.get(state);
 
@@ -107,6 +107,7 @@ export const setTransactionStreamStateProgram = (
 
       yield* setTransactionStreamState(parsedState.data);
     }).pipe(
+      Effect.provide(configServiceLive),
       Effect.provideService(
         TransactionStreamLoopState,
         sharedTransactionStreamState,
@@ -177,6 +178,7 @@ export const setTransactionStreamStateVersionProgram = (value: number) =>
       yield* setTransactionStreamState(currentState);
       yield* waitForStateChange(currentState);
     }).pipe(
+      Effect.provide(configServiceLive),
       Effect.provideService(
         TransactionStreamLoopState,
         sharedTransactionStreamState,
