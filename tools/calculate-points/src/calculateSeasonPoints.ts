@@ -1,5 +1,3 @@
-import fs from 'node:fs';
-import path from 'node:path';
 import {
   ActivityCategoryWeekService,
   AddSeasonPointsToUserService,
@@ -13,24 +11,16 @@ import {
 } from 'api/incentives';
 import {
   accountActivityPoints,
-  accounts,
-  activities,
   db,
-  seasons,
   userSeasonPoints,
   weeks,
 } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect, Layer, Logger } from 'effect';
-import { groupBy } from 'effect/Array';
 import { ActivityWeekService } from '../../../packages/api/src/incentives/activity-week/activityWeek';
 import { GetUsersPaginatedLive } from '../../../packages/api/src/incentives/user/getUsersPaginated';
 
-const WEEK_ID = '30da196b-7602-4b06-a558-bbb5b5441186';
-
 const runnable = Effect.gen(function* () {
-  const outputDir = path.join(import.meta.dirname, '../output');
-
   yield* Effect.log('Running season points calculation');
 
   const dbLayer = createDbClientLive(db);
@@ -77,6 +67,7 @@ const runnable = Effect.gen(function* () {
       Layer.provide(updateWeekStatusServiceLive),
       Layer.provide(getUsersPaginatedServiceLive),
       Layer.provide(activityWeekServiceLive),
+      Layer.provide(dbLayer),
     );
 
   const service = yield* Effect.provide(
@@ -84,115 +75,161 @@ const runnable = Effect.gen(function* () {
     calculateSeasonPointsServiceLive,
   );
 
-  const seasonId = yield* Effect.tryPromise(() =>
-    db.query.seasons
-      .findFirst({
-        where: eq(seasons.status, 'active'),
+  // Get week IDs that have activity points and are not processed
+  const weekIdsWithActivityPoints = yield* Effect.tryPromise(() =>
+    db
+      .select({
+        weekId: accountActivityPoints.weekId,
       })
-      .then((result) => result?.id),
+      .from(accountActivityPoints)
+      .innerJoin(weeks, eq(accountActivityPoints.weekId, weeks.id))
+      .where(eq(weeks.processed, false))
+      .groupBy(accountActivityPoints.weekId)
+      .then((result) => result.map((row) => row.weekId)),
   );
 
-  const week = yield* Effect.tryPromise(() =>
-    db.query.weeks.findFirst({
-      where: eq(weeks.id, WEEK_ID),
+  // Get week IDs that already have season points calculated
+  const processedWeeks = yield* Effect.tryPromise(() =>
+    db
+      .select({
+        weekId: userSeasonPoints.weekId,
+      })
+      .from(userSeasonPoints)
+      .groupBy(userSeasonPoints.weekId)
+      .then((result) => result.map((row) => row.weekId)),
+  );
+
+  // Filter to get only weeks that have activity points but no season points
+  const unprocessedWeeks = weekIdsWithActivityPoints.filter(
+    (weekId) => !processedWeeks.includes(weekId),
+  );
+
+  yield* Effect.log(
+    `Found ${unprocessedWeeks.length} unprocessed weeks with activity points`,
+  );
+
+  yield* Effect.forEach(
+    unprocessedWeeks,
+    Effect.fn(function* (weekId) {
+      yield* service.run({
+        weekId: weekId,
+        force: false,
+        markAsProcessed: true,
+      });
     }),
   );
-
-  if (!week) {
-    return yield* Effect.fail('Week not found');
-  }
-
-  const activityCategoryWeeks = yield* Effect.tryPromise(() =>
-    db.query.activityCategoryWeeks.findMany(),
-  );
-
-  if (!seasonId) {
-    return yield* Effect.fail('Season not found');
-  }
-
-  if (activityCategoryWeeks.length === 0) {
-    return yield* Effect.fail('Activity category weeks not found');
-  }
-
-  yield* service.run({
-    weekId: week.id,
-    force: true,
-    markAsProcessed: false,
-  });
 
   yield* Effect.log('Season points calculation complete');
 
-  yield* Effect.log('Writing results to file');
+  // const seasonId = yield* Effect.tryPromise(() =>
+  //   db.query.seasons
+  //     .findFirst({
+  //       where: eq(seasons.status, 'active'),
+  //     })
+  //     .then((result) => result?.id),
+  // );
 
-  const userSeasonPointsResults = yield* Effect.tryPromise(() =>
-    db
-      .select()
-      .from(userSeasonPoints)
-      .where(eq(userSeasonPoints.weekId, week.id)),
-  );
+  // const week = yield* Effect.tryPromise(() =>
+  //   db.query.weeks.findFirst({
+  //     where: eq(weeks.id, WEEK_ID),
+  //   }),
+  // );
 
-  const accountActivityPointsResults = yield* Effect.tryPromise(() =>
-    db
-      .select({
-        userId: accounts.userId,
-        weekId: accountActivityPoints.weekId,
-        activityId: accountActivityPoints.activityId,
-        activityPoints: accountActivityPoints.activityPoints,
-        accountAddress: accounts.address,
-        activityCategory: activities.category,
-      })
-      .from(accountActivityPoints)
-      .where(eq(accountActivityPoints.weekId, week.id))
-      .innerJoin(
-        accounts,
-        eq(accountActivityPoints.accountAddress, accounts.address),
-      )
-      .innerJoin(
-        activities,
-        eq(accountActivityPoints.activityId, activities.id),
-      ),
-  );
+  // if (!week) {
+  //   return yield* Effect.fail('Week not found');
+  // }
 
-  const groupedByUserId = groupBy(
-    accountActivityPointsResults,
-    (item) => item.userId,
-  );
+  // const activityCategoryWeeks = yield* Effect.tryPromise(() =>
+  //   db.query.activityCategoryWeeks.findMany(),
+  // );
 
-  const withActivityPoints = userSeasonPointsResults.map(
-    ({ userId, points }) => ({
-      userId,
-      seasonPoints: points,
-      activityPoints: groupedByUserId[userId]?.map(({ accountAddress }) => {
-        const groupByActivityCategory = Object.entries(
-          groupBy(groupedByUserId[userId], (item) => item.activityCategory),
-        ).map(([activityCategory, items]) => ({
-          activityCategory,
-          activities: items.map((item) => ({
-            activityId: item.activityId,
-            activityPoints: item.activityPoints,
-            accountAddress: item.accountAddress,
-          })),
-        }));
+  // if (!seasonId) {
+  //   return yield* Effect.fail('Season not found');
+  // }
 
-        return {
-          accountAddress,
-          categories: groupByActivityCategory,
-        };
-      }),
-    }),
-  );
+  // if (activityCategoryWeeks.length === 0) {
+  //   return yield* Effect.fail('Activity category weeks not found');
+  // }
 
-  // Ensure output directory exists
-  if (!fs.existsSync(outputDir)) {
-    fs.mkdirSync(outputDir, { recursive: true });
-  }
+  // yield* service.run({
+  //   weekId: week.id,
+  //   force: true,
+  //   markAsProcessed: false,
+  // });
 
-  fs.writeFileSync(
-    path.join(outputDir, 'results.json'),
-    JSON.stringify(withActivityPoints, null, 2),
-  );
+  // yield* Effect.log('Season points calculation complete');
 
-  yield* Effect.log('Results written to file');
+  // yield* Effect.log('Writing results to file');
+
+  // const userSeasonPointsResults = yield* Effect.tryPromise(() =>
+  //   db
+  //     .select()
+  //     .from(userSeasonPoints)
+  //     .where(eq(userSeasonPoints.weekId, week.id)),
+  // );
+
+  // const accountActivityPointsResults = yield* Effect.tryPromise(() =>
+  //   db
+  //     .select({
+  //       userId: accounts.userId,
+  //       weekId: accountActivityPoints.weekId,
+  //       activityId: accountActivityPoints.activityId,
+  //       activityPoints: accountActivityPoints.activityPoints,
+  //       accountAddress: accounts.address,
+  //       activityCategory: activities.category,
+  //     })
+  //     .from(accountActivityPoints)
+  //     .where(eq(accountActivityPoints.weekId, week.id))
+  //     .innerJoin(
+  //       accounts,
+  //       eq(accountActivityPoints.accountAddress, accounts.address),
+  //     )
+  //     .innerJoin(
+  //       activities,
+  //       eq(accountActivityPoints.activityId, activities.id),
+  //     ),
+  // );
+
+  // const groupedByUserId = groupBy(
+  //   accountActivityPointsResults,
+  //   (item) => item.userId,
+  // );
+
+  // const withActivityPoints = userSeasonPointsResults.map(
+  //   ({ userId, points }) => ({
+  //     userId,
+  //     seasonPoints: points,
+  //     activityPoints: groupedByUserId[userId]?.map(({ accountAddress }) => {
+  //       const groupByActivityCategory = Object.entries(
+  //         groupBy(groupedByUserId[userId], (item) => item.activityCategory),
+  //       ).map(([activityCategory, items]) => ({
+  //         activityCategory,
+  //         activities: items.map((item) => ({
+  //           activityId: item.activityId,
+  //           activityPoints: item.activityPoints,
+  //           accountAddress: item.accountAddress,
+  //         })),
+  //       }));
+
+  //       return {
+  //         accountAddress,
+  //         categories: groupByActivityCategory,
+  //       };
+  //     }),
+  //   }),
+  // );
+
+  // // Ensure output directory exists
+  // if (!fs.existsSync(outputDir)) {
+  //   fs.mkdirSync(outputDir, { recursive: true });
+  // }
+
+  // fs.writeFileSync(
+  //   path.join(outputDir, 'results.json'),
+  //   JSON.stringify(withActivityPoints, null, 2),
+  // );
+
+  // yield* Effect.log('Results written to file');
 });
 
 await Effect.runPromise(runnable.pipe(Effect.provide(Logger.pretty)));
