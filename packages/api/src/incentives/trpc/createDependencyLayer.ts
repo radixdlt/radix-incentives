@@ -81,6 +81,11 @@ import { GenerateSessionTokenLive } from '../session/generateSessionToken';
 import { GetSessionLive } from '../session/getSession';
 import { InvalidateSessionLive } from '../session/invalidateSession';
 import {
+  type SetStateInput,
+  type SetStateVersionInput,
+  TransactionStreamApiService,
+} from '../transaction-stream/transactionStreamApi';
+import {
   GetUsersPaginatedLive,
   GetUsersPaginatedService,
 } from '../user/getUsersPaginated';
@@ -815,6 +820,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const setStateVersion = (input: SetStateVersionInput) => {
+    const program = Effect.gen(function* () {
+      const transactionStreamApiService = yield* TransactionStreamApiService;
+      return yield* transactionStreamApiService.setStateVersion(input);
+    }).pipe(Effect.provide(TransactionStreamApiService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
+  const setState = (input: SetStateInput) => {
+    const program = Effect.gen(function* () {
+      const transactionStreamApiService = yield* TransactionStreamApiService;
+      return yield* transactionStreamApiService.setState(input);
+    }).pipe(Effect.provide(TransactionStreamApiService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -855,5 +876,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getTransactionStreamState,
     getTransactionStreamStateVersion,
     getLedgerState,
+    setStateVersion,
+    setState,
   };
 };
