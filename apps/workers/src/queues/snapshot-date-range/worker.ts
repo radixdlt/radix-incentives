@@ -1,11 +1,11 @@
 import { getDatesBetweenIntervals } from 'api/common';
-import type { Job } from 'bullmq';
-import { SnapshotPriority } from '../snapshot/constants';
-import { snapshotQueue } from '../snapshot/queue';
 import {
   type SnapshotDateRangeJob,
   snapshotDateRangeJobSchema,
-} from './schemas';
+} from 'api/incentives';
+import type { Job } from 'bullmq';
+import { SnapshotPriority } from '../snapshot/constants';
+import { snapshotQueue } from '../snapshot/queue';
 
 export const snapshotDateRangeWorker = async (
   input: Job<SnapshotDateRangeJob>,

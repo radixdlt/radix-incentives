@@ -12,6 +12,7 @@ import { and, count, eq } from 'drizzle-orm';
 import { Exit } from 'effect';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
+import { snapshotDateRangeJobSchema } from '../worker/workerApi';
 
 export const adminRouter = createTRPCRouter({
   user: {
@@ -223,6 +224,34 @@ export const adminRouter = createTRPCRouter({
       .mutation(async ({ input, ctx }) => {
         const result = await ctx.dependencyLayer.setStateVersion(input);
 
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+      }),
+  },
+  queues: {
+    getQueues: publicProcedure.query(async ({ ctx }) => {
+      const result = await ctx.dependencyLayer.getQueues();
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        },
+      });
+    }),
+    addDateRangeJob: publicProcedure
+      .input(snapshotDateRangeJobSchema)
+      .mutation(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.addDateRangeJob(input);
         return Exit.match(result, {
           onSuccess: (value) => value,
           onFailure: (error) => {

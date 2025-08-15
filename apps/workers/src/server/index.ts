@@ -3,6 +3,7 @@ import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js'
 import { HonoAdapter } from '@bull-board/hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
+import { snapshotDateRangeJobSchema } from 'api/incentives';
 import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
 import { calculateActivityPointsQueue } from '../queues/calculate-activity-points/queue';
@@ -20,7 +21,6 @@ import { scheduledSnapshotQueue } from '../queues/scheduled-snapshot/queue';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
 import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
-import { snapshotDateRangeJobSchema } from '../queues/snapshot-date-range/schemas';
 
 const app = new Hono();
 const metricsApp = new Hono();

@@ -100,6 +100,10 @@ import { UserService } from '../user/user';
 import { UserActivityPointsService } from '../user/userActivityPoints';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
+import {
+  type SnapshotDateRangeJob,
+  WorkerApiService,
+} from '../worker/workerApi';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -883,6 +887,24 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getQueues = () => {
+    const program = Effect.gen(function* () {
+      const workerApiService = yield* WorkerApiService;
+      return yield* workerApiService.getQueues();
+    }).pipe(Effect.provide(WorkerApiService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const addDateRangeJob = (input: SnapshotDateRangeJob) => {
+    const program = Effect.gen(function* () {
+      const workerApiService = yield* WorkerApiService;
+      return yield* workerApiService.addDateRangeJob(input);
+    }).pipe(Effect.provide(WorkerApiService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -926,5 +948,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     setStateVersion,
     setState,
     calculateSeasonPoints,
+    getQueues,
+    addDateRangeJob,
   };
 };
