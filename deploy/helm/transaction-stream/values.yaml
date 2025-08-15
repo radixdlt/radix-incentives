@@ -38,7 +38,7 @@ securityContext: {}
 
 service:
   type: ClusterIP
-  port: 3000
+  port: 3004
 
 ingress:
   enabled: false
