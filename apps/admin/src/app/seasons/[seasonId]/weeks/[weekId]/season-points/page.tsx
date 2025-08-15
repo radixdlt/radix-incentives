@@ -1,6 +1,6 @@
 'use client';
 
-import { BigNumber } from 'bignumber.js';
+import BigNumber from 'bignumber.js';
 import { AlertCircle, ArrowLeft, Calculator, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
@@ -24,18 +24,62 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import type { RouterOutputs } from '~/trpc/react';
 import { api } from '~/trpc/react';
+
+type SeasonPointsData = RouterOutputs['admin']['user']['getSeasonPoints'][0];
+
+const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
+  return (
+    <div className="rounded-lg border">
+      <Table>
+        <TableHeader>
+          <TableRow className="border-b">
+            <TableHead className="border-r">Username</TableHead>
+            <TableHead className="border-r text-right">Multiplier</TableHead>
+            <TableHead className="text-right">Season Points</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {data.length > 0 ? (
+            data
+              .filter((user) => user.points.gt(0))
+              .sort((a, b) => b.points.minus(a.points).toNumber())
+              .map((user) => (
+                <TableRow key={user.userId} className="border-b">
+                  <TableCell className="border-r">
+                    <Link
+                      href={`/users/${user.userId}`}
+                      className="text-blue-600 hover:underline"
+                    >
+                      {user.label || '-'}
+                    </Link>
+                  </TableCell>
+                  <TableCell className="border-r text-right font-mono">
+                    {Number(user.multiplier).toFixed(2)}x
+                  </TableCell>
+                  <TableCell className="text-right font-mono">
+                    {user.points.toFormat()}
+                  </TableCell>
+                </TableRow>
+              ))
+          ) : (
+            <TableRow>
+              <TableCell colSpan={3} className="h-24 text-center">
+                No users with points found.
+              </TableCell>
+            </TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+};
 
 export default function SeasonPointsPage() {
   const params = useParams<{ seasonId: string; weekId: string }>();
-  const [calculationResult, setCalculationResult] = useState<
-    {
-      userId: string;
-      seasonId: string;
-      points: BigNumber;
-      weekId: string;
-    }[]
-  >([]);
+  const [calculationResult, setCalculationResult] =
+    useState<typeof seasonPoints>();
   const [isCalculating, setIsCalculating] = useState(false);
 
   const {
@@ -109,7 +153,10 @@ export default function SeasonPointsPage() {
                 <TableHeader>
                   <TableRow>
                     <TableHead>
-                      <div className="h-4 w-20 animate-pulse rounded bg-gray-200" />
+                      <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
+                    </TableHead>
+                    <TableHead className="text-right">
+                      <div className="ml-auto h-4 w-20 animate-pulse rounded bg-gray-200" />
                     </TableHead>
                     <TableHead className="text-right">
                       <div className="ml-auto h-4 w-28 animate-pulse rounded bg-gray-200" />
@@ -121,7 +168,10 @@ export default function SeasonPointsPage() {
                     // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loading rows are temporary
                     <TableRow key={`skeleton-loading-${i}`}>
                       <TableCell>
-                        <div className="h-4 w-64 animate-pulse rounded bg-gray-200" />
+                        <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="ml-auto h-4 w-16 animate-pulse rounded bg-gray-200" />
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="ml-auto h-4 w-24 animate-pulse rounded bg-gray-200" />
@@ -188,7 +238,7 @@ export default function SeasonPointsPage() {
       </Alert>
 
       {/* Calculation Results */}
-      {calculationResult.length > 0 && (
+      {calculationResult && calculationResult.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Calculation Results (Simulation)</CardTitle>
@@ -205,15 +255,11 @@ export default function SeasonPointsPage() {
                 </h4>
                 <p className="font-mono text-lg">
                   {calculationResult
-                    .reduce(
+                    ?.reduce(
                       (sum, user) => sum.plus(user.points),
                       new BigNumber(0),
                     )
-                    .toNumber()
-                    .toLocaleString(undefined, {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 6,
-                    })}
+                    .toFormat()}
                 </p>
               </div>
               <div>
@@ -221,53 +267,14 @@ export default function SeasonPointsPage() {
                   Number of Users
                 </h4>
                 <p className="font-mono text-lg">
-                  {calculationResult.length.toLocaleString()}
+                  {calculationResult?.length.toLocaleString()}
                 </p>
               </div>
               <div>
                 <h4 className="mb-2 font-medium text-muted-foreground text-sm">
                   All Users with Points
                 </h4>
-                <div className="rounded-lg border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>User ID</TableHead>
-                        <TableHead className="text-right">
-                          Season Points
-                        </TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {calculationResult
-                        .filter((user) => user.points.gt(0))
-                        .sort((a, b) => b.points.minus(a.points).toNumber())
-                        .map((user) => (
-                          <TableRow key={user.userId}>
-                            <TableCell className="font-mono text-sm">
-                              {user.userId}
-                            </TableCell>
-                            <TableCell className="text-right font-mono">
-                              {user.points
-                                .toNumber()
-                                .toLocaleString(undefined, {
-                                  minimumFractionDigits: 2,
-                                  maximumFractionDigits: 6,
-                                })}
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      {calculationResult.filter((user) => user.points.gt(0))
-                        .length === 0 && (
-                        <TableRow>
-                          <TableCell colSpan={2} className="h-24 text-center">
-                            No users with points found.
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                <SeasonPointsTable data={calculationResult || []} />
               </div>
             </div>
           </CardContent>
@@ -285,39 +292,7 @@ export default function SeasonPointsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <div className="overflow-hidden rounded-lg border">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>User ID</TableHead>
-                  <TableHead className="text-right">Season Points</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {seasonPoints && seasonPoints.length > 0 ? (
-                  seasonPoints.map((point) => (
-                    <TableRow key={point.userId}>
-                      <TableCell className="font-mono text-sm">
-                        {point.userId}
-                      </TableCell>
-                      <TableCell className="text-right font-mono">
-                        {Number(point.points).toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 6,
-                        })}
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell colSpan={2} className="h-24 text-center">
-                      No season points found for this week.
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
+          <SeasonPointsTable data={seasonPoints || []} />
         </CardContent>
       </Card>
     </div>

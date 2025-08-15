@@ -1,4 +1,5 @@
 import { TRPCError } from '@trpc/server';
+import BigNumber from 'bignumber.js';
 import {
   accountActivityPoints,
   accountBalances,
@@ -8,11 +9,15 @@ import {
   user,
   userSeasonPoints,
 } from 'db/incentives';
-import { and, count, eq } from 'drizzle-orm';
+import { and, count, eq, inArray } from 'drizzle-orm';
 import { Exit } from 'effect';
+import { groupBy } from 'effect/Array';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
-import { snapshotDateRangeJobSchema } from '../worker/workerApi';
+import {
+  seasonPointsMultiplierJobSchema,
+  snapshotDateRangeJobSchema,
+} from '../worker/workerApi';
 
 export const adminRouter = createTRPCRouter({
   user: {
@@ -55,9 +60,31 @@ export const adminRouter = createTRPCRouter({
         }),
       )
       .query(async ({ input }) => {
-        return db.query.userSeasonPoints.findMany({
-          where: eq(userSeasonPoints.weekId, input.weekId),
-        });
+        return db
+          .select({
+            userId: user.id,
+            label: user.label,
+            multiplier: seasonPointsMultiplier.multiplier,
+            points: userSeasonPoints.points,
+          })
+          .from(userSeasonPoints)
+          .innerJoin(user, eq(userSeasonPoints.userId, user.id))
+          .innerJoin(
+            seasonPointsMultiplier,
+            and(
+              eq(user.id, seasonPointsMultiplier.userId),
+              eq(seasonPointsMultiplier.weekId, input.weekId),
+            ),
+          )
+          .where(eq(userSeasonPoints.weekId, input.weekId))
+          .then((items) =>
+            items.map((item) => ({
+              userId: item.userId,
+              label: item.label,
+              multiplier: item.multiplier,
+              points: new BigNumber(item.points),
+            })),
+          );
       }),
 
     getAccountBalances: publicProcedure
@@ -85,7 +112,7 @@ export const adminRouter = createTRPCRouter({
           dryRun: true,
         });
 
-        return Exit.match(result, {
+        const value = Exit.match(result, {
           onSuccess: (value) => value,
           onFailure: (error) => {
             console.error(error);
@@ -94,6 +121,38 @@ export const adminRouter = createTRPCRouter({
             });
           },
         });
+
+        const users = await db
+          .select({
+            userId: user.id,
+            label: user.label,
+            multiplier: seasonPointsMultiplier.multiplier,
+          })
+          .from(user)
+          .where(
+            inArray(
+              user.id,
+              value.map((item) => item.userId),
+            ),
+          )
+          .innerJoin(
+            seasonPointsMultiplier,
+            and(
+              eq(user.id, seasonPointsMultiplier.userId),
+              eq(seasonPointsMultiplier.weekId, input.weekId),
+            ),
+          )
+          .then((items) => groupBy(items, (item) => item.userId));
+
+        const output = value.map(({ seasonId, weekId, ...item }) => {
+          const user = users[item.userId]?.[0]!;
+          return {
+            ...item,
+            ...user,
+          };
+        });
+
+        return output;
       }),
   },
   activity: {
@@ -252,6 +311,21 @@ export const adminRouter = createTRPCRouter({
       .input(snapshotDateRangeJobSchema)
       .mutation(async ({ input, ctx }) => {
         const result = await ctx.dependencyLayer.addDateRangeJob(input);
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+      }),
+    addSeasonPointsMultiplierJob: publicProcedure
+      .input(seasonPointsMultiplierJobSchema)
+      .mutation(async ({ input, ctx }) => {
+        const result =
+          await ctx.dependencyLayer.addSeasonPointsMultiplierJob(input);
         return Exit.match(result, {
           onSuccess: (value) => value,
           onFailure: (error) => {

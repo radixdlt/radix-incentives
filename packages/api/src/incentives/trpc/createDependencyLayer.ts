@@ -101,6 +101,7 @@ import { UserActivityPointsService } from '../user/userActivityPoints';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
 import {
+  type SeasonPointsMultiplierJob,
   type SnapshotDateRangeJob,
   WorkerApiService,
 } from '../worker/workerApi';
@@ -905,6 +906,15 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const addSeasonPointsMultiplierJob = (input: SeasonPointsMultiplierJob) => {
+    const program = Effect.gen(function* () {
+      const workerApiService = yield* WorkerApiService;
+      return yield* workerApiService.addSeasonPointsMultiplierJob(input);
+    }).pipe(Effect.provide(WorkerApiService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -950,5 +960,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     calculateSeasonPoints,
     getQueues,
     addDateRangeJob,
+    addSeasonPointsMultiplierJob,
   };
 };

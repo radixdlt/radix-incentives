@@ -1,7 +1,9 @@
-import { dependencyLayer } from 'api/incentives';
+import {
+  dependencyLayer,
+  type SeasonPointsMultiplierJob,
+} from 'api/incentives';
 import type { Job } from 'bullmq';
 import { Exit } from 'effect';
-import type { SeasonPointsMultiplierJob } from './schemas';
 
 export const seasonPointsMultiplierWorker = async (
   input: Job<SeasonPointsMultiplierJob>,
