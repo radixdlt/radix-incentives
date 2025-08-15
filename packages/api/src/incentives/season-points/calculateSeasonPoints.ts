@@ -49,7 +49,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
-      const lowerBoundsPercentage = 0.1;
+      const lowerBoundsPercentage = 0.02;
       const minimumAPThresholdMap = new Map<ActivityCategoryId, number>([
         [ActivityCategoryId.common, 1],
         [ActivityCategoryId.tradingVolume, 1],
