@@ -168,37 +168,11 @@ export const adminRouter = createTRPCRouter({
     }),
     setState: publicProcedure
       .input(z.object({ state: z.enum(['START', 'PAUSE']) }))
-      .mutation(async ({ input }) => {
-        const response = await fetch(
-          `${process.env.STREAMER_API_BASE_URL}/state`,
-          {
-            method: 'POST',
-            body: JSON.stringify(input),
-          },
-        );
-
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: JSON.stringify(json),
-          });
-        }
-
-        return json;
-      }),
-    setStateVersion: publicProcedure
-      .input(z.object({ timestamp: z.date() }))
       .mutation(async ({ input, ctx }) => {
-        const result = await ctx.dependencyLayer.getLedgerState({
-          at_ledger_state: {
-            timestamp: input.timestamp,
-          },
-        });
+        const result = await ctx.dependencyLayer.setState(input);
 
-        const stateVersion = Exit.match(result, {
-          onSuccess: (value) => value.state_version,
+        return Exit.match(result, {
+          onSuccess: (value) => value,
           onFailure: (error) => {
             console.error(error);
             throw new TRPCError({
@@ -206,25 +180,21 @@ export const adminRouter = createTRPCRouter({
             });
           },
         });
+      }),
+    setStateVersion: publicProcedure
+      .input(z.object({ timestamp: z.date() }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.setStateVersion(input);
 
-        const response = await fetch(
-          `${process.env.STREAMER_API_BASE_URL}/state-version`,
-          {
-            method: 'POST',
-            body: JSON.stringify({ stateVersion }),
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
           },
-        );
-
-        const json = await response.json();
-
-        if (!response.ok) {
-          throw new TRPCError({
-            code: 'BAD_REQUEST',
-            message: JSON.stringify(json),
-          });
-        }
-
-        return json;
+        });
       }),
   },
 });

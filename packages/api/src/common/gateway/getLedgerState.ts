@@ -11,6 +11,7 @@ export type GetLedgerStateInput = {
 export class GetLedgerStateService extends Effect.Service<GetLedgerStateService>()(
   'GetLedgerStateService',
   {
+    dependencies: [GatewayApiClientService.Default],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
       return Effect.fn('getLedgerStateService')(function* (
