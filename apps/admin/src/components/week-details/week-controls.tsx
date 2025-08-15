@@ -25,6 +25,7 @@ interface WeekControlsProps {
   weekId?: string;
   onProcessWeek: () => void;
   onTriggerActivityPoints: () => void;
+  onCalculateMultiplier?: () => void;
 }
 
 export const WeekControls: React.FC<WeekControlsProps> = ({
@@ -33,6 +34,7 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
   weekId,
   onProcessWeek,
   onTriggerActivityPoints,
+  onCalculateMultiplier,
 }) => {
   return (
     <Card className="p-6">
@@ -75,6 +77,35 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
+
+          {onCalculateMultiplier && (
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button variant="outline">
+                  <Calculator className="mr-2 h-4 w-4" />
+                  Calculate Multiplier
+                </Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>
+                  <AlertDialogTitle>
+                    Calculate Season Points Multiplier
+                  </AlertDialogTitle>
+                  <AlertDialogDescription>
+                    This will trigger the season points multiplier calculation
+                    for all accounts in this week. This process may take a few
+                    minutes to complete.
+                  </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogAction onClick={onCalculateMultiplier}>
+                    Start Calculation
+                  </AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          )}
 
           <AlertDialog>
             <AlertDialogTrigger asChild>

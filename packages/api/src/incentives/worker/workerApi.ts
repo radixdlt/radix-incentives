@@ -18,6 +18,25 @@ class AddDateRangeJobError extends Data.TaggedError('AddDateRangeJobError')<{
   message: string;
 }> {}
 
+class AddSeasonPointsMultiplierJobError extends Data.TaggedError(
+  'AddSeasonPointsMultiplierJobError',
+)<{
+  message: string;
+}> {}
+
+class InvalidInputError extends Data.TaggedError('InvalidInputError')<{
+  message: string;
+}> {}
+
+export const seasonPointsMultiplierJobSchema = z.object({
+  weekId: z.string(),
+  userIds: z.array(z.string()).optional(),
+});
+
+export type SeasonPointsMultiplierJob = z.infer<
+  typeof seasonPointsMultiplierJobSchema
+>;
+
 export type SnapshotDateRangeJob = z.infer<typeof snapshotDateRangeJobSchema>;
 
 export class WorkerApiService extends Effect.Service<WorkerApiService>()(
@@ -33,7 +52,11 @@ export class WorkerApiService extends Effect.Service<WorkerApiService>()(
           const parsedInput = snapshotDateRangeJobSchema.safeParse(input);
 
           if (!parsedInput.success) {
-            throw new Error(parsedInput.error.message);
+            return yield* Effect.fail(
+              new InvalidInputError({
+                message: parsedInput.error.message,
+              }),
+            );
           }
 
           const response = yield* Effect.tryPromise(() =>
@@ -47,6 +70,38 @@ export class WorkerApiService extends Effect.Service<WorkerApiService>()(
             return yield* Effect.fail(
               new AddDateRangeJobError({
                 message: 'Failed to add date range job',
+              }),
+            );
+          }
+        }),
+        addSeasonPointsMultiplierJob: Effect.fn(function* (
+          input: SeasonPointsMultiplierJob,
+        ) {
+          const workerApiUrl = yield* Config.string('WORKERS_API_BASE_URL');
+          const parsedInput = seasonPointsMultiplierJobSchema.safeParse(input);
+
+          if (!parsedInput.success) {
+            return yield* Effect.fail(
+              new InvalidInputError({
+                message: parsedInput.error.message,
+              }),
+            );
+          }
+
+          const response = yield* Effect.tryPromise(() =>
+            fetchImpl(
+              `${workerApiUrl}/queues/calculate-season-points-multiplier/add`,
+              {
+                method: 'POST',
+                body: JSON.stringify(parsedInput.data),
+              },
+            ),
+          );
+
+          if (!response.ok) {
+            return yield* Effect.fail(
+              new AddSeasonPointsMultiplierJobError({
+                message: 'Failed to add season points multiplier job',
               }),
             );
           }

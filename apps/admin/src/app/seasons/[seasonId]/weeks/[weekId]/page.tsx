@@ -28,6 +28,9 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     id: params.seasonId,
   });
 
+  const addSeasonPointsMultiplierJob =
+    api.admin.queues.addSeasonPointsMultiplierJob.useMutation();
+
   const {
     data: weekData,
     refetch: refetchWeek,
@@ -104,6 +107,21 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     } catch (error) {
       console.error('Failed to trigger activity points calculation:', error);
       toast.error('Failed to start activity points calculation');
+    }
+  };
+
+  const handleCalculateMultiplier = async () => {
+    try {
+      await addSeasonPointsMultiplierJob.mutateAsync({
+        weekId: params.weekId,
+      });
+
+      toast.info('Season points multiplier calculation started', {
+        description: 'This may take a few minutes to complete',
+      });
+    } catch (error) {
+      console.error('Failed to trigger multiplier calculation:', error);
+      toast.error('Failed to start multiplier calculation');
     }
   };
 
@@ -217,6 +235,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         onTriggerActivityPoints={handleTriggerActivityPoints}
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}
+        onCalculateMultiplier={handleCalculateMultiplier}
       />
     </div>
   );
