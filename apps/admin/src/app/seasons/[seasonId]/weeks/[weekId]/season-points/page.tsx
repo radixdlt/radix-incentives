@@ -50,7 +50,9 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
                   <TableCell className="border-r">
                     <Link
                       href={`/users/${user.userId}`}
-                      className="text-blue-600 hover:underline"
+                      className="text-white hover:text-gray-200 hover:underline"
+                      target="_blank"
+                      rel="noopener noreferrer"
                     >
                       {user.label || '-'}
                     </Link>
@@ -59,7 +61,7 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
                     {Number(user.multiplier).toFixed(2)}x
                   </TableCell>
                   <TableCell className="text-right font-mono">
-                    {user.points.toFormat()}
+                    {user.points.toFormat(2)}
                   </TableCell>
                 </TableRow>
               ))
@@ -259,7 +261,7 @@ export default function SeasonPointsPage() {
                       (sum, user) => sum.plus(user.points),
                       new BigNumber(0),
                     )
-                    .toFormat()}
+                    .toFormat(2)}
                 </p>
               </div>
               <div>
