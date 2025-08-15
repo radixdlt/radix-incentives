@@ -19,6 +19,8 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
     console.log(`Update points pool for ${categoryId} to ${newPointsPool}`),
   onUpdateMultiplier = (activityId, newMultiplier) =>
     console.log(`Update multiplier for ${activityId} to ${newMultiplier}`),
+  onCalculateMultiplier = () =>
+    console.log('Calculate season points multiplier'),
 }) => {
   return (
     <div className="mx-auto max-w-7xl space-y-6 p-6">
@@ -30,6 +32,7 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
         weekId={weekId}
         onProcessWeek={onProcessWeek}
         onTriggerActivityPoints={onTriggerActivityPoints}
+        onCalculateMultiplier={onCalculateMultiplier}
       />
 
       <CategoriesSection

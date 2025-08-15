@@ -51,7 +51,8 @@ export default function AccountPage() {
     );
   }
 
-  const account = userData?.accounts.find((acc) => acc.address === address);
+  const user = userData?.[0];
+  const account = user?.accounts?.find((acc) => acc.address === address);
 
   if (!account) {
     return (
@@ -117,7 +118,7 @@ export default function AccountPage() {
             </div>
             <div>
               <div className="text-muted-foreground text-sm">User ID</div>
-              <div className="font-mono text-sm">{userData?.id}</div>
+              <div className="font-mono text-sm">{user?.userId}</div>
             </div>
           </div>
         </CardContent>

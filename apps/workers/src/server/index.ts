@@ -3,7 +3,10 @@ import { BullMQAdapter } from '@bull-board/api/dist/src/queueAdapters/bullMQ.js'
 import { HonoAdapter } from '@bull-board/hono';
 import { serve } from '@hono/node-server';
 import { serveStatic } from '@hono/node-server/serve-static';
-import { snapshotDateRangeJobSchema } from 'api/incentives';
+import {
+  seasonPointsMultiplierJobSchema,
+  snapshotDateRangeJobSchema,
+} from 'api/incentives';
 import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
 import { calculateActivityPointsQueue } from '../queues/calculate-activity-points/queue';
@@ -11,7 +14,7 @@ import { calculateActivityPointsJobSchema } from '../queues/calculate-activity-p
 import { calculateSeasonPointsQueue } from '../queues/calculate-season-points/queue';
 import { calculateSeasonPointsJobSchema } from '../queues/calculate-season-points/schemas';
 import { seasonPointsMultiplierQueue } from '../queues/calculate-season-points-multiplier/queue';
-import { seasonPointsMultiplierJobSchema } from '../queues/calculate-season-points-multiplier/schemas';
+
 import { eventQueue } from '../queues/event/queue';
 import { eventQueueJobSchema } from '../queues/event/schemas';
 import { populateLeaderboardCacheQueue } from '../queues/populate-leaderboard-cache/queue';

@@ -1,8 +1,8 @@
+import type { SeasonPointsMultiplierJob } from 'api/incentives';
 import { Effect } from 'effect';
 import { redisClient } from '../../redis';
 import { createQueue } from '../createQueue';
 import { QueueName } from '../types';
-import type { SeasonPointsMultiplierJob } from './schemas';
 import { seasonPointsMultiplierWorker } from './worker';
 
 export const seasonPointsMultiplierQueue = createQueue<
