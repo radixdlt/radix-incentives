@@ -70,6 +70,30 @@ export const adminRouter = createTRPCRouter({
           where: and(eq(accountBalances.accountAddress, input.address)),
         });
       }),
+
+    simulateCalculateSeasonPoints: publicProcedure
+      .input(
+        z.object({
+          weekId: z.string(),
+        }),
+      )
+      .mutation(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.calculateSeasonPoints({
+          ...input,
+          markAsProcessed: false,
+          dryRun: true,
+        });
+
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+      }),
   },
   activity: {
     userCount: publicProcedure

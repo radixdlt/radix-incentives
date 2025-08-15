@@ -93,6 +93,13 @@ import { UpsertUserLive } from '../user/upsertUser';
 import { UserService } from '../user/user';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
+import {
+  type CalculateSeasonPointsInput,
+  CalculateSeasonPointsService,
+} from '../season-points/calculateSeasonPoints';
+import { UserActivityPointsService } from '../user/userActivityPoints';
+import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
+import { AddSeasonPointsToUserService } from '../season-points/addSeasonPointsToUser';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -836,6 +843,46 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(dbReadOnlyClientLive),
+    Layer.provide(appConfigLive),
+    Layer.provide(gatewayApiClientLive),
+    Layer.provide(SeasonService.Default.pipe(Layer.provide(dbClientLive))),
+    Layer.provide(WeekService.Default.pipe(Layer.provide(dbClientLive))),
+    Layer.provide(
+      UserActivityPointsService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+    Layer.provide(
+      GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+    Layer.provide(
+      AddSeasonPointsToUserService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+    Layer.provide(
+      UpdateWeekStatusService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+    Layer.provide(
+      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+    Layer.provide(
+      ActivityCategoryService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+    Layer.provide(ActivityService.Default.pipe(Layer.provide(dbClientLive))),
+    Layer.provide(
+      ActivityWeekService.Default.pipe(Layer.provide(dbClientLive)),
+    ),
+  );
+
+  const calculateSeasonPoints = (input: CalculateSeasonPointsInput) => {
+    const program = Effect.gen(function* () {
+      const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
+      return yield* calculateSeasonPointsService.run(input);
+    }).pipe(Effect.provide(calculateSeasonPointsLive));
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -878,5 +925,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getLedgerState,
     setStateVersion,
     setState,
+    calculateSeasonPoints,
   };
 };

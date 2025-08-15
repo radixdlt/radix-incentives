@@ -21,6 +21,7 @@ export const calculateSeasonPointsInputSchema = z.object({
   weekId: z.string(),
   force: z.boolean().optional(),
   markAsProcessed: z.boolean(),
+  dryRun: z.boolean().optional(),
 });
 
 export type CalculateSeasonPointsInput = z.infer<
@@ -73,10 +74,11 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const validateSeason = Effect.fn(function* (input: {
         seasonId: string;
         force?: boolean;
+        dryRun?: boolean;
       }) {
         const season = yield* seasonService.getById(input.seasonId);
 
-        if (season.status === 'completed' && !input.force) {
+        if (season.status === 'completed' && !input.force && !input.dryRun) {
           yield* Effect.log(`season ${input.seasonId} is completed`);
           return yield* Effect.fail(
             new InvalidStateError({
@@ -95,7 +97,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           `processing week: ${week.startDate.toISOString()} - ${week.endDate.toISOString()}`,
         );
 
-        if (week.processed && !input.force) {
+        if (week.processed && !input.force && !input.dryRun) {
           yield* Effect.log(`week ${input.weekId} is already processed`);
           return yield* Effect.fail(
             new InvalidStateError({
@@ -147,7 +149,11 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
           const season = yield* seasonService.getByWeekId(input.weekId);
 
-          yield* validateSeason({ seasonId: season.id, force: input.force });
+          yield* validateSeason({
+            seasonId: season.id,
+            force: input.force,
+            dryRun: input.dryRun,
+          });
 
           yield* validateWeek(input);
 
@@ -330,15 +336,17 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`,
           );
 
-          yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
-
-          yield* markAsProcessed(input);
+          if (!input.dryRun) {
+            yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
+            yield* markAsProcessed(input);
+          }
 
           yield* Effect.log('--------------------------------');
 
           yield* Effect.log(
             `season points for week ${input.weekId} successfully applied to users`,
           );
+          return completeUserSeasonPoints;
         }),
       };
     }),

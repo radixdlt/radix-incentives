@@ -5,11 +5,9 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
 import { toast } from 'sonner';
+import { BigNumber } from 'bignumber.js';
 import { Button } from '~/components/ui/button';
-import {
-  Alert,
-  AlertDescription,
-} from '~/components/ui/alert';
+import { Alert, AlertDescription } from '~/components/ui/alert';
 import {
   Card,
   CardContent,
@@ -30,11 +28,14 @@ import { api } from '~/trpc/react';
 
 export default function SeasonPointsPage() {
   const params = useParams<{ seasonId: string; weekId: string }>();
-  const [calculationResult, setCalculationResult] = useState<{
-    weeklyDistribution: Record<string, string>;
-    totalDistributed: string;
-    numberOfUsers: number;
-  } | null>(null);
+  const [calculationResult, setCalculationResult] = useState<
+    {
+      userId: string;
+      seasonId: string;
+      points: BigNumber;
+      weekId: string;
+    }[]
+  >([]);
   const [isCalculating, setIsCalculating] = useState(false);
 
   const {
@@ -116,8 +117,9 @@ export default function SeasonPointsPage() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {[...Array(5)].map((_, i) => (
-                    <TableRow key={`skeleton-row-${i}`}>
+                  {Array.from({ length: 5 }, (_, i) => (
+                    // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loading rows are temporary
+                    <TableRow key={`skeleton-loading-${i}`}>
                       <TableCell>
                         <div className="h-4 w-64 animate-pulse rounded bg-gray-200" />
                       </TableCell>
@@ -179,17 +181,20 @@ export default function SeasonPointsPage() {
       <Alert className="mb-6">
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          The "Calculate Points" button runs a simulation only. No data will be saved to the database. Use this to preview season points calculations before processing the week.
+          The "Calculate Points" button runs a simulation only. No data will be
+          saved to the database. Use this to preview season points calculations
+          before processing the week.
         </AlertDescription>
       </Alert>
 
       {/* Calculation Results */}
-      {calculationResult && (
+      {calculationResult.length > 0 && (
         <Card className="mb-6">
           <CardHeader>
             <CardTitle>Calculation Results (Simulation)</CardTitle>
             <CardDescription>
-              This is a simulated calculation. No data will be stored in the database.
+              This is a simulated calculation. No data will be stored in the
+              database.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -199,13 +204,16 @@ export default function SeasonPointsPage() {
                   Total Distributed
                 </h4>
                 <p className="font-mono text-lg">
-                  {Number(calculationResult.totalDistributed).toLocaleString(
-                    undefined,
-                    {
+                  {calculationResult
+                    .reduce(
+                      (sum, user) => sum.plus(user.points),
+                      new BigNumber(0),
+                    )
+                    .toNumber()
+                    .toLocaleString(undefined, {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 6,
-                    },
-                  )}
+                    })}
                 </p>
               </div>
               <div>
@@ -213,43 +221,54 @@ export default function SeasonPointsPage() {
                   Number of Users
                 </h4>
                 <p className="font-mono text-lg">
-                  {calculationResult.numberOfUsers?.toLocaleString() || '0'}
+                  {calculationResult.length.toLocaleString()}
                 </p>
               </div>
-              {calculationResult.weeklyDistribution && Object.keys(calculationResult.weeklyDistribution).length > 0 && (
-                <div>
-                  <h4 className="mb-2 font-medium text-muted-foreground text-sm">
-                    Weekly Distribution
-                  </h4>
-                  <div className="rounded-lg border">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Week</TableHead>
-                          <TableHead className="text-right">Points</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {Object.entries(
-                          calculationResult.weeklyDistribution,
-                        ).map(([week, points]) => (
-                          <TableRow key={week}>
+              <div>
+                <h4 className="mb-2 font-medium text-muted-foreground text-sm">
+                  All Users with Points
+                </h4>
+                <div className="rounded-lg border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>User ID</TableHead>
+                        <TableHead className="text-right">
+                          Season Points
+                        </TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {calculationResult
+                        .filter((user) => user.points.gt(0))
+                        .sort((a, b) => b.points.minus(a.points).toNumber())
+                        .map((user) => (
+                          <TableRow key={user.userId}>
                             <TableCell className="font-mono text-sm">
-                              {week}
+                              {user.userId}
                             </TableCell>
                             <TableCell className="text-right font-mono">
-                              {Number(points).toLocaleString(undefined, {
-                                minimumFractionDigits: 2,
-                                maximumFractionDigits: 6,
-                              })}
+                              {user.points
+                                .toNumber()
+                                .toLocaleString(undefined, {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 6,
+                                })}
                             </TableCell>
                           </TableRow>
                         ))}
-                      </TableBody>
-                    </Table>
-                  </div>
+                      {calculationResult.filter((user) => user.points.gt(0))
+                        .length === 0 && (
+                        <TableRow>
+                          <TableCell colSpan={2} className="h-24 text-center">
+                            No users with points found.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
                 </div>
-              )}
+              </div>
             </div>
           </CardContent>
         </Card>
