@@ -1,6 +1,7 @@
 'use client';
 
-import { Calculator, CheckCircle } from 'lucide-react';
+import { Calculator, CheckCircle, TrendingUp } from 'lucide-react';
+import Link from 'next/link';
 
 import {
   AlertDialog,
@@ -20,12 +21,16 @@ import type { WeekDetailsData } from './types';
 
 interface WeekControlsProps {
   weekData: WeekDetailsData;
+  seasonId?: string;
+  weekId?: string;
   onProcessWeek: () => void;
   onTriggerActivityPoints: () => void;
 }
 
 export const WeekControls: React.FC<WeekControlsProps> = ({
   weekData,
+  seasonId,
+  weekId,
   onProcessWeek,
   onTriggerActivityPoints,
 }) => {
@@ -39,6 +44,14 @@ export const WeekControls: React.FC<WeekControlsProps> = ({
           </p>
         </div>
         <ButtonGroup>
+          {seasonId && weekId && (
+            <Button variant="outline" asChild>
+              <Link href={`/seasons/${seasonId}/weeks/${weekId}/season-points`}>
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Season Points
+              </Link>
+            </Button>
+          )}
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button variant="outline">
