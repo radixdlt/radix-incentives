@@ -28,6 +28,6 @@ spec:
     - port: {{ .Values.service.port }}
       targetPort: {{ .Values.service.port }}
       protocol: TCP
-      name: {{ .Values.service.port }}
+      name: "{{ .Values.service.port }}"
   selector:
     {{- include "incentives-transaction-stream.selectorLabels" . | nindent 4 }}
