@@ -19,3 +19,4 @@ export * from './trpc/createDependencyLayer';
 export { UserActivityPointsService } from './user/userActivityPoints';
 export { UpdateWeekStatusService } from './week/updateWeekStatus';
 export { WeekService } from './week/week';
+export * from './worker/workerApi';

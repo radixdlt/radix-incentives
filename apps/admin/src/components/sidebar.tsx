@@ -5,6 +5,7 @@ import {
   Bell,
   CalendarDays,
   Database,
+  ListOrdered,
   LogOut,
   Play,
   Shield,
@@ -50,6 +51,11 @@ const navigationItems = [
     title: 'Transaction Stream',
     href: '/transaction-stream',
     icon: <Play className="h-5 w-5" />,
+  },
+  {
+    title: 'Queues',
+    href: '/queues',
+    icon: <ListOrdered className="h-5 w-5" />,
   },
 ];
 
