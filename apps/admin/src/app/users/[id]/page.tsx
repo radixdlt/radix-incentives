@@ -25,7 +25,7 @@ import { api } from '~/trpc/react';
 export default function UserPage() {
   const { id } = useParams<{ id: string }>();
   const {
-    data: user,
+    data: userData,
     isLoading,
     error,
   } = api.admin.user.getUser.useQuery({
@@ -58,6 +58,20 @@ export default function UserPage() {
     );
   }
 
+  if (!userData || userData.length === 0) {
+    return (
+      <div className="container mx-auto p-6">
+        <div className="rounded-lg border p-8 text-center">
+          <h2 className="mb-2 font-semibold text-lg">User not found</h2>
+          <p className="text-muted-foreground text-sm">
+            The user with ID "{id}" could not be found.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const user = userData[0];
   if (!user) {
     return (
       <div className="container mx-auto p-6">
@@ -100,13 +114,7 @@ export default function UserPage() {
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             <div>
               <div className="text-muted-foreground text-sm">User ID</div>
-              <div className="font-mono text-sm">{user.id}</div>
-            </div>
-            <div>
-              <div className="text-muted-foreground text-sm">
-                Identity Address
-              </div>
-              <div className="font-mono text-sm">{user.identityAddress}</div>
+              <div className="font-mono text-sm">{user.userId}</div>
             </div>
             <div>
               <div className="text-muted-foreground text-sm">Label</div>
@@ -117,11 +125,11 @@ export default function UserPage() {
               </div>
             </div>
             <div>
-              <div className="text-muted-foreground text-sm">Created At</div>
-              <div className="text-sm">
-                {user.createdAt
-                  ? new Date(user.createdAt).toLocaleString()
-                  : 'N/A'}
+              <div className="text-muted-foreground text-sm">
+                Total Season Points
+              </div>
+              <div className="font-semibold text-sm">
+                {user.totalSeasonPoints?.toFormat() || '0'}
               </div>
             </div>
           </div>

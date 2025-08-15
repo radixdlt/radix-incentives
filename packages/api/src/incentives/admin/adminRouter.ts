@@ -9,7 +9,7 @@ import {
   user,
   userSeasonPoints,
 } from 'db/incentives';
-import { and, count, eq, inArray } from 'drizzle-orm';
+import { and, count, eq, inArray, sum } from 'drizzle-orm';
 import { Exit } from 'effect';
 import { groupBy } from 'effect/Array';
 import { z } from 'zod';
@@ -28,17 +28,32 @@ export const adminRouter = createTRPCRouter({
         }),
       )
       .query(async ({ input }) => {
-        return Promise.all([
-          db.query.user.findFirst({
-            where: eq(user.id, input.id),
-          }),
-          db.query.accounts.findMany({
-            where: eq(accounts.userId, input.id),
-          }),
-        ]).then(([user, accounts]) => ({
-          ...user,
-          accounts,
+        const userResult = await db
+          .select({
+            userId: user.id,
+            label: user.label,
+            totalSeasonPoints: sum(userSeasonPoints.points),
+          })
+          .from(user)
+          .where(eq(user.id, input.id))
+          .leftJoin(userSeasonPoints, eq(user.id, userSeasonPoints.userId))
+          .groupBy(user.id, user.label);
+
+        if (userResult.length === 0) {
+          return [];
+        }
+
+        const userAccounts = await db.query.accounts.findMany({
+          where: eq(accounts.userId, input.id),
+        });
+
+        const result = userResult.map((item) => ({
+          ...item,
+          totalSeasonPoints: new BigNumber(item.totalSeasonPoints ?? 0),
+          accounts: userAccounts,
         }));
+
+        return result;
       }),
 
     getActivityPoints: publicProcedure
