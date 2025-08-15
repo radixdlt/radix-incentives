@@ -8,6 +8,7 @@ import * as React from 'react';
 import { Badge } from '~/components/ui/badge'; // To display status nicely
 import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
+import { Skeleton } from '~/components/ui/skeleton';
 import {
   Table,
   TableBody,
@@ -36,7 +37,7 @@ const getStatusVariant = (
 
 function ManageSeasonsPage() {
   const router = useRouter();
-  const { data: seasons } = api.season.getSeasons.useQuery();
+  const { data: seasons, isLoading } = api.season.getSeasons.useQuery();
 
   // Sort seasons in ascending order by name
   const sortedSeasons = React.useMemo(() => {
@@ -82,7 +83,19 @@ function ManageSeasonsPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {sortedSeasons && sortedSeasons.length > 0 ? (
+            {isLoading ? (
+              // Show skeleton rows while loading
+              Array.from({ length: 5 }).map((_, index) => (
+                <TableRow key={`skeleton-row-${index + 1}`}>
+                  <TableCell>
+                    <Skeleton className="h-5 w-32" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-6 w-20" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : sortedSeasons && sortedSeasons.length > 0 ? (
               sortedSeasons.map((season) => (
                 <TableRow
                   key={season.id}
