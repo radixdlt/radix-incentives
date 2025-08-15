@@ -26,6 +26,8 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
 
       <WeekControls
         weekData={weekData}
+        seasonId={seasonId}
+        weekId={weekId}
         onProcessWeek={onProcessWeek}
         onTriggerActivityPoints={onTriggerActivityPoints}
       />

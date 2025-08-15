@@ -6,6 +6,7 @@ import {
   db,
   seasonPointsMultiplier,
   user,
+  userSeasonPoints,
 } from 'db/incentives';
 import { and, count, eq } from 'drizzle-orm';
 import { Exit } from 'effect';
@@ -43,6 +44,18 @@ export const adminRouter = createTRPCRouter({
       .query(async ({ input }) => {
         return db.query.accountActivityPoints.findMany({
           where: and(eq(accountActivityPoints.accountAddress, input.address)),
+        });
+      }),
+
+    getSeasonPoints: publicProcedure
+      .input(
+        z.object({
+          weekId: z.string(),
+        }),
+      )
+      .query(async ({ input }) => {
+        return db.query.userSeasonPoints.findMany({
+          where: eq(userSeasonPoints.weekId, input.weekId),
         });
       }),
 
