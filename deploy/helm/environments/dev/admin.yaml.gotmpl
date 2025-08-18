@@ -28,6 +28,7 @@ ingress:
   enabled: true
   className: nginx
   annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
     nginx.ingress.kubernetes.io/auth-signin: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/start
     nginx.ingress.kubernetes.io/auth-url: https://oauth2-proxy.rdx-works-main.extratools.works/oauth2/auth
   hosts:
