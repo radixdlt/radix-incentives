@@ -915,6 +915,35 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getActivityCategoryLeaderboardPaginated = (input: {
+    categoryId: string;
+    weekId: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const program = Effect.gen(function* () {
+      const leaderboardService = yield* LeaderboardService;
+      return yield* leaderboardService.getActivityCategoryLeaderboardPaginated(
+        input,
+      );
+    }).pipe(Effect.provide(leaderboardLive));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getSeasonLeaderboardPaginated = (input: {
+    seasonId: string;
+    page?: number;
+    limit?: number;
+  }) => {
+    const program = Effect.gen(function* () {
+      const leaderboardService = yield* LeaderboardService;
+      return yield* leaderboardService.getSeasonLeaderboardPaginated(input);
+    }).pipe(Effect.provide(leaderboardLive));
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -961,5 +990,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getQueues,
     addDateRangeJob,
     addSeasonPointsMultiplierJob,
+    getActivityCategoryLeaderboardPaginated,
+    getSeasonLeaderboardPaginated,
   };
 };

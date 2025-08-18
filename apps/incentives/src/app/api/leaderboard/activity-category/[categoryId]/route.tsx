@@ -12,13 +12,13 @@ const GetActivityCategoryLeaderboardPaginatedInputSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { categoryId: string } },
+  { params }: { params: Promise<{ categoryId: string }> },
 ) {
   const dependencyLayer = createDependencyLayer({
     dbClient: db,
   });
 
-  const categoryId = params.categoryId;
+  const { categoryId } = await params;
   const url = new URL(request.url);
   const weekId = url.searchParams.get('weekId');
   const page = url.searchParams.get('page')

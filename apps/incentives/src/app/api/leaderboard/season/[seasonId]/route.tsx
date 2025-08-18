@@ -11,13 +11,13 @@ const GetSeasonLeaderboardPaginatedInputSchema = z.object({
 
 export async function GET(
   request: Request,
-  { params }: { params: { seasonId: string } },
+  { params }: { params: Promise<{ seasonId: string }> },
 ) {
   const dependencyLayer = createDependencyLayer({
     dbClient: db,
   });
 
-  const seasonId = params.seasonId;
+  const { seasonId } = await params;
   const url = new URL(request.url);
   const page = url.searchParams.get('page')
     ? parseInt(url.searchParams.get('page') ?? '0')

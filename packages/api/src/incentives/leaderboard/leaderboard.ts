@@ -487,9 +487,122 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         };
       });
 
+      const getActivityCategoryLeaderboardPaginated = Effect.fn(
+        function* (input: {
+          categoryId: string;
+          weekId: string;
+          page?: number;
+          limit?: number;
+        }) {
+          const page = input.page ?? 0;
+          const limit = Math.min(input.limit ?? 100, 100);
+
+          const statsCacheResult = yield* Effect.tryPromise(() =>
+            db
+              .select({
+                totalUsers: leaderboardStatsCache.totalUsers,
+              })
+              .from(leaderboardStatsCache)
+              .where(
+                eq(
+                  leaderboardStatsCache.cacheKey,
+                  `category_${input.weekId}_${input.categoryId}`,
+                ),
+              )
+              .limit(1)
+              .then((result) => result[0]),
+          ).pipe(Effect.catchAll(() => Effect.succeed(null)));
+
+          const totalUsers = statsCacheResult?.totalUsers ?? 0;
+
+          const cachedData = yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  userId: categoryLeaderboardCache.userId,
+                  identityAddress: users.identityAddress,
+                  label: users.label,
+                  totalPoints: categoryLeaderboardCache.totalPoints,
+                  rank: categoryLeaderboardCache.rank,
+                })
+                .from(categoryLeaderboardCache)
+                .innerJoin(users, eq(categoryLeaderboardCache.userId, users.id))
+                .where(
+                  and(
+                    eq(categoryLeaderboardCache.weekId, input.weekId),
+                    eq(categoryLeaderboardCache.categoryId, input.categoryId),
+                  ),
+                )
+                .orderBy(asc(categoryLeaderboardCache.rank))
+                .limit(limit)
+                .offset(page * limit),
+            catch: (error) => new DbError(error),
+          });
+
+          return {
+            totalUsers,
+            page,
+            limit,
+            data: cachedData,
+          };
+        },
+      );
+
+      const getSeasonLeaderboardPaginated = Effect.fn(function* (input: {
+        seasonId: string;
+        page?: number;
+        limit?: number;
+      }) {
+        const page = input.page ?? 0;
+        const limit = Math.min(input.limit ?? 100, 100);
+
+        const statsCacheResult = yield* Effect.tryPromise(() =>
+          db
+            .select({
+              totalUsers: leaderboardStatsCache.totalUsers,
+            })
+            .from(leaderboardStatsCache)
+            .where(
+              eq(leaderboardStatsCache.cacheKey, `season_${input.seasonId}`),
+            )
+            .limit(1)
+            .then((result) => result[0]),
+        ).pipe(Effect.catchAll(() => Effect.succeed(null)));
+
+        const totalUsers = statsCacheResult?.totalUsers ?? 0;
+
+        const cachedData = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select({
+                userId: seasonLeaderboardCache.userId,
+                identityAddress: users.identityAddress,
+                label: users.label,
+                totalPoints: seasonLeaderboardCache.totalPoints,
+                rank: seasonLeaderboardCache.rank,
+              })
+              .from(seasonLeaderboardCache)
+              .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
+              .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+              .orderBy(asc(seasonLeaderboardCache.rank))
+              .limit(limit)
+              .offset(page * limit),
+          catch: (error) => new DbError(error),
+        });
+
+        return {
+          totalUsers,
+          page,
+          limit,
+          data: cachedData,
+        };
+      });
+
       return {
         getSeasonLeaderboard,
+        getSeasonLeaderboardPaginated,
         getActivityCategoryLeaderboard,
+        getActivityCategoryLeaderboardPaginated,
         getAvailableWeeks,
         getAvailableSeasons,
         getAvailableCategories,
