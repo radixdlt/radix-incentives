@@ -1,8 +1,9 @@
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { type Db, readOnlyDb, type Season } from 'db/incentives';
+import { type Db, db, readOnlyDb, type Season } from 'db/incentives';
 import { Effect, Layer } from 'effect';
+import { groupBy } from 'effect/Array';
 import {
   type GetLedgerStateInput,
   GetLedgerStateService,
@@ -944,6 +945,56 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getIncentivesData = () => {
+    const program = Effect.gen(function* () {
+      const seasonsResult = yield* Effect.tryPromise(() =>
+        db.query.seasons.findMany({
+          with: {
+            weeks: {
+              columns: {
+                id: true,
+                startDate: true,
+                endDate: true,
+              },
+            },
+          },
+        }),
+      );
+
+      const activityCategoriesResult = yield* Effect.tryPromise(() =>
+        db.query.activities.findMany({
+          with: {
+            activityCategories: true,
+          },
+        }),
+      ).pipe(
+        Effect.map((items) => {
+          const grouped = groupBy(items, (item) => item.activityCategories.id);
+          return Object.values(grouped).map((activities) => ({
+            id: activities[0].activityCategories.id,
+            name: activities[0].activityCategories.name,
+            description: activities[0].activityCategories.description,
+            activities: activities.map(
+              ({ data, activityCategories, ...activity }) => activity,
+            ),
+          }));
+        }),
+      );
+
+      const dAppsResult = yield* Effect.tryPromise(() =>
+        db.query.dapps.findMany({}),
+      );
+
+      return {
+        seasons: seasonsResult,
+        dApps: dAppsResult,
+        activityCategories: activityCategoriesResult,
+      };
+    });
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -992,5 +1043,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     addSeasonPointsMultiplierJob,
     getActivityCategoryLeaderboardPaginated,
     getSeasonLeaderboardPaginated,
+    getIncentivesData,
   };
 };
