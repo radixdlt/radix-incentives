@@ -48,7 +48,8 @@
 		"superjson": "catalog:",
 		"tailwind-merge": "catalog:",
 		"tw-animate-css": "^1.2.5",
-		"zod": "catalog:"
+		"zod": "catalog:",
+		"effect": "catalog:"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "1.9.4",
