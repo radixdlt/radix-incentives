@@ -1,5 +1,5 @@
 import type { EntityFungiblesPageRequest } from '@radixdlt/babylon-gateway-api-sdk';
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
 import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 import type { AtLedgerState } from './schemas';
@@ -9,6 +9,9 @@ export class EntityFungiblesPageService extends Effect.Service<EntityFungiblesPa
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
+      const pageSize = yield* Config.number(
+        'GatewayApi__Endpoint__MaxPageSize',
+      ).pipe(Config.withDefault(100));
 
       return Effect.fn(function* (
         input: Omit<
@@ -21,7 +24,10 @@ export class EntityFungiblesPageService extends Effect.Service<EntityFungiblesPa
         const result = yield* Effect.tryPromise({
           try: () =>
             gatewayClient.state.innerClient.entityFungiblesPage({
-              stateEntityFungiblesPageRequest: input,
+              stateEntityFungiblesPageRequest: {
+                ...input,
+                limit_per_page: pageSize,
+              },
             }),
           catch: (error) => new GatewayError({ error }),
         });

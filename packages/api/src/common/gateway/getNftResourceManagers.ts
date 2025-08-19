@@ -32,8 +32,8 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
         'GET_NFT_RESOURCE_MANAGERS_CONCURRENCY',
       ).pipe(Config.withDefault(10));
 
-      const stateEntityDetailsChunkSize = yield* Config.number(
-        'GATEWAY_STATE_ENTITY_DETAILS_CHUNK_SIZE',
+      const stateEntityDetailsPageSize = yield* Config.number(
+        'GatewayApi__Endpoint__StateEntityDetailsPageSize',
       ).pipe(Config.withDefault(20));
 
       const stateEntityDetailsConcurrency = yield* Config.number(
@@ -135,22 +135,24 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
           at_ledger_state: AtLedgerState;
         }) {
           const { addresses, optIns, at_ledger_state } = input;
-          const addressChunks = chunker(addresses, stateEntityDetailsChunkSize);
 
           const results = yield* Effect.forEach(
-            addressChunks,
+            chunker(addresses, stateEntityDetailsPageSize),
             Effect.fn(function* (addresses) {
               return yield* Effect.tryPromise({
                 try: () =>
                   gatewayClient.state.innerClient.stateEntityDetails({
                     stateEntityDetailsRequest: {
-                      addresses: addresses,
+                      addresses,
                       opt_ins: optIns,
                       at_ledger_state,
                       aggregation_level: AGGREGATION_LEVEL,
                     },
                   }),
-                catch: (error) => new GatewayError({ error }),
+                catch: (error) => {
+                  console.error(JSON.stringify(error, null, 2));
+                  return new GatewayError({ error });
+                },
               });
             }),
             { concurrency: stateEntityDetailsConcurrency },

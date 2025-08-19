@@ -387,52 +387,16 @@ const runnable = Effect.gen(function* () {
 
   const service = yield* Effect.provide(SnapshotService, snapshotLive);
 
-  const _addresses = yield* Effect.tryPromise(() =>
-    db.query.accounts
-      .findMany({
-        limit: 10,
-      })
-      .then((res) => res.map((r) => r.address)),
+  const addresses = yield* Effect.tryPromise(() =>
+    db.query.accounts.findMany({}).then((res) => res.map((r) => r.address)),
   );
 
   const _testAccountAddress = process.env.TEST_ACCOUNT_ADDRESS;
 
   yield* service({
-    timestamp: new Date('2024-09-01T00:00:00.000Z'),
+    timestamp: new Date('2025-08-01T00:00:00.000Z'),
     batchSize: 10_000,
-    addresses: [
-      'account_rdx1280003ttgydsuus9dl3ag4mn7l37lktqtt3z9rqun3cecx8spj0xmw',
-      'account_rdx1280007fzy8wxjvlw2u23lge4p5kyttnuzezmww8j44rlcr708s75qs',
-      'account_rdx128000lh2huxqyfjug5gux3tqgxs723693uu7dyfwkx9fsdpj9r7la7',
-    ],
     addDummyData: false,
-    includeActivityIds: [
-      'c9_ho_floop-xrd',
-      'c9_ho_lsulp-reddicks',
-      'c9_ho_lsulp-xrd',
-      'c9_ho_xeth-xrd',
-      'c9_ho_xrd-xusdc',
-      'c9_ho_xrd-xusdt',
-      'c9_ho_xrd-xwbtc',
-      'dp_ho_dfp2-xrd',
-      'dp_ho_xeth-xrd',
-      'dp_ho_xrd-xusdc',
-      'dp_ho_xrd-xusdt',
-      'dp_ho_xrd-xwbtc',
-      'oc_ho_early-xrd',
-      'oc_ho_ilis-xrd',
-      'oc_ho_oci-xrd',
-      'oc_ho_xeth-xrd',
-      'oc_ho_xrd-xusdc',
-      'oc_ho_xrd-xusdt',
-      'oc_ho_xrd-xwbtc',
-      'ro_ho_lsulp',
-      'ro_ho_xrd',
-      'we_ho_lsulp',
-      'we_ho_stakedXrd',
-      'we_ho_unstakedXrd',
-      'we_ho_xrd',
-    ],
   }).pipe(Effect.provide(NodeSdkLive));
 });
 

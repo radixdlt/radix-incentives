@@ -1,5 +1,5 @@
 import type { NonFungibleDataRequest } from '@radixdlt/babylon-gateway-api-sdk';
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
 import { chunker } from '../helpers/chunker';
 import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
@@ -10,6 +10,10 @@ export class EntityNonFungibleDataService extends Effect.Service<EntityNonFungib
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
+      const pageSize = yield* Config.number(
+        'GatewayApi__Endpoint__MaxPageSize',
+      ).pipe(Config.withDefault(100));
+
       return Effect.fn(function* (
         input: Omit<
           NonFungibleDataRequest['stateNonFungibleDataRequest'],
@@ -18,7 +22,7 @@ export class EntityNonFungibleDataService extends Effect.Service<EntityNonFungib
           at_ledger_state: AtLedgerState;
         },
       ) {
-        const chunks = chunker(input.non_fungible_ids, 100);
+        const chunks = chunker(input.non_fungible_ids, pageSize);
         return yield* Effect.forEach(chunks, (chunk) => {
           return Effect.tryPromise({
             try: () =>

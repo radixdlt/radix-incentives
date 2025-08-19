@@ -21,8 +21,12 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
 
-      const chunkSize = yield* Config.number(
-        'GATEWAY_GET_FUNGIBLE_BALANCE_CHUNK_SIZE',
+      const maxPageSize = yield* Config.number(
+        'GatewayApi__Endpoint__MaxPageSize',
+      ).pipe(Config.withDefault(100));
+
+      const stateEntityDetailsPageSize = yield* Config.number(
+        'GatewayApi__Endpoint__StateEntityDetailsPageSize',
       ).pipe(Config.withDefault(20));
 
       const concurrency = yield* Config.number(
@@ -50,6 +54,7 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
             aggregation_level: aggregationLevel,
             cursor: nextCursor,
             at_ledger_state,
+            limit_per_page: maxPageSize,
           });
           nextCursor = result.next_cursor;
           allFungibleResources.push(...result.items);
@@ -95,7 +100,7 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
         },
       ) {
         const stateEntityDetailsResults = yield* Effect.forEach(
-          chunker(input.addresses, chunkSize),
+          chunker(input.addresses, stateEntityDetailsPageSize),
           Effect.fn(function* (addresses) {
             const stateEntityDetailsResult = yield* Effect.tryPromise({
               try: () =>
