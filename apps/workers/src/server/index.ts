@@ -19,13 +19,13 @@ import { eventQueue } from '../queues/event/queue';
 import { eventQueueJobSchema } from '../queues/event/schemas';
 import { populateLeaderboardCacheQueue } from '../queues/populate-leaderboard-cache/queue';
 import { populateLeaderboardCacheSchema } from '../queues/populate-leaderboard-cache/schemas';
+import { processWeekQueue } from '../queues/process-week/queue';
+import { ProcessWeekJobSchema } from '../queues/process-week/schemas';
 import { scheduledCalculationsQueue } from '../queues/scheduled-calculations/queue';
 import { scheduledSnapshotQueue } from '../queues/scheduled-snapshot/queue';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
 import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
-import { processWeekQueue } from '../queues/process-week/queue';
-import { ProcessWeekJobSchema } from '../queues/process-week/schemas';
 
 const app = new Hono();
 const metricsApp = new Hono();

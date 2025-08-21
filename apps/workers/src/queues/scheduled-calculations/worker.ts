@@ -4,9 +4,9 @@ import { FlowProducer } from 'bullmq';
 import { Exit } from 'effect';
 import { handleExitError } from '../../helpers/handleExitError';
 import { redisClient } from '../../redis';
+import { processWeekQueue } from '../process-week/queue';
 import { QueueName } from '../types';
 import type { ScheduledCalculationsJob } from './schemas';
-import { processWeekQueue } from '../process-week/queue';
 
 const flowProducer = new FlowProducer({ connection: redisClient });
 
