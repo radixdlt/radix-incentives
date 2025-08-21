@@ -11,6 +11,7 @@ const flowProducer = new FlowProducer({ connection: redisClient });
 
 export const processWeekWorker = async (job: Job<ProcessWeekJob>) => {
   const weekId = job.data.weekId;
+  const force = job.data.force ?? false;
 
   const seasonResult = await dependencyLayer.getSeasonByWeekId(weekId);
 
@@ -37,7 +38,7 @@ export const processWeekWorker = async (job: Job<ProcessWeekJob>) => {
       {
         queueName: QueueName.calculateSeasonPoints,
         name: 'process-week',
-        data: { weekId, seasonId, markAsProcessed: true },
+        data: { weekId, seasonId, markAsProcessed: true, force },
         opts: { failParentOnFailure: true },
         children: [
           {

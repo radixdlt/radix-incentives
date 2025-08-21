@@ -52,6 +52,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   const handleProcessWeek = async () => {
     await addProcessWeekJob.mutateAsync({
       weekId: params.weekId,
+      force: true,
     });
 
     toast.info('Processing week job started', {
