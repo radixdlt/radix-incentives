@@ -77,6 +77,7 @@ const runnable = Effect.gen(function* () {
       Layer.provide(updateWeekStatusServiceLive),
       Layer.provide(getUsersPaginatedServiceLive),
       Layer.provide(activityWeekServiceLive),
+      Layer.provide(dbLayer),
     );
 
   const service = yield* Effect.provide(
