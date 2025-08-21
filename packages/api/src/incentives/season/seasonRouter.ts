@@ -149,6 +149,7 @@ export const adminSeasonRouter = createTRPCRouter({
     .input(
       z.object({
         weekId: z.string(),
+        force: z.boolean().optional(),
       }),
     )
     .mutation(async ({ input }) => {
@@ -158,6 +159,7 @@ export const adminSeasonRouter = createTRPCRouter({
           method: 'POST',
           body: JSON.stringify({
             weekId: input.weekId,
+            force: input.force,
           }),
         },
       );
