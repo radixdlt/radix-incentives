@@ -8,6 +8,7 @@ export const QueueName = {
   snapshotDateRange: 'snapshotDateRange',
   scheduledCalculations: 'scheduledCalculations',
   populateLeaderboardCache: 'populateLeaderboardCache',
+  processWeek: 'processWeek',
 } as const;
 
 export type QueueName = (typeof QueueName)[keyof typeof QueueName];

@@ -24,6 +24,8 @@ import { scheduledSnapshotQueue } from '../queues/scheduled-snapshot/queue';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
 import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
+import { processWeekQueue } from '../queues/process-week/queue';
+import { ProcessWeekJobSchema } from '../queues/process-week/schemas';
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -46,6 +48,8 @@ metricsApp.get('/metrics', async (c) => {
     await scheduledCalculationsQueue.queue.exportPrometheusMetrics();
   const populateLeaderboardCacheQueueMetrics =
     await populateLeaderboardCacheQueue.queue.exportPrometheusMetrics();
+  const processWeekQueueMetrics =
+    await processWeekQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -55,6 +59,7 @@ metricsApp.get('/metrics', async (c) => {
       calculateActivityPointsQueueMetrics,
       scheduledCalculationsQueueMetrics,
       populateLeaderboardCacheQueueMetrics,
+      processWeekQueueMetrics,
     ].join('\n'),
   );
 });
@@ -116,6 +121,16 @@ app.post('/queues/calculate-season-points/add', async (c) => {
   return c.text('ok');
 });
 
+app.post('/queues/process-week/add', async (c) => {
+  const input = await c.req.json();
+  const parsedInput = ProcessWeekJobSchema.safeParse(input);
+  if (!parsedInput.success) {
+    return c.json({ error: parsedInput.error.message }, 400);
+  }
+  await processWeekQueue.queue.add('process-week', parsedInput.data);
+  return c.text('ok');
+});
+
 app.post('/queues/calculate-season-points-multiplier/add', async (c) => {
   const input = await c.req.json();
   const parsedInput = seasonPointsMultiplierJobSchema.safeParse(input);
@@ -169,6 +184,7 @@ createBullBoard({
     new BullMQAdapter(seasonPointsMultiplierQueue.queue),
     new BullMQAdapter(scheduledCalculationsQueue.queue),
     new BullMQAdapter(populateLeaderboardCacheQueue.queue),
+    new BullMQAdapter(processWeekQueue.queue),
   ],
   serverAdapter,
 });

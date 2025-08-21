@@ -145,23 +145,19 @@ export const adminSeasonRouter = createTRPCRouter({
       });
     }),
 
-  addCalculateSeasonPointsJob: publicProcedure
+  addProcessWeekJob: publicProcedure
     .input(
       z.object({
         weekId: z.string(),
-        force: z.boolean().optional(),
       }),
     )
     .mutation(async ({ input }) => {
       const response = await fetch(
-        `${process.env.WORKERS_API_BASE_URL}/queues/scheduled-calculations/add`,
+        `${process.env.WORKERS_API_BASE_URL}/queues/process-week/add`,
         {
           method: 'POST',
           body: JSON.stringify({
             weekId: input.weekId,
-            force: input.force,
-            markAsProcessed: true,
-            includeSPCalculations: true,
           }),
         },
       );
