@@ -1,4 +1,5 @@
 import {
+  type DefaultJobOptions,
   type Job,
   MetricsTime,
   Queue,
@@ -19,10 +20,15 @@ export const createQueue = <Input, Output = unknown>(input: {
     prev: string,
   ) => Promise<void>;
   workerOptions?: WorkerOptions;
+  defaultJobOptions?: DefaultJobOptions;
 }) => {
   const queue = new Queue<Input, Output>(input.name, {
     connection: input.redisClient,
     telemetry: new BullMQOtel(input.name),
+    defaultJobOptions: input.defaultJobOptions ?? {
+      removeOnComplete: { count: 1000 }, // Keep last 1000 completed jobs
+      removeOnFail: { count: 10000 }, // Keep last 10000 failed jobs
+    },
   });
 
   const queueEvents = new QueueEvents(queue.name, {
