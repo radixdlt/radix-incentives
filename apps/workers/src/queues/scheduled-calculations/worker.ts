@@ -2,7 +2,9 @@ import { dependencyLayer } from 'api/incentives';
 import type { FlowJob, Job } from 'bullmq';
 import { FlowProducer } from 'bullmq';
 import { Exit } from 'effect';
+import { handleExitError } from '../../helpers/handleExitError';
 import { redisClient } from '../../redis';
+import { calculateSeasonPointsQueue } from '../calculate-season-points/queue';
 import { QueueName } from '../types';
 import type { ScheduledCalculationsJob } from './schemas';
 
@@ -20,57 +22,36 @@ export const scheduledCalculationsWorker = async (
     const weekResult = await dependencyLayer.getWeekByDate(timestamp);
 
     if (Exit.isFailure(weekResult)) {
-      if (weekResult.cause._tag === 'Fail') {
-        const enhancedError = new Error(weekResult.cause.error._tag);
-        enhancedError.stack = `${JSON.stringify(weekResult.cause.error, null, 2)}`;
-        enhancedError.cause = weekResult.cause.error._tag;
-        throw enhancedError;
-      }
-
-      if (weekResult.cause._tag === 'Die') {
-        const enhancedError = new Error('unhandled error');
-
-        if (
-          weekResult.cause.defect !== null &&
-          typeof weekResult.cause.defect === 'object' &&
-          'stack' in weekResult.cause.defect
-        ) {
-          enhancedError.stack = `${weekResult.cause.defect.stack}`;
-        } else {
-          enhancedError.stack = JSON.stringify(
-            weekResult.cause.defect,
-            null,
-            2,
-          );
-        }
-
-        enhancedError.cause = 'unhandled error';
-        throw enhancedError;
-      }
-
-      throw new Error(JSON.stringify(weekResult.cause, null, 2));
+      return handleExitError(weekResult);
     }
     weekId = weekResult.value.id;
+  }
+
+  const unprocessedWeeksResult = await dependencyLayer.getUnprocessedWeeks();
+
+  if (Exit.isFailure(unprocessedWeeksResult)) {
+    return handleExitError(unprocessedWeeksResult);
+  }
+
+  // Get all weeks that are not processed and have snapshots ran successfully for all accounts
+  const unprocessedWeeks = unprocessedWeeksResult.value.filter(
+    (week) => week.countsMatch,
+  );
+
+  if (unprocessedWeeks.length > 0) {
+    for (const week of unprocessedWeeks) {
+      job.log(`adding end-of-week-calculation job for weekId: ${week.weekId}`);
+      await calculateSeasonPointsQueue.queue.add('end-of-week-calculation', {
+        weekId: week.weekId,
+        markAsProcessed: true,
+      });
+    }
   }
 
   const seasonResult = await dependencyLayer.getSeasonByWeekId(weekId);
 
   if (Exit.isFailure(seasonResult)) {
-    if (seasonResult.cause._tag === 'Fail') {
-      const enhancedError = new Error(seasonResult.cause.error._tag);
-      enhancedError.stack = `${JSON.stringify(seasonResult.cause.error, null, 2)}`;
-      enhancedError.cause = seasonResult.cause.error._tag;
-      throw enhancedError;
-    }
-
-    if (seasonResult.cause._tag === 'Die') {
-      const enhancedError = new Error('unhandled error');
-      enhancedError.stack = `${JSON.stringify(seasonResult.cause.defect, null, 2)}`;
-      enhancedError.cause = 'unhandled error';
-      throw enhancedError;
-    }
-
-    throw new Error(JSON.stringify(seasonResult.cause, null, 2));
+    return handleExitError(seasonResult);
   }
 
   const seasonId = seasonResult.value.id;

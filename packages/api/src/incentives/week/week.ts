@@ -1,5 +1,5 @@
 import { seasons, weeks } from 'db/incentives';
-import { and, desc, eq, gte, lte } from 'drizzle-orm';
+import { and, desc, eq, gte, lte, sql } from 'drizzle-orm';
 import { Data, Effect } from 'effect';
 import { z } from 'zod';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
@@ -126,6 +126,63 @@ export class WeekService extends Effect.Service<WeekService>()('WeekService', {
           try: () => query.orderBy(desc(weeks.startDate)),
           catch: (error) => new DbError(error),
         });
+      }),
+      getUnprocessedWeeks: Effect.fn(function* () {
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .execute(sql`
+            WITH account_count AS (
+                select w.id as week_id, w.start_date, w.end_date, count(*) as cnt
+                from account a
+                inner join week w on a.created_at < w.end_date
+                where w.processed = false
+                  and w.end_date < NOW()
+                group by w.id, w.start_date, w.end_date
+            ),
+            balance_count AS (
+                select w.id as week_id, w.start_date, w.end_date, COUNT(DISTINCT (DATE_TRUNC('hour', timestamp), account_address)) as cnt
+                from account_balances ab
+                inner join week w on ab.timestamp >= DATE_TRUNC('hour', w.end_date)
+                  and ab.timestamp < DATE_TRUNC('hour', w.end_date) + INTERVAL '1 hour'
+                where w.processed = false
+                  and w.end_date < NOW()
+                group by w.id, w.start_date, w.end_date
+            )
+            select 
+                COALESCE(ac.week_id, bc.week_id) as week_id,
+                COALESCE(ac.start_date, bc.start_date) as start_date,
+                COALESCE(ac.end_date, bc.end_date) as end_date,
+                COALESCE(ac.cnt, 0) = COALESCE(bc.cnt, 0) as counts_match,
+                COALESCE(ac.cnt, 0) as account_count,
+                COALESCE(bc.cnt, 0) as balance_count
+            from account_count ac
+            full outer join balance_count bc on ac.week_id = bc.week_id
+            order by week_id;`)
+              .then((result) =>
+                Array.from(result.values()).map(
+                  (row) =>
+                    ({
+                      weekId: row.week_id,
+                      startDate: row.start_date,
+                      endDate: row.end_date,
+                      accountCount: row.account_count,
+                      balanceCount: row.balance_count,
+                      countsMatch: row.counts_match,
+                    }) as {
+                      weekId: string;
+                      startDate: Date;
+                      endDate: Date;
+                      accountCount: number;
+                      balanceCount: number;
+                      countsMatch: boolean;
+                    },
+                ),
+              ),
+          catch: (error) => new DbError(error),
+        });
+
+        return result;
       }),
     };
   }),

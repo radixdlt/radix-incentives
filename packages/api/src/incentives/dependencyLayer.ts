@@ -782,6 +782,15 @@ const populateLeaderboardCache = (input: { weekId?: string }) => {
   return Effect.runPromiseExit(program);
 };
 
+const getUnprocessedWeeks = () => {
+  const runnable = Effect.gen(function* () {
+    const weekService = yield* WeekService;
+    return yield* weekService.getUnprocessedWeeks();
+  }).pipe(Effect.provide(weekServiceLive));
+
+  return Effect.runPromiseExit(runnable);
+};
+
 export const dependencyLayer = {
   snapshotWorker,
   getLedgerState,
@@ -793,4 +802,5 @@ export const dependencyLayer = {
   getWeekByDate,
   getSeasonByWeekId,
   populateLeaderboardCache,
+  getUnprocessedWeeks,
 };
