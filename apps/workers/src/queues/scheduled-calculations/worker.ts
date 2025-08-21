@@ -4,7 +4,7 @@ import { FlowProducer } from 'bullmq';
 import { Exit } from 'effect';
 import { handleExitError } from '../../helpers/handleExitError';
 import { redisClient } from '../../redis';
-import { calculateSeasonPointsQueue } from '../calculate-season-points/queue';
+import { processWeekQueue } from '../process-week/queue';
 import { QueueName } from '../types';
 import type { ScheduledCalculationsJob } from './schemas';
 
@@ -41,9 +41,8 @@ export const scheduledCalculationsWorker = async (
   if (unprocessedWeeks.length > 0) {
     for (const week of unprocessedWeeks) {
       job.log(`adding end-of-week-calculation job for weekId: ${week.weekId}`);
-      await calculateSeasonPointsQueue.queue.add('end-of-week-calculation', {
+      await processWeekQueue.queue.add('process-week', {
         weekId: week.weekId,
-        markAsProcessed: true,
       });
     }
   }

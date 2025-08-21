@@ -15,8 +15,7 @@ type WeekPageProps = {
 
 const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   const params = use(paramsPromise);
-  const recalculatePoints =
-    api.season.addCalculateSeasonPointsJob.useMutation();
+  const addProcessWeekJob = api.season.addProcessWeekJob.useMutation();
   const updatePointsPool = api.week.updatePointsPool.useMutation();
   const updateMultiplier = api.week.updateActivityWeekMultiplier.useMutation();
   const {
@@ -51,9 +50,8 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   const week = weekData;
 
   const handleProcessWeek = async () => {
-    await recalculatePoints.mutateAsync({
+    await addProcessWeekJob.mutateAsync({
       weekId: params.weekId,
-      force: week?.processed,
     });
 
     toast.info('Processing week job started', {
