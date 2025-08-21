@@ -33,7 +33,16 @@ export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByN
               at_ledger_state: nextStateVersion,
             });
 
-          const result = nonFungibleLocationResult.non_fungible_ids[0];
+          const firstLocation = nonFungibleLocationResult[0];
+          if (!firstLocation) {
+            return yield* Effect.fail(
+              new EntityNotFoundError({
+                message: `Non-fungible location not found for resource address ${input.resourceAddress} and non-fungible id ${input.nonFungibleId}`,
+              }),
+            );
+          }
+
+          const result = firstLocation.non_fungible_ids[0];
 
           if (!result) {
             return yield* Effect.fail(
@@ -46,8 +55,7 @@ export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByN
           isBurned = result.is_burned;
 
           nextStateVersion = {
-            state_version:
-              nonFungibleLocationResult.ledger_state.state_version - 1,
+            state_version: firstLocation.ledger_state.state_version - 1,
           };
 
           if (result.owning_vault_global_ancestor_address)

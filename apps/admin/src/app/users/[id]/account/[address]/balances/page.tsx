@@ -23,12 +23,30 @@ import {
 } from '~/components/ui/table';
 import { api } from '~/trpc/react';
 
+// Types for balance data structure
+type FungibleResource = {
+  amount?: string;
+  [key: string]: unknown;
+};
+
+type Balance = {
+  resource_address?: string;
+  amount?: string;
+  [key: string]: unknown;
+};
+
+type BalanceData = {
+  fungible_resources?: Record<string, FungibleResource>;
+  balances?: Balance[];
+  [key: string]: unknown;
+};
+
 // Component to render balance data
-function BalanceDataRenderer({ data }: { data: any }) {
+function BalanceDataRenderer({ data }: { data: BalanceData }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   // Try to extract key balance information
-  const extractBalanceInfo = (data: any) => {
+  const extractBalanceInfo = (data: BalanceData) => {
     const info: { resource: string; amount: string }[] = [];
 
     // Handle different data structures that might exist
@@ -36,7 +54,7 @@ function BalanceDataRenderer({ data }: { data: any }) {
       // Check for fungible resources
       if (data.fungible_resources) {
         Object.entries(data.fungible_resources).forEach(
-          ([resource, details]: [string, any]) => {
+          ([resource, details]) => {
             if (details?.amount) {
               info.push({
                 resource: `${resource.slice(0, 20)}...`,
@@ -52,7 +70,7 @@ function BalanceDataRenderer({ data }: { data: any }) {
 
       // Check for other balance structures
       if (data.balances && Array.isArray(data.balances)) {
-        data.balances.forEach((balance: any) => {
+        data.balances.forEach((balance) => {
           if (balance.resource_address && balance.amount) {
             info.push({
               resource: `${balance.resource_address.slice(0, 20)}...`,
@@ -234,7 +252,9 @@ export default function AccountBalancesPage() {
                           </div>
                         </TableCell>
                         <TableCell className="align-top">
-                          <BalanceDataRenderer data={balance.data} />
+                          <BalanceDataRenderer
+                            data={balance.data as BalanceData}
+                          />
                         </TableCell>
                       </TableRow>
                     ))

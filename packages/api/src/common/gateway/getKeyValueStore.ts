@@ -1,5 +1,4 @@
 import { Effect } from 'effect';
-import { chunker } from '../helpers/chunker';
 import { KeyValueStoreDataService } from './keyValueStoreData';
 import { KeyValueStoreKeysService } from './keyValueStoreKeys';
 import type { AtLedgerState } from './schemas';
@@ -10,6 +9,7 @@ export class GetKeyValueStoreService extends Effect.Service<GetKeyValueStoreServ
     effect: Effect.gen(function* () {
       const keyValueStoreKeysService = yield* KeyValueStoreKeysService;
       const keyValueStoreDataService = yield* KeyValueStoreDataService;
+
       return Effect.fn(function* (input: {
         address: string;
         at_ledger_state: AtLedgerState;
@@ -35,22 +35,12 @@ export class GetKeyValueStoreService extends Effect.Service<GetKeyValueStoreServ
           nextCursor = nextKeyResults.next_cursor;
         }
 
-        const batchSize = 100;
-
-        const chunks = chunker(allKeys, batchSize);
-
-        return yield* Effect.forEach(chunks, (keys) => {
-          return Effect.gen(function* () {
-            const data = yield* keyValueStoreDataService({
-              key_value_store_address: input.address,
-              keys: keys.map(({ key }) => ({
-                key_json: key.programmatic_json,
-              })),
-              at_ledger_state: input.at_ledger_state,
-            });
-
-            return data;
-          });
+        return yield* keyValueStoreDataService({
+          key_value_store_address: input.address,
+          keys: allKeys.map(({ key }) => ({
+            key_json: key.programmatic_json,
+          })),
+          at_ledger_state: input.at_ledger_state,
         }).pipe(
           Effect.map((res) => {
             const { key_value_store_address, ledger_state } = res[0]!;

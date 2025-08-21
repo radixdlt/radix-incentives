@@ -1,4 +1,5 @@
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
+import { chunker } from '../helpers';
 import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 import type { AtLedgerState } from './schemas';
@@ -8,24 +9,31 @@ export class GetNonFungibleLocationService extends Effect.Service<GetNonFungible
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
+      const pageSize = yield* Config.number(
+        'GatewayApi__Endpoint__MaxPageSize',
+      ).pipe(Config.withDefault(100));
       return Effect.fn(function* (input: {
         resourceAddress: string;
         nonFungibleIds: string[];
         at_ledger_state: AtLedgerState;
       }) {
-        const result = yield* Effect.tryPromise({
-          try: () =>
-            gatewayClient.state.innerClient.nonFungibleLocation({
-              stateNonFungibleLocationRequest: {
-                resource_address: input.resourceAddress,
-                non_fungible_ids: input.nonFungibleIds,
-                at_ledger_state: input.at_ledger_state,
-              },
-            }),
-          catch: (error) => new GatewayError({ error }),
-        });
-
-        return result;
+        const chunks = chunker(input.nonFungibleIds, pageSize);
+        return yield* Effect.forEach(
+          chunks,
+          Effect.fn(function* (nonFungibleIds) {
+            return yield* Effect.tryPromise({
+              try: () =>
+                gatewayClient.state.innerClient.nonFungibleLocation({
+                  stateNonFungibleLocationRequest: {
+                    non_fungible_ids: nonFungibleIds,
+                    resource_address: input.resourceAddress,
+                    at_ledger_state: input.at_ledger_state,
+                  },
+                }),
+              catch: (error) => new GatewayError({ error }),
+            });
+          }),
+        ).pipe(Effect.map((res) => res.flat()));
       });
     }),
   },

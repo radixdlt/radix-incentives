@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
 import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 import type { AtLedgerState } from './schemas';
@@ -16,6 +16,9 @@ export class GetNonFungibleIdsService extends Effect.Service<GetNonFungibleIdsSe
   {
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
+      const pageSize = yield* Config.number(
+        'GatewayApi__Endpoint__StateEntityDetailsPageSize',
+      ).pipe(Config.withDefault(100));
       return Effect.fn(function* (input: GetNonFungibleIdsInput) {
         const makeRequest = (cursor?: string) =>
           Effect.tryPromise({
@@ -27,7 +30,7 @@ export class GetNonFungibleIdsService extends Effect.Service<GetNonFungibleIdsSe
                   address: input.address,
                   at_ledger_state: input.at_ledger_state,
                   cursor: cursor,
-                  limit_per_page: 100,
+                  limit_per_page: pageSize,
                 },
               }),
             catch: (error) => new GatewayError({ error }),
