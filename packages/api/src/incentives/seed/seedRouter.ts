@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { seedActivities } from 'db/incentives';
-import { createTRPCRouter, publicProcedure } from '../trpc';
 import { Exit } from 'effect';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 export const adminSeedRouter = createTRPCRouter({
   seedAll: publicProcedure.mutation(async ({ ctx }) => {
