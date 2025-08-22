@@ -182,6 +182,38 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             catch: (error) => new DbError(error),
           });
         }),
+        // used when introducing new activities to the system
+        seedActivities: Effect.fn(function* () {
+          const [weekIds, activityIds] = yield* Effect.tryPromise({
+            try: () => {
+              return Promise.all([
+                db.query.activityCategoryWeeks
+                  .findMany({
+                    columns: { weekId: true },
+                  })
+                  .then((items) => items.map((item) => item.weekId)),
+                db.query.activities
+                  .findMany({ columns: { id: true } })
+                  .then((items) => items.map((item) => item.id)),
+              ]);
+            },
+            catch: (error) => new DbError(error),
+          });
+
+          const input = weekIds.flatMap((weekId) => {
+            return activityIds.map((activityId) => ({
+              weekId,
+              activityId,
+              multiplier: '1',
+            }));
+          });
+
+          yield* Effect.tryPromise({
+            try: () =>
+              db.insert(activityWeeks).values(input).onConflictDoNothing(),
+            catch: (error) => new DbError(error),
+          });
+        }),
       };
     }),
   },

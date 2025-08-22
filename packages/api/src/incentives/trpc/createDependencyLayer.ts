@@ -995,6 +995,14 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const seedActivities = () => {
+    const program = Effect.gen(function* () {
+      const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      return yield* activityCategoryWeekService.seedActivities();
+    }).pipe(Effect.provide(activityCategoryWeekServiceLive));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1044,5 +1052,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getActivityCategoryLeaderboardPaginated,
     getSeasonLeaderboardPaginated,
     getIncentivesData,
+    seedActivities,
   };
 };
