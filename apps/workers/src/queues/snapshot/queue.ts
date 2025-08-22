@@ -36,7 +36,7 @@ export const snapshotQueue = createQueue<SnapshotJob, void>({
     attempts: 3,
     backoff: {
       type: 'exponential',
-      delay: 1000,
+      delay: 10_000,
     },
   },
 });
