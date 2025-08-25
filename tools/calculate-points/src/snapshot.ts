@@ -387,7 +387,7 @@ const runnable = Effect.gen(function* () {
 
   const service = yield* Effect.provide(SnapshotService, snapshotLive);
 
-  const addresses = yield* Effect.tryPromise(() =>
+  const _addresses = yield* Effect.tryPromise(() =>
     db.query.accounts.findMany({}).then((res) => res.map((r) => r.address)),
   );
 

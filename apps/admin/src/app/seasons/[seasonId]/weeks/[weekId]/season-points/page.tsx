@@ -37,7 +37,8 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
           <TableRow className="border-b">
             <TableHead className="border-r">Username</TableHead>
             <TableHead className="border-r text-right">Multiplier</TableHead>
-            <TableHead className="text-right">Season Points</TableHead>
+            <TableHead className="border-r text-right">Season Points</TableHead>
+            <TableHead className="text-center">Actions</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -60,14 +61,25 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
                   <TableCell className="border-r text-right font-mono">
                     {Number(user.multiplier).toFixed(2)}x
                   </TableCell>
-                  <TableCell className="text-right font-mono">
+                  <TableCell className="border-r text-right font-mono">
                     {user.points.toFormat(2)}
+                  </TableCell>
+                  <TableCell className="text-center">
+                    <Button variant="outline" size="sm" asChild>
+                      <Link
+                        href={`/users/${user.userId}/account-balance`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        View Balances
+                      </Link>
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))
           ) : (
             <TableRow>
-              <TableCell colSpan={3} className="h-24 text-center">
+              <TableCell colSpan={4} className="h-24 text-center">
                 No users with points found.
               </TableCell>
             </TableRow>
@@ -163,6 +175,9 @@ export default function SeasonPointsPage() {
                     <TableHead className="text-right">
                       <div className="ml-auto h-4 w-28 animate-pulse rounded bg-gray-200" />
                     </TableHead>
+                    <TableHead className="text-center">
+                      <div className="mx-auto h-4 w-20 animate-pulse rounded bg-gray-200" />
+                    </TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -177,6 +192,9 @@ export default function SeasonPointsPage() {
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="ml-auto h-4 w-24 animate-pulse rounded bg-gray-200" />
+                      </TableCell>
+                      <TableCell className="text-center">
+                        <div className="mx-auto h-8 w-24 animate-pulse rounded bg-gray-200" />
                       </TableCell>
                     </TableRow>
                   ))}

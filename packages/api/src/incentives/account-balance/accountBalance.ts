@@ -1,6 +1,6 @@
 import type { AccountBalanceData, ActivityId } from 'data';
 import { type AccountBalance, accountBalances } from 'db/incentives';
-import { and, between, inArray } from 'drizzle-orm';
+import { and, between, desc, inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
 import { DbClientService, DbError } from '../db/dbClient';
@@ -95,6 +95,22 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
               );
 
             return output;
+          },
+        ),
+        getLatestAccountBalances: Effect.fn('getLatestAccountBalanceByUser')(
+          function* (input: { addresses: string[] }) {
+            return yield* Effect.tryPromise({
+              try: () => {
+                return db
+                  .selectDistinctOn([accountBalances.accountAddress])
+                  .from(accountBalances)
+                  .where(
+                    inArray(accountBalances.accountAddress, input.addresses),
+                  )
+                  .orderBy(desc(accountBalances.timestamp));
+              },
+              catch: (error) => new DbError(error),
+            });
           },
         ),
       };
