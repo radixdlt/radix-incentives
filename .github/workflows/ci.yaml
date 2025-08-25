@@ -26,7 +26,6 @@ on:
         type: choice
         options:
           - perftest
-          - preview
  
 permissions:
   id-token: write
@@ -277,29 +276,6 @@ jobs:
       aws_eks_cluster: 'rdx-works-main-dev'
       aws_iam_role_name: 'jenkins-incentives-perftest-deployer'
       helmfile_environment: 'perftest'
-      helmfile_extra_vars: 'ci.tag=${{ github.sha }},ci.install_connector=true'
-    secrets:
-      aws_deployment_account_id: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
-      secrets_account_id: ${{ secrets.SECRETS_ACCOUNT_ID }}
-
-  deploy_preview:
-    if: github.event_name == 'workflow_dispatch' && github.event.inputs.environment == 'preview'
-    name: Deploy PREVIEW
-    needs:
-      - push-incentives
-      - push-admin
-      - push-worker
-      - push-transaction-stream
-    uses: radixdlt/public-iac-resuable-artifacts/.github/workflows/jenkins-deployment.yml@main
-    with:
-      github_environment: 'preview'
-      github_branch: '${{ github.ref }}'
-      jenkins_job_name: 'kubernetes-deployments/job/incentives'
-      application_name: 'incentives'
-      kubernetes_namespace: 'incentives-preview'
-      aws_eks_cluster: 'rdx-works-main-dev'
-      aws_iam_role_name: 'jenkins-incentives-preview-deployer'
-      helmfile_environment: 'preview'
       helmfile_extra_vars: 'ci.tag=${{ github.sha }},ci.install_connector=true'
     secrets:
       aws_deployment_account_id: ${{ secrets.AWS_DEV_ACCOUNT_ID }}
