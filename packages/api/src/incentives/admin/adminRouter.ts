@@ -9,7 +9,7 @@ import {
   user,
   userSeasonPoints,
 } from 'db/incentives';
-import { and, count, eq, inArray, sum } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, lte, sum } from 'drizzle-orm';
 import { Exit } from 'effect';
 import { groupBy } from 'effect/Array';
 import { z } from 'zod';
@@ -112,6 +112,58 @@ export const adminRouter = createTRPCRouter({
         return db.query.accountBalances.findMany({
           where: and(eq(accountBalances.accountAddress, input.address)),
         });
+      }),
+
+    getLatestAccountBalances: publicProcedure
+      .input(z.object({ userId: z.string(), timestamp: z.date() }))
+      .query(async ({ input }) => {
+        // First get all accounts for this user
+        const userAccounts = await db
+          .select({ address: accounts.address })
+          .from(accounts)
+          .where(eq(accounts.userId, input.userId));
+
+        const activityData = await db.query.activities.findMany({
+          columns: {
+            id: true,
+            category: true,
+          },
+        });
+
+        const activityDataMap = new Map(
+          activityData.map((item) => [item.id, item]),
+        );
+
+        if (userAccounts.length === 0) {
+          return [];
+        }
+
+        // Then get the latest balance for each account
+        const addresses = userAccounts.map((acc) => acc.address);
+        return await db
+          .selectDistinctOn([accountBalances.accountAddress])
+          .from(accountBalances)
+          .where(
+            and(
+              inArray(accountBalances.accountAddress, addresses),
+              lte(accountBalances.timestamp, input.timestamp),
+            ),
+          )
+          .orderBy(
+            accountBalances.accountAddress,
+            desc(accountBalances.timestamp),
+          )
+          .then((items) =>
+            items.map((item) => ({
+              ...item,
+              data: (
+                item.data as { activityId: string; usdValue: string }[]
+              ).map((item) => ({
+                ...item,
+                categoryId: activityDataMap.get(item.activityId)?.category!,
+              })),
+            })),
+          );
       }),
 
     simulateCalculateSeasonPoints: publicProcedure

@@ -139,11 +139,20 @@ export default function UserPage() {
       {/* Accounts Table Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Associated Accounts</CardTitle>
-          <CardDescription>
-            {user.accounts?.length || 0} account
-            {user.accounts?.length !== 1 ? 's' : ''} linked to this user
-          </CardDescription>
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle>Associated Accounts</CardTitle>
+              <CardDescription>
+                {user.accounts?.length || 0} account
+                {user.accounts?.length !== 1 ? 's' : ''} linked to this user
+              </CardDescription>
+            </div>
+            <Button variant="outline" asChild>
+              <Link href={`/users/${id}/account-balance`}>
+                View Account Balances Map
+              </Link>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent className="p-0">
           <div className="overflow-hidden rounded-lg border">
