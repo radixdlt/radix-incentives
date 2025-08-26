@@ -1,21 +1,10 @@
 'use client';
 
-import { ArrowDown, ArrowUp, ArrowUpDown, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
-
-import { Badge } from '~/components/ui/badge';
-import { Input } from '~/components/ui/input';
 import { Separator } from '~/components/ui/separator';
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from '~/components/ui/table';
 import { api } from '~/trpc/react';
+import { ActivityFilters, ActivityTable, type FilterState } from './components';
 
 type SortField =
   | 'id'
@@ -29,16 +18,131 @@ type SortField =
   | 'multiplier';
 type SortDirection = 'asc' | 'desc';
 
+type ActivityData = {
+  showOnEarnPage?: boolean;
+  ap?: boolean;
+  multiplier?: boolean;
+};
+
+type Activity = {
+  id: string;
+  name?: string | null;
+  description?: string | null;
+  category: string;
+  dapp?: string | null;
+  componentAddresses: unknown;
+  data: unknown;
+};
+
+const FILTER_STORAGE_KEY = 'activities-filters';
+
 function ManageActivitiesPage() {
   const router = useRouter();
+  const utils = api.useUtils();
   const { data: activitiesData } = api.activity.getActivities.useQuery();
-  const [searchTerm, setSearchTerm] = React.useState('');
   const [sortField, setSortField] = React.useState<SortField>('name');
   const [sortDirection, setSortDirection] =
     React.useState<SortDirection>('asc');
+  const [editingId, setEditingId] = React.useState<string | null>(null);
+  const [editingName, setEditingName] = React.useState<string>('');
 
-  const handleRowClick = (activityId: string) => {
+  const updateActivityMutation = api.activity.updateActivity.useMutation({
+    onSuccess: () => {
+      utils.activity.getActivities.invalidate();
+      setEditingId(null);
+    },
+  });
+
+  // Initialize filters with default values first
+  const [filters, setFilters] = React.useState<FilterState>({
+    search: '',
+    categories: [],
+    dapps: [],
+    showOnEarnPage: 'all',
+    ap: 'all',
+    multiplier: 'all',
+  });
+
+  const [filtersLoaded, setFiltersLoaded] = React.useState(false);
+
+  // Load filters from localStorage after hydration
+  React.useEffect(() => {
+    const saved = localStorage.getItem(FILTER_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsedFilters = JSON.parse(saved);
+        // Ensure all properties are defined with proper defaults
+        setFilters({
+          search: parsedFilters.search || '',
+          categories: parsedFilters.categories || [],
+          dapps: parsedFilters.dapps || [],
+          showOnEarnPage: parsedFilters.showOnEarnPage || 'all',
+          ap: parsedFilters.ap || 'all',
+          multiplier: parsedFilters.multiplier || 'all',
+        });
+      } catch {
+        // If parsing fails, keep default values
+      }
+    }
+    setFiltersLoaded(true);
+  }, []);
+
+  // Save filters to localStorage when they change (but only after initial load)
+  React.useEffect(() => {
+    if (filtersLoaded) {
+      localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
+    }
+  }, [filters, filtersLoaded]);
+
+  // Extract unique categories and dapps for filter options
+  const uniqueCategories = React.useMemo(() => {
+    if (!activitiesData) return [];
+    return [...new Set(activitiesData.map((a) => a.category))].sort();
+  }, [activitiesData]);
+
+  const uniqueDapps = React.useMemo(() => {
+    if (!activitiesData) return [];
+    return [
+      ...new Set(activitiesData.map((a) => a.dapp).filter(Boolean) as string[]),
+    ].sort();
+  }, [activitiesData]);
+
+  const handleRowClick = (activityId: string, e?: React.MouseEvent) => {
+    // Don't navigate if clicking on the edit button or input
+    if (e && (e.target as HTMLElement).closest('.inline-edit')) {
+      return;
+    }
     router.push(`/activities/${activityId}`);
+  };
+
+  const startEditing = (activity: Activity, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingId(activity.id);
+    setEditingName(activity.name || '');
+  };
+
+  const saveEdit = async (activity: Activity) => {
+    const activityData = activity.data as ActivityData;
+    await updateActivityMutation.mutateAsync({
+      id: activity.id,
+      activity: {
+        name: editingName,
+        description: activity.description ?? undefined,
+        category: activity.category,
+        dapp: activity.dapp ?? undefined,
+        componentAddresses: activity.componentAddresses as string[],
+        data: {
+          showOnEarnPage: activityData?.showOnEarnPage ?? true,
+          ap: activityData?.ap ?? false,
+          multiplier: activityData?.multiplier ?? false,
+        },
+      },
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditingName('');
   };
 
   const handleSort = (field: SortField) => {
@@ -50,30 +154,57 @@ function ManageActivitiesPage() {
     }
   };
 
-  const getSortIcon = (field: SortField) => {
-    if (sortField !== field) {
-      return <ArrowUpDown className="ml-2 h-4 w-4" />;
-    }
-    return sortDirection === 'asc' ? (
-      <ArrowUp className="ml-2 h-4 w-4" />
-    ) : (
-      <ArrowDown className="ml-2 h-4 w-4" />
-    );
-  };
-
   const filteredAndSortedActivities = React.useMemo(() => {
     if (!activitiesData) return [];
 
-    // Filter activities based on search term
+    // Filter activities based on search term and filters
     const filtered = activitiesData.filter((activity) => {
-      const searchLower = searchTerm.toLowerCase();
-      return (
-        activity.id.toLowerCase().includes(searchLower) ||
-        activity.name?.toLowerCase().includes(searchLower) ||
-        activity.description?.toLowerCase().includes(searchLower) ||
-        activity.category.toLowerCase().includes(searchLower) ||
-        activity.dapp?.toLowerCase().includes(searchLower)
-      );
+      // Search filter
+      const searchLower = filters.search.toLowerCase();
+      const matchesSearch =
+        activity.id?.toLowerCase()?.includes(searchLower) ||
+        activity.name?.toLowerCase()?.includes(searchLower) ||
+        activity.description?.toLowerCase()?.includes(searchLower) ||
+        activity.category?.toLowerCase()?.includes(searchLower) ||
+        activity.dapp?.toLowerCase()?.includes(searchLower);
+
+      if (!matchesSearch) return false;
+
+      // Category filter
+      if (
+        filters.categories.length > 0 &&
+        !filters.categories.includes(activity.category)
+      ) {
+        return false;
+      }
+
+      // Dapp filter
+      if (
+        filters.dapps.length > 0 &&
+        activity.dapp &&
+        !filters.dapps.includes(activity.dapp)
+      ) {
+        return false;
+      }
+
+      // Show on earn page filter
+      const showOnEarnPage =
+        (activity.data as { showOnEarnPage?: boolean })?.showOnEarnPage ?? true;
+      if (filters.showOnEarnPage === 'yes' && !showOnEarnPage) return false;
+      if (filters.showOnEarnPage === 'no' && showOnEarnPage) return false;
+
+      // AP filter
+      const ap = (activity.data as { ap?: boolean })?.ap ?? false;
+      if (filters.ap === 'yes' && !ap) return false;
+      if (filters.ap === 'no' && ap) return false;
+
+      // Multiplier filter
+      const multiplier =
+        (activity.data as { multiplier?: boolean })?.multiplier ?? false;
+      if (filters.multiplier === 'yes' && !multiplier) return false;
+      if (filters.multiplier === 'no' && multiplier) return false;
+
+      return true;
     });
 
     // Sort filtered activities
@@ -139,7 +270,29 @@ function ManageActivitiesPage() {
       const comparison = aValue.localeCompare(bValue);
       return sortDirection === 'asc' ? comparison : -comparison;
     });
-  }, [activitiesData, searchTerm, sortField, sortDirection]);
+  }, [activitiesData, sortField, sortDirection, filters]);
+
+  const hasActiveFilters = React.useMemo(() => {
+    return (
+      filters.search !== '' ||
+      filters.categories.length > 0 ||
+      filters.dapps.length > 0 ||
+      filters.showOnEarnPage !== 'all' ||
+      filters.ap !== 'all' ||
+      filters.multiplier !== 'all'
+    );
+  }, [filters]);
+
+  const clearAllFilters = () => {
+    setFilters({
+      search: '',
+      categories: [],
+      dapps: [],
+      showOnEarnPage: 'all',
+      ap: 'all',
+      multiplier: 'all',
+    });
+  };
 
   return (
     <div className="container mx-auto py-6 pr-6 pl-6">
@@ -160,208 +313,33 @@ function ManageActivitiesPage() {
 
       <Separator className="my-6" />
 
-      {/* Search Input */}
-      <div className="mb-4 flex items-center gap-2">
-        <div className="relative max-w-sm flex-1">
-          <Search className="absolute top-3 left-3 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Search activities..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <div className="text-muted-foreground text-sm">
-          {filteredAndSortedActivities.length} of {activitiesData?.length || 0}{' '}
-          activities
-        </div>
-      </div>
+      {/* Filters */}
+      <ActivityFilters
+        filters={filters}
+        setFilters={setFilters}
+        uniqueCategories={uniqueCategories}
+        uniqueDapps={uniqueDapps}
+        hasActiveFilters={hasActiveFilters}
+        clearAllFilters={clearAllFilters}
+        totalCount={activitiesData?.length || 0}
+        filteredCount={filteredAndSortedActivities.length}
+      />
 
       {/* Activities Table */}
-      <div className="overflow-hidden rounded-lg border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('id')}
-              >
-                <div className="flex items-center">
-                  ID
-                  {getSortIcon('id')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('name')}
-              >
-                <div className="flex items-center">
-                  Name
-                  {getSortIcon('name')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('description')}
-              >
-                <div className="flex items-center">
-                  Description
-                  {getSortIcon('description')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('category')}
-              >
-                <div className="flex items-center">
-                  Category
-                  {getSortIcon('category')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('dapp')}
-              >
-                <div className="flex items-center">
-                  Dapp
-                  {getSortIcon('dapp')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('componentAddresses')}
-              >
-                <div className="flex items-center">
-                  Component Addresses
-                  {getSortIcon('componentAddresses')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('showOnEarnPage')}
-              >
-                <div className="flex items-center">
-                  Show on Earn Page
-                  {getSortIcon('showOnEarnPage')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer border-r hover:bg-muted/50"
-                onClick={() => handleSort('ap')}
-              >
-                <div className="flex items-center">
-                  AP
-                  {getSortIcon('ap')}
-                </div>
-              </TableHead>
-              <TableHead
-                className="cursor-pointer hover:bg-muted/50"
-                onClick={() => handleSort('multiplier')}
-              >
-                <div className="flex items-center">
-                  Multiplier
-                  {getSortIcon('multiplier')}
-                </div>
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filteredAndSortedActivities.length > 0 ? (
-              filteredAndSortedActivities.map((activity) => (
-                <TableRow
-                  key={activity.id}
-                  onClick={() => handleRowClick(activity.id)}
-                  className="cursor-pointer hover:bg-muted/50"
-                >
-                  <TableCell className="w-1 border-r font-medium">
-                    {activity.id}
-                  </TableCell>
-                  <TableCell className="border-r font-medium">
-                    {activity.name}
-                  </TableCell>
-                  <TableCell className="max-w-md border-r">
-                    <div className="truncate">{activity.description}</div>
-                  </TableCell>
-                  <TableCell className="border-r">
-                    <Badge variant="outline">{activity.category}</Badge>
-                  </TableCell>
-                  <TableCell className="border-r">
-                    {activity.dapp || '-'}
-                  </TableCell>
-                  <TableCell className="max-w-xs border-r">
-                    <div className="space-y-1">
-                      {(activity.componentAddresses as string[])?.length > 0
-                        ? (activity.componentAddresses as string[]).map(
-                            (address, _index) => (
-                              <div
-                                key={address}
-                                className="truncate font-mono text-xs"
-                                title={address}
-                              >
-                                {address}
-                              </div>
-                            ),
-                          )
-                        : '-'}
-                    </div>
-                  </TableCell>
-                  <TableCell className="border-r">
-                    <Badge
-                      variant={
-                        ((activity.data as { showOnEarnPage?: boolean })
-                          ?.showOnEarnPage ?? true)
-                          ? 'default'
-                          : 'secondary'
-                      }
-                    >
-                      {((activity.data as { showOnEarnPage?: boolean })
-                        ?.showOnEarnPage ?? true)
-                        ? 'Yes'
-                        : 'No'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell className="border-r">
-                    <Badge
-                      variant={
-                        ((activity.data as { ap?: boolean })?.ap ?? false)
-                          ? 'default'
-                          : 'secondary'
-                      }
-                    >
-                      {((activity.data as { ap?: boolean })?.ap ?? false)
-                        ? 'Yes'
-                        : 'No'}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    <Badge
-                      variant={
-                        ((activity.data as { multiplier?: boolean })
-                          ?.multiplier ?? false)
-                          ? 'default'
-                          : 'secondary'
-                      }
-                    >
-                      {((activity.data as { multiplier?: boolean })
-                        ?.multiplier ?? false)
-                        ? 'Yes'
-                        : 'No'}
-                    </Badge>
-                  </TableCell>
-                </TableRow>
-              ))
-            ) : (
-              <TableRow>
-                <TableCell colSpan={9} className="h-24 text-center">
-                  {searchTerm
-                    ? 'No activities found matching your search.'
-                    : 'No activities defined yet.'}
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-      </div>
+      <ActivityTable
+        activities={filteredAndSortedActivities}
+        sortField={sortField}
+        sortDirection={sortDirection}
+        onSort={handleSort}
+        onRowClick={handleRowClick}
+        editingId={editingId}
+        editingName={editingName}
+        onStartEdit={startEditing}
+        onSaveEdit={saveEdit}
+        onCancelEdit={cancelEdit}
+        onNameChange={setEditingName}
+        searchTerm={filters.search}
+      />
     </div>
   );
 }
