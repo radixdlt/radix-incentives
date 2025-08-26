@@ -104,7 +104,6 @@ function ActivityForm({
           name="name"
           value={formData.name ?? ''}
           onChange={handleChange}
-          required
         />
       </div>
       {/* Description */}

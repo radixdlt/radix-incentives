@@ -30,7 +30,8 @@
       "Bash(pnpm biome check:*)",
       "Bash(git checkout:*)",
       "mcp__context7__resolve-library-id",
-      "mcp__context7__get-library-docs"
+      "mcp__context7__get-library-docs",
+      "Bash(pnpm dlx shadcn@latest add:*)"
     ],
     "deny": []
   }
