@@ -187,7 +187,7 @@ jobs:
         id: check_label
         run: |
           if [[ "${{ contains(github.event.pull_request.labels.*.name, 'set-gateway') }}" == "true" ]]; then
-            echo "gateway_url=https://mainnet.radixdlt.com" >> "$GITHUB_OUTPUT"
+            echo "gateway_url=https://private-link-mainnet-gateway-blue.rtlj-prod.extratools.works" >> "$GITHUB_OUTPUT"
           else
             echo "gateway_url=http://localhost" >> "$GITHUB_OUTPUT"
           fi
