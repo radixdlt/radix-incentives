@@ -59,11 +59,13 @@ export function ActivityFilters({
           <Input
             placeholder="Search activities..."
             value={filters.search}
-            onChange={(e) => setFilters(prev => ({ ...prev, search: e.target.value }))}
+            onChange={(e) =>
+              setFilters((prev) => ({ ...prev, search: e.target.value }))
+            }
             className="pl-10"
           />
         </div>
-        
+
         {/* Category Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -98,7 +100,7 @@ export function ActivityFilters({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        
+
         {/* Dapp Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -133,7 +135,7 @@ export function ActivityFilters({
             ))}
           </DropdownMenuContent>
         </DropdownMenu>
-        
+
         {/* Show on Earn Page Filter */}
         <Select
           value={filters.showOnEarnPage}
@@ -150,7 +152,7 @@ export function ActivityFilters({
             <SelectItem value="no">Hidden</SelectItem>
           </SelectContent>
         </Select>
-        
+
         {/* AP Filter */}
         <Select
           value={filters.ap}
@@ -167,7 +169,7 @@ export function ActivityFilters({
             <SelectItem value="no">No AP</SelectItem>
           </SelectContent>
         </Select>
-        
+
         {/* Multiplier Filter */}
         <Select
           value={filters.multiplier}
@@ -184,29 +186,21 @@ export function ActivityFilters({
             <SelectItem value="no">No Multiplier</SelectItem>
           </SelectContent>
         </Select>
-        
+
         {/* Clear Filters */}
         {hasActiveFilters && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={clearAllFilters}
-          >
+          <Button variant="ghost" size="sm" onClick={clearAllFilters}>
             <X className="mr-2 h-4 w-4" />
             Clear
           </Button>
         )}
       </div>
-      
+
       <div className="flex items-center gap-2 text-muted-foreground text-sm">
         <span>
           {filteredCount} of {totalCount} activities
         </span>
-        {hasActiveFilters && (
-          <span className="text-primary">
-            (filtered)
-          </span>
-        )}
+        {hasActiveFilters && <span className="text-primary">(filtered)</span>}
       </div>
     </div>
   );

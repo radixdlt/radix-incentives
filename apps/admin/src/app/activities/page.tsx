@@ -52,7 +52,7 @@ function ManageActivitiesPage() {
       setEditingId(null);
     },
   });
-  
+
   // Initialize filters with default values first
   const [filters, setFilters] = React.useState<FilterState>({
     search: '',
@@ -62,7 +62,7 @@ function ManageActivitiesPage() {
     ap: 'all',
     multiplier: 'all',
   });
-  
+
   const [filtersLoaded, setFiltersLoaded] = React.useState(false);
 
   // Load filters from localStorage after hydration
@@ -86,20 +86,20 @@ function ManageActivitiesPage() {
     }
     setFiltersLoaded(true);
   }, []);
-  
+
   // Save filters to localStorage when they change (but only after initial load)
   React.useEffect(() => {
     if (filtersLoaded) {
       localStorage.setItem(FILTER_STORAGE_KEY, JSON.stringify(filters));
     }
   }, [filters, filtersLoaded]);
-  
+
   // Extract unique categories and dapps for filter options
   const uniqueCategories = React.useMemo(() => {
     if (!activitiesData) return [];
     return [...new Set(activitiesData.map((a) => a.category))].sort();
   }, [activitiesData]);
-  
+
   const uniqueDapps = React.useMemo(() => {
     if (!activitiesData) return [];
     return [
@@ -114,13 +114,13 @@ function ManageActivitiesPage() {
     }
     router.push(`/activities/${activityId}`);
   };
-  
+
   const startEditing = (activity: Activity, e: React.MouseEvent) => {
     e.stopPropagation();
     setEditingId(activity.id);
     setEditingName(activity.name || '');
   };
-  
+
   const saveEdit = async (activity: Activity) => {
     const activityData = activity.data as ActivityData;
     await updateActivityMutation.mutateAsync({
@@ -139,7 +139,7 @@ function ManageActivitiesPage() {
       },
     });
   };
-  
+
   const cancelEdit = () => {
     setEditingId(null);
     setEditingName('');
@@ -271,7 +271,7 @@ function ManageActivitiesPage() {
       return sortDirection === 'asc' ? comparison : -comparison;
     });
   }, [activitiesData, sortField, sortDirection, filters]);
-  
+
   const hasActiveFilters = React.useMemo(() => {
     return (
       filters.search !== '' ||
@@ -282,7 +282,7 @@ function ManageActivitiesPage() {
       filters.multiplier !== 'all'
     );
   }, [filters]);
-  
+
   const clearAllFilters = () => {
     setFilters({
       search: '',

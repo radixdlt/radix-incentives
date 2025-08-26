@@ -249,8 +249,8 @@ export function ActivityTable({
                         : 'secondary'
                     }
                   >
-                    {((activity.data as { multiplier?: boolean })
-                      ?.multiplier ?? false)
+                    {((activity.data as { multiplier?: boolean })?.multiplier ??
+                    false)
                       ? 'Yes'
                       : 'No'}
                   </Badge>
