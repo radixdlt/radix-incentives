@@ -1,5 +1,4 @@
-import { Cache, Duration, Effect } from 'effect';
-import { groupBy } from 'effect/Array';
+import { Effect } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 import type { Activity } from './activity';
 
@@ -18,33 +17,23 @@ export class ActivityDataService extends Effect.Service<ActivityDataService>()(
                   activityCategories: true,
                 },
               })
-              .then((activities) => activities as Activity[]),
+              .then((activities) => activities as Activity[])
+              .then((activities) =>
+                activities.map((item) => ({
+                  ...item,
+                  description:
+                    item.description === 'NULL' ? undefined : item.description,
+                  name: item.name === 'NULL' ? undefined : item.name,
+                })),
+              ),
           catch: (error) => new DbError(error),
         });
 
-      const activityCache = yield* Cache.make({
-        capacity: 1000,
-        timeToLive: Duration.hours(1),
-        lookup: (_: string) =>
-          Effect.gen(function* () {
-            const activities = yield* getActivities();
-
-            const groupedById = groupBy(activities, (item) => item.id);
-            const groupedByCategory = groupBy(
-              activities,
-              (item) => item.category,
-            );
-
-            return {
-              list: activities,
-              groupedById,
-              groupedByCategory,
-            };
-          }),
-      });
       return {
         list: Effect.fn(function* () {
-          return yield* activityCache.get('list');
+          const activities = yield* getActivities();
+
+          return activities;
         }),
       };
     }),

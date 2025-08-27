@@ -24,7 +24,7 @@ export default function EarnPage() {
     'all' | 'holding' | 'trading' | 'liquidity' | 'lending' | 'network'
   >('all');
 
-  const activities = activityData?.list || [];
+  const activities = activityData || [];
 
   const filteredActivities = activities.filter((activity) => {
     if (activity.data?.showOnEarnPage === false) {
