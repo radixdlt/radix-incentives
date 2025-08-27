@@ -15,6 +15,14 @@ interface ActivityFiltersProps {
   ) => void;
   passiveCount: number;
   activeCount: number;
+  typeCounts: {
+    all: number;
+    holding: number;
+    trading: number;
+    liquidity: number;
+    lending: number;
+    network: number;
+  };
 }
 
 const _categoryDescriptions = {
@@ -35,7 +43,13 @@ const typeDescriptions = {
 export const ActivityFilters = ({
   selectedType,
   onTypeChange,
+  typeCounts,
 }: ActivityFiltersProps) => {
+  // Filter out types with no activities (except 'all')
+  const availableTypes = (
+    ['all', 'holding', 'trading', 'liquidity', 'lending', 'network'] as const
+  ).filter((type) => type === 'all' || typeCounts[type] > 0);
+
   return (
     <div className="space-y-6">
       {/* Types */}
@@ -47,16 +61,7 @@ export const ActivityFilters = ({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
-          {(
-            [
-              'all',
-              'holding',
-              'trading',
-              'liquidity',
-              'lending',
-              'network',
-            ] as const
-          ).map((type) => (
+          {availableTypes.map((type) => (
             <div key={type} className="flex flex-col items-start">
               <Button
                 variant={selectedType === type ? 'default' : 'outline'}
@@ -65,6 +70,7 @@ export const ActivityFilters = ({
                 className="capitalize"
               >
                 {type}
+                {type !== 'all' && ` (${typeCounts[type]})`}
               </Button>
             </div>
           ))}

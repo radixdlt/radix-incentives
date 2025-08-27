@@ -107,7 +107,7 @@ export const activityRouter = createTRPCRouter({
 
     return Exit.match(result, {
       onSuccess: (value) => {
-        return value;
+        return value.filter((activity) => activity.data?.showOnEarnPage);
       },
       onFailure: (error) => {
         console.error(error);
