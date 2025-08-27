@@ -79,6 +79,28 @@ export default function EarnPage() {
     ].includes(a.category),
   ).length;
 
+  // Calculate counts for each type
+  const typeCounts = {
+    all: activities.length,
+    holding: activities.filter((a) =>
+      ['maintainXrdBalance'].includes(a.category),
+    ).length,
+    trading: activities.filter((a) => ['tradingVolume'].includes(a.category))
+      .length,
+    liquidity: activities.filter((a) =>
+      [
+        'provideBlueChipLiquidityToDex',
+        'provideNativeLiquidityToDex',
+        'provideStablesLiquidityToDex',
+      ].includes(a.category),
+    ).length,
+    lending: activities.filter((a) => ['lendingStables'].includes(a.category))
+      .length,
+    network: activities.filter((a) =>
+      ['componentCalls', 'transactionFees'].includes(a.category),
+    ).length,
+  };
+
   return (
     <div className="container mx-auto space-y-8 p-6">
       <EarnPageHeader
@@ -88,6 +110,7 @@ export default function EarnPage() {
         onTypeChange={setSelectedType}
         passiveCount={passiveCount}
         activeCount={activeCount}
+        typeCounts={typeCounts}
       />
 
       {isLoading ? (

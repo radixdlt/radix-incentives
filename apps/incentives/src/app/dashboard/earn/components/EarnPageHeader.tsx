@@ -15,6 +15,14 @@ interface EarnPageHeaderProps {
   ) => void;
   passiveCount: number;
   activeCount: number;
+  typeCounts: {
+    all: number;
+    holding: number;
+    trading: number;
+    liquidity: number;
+    lending: number;
+    network: number;
+  };
 }
 
 export const EarnPageHeader = ({
@@ -24,6 +32,7 @@ export const EarnPageHeader = ({
   onTypeChange,
   passiveCount,
   activeCount,
+  typeCounts,
 }: EarnPageHeaderProps) => {
   return (
     <div className="space-y-4">
@@ -42,6 +51,7 @@ export const EarnPageHeader = ({
         onTypeChange={onTypeChange}
         passiveCount={passiveCount}
         activeCount={activeCount}
+        typeCounts={typeCounts}
       />
     </div>
   );

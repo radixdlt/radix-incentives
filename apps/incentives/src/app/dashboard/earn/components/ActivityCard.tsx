@@ -124,7 +124,7 @@ export const ActivityCard = ({
 
       <CardContent className="space-y-4">
         <CardDescription className="text-sm">
-          {activity.description || 'No description available'}
+          {activity.description}
         </CardDescription>
 
         <div>
