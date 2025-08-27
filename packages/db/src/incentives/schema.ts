@@ -589,6 +589,11 @@ export type ActivityWeek = Omit<
 > & {
   activityId: ActivityId;
 };
+export type ActivityData = {
+  showOnEarnPage?: boolean;
+  ap?: boolean;
+  multiplier?: boolean;
+};
 
 export type Event = InferSelectModel<typeof events>;
 export type Snapshot = InferSelectModel<typeof snapshots>;
