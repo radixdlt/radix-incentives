@@ -33,7 +33,11 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
           const baseDelay = Math.min(2 ** attempt * 1000, maxDelay); // 1000, 2000, 4000ms etc up to max
           return Math.floor(baseDelay);
         },
-        retryOn: (_attempt, error, response) => {
+        retryOn: (attempt, error, response) => {
+          if (attempt > gatewayRetryAttempts) {
+            return false;
+          }
+
           // Retry on network errors
           if (error !== null) {
             return false;
