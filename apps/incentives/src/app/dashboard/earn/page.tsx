@@ -56,9 +56,15 @@ export default function EarnPage() {
           'provideBlueChipLiquidityToDex',
           'provideNativeLiquidityToDex',
           'provideStablesLiquidityToDex',
+          'provideXrdDerivativeLiquidityToDex',
         ].includes(activity.category)) ||
       (selectedType === 'lending' &&
-        ['lendingStables'].includes(activity.category)) ||
+        [
+          'lendingStables',
+          'lendingXrdDerivative',
+          'lendingNative',
+          'lendingBlueChips',
+        ].includes(activity.category)) ||
       (selectedType === 'network' &&
         ['componentCalls', 'transactionFees'].includes(activity.category));
 
@@ -92,10 +98,17 @@ export default function EarnPage() {
         'provideBlueChipLiquidityToDex',
         'provideNativeLiquidityToDex',
         'provideStablesLiquidityToDex',
+        'provideXrdDerivativeLiquidityToDex',
       ].includes(a.category),
     ).length,
-    lending: activities.filter((a) => ['lendingStables'].includes(a.category))
-      .length,
+    lending: activities.filter((a) =>
+      [
+        'lendingStables',
+        'lendingXrdDerivative',
+        'lendingNative',
+        'lendingBlueChips',
+      ].includes(a.category),
+    ).length,
     network: activities.filter((a) =>
       ['componentCalls', 'transactionFees'].includes(a.category),
     ).length,
