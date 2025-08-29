@@ -122,6 +122,16 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
             catch: (error) => new DbError(error),
           });
         }),
+        getMultipliersMap: Effect.fn(function* (weekId: string) {
+          const activityWeeksData = yield* getByWeekId(weekId);
+          return activityWeeksData.reduce(
+            (acc, item) => {
+              acc[item.activityId] = Number.parseFloat(item.multiplier);
+              return acc;
+            },
+            {} as Record<string, number>,
+          );
+        }),
       };
     }),
   },

@@ -22,6 +22,8 @@ import { ActivityWeekService } from '../activity-week/activityWeek';
 import { createDbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { WeekService } from '../week/week';
+import { ActivityDisplayService } from './activityDisplay';
+import { ActivityPointsAdjustmentService } from './activityPointsAdjustment';
 import { LeaderboardService } from './leaderboard';
 import { LeaderboardCacheService } from './leaderboardCache';
 
@@ -65,6 +67,17 @@ describe(
       Layer.provide(activityWeekServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
     );
+    const activityDisplayServiceLive = ActivityDisplayService.Default.pipe(
+      Layer.provide(dbLive),
+    );
+
+    const activityPointsAdjustmentServiceLive =
+      ActivityPointsAdjustmentService.Default.pipe(
+        Layer.provide(dbLive),
+        Layer.provide(activityWeekServiceLive),
+        Layer.provide(activityDisplayServiceLive),
+      );
+
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(weekLive),
@@ -72,6 +85,8 @@ describe(
       Layer.provide(activityCategoryServiceLive),
       Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(activityWeekServiceLive),
+      Layer.provide(activityDisplayServiceLive),
+      Layer.provide(activityPointsAdjustmentServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
     );
 
@@ -270,7 +285,7 @@ describe(
             {
               activityId: 'c9_trade_xrd-xusdc',
               activityName: 'c9_trade_xrd-xusdc',
-              points: '300',
+              points: '300.000000',
             },
           ],
         });

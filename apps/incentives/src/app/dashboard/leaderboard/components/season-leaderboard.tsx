@@ -4,9 +4,11 @@ import { useEffect, useState } from 'react';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { api } from '~/trpc/react';
 import { EmptyState } from './empty-state';
+import { LeaderboardBuildingState } from './leaderboard-building-state';
 import { LeaderboardContent } from './leaderboard-content';
 import { LoadingState } from './loading-state';
 import { SeasonSelector } from './season-selector';
+import { WeekInProgressState } from './week-in-progress-state';
 
 export function SeasonLeaderboard() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');
@@ -16,6 +18,12 @@ export function SeasonLeaderboard() {
   // Fetch available seasons
   const { data: seasons, isLoading: seasonsLoading } =
     api.leaderboard.getAvailableSeasons.useQuery();
+
+  // Fetch weeks for the selected season to check current week status
+  const { data: weeks } = api.leaderboard.getAvailableWeeks.useQuery(
+    { seasonId: selectedSeasonId },
+    { enabled: !!selectedSeasonId },
+  );
 
   // Set default season when seasons load and prefetch other seasons with cache
   useEffect(() => {
@@ -93,14 +101,48 @@ export function SeasonLeaderboard() {
       {leaderboardLoading ? (
         <LoadingState message="Loading leaderboard..." />
       ) : leaderboardError ? (
-        <EmptyState
-          message={
-            leaderboardError.data?.code === 'PRECONDITION_FAILED'
-              ? leaderboardError.message ||
-                'Leaderboard data is being processed. Please check back in a few minutes.'
-              : 'Failed to load leaderboard data. Please try again later.'
+        (() => {
+          const isPreconditionFailed =
+            leaderboardError.data?.code === 'PRECONDITION_FAILED';
+
+          if (isPreconditionFailed) {
+            // Check if we have weeks and if we're in the first week of the season
+            const now = new Date();
+            const sortedWeeks = weeks?.sort(
+              (a, b) => a.startDate.getTime() - b.startDate.getTime(),
+            );
+            const firstWeek = sortedWeeks?.[0];
+            const currentWeek = weeks?.find(
+              (week) => now >= week.startDate && now <= week.endDate,
+            );
+
+            // Show week in progress only if we're in the first week of the season
+            if (currentWeek && firstWeek && currentWeek.id === firstWeek.id) {
+              return (
+                <WeekInProgressState
+                  message="This season's leaderboard will be available after the first week ends."
+                  weekStart={currentWeek.startDate}
+                  weekEnd={currentWeek.endDate}
+                />
+              );
+            }
+
+            // Otherwise it's just being built (for subsequent weeks or other cases)
+            return (
+              <LeaderboardBuildingState
+                message={
+                  leaderboardError.message ||
+                  'Season leaderboard data is being processed. Please check back in a few minutes.'
+                }
+                title="Season Leaderboard Being Built"
+              />
+            );
           }
-        />
+
+          return (
+            <EmptyState message="Failed to load leaderboard data. Please try again later." />
+          );
+        })()
       ) : leaderboardData ? (
         <LeaderboardContent
           topUsers={leaderboardData.topUsers}
