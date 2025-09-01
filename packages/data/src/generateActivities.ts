@@ -32,6 +32,7 @@ type DexPool = {
   poolType: (typeof PoolType)['DEX'];
   tokens: [string, string] | [string];
   componentAddress: string;
+  metadata?: Record<string, string>;
 };
 
 type LendingPool = {
@@ -45,39 +46,92 @@ type Pool = DexPool | LendingPool;
 
 const outputPath = path.join(import.meta.dirname, 'output', 'activities.ts');
 
+// c9 shape liquidity LP: https://www.caviarnine.com/earn/shape-liquidity/pool/${componentAddress}
+// c9 simple pool LP: https://www.caviarnine.com/earn/simple-pool/${componentAddress}
+
 const allCaviarNinePools = [
-  ...Object.values(CaviarNineConstants.shapeLiquidityPools),
-  ...Object.values(CaviarNineConstants.simplePools),
-  CaviarNineConstants.HLP,
+  ...Object.values(CaviarNineConstants.shapeLiquidityPools).map((pool) => ({
+    ...pool,
+    metadata: {
+      type: 'shapeLiquidity',
+      url: `https://www.caviarnine.com/earn/shape-liquidity/pool/${pool.componentAddress}`,
+    },
+  })),
+  ...Object.values(CaviarNineConstants.simplePools).map((pool) => ({
+    ...pool,
+    metadata: {
+      type: 'simplePool',
+      url: `https://www.caviarnine.com/earn/simple-pool/${pool.componentAddress}`,
+    },
+  })),
+  {
+    ...CaviarNineConstants.HLP,
+    metadata: {
+      type: 'hyperstakePool',
+      url: `https://www.caviarnine.com/earn/hyper-stake`,
+    },
+  },
 ].map(
   (pool): DexPool => ({
     dAppId: DappId.caviarnine,
     poolType: PoolType.DEX,
     tokens: [pool.token_x, pool.token_y],
     componentAddress: pool.componentAddress,
+    metadata: pool.metadata,
   }),
 );
 
+// oci https://ociswap.com/pools/${componentAddress}
 const allOciswapPools = [
-  ...Object.values(OciswapConstants.basicPools),
-  ...Object.values(OciswapConstants.flexPools),
-  ...Object.values(OciswapConstants.pools),
-  ...Object.values(OciswapConstants.poolsV2),
+  ...Object.values(OciswapConstants.flexPools).map((pool) => ({
+    ...pool,
+    metadata: {
+      type: 'flexPool',
+      url: `https://ociswap.com/pools/${pool.componentAddress}`,
+    },
+  })),
+  ...Object.values(OciswapConstants.pools).map((pool) => ({
+    ...pool,
+    metadata: {
+      type: 'pool',
+      url: `https://ociswap.com/pools/${pool.componentAddress}`,
+    },
+  })),
+  ...Object.values(OciswapConstants.poolsV2).map((pool) => ({
+    ...pool,
+    metadata: {
+      type: 'poolV2',
+      url: `https://ociswap.com/pools/${pool.componentAddress}`,
+    },
+  })),
+  ...Object.values(OciswapConstants.basicPools).map((pool) => ({
+    ...pool,
+    metadata: {
+      type: 'basicPool',
+      url: `https://ociswap.com/pools/${pool.componentAddress}`,
+    },
+  })),
 ].map(
   (pool): DexPool => ({
     dAppId: DappId.ociswap,
     poolType: PoolType.DEX,
     tokens: [pool.token_x, pool.token_y],
     componentAddress: pool.componentAddress,
+    metadata: pool.metadata,
   }),
 );
 
+// defi plaza https://radix.defiplaza.net/liquidity/add/${baseResourceAddress}?direction=base
+// defi plaza https://radix.defiplaza.net/liquidity/add/${quoteResourceAddress}?direction=quote
 const allDefiPlazaPools = [...Object.values(DefiPlazaConstants)].map(
   (pool): DexPool => ({
     dAppId: DappId.defiPlaza,
     poolType: PoolType.DEX,
     tokens: [pool.baseResourceAddress, pool.quoteResourceAddress],
     componentAddress: pool.componentAddress,
+    metadata: {
+      url: `https://radix.defiplaza.net/liquidity/add/${pool.baseResourceAddress}?direction=base`,
+    },
   }),
 );
 
@@ -87,6 +141,9 @@ const allSurgePools = [
     poolType: PoolType.DEX,
     tokens: [SurgeConstants.sUSD.resourceAddress],
     componentAddress: SurgeConstants.marginPool.componentAddress,
+    metadata: {
+      url: `https://www.surge.trade/liquidity`,
+    },
   } satisfies DexPool,
 ];
 
@@ -165,6 +222,8 @@ const deriveActivities = (
 ) => {
   const { dAppId, tokenPair, assets, componentAddress, poolType } = input;
 
+  const metadata = poolType === PoolType.DEX ? input.metadata : undefined;
+
   const action = deriveActionFromPool(input);
 
   return assets.flatMap((asset) => {
@@ -190,6 +249,7 @@ const deriveActivities = (
       dAppId: DappId;
       tokenPair: string;
       assets: TokenDetails[];
+      metadata?: Record<string, string>;
     }[] = [
       {
         categoryId: assetTypeToCategoryId(asset.assetType, poolType),
@@ -199,6 +259,7 @@ const deriveActivities = (
         tokenPair,
         assets: [asset],
         action,
+        metadata,
       },
     ];
 
@@ -383,6 +444,9 @@ const runnable = Effect.gen(function* () {
           .map((item) => item.componentAddress)
           .filter((item) => !!item),
       );
+
+      if (firstActivity.activityId === 'oc_tr_ilis-xrd') {
+      }
 
       const { componentAddress, ...activityWithoutSingularComponentAddress } =
         firstActivity;

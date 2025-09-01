@@ -108,7 +108,7 @@ export const OciswapConstants = {
     ILIS_XRD: {
       name: 'ILIS/XRD',
       componentAddress:
-        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+        'component_rdx1czfuwcgnn7dxjjmz9zcacr347ahkuguz7vr9mcdkmywldg0f7qlylp',
       poolAddress:
         'pool_rdx1ck0daslg9anw64t5ytq0g4svmuj85jwvrrhgz2005exh8gt6qxle4w',
       lpResourceAddress:

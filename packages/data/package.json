@@ -14,6 +14,7 @@
   "scripts": {
     "verify:activities": "tsx ./src/verifyActivity.ts",
     "generate": "tsx ./src/generateActivities.ts",
+    "generate:inspect": "tsx --inspect-brk ./src/generateActivities.ts",
     "generate:watch": "tsx --watch ./src/generateActivities.ts"
   }
 }
