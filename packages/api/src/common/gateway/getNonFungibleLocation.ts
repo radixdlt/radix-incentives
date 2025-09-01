@@ -1,12 +1,12 @@
 import { Config, Effect } from 'effect';
 import { chunker } from '../helpers';
-import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 import type { AtLedgerState } from './schemas';
 
 export class GetNonFungibleLocationService extends Effect.Service<GetNonFungibleLocationService>()(
   'GetNonFungibleLocationService',
   {
+    dependencies: [GatewayApiClientService.Default],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
       const pageSize = yield* Config.number(
@@ -21,16 +21,12 @@ export class GetNonFungibleLocationService extends Effect.Service<GetNonFungible
         return yield* Effect.forEach(
           chunks,
           Effect.fn(function* (nonFungibleIds) {
-            return yield* Effect.tryPromise({
-              try: () =>
-                gatewayClient.state.innerClient.nonFungibleLocation({
-                  stateNonFungibleLocationRequest: {
-                    non_fungible_ids: nonFungibleIds,
-                    resource_address: input.resourceAddress,
-                    at_ledger_state: input.at_ledger_state,
-                  },
-                }),
-              catch: (error) => new GatewayError({ error }),
+            return yield* gatewayClient.state.innerClient.nonFungibleLocation({
+              stateNonFungibleLocationRequest: {
+                non_fungible_ids: nonFungibleIds,
+                resource_address: input.resourceAddress,
+                at_ledger_state: input.at_ledger_state,
+              },
             });
           }),
         ).pipe(Effect.map((res) => res.flat()));

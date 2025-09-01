@@ -35,6 +35,15 @@ export class InvalidInputError extends Data.TaggedError('InvalidInputError')<{
 export class SnapshotService extends Effect.Service<SnapshotService>()(
   'SnapshotService',
   {
+    dependencies: [
+      GetLedgerStateService.Default,
+      GetAccountBalancesAtStateVersionService.Default,
+      GetAccountAddressesService.Default,
+      UpsertAccountBalancesService.Default,
+      AggregateAccountBalanceService.Default,
+      GetAllValidatorsService.Default,
+      ConfigService.Default,
+    ],
     effect: Effect.gen(function* () {
       const getLedgerState = yield* GetLedgerStateService;
       const getAccountBalancesAtStateVersion =

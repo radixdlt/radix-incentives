@@ -25,6 +25,7 @@ export class EntityDetailsNotFoundError {
 export class ConvertLsuToXrdService extends Effect.Service<ConvertLsuToXrdService>()(
   'ConvertLsuToXrdService',
   {
+    dependencies: [GetEntityDetailsService.Default],
     effect: Effect.gen(function* () {
       const getEntityDetails = yield* GetEntityDetailsService;
       return Effect.fn(function* (input: {
