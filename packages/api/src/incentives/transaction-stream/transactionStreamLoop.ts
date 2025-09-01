@@ -24,6 +24,16 @@ import {
 export class TransactionStreamLoopService extends Effect.Service<TransactionStreamLoopService>()(
   'TransactionStreamLoopService',
   {
+    dependencies: [
+      TransactionStreamService.Default,
+      ConfigService.Default,
+      FilterTransactionsService.Default,
+      AddEventsToDbService.Default,
+      AddToEventQueueService.Default,
+      AddTransactionFeeService.Default,
+      AddComponentCallsService.Default,
+      ProcessSwapEventTradingVolumeService.Default,
+    ],
     effect: Effect.gen(function* () {
       const transactionStreamService = yield* TransactionStreamService;
       const configService = yield* ConfigService;
