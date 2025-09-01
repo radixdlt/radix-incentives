@@ -138,6 +138,24 @@ export type GetAccountBalancesAtStateVersionInput = z.infer<
 export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetAccountBalancesAtStateVersionService>()(
   'GetAccountBalancesAtStateVersionService',
   {
+    dependencies: [
+      GetFungibleBalanceService.Default,
+      GetNonFungibleBalanceService.Default,
+      GetLsulpService.Default,
+      GetUserStakingPositionsService.Default,
+      GetLedgerStateService.Default,
+      GetLsulpValueService.Default,
+      GetShapeLiquidityAssetsService.Default,
+      GetOciswapLiquidityAssetsService.Default,
+      GetDefiPlazaPositionsService.Default,
+      GetHyperstakePositionsService.Default,
+      GetSurgeLiquidityPositionsService.Default,
+      GetOciswapResourcePoolPositionsService.Default,
+      GetCaviarnineResourcePoolPositionsService.Default,
+      ConvertLsuToXrdService.Default,
+      GetWeftFinancePositionsService.Default,
+      GetRootFinancePositionsService.Default,
+    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;

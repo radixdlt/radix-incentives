@@ -1,7 +1,7 @@
 import { inject, it } from '@effect/vitest';
 import { schema } from 'db/incentives';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { Effect, Layer, Ref } from 'effect';
+import { ConfigProvider, Effect, Layer, Ref } from 'effect';
 import postgres from 'postgres';
 import { describe, expect } from 'vitest';
 import {
@@ -88,6 +88,11 @@ describe('transactionStreamState', () => {
       Effect.provideService(
         TransactionStreamLoopState,
         sharedTransactionStreamState,
+      ),
+      Effect.withConfigProvider(
+        ConfigProvider.fromJson({
+          DATABASE_URL: inject('testDbUrl'),
+        }),
       ),
     ),
   );

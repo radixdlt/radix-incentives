@@ -17,6 +17,7 @@ export type GetAddressByNonFungibleServiceInput = {
 export class GetAddressByNonFungibleService extends Effect.Service<GetAddressByNonFungibleService>()(
   'GetAddressByNonFungibleService',
   {
+    dependencies: [GetNonFungibleLocationService.Default],
     effect: Effect.gen(function* () {
       const getNonFungibleLocationService =
         yield* GetNonFungibleLocationService;

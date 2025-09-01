@@ -29,6 +29,10 @@ type AccountAddress = string;
 export class GetDefiPlazaPositionsService extends Effect.Service<GetDefiPlazaPositionsService>()(
   'GetDefiPlazaPositionsService',
   {
+    dependencies: [
+      GetFungibleBalanceService.Default,
+      GetResourcePoolUnitsService.Default,
+    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
 

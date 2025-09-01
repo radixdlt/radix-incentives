@@ -1,33 +1,25 @@
 import { accounts } from 'db/consultation';
 import { lte } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbService } from '../db/dbClient';
 
 type GetAccountsInput = {
   createdAt: Date;
 };
 
-export class GetAccountAddressesService extends Context.Tag(
+export class GetAccountAddressesService extends Effect.Service<GetAccountAddressesService>()(
   'GetAccountAddressesService',
-)<
-  GetAccountAddressesService,
-  (input: GetAccountsInput) => Effect.Effect<string[], DbError>
->() {}
-
-export const GetAccountAddressesLive = Layer.effect(
-  GetAccountAddressesService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) =>
-      Effect.tryPromise({
-        try: () =>
-          db
-            .select({ address: accounts.address })
-            .from(accounts)
-            .where(lte(accounts.createdAt, input.createdAt))
-            .then((res) => res.map((r) => r.address)),
-        catch: (error) => new DbError(error),
+  {
+    dependencies: [DbService.Default],
+    effect: Effect.gen(function* () {
+      const db = yield* DbService;
+      return Effect.fn(function* (input: GetAccountsInput) {
+        return yield* db
+          .select({ address: accounts.address })
+          .from(accounts)
+          .where(lte(accounts.createdAt, input.createdAt))
+          .pipe(Effect.map((res) => res.map((r) => r.address)));
       });
-  }),
-);
+    }),
+  },
+) {}
