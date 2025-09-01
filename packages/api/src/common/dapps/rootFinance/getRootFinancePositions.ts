@@ -75,10 +75,6 @@ type Value = string;
 export class GetRootFinancePositionsService extends Effect.Service<GetRootFinancePositionsService>()(
   'GetRootFinancePositionsService',
   {
-    dependencies: [
-      GetNonFungibleBalanceService.Default,
-      GetKeyValueStoreService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
       const getKeyValueStoreService = yield* GetKeyValueStoreService;

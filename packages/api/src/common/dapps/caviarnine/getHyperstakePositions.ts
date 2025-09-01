@@ -24,10 +24,6 @@ type AccountAddress = string;
 export class GetHyperstakePositionsService extends Effect.Service<GetHyperstakePositionsService>()(
   'GetHyperstakePositionsService',
   {
-    dependencies: [
-      GetFungibleBalanceService.Default,
-      GetResourcePoolUnitsService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;

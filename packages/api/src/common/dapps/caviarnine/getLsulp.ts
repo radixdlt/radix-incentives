@@ -12,7 +12,6 @@ const CaviarNineConstants = DappConstants.CaviarNine.constants;
 export class GetLsulpService extends Effect.Service<GetLsulpService>()(
   'GetLsulpService',
   {
-    dependencies: [GetFungibleBalanceService.Default],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       return Effect.fn(function* (input: {

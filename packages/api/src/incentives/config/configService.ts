@@ -2,7 +2,7 @@ import { config } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Cache, Duration, Effect } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
-import { DbService } from '../db/dbClient';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const TransactionStreamStateKeys = {
   Initializing: 'INITIALIZING',
@@ -18,14 +18,15 @@ export type TransactionStreamStateKeys =
 export class ConfigService extends Effect.Service<ConfigService>()(
   'ConfigService',
   {
-    dependencies: [GetLedgerStateService.Default, DbService.Default],
     effect: Effect.gen(function* () {
-      const dbClient = yield* DbService;
+      const dbClient = yield* DbClientService;
       const getLedgerStateService = yield* GetLedgerStateService;
 
       const getConfigFromDb = Effect.fn(function* <T = unknown>(key: string) {
-        const result = yield* dbClient.query.config.findFirst({
-          where: eq(config.key, key),
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            dbClient.query.config.findFirst({ where: eq(config.key, key) }),
+          catch: (error) => new DbError(error),
         });
 
         const value = result?.value as T | undefined;
@@ -40,13 +41,17 @@ export class ConfigService extends Effect.Service<ConfigService>()(
       });
 
       const setConfig = Effect.fn(function* (key: string, value: unknown) {
-        yield* dbClient
-          .insert(config)
-          .values({ key, value })
-          .onConflictDoUpdate({
-            target: [config.key],
-            set: { value },
-          });
+        yield* Effect.tryPromise({
+          try: () =>
+            dbClient
+              .insert(config)
+              .values({ key, value })
+              .onConflictDoUpdate({
+                target: [config.key],
+                set: { value },
+              }),
+          catch: (error) => new DbError(error),
+        });
         yield* configCache.invalidate(key);
       });
 

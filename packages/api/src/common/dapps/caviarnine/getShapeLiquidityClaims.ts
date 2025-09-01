@@ -19,7 +19,6 @@ const liquidityReceiptSchema = s.struct({
 export class GetShapeLiquidityClaimsService extends Effect.Service<GetShapeLiquidityClaimsService>()(
   'GetShapeLiquidityClaimsService',
   {
-    dependencies: [EntityNonFungibleDataService.Default],
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
 

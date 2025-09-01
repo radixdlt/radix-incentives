@@ -2,6 +2,7 @@ export * from './checkAccountPersistence';
 export * from './entityFungiblesPage';
 export * from './entityNonFungiblesData';
 export * from './entityNonFungiblesPage';
+export * from './errors';
 export * from './gatewayApiClient';
 export * from './getAddressByNonFungible';
 export * from './getAllValidators';

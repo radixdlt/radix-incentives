@@ -16,7 +16,6 @@ export type AggregateCaviarninePositionsInput = {
 export class AggregateCaviarninePositionsService extends Effect.Service<AggregateCaviarninePositionsService>()(
   'AggregateCaviarninePositionsService',
   {
-    dependencies: [AggregatePoolPositionsService.Default],
     effect: Effect.gen(function* () {
       const aggregatePoolPositionsService =
         yield* AggregatePoolPositionsService;

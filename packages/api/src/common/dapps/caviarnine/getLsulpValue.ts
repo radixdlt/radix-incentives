@@ -23,7 +23,6 @@ export class InvalidEntityAddressError {
 export class GetLsulpValueService extends Effect.Service<GetLsulpValueService>()(
   'GetLsulpValueService',
   {
-    dependencies: [GetFungibleBalanceService.Default],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       return Effect.fn(function* (input: { at_ledger_state: AtLedgerState }) {

@@ -18,11 +18,6 @@ import { claimNftSchema } from './schema';
 export class GetUserStakingPositionsService extends Effect.Service<GetUserStakingPositionsService>()(
   'GetUserStakingPositionsService',
   {
-    dependencies: [
-      GetNonFungibleBalanceService.Default,
-      GetFungibleBalanceService.Default,
-      GetAllValidatorsService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;

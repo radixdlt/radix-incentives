@@ -19,15 +19,6 @@ export type AggregateAccountBalanceOutput = AccountBalance;
 export class AggregateAccountBalanceService extends Effect.Service<AggregateAccountBalanceService>()(
   'AggregateAccountBalanceService',
   {
-    dependencies: [
-      AggregateCaviarninePositionsService.Default,
-      AggregateOciswapPositionsService.Default,
-      XrdBalanceService.Default,
-      AggregateWeftFinancePositionsService.Default,
-      AggregateRootFinancePositionsService.Default,
-      AggregateDefiPlazaPositionsService.Default,
-      AggregateSurgePositionsService.Default,
-    ],
     effect: Effect.gen(function* () {
       const aggregateCaviarninePositionsService =
         yield* AggregateCaviarninePositionsService;

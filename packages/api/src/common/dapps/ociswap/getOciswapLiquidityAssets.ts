@@ -32,11 +32,6 @@ export type OciswapLiquidityAsset = {
 export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapLiquidityAssetsService>()(
   'GetOciswapLiquidityAssetsService',
   {
-    dependencies: [
-      GetComponentStateService.Default,
-      GetOciswapLiquidityClaimsService.Default,
-      GetNonFungibleBalanceService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getComponentStateService = yield* GetComponentStateService;
       const getOciswapLiquidityClaimsService =

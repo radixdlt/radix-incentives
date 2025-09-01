@@ -1,5 +1,6 @@
 import { Effect } from 'effect';
 import { z } from 'zod';
+import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 
 export const ValidatorSchema = z.object({
@@ -14,11 +15,13 @@ export type Validator = z.infer<typeof ValidatorSchema>;
 export class GetAllValidatorsService extends Effect.Service<GetAllValidatorsService>()(
   'GetAllValidatorsService',
   {
-    dependencies: [GatewayApiClientService.Default],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
       return Effect.fn(function* () {
-        const result = yield* gatewayClient.state.getValidators();
+        const result = yield* Effect.tryPromise({
+          try: () => gatewayClient.state.getValidators(),
+          catch: (error) => new GatewayError({ error }),
+        });
 
         return result.items.map((item) => {
           const address = item.address;

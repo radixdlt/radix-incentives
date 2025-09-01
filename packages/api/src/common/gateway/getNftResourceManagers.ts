@@ -6,6 +6,7 @@ import type {
 import { Config, Effect } from 'effect';
 import { chunker } from '../helpers/chunker';
 import { EntityNonFungiblesPageService } from './entityNonFungiblesPage';
+import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 
 import { GetNonFungibleIdsService } from './getNonFungibleIds';
@@ -21,11 +22,6 @@ type GetNftResourceManagersInput = {
 export class GetNftResourceManagersService extends Effect.Service<GetNftResourceManagersService>()(
   'GetNftResourceManagersService',
   {
-    dependencies: [
-      GatewayApiClientService.Default,
-      EntityNonFungiblesPageService.Default,
-      GetNonFungibleIdsService.Default,
-    ],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
       const entityNonFungiblesPageService =
@@ -63,17 +59,19 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
         optIns: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
         at_ledger_state: AtLedgerState;
       }) =>
-        gatewayClient.state.innerClient
-          .entityNonFungibleResourceVaultPage({
-            stateEntityNonFungibleResourceVaultsPageRequest: {
-              address,
-              opt_ins: optIns,
-              at_ledger_state,
-              cursor,
-              resource_address,
-            },
-          })
-          .pipe(Effect.withSpan('entityNonFungibleResourceVaultPage'));
+        Effect.tryPromise({
+          try: () =>
+            gatewayClient.state.innerClient.entityNonFungibleResourceVaultPage({
+              stateEntityNonFungibleResourceVaultsPageRequest: {
+                address,
+                opt_ins: optIns,
+                at_ledger_state,
+                cursor,
+                resource_address,
+              },
+            }),
+          catch: (error) => new GatewayError({ error }),
+        }).pipe(Effect.withSpan('entityNonFungibleResourceVaultPage'));
 
       const getNftIds = Effect.fn(function* ({
         resourceManager,
@@ -141,12 +139,19 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
           const results = yield* Effect.forEach(
             chunker(addresses, stateEntityDetailsPageSize),
             Effect.fn(function* (addresses) {
-              return yield* gatewayClient.state.innerClient.stateEntityDetails({
-                stateEntityDetailsRequest: {
-                  addresses,
-                  opt_ins: optIns,
-                  at_ledger_state,
-                  aggregation_level: AGGREGATION_LEVEL,
+              return yield* Effect.tryPromise({
+                try: () =>
+                  gatewayClient.state.innerClient.stateEntityDetails({
+                    stateEntityDetailsRequest: {
+                      addresses,
+                      opt_ins: optIns,
+                      at_ledger_state,
+                      aggregation_level: AGGREGATION_LEVEL,
+                    },
+                  }),
+                catch: (error) => {
+                  console.error(JSON.stringify(error, null, 2));
+                  return new GatewayError({ error });
                 },
               });
             }),

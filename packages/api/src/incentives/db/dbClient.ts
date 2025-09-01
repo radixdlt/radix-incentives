@@ -3,34 +3,9 @@ import { PgClient } from '@effect/sql-pg';
 import type { Db, ReadOnlyDb, schema } from 'db/incentives';
 import { Config, Context, Effect, Layer } from 'effect';
 
-class ReadOnly extends Context.Tag('ReadOnly')<
-  ReadOnly,
-  ReturnType<typeof PgClient.layerConfig> | undefined
->() {}
-
 const PgLive = PgClient.layerConfig({
   url: Config.redacted('DATABASE_URL'),
 });
-
-const PgReadOnlyLive = Layer.effect(
-  ReadOnly,
-  Effect.gen(function* () {
-    const url = Config.redacted('DATABASE_READ_URL').pipe(
-      Config.withDefault(undefined),
-    );
-
-    if (!(yield* url)) {
-      yield* Effect.logWarning(
-        'DATABASE_READ_URL is not set, using primary database',
-      );
-      return PgLive;
-    }
-
-    return PgClient.layerConfig({
-      url,
-    });
-  }),
-);
 
 export class DbError extends Error {
   _tag = 'DbError';
@@ -54,22 +29,12 @@ export class DbReadOnlyClientService extends Context.Tag(
 export const createDbReadOnlyClientLive = (readOnlyDb: ReadOnlyDb) =>
   Layer.effect(DbReadOnlyClientService, Effect.succeed(readOnlyDb));
 
-export class DbService extends Effect.Service<DbService>()('DbService', {
-  dependencies: [PgLive],
-  effect: Effect.gen(function* () {
-    const db = yield* PgDrizzle.make<typeof schema>();
-
-    return db;
-  }),
-}) {}
-
-export class DbReadOnlyService extends Effect.Service<DbReadOnlyService>()(
-  'DbReadOnlyService',
+export class DrizzleDbService extends Effect.Service<DrizzleDbService>()(
+  'DrizzleDbService',
   {
-    dependencies: [PgReadOnlyLive],
+    dependencies: [PgLive],
     effect: Effect.gen(function* () {
       const db = yield* PgDrizzle.make<typeof schema>();
-
       return db;
     }),
   },

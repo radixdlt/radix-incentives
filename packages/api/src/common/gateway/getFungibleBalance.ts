@@ -6,6 +6,7 @@ import { BigNumber } from 'bignumber.js';
 import { Config, Effect } from 'effect';
 import { chunker } from '../helpers/chunker';
 import { EntityFungiblesPageService } from './entityFungiblesPage';
+import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 
 import type { AtLedgerState } from './schemas';
@@ -17,10 +18,6 @@ export type GetFungibleBalanceOutput = Effect.Effect.Success<
 export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalanceService>()(
   'GetFungibleBalanceService',
   {
-    dependencies: [
-      GatewayApiClientService.Default,
-      EntityFungiblesPageService.Default,
-    ],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
 
@@ -105,15 +102,18 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
         const stateEntityDetailsResults = yield* Effect.forEach(
           chunker(input.addresses, stateEntityDetailsPageSize),
           Effect.fn(function* (addresses) {
-            const stateEntityDetailsResult =
-              yield* gatewayClient.state.innerClient.stateEntityDetails({
-                stateEntityDetailsRequest: {
-                  addresses,
-                  opt_ins: input.options,
-                  at_ledger_state: input.at_ledger_state,
-                  aggregation_level: aggregationLevel,
-                },
-              });
+            const stateEntityDetailsResult = yield* Effect.tryPromise({
+              try: () =>
+                gatewayClient.state.innerClient.stateEntityDetails({
+                  stateEntityDetailsRequest: {
+                    addresses,
+                    opt_ins: input.options,
+                    at_ledger_state: input.at_ledger_state,
+                    aggregation_level: aggregationLevel,
+                  },
+                }),
+              catch: (error) => new GatewayError({ error }),
+            });
 
             return stateEntityDetailsResult.items;
           }),
