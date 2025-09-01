@@ -13,7 +13,6 @@ export type AggregateSurgePositionsOutput = AccountBalanceData;
 export class AggregateSurgePositionsService extends Effect.Service<AggregateSurgePositionsService>()(
   'AggregateSurgePositionsService',
   {
-    dependencies: [GetUsdValueService.Default],
     effect: Effect.gen(function* () {
       const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
         Config.withDefault(false),

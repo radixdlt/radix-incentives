@@ -26,10 +26,6 @@ export type GetResourcePoolOutput = Effect.Effect.Success<
 export class GetResourcePoolUnitsService extends Effect.Service<GetResourcePoolUnitsService>()(
   'GetResourcePoolUnitsService',
   {
-    dependencies: [
-      GetFungibleBalanceService.Default,
-      GetEntityDetailsService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getEntityDetailsService = yield* GetEntityDetailsService;

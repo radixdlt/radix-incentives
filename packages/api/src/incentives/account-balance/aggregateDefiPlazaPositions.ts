@@ -19,7 +19,6 @@ type DefiPlazaPositions = AccountBalanceFromSnapshot['defiPlazaPositions'];
 export class AggregateDefiPlazaPositionsService extends Effect.Service<AggregateDefiPlazaPositionsService>()(
   'AggregateDefiPlazaPositionsService',
   {
-    dependencies: [AggregatePoolPositionsService.Default],
     effect: Effect.gen(function* () {
       const aggregatePoolPositionsService =
         yield* AggregatePoolPositionsService;

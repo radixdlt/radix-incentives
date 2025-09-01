@@ -24,10 +24,6 @@ export type GetNonFungibleBalanceOutput = Effect.Effect.Success<
 export class GetNonFungibleBalanceService extends Effect.Service<GetNonFungibleBalanceService>()(
   'GetNonFungibleBalanceService',
   {
-    dependencies: [
-      EntityNonFungibleDataService.Default,
-      GetNftResourceManagersService.Default,
-    ],
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
       const getNftResourceManagersService =

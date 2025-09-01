@@ -8,7 +8,10 @@ import { GetResourcePoolUnitsService } from '../../resource-pool/getResourcePool
 import { deserializeBigNumber } from '../../utils/deserializeBigNumber';
 import { fungibleBalance } from './fixtures/fungibleBalance';
 import { pools } from './fixtures/pools';
-import { GetDefiPlazaPositionsService } from './getDefiPlazaPositions';
+import {
+  GetDefiPlazaPositionsLive,
+  GetDefiPlazaPositionsService,
+} from './getDefiPlazaPositions';
 
 const gatewayApiClientLive = GatewayApiClientLive;
 
@@ -16,10 +19,9 @@ const getEntityDetailsServiceLive = GetEntityDetailsService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
 );
 
-const getDefiPlazaPositionsLive =
-  GetDefiPlazaPositionsService.DefaultWithoutDependencies.pipe(
-    Layer.provide(getEntityDetailsServiceLive),
-  );
+const getDefiPlazaPositionsLive = GetDefiPlazaPositionsLive.pipe(
+  Layer.provide(getEntityDetailsServiceLive),
+);
 
 describe('GetDefiPlazaPositionsService', () => {
   it.effect(

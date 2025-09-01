@@ -6,10 +6,6 @@ import type { AtLedgerState } from './schemas';
 export class GetKeyValueStoreService extends Effect.Service<GetKeyValueStoreService>()(
   'GetKeyValueStoreService',
   {
-    dependencies: [
-      KeyValueStoreKeysService.Default,
-      KeyValueStoreDataService.Default,
-    ],
     effect: Effect.gen(function* () {
       const keyValueStoreKeysService = yield* KeyValueStoreKeysService;
       const keyValueStoreDataService = yield* KeyValueStoreDataService;

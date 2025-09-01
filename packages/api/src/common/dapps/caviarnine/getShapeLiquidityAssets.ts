@@ -36,12 +36,6 @@ export type ShapeLiquidityAsset = {
 export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiquidityAssetsService>()(
   'GetShapeLiquidityAssetsService',
   {
-    dependencies: [
-      GetComponentStateService.Default,
-      GetQuantaSwapBinMapService.Default,
-      GetShapeLiquidityClaimsService.Default,
-      GetNonFungibleBalanceService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getComponentStateService = yield* GetComponentStateService;
       const getQuantaSwapBinMapService = yield* GetQuantaSwapBinMapService;

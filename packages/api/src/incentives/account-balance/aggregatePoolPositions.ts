@@ -14,7 +14,6 @@ import { groupBy } from 'effect/Array';
 
 import {
   AddressValidationService,
-  AddressValidationServiceLive,
   CONSTANT_PRODUCT_MULTIPLIER,
 } from '../../common/address-validation/addressValidation';
 import { GetUsdValueService } from '../token-price/getUsdValue';
@@ -37,7 +36,6 @@ export type LpPosition = {
 export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolPositionsService>()(
   'AggregatePoolPositionsService',
   {
-    dependencies: [GetUsdValueService.Default, AddressValidationServiceLive],
     effect: Effect.gen(function* () {
       const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(
         Config.withDefault(false),

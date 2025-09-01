@@ -247,7 +247,6 @@ export type XrdBalanceOutput = Effect.Effect.Success<
 export class XrdBalanceService extends Effect.Service<XrdBalanceService>()(
   'XrdBalanceService',
   {
-    dependencies: [GetUsdValueService.Default],
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
 

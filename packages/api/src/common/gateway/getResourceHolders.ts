@@ -1,11 +1,11 @@
 import type { ResourceHoldersCollectionItem } from '@radixdlt/babylon-gateway-api-sdk';
 import { Effect } from 'effect';
+import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 
 export class GetResourceHoldersService extends Effect.Service<GetResourceHoldersService>()(
   'GetResourceHoldersService',
   {
-    dependencies: [GatewayApiClientService.Default],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
 
@@ -13,10 +13,16 @@ export class GetResourceHoldersService extends Effect.Service<GetResourceHolders
         resourceAddress: string;
         cursor?: string;
       }) {
-        return yield* gatewayClient.extensions.getResourceHolders(
-          input.resourceAddress,
-          input.cursor,
-        );
+        return yield* Effect.tryPromise({
+          try: () =>
+            gatewayClient.extensions.getResourceHolders(
+              input.resourceAddress,
+              input.cursor,
+            ),
+          catch: (error) => {
+            return new GatewayError({ error });
+          },
+        });
       });
 
       return Effect.fn(function* (input: {

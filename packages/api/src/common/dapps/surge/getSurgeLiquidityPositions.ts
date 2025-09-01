@@ -34,10 +34,6 @@ export type GetSurgeLiquidityPositionsOutput = {
 export class GetSurgeLiquidityPositionsService extends Effect.Service<GetSurgeLiquidityPositionsService>()(
   'GetSurgeLiquidityPositionsService',
   {
-    dependencies: [
-      GetFungibleBalanceService.Default,
-      GetComponentStateService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getComponentStateService = yield* GetComponentStateService;

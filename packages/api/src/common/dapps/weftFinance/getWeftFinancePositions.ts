@@ -73,12 +73,6 @@ export type GetWeftFinancePositionsOutput = Effect.Effect.Success<
 export class GetWeftFinancePositionsService extends Effect.Service<GetWeftFinancePositionsService>()(
   'GetWeftFinancePositionsService',
   {
-    dependencies: [
-      GetFungibleBalanceService.Default,
-      GetComponentStateService.Default,
-      GetKeyValueStoreService.Default,
-      UnstakingReceiptProcessorService.Default,
-    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getComponentStateService = yield* GetComponentStateService;
