@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
-import {
+import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk';
+import { Context, Effect, Layer } from 'effect';
+import type {
   createTransactionStream,
-  type TransactionStream,
+  TransactionStream,
 } from 'radix-transaction-stream';
-import { createRadixNetworkClient } from 'radix-web3.js';
 
 type TransformTransactionResultOutput = ReturnType<
   Awaited<ReturnType<TransactionStream['next']>>['_unsafeUnwrap']
@@ -24,10 +24,25 @@ class UnknownTransactionStreamError {
   constructor(readonly error: unknown) {}
 }
 
-export class TransactionStreamService extends Effect.Service<TransactionStreamService>()(
-  'TransactionStreamService',
-  {
-    effect: Effect.gen(function* () {
+export class TransactionStreamService extends Context.Tag('TransactionStream')<
+  TransactionStreamService,
+  (stateVersion: number) => Effect.Effect<
+    {
+      transactions: CommittedTransactionInfo[];
+      stateVersion: number;
+    },
+    | StateVersionBeyondEndOfKnownLedgerError
+    | RateLimitedError
+    | UnknownTransactionStreamError
+  >
+>() {}
+
+export const TransactionStreamLive = (
+  transactionStreamClient: ReturnType<typeof createTransactionStream>,
+) =>
+  Layer.effect(
+    TransactionStreamService,
+    Effect.gen(function* () {
       let backoffMs = 1000;
       const MAX_BACKOFF_MS = 30000;
 
@@ -35,101 +50,88 @@ export class TransactionStreamService extends Effect.Service<TransactionStreamSe
         backoffMs = 1000;
       };
 
-      const transactionStreamClient = createTransactionStream({
-        gatewayApi: createRadixNetworkClient({
-          networkId: 1,
-        }),
-        optIns: {
-          detailed_events: true,
-          balance_changes: true,
-          manifest_instructions: true,
-        },
-        startStateVersion: 1,
-      });
+      return (stateVersion: number) =>
+        Effect.gen(function* () {
+          const exponentialBackoff = () => {
+            console.log(`sleeping for ${backoffMs}ms`);
+            return Effect.sleep(backoffMs).pipe(
+              Effect.tap(() => {
+                console.log('waking up');
+                backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF_MS);
+              }),
 
-      return Effect.fn(function* (stateVersion: number) {
-        // Implementation goes here
-        const exponentialBackoff = () => {
-          console.log(`sleeping for ${backoffMs}ms`);
-          return Effect.sleep(backoffMs).pipe(
-            Effect.tap(() => {
-              console.log('waking up');
-              backoffMs = Math.min(backoffMs * 2, MAX_BACKOFF_MS);
+              Effect.map(() => ({
+                transactions: [],
+                stateVersion,
+              })),
+            );
+          };
+
+          transactionStreamClient.setStateVersion(stateVersion);
+
+          const result = yield* Effect.tryPromise({
+            try: () => transactionStreamClient.next(),
+            catch: (e) => new UnknownTransactionStreamError(e),
+          }).pipe(
+            Effect.flatMap(
+              (
+                result,
+              ): Effect.Effect<
+                TransformTransactionResultOutput,
+                | StateVersionBeyondEndOfKnownLedgerError
+                | RateLimitedError
+                | UnknownTransactionStreamError
+              > => {
+                if (result.isOk()) return Effect.succeed(result.value);
+
+                const error = result.error;
+
+                const isStateVersionBeyondEndOfKnownLedgerError =
+                  typeof error === 'object' &&
+                  error !== null &&
+                  'parsedError' in error &&
+                  error.parsedError === 'StateVersionBeyondEndOfKnownLedger';
+
+                const isRateLimitedError =
+                  typeof error === 'object' &&
+                  error !== null &&
+                  'status' in error &&
+                  error.status === 429;
+
+                if (isStateVersionBeyondEndOfKnownLedgerError)
+                  return Effect.fail(
+                    new StateVersionBeyondEndOfKnownLedgerError(error),
+                  );
+
+                if (isRateLimitedError)
+                  return Effect.fail(new RateLimitedError(error));
+
+                return Effect.fail(new UnknownTransactionStreamError(error));
+              },
+            ),
+            Effect.catchTags({
+              RateLimitedError: () => {
+                console.log('Rate limited, waiting...');
+                return exponentialBackoff();
+              },
+              StateVersionBeyondEndOfKnownLedgerError: () => {
+                console.log('Reached the end of the ledger, waiting...');
+                return exponentialBackoff();
+              },
+              UnknownTransactionStreamError: (error) => {
+                console.log('Unknown transaction stream error, waiting...');
+                console.error({ error: error });
+                return exponentialBackoff();
+              },
             }),
-
-            Effect.map(() => ({
-              transactions: [],
-              stateVersion,
-            })),
           );
-        };
 
-        transactionStreamClient.setStateVersion(stateVersion);
+          resetBackoff();
 
-        const result = yield* Effect.tryPromise({
-          try: () => transactionStreamClient.next(),
-          catch: (e) => new UnknownTransactionStreamError(e),
-        }).pipe(
-          Effect.flatMap(
-            (
-              result,
-            ): Effect.Effect<
-              TransformTransactionResultOutput,
-              | StateVersionBeyondEndOfKnownLedgerError
-              | RateLimitedError
-              | UnknownTransactionStreamError
-            > => {
-              if (result.isOk()) return Effect.succeed(result.value);
-
-              const error = result.error;
-
-              const isStateVersionBeyondEndOfKnownLedgerError =
-                typeof error === 'object' &&
-                error !== null &&
-                'parsedError' in error &&
-                error.parsedError === 'StateVersionBeyondEndOfKnownLedger';
-
-              const isRateLimitedError =
-                typeof error === 'object' &&
-                error !== null &&
-                'status' in error &&
-                error.status === 429;
-
-              if (isStateVersionBeyondEndOfKnownLedgerError)
-                return Effect.fail(
-                  new StateVersionBeyondEndOfKnownLedgerError(error),
-                );
-
-              if (isRateLimitedError)
-                return Effect.fail(new RateLimitedError(error));
-
-              return Effect.fail(new UnknownTransactionStreamError(error));
-            },
-          ),
-          Effect.catchTags({
-            RateLimitedError: () => {
-              console.log('Rate limited, waiting...');
-              return exponentialBackoff();
-            },
-            StateVersionBeyondEndOfKnownLedgerError: () => {
-              console.log('Reached the end of the ledger, waiting...');
-              return exponentialBackoff();
-            },
-            UnknownTransactionStreamError: (error) => {
-              console.log('Unknown transaction stream error, waiting...');
-              console.error({ error: error });
-              return exponentialBackoff();
-            },
-          }),
-        );
-
-        resetBackoff();
-
-        return {
-          transactions: result.transactions,
-          stateVersion: result.stateVersion,
-        };
-      });
+          return {
+            transactions: result.transactions,
+            stateVersion: result.stateVersion,
+          };
+        });
     }),
-  },
-) {}
+  );

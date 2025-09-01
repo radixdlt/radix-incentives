@@ -24,13 +24,11 @@ export class ConfigService extends Effect.Service<ConfigService>()(
       const getLedgerStateService = yield* GetLedgerStateService;
 
       const getConfigFromDb = Effect.fn(function* <T = unknown>(key: string) {
-        const result = yield* dbClient
-          .select()
-          .from(config)
-          .where(eq(config.key, key))
-          .limit(1);
+        const result = yield* dbClient.query.config.findFirst({
+          where: eq(config.key, key),
+        });
 
-        const value = result?.[0]?.value as T | undefined;
+        const value = result?.value as T | undefined;
 
         return value;
       });

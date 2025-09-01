@@ -1,7 +1,7 @@
 import type BigNumber from 'bignumber.js';
 import { transactionFees } from 'db/incentives';
-import { Effect } from 'effect';
-import { DbService } from '../db/dbClient';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type AddTransactionFeeServiceInput = {
   txId: string;
@@ -10,26 +10,39 @@ export type AddTransactionFeeServiceInput = {
   timestamp: Date;
 }[];
 
-export class AddTransactionFeeService extends Effect.Service<AddTransactionFeeService>()(
+export class AddTransactionFeeService extends Context.Tag(
   'AddTransactionFeeService',
-  {
-    dependencies: [DbService.Default],
-    effect: Effect.gen(function* () {
-      const db = yield* DbService;
-      return Effect.fn(function* (input: AddTransactionFeeServiceInput) {
-        // Implementation goes here
-        return yield* db
-          .insert(transactionFees)
-          .values(
-            input.map((t) => ({
-              transactionId: t.txId,
-              accountAddress: t.accountAddress,
-              fee: t.fee.toString(),
-              timestamp: t.timestamp,
-            })),
-          )
-          .onConflictDoNothing();
+)<
+  AddTransactionFeeService,
+  (input: AddTransactionFeeServiceInput) => Effect.Effect<void, DbError>
+>() {}
+
+export const AddTransactionFeeLive = Layer.effect(
+  AddTransactionFeeService,
+  Effect.gen(function* () {
+    const db = yield* DbClientService;
+
+    return (input) => {
+      return Effect.gen(function* () {
+        if (input.length === 0) return;
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .insert(transactionFees)
+              .values(
+                input.map((t) => ({
+                  transactionId: t.txId,
+                  accountAddress: t.accountAddress,
+                  fee: t.fee.toString(),
+                  timestamp: t.timestamp,
+                })),
+              )
+              .onConflictDoNothing(),
+          catch: (error) => new DbError(error),
+        });
+
+        return result;
       });
-    }),
-  },
-) {}
+    };
+  }),
+);

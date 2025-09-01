@@ -1,8 +1,8 @@
 import type { ActivityId } from 'data';
 import { tradingVolume } from 'db/incentives';
 import { sql } from 'drizzle-orm';
-import { Effect } from 'effect';
-import { DbService } from '../db/dbClient';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type AddTradingVolumeServiceInput = {
   accountAddress: string;
@@ -13,24 +13,38 @@ export type AddTradingVolumeServiceInput = {
   }[];
 }[];
 
-export class AddTradingVolumeService extends Effect.Service<AddTradingVolumeService>()(
+export class AddTradingVolumeService extends Context.Tag(
   'AddTradingVolumeService',
-  {
-    dependencies: [DbService.Default],
-    effect: Effect.gen(function* () {
-      const db = yield* DbService;
-      return Effect.fn(function* (input: AddTradingVolumeServiceInput) {
-        // Implementation goes here
-        return yield* db
-          .insert(tradingVolume)
-          .values(input)
-          .onConflictDoUpdate({
-            target: [tradingVolume.accountAddress, tradingVolume.timestamp],
-            set: {
-              data: sql`excluded.data`,
-            },
-          });
+)<
+  AddTradingVolumeService,
+  (input: AddTradingVolumeServiceInput) => Effect.Effect<void, DbError>
+>() {}
+
+export const AddTradingVolumeLive = Layer.effect(
+  AddTradingVolumeService,
+  Effect.gen(function* () {
+    const db = yield* DbClientService;
+
+    return (input) => {
+      return Effect.gen(function* () {
+        if (input.length === 0) return;
+
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .insert(tradingVolume)
+              .values(input)
+              .onConflictDoUpdate({
+                target: [tradingVolume.accountAddress, tradingVolume.timestamp],
+                set: {
+                  data: sql`excluded.data`,
+                },
+              }),
+          catch: (error) => new DbError(error),
+        });
+
+        return result;
       });
-    }),
-  },
-) {}
+    };
+  }),
+);

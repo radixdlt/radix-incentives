@@ -2,8 +2,8 @@ import type { CommittedTransactionInfo } from '@radixdlt/babylon-gateway-api-sdk
 import Bignumber from 'bignumber.js';
 import { type Account, accounts } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
-import { Effect } from 'effect';
-import { DbError, DbService } from '../db/dbClient';
+import { Context, Effect, Layer } from 'effect';
+import { DbClientService, DbError } from '../db/dbClient';
 import {
   type TransformedTransaction,
   transformTransactions,
@@ -23,19 +23,26 @@ export type FilterTransactionsServiceOutput = {
   stateVersion: number;
 };
 
+export class FilterTransactionsService extends Context.Tag(
+  'FilterTransactionsService',
+)<
+  FilterTransactionsService,
+  (input: {
+    transactions: CommittedTransactionInfo[];
+    stateVersion: number;
+  }) => Effect.Effect<FilterTransactionsServiceOutput, DbError>
+>() {}
+
 type AccountAddress = string;
 type TransactionId = string;
 
-export class FilterTransactionsService extends Effect.Service<FilterTransactionsService>()(
-  'FilterTransactionsService',
-  {
-    dependencies: [DbService.Default],
-    effect: Effect.gen(function* () {
-      const dbClient = yield* DbService;
-      return Effect.fn(function* (input: {
-        transactions: CommittedTransactionInfo[];
-        stateVersion: number;
-      }) {
+export const FilterTransactionsLive = Layer.effect(
+  FilterTransactionsService,
+  Effect.gen(function* () {
+    const dbClient = yield* DbClientService;
+
+    return (input) => {
+      return Effect.gen(function* () {
         const transactions = transformTransactions(input.transactions);
         const addressTransactionMap = new Map<
           AccountAddress,
@@ -112,6 +119,6 @@ export class FilterTransactionsService extends Effect.Service<FilterTransactions
           registeredFeePayers: allRegisteredFeePayers,
         };
       });
-    }),
-  },
-) {}
+    };
+  }),
+);
