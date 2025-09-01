@@ -1,4 +1,4 @@
-import { Config, Effect } from 'effect';
+import { Context, Effect, Layer } from 'effect';
 import { z } from 'zod';
 
 export class AddToEventQueueError {
@@ -26,13 +26,26 @@ export type EventQueueClientServiceError =
   | AddToEventQueueError
   | AddToEventQueueInputSchemaError;
 
-export class EventQueueClientService extends Effect.Service<EventQueueClientService>()(
+export class EventQueueClientService extends Context.Tag(
   'EventQueueClientService',
-  {
-    effect: Effect.gen(function* () {
-      const workersApiBaseUrl = yield* Config.string('WORKERS_API_BASE_URL');
+)<
+  EventQueueClientService,
+  (
+    input: EventQueueClientInput,
+  ) => Effect.Effect<void, EventQueueClientServiceError>
+>() {}
 
-      return Effect.fn(function* (input: EventQueueClientInput) {
+export const EventQueueClientLive = Layer.effect(
+  EventQueueClientService,
+  Effect.gen(function* () {
+    const workersApiBaseUrl = process.env.WORKERS_API_BASE_URL;
+
+    if (!workersApiBaseUrl) {
+      return yield* Effect.dieMessage('WORKERS_API_BASE_URL is not set');
+    }
+
+    return (input) =>
+      Effect.gen(function* () {
         const parsedInput = EventQueueClientServiceSchema.safeParse(input);
 
         if (!parsedInput.success) {
@@ -59,6 +72,5 @@ export class EventQueueClientService extends Effect.Service<EventQueueClientServ
           );
         }
       });
-    }),
-  },
-) {}
+  }),
+);

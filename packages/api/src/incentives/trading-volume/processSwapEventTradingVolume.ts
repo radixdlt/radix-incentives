@@ -89,10 +89,6 @@ const processTransactionGroup = (
 export class ProcessSwapEventTradingVolumeService extends Effect.Service<ProcessSwapEventTradingVolumeService>()(
   'ProcessSwapEventTradingVolumeService',
   {
-    dependencies: [
-      AddTradingVolumeService.Default,
-      FilterTradingEventsService.Default,
-    ],
     effect: Effect.gen(function* () {
       const addTradingVolumeService = yield* AddTradingVolumeService;
       const filterTradingEventsService = yield* FilterTradingEventsService;

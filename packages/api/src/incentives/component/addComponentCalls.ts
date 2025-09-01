@@ -2,9 +2,9 @@ import { utc } from '@date-fns/utc';
 import { endOfISOWeek, startOfISOWeek } from 'date-fns';
 import { componentCalls } from 'db/incentives';
 import { and, between, inArray, sql } from 'drizzle-orm';
-import { Effect } from 'effect';
+import { Context, Effect, Layer } from 'effect';
 import { groupBy } from 'effect/Array';
-import { DbService } from '../db/dbClient';
+import { DbClientService, DbError } from '../db/dbClient';
 import { GetUserIdByAccountAddressService } from '../user/getUserIdByAccountAddress';
 
 export type AddComponentCallsServiceInput = {
@@ -13,17 +13,24 @@ export type AddComponentCallsServiceInput = {
   componentAddresses: string[];
 }[];
 
+export class AddComponentCallsService extends Context.Tag(
+  'AddComponentCallsService',
+)<
+  AddComponentCallsService,
+  (input: AddComponentCallsServiceInput) => Effect.Effect<void, DbError>
+>() {}
+
 type UserId = string;
 type ComponentAddress = string;
 
-export class AddComponentCallsService extends Effect.Service<AddComponentCallsService>()(
-  'AddComponentCallsService',
-  {
-    dependencies: [DbService.Default, GetUserIdByAccountAddressService.Default],
-    effect: Effect.gen(function* () {
-      const db = yield* DbService;
-      const getUserIdByAccountAddress = yield* GetUserIdByAccountAddressService;
-      return Effect.fn(function* (input: AddComponentCallsServiceInput) {
+export const AddComponentCallsLive = Layer.effect(
+  AddComponentCallsService,
+  Effect.gen(function* () {
+    const db = yield* DbClientService;
+    const getUserIdByAccountAddress = yield* GetUserIdByAccountAddressService;
+
+    return (input) => {
+      return Effect.gen(function* () {
         if (input.length === 0) return;
 
         const accountAddressUserIdMap = yield* getUserIdByAccountAddress(
@@ -79,22 +86,26 @@ export class AddComponentCallsService extends Effect.Service<AddComponentCallsSe
             .map((item) => accountAddressUserIdMap.get(item.accountAddress))
             .filter((userId) => userId !== undefined);
 
-          const result = yield* db
-            .select({
-              userId: componentCalls.userId,
-              data: componentCalls.data,
-            })
-            .from(componentCalls)
-            .where(
-              and(
-                inArray(componentCalls.userId, userIds),
-                between(
-                  componentCalls.timestamp,
-                  weekGroup.startDate,
-                  weekGroup.endDate,
+          const result = yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  userId: componentCalls.userId,
+                  data: componentCalls.data,
+                })
+                .from(componentCalls)
+                .where(
+                  and(
+                    inArray(componentCalls.userId, userIds),
+                    between(
+                      componentCalls.timestamp,
+                      weekGroup.startDate,
+                      weekGroup.endDate,
+                    ),
+                  ),
                 ),
-              ),
-            );
+            catch: (error) => new DbError(error),
+          });
 
           const componentCallMap = new Map<UserId, Set<ComponentAddress>>();
 
@@ -151,16 +162,20 @@ export class AddComponentCallsService extends Effect.Service<AddComponentCallsSe
           };
         });
 
-        yield* db
-          .insert(componentCalls)
-          .values(itemsToInsert)
-          .onConflictDoUpdate({
-            target: [componentCalls.userId, componentCalls.timestamp],
-            set: { data: sql`excluded.data` },
-          });
+        yield* Effect.tryPromise({
+          try: () =>
+            db
+              .insert(componentCalls)
+              .values(itemsToInsert)
+              .onConflictDoUpdate({
+                target: [componentCalls.userId, componentCalls.timestamp],
+                set: { data: sql`excluded.data` },
+              }),
+          catch: (error) => new DbError(error),
+        });
 
         return;
       });
-    }),
-  },
-) {}
+    };
+  }),
+);
