@@ -5,7 +5,10 @@ import {
   shapeLiquidityComponentSet,
 } from 'data';
 import { Effect } from 'effect';
-import { AddressValidationService } from '../../common/address-validation/addressValidation';
+import {
+  AddressValidationService,
+  AddressValidationServiceLive,
+} from '../../common/address-validation/addressValidation';
 import type { CaviarnineSwapEvent } from '../events/event-matchers/caviarnineEventMatcher';
 import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
 import type { DefiPlazaSwapEvent } from '../events/event-matchers/defiPlazaEventMatcher';
@@ -32,6 +35,7 @@ export type FilterTradingEventsOutput = Effect.Effect.Success<
 export class FilterTradingEventsService extends Effect.Service<FilterTradingEventsService>()(
   'FilterTradingEventsService',
   {
+    dependencies: [GetUsdValueService.Default, AddressValidationServiceLive],
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
       const addressValidationService = yield* AddressValidationService;
