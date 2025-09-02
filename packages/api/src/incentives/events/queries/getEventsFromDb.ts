@@ -1,33 +1,26 @@
 import { type Event, events } from 'db/incentives';
 import { and, eq, or } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import SuperJSON from 'superjson';
-import { DbClientService, DbError } from '../../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../../db/dbClient';
 import type { EmittableEvent } from '../event-matchers/types';
 
 export type GetEventsFromDbOutput = (Omit<Event, 'eventData'> & {
   eventData: EmittableEvent;
 })[];
 
-export class GetEventsFromDbService extends Context.Tag(
+export class GetEventsFromDbService extends Effect.Service<GetEventsFromDbService>()(
   'GetEventsFromDbService',
-)<
-  GetEventsFromDbService,
-  (
-    input: {
-      transactionId: string;
-      eventIndex: number;
-    }[],
-  ) => Effect.Effect<GetEventsFromDbOutput, DbError>
->() {}
-
-export const GetEventsFromDbLive = Layer.effect(
-  GetEventsFromDbService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (
+        input: {
+          transactionId: string;
+          eventIndex: number;
+        }[],
+      ) {
         const result = yield* Effect.tryPromise({
           try: () =>
             db.query.events.findMany({
@@ -55,6 +48,6 @@ export const GetEventsFromDbLive = Layer.effect(
 
         return parsedData;
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

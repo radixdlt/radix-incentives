@@ -6,11 +6,12 @@ import {
 } from 'db/incentives';
 import { and, asc, eq, gte, sum } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class UserActivityPointsService extends Effect.Service<UserActivityPointsService>()(
   'UserActivityPointsService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {

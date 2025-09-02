@@ -48,6 +48,10 @@ type AccountAddress = string;
 export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOciswapResourcePoolPositionsService>()(
   'GetOciswapResourcePoolPositionsService',
   {
+    dependencies: [
+      GetFungibleBalanceService.Default,
+      GetResourcePoolUnitsService.Default,
+    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;

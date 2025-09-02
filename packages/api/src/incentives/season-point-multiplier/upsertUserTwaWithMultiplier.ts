@@ -1,27 +1,22 @@
 import { seasonPointsMultiplier } from 'db/incentives';
 import { sql } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
+import { Config, Effect } from 'effect';
 import { chunker } from '../../common';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
-const BATCH_SIZE = Number.parseInt(process.env.INSERT_BATCH_SIZE || '5000'); // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
-
-export class UpsertUserTwaWithMultiplierService extends Context.Tag(
+export class UpsertUserTwaWithMultiplierService extends Effect.Service<UpsertUserTwaWithMultiplierService>()(
   'UpsertUserTwaWithMultiplierService',
-)<
-  UpsertUserTwaWithMultiplierService,
-  (
-    input: (typeof seasonPointsMultiplier.$inferInsert)[],
-  ) => Effect.Effect<void, DbError>
->() {}
-
-export const UpsertUserTwaWithMultiplierLive = Layer.effect(
-  UpsertUserTwaWithMultiplierService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      // PostgreSQL typically has a limit of 65535 parameters, so we'll use a safe batch size
+      const BATCH_SIZE = yield* Config.number('INSERT_BATCH_SIZE').pipe(
+        Config.withDefault(5000),
+      );
+      const db = yield* DbClientService;
+      return Effect.fn(function* (
+        input: (typeof seasonPointsMultiplier.$inferInsert)[],
+      ) {
         const makeRequest = (
           items: (typeof seasonPointsMultiplier.$inferInsert)[],
         ) =>
@@ -49,6 +44,6 @@ export const UpsertUserTwaWithMultiplierLive = Layer.effect(
           concurrency: 1,
         });
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

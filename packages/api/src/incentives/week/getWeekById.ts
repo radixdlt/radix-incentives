@@ -1,7 +1,7 @@
-import { type Week, weeks } from 'db/incentives';
+import { weeks } from 'db/incentives';
 import { eq } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class WeekNotFoundError {
   readonly _tag = 'WeekNotFoundError';
@@ -10,18 +10,13 @@ export class WeekNotFoundError {
 
 export type GetWeekByIdError = DbError | WeekNotFoundError;
 
-export class GetWeekByIdService extends Context.Tag('GetWeekByIdService')<
-  GetWeekByIdService,
-  (input: { id: string }) => Effect.Effect<Week, GetWeekByIdError>
->() {}
-
-export const GetWeekByIdLive = Layer.effect(
-  GetWeekByIdService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) =>
-      Effect.gen(function* () {
+export class GetWeekByIdService extends Effect.Service<GetWeekByIdService>()(
+  'GetWeekByIdService',
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (input: { id: string }) {
         const week = yield* Effect.tryPromise({
           try: () =>
             db
@@ -41,5 +36,6 @@ export const GetWeekByIdLive = Layer.effect(
 
         return week;
       });
-  }),
-);
+    }),
+  },
+) {}

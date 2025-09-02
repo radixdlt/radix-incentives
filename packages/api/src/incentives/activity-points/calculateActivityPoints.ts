@@ -1,4 +1,4 @@
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import { z } from 'zod';
 import { GetComponentCallsService } from '../component/getComponentCalls';
 import type { DbError } from '../db/dbClient';
@@ -27,28 +27,26 @@ export type CalculateActivityPointsError =
   | WeekNotFoundError
   | GetWeekByIdError;
 
-export class CalculateActivityPointsService extends Context.Tag(
+export class CalculateActivityPointsService extends Effect.Service<CalculateActivityPointsService>()(
   'CalculateActivityPointsService',
-)<
-  CalculateActivityPointsService,
-  (
-    input: CalculateActivityPointsInput,
-  ) => Effect.Effect<void, CalculateActivityPointsError>
->() {}
-
-export const CalculateActivityPointsLive = Layer.effect(
-  CalculateActivityPointsService,
-  Effect.gen(function* () {
-    const upsertAccountActivityPoints =
-      yield* UpsertAccountActivityPointsService;
-    const calculateTWASQL = yield* CalculateTWASQLService;
-    const getWeekById = yield* GetWeekByIdService;
-    const getTransactionFees = yield* GetTransactionFeesService;
-    const getComponentCalls = yield* GetComponentCallsService;
-    const getTradingVolume = yield* GetTradingVolumeService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+  {
+    dependencies: [
+      UpsertAccountActivityPointsService.Default,
+      CalculateTWASQLService.Default,
+      GetWeekByIdService.Default,
+      GetTransactionFeesService.Default,
+      GetComponentCallsService.Default,
+      GetTradingVolumeService.Default,
+    ],
+    effect: Effect.gen(function* () {
+      const upsertAccountActivityPoints =
+        yield* UpsertAccountActivityPointsService;
+      const calculateTWASQL = yield* CalculateTWASQLService;
+      const getWeekById = yield* GetWeekByIdService;
+      const getTransactionFees = yield* GetTransactionFeesService;
+      const getComponentCalls = yield* GetComponentCallsService;
+      const getTradingVolume = yield* GetTradingVolumeService;
+      return Effect.fn(function* (input: CalculateActivityPointsInput) {
         const week = yield* getWeekById({ id: input.weekId });
 
         const currentDate = new Date();
@@ -153,6 +151,6 @@ export const CalculateActivityPointsLive = Layer.effect(
           );
         }
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

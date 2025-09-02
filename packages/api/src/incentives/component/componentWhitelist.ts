@@ -1,20 +1,22 @@
 import { componentWhitelist } from 'db/incentives';
-import { Effect, Ref } from 'effect';
-import { AppConfigService } from '../config/appConfig';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Config, Effect, Ref } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class ComponentWhitelistService extends Effect.Service<ComponentWhitelistService>()(
   'ComponentWhitelistService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
-      const appConfig = yield* AppConfigService;
+      const useComponentWhitelist = yield* Config.boolean(
+        'USE_COMPONENT_WHITELIST',
+      ).pipe(Config.withDefault(true));
 
       const whitelistRef = yield* Ref.make(new Set<string>());
 
       const loadWhitelist = () =>
         Effect.gen(function* () {
-          if (!appConfig.useComponentWhitelist) {
+          if (!useComponentWhitelist) {
             return;
           }
 
@@ -81,7 +83,7 @@ export class ComponentWhitelistService extends Effect.Service<ComponentWhitelist
 
         isWhitelisted: (componentAddress: string) =>
           Effect.gen(function* () {
-            if (!appConfig.useComponentWhitelist) {
+            if (!useComponentWhitelist) {
               return true; // If whitelist is disabled, all components are valid
             }
 
@@ -91,7 +93,7 @@ export class ComponentWhitelistService extends Effect.Service<ComponentWhitelist
 
         filterComponents: (components: string[]) =>
           Effect.gen(function* () {
-            if (!appConfig.useComponentWhitelist) {
+            if (!useComponentWhitelist) {
               return components; // Return all components if whitelist is disabled
             }
 

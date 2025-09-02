@@ -4,7 +4,7 @@ import { Data, Effect } from 'effect';
 import { z } from 'zod';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 class WeekNotFoundError extends Data.TaggedError('WeekNotFoundError')<{
   message: string;
@@ -19,6 +19,11 @@ export const CreateWeekSchema = z.object({
 export type CreateWeekInput = z.infer<typeof CreateWeekSchema>;
 
 export class WeekService extends Effect.Service<WeekService>()('WeekService', {
+  dependencies: [
+    dbClientLive,
+    ActivityWeekService.Default,
+    ActivityCategoryWeekService.Default,
+  ],
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
     const activityWeekService = yield* ActivityWeekService;

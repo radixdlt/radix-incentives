@@ -19,6 +19,11 @@ export type DeriveAccountFromEventInput = EventQueueClientInput;
 export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountFromEventService>()(
   'DeriveAccountFromEventService',
   {
+    dependencies: [
+      GetEventsFromDbService.Default,
+      GetAddressByNonFungibleService.Default,
+      GetAccountsIntersectionService.Default,
+    ],
     effect: Effect.gen(function* () {
       const getEventsFromDbService = yield* GetEventsFromDbService;
       const getAddressByNonFungibleService =

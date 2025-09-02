@@ -23,6 +23,7 @@ export type AggregateRootFinancePositionsOutput = Effect.Effect.Success<
 export class AggregateRootFinancePositionsService extends Effect.Service<AggregateRootFinancePositionsService>()(
   'AggregateRootFinancePositionsService',
   {
+    dependencies: [GetUsdValueService.Default],
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
       const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(

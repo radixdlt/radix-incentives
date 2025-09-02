@@ -20,13 +20,11 @@ import {
   userSeasonPoints,
   weeks,
 } from 'db/incentives';
-import { eq } from 'drizzle-orm';
+import { desc, eq } from 'drizzle-orm';
 import { Effect, Layer, Logger } from 'effect';
 import { groupBy } from 'effect/Array';
 import { ActivityWeekService } from '../../../packages/api/src/incentives/activity-week/activityWeek';
 import { GetUsersPaginatedLive } from '../../../packages/api/src/incentives/user/getUsersPaginated';
-
-const WEEK_ID = '30da196b-7602-4b06-a558-bbb5b5441186';
 
 const runnable = Effect.gen(function* () {
   const outputDir = path.join(import.meta.dirname, '../output');
@@ -95,7 +93,7 @@ const runnable = Effect.gen(function* () {
 
   const week = yield* Effect.tryPromise(() =>
     db.query.weeks.findFirst({
-      where: eq(weeks.id, WEEK_ID),
+      orderBy: [desc(weeks.startDate)],
     }),
   );
 

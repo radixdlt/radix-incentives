@@ -1,7 +1,7 @@
 import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
-import { type Db, db, readOnlyDb, type Season } from 'db/incentives';
+import { type Db, db, type Season } from 'db/incentives';
 import { Effect, Layer } from 'effect';
 import { groupBy } from 'effect/Array';
 import {
@@ -30,7 +30,6 @@ import { ActivityCategoryService } from '../activity-category/activityCategory';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import {
   type CalculateTWASQLInput,
-  CalculateTWASQLLive,
   CalculateTWASQLService,
 } from '../activity-points/calculateTWASQL';
 import { ActivityWeekService } from '../activity-week/activityWeek';
@@ -56,7 +55,7 @@ import {
   type NotificationSettings,
 } from '../config/notificationService';
 import { DappService } from '../dapp/dapp';
-import { createDbClientLive, createDbReadOnlyClientLive } from '../db/dbClient';
+import { createDbClientLive } from '../db/dbClient';
 import { LeaderboardService } from '../leaderboard/leaderboard';
 import { getAccountsProgram } from '../programs/getAccounts';
 import {
@@ -77,8 +76,7 @@ import {
 } from '../season/getSeasonById';
 import { GetSeasonsLive, GetSeasonsService } from '../season/getSeasons';
 import { type EditSeasonInput, SeasonService } from '../season/season';
-import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
-import { AddSeasonPointsToUserService } from '../season-points/addSeasonPointsToUser';
+
 import {
   type CalculateSeasonPointsInput,
   CalculateSeasonPointsService,
@@ -98,7 +96,7 @@ import {
 } from '../user/getUsersPaginated';
 import { UpsertUserLive } from '../user/upsertUser';
 import { UserService } from '../user/user';
-import { UserActivityPointsService } from '../user/userActivityPoints';
+
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
 import {
@@ -748,21 +746,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const dbReadOnlyClientLive = createDbReadOnlyClientLive(readOnlyDb);
-
-  const calculateTWASQLLive = CalculateTWASQLLive.pipe(
-    Layer.provide(dbReadOnlyClientLive),
-    Layer.provide(dbClientLive),
-  );
-
   const calculateTWASQL = (input: CalculateTWASQLInput) => {
     const program = Effect.gen(function* () {
-      const calculateTWASQLService = yield* Effect.provide(
-        CalculateTWASQLService,
-        calculateTWASQLLive,
-      );
+      const calculateTWASQLService = yield* CalculateTWASQLService;
       return yield* calculateTWASQLService(input);
-    });
+    }).pipe(Effect.provide(CalculateTWASQLService.Default));
 
     return Effect.runPromiseExit(program);
   };
@@ -849,42 +837,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const calculateSeasonPointsLive = CalculateSeasonPointsService.Default.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(dbReadOnlyClientLive),
-    Layer.provide(appConfigLive),
-    Layer.provide(gatewayApiClientLive),
-    Layer.provide(SeasonService.Default.pipe(Layer.provide(dbClientLive))),
-    Layer.provide(WeekService.Default.pipe(Layer.provide(dbClientLive))),
-    Layer.provide(
-      UserActivityPointsService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-    Layer.provide(
-      GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-    Layer.provide(
-      AddSeasonPointsToUserService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-    Layer.provide(
-      UpdateWeekStatusService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-    Layer.provide(
-      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-    Layer.provide(
-      ActivityCategoryService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-    Layer.provide(ActivityService.Default.pipe(Layer.provide(dbClientLive))),
-    Layer.provide(
-      ActivityWeekService.Default.pipe(Layer.provide(dbClientLive)),
-    ),
-  );
-
   const calculateSeasonPoints = (input: CalculateSeasonPointsInput) => {
     const program = Effect.gen(function* () {
       const calculateSeasonPointsService = yield* CalculateSeasonPointsService;
       return yield* calculateSeasonPointsService.run(input);
-    }).pipe(Effect.provide(calculateSeasonPointsLive));
+    }).pipe(Effect.provide(CalculateSeasonPointsService.Default));
 
     return Effect.runPromiseExit(program);
   };

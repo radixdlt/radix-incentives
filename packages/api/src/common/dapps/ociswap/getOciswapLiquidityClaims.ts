@@ -11,6 +11,7 @@ export class FailedToParseOciswapLiquidityPositionError extends Data.TaggedError
 export class GetOciswapLiquidityClaimsService extends Effect.Service<GetOciswapLiquidityClaimsService>()(
   'GetOciswapLiquidityClaimsService',
   {
+    dependencies: [EntityNonFungibleDataService.Default],
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
       return Effect.fn(function* (input: {

@@ -10,7 +10,7 @@ import { and, desc, eq, inArray, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { WeekService } from '../week/week';
 
@@ -21,6 +21,13 @@ export type PopulateLeaderboardCacheInput = {
 export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheService>()(
   'LeaderboardCacheService',
   {
+    dependencies: [
+      dbClientLive,
+      SeasonService.Default,
+      WeekService.Default,
+      ActivityCategoryWeekService.Default,
+      ActivityWeekService.Default,
+    ],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       const seasonService = yield* SeasonService;

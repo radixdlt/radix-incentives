@@ -11,83 +11,18 @@ import {
 } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
-import { Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import postgres from 'postgres';
 import { describe, inject } from 'vitest';
-import { GetAccountAddressByUserIdLive } from '../account/getAccountAddressByUserId';
-import { AccountBalanceService } from '../account-balance/accountBalance';
-import { ComponentWhitelistService } from '../component/componentWhitelist';
-import { GetComponentCallsPaginatedLive } from '../component/getComponentCalls';
-import { createAppConfigLive, defaultAppConfig } from '../config/appConfig';
-import { createDbClientLive, DbReadOnlyClientService } from '../db/dbClient';
-import { GetTradingVolumeLive } from '../trading-volume/getTradingVolume';
-import { GetTransactionFeesPaginatedLive } from '../transaction-fee/getTransactionFees';
-import { GetWeekByIdLive } from '../week/getWeekById';
-import {
-  CalculateActivityPointsLive,
-  CalculateActivityPointsService,
-} from './calculateActivityPoints';
-import { CalculateTWASQLLive } from './calculateTWASQL';
-import { UpsertAccountActivityPointsLive } from './upsertAccountActivityPoints';
+import { createDbClientLive } from '../db/dbClient';
+import { CalculateActivityPointsService } from './calculateActivityPoints';
 
 describe('calculateActivityPoints', () => {
   const dbUrl = inject('testDbUrl');
   const db = drizzle(postgres(dbUrl), { schema });
-  const dbClientLive = createDbClientLive(db);
+  const _dbClientLive = createDbClientLive(db);
 
-  // Create a DbReadOnlyClientService that just reuses the same connection
-  const dbReadOnlyClientLive = Layer.succeed(DbReadOnlyClientService, db);
-
-  const upsertAccountActivityPointsLive = UpsertAccountActivityPointsLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const accountBalanceServiceLive = AccountBalanceService.Default.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const getTransactionFeesLive = GetTransactionFeesPaginatedLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbClientLive));
-
-  const appConfigLive = createAppConfigLive(defaultAppConfig);
-
-  const componentWhitelistLive = ComponentWhitelistService.Default.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(appConfigLive),
-  );
-
-  const getComponentCallsLive = GetComponentCallsPaginatedLive.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(componentWhitelistLive),
-  );
-
-  const getTradingVolumeLive = GetTradingVolumeLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const getAccountAddressByUserIdLive = GetAccountAddressByUserIdLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const calculateTWASQLLive = CalculateTWASQLLive.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(dbReadOnlyClientLive),
-  );
-
-  const calculateActivityPointsLive = CalculateActivityPointsLive.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(upsertAccountActivityPointsLive),
-    Layer.provide(accountBalanceServiceLive),
-    Layer.provide(getWeekByIdLive),
-    Layer.provide(getTransactionFeesLive),
-    Layer.provide(getComponentCallsLive),
-    Layer.provide(getTradingVolumeLive),
-    Layer.provide(getAccountAddressByUserIdLive),
-    Layer.provide(calculateTWASQLLive),
-  );
+  const calculateActivityPointsLive = CalculateActivityPointsService.Default;
 
   // Test data constants
   const TEST_WEEK_ID = 'f47ac10b-58cc-4372-a567-0e02b2c3d479';
@@ -241,7 +176,7 @@ describe('calculateActivityPoints', () => {
 
       // Test calculation for a small set of test accounts
       // This mainly tests that the service can be instantiated and called without errors
-      const _result = yield* calculateActivityPointsService({
+      yield* calculateActivityPointsService({
         weekId: existingWeek[0].id,
         addresses: [TEST_ACCOUNT_1, TEST_ACCOUNT_2],
       });

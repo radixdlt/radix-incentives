@@ -1,8 +1,8 @@
 import type { ActivityId } from 'data';
 import { tradingVolume } from 'db/incentives';
 import { sql } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export type AddTradingVolumeServiceInput = {
   accountAddress: string;
@@ -13,23 +13,14 @@ export type AddTradingVolumeServiceInput = {
   }[];
 }[];
 
-export class AddTradingVolumeService extends Context.Tag(
+export class AddTradingVolumeService extends Effect.Service<AddTradingVolumeService>()(
   'AddTradingVolumeService',
-)<
-  AddTradingVolumeService,
-  (input: AddTradingVolumeServiceInput) => Effect.Effect<void, DbError>
->() {}
-
-export const AddTradingVolumeLive = Layer.effect(
-  AddTradingVolumeService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        if (input.length === 0) return;
-
-        const result = yield* Effect.tryPromise({
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (input: AddTradingVolumeServiceInput) {
+        return yield* Effect.tryPromise({
           try: () =>
             db
               .insert(tradingVolume)
@@ -42,9 +33,7 @@ export const AddTradingVolumeLive = Layer.effect(
               }),
           catch: (error) => new DbError(error),
         });
-
-        return result;
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

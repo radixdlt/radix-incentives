@@ -2,7 +2,7 @@ import { weeks } from 'db/incentives';
 import { and, gt, lte } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { z } from 'zod';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { SnapshotService } from './snapshot';
 
 export const snapshotJobSchema = z.object({
@@ -20,6 +20,7 @@ export type SnapshotWorkerInput = z.infer<typeof snapshotJobSchema>;
 export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>()(
   'SnapshotWorkerService',
   {
+    dependencies: [SnapshotService.Default, dbClientLive],
     effect: Effect.gen(function* () {
       const snapshotService = yield* SnapshotService;
       const db = yield* DbClientService;
@@ -46,7 +47,6 @@ export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>
             }),
           catch: (error) => new DbError(error),
         });
-
         if (!maybeWeek) {
           yield* Effect.log(
             'No week found, skipping activity points calculation',
@@ -59,5 +59,3 @@ export class SnapshotWorkerService extends Effect.Service<SnapshotWorkerService>
     }),
   },
 ) {}
-
-export const SnapshotWorkerLive = SnapshotWorkerService.Default;

@@ -1,7 +1,6 @@
 import { Config, Effect } from 'effect';
 import { GatewayApiClientService } from '../gateway/gatewayApiClient';
 import { chunker } from '../helpers';
-import { GatewayError } from './errors';
 import type { AtLedgerState } from './schemas';
 
 type GetEntityDetailsParameters = Parameters<
@@ -15,6 +14,7 @@ export type GetEntityDetailsState = GetEntityDetailsParameters[2];
 export class GetEntityDetailsService extends Effect.Service<GetEntityDetailsService>()(
   'GetEntityDetailsService',
   {
+    dependencies: [GatewayApiClientService.Default],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
       const pageSize = yield* Config.number(
@@ -30,15 +30,11 @@ export class GetEntityDetailsService extends Effect.Service<GetEntityDetailsServ
         return yield* Effect.forEach(
           chunks,
           Effect.fn(function* (addresses) {
-            return yield* Effect.tryPromise({
-              try: () =>
-                gatewayClient.state.getEntityDetailsVaultAggregated(
-                  addresses,
-                  options,
-                  at_ledger_state,
-                ),
-              catch: (error) => new GatewayError({ error }),
-            });
+            return yield* gatewayClient.state.getEntityDetailsVaultAggregated(
+              addresses,
+              options,
+              at_ledger_state,
+            );
           }),
         ).pipe(Effect.map((res) => res.flat()));
       });

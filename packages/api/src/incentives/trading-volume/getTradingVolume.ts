@@ -2,8 +2,8 @@ import BigNumber from 'bignumber.js';
 import type { ActivityId } from 'data';
 import { tradingVolume } from 'db/incentives';
 import { and, between, inArray } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export type GetTradingVolumeServiceInput = {
   endTimestamp: Date;
@@ -18,24 +18,13 @@ export type GetTradingVolumeServiceOutput = {
   usdValue: BigNumber;
 }[];
 
-export class GetTradingVolumeService extends Context.Tag(
+export class GetTradingVolumeService extends Effect.Service<GetTradingVolumeService>()(
   'GetTradingVolumeService',
-)<
-  GetTradingVolumeService,
-  (
-    input: GetTradingVolumeServiceInput,
-  ) => Effect.Effect<GetTradingVolumeServiceOutput, DbError>
->() {}
-
-type AccountAddress = string;
-
-export const GetTradingVolumeLive = Layer.effect(
-  GetTradingVolumeService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (input: GetTradingVolumeServiceInput) {
         const limit = input.limit ?? 10_000;
 
         const andConditions = [
@@ -74,7 +63,7 @@ export const GetTradingVolumeLive = Layer.effect(
           });
 
         let offset = 0;
-        const accounts = new Map<AccountAddress, Map<ActivityId, BigNumber>>();
+        const accounts = new Map<string, Map<ActivityId, BigNumber>>();
 
         while (true) {
           const result = yield* getTradingVolumeData(offset);
@@ -113,6 +102,6 @@ export const GetTradingVolumeLive = Layer.effect(
             })),
         );
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

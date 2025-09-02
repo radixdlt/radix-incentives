@@ -26,6 +26,7 @@ export type GetQuantaSwapBinMapServiceOutput = Map<
 export class GetQuantaSwapBinMapService extends Effect.Service<GetQuantaSwapBinMapService>()(
   'GetQuantaSwapBinMapService',
   {
+    dependencies: [GetKeyValueStoreService.Default],
     effect: Effect.gen(function* () {
       const getKeyValueStoreService = yield* GetKeyValueStoreService;
       return Effect.fn(function* (input: {

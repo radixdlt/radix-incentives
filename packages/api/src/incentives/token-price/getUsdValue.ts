@@ -1,6 +1,9 @@
 import { BigNumber } from 'bignumber.js';
 import { Cache, Config, Data, Duration, Effect } from 'effect';
-import { AddressValidationService } from '../../common/address-validation/addressValidation';
+import {
+  AddressValidationService,
+  AddressValidationServiceLive,
+} from '../../common/address-validation/addressValidation';
 import { FetchService } from '../../common/helpers';
 
 export type GetUsdValueInput = {
@@ -33,6 +36,7 @@ type PriceCacheKey = `${string}:${number}`;
 export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
   'GetUsdValueService',
   {
+    dependencies: [AddressValidationServiceLive, FetchService.Default],
     effect: Effect.gen(function* () {
       const addressValidationService = yield* AddressValidationService;
       const fetchImpl = yield* FetchService;

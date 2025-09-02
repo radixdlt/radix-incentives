@@ -1,13 +1,14 @@
 import { weeks } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export type UpdateWeekStatusError = DbError;
 
 export class UpdateWeekStatusService extends Effect.Service<UpdateWeekStatusService>()(
   'UpdateWeekStatusService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {

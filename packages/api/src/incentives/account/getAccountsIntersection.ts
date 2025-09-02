@@ -1,26 +1,19 @@
 import { accounts } from 'db/consultation';
 import { inArray } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 type GetAccountsInput = {
   addresses: string[];
 };
 
-export class GetAccountsIntersectionService extends Context.Tag(
+export class GetAccountsIntersectionService extends Effect.Service<GetAccountsIntersectionService>()(
   'GetAccountsIntersectionService',
-)<
-  GetAccountsIntersectionService,
-  (input: GetAccountsInput) => Effect.Effect<string[], DbError>
->() {}
-
-export const GetAccountsIntersectionLive = Layer.effect(
-  GetAccountsIntersectionService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (input: GetAccountsInput) {
         return yield* Effect.tryPromise({
           try: () =>
             db
@@ -31,6 +24,6 @@ export const GetAccountsIntersectionLive = Layer.effect(
           catch: (err) => new DbError(err),
         });
       });
-    };
-  }),
-);
+    }),
+  },
+) {}
