@@ -8,11 +8,12 @@ import {
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
   'ActivityCategoryWeekService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
 

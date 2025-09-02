@@ -16,6 +16,7 @@ type OciswapPositions = AccountBalanceFromSnapshot['ociswapPositions'];
 export class AggregateOciswapPositionsService extends Effect.Service<AggregateOciswapPositionsService>()(
   'AggregateOciswapPositionsService',
   {
+    dependencies: [AggregatePoolPositionsService.Default],
     effect: Effect.gen(function* () {
       const aggregatePoolPositionsService =
         yield* AggregatePoolPositionsService;

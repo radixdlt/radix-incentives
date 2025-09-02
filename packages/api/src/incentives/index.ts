@@ -8,6 +8,7 @@ export * from './dependencyLayer';
 export { LeaderboardCacheService } from './leaderboard/leaderboardCache';
 export { SeasonService } from './season/season';
 export { GetSeasonPointMultiplierService } from './season-point-multiplier/getSeasonPointMultiplier';
+export { SeasonPointsMultiplierWorkerService } from './season-point-multiplier/seasonPointsMultiplierWorker';
 export { AddSeasonPointsToUserService } from './season-points/addSeasonPointsToUser';
 export { CalculateSeasonPointsService } from './season-points/calculateSeasonPoints';
 export { SnapshotLive, SnapshotService } from './snapshot/snapshot';

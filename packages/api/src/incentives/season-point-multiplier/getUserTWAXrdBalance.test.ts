@@ -1,19 +1,11 @@
-import { inject } from '@effect/vitest';
 import { BigNumber } from 'bignumber.js';
 import { ActivityId } from 'data';
-import * as consultationSchema from 'db/consultation';
 import { schema } from 'db/incentives';
-import { drizzle } from 'drizzle-orm/postgres-js';
-import { Effect, Layer, Logger, LogLevel } from 'effect';
-import postgres from 'postgres';
+import { Effect } from 'effect';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
-import { CalculateTWASQLLive } from '../activity-points/calculateTWASQL';
-import { createDbClientLive, createDbReadOnlyClientLive } from '../db/dbClient';
-import { GetWeekByIdLive } from '../week/getWeekById';
-import {
-  GetUserTWAXrdBalanceLive,
-  GetUserTWAXrdBalanceService,
-} from './getUserTWAXrdBalance';
+import { dbTestClient as db } from '../../test-helpers/dbTestLive';
+
+import { GetUserTWAXrdBalanceService } from './getUserTWAXrdBalance';
 
 // Test data with proper UUIDs
 const testSeasonId = '550e8400-e29b-41d4-a716-446655440000';
@@ -150,41 +142,22 @@ const testData = {
 };
 
 describe('GetUserTWAXrdBalanceService', () => {
-  const dbUrl = inject('testDbUrl');
-  const db = drizzle(postgres(dbUrl), { schema });
-  const consultationDb = drizzle(postgres(dbUrl), {
-    schema: consultationSchema,
-  });
-  const dbLive = createDbClientLive(db);
-  const readOnlyDbLive = createDbReadOnlyClientLive(db);
-
-  // Create service layers
-  const getWeekByIdLive = GetWeekByIdLive.pipe(Layer.provide(dbLive));
-  const calculateTWASQLLive = CalculateTWASQLLive.pipe(
-    Layer.provide(dbLive),
-    Layer.provide(readOnlyDbLive),
-  );
-  const getUserTWAXrdBalanceLive = GetUserTWAXrdBalanceLive.pipe(
-    Layer.provide(getWeekByIdLive),
-    Layer.provide(calculateTWASQLLive),
-    Layer.provide(dbLive),
-    Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
-  );
-
   beforeEach(async () => {
     // Insert test data
     await db.insert(schema.seasons).values(testData.season);
+
     await db.insert(schema.weeks).values(testData.week);
-    await consultationDb
-      .insert(consultationSchema.users)
-      .values(testData.users);
-    await consultationDb
-      .insert(consultationSchema.accounts)
-      .values(testData.accounts);
+
     await db
       .insert(schema.activityCategories)
       .values(testData.activityCategory);
+
     await db.insert(schema.activities).values(testData.activity);
+
+    await db.insert(schema.users).values(testData.users);
+
+    await db.insert(schema.accounts).values(testData.accounts);
+
     await db.insert(schema.accountBalances).values(testData.accountBalances);
   });
 
@@ -193,8 +166,9 @@ describe('GetUserTWAXrdBalanceService', () => {
     await db.delete(schema.accountBalances);
     await db.delete(schema.activities);
     await db.delete(schema.activityCategories);
-    await consultationDb.delete(consultationSchema.accounts);
-    await consultationDb.delete(consultationSchema.users);
+    await db.delete(schema.accounts);
+    await db.delete(schema.users);
+
     await db.delete(schema.weeks);
     await db.delete(schema.seasons);
   });
@@ -207,11 +181,15 @@ describe('GetUserTWAXrdBalanceService', () => {
         weekId: testWeekId,
         addresses: testAddresses,
       });
-    });
-
-    const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive),
+    }).pipe(
+      Effect.provide(GetUserTWAXrdBalanceService.Default),
+      Effect.catchAll((err) => {
+        console.error(JSON.stringify(err, null, 2));
+        return Effect.fail(err);
+      }),
     );
+
+    const result = await Effect.runPromise(program);
 
     // Should return 3 users with their TWA balances
     expect(Array.isArray(result)).toBe(true);
@@ -255,11 +233,9 @@ describe('GetUserTWAXrdBalanceService', () => {
         weekId: testWeekId,
         addresses: [],
       });
-    });
+    }).pipe(Effect.provide(GetUserTWAXrdBalanceService.Default));
 
-    const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive),
-    );
+    const result = await Effect.runPromise(program);
 
     expect(result).toHaveLength(0);
   });
@@ -276,11 +252,9 @@ describe('GetUserTWAXrdBalanceService', () => {
         weekId: testWeekId,
         addresses: unknownAddresses,
       });
-    });
+    }).pipe(Effect.provide(GetUserTWAXrdBalanceService.Default));
 
-    const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive),
-    );
+    const result = await Effect.runPromise(program);
 
     // Should return empty array since no accounts match in the database
     expect(result).toHaveLength(0);
@@ -296,11 +270,9 @@ describe('GetUserTWAXrdBalanceService', () => {
         weekId: testWeekId,
         addresses: singleAddress,
       });
-    });
+    }).pipe(Effect.provide(GetUserTWAXrdBalanceService.Default));
 
-    const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive),
-    );
+    const result = await Effect.runPromise(program);
 
     // Should return exactly 1 user
     expect(Array.isArray(result)).toBe(true);
@@ -333,11 +305,9 @@ describe('GetUserTWAXrdBalanceService', () => {
         weekId: testWeekId,
         addresses: mixedAddresses,
       });
-    });
+    }).pipe(Effect.provide(GetUserTWAXrdBalanceService.Default));
 
-    const result = await Effect.runPromise(
-      Effect.provide(program, getUserTWAXrdBalanceLive),
-    );
+    const result = await Effect.runPromise(program);
 
     // Should return only the 2 users that have matching addresses
     expect(Array.isArray(result)).toBe(true);

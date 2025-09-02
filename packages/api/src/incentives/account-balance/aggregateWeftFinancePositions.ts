@@ -16,6 +16,7 @@ export type AggregateWeftFinancePositionsOutput = Effect.Effect.Success<
 export class AggregateWeftFinancePositionsService extends Effect.Service<AggregateWeftFinancePositionsService>()(
   'AggregateWeftFinancePositionsService',
   {
+    dependencies: [GetUsdValueService.Default],
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
       const STORE_METADATA = yield* Config.boolean('DEBUG_STORE_METADATA').pipe(

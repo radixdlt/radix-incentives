@@ -18,6 +18,7 @@ export class InvalidComponentStateError {
 export class GetComponentStateService extends Effect.Service<GetComponentStateService>()(
   'GetComponentStateService',
   {
+    dependencies: [GetEntityDetailsService.Default],
     effect: Effect.gen(function* () {
       const getEntityDetailsService = yield* GetEntityDetailsService;
 

@@ -1,7 +1,7 @@
 import type BigNumber from 'bignumber.js';
 import { transactionFees } from 'db/incentives';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export type AddTransactionFeeServiceInput = {
   txId: string;
@@ -10,22 +10,14 @@ export type AddTransactionFeeServiceInput = {
   timestamp: Date;
 }[];
 
-export class AddTransactionFeeService extends Context.Tag(
+export class AddTransactionFeeService extends Effect.Service<AddTransactionFeeService>()(
   'AddTransactionFeeService',
-)<
-  AddTransactionFeeService,
-  (input: AddTransactionFeeServiceInput) => Effect.Effect<void, DbError>
->() {}
-
-export const AddTransactionFeeLive = Layer.effect(
-  AddTransactionFeeService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        if (input.length === 0) return;
-        const result = yield* Effect.tryPromise({
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (input: AddTransactionFeeServiceInput) {
+        return yield* Effect.tryPromise({
           try: () =>
             db
               .insert(transactionFees)
@@ -40,9 +32,7 @@ export const AddTransactionFeeLive = Layer.effect(
               .onConflictDoNothing(),
           catch: (error) => new DbError(error),
         });
-
-        return result;
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

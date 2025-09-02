@@ -2,7 +2,7 @@ import { type Season, seasons, weeks } from 'db/incentives';
 import { desc, eq, sql } from 'drizzle-orm';
 import { Data, Effect } from 'effect';
 import { z } from 'zod';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 class NotFound extends Data.TaggedError('NotFound')<{
   message: string;
@@ -24,6 +24,7 @@ export type EditSeasonInput = z.infer<typeof EditSeasonSchema>;
 export class SeasonService extends Effect.Service<SeasonService>()(
   'SeasonService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {

@@ -1,11 +1,12 @@
 import { accounts } from 'db/incentives';
 import { lte } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class AccountAddressService extends Effect.Service<AccountAddressService>()(
   'AccountAddressService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {

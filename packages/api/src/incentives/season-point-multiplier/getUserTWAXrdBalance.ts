@@ -1,10 +1,10 @@
 import { BigNumber } from 'bignumber.js';
 import { accounts } from 'db/consultation';
 import { lte } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import { z } from 'zod';
 import { CalculateTWASQLService } from '../activity-points/calculateTWASQL';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import {
   type GetWeekByIdError,
   GetWeekByIdService,
@@ -30,24 +30,20 @@ export type UsersWithTwaBalance = {
   totalTWABalance: BigNumber;
 };
 
-export class GetUserTWAXrdBalanceService extends Context.Tag(
+export class GetUserTWAXrdBalanceService extends Effect.Service<GetUserTWAXrdBalanceService>()(
   'GetUserTWAXrdBalanceService',
-)<
-  GetUserTWAXrdBalanceService,
-  (
-    input: GetUserTWAXrdBalanceInput,
-  ) => Effect.Effect<UsersWithTwaBalance[], GetUserTWAXrdBalanceError>
->() {}
+  {
+    dependencies: [
+      dbClientLive,
+      GetWeekByIdService.Default,
+      CalculateTWASQLService.Default,
+    ],
+    effect: Effect.gen(function* () {
+      const getWeekById = yield* GetWeekByIdService;
+      const calculateTWASQL = yield* CalculateTWASQLService;
+      const dbClient = yield* DbClientService;
 
-export const GetUserTWAXrdBalanceLive = Layer.effect(
-  GetUserTWAXrdBalanceService,
-  Effect.gen(function* () {
-    const getWeekById = yield* GetWeekByIdService;
-    const calculateTWASQL = yield* CalculateTWASQLService;
-    const dbClient = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+      return Effect.fn(function* (input: GetUserTWAXrdBalanceInput) {
         const week = yield* getWeekById({ id: input.weekId });
 
         // Use SQL-based calculation for hold activities with USDValue calculation type
@@ -113,6 +109,6 @@ export const GetUserTWAXrdBalanceLive = Layer.effect(
         );
         return userTwaBalances;
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

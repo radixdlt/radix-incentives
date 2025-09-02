@@ -3,7 +3,7 @@ import { userSeasonPoints } from 'db/incentives';
 import { sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { chunker } from '../../common';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export type AddSeasonPointsToUserInput = {
   userId: string;
@@ -15,6 +15,7 @@ export type AddSeasonPointsToUserInput = {
 export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPointsToUserService>()(
   'AddSeasonPointsToUserService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       return {

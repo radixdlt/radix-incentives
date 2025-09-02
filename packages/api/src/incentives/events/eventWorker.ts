@@ -2,7 +2,7 @@ import { events } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { DeriveAccountFromEventService } from './deriveAccountFromEvent';
 
 export type EventWorkerInput = {
@@ -19,6 +19,7 @@ export type EventWorkerInput = {
 export class EventWorkerService extends Effect.Service<EventWorkerService>()(
   'EventWorkerService',
   {
+    dependencies: [dbClientLive, DeriveAccountFromEventService.Default],
     effect: Effect.gen(function* () {
       const deriveAccountFromEventService =
         yield* DeriveAccountFromEventService;

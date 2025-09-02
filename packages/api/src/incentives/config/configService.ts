@@ -2,7 +2,7 @@ import { config } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Cache, Duration, Effect } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export const TransactionStreamStateKeys = {
   Initializing: 'INITIALIZING',
@@ -18,6 +18,7 @@ export type TransactionStreamStateKeys =
 export class ConfigService extends Effect.Service<ConfigService>()(
   'ConfigService',
   {
+    dependencies: [GetLedgerStateService.Default, dbClientLive],
     effect: Effect.gen(function* () {
       const dbClient = yield* DbClientService;
       const getLedgerStateService = yield* GetLedgerStateService;

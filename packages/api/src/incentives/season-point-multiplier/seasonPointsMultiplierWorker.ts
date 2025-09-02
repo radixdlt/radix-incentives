@@ -7,7 +7,7 @@ import { z } from 'zod';
 import { chunker } from '../../common';
 import { Thresholds } from '../../common/config/constants';
 import { InvalidInputError } from '../../common/errors';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { GetUsdValueService } from '../token-price/getUsdValue';
 import { GetWeekByIdService } from '../week/getWeekById';
 import {
@@ -79,6 +79,13 @@ export type SeasonPointsMultiplierWorkerOutput = Effect.Effect.Success<
 export class SeasonPointsMultiplierWorkerService extends Effect.Service<SeasonPointsMultiplierWorkerService>()(
   'SeasonPointsMultiplierWorkerService',
   {
+    dependencies: [
+      GetUserTWAXrdBalanceService.Default,
+      GetWeekByIdService.Default,
+      UpsertUserTwaWithMultiplierService.Default,
+      GetUsdValueService.Default,
+      dbClientLive,
+    ],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       const getUserTWAXrdBalanceService = yield* GetUserTWAXrdBalanceService;
@@ -238,6 +245,3 @@ export class SeasonPointsMultiplierWorkerService extends Effect.Service<SeasonPo
     }),
   },
 ) {}
-
-export const SeasonPointsMultiplierWorkerServiceLive =
-  SeasonPointsMultiplierWorkerService.Default;

@@ -24,6 +24,7 @@ export class FailedToParseUnstakingReceiptError {
 export class UnstakingReceiptProcessorService extends Effect.Service<UnstakingReceiptProcessorService>()(
   'UnstakingReceiptProcessorService',
   {
+    dependencies: [EntityNonFungibleDataService.Default],
     effect: Effect.gen(function* () {
       const entityNonFungibleDataService = yield* EntityNonFungibleDataService;
 

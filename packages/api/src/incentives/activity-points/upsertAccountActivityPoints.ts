@@ -1,25 +1,18 @@
 import { accountActivityPoints, activities } from 'db/incentives';
 import { inArray, sql } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import { chunker } from '../../common';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
-export class UpsertAccountActivityPointsService extends Context.Tag(
+export class UpsertAccountActivityPointsService extends Effect.Service<UpsertAccountActivityPointsService>()(
   'UpsertAccountActivityPointsService',
-)<
-  UpsertAccountActivityPointsService,
-  (
-    input: (typeof accountActivityPoints.$inferInsert)[],
-  ) => Effect.Effect<void, DbError>
->() {}
-
-export const UpsertAccountActivityPointsLive = Layer.effect(
-  UpsertAccountActivityPointsService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) =>
-      Effect.gen(function* () {
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fn(function* (
+        input: (typeof accountActivityPoints.$inferInsert)[],
+      ) {
         // Get unique activity IDs from input
         const uniqueActivityIds = [
           ...new Set(input.map((item) => item.activityId)),
@@ -78,5 +71,6 @@ export const UpsertAccountActivityPointsLive = Layer.effect(
           });
         }).pipe(Effect.withSpan('upsertAccountActivityPoints'));
       });
-  }),
-);
+    }),
+  },
+) {}

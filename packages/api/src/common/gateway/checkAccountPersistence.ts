@@ -1,10 +1,10 @@
 import { Effect } from 'effect';
-import { GatewayError } from './errors';
 import { GatewayApiClientService } from './gatewayApiClient';
 
 export class CheckAccountPersistenceService extends Effect.Service<CheckAccountPersistenceService>()(
   'CheckAccountPersistenceService',
   {
+    dependencies: [GatewayApiClientService.Default],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
 
@@ -14,23 +14,20 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
           Effect.fn(function* (address) {
             yield* Effect.log(`Checking persistence for account: ${address}`);
 
-            const response = yield* Effect.tryPromise({
-              try: () =>
-                gatewayClient.state.innerClient.stateEntityDetails({
-                  stateEntityDetailsRequest: {
-                    addresses: [address],
-                    aggregation_level: 'Vault',
-                    opt_ins: {
-                      ancestor_identities: false,
-                      component_royalty_vault_balance: false,
-                      package_royalty_vault_balance: false,
-                      non_fungible_include_nfids: false,
-                      explicit_metadata: ['owner_keys', 'owner_badge'],
-                    },
+            const response =
+              yield* gatewayClient.state.innerClient.stateEntityDetails({
+                stateEntityDetailsRequest: {
+                  addresses: [address],
+                  aggregation_level: 'Vault',
+                  opt_ins: {
+                    ancestor_identities: false,
+                    component_royalty_vault_balance: false,
+                    package_royalty_vault_balance: false,
+                    non_fungible_include_nfids: false,
+                    explicit_metadata: ['owner_keys', 'owner_badge'],
                   },
-                }),
-              catch: (error) => new GatewayError({ error }),
-            });
+                },
+              });
 
             // Check if account exists and has metadata
             const accountData = response.items?.[0];

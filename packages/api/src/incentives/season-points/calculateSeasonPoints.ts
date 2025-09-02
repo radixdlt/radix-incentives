@@ -6,7 +6,7 @@ import { groupBy } from 'effect/Array';
 import { type ZodError, z } from 'zod';
 import { Thresholds } from '../../common/config/constants';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { GetSeasonPointMultiplierService } from '../season-point-multiplier/getSeasonPointMultiplier';
 import { UserActivityPointsService } from '../user/userActivityPoints';
@@ -39,6 +39,16 @@ const InvalidStateError = Data.TaggedError('InvalidStateError')<{
 export class CalculateSeasonPointsService extends Effect.Service<CalculateSeasonPointsService>()(
   'CalculateSeasonPointsService',
   {
+    dependencies: [
+      dbClientLive,
+      SeasonService.Default,
+      WeekService.Default,
+      UserActivityPointsService.Default,
+      AddSeasonPointsToUserService.Default,
+      UpdateWeekStatusService.Default,
+      GetSeasonPointMultiplierService.Default,
+      ActivityCategoryWeekService.Default,
+    ],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       const seasonService = yield* SeasonService;

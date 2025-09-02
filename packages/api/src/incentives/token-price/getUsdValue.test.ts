@@ -4,7 +4,7 @@ import { Effect, Layer } from 'effect';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { AddressValidationServiceLive } from '../../common/address-validation/addressValidation';
 import { FetchService } from '../../common/helpers';
-import { GetUsdValueLive, GetUsdValueService } from './getUsdValue';
+import { GetUsdValueService } from './getUsdValue';
 
 describe('GetUsdValueService', () => {
   const mockFetch = vi.fn();
@@ -14,7 +14,7 @@ describe('GetUsdValueService', () => {
     vi.clearAllMocks();
   });
 
-  const getUsdValueLive = GetUsdValueLive.pipe(
+  const getUsdValueLive = GetUsdValueService.DefaultWithoutDependencies.pipe(
     Layer.provide(AddressValidationServiceLive),
   );
 

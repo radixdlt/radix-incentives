@@ -19,6 +19,11 @@ export type CalculateActivityPointsJob = z.infer<
 export class CalculateActivityPointsWorkerService extends Effect.Service<CalculateActivityPointsWorkerService>()(
   'CalculateActivityPointsWorkerService',
   {
+    dependencies: [
+      CalculateActivityPointsService.Default,
+      GetWeekByIdService.Default,
+      AccountAddressService.Default,
+    ],
     effect: Effect.gen(function* () {
       const calculateActivityPointsService =
         yield* CalculateActivityPointsService;

@@ -45,6 +45,10 @@ type AccountAddress = string;
 export class GetCaviarnineResourcePoolPositionsService extends Effect.Service<GetCaviarnineResourcePoolPositionsService>()(
   'GetCaviarnineResourcePoolPositionsService',
   {
+    dependencies: [
+      GetFungibleBalanceService.Default,
+      GetResourcePoolUnitsService.Default,
+    ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;

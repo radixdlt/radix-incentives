@@ -6,11 +6,12 @@ import {
 } from 'db/incentives';
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
   'ActivityWeekService',
   {
+    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       const getByWeekId = Effect.fn(function* (weekId: string) {

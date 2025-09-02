@@ -1,21 +1,18 @@
 import { type Event, events } from 'db/incentives';
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import SuperJSON from 'superjson';
-import { DbClientService, DbError } from '../../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../../db/dbClient';
 
-export class AddEventsToDbService extends Context.Tag('AddEventsToDbService')<
-  AddEventsToDbService,
-  (input: Event[]) => Effect.Effect<Event[], DbError>
->() {}
+export class AddEventsToDbService extends Effect.Service<AddEventsToDbService>()(
+  'AddEventsToDbService',
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
 
-export const AddEventsToDbLive = Layer.effect(
-  AddEventsToDbService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) => {
-      return Effect.gen(function* () {
-        const result = yield* Effect.tryPromise({
+      return Effect.fn(function* (input: Event[]) {
+        // Implementation goes here
+        return yield* Effect.tryPromise({
           try: () =>
             db
               .insert(events)
@@ -29,9 +26,7 @@ export const AddEventsToDbLive = Layer.effect(
               .onConflictDoNothing(),
           catch: (error) => new DbError(error),
         });
-
-        return result;
       });
-    };
-  }),
-);
+    }),
+  },
+) {}

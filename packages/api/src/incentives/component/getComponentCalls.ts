@@ -1,8 +1,8 @@
 import { componentCalls } from 'db/incentives';
 import { and, between } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
+import { Effect } from 'effect';
 import { GetAccountAddressByUserIdService } from '../account/getAccountAddressByUserId';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { ComponentWhitelistService } from './componentWhitelist';
 
 export type GetComponentCallsServiceInput = {
@@ -19,24 +19,19 @@ export type GetComponentCallsServiceOutput = {
   accountAddress: string;
 }[];
 
-export class GetComponentCallsService extends Context.Tag(
+export class GetComponentCallsService extends Effect.Service<GetComponentCallsService>()(
   'GetComponentCallsService',
-)<
-  GetComponentCallsService,
-  (
-    input: GetComponentCallsServiceInput,
-  ) => Effect.Effect<GetComponentCallsServiceOutput, DbError>
->() {}
-
-export const GetComponentCallsPaginatedLive = Layer.effect(
-  GetComponentCallsService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-    const getAccountAddressByUserId = yield* GetAccountAddressByUserIdService;
-    const componentWhitelistService = yield* ComponentWhitelistService;
-
-    return (input) => {
-      return Effect.gen(function* () {
+  {
+    dependencies: [
+      dbClientLive,
+      GetAccountAddressByUserIdService.Default,
+      ComponentWhitelistService.Default,
+    ],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      const getAccountAddressByUserId = yield* GetAccountAddressByUserIdService;
+      const componentWhitelistService = yield* ComponentWhitelistService;
+      return Effect.fn(function* (input: GetComponentCallsServiceInput) {
         const result = yield* Effect.tryPromise({
           try: () =>
             db
@@ -96,6 +91,6 @@ export const GetComponentCallsPaginatedLive = Layer.effect(
           })
           .filter((item): item is NonNullable<typeof item> => item !== null);
       });
-    };
-  }),
-);
+    }),
+  },
+) {}
