@@ -55,7 +55,7 @@ import {
   type NotificationSettings,
 } from '../config/notificationService';
 import { DappService } from '../dapp/dapp';
-import { createDbClientLive, createDbReadOnlyClientLive } from '../db/dbClient';
+import { createDbClientLive } from '../db/dbClient';
 import { ActivityDisplayService } from '../leaderboard/activityDisplay';
 import { ActivityPointsAdjustmentService } from '../leaderboard/activityPointsAdjustment';
 import { LeaderboardService } from '../leaderboard/leaderboard';
