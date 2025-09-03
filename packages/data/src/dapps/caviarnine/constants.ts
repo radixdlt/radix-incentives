@@ -95,6 +95,117 @@ export const CaviarNineConstants = {
       liquidity_receipt:
         'resource_rdx1nfcf90emj9e2ujyuywwa0dsnqxlruar54gz4z7zjxmwtpx67xsrmnc',
     },
+
+    husdc_husdt: {
+      name: 'husdc/husdt',
+      componentAddress:
+        'component_rdx1cpat0a7p2ufty0lrawwtxfr3xm2qf5ys2xe6mlux4s074utzkz0w0y',
+      token_x:
+        'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+      token_y:
+        'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+      liquidity_receipt:
+        'resource_rdx1nfuh838gcphgt5h8az04k6zjvaqhe47tdzkrcwn3c50djuzl42qkhz',
+    },
+    heth_husdt: {
+      name: 'heth/husdt',
+      componentAddress:
+        'component_rdx1cpdmqk0ujmyttnnh82lc05a578xgll6tgdadwt4crlnc4usfk75yn2',
+      token_x:
+        'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+      token_y:
+        'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+      liquidity_receipt:
+        'resource_rdx1nf7f0lerkda54tkuydm4chc2k4ml5cufmr09es9vvu7pamv73ewtjk',
+    },
+    xrd_husdt: {
+      name: 'xrd/husdt',
+      componentAddress:
+        'component_rdx1cph6ayqwqgnavd5yjxjx966nfcnxwt85k9p8fqv37r5pfnn3qcm6az',
+      token_x:
+        'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      token_y:
+        'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+      liquidity_receipt:
+        'resource_rdx1ng4val4sld9gjwhys6af3wsudk6xdrfr2rhsfswnmz474e2dxacv8x',
+    },
+    xrd_husdc: {
+      name: 'xrd/husdc',
+      componentAddress:
+        'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+      token_x:
+        'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      token_y:
+        'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+      liquidity_receipt:
+        'resource_rdx1ngsnjtypwayhkwnyu0swmh2ryu398xtq6gt5lz82n4tyyvs6qyd4wn',
+    },
+    heth_husdc: {
+      name: 'heth/husdc',
+      componentAddress:
+        'component_rdx1cqly8sxtv7xfe8td9uxvyhw585szj2a5p220dn28ru5d2phcwdcgg5',
+      token_x:
+        'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+      token_y:
+        'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+      liquidity_receipt:
+        'resource_rdx1nf7wckadcrr0dlltm85ssp7w7autc07ae2gethr34w7a0cyrvmsh5e',
+    },
+    heth_xrd: {
+      name: 'heth/xrd',
+      componentAddress:
+        'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+      token_x:
+        'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+      token_y:
+        'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      liquidity_receipt:
+        'resource_rdx1n2hw9fr5eaa89gpxapjnjphdzc4u54unfunckz0dceqh9jl2hjgtqq',
+    },
+    hwbtc_heth: {
+      name: 'hwbtc/heth',
+      componentAddress:
+        'component_rdx1cr4w4kezazrxwzy2yyndep2nc55j4plhpg8d4z57cd4u75rpqwfeg2',
+      token_x:
+        'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+      token_y:
+        'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+      liquidity_receipt:
+        'resource_rdx1nf28x9d9scutsfxrw3w55jmhus4r7g5xq742kttzkxmhymtv5juu82',
+    },
+    hwbtc_husdt: {
+      name: 'hwbtc/husdt',
+      componentAddress:
+        'component_rdx1cr7xqqyn2anx5l85curcqy8z3rv9aprqf0axh9dkmsdfk9zfffer8m',
+      token_x:
+        'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+      token_y:
+        'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+      liquidity_receipt:
+        'resource_rdx1ntlj2z7vxej6xcdj4s4nxx478jmpk5jfc8pa7e9dcpcpu4rcnuyvrc',
+    },
+    hwbtc_xrd: {
+      name: 'hwbtc/xrd',
+      componentAddress:
+        'component_rdx1crmvyl8nghu4g9ssxjq3yns793mqpn7nkc2cx5rmd2rzkaw0x755cu',
+      token_x:
+        'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+      token_y:
+        'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      liquidity_receipt:
+        'resource_rdx1ngj84n8y5wnpu6vff40l04k2eecryp8zlcu5ff68j5vrf6q484ac6y',
+    },
+    hwbtc_husdc: {
+      name: 'hwbtc/husdc',
+      componentAddress:
+        'component_rdx1cz2p7z6dfnns6ctcacns96rnxmaxuhlxwns6cyd8avd8jnemnj9kvf',
+      token_x:
+        'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+      token_y:
+        'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+      liquidity_receipt:
+        'resource_rdx1ntl0y0z5cgqc8egu35cm2yeqtvyafpvfgszt2q6008xreec4cnd0qg',
+    },
   },
   simplePools: {
     REDDICKS_LSULP: {
