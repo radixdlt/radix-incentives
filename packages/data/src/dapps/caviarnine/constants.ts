@@ -77,6 +77,24 @@ export const CaviarNineConstants = {
       liquidity_receipt:
         'resource_rdx1ntpkcfe5ny37wk487ruuxj8wrgk6qg8rjq80m08un4yg98dmyj6msq',
     },
+    DFP2_XRD: {
+      name: 'DFP2/XRD',
+      componentAddress:
+        'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+      token_x: Assets.Fungible.DFP2,
+      token_y: Assets.Fungible.XRD,
+      liquidity_receipt:
+        'resource_rdx1nt2vqgq43sr42pgfk625cl6yrzpreq5xqatkf2pgwm9dy7tjuv7e2v',
+    },
+    EARLY_XRD: {
+      name: 'EARLY/XRD',
+      componentAddress:
+        'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+      token_x: Assets.Fungible.EARLY,
+      token_y: Assets.Fungible.XRD,
+      liquidity_receipt:
+        'resource_rdx1nfcf90emj9e2ujyuywwa0dsnqxlruar54gz4z7zjxmwtpx67xsrmnc',
+    },
   },
   simplePools: {
     REDDICKS_LSULP: {

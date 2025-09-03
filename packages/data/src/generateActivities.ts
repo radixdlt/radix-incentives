@@ -384,8 +384,10 @@ const runnable = Effect.gen(function* () {
           .filter((item) => !!item),
       );
 
+      const { componentAddress, ...activityWithoutSingularComponentAddress } =
+        firstActivity;
       return {
-        ...firstActivity,
+        ...activityWithoutSingularComponentAddress,
         componentAddresses: Array.from(componentAddresses.values()),
       };
     },

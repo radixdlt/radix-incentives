@@ -207,6 +207,150 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                 ],
               },
+              {
+                lpResourceAddress:
+                  'resource_rdx1tkcczq5ahrk3ysllftmmy3h9ghejqcwm53ywwymkdlcv0fc3tsy4en',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
+              {
+                lpResourceAddress:
+                  'resource_rdx1t5908ql2dhz0m33dfljq8803z99jmeqrej98tjf9g6shadj7tvgjle',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
+              {
+                lpResourceAddress:
+                  'resource_rdx1t4z3dn6u57kj069wru4tkmdrx8njz2d9a5rlfsphs87cyuaj9tufv0',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
+              {
+                lpResourceAddress:
+                  'resource_rdx1tkmvuls8ktxwt7trrs5cvjeu8rk5036l6kr07s84gr0jzqmwk4qmdh',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
+              {
+                lpResourceAddress:
+                  'resource_rdx1thus6t5yn4msedhslmyclqdduunrat85w6q6tmnep7h0vg3hcsmawk',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
+              {
+                lpResourceAddress:
+                  'resource_rdx1thj6rq8ceh6n4zvwswwh8f0xmuzs263eyg7t35uupujh88xa66v5wh',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
             ],
           },
         ].map((item) => ({

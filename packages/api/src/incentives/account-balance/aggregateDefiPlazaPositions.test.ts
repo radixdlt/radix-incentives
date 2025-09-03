@@ -135,6 +135,78 @@ describe('AggregateDefiPlazaPositionsService', () => {
           usdValue:
             '0.42774466860186911257522044085695562436070697873196774025',
         },
+        {
+          activityId: 'dp_lp_nat_reddicks-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_reddicks-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_reddicks-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_nat_early-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_early-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_early-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_nat_ilis-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_ilis-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_ilis-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_nat_floop-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_floop-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_floop-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_nat_weft-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_weft-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_weft-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_nat_oci-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_oci-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_oci-xrd',
+          usdValue: '0',
+        },
       ].reduce(
         (acc, item) => {
           acc[item.activityId] = item;
