@@ -43,12 +43,6 @@ export const ActivityId = {
   common: 'common',
   componentCalls: 'componentCalls',
   'dp_ho_dfp2-xrd': 'dp_ho_dfp2-xrd',
-  'dp_ho_early-xrd': 'dp_ho_early-xrd',
-  'dp_ho_floop-xrd': 'dp_ho_floop-xrd',
-  'dp_ho_ilis-xrd': 'dp_ho_ilis-xrd',
-  'dp_ho_oci-xrd': 'dp_ho_oci-xrd',
-  'dp_ho_reddicks-xrd': 'dp_ho_reddicks-xrd',
-  'dp_ho_weft-xrd': 'dp_ho_weft-xrd',
   'dp_ho_xeth-xrd': 'dp_ho_xeth-xrd',
   'dp_ho_xrd-xusdc': 'dp_ho_xrd-xusdc',
   'dp_ho_xrd-xusdt': 'dp_ho_xrd-xusdt',
@@ -56,34 +50,28 @@ export const ActivityId = {
   'dp_lp_blu_xeth-xrd': 'dp_lp_blu_xeth-xrd',
   'dp_lp_blu_xrd-xwbtc': 'dp_lp_blu_xrd-xwbtc',
   'dp_lp_der_dfp2-xrd': 'dp_lp_der_dfp2-xrd',
-  'dp_lp_der_early-xrd': 'dp_lp_der_early-xrd',
-  'dp_lp_der_floop-xrd': 'dp_lp_der_floop-xrd',
-  'dp_lp_der_ilis-xrd': 'dp_lp_der_ilis-xrd',
-  'dp_lp_der_oci-xrd': 'dp_lp_der_oci-xrd',
-  'dp_lp_der_reddicks-xrd': 'dp_lp_der_reddicks-xrd',
-  'dp_lp_der_weft-xrd': 'dp_lp_der_weft-xrd',
   'dp_lp_der_xeth-xrd': 'dp_lp_der_xeth-xrd',
   'dp_lp_der_xrd-xusdc': 'dp_lp_der_xrd-xusdc',
   'dp_lp_der_xrd-xusdt': 'dp_lp_der_xrd-xusdt',
   'dp_lp_der_xrd-xwbtc': 'dp_lp_der_xrd-xwbtc',
   'dp_lp_nat_astrl-dfp2': 'dp_lp_nat_astrl-dfp2',
+  'dp_lp_nat_dfp2-early': 'dp_lp_nat_dfp2-early',
+  'dp_lp_nat_dfp2-floop': 'dp_lp_nat_dfp2-floop',
+  'dp_lp_nat_dfp2-ilis': 'dp_lp_nat_dfp2-ilis',
+  'dp_lp_nat_dfp2-oci': 'dp_lp_nat_dfp2-oci',
+  'dp_lp_nat_dfp2-reddicks': 'dp_lp_nat_dfp2-reddicks',
+  'dp_lp_nat_dfp2-weft': 'dp_lp_nat_dfp2-weft',
   'dp_lp_nat_dfp2-xrd': 'dp_lp_nat_dfp2-xrd',
-  'dp_lp_nat_early-xrd': 'dp_lp_nat_early-xrd',
-  'dp_lp_nat_floop-xrd': 'dp_lp_nat_floop-xrd',
-  'dp_lp_nat_ilis-xrd': 'dp_lp_nat_ilis-xrd',
-  'dp_lp_nat_oci-xrd': 'dp_lp_nat_oci-xrd',
-  'dp_lp_nat_reddicks-xrd': 'dp_lp_nat_reddicks-xrd',
-  'dp_lp_nat_weft-xrd': 'dp_lp_nat_weft-xrd',
   'dp_lp_sta_xrd-xusdc': 'dp_lp_sta_xrd-xusdc',
   'dp_lp_sta_xrd-xusdt': 'dp_lp_sta_xrd-xusdt',
   'dp_tr_astrl-dfp2': 'dp_tr_astrl-dfp2',
+  'dp_tr_dfp2-early': 'dp_tr_dfp2-early',
+  'dp_tr_dfp2-floop': 'dp_tr_dfp2-floop',
+  'dp_tr_dfp2-ilis': 'dp_tr_dfp2-ilis',
+  'dp_tr_dfp2-oci': 'dp_tr_dfp2-oci',
+  'dp_tr_dfp2-reddicks': 'dp_tr_dfp2-reddicks',
+  'dp_tr_dfp2-weft': 'dp_tr_dfp2-weft',
   'dp_tr_dfp2-xrd': 'dp_tr_dfp2-xrd',
-  'dp_tr_early-xrd': 'dp_tr_early-xrd',
-  'dp_tr_floop-xrd': 'dp_tr_floop-xrd',
-  'dp_tr_ilis-xrd': 'dp_tr_ilis-xrd',
-  'dp_tr_oci-xrd': 'dp_tr_oci-xrd',
-  'dp_tr_reddicks-xrd': 'dp_tr_reddicks-xrd',
-  'dp_tr_weft-xrd': 'dp_tr_weft-xrd',
   'dp_tr_xeth-xrd': 'dp_tr_xeth-xrd',
   'dp_tr_xrd-xusdc': 'dp_tr_xrd-xusdc',
   'dp_tr_xrd-xusdt': 'dp_tr_xrd-xusdt',
@@ -257,17 +245,17 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
   component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72:
     'dp_tr_dfp2-xrd',
   component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6:
-    'dp_tr_reddicks-xrd',
+    'dp_tr_dfp2-reddicks',
   component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl:
-    'dp_tr_early-xrd',
+    'dp_tr_dfp2-early',
   component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68:
-    'dp_tr_ilis-xrd',
+    'dp_tr_dfp2-ilis',
   component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e:
-    'dp_tr_floop-xrd',
+    'dp_tr_dfp2-floop',
   component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9:
-    'dp_tr_weft-xrd',
+    'dp_tr_dfp2-weft',
   component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh:
-    'dp_tr_oci-xrd',
+    'dp_tr_dfp2-oci',
 };
 
 export const getTradingActivityIdByComponentAddress = (
@@ -333,17 +321,17 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
   component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72:
     'dp_lp_nat_dfp2-xrd',
   component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6:
-    'dp_lp_der_reddicks-xrd',
+    'dp_lp_nat_dfp2-reddicks',
   component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl:
-    'dp_lp_der_early-xrd',
+    'dp_lp_nat_dfp2-early',
   component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68:
-    'dp_lp_der_ilis-xrd',
+    'dp_lp_nat_dfp2-ilis',
   component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e:
-    'dp_lp_der_floop-xrd',
+    'dp_lp_nat_dfp2-floop',
   component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9:
-    'dp_lp_der_weft-xrd',
+    'dp_lp_nat_dfp2-weft',
   component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh:
-    'dp_lp_der_oci-xrd',
+    'dp_lp_nat_dfp2-oci',
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g:
     'su_lp_sta_susd',
 };
@@ -2197,9 +2185,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_reddicks-xrd',
+      activityId: 'dp_lp_nat_dfp2-reddicks',
       dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
+      tokenPair: 'dfp2-reddicks',
       assets: [
         {
           name: 'reddicks',
@@ -2215,9 +2203,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_reddicks-xrd',
+      activityId: 'dp_tr_dfp2-reddicks',
       dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
+      tokenPair: 'dfp2-reddicks',
       assets: [
         {
           name: 'reddicks',
@@ -2226,10 +2214,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
@@ -2238,46 +2226,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_reddicks-xrd',
-      dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'lp',
-      componentAddresses: [
-        'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_reddicks-xrd',
-      dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
-      componentAddresses: [
-        'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
-      ],
-    },
-    {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_early-xrd',
+      activityId: 'dp_lp_nat_dfp2-early',
       dAppId: 'dp',
-      tokenPair: 'early-xrd',
+      tokenPair: 'dfp2-early',
       assets: [
         {
           name: 'early',
@@ -2293,9 +2245,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_early-xrd',
+      activityId: 'dp_tr_dfp2-early',
       dAppId: 'dp',
-      tokenPair: 'early-xrd',
+      tokenPair: 'dfp2-early',
       assets: [
         {
           name: 'early',
@@ -2304,10 +2256,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
@@ -2316,46 +2268,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_early-xrd',
-      dAppId: 'dp',
-      tokenPair: 'early-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'lp',
-      componentAddresses: [
-        'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_early-xrd',
-      dAppId: 'dp',
-      tokenPair: 'early-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
-      componentAddresses: [
-        'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
-      ],
-    },
-    {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_ilis-xrd',
+      activityId: 'dp_lp_nat_dfp2-ilis',
       dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
+      tokenPair: 'dfp2-ilis',
       assets: [
         {
           name: 'ilis',
@@ -2371,9 +2287,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_ilis-xrd',
+      activityId: 'dp_tr_dfp2-ilis',
       dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
+      tokenPair: 'dfp2-ilis',
       assets: [
         {
           name: 'ilis',
@@ -2382,10 +2298,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
@@ -2394,46 +2310,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_ilis-xrd',
-      dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'lp',
-      componentAddresses: [
-        'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_ilis-xrd',
-      dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
-      componentAddresses: [
-        'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
-      ],
-    },
-    {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_floop-xrd',
+      activityId: 'dp_lp_nat_dfp2-floop',
       dAppId: 'dp',
-      tokenPair: 'floop-xrd',
+      tokenPair: 'dfp2-floop',
       assets: [
         {
           name: 'floop',
@@ -2449,9 +2329,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_floop-xrd',
+      activityId: 'dp_tr_dfp2-floop',
       dAppId: 'dp',
-      tokenPair: 'floop-xrd',
+      tokenPair: 'dfp2-floop',
       assets: [
         {
           name: 'floop',
@@ -2460,10 +2340,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
@@ -2472,46 +2352,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_floop-xrd',
-      dAppId: 'dp',
-      tokenPair: 'floop-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'lp',
-      componentAddresses: [
-        'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_floop-xrd',
-      dAppId: 'dp',
-      tokenPair: 'floop-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
-      componentAddresses: [
-        'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
-      ],
-    },
-    {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_weft-xrd',
+      activityId: 'dp_lp_nat_dfp2-weft',
       dAppId: 'dp',
-      tokenPair: 'weft-xrd',
+      tokenPair: 'dfp2-weft',
       assets: [
         {
           name: 'weft',
@@ -2527,9 +2371,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_weft-xrd',
+      activityId: 'dp_tr_dfp2-weft',
       dAppId: 'dp',
-      tokenPair: 'weft-xrd',
+      tokenPair: 'dfp2-weft',
       assets: [
         {
           name: 'weft',
@@ -2538,10 +2382,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
@@ -2550,46 +2394,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_weft-xrd',
-      dAppId: 'dp',
-      tokenPair: 'weft-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'lp',
-      componentAddresses: [
-        'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_weft-xrd',
-      dAppId: 'dp',
-      tokenPair: 'weft-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
-      componentAddresses: [
-        'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
-      ],
-    },
-    {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_oci-xrd',
+      activityId: 'dp_lp_nat_dfp2-oci',
       dAppId: 'dp',
-      tokenPair: 'oci-xrd',
+      tokenPair: 'dfp2-oci',
       assets: [
         {
           name: 'oci',
@@ -2605,9 +2413,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_oci-xrd',
+      activityId: 'dp_tr_dfp2-oci',
       dAppId: 'dp',
-      tokenPair: 'oci-xrd',
+      tokenPair: 'dfp2-oci',
       assets: [
         {
           name: 'oci',
@@ -2616,49 +2424,13 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-      componentAddresses: [
-        'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
-      ],
-    },
-    {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_oci-xrd',
-      dAppId: 'dp',
-      tokenPair: 'oci-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'lp',
-      componentAddresses: [
-        'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_oci-xrd',
-      dAppId: 'dp',
-      tokenPair: 'oci-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
       componentAddresses: [
         'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
       ],
@@ -4901,9 +4673,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'provideNativeLiquidityToDex',
-    activityId: 'dp_lp_nat_reddicks-xrd',
+    activityId: 'dp_lp_nat_dfp2-reddicks',
     dAppId: 'dp',
-    tokenPair: 'reddicks-xrd',
+    tokenPair: 'dfp2-reddicks',
     assets: [
       {
         name: 'reddicks',
@@ -4919,9 +4691,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'tradingVolume',
-    activityId: 'dp_tr_reddicks-xrd',
+    activityId: 'dp_tr_dfp2-reddicks',
     dAppId: 'dp',
-    tokenPair: 'reddicks-xrd',
+    tokenPair: 'dfp2-reddicks',
     assets: [
       {
         name: 'reddicks',
@@ -4930,10 +4702,10 @@ export const activityData: ActivityData[] = [
         assetType: 'nat',
       },
       {
-        name: 'xrd',
+        name: 'dfp2',
         resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
       },
     ],
     action: 'tr',
@@ -4942,46 +4714,10 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'dp_lp_der_reddicks-xrd',
-    dAppId: 'dp',
-    tokenPair: 'reddicks-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'lp',
-    componentAddresses: [
-      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'dp_ho_reddicks-xrd',
-    dAppId: 'dp',
-    tokenPair: 'reddicks-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'ho',
-    componentAddresses: [
-      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
-    ],
-  },
-  {
     categoryId: 'provideNativeLiquidityToDex',
-    activityId: 'dp_lp_nat_early-xrd',
+    activityId: 'dp_lp_nat_dfp2-early',
     dAppId: 'dp',
-    tokenPair: 'early-xrd',
+    tokenPair: 'dfp2-early',
     assets: [
       {
         name: 'early',
@@ -4997,9 +4733,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'tradingVolume',
-    activityId: 'dp_tr_early-xrd',
+    activityId: 'dp_tr_dfp2-early',
     dAppId: 'dp',
-    tokenPair: 'early-xrd',
+    tokenPair: 'dfp2-early',
     assets: [
       {
         name: 'early',
@@ -5008,10 +4744,10 @@ export const activityData: ActivityData[] = [
         assetType: 'nat',
       },
       {
-        name: 'xrd',
+        name: 'dfp2',
         resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
       },
     ],
     action: 'tr',
@@ -5020,46 +4756,10 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'dp_lp_der_early-xrd',
-    dAppId: 'dp',
-    tokenPair: 'early-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'lp',
-    componentAddresses: [
-      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'dp_ho_early-xrd',
-    dAppId: 'dp',
-    tokenPair: 'early-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'ho',
-    componentAddresses: [
-      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
-    ],
-  },
-  {
     categoryId: 'provideNativeLiquidityToDex',
-    activityId: 'dp_lp_nat_ilis-xrd',
+    activityId: 'dp_lp_nat_dfp2-ilis',
     dAppId: 'dp',
-    tokenPair: 'ilis-xrd',
+    tokenPair: 'dfp2-ilis',
     assets: [
       {
         name: 'ilis',
@@ -5075,9 +4775,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'tradingVolume',
-    activityId: 'dp_tr_ilis-xrd',
+    activityId: 'dp_tr_dfp2-ilis',
     dAppId: 'dp',
-    tokenPair: 'ilis-xrd',
+    tokenPair: 'dfp2-ilis',
     assets: [
       {
         name: 'ilis',
@@ -5086,10 +4786,10 @@ export const activityData: ActivityData[] = [
         assetType: 'nat',
       },
       {
-        name: 'xrd',
+        name: 'dfp2',
         resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
       },
     ],
     action: 'tr',
@@ -5098,46 +4798,10 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'dp_lp_der_ilis-xrd',
-    dAppId: 'dp',
-    tokenPair: 'ilis-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'lp',
-    componentAddresses: [
-      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'dp_ho_ilis-xrd',
-    dAppId: 'dp',
-    tokenPair: 'ilis-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'ho',
-    componentAddresses: [
-      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
-    ],
-  },
-  {
     categoryId: 'provideNativeLiquidityToDex',
-    activityId: 'dp_lp_nat_floop-xrd',
+    activityId: 'dp_lp_nat_dfp2-floop',
     dAppId: 'dp',
-    tokenPair: 'floop-xrd',
+    tokenPair: 'dfp2-floop',
     assets: [
       {
         name: 'floop',
@@ -5153,9 +4817,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'tradingVolume',
-    activityId: 'dp_tr_floop-xrd',
+    activityId: 'dp_tr_dfp2-floop',
     dAppId: 'dp',
-    tokenPair: 'floop-xrd',
+    tokenPair: 'dfp2-floop',
     assets: [
       {
         name: 'floop',
@@ -5164,10 +4828,10 @@ export const activityData: ActivityData[] = [
         assetType: 'nat',
       },
       {
-        name: 'xrd',
+        name: 'dfp2',
         resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
       },
     ],
     action: 'tr',
@@ -5176,46 +4840,10 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'dp_lp_der_floop-xrd',
-    dAppId: 'dp',
-    tokenPair: 'floop-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'lp',
-    componentAddresses: [
-      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'dp_ho_floop-xrd',
-    dAppId: 'dp',
-    tokenPair: 'floop-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'ho',
-    componentAddresses: [
-      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
-    ],
-  },
-  {
     categoryId: 'provideNativeLiquidityToDex',
-    activityId: 'dp_lp_nat_weft-xrd',
+    activityId: 'dp_lp_nat_dfp2-weft',
     dAppId: 'dp',
-    tokenPair: 'weft-xrd',
+    tokenPair: 'dfp2-weft',
     assets: [
       {
         name: 'weft',
@@ -5231,9 +4859,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'tradingVolume',
-    activityId: 'dp_tr_weft-xrd',
+    activityId: 'dp_tr_dfp2-weft',
     dAppId: 'dp',
-    tokenPair: 'weft-xrd',
+    tokenPair: 'dfp2-weft',
     assets: [
       {
         name: 'weft',
@@ -5242,10 +4870,10 @@ export const activityData: ActivityData[] = [
         assetType: 'nat',
       },
       {
-        name: 'xrd',
+        name: 'dfp2',
         resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
       },
     ],
     action: 'tr',
@@ -5254,46 +4882,10 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'dp_lp_der_weft-xrd',
-    dAppId: 'dp',
-    tokenPair: 'weft-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'lp',
-    componentAddresses: [
-      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'dp_ho_weft-xrd',
-    dAppId: 'dp',
-    tokenPair: 'weft-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'ho',
-    componentAddresses: [
-      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
-    ],
-  },
-  {
     categoryId: 'provideNativeLiquidityToDex',
-    activityId: 'dp_lp_nat_oci-xrd',
+    activityId: 'dp_lp_nat_dfp2-oci',
     dAppId: 'dp',
-    tokenPair: 'oci-xrd',
+    tokenPair: 'dfp2-oci',
     assets: [
       {
         name: 'oci',
@@ -5309,9 +4901,9 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'tradingVolume',
-    activityId: 'dp_tr_oci-xrd',
+    activityId: 'dp_tr_dfp2-oci',
     dAppId: 'dp',
-    tokenPair: 'oci-xrd',
+    tokenPair: 'dfp2-oci',
     assets: [
       {
         name: 'oci',
@@ -5320,49 +4912,13 @@ export const activityData: ActivityData[] = [
         assetType: 'nat',
       },
       {
-        name: 'xrd',
+        name: 'dfp2',
         resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
       },
     ],
     action: 'tr',
-    componentAddresses: [
-      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
-    ],
-  },
-  {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'dp_lp_der_oci-xrd',
-    dAppId: 'dp',
-    tokenPair: 'oci-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'lp',
-    componentAddresses: [
-      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'dp_ho_oci-xrd',
-    dAppId: 'dp',
-    tokenPair: 'oci-xrd',
-    assets: [
-      {
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        assetType: 'der',
-      },
-    ],
-    action: 'ho',
     componentAddresses: [
       'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
     ],
@@ -8357,9 +7913,9 @@ export const componentAddressActivityDataMap: Record<
   component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6: [
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_reddicks-xrd',
+      activityId: 'dp_lp_nat_dfp2-reddicks',
       dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
+      tokenPair: 'dfp2-reddicks',
       assets: [
         {
           name: 'reddicks',
@@ -8372,9 +7928,9 @@ export const componentAddressActivityDataMap: Record<
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_reddicks-xrd',
+      activityId: 'dp_tr_dfp2-reddicks',
       dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
+      tokenPair: 'dfp2-reddicks',
       assets: [
         {
           name: 'reddicks',
@@ -8383,34 +7939,34 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_reddicks-xrd',
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_dfp2-reddicks',
       dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
+      tokenPair: 'dfp2-reddicks',
       assets: [
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'lp',
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_reddicks-xrd',
+      activityId: 'dp_tr_dfp2-reddicks',
       dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
+      tokenPair: 'dfp2-reddicks',
       assets: [
         {
           name: 'reddicks',
@@ -8419,36 +7975,21 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_reddicks-xrd',
-      dAppId: 'dp',
-      tokenPair: 'reddicks-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
     },
   ],
   component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl: [
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_early-xrd',
+      activityId: 'dp_lp_nat_dfp2-early',
       dAppId: 'dp',
-      tokenPair: 'early-xrd',
+      tokenPair: 'dfp2-early',
       assets: [
         {
           name: 'early',
@@ -8461,9 +8002,9 @@ export const componentAddressActivityDataMap: Record<
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_early-xrd',
+      activityId: 'dp_tr_dfp2-early',
       dAppId: 'dp',
-      tokenPair: 'early-xrd',
+      tokenPair: 'dfp2-early',
       assets: [
         {
           name: 'early',
@@ -8472,34 +8013,34 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_early-xrd',
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_dfp2-early',
       dAppId: 'dp',
-      tokenPair: 'early-xrd',
+      tokenPair: 'dfp2-early',
       assets: [
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'lp',
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_early-xrd',
+      activityId: 'dp_tr_dfp2-early',
       dAppId: 'dp',
-      tokenPair: 'early-xrd',
+      tokenPair: 'dfp2-early',
       assets: [
         {
           name: 'early',
@@ -8508,36 +8049,21 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_early-xrd',
-      dAppId: 'dp',
-      tokenPair: 'early-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
     },
   ],
   component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68: [
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_ilis-xrd',
+      activityId: 'dp_lp_nat_dfp2-ilis',
       dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
+      tokenPair: 'dfp2-ilis',
       assets: [
         {
           name: 'ilis',
@@ -8550,9 +8076,9 @@ export const componentAddressActivityDataMap: Record<
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_ilis-xrd',
+      activityId: 'dp_tr_dfp2-ilis',
       dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
+      tokenPair: 'dfp2-ilis',
       assets: [
         {
           name: 'ilis',
@@ -8561,34 +8087,34 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_ilis-xrd',
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_dfp2-ilis',
       dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
+      tokenPair: 'dfp2-ilis',
       assets: [
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'lp',
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_ilis-xrd',
+      activityId: 'dp_tr_dfp2-ilis',
       dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
+      tokenPair: 'dfp2-ilis',
       assets: [
         {
           name: 'ilis',
@@ -8597,36 +8123,21 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_ilis-xrd',
-      dAppId: 'dp',
-      tokenPair: 'ilis-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
     },
   ],
   component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e: [
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_floop-xrd',
+      activityId: 'dp_lp_nat_dfp2-floop',
       dAppId: 'dp',
-      tokenPair: 'floop-xrd',
+      tokenPair: 'dfp2-floop',
       assets: [
         {
           name: 'floop',
@@ -8639,9 +8150,9 @@ export const componentAddressActivityDataMap: Record<
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_floop-xrd',
+      activityId: 'dp_tr_dfp2-floop',
       dAppId: 'dp',
-      tokenPair: 'floop-xrd',
+      tokenPair: 'dfp2-floop',
       assets: [
         {
           name: 'floop',
@@ -8650,34 +8161,34 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_floop-xrd',
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_dfp2-floop',
       dAppId: 'dp',
-      tokenPair: 'floop-xrd',
+      tokenPair: 'dfp2-floop',
       assets: [
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'lp',
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_floop-xrd',
+      activityId: 'dp_tr_dfp2-floop',
       dAppId: 'dp',
-      tokenPair: 'floop-xrd',
+      tokenPair: 'dfp2-floop',
       assets: [
         {
           name: 'floop',
@@ -8686,36 +8197,21 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_floop-xrd',
-      dAppId: 'dp',
-      tokenPair: 'floop-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
     },
   ],
   component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9: [
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_weft-xrd',
+      activityId: 'dp_lp_nat_dfp2-weft',
       dAppId: 'dp',
-      tokenPair: 'weft-xrd',
+      tokenPair: 'dfp2-weft',
       assets: [
         {
           name: 'weft',
@@ -8728,9 +8224,9 @@ export const componentAddressActivityDataMap: Record<
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_weft-xrd',
+      activityId: 'dp_tr_dfp2-weft',
       dAppId: 'dp',
-      tokenPair: 'weft-xrd',
+      tokenPair: 'dfp2-weft',
       assets: [
         {
           name: 'weft',
@@ -8739,34 +8235,34 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_weft-xrd',
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_dfp2-weft',
       dAppId: 'dp',
-      tokenPair: 'weft-xrd',
+      tokenPair: 'dfp2-weft',
       assets: [
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'lp',
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_weft-xrd',
+      activityId: 'dp_tr_dfp2-weft',
       dAppId: 'dp',
-      tokenPair: 'weft-xrd',
+      tokenPair: 'dfp2-weft',
       assets: [
         {
           name: 'weft',
@@ -8775,36 +8271,21 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_weft-xrd',
-      dAppId: 'dp',
-      tokenPair: 'weft-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
     },
   ],
   component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh: [
     {
       categoryId: 'provideNativeLiquidityToDex',
-      activityId: 'dp_lp_nat_oci-xrd',
+      activityId: 'dp_lp_nat_dfp2-oci',
       dAppId: 'dp',
-      tokenPair: 'oci-xrd',
+      tokenPair: 'dfp2-oci',
       assets: [
         {
           name: 'oci',
@@ -8817,9 +8298,9 @@ export const componentAddressActivityDataMap: Record<
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_oci-xrd',
+      activityId: 'dp_tr_dfp2-oci',
       dAppId: 'dp',
-      tokenPair: 'oci-xrd',
+      tokenPair: 'dfp2-oci',
       assets: [
         {
           name: 'oci',
@@ -8828,34 +8309,34 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
     },
     {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'dp_lp_der_oci-xrd',
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_dfp2-oci',
       dAppId: 'dp',
-      tokenPair: 'oci-xrd',
+      tokenPair: 'dfp2-oci',
       assets: [
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'lp',
     },
     {
       categoryId: 'tradingVolume',
-      activityId: 'dp_tr_oci-xrd',
+      activityId: 'dp_tr_dfp2-oci',
       dAppId: 'dp',
-      tokenPair: 'oci-xrd',
+      tokenPair: 'dfp2-oci',
       assets: [
         {
           name: 'oci',
@@ -8864,28 +8345,13 @@ export const componentAddressActivityDataMap: Record<
           assetType: 'nat',
         },
         {
-          name: 'xrd',
+          name: 'dfp2',
           resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
         },
       ],
       action: 'tr',
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'dp_ho_oci-xrd',
-      dAppId: 'dp',
-      tokenPair: 'oci-xrd',
-      assets: [
-        {
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-          assetType: 'der',
-        },
-      ],
-      action: 'ho',
     },
   ],
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g: [

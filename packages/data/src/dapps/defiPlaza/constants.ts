@@ -102,7 +102,7 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1t4dwv040r9fzx7gk7n088920guwlg6ln5m768gnxwlrzdcyrhrdxw5',
     baseResourceAddress: Assets.Fungible.REDDICKS,
-    quoteResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
     componentAddress:
       'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
   },
@@ -117,7 +117,7 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1tkc7hdmwhgza24nes4z0yf2ljc2fedvg2h7el2fzdxfgw0f2wq7pwz',
     baseResourceAddress: Assets.Fungible.EARLY,
-    quoteResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
     componentAddress:
       'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
   },
@@ -132,7 +132,7 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1t4tkxcr6zmk2var44h60x04hf973anuulha30346m7nfh25hyulzle',
     baseResourceAddress: Assets.Fungible.ILIS,
-    quoteResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
     componentAddress:
       'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
   },
@@ -147,7 +147,7 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1th75g4s4rrltrdlp6mlerpkgsc6tgsnwh06f2pacxhgvf7laflrva8',
     baseResourceAddress: Assets.Fungible.FLOOP,
-    quoteResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
     componentAddress:
       'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
   },
@@ -162,7 +162,7 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1tku2gw3j3hpp5f4dak5pxct2lhw8jpqvvv762r4d3ffu2enpllg2j9',
     baseResourceAddress: Assets.Fungible.WEFT,
-    quoteResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
     componentAddress:
       'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
   },
@@ -177,7 +177,7 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1tkc89zy5fgtmmx672ec23rnln6zzfzy6yyswtg4256atspmutq77wu',
     baseResourceAddress: Assets.Fungible.OCI,
-    quoteResourceAddress: Assets.Fungible.XRD,
+    quoteResourceAddress: Assets.Fungible.DFP2,
     componentAddress:
       'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
   },
