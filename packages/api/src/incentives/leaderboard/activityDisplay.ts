@@ -1,99 +1,55 @@
+import { activityData } from 'data';
 import { Effect } from 'effect';
+import { DappService } from '../dapp/dapp';
 
-/**
- * Service responsible for generating display names for activities
- */
 export class ActivityDisplayService extends Effect.Service<ActivityDisplayService>()(
   'ActivityDisplayService',
   {
+    dependencies: [DappService.Default],
     effect: Effect.gen(function* () {
+      const dappService = yield* DappService;
+
+      const activityDataMap = activityData.reduce(
+        (acc, activity) => {
+          acc[activity.activityId] = activity;
+          return acc;
+        },
+        {} as Record<string, (typeof activityData)[number]>,
+      );
+
+      const dappList = yield* dappService.list();
+      const dappNames = dappList.reduce(
+        (acc, dapp) => {
+          acc[dapp.id] = dapp.name;
+          return acc;
+        },
+        {} as Record<string, string>,
+      );
+
       return {
-        /**
-         * Check if an activity is a liquidity pool activity
-         */
-        isLpActivity: (activityId: string) => {
-          return activityId.includes('_lp');
-        },
-
-        /**
-         * Generate a readable name for LP activities
-         */
-        generateLpActivityName: (activityId: string) => {
-          // Check if it matches the LP pattern: dapp_lp_type_tokena-tokenb
-          const lpPattern = /^(oc|su|c9|dp)_lp_(?:blu|nat|der|sta)_(.+)$/;
-          const match = activityId.match(lpPattern);
-
-          if (!match) {
-            return activityId; // Not a recognized LP activity pattern, return original ID
-          }
-
-          const [, dappCode, tokenPair] = match;
-
-          // Map dapp codes to readable names
-          const dappNames: Record<string, string> = {
-            oc: 'Ociswap',
-            su: 'Surge',
-            c9: 'CaviarNine',
-            dp: 'DefiPlaza',
-          };
-
-          const dappName = dappNames[dappCode!] || dappCode!;
-
-          // Handle token pair formatting
-          if (tokenPair!.includes('-')) {
-            // Multiple tokens: tokena-tokenb
-            const tokens = tokenPair!.split('-').map(
-              (token) => token.toUpperCase(), // Convert to uppercase for better readability
-            );
-            return `${tokens.join('/')} to ${dappName}`;
-          } else {
-            // Single token
-            return `${tokenPair!.toUpperCase()} to ${dappName}`;
-          }
-        },
-
-        /**
-         * Generate display name for any activity (LP or regular)
-         */
-        generateActivityDisplayName: (params: {
+        generateActivityDisplayName: Effect.fn(function* (params: {
           activityId: string;
           activityName: string | null;
-        }) => {
+        }) {
           const { activityId, activityName } = params;
-          const isLp = activityId.includes('_lp');
 
-          // For LP activities, always use generated name (override database name)
-          if (isLp) {
-            // Check if it matches the LP pattern: dapp_lp_type_tokena-tokenb
-            const lpPattern = /^(oc|su|c9|dp)_lp_(?:blu|nat|der|sta)_(.+)$/;
-            const match = activityId.match(lpPattern);
+          // Look up activity data from the map
+          const activity = activityDataMap[activityId];
 
-            if (!match) {
-              return activityId; // Not a recognized LP activity pattern, return original ID
-            }
+          if (activity && activity.action === 'lp') {
+            // For LP activities, generate name from activity data
+            const dappName = dappNames[activity.dAppId] || activity.dAppId;
+            const tokenPair = activity.tokenPair;
 
-            const [, dappCode, tokenPair] = match;
-
-            // Map dapp codes to readable names
-            const dappNames: Record<string, string> = {
-              oc: 'Ociswap',
-              su: 'Surge',
-              c9: 'CaviarNine',
-              dp: 'DefiPlaza',
-            };
-
-            const dappName = dappNames[dappCode!] || dappCode!;
-
-            // Handle token pair formatting
-            if (tokenPair!.includes('-')) {
+            if (tokenPair.includes('-')) {
               // Multiple tokens: tokena-tokenb
-              const tokens = tokenPair!.split('-').map(
+              const tokens = tokenPair.split('-').map(
                 (token) => token.toUpperCase(), // Convert to uppercase for better readability
               );
               return `${tokens.join('/')} to ${dappName}`;
             } else {
               // Single token
-              return `${tokenPair!.toUpperCase()} to ${dappName}`;
+              return `${tokenPair.toUpperCase()} to ${dappName}`;
             }
           } else if (activityName) {
             // For non-LP activities, use database name if available
@@ -102,10 +58,8 @@ export class ActivityDisplayService extends Effect.Service<ActivityDisplayServic
             // Fall back to activity ID
             return activityId;
           }
-        },
+        }),
       };
     }),
   },
 ) {}
-
-export const ActivityDisplayServiceLive = ActivityDisplayService.Default;

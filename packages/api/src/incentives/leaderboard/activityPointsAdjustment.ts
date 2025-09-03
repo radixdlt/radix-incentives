@@ -2,19 +2,8 @@ import { activities } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { ActivityWeekService } from '../activity-week/activityWeek';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { ActivityDisplayService } from './activityDisplay';
-
-type ActivityBreakdownData = {
-  activityId: string;
-  activityName: string;
-  points: string;
-};
-
-export type ActivityBreakdownResult = {
-  activityBreakdownData: ActivityBreakdownData[];
-  zeroMultiplierPointsToSubtract: number;
-};
 
 /**
  * Service responsible for calculating activity point adjustments and breakdowns
@@ -22,6 +11,11 @@ export type ActivityBreakdownResult = {
 export class ActivityPointsAdjustmentService extends Effect.Service<ActivityPointsAdjustmentService>()(
   'ActivityPointsAdjustmentService',
   {
+    dependencies: [
+      dbClientLive,
+      ActivityWeekService.Default,
+      ActivityDisplayService.Default,
+    ],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
       const activityWeekService = yield* ActivityWeekService;
@@ -86,7 +80,7 @@ export class ActivityPointsAdjustmentService extends Effect.Service<ActivityPoin
           const activityNameMap: Record<string, string> = {};
           for (const activity of breakdown) {
             const displayName =
-              activityDisplayService.generateActivityDisplayName({
+              yield* activityDisplayService.generateActivityDisplayName({
                 activityId: activity.activityId,
                 activityName: activity.activityName,
               });
@@ -98,7 +92,7 @@ export class ActivityPointsAdjustmentService extends Effect.Service<ActivityPoin
           // Calculate points to subtract from zero-multiplier activities and filter breakdown
           const activityBreakdownData = Object.entries(activityBreakdown)
             .filter(([activityId, points]) => {
-              const multiplier = multiplierMap[activityId] ?? 1; // Default to 1 if not found
+              const multiplier = multiplierMap[activityId] ?? 0; // Default to 0 if not found
 
               if (multiplier === 0) {
                 // Add these points to the amount we'll subtract from total
@@ -137,6 +131,3 @@ export class ActivityPointsAdjustmentService extends Effect.Service<ActivityPoin
     }),
   },
 ) {}
-
-export const ActivityPointsAdjustmentServiceLive =
-  ActivityPointsAdjustmentService.Default;

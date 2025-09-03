@@ -58,16 +58,10 @@ describe(
       Layer.provide(dbLive),
     );
 
-    const activityDisplayServiceLive = ActivityDisplayService.Default.pipe(
-      Layer.provide(dbLive),
-    );
+    const activityDisplayServiceLive = ActivityDisplayService.Default;
 
     const activityPointsAdjustmentServiceLive =
-      ActivityPointsAdjustmentService.Default.pipe(
-        Layer.provide(dbLive),
-        Layer.provide(activityWeekServiceLive),
-        Layer.provide(activityDisplayServiceLive),
-      );
+      ActivityPointsAdjustmentService.Default;
 
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),

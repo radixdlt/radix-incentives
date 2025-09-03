@@ -412,16 +412,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getLatestAccountBalancesServiceLive =
     AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
 
-  const activityDisplayServiceLive = ActivityDisplayService.Default.pipe(
-    Layer.provide(dbClientLive),
-  );
+  const activityDisplayServiceLive = ActivityDisplayService.Default;
 
   const activityPointsAdjustmentServiceLive =
-    ActivityPointsAdjustmentService.Default.pipe(
-      Layer.provide(dbClientLive),
-      Layer.provide(activityWeekServiceLive),
-      Layer.provide(activityDisplayServiceLive),
-    );
+    ActivityPointsAdjustmentService.Default;
 
   const leaderboardLive = LeaderboardService.Default.pipe(
     Layer.provide(dbClientLive),
@@ -567,7 +561,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const dappServiceLive = DappService.Default.pipe(Layer.provide(dbClientLive));
+  const dappServiceLive = DappService.Default;
 
   const getDapps = () => {
     const program = Effect.provide(
