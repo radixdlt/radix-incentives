@@ -263,6 +263,18 @@ describe('AggregateOciswapPositionsService', () => {
               '2.09423999983566011834012002244413207877158400811140385765',
           },
           {
+            activityId: 'oc_lp_nat_weft-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_weft-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_weft-xrd',
+            usdValue: '0',
+          },
+          {
             activityId: 'oc_lp_blu_xrd-xwbtc',
             usdValue: '0.7644877982784',
           },
@@ -309,6 +321,18 @@ describe('AggregateOciswapPositionsService', () => {
           {
             activityId: 'oc_lp_sta_xrd-xusdt',
             usdValue: '1.1266510682241108',
+          },
+          {
+            activityId: 'oc_lp_nat_reddicks-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_reddicks-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_reddicks-xrd',
+            usdValue: '0',
           },
         ].reduce(
           (acc, item) => {

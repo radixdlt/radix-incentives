@@ -30,6 +30,7 @@ export const Assets = {
     LSULP:
       'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
     HLP: 'resource_rdx1th0f0khh9g8hwa0qtxsarmq8y7yeekjnh4n74494d5zf4k5vw8qv6m',
+    WEFT: 'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
   },
 } as const;
 
@@ -49,6 +50,7 @@ export const tokenNameMap = {
     [Assets.Fungible.ASTRL]: 'astrl',
     [Assets.Fungible.FLOOP]: 'floop',
     [Assets.Fungible.REDDICKS]: 'reddicks',
+    [Assets.Fungible.WEFT]: 'weft',
   },
   // Wrapped/bridged assets
   bluechipAssets: {

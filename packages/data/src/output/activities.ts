@@ -4,8 +4,9 @@
 
 import type { ActivityData, DappId } from '../types';
 
-// {DAPP_ID}_{lp | le | tr | ho}_{sta | der | nat | blu}_{PAIR | ASSET}
 export const ActivityId = {
+  'c9_ho_dfp2-xrd': 'c9_ho_dfp2-xrd',
+  'c9_ho_early-xrd': 'c9_ho_early-xrd',
   'c9_ho_floop-xrd': 'c9_ho_floop-xrd',
   'c9_ho_lsulp-reddicks': 'c9_ho_lsulp-reddicks',
   'c9_ho_lsulp-xrd': 'c9_ho_lsulp-xrd',
@@ -15,6 +16,8 @@ export const ActivityId = {
   'c9_ho_xrd-xwbtc': 'c9_ho_xrd-xwbtc',
   'c9_lp_blu_xeth-xrd': 'c9_lp_blu_xeth-xrd',
   'c9_lp_blu_xrd-xwbtc': 'c9_lp_blu_xrd-xwbtc',
+  'c9_lp_der_dfp2-xrd': 'c9_lp_der_dfp2-xrd',
+  'c9_lp_der_early-xrd': 'c9_lp_der_early-xrd',
   'c9_lp_der_floop-xrd': 'c9_lp_der_floop-xrd',
   'c9_lp_der_lsulp-reddicks': 'c9_lp_der_lsulp-reddicks',
   'c9_lp_der_lsulp-xrd': 'c9_lp_der_lsulp-xrd',
@@ -22,10 +25,14 @@ export const ActivityId = {
   'c9_lp_der_xrd-xusdc': 'c9_lp_der_xrd-xusdc',
   'c9_lp_der_xrd-xusdt': 'c9_lp_der_xrd-xusdt',
   'c9_lp_der_xrd-xwbtc': 'c9_lp_der_xrd-xwbtc',
+  'c9_lp_nat_dfp2-xrd': 'c9_lp_nat_dfp2-xrd',
+  'c9_lp_nat_early-xrd': 'c9_lp_nat_early-xrd',
   'c9_lp_nat_floop-xrd': 'c9_lp_nat_floop-xrd',
   'c9_lp_nat_lsulp-reddicks': 'c9_lp_nat_lsulp-reddicks',
   'c9_lp_sta_xrd-xusdc': 'c9_lp_sta_xrd-xusdc',
   'c9_lp_sta_xrd-xusdt': 'c9_lp_sta_xrd-xusdt',
+  'c9_tr_dfp2-xrd': 'c9_tr_dfp2-xrd',
+  'c9_tr_early-xrd': 'c9_tr_early-xrd',
   'c9_tr_floop-xrd': 'c9_tr_floop-xrd',
   'c9_tr_lsulp-reddicks': 'c9_tr_lsulp-reddicks',
   'c9_tr_lsulp-xrd': 'c9_tr_lsulp-xrd',
@@ -36,6 +43,12 @@ export const ActivityId = {
   common: 'common',
   componentCalls: 'componentCalls',
   'dp_ho_dfp2-xrd': 'dp_ho_dfp2-xrd',
+  'dp_ho_early-xrd': 'dp_ho_early-xrd',
+  'dp_ho_floop-xrd': 'dp_ho_floop-xrd',
+  'dp_ho_ilis-xrd': 'dp_ho_ilis-xrd',
+  'dp_ho_oci-xrd': 'dp_ho_oci-xrd',
+  'dp_ho_reddicks-xrd': 'dp_ho_reddicks-xrd',
+  'dp_ho_weft-xrd': 'dp_ho_weft-xrd',
   'dp_ho_xeth-xrd': 'dp_ho_xeth-xrd',
   'dp_ho_xrd-xusdc': 'dp_ho_xrd-xusdc',
   'dp_ho_xrd-xusdt': 'dp_ho_xrd-xusdt',
@@ -43,16 +56,34 @@ export const ActivityId = {
   'dp_lp_blu_xeth-xrd': 'dp_lp_blu_xeth-xrd',
   'dp_lp_blu_xrd-xwbtc': 'dp_lp_blu_xrd-xwbtc',
   'dp_lp_der_dfp2-xrd': 'dp_lp_der_dfp2-xrd',
+  'dp_lp_der_early-xrd': 'dp_lp_der_early-xrd',
+  'dp_lp_der_floop-xrd': 'dp_lp_der_floop-xrd',
+  'dp_lp_der_ilis-xrd': 'dp_lp_der_ilis-xrd',
+  'dp_lp_der_oci-xrd': 'dp_lp_der_oci-xrd',
+  'dp_lp_der_reddicks-xrd': 'dp_lp_der_reddicks-xrd',
+  'dp_lp_der_weft-xrd': 'dp_lp_der_weft-xrd',
   'dp_lp_der_xeth-xrd': 'dp_lp_der_xeth-xrd',
   'dp_lp_der_xrd-xusdc': 'dp_lp_der_xrd-xusdc',
   'dp_lp_der_xrd-xusdt': 'dp_lp_der_xrd-xusdt',
   'dp_lp_der_xrd-xwbtc': 'dp_lp_der_xrd-xwbtc',
   'dp_lp_nat_astrl-dfp2': 'dp_lp_nat_astrl-dfp2',
   'dp_lp_nat_dfp2-xrd': 'dp_lp_nat_dfp2-xrd',
+  'dp_lp_nat_early-xrd': 'dp_lp_nat_early-xrd',
+  'dp_lp_nat_floop-xrd': 'dp_lp_nat_floop-xrd',
+  'dp_lp_nat_ilis-xrd': 'dp_lp_nat_ilis-xrd',
+  'dp_lp_nat_oci-xrd': 'dp_lp_nat_oci-xrd',
+  'dp_lp_nat_reddicks-xrd': 'dp_lp_nat_reddicks-xrd',
+  'dp_lp_nat_weft-xrd': 'dp_lp_nat_weft-xrd',
   'dp_lp_sta_xrd-xusdc': 'dp_lp_sta_xrd-xusdc',
   'dp_lp_sta_xrd-xusdt': 'dp_lp_sta_xrd-xusdt',
   'dp_tr_astrl-dfp2': 'dp_tr_astrl-dfp2',
   'dp_tr_dfp2-xrd': 'dp_tr_dfp2-xrd',
+  'dp_tr_early-xrd': 'dp_tr_early-xrd',
+  'dp_tr_floop-xrd': 'dp_tr_floop-xrd',
+  'dp_tr_ilis-xrd': 'dp_tr_ilis-xrd',
+  'dp_tr_oci-xrd': 'dp_tr_oci-xrd',
+  'dp_tr_reddicks-xrd': 'dp_tr_reddicks-xrd',
+  'dp_tr_weft-xrd': 'dp_tr_weft-xrd',
   'dp_tr_xeth-xrd': 'dp_tr_xeth-xrd',
   'dp_tr_xrd-xusdc': 'dp_tr_xrd-xusdc',
   'dp_tr_xrd-xusdt': 'dp_tr_xrd-xusdt',
@@ -64,6 +95,8 @@ export const ActivityId = {
   'oc_ho_early-xrd': 'oc_ho_early-xrd',
   'oc_ho_ilis-xrd': 'oc_ho_ilis-xrd',
   'oc_ho_oci-xrd': 'oc_ho_oci-xrd',
+  'oc_ho_reddicks-xrd': 'oc_ho_reddicks-xrd',
+  'oc_ho_weft-xrd': 'oc_ho_weft-xrd',
   'oc_ho_xeth-xrd': 'oc_ho_xeth-xrd',
   'oc_ho_xrd-xusdc': 'oc_ho_xrd-xusdc',
   'oc_ho_xrd-xusdt': 'oc_ho_xrd-xusdt',
@@ -73,6 +106,8 @@ export const ActivityId = {
   'oc_lp_der_early-xrd': 'oc_lp_der_early-xrd',
   'oc_lp_der_ilis-xrd': 'oc_lp_der_ilis-xrd',
   'oc_lp_der_oci-xrd': 'oc_lp_der_oci-xrd',
+  'oc_lp_der_reddicks-xrd': 'oc_lp_der_reddicks-xrd',
+  'oc_lp_der_weft-xrd': 'oc_lp_der_weft-xrd',
   'oc_lp_der_xeth-xrd': 'oc_lp_der_xeth-xrd',
   'oc_lp_der_xrd-xusdc': 'oc_lp_der_xrd-xusdc',
   'oc_lp_der_xrd-xusdt': 'oc_lp_der_xrd-xusdt',
@@ -80,11 +115,15 @@ export const ActivityId = {
   'oc_lp_nat_early-xrd': 'oc_lp_nat_early-xrd',
   'oc_lp_nat_ilis-xrd': 'oc_lp_nat_ilis-xrd',
   'oc_lp_nat_oci-xrd': 'oc_lp_nat_oci-xrd',
+  'oc_lp_nat_reddicks-xrd': 'oc_lp_nat_reddicks-xrd',
+  'oc_lp_nat_weft-xrd': 'oc_lp_nat_weft-xrd',
   'oc_lp_sta_xrd-xusdc': 'oc_lp_sta_xrd-xusdc',
   'oc_lp_sta_xrd-xusdt': 'oc_lp_sta_xrd-xusdt',
   'oc_tr_early-xrd': 'oc_tr_early-xrd',
   'oc_tr_ilis-xrd': 'oc_tr_ilis-xrd',
   'oc_tr_oci-xrd': 'oc_tr_oci-xrd',
+  'oc_tr_reddicks-xrd': 'oc_tr_reddicks-xrd',
+  'oc_tr_weft-xrd': 'oc_tr_weft-xrd',
   'oc_tr_xeth-xrd': 'oc_tr_xeth-xrd',
   'oc_tr_xrd-xusdc': 'oc_tr_xrd-xusdc',
   'oc_tr_xrd-xusdt': 'oc_tr_xrd-xusdt',
@@ -118,11 +157,17 @@ export const matchActivityId = (input: string) =>
 const componentAddresses = [
   'component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed',
   'component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c',
+  'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
   'component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr',
   'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
+  'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
   'component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82',
+  'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
   'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
   'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
+  'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+  'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+  'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
   'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
   'component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5',
   'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
@@ -133,13 +178,18 @@ const componentAddresses = [
   'component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g',
   'component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj',
   'component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp',
+  'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+  'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+  'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
   'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
   'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
   'component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n',
   'component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw',
   'component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f',
   'component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p',
+  'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
   'component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz',
+  'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
   'component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g',
   'component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29',
 ];
@@ -162,6 +212,10 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'c9_tr_xrd-xusdt',
   component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz:
     'c9_tr_floop-xrd',
+  component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny:
+    'c9_tr_dfp2-xrd',
+  component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys:
+    'c9_tr_early-xrd',
   component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n:
     'c9_tr_lsulp-reddicks',
   component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c:
@@ -172,6 +226,10 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'oc_tr_early-xrd',
   component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw:
     'oc_tr_oci-xrd',
+  component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9:
+    'oc_tr_reddicks-xrd',
+  component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n:
+    'oc_tr_weft-xrd',
   component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
     'oc_tr_ilis-xrd',
   component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr:
@@ -184,6 +242,8 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'oc_tr_xrd-xusdt',
   component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp:
     'oc_tr_oci-xrd',
+  component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2:
+    'oc_tr_weft-xrd',
   component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g:
     'dp_tr_xrd-xusdc',
   component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj:
@@ -196,6 +256,18 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'dp_tr_astrl-dfp2',
   component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72:
     'dp_tr_dfp2-xrd',
+  component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6:
+    'dp_tr_reddicks-xrd',
+  component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl:
+    'dp_tr_early-xrd',
+  component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68:
+    'dp_tr_ilis-xrd',
+  component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e:
+    'dp_tr_floop-xrd',
+  component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9:
+    'dp_tr_weft-xrd',
+  component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh:
+    'dp_tr_oci-xrd',
 };
 
 export const getTradingActivityIdByComponentAddress = (
@@ -216,6 +288,10 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'c9_lp_sta_xrd-xusdt',
   component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz:
     'c9_lp_der_floop-xrd',
+  component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny:
+    'c9_lp_der_dfp2-xrd',
+  component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys:
+    'c9_lp_der_early-xrd',
   component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n:
     'c9_lp_der_lsulp-reddicks',
   component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c:
@@ -226,6 +302,10 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'oc_lp_der_early-xrd',
   component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw:
     'oc_lp_der_oci-xrd',
+  component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9:
+    'oc_lp_der_reddicks-xrd',
+  component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n:
+    'oc_lp_der_weft-xrd',
   component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
     'oc_lp_der_ilis-xrd',
   component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr:
@@ -238,6 +318,8 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'oc_lp_sta_xrd-xusdt',
   component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp:
     'oc_lp_der_oci-xrd',
+  component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2:
+    'oc_lp_der_weft-xrd',
   component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g:
     'dp_lp_der_xrd-xusdc',
   component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj:
@@ -250,6 +332,18 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'dp_lp_nat_astrl-dfp2',
   component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72:
     'dp_lp_nat_dfp2-xrd',
+  component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6:
+    'dp_lp_der_reddicks-xrd',
+  component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl:
+    'dp_lp_der_early-xrd',
+  component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68:
+    'dp_lp_der_ilis-xrd',
+  component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e:
+    'dp_lp_der_floop-xrd',
+  component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9:
+    'dp_lp_der_weft-xrd',
+  component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh:
+    'dp_lp_der_oci-xrd',
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g:
     'su_lp_sta_susd',
 };
@@ -719,6 +813,162 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
     },
     {
       categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'c9_lp_nat_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'dfp2',
+          resourceAddress:
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'dfp2',
+          resourceAddress:
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'c9_lp_nat_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
       activityId: 'c9_lp_nat_lsulp-reddicks',
       dAppId: 'c9',
       tokenPair: 'lsulp-reddicks',
@@ -972,6 +1222,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
       action: 'lp',
       componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
         'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
       ],
     },
@@ -996,6 +1247,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
       action: 'tr',
       componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
         'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
       ],
     },
@@ -1014,6 +1266,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
       action: 'lp',
       componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
         'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
       ],
     },
@@ -1032,7 +1285,90 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
       action: 'ho',
       componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
         'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'oc_lp_nat_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+        'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+        'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+        'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+        'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
       ],
     },
     {
@@ -1345,6 +1681,84 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'lp',
       componentAddresses: [
         'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'oc_lp_nat_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
       ],
     },
   ],
@@ -1779,6 +2193,474 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'lp',
       componentAddresses: [
         'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'floop',
+          resourceAddress:
+            'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'floop',
+          resourceAddress:
+            'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+      ],
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'oci',
+          resourceAddress:
+            'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'oci',
+          resourceAddress:
+            'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      componentAddresses: [
+        'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
       ],
     },
   ],
@@ -2639,6 +3521,162 @@ export const activityData: ActivityData[] = [
   },
   {
     categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'c9_lp_nat_dfp2-xrd',
+    dAppId: 'c9',
+    tokenPair: 'dfp2-xrd',
+    assets: [
+      {
+        name: 'dfp2',
+        resourceAddress:
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_dfp2-xrd',
+    dAppId: 'c9',
+    tokenPair: 'dfp2-xrd',
+    assets: [
+      {
+        name: 'dfp2',
+        resourceAddress:
+          'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'c9_lp_der_dfp2-xrd',
+    dAppId: 'c9',
+    tokenPair: 'dfp2-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'c9_ho_dfp2-xrd',
+    dAppId: 'c9',
+    tokenPair: 'dfp2-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'c9_lp_nat_early-xrd',
+    dAppId: 'c9',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'early',
+        resourceAddress:
+          'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_early-xrd',
+    dAppId: 'c9',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'early',
+        resourceAddress:
+          'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'c9_lp_der_early-xrd',
+    dAppId: 'c9',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'c9_ho_early-xrd',
+    dAppId: 'c9',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
     activityId: 'c9_lp_nat_lsulp-reddicks',
     dAppId: 'c9',
     tokenPair: 'lsulp-reddicks',
@@ -2890,6 +3928,7 @@ export const activityData: ActivityData[] = [
     ],
     action: 'lp',
     componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
       'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
     ],
   },
@@ -2914,6 +3953,7 @@ export const activityData: ActivityData[] = [
     ],
     action: 'tr',
     componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
       'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
     ],
   },
@@ -2932,6 +3972,7 @@ export const activityData: ActivityData[] = [
     ],
     action: 'lp',
     componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
       'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
     ],
   },
@@ -2950,7 +3991,90 @@ export const activityData: ActivityData[] = [
     ],
     action: 'ho',
     componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
       'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'oc_lp_nat_weft-xrd',
+    dAppId: 'oc',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'weft',
+        resourceAddress:
+          'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+      'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'oc_tr_weft-xrd',
+    dAppId: 'oc',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'weft',
+        resourceAddress:
+          'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+      'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'oc_lp_der_weft-xrd',
+    dAppId: 'oc',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+      'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'oc_ho_weft-xrd',
+    dAppId: 'oc',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+      'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
     ],
   },
   {
@@ -3263,6 +4387,84 @@ export const activityData: ActivityData[] = [
     action: 'lp',
     componentAddresses: [
       'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'oc_lp_nat_reddicks-xrd',
+    dAppId: 'oc',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'reddicks',
+        resourceAddress:
+          'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'oc_tr_reddicks-xrd',
+    dAppId: 'oc',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'reddicks',
+        resourceAddress:
+          'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'oc_lp_der_reddicks-xrd',
+    dAppId: 'oc',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'oc_ho_reddicks-xrd',
+    dAppId: 'oc',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
     ],
   },
   {
@@ -3695,6 +4897,474 @@ export const activityData: ActivityData[] = [
     action: 'lp',
     componentAddresses: [
       'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'dp_lp_nat_reddicks-xrd',
+    dAppId: 'dp',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'reddicks',
+        resourceAddress:
+          'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_reddicks-xrd',
+    dAppId: 'dp',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'reddicks',
+        resourceAddress:
+          'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_reddicks-xrd',
+    dAppId: 'dp',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_reddicks-xrd',
+    dAppId: 'dp',
+    tokenPair: 'reddicks-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'dp_lp_nat_early-xrd',
+    dAppId: 'dp',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'early',
+        resourceAddress:
+          'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_early-xrd',
+    dAppId: 'dp',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'early',
+        resourceAddress:
+          'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_early-xrd',
+    dAppId: 'dp',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_early-xrd',
+    dAppId: 'dp',
+    tokenPair: 'early-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'dp_lp_nat_ilis-xrd',
+    dAppId: 'dp',
+    tokenPair: 'ilis-xrd',
+    assets: [
+      {
+        name: 'ilis',
+        resourceAddress:
+          'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_ilis-xrd',
+    dAppId: 'dp',
+    tokenPair: 'ilis-xrd',
+    assets: [
+      {
+        name: 'ilis',
+        resourceAddress:
+          'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_ilis-xrd',
+    dAppId: 'dp',
+    tokenPair: 'ilis-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_ilis-xrd',
+    dAppId: 'dp',
+    tokenPair: 'ilis-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'dp_lp_nat_floop-xrd',
+    dAppId: 'dp',
+    tokenPair: 'floop-xrd',
+    assets: [
+      {
+        name: 'floop',
+        resourceAddress:
+          'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_floop-xrd',
+    dAppId: 'dp',
+    tokenPair: 'floop-xrd',
+    assets: [
+      {
+        name: 'floop',
+        resourceAddress:
+          'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_floop-xrd',
+    dAppId: 'dp',
+    tokenPair: 'floop-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_floop-xrd',
+    dAppId: 'dp',
+    tokenPair: 'floop-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'dp_lp_nat_weft-xrd',
+    dAppId: 'dp',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'weft',
+        resourceAddress:
+          'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_weft-xrd',
+    dAppId: 'dp',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'weft',
+        resourceAddress:
+          'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_weft-xrd',
+    dAppId: 'dp',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_weft-xrd',
+    dAppId: 'dp',
+    tokenPair: 'weft-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+    ],
+  },
+  {
+    categoryId: 'provideNativeLiquidityToDex',
+    activityId: 'dp_lp_nat_oci-xrd',
+    dAppId: 'dp',
+    tokenPair: 'oci-xrd',
+    assets: [
+      {
+        name: 'oci',
+        resourceAddress:
+          'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+        assetType: 'nat',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_oci-xrd',
+    dAppId: 'dp',
+    tokenPair: 'oci-xrd',
+    assets: [
+      {
+        name: 'oci',
+        resourceAddress:
+          'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+        assetType: 'nat',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_oci-xrd',
+    dAppId: 'dp',
+    tokenPair: 'oci-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    componentAddresses: [
+      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_oci-xrd',
+    dAppId: 'dp',
+    tokenPair: 'oci-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
     ],
   },
   {
@@ -4639,6 +6309,184 @@ export const componentAddressActivityDataMap: Record<
       action: 'ho',
     },
   ],
+  component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'c9_lp_nat_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'dfp2',
+          resourceAddress:
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'dfp2',
+          resourceAddress:
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'dfp2',
+          resourceAddress:
+            'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_dfp2-xrd',
+      dAppId: 'c9',
+      tokenPair: 'dfp2-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cpgf3nkgq4ry569rtn3pl6ytymuwh3d23w3vvawxfcnhhzm77e8jys: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'c9_lp_nat_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_early-xrd',
+      dAppId: 'c9',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
   component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n: [
     {
       categoryId: 'provideNativeLiquidityToDex',
@@ -5088,6 +6936,271 @@ export const componentAddressActivityDataMap: Record<
       activityId: 'oc_ho_oci-xrd',
       dAppId: 'oc',
       tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'oc_lp_nat_ilis-xrd',
+      dAppId: 'oc',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_ilis-xrd',
+      dAppId: 'oc',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_ilis-xrd',
+      dAppId: 'oc',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_ilis-xrd',
+      dAppId: 'oc',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_ilis-xrd',
+      dAppId: 'oc',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'oc_lp_nat_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_reddicks-xrd',
+      dAppId: 'oc',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'oc_lp_nat_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
       assets: [
         {
           name: 'xrd',
@@ -5633,6 +7746,95 @@ export const componentAddressActivityDataMap: Record<
       action: 'ho',
     },
   ],
+  component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'oc_lp_nat_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_weft-xrd',
+      dAppId: 'oc',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
   component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g: [
     {
       categoryId: 'provideStablesLiquidityToDex',
@@ -6150,6 +8352,540 @@ export const componentAddressActivityDataMap: Record<
         },
       ],
       action: 'tr',
+    },
+  ],
+  component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'reddicks',
+          resourceAddress:
+            'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_reddicks-xrd',
+      dAppId: 'dp',
+      tokenPair: 'reddicks-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'early',
+          resourceAddress:
+            'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_early-xrd',
+      dAppId: 'dp',
+      tokenPair: 'early-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'ilis',
+          resourceAddress:
+            'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_ilis-xrd',
+      dAppId: 'dp',
+      tokenPair: 'ilis-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'floop',
+          resourceAddress:
+            'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'floop',
+          resourceAddress:
+            'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'floop',
+          resourceAddress:
+            'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_floop-xrd',
+      dAppId: 'dp',
+      tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'weft',
+          resourceAddress:
+            'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_weft-xrd',
+      dAppId: 'dp',
+      tokenPair: 'weft-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh: [
+    {
+      categoryId: 'provideNativeLiquidityToDex',
+      activityId: 'dp_lp_nat_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'oci',
+          resourceAddress:
+            'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+          assetType: 'nat',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'oci',
+          resourceAddress:
+            'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'oci',
+          resourceAddress:
+            'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
+          assetType: 'nat',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_oci-xrd',
+      dAppId: 'dp',
+      tokenPair: 'oci-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
     },
   ],
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g: [

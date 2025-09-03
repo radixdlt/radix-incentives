@@ -91,6 +91,96 @@ export const DefiPlazaConstants = {
     componentAddress:
       'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
   },
+  REDDICKSPool: {
+    type: 'component',
+    basePoolAddress:
+      'pool_rdx1c4ezdn72f3zk6hudfcsappvs6wypqyvdewuguv4jzrxdwf9www336l',
+    baseLpResourceAddress:
+      'resource_rdx1tkcczq5ahrk3ysllftmmy3h9ghejqcwm53ywwymkdlcv0fc3tsy4en',
+    quotePoolAddress:
+      'pool_rdx1c4nzrhejsq9k6udxzgwmn2rdrrcxd97r9354fs5yn3ewswxztqyvk3',
+    quoteLpResourceAddress:
+      'resource_rdx1t4dwv040r9fzx7gk7n088920guwlg6ln5m768gnxwlrzdcyrhrdxw5',
+    baseResourceAddress: Assets.Fungible.REDDICKS,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
+  },
+  EARLYPool: {
+    type: 'component',
+    basePoolAddress:
+      'pool_rdx1c4n9xxzxqxupdlgesyj075lnt88e8dzcykxcx7l0wz2q5kdw53cq8f',
+    baseLpResourceAddress:
+      'resource_rdx1t5908ql2dhz0m33dfljq8803z99jmeqrej98tjf9g6shadj7tvgjle',
+    quotePoolAddress:
+      'pool_rdx1c5cvl8qy0rmkhk9twe2ra2qgr87a7zx2hkk77utyczyym735rw96fu',
+    quoteLpResourceAddress:
+      'resource_rdx1tkc7hdmwhgza24nes4z0yf2ljc2fedvg2h7el2fzdxfgw0f2wq7pwz',
+    baseResourceAddress: Assets.Fungible.EARLY,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
+  },
+  ILISPool: {
+    type: 'component',
+    basePoolAddress:
+      'pool_rdx1c4c277rrwq7qr348pf3ggy3ja8j5v7ykxec65c267dcq00w3egn9dk',
+    baseLpResourceAddress:
+      'resource_rdx1t4z3dn6u57kj069wru4tkmdrx8njz2d9a5rlfsphs87cyuaj9tufv0',
+    quotePoolAddress:
+      'pool_rdx1c5rn7cgkagdpsumpss2syk22lhf4w2kzn7dghdplewrlzk8raf754n',
+    quoteLpResourceAddress:
+      'resource_rdx1t4tkxcr6zmk2var44h60x04hf973anuulha30346m7nfh25hyulzle',
+    baseResourceAddress: Assets.Fungible.ILIS,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
+  },
+  FLOOPPool: {
+    type: 'component',
+    basePoolAddress:
+      'pool_rdx1c5zmgeruwyv3qyyzt5cz9rty58zgf40vm5lage3vluktp07633vaww',
+    baseLpResourceAddress:
+      'resource_rdx1tkmvuls8ktxwt7trrs5cvjeu8rk5036l6kr07s84gr0jzqmwk4qmdh',
+    quotePoolAddress:
+      'pool_rdx1c4857kjzh4l4gz63yptcjnm4pjpkxmxdw20x2cse3g0qk0kgr5cngu',
+    quoteLpResourceAddress:
+      'resource_rdx1th75g4s4rrltrdlp6mlerpkgsc6tgsnwh06f2pacxhgvf7laflrva8',
+    baseResourceAddress: Assets.Fungible.FLOOP,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
+  },
+  WEFTPool: {
+    type: 'component',
+    basePoolAddress:
+      'pool_rdx1c56ws8tmvw2ggk8hpfq4uvn9vthhv4g2cqs4htj3tc6r9w835te3fs',
+    baseLpResourceAddress:
+      'resource_rdx1thus6t5yn4msedhslmyclqdduunrat85w6q6tmnep7h0vg3hcsmawk',
+    quotePoolAddress:
+      'pool_rdx1c4tzllfgu66axcr9q4uk36frpyfuuw97wlp298xvll6x38ac092mwp',
+    quoteLpResourceAddress:
+      'resource_rdx1tku2gw3j3hpp5f4dak5pxct2lhw8jpqvvv762r4d3ffu2enpllg2j9',
+    baseResourceAddress: Assets.Fungible.WEFT,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+  },
+  OCIPool: {
+    type: 'component',
+    basePoolAddress:
+      'pool_rdx1ckhtf3z2889zmh57vz9g8wrgs6yl8t252t78zqfz54qd68erj7y0dm',
+    baseLpResourceAddress:
+      'resource_rdx1thj6rq8ceh6n4zvwswwh8f0xmuzs263eyg7t35uupujh88xa66v5wh',
+    quotePoolAddress:
+      'pool_rdx1c4nltklts49fkzvdhhlflu3z3vghskhjkedm4xq0y0pfqry20jw4rv',
+    quoteLpResourceAddress:
+      'resource_rdx1tkc89zy5fgtmmx672ec23rnln6zzfzy6yyswtg4256atspmutq77wu',
+    baseResourceAddress: Assets.Fungible.OCI,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+  },
 } as const;
 
 export const defiPlazaComponentSet = new Map<

@@ -59,6 +59,28 @@ export const OciswapConstants = {
       divisibility_x: 18,
       divisibility_y: 18,
     },
+    REDDICKS_XRD: {
+      name: 'REDDICKS/XRD',
+      componentAddress:
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+      lpResourceAddress:
+        'resource_rdx1ngffpg3d3le29c9ajtjw0dxt9utjckujfr0nrg48lp05j30yfpvj6r',
+      token_x: Assets.Fungible.REDDICKS,
+      token_y: Assets.Fungible.XRD,
+      divisibility_x: 18,
+      divisibility_y: 18,
+    },
+    WEFT_XRD: {
+      name: 'WEFT/XRD',
+      componentAddress:
+        'component_rdx1crpq83nf76ea2dkkjxfwr426qvmpu9pyakh58ay3eyswe4ps5yn3q2',
+      lpResourceAddress:
+        'resource_rdx1n2k0uxng9yfqq7xwt3xnwjz5ue7danx3rz57krxch0626m9lrpkpcx',
+      token_x: Assets.Fungible.WEFT,
+      token_y: Assets.Fungible.XRD,
+      divisibility_x: 18,
+      divisibility_y: 18,
+    },
   },
   basicPools: {
     EARLY_XRD: {
@@ -81,6 +103,28 @@ export const OciswapConstants = {
       lpResourceAddress:
         'resource_rdx1th7ew2u9c9t00xhk34efm9uj8zxnme48h4ypuerv5uu4ftz8j82gdm',
       token_x: Assets.Fungible.OCI,
+      token_y: Assets.Fungible.XRD,
+    },
+    ILIS_XRD: {
+      name: 'ILIS/XRD',
+      componentAddress:
+        'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
+      poolAddress:
+        'pool_rdx1ck0daslg9anw64t5ytq0g4svmuj85jwvrrhgz2005exh8gt6qxle4w',
+      lpResourceAddress:
+        'resource_rdx1t4vvunhvl24nrc8hh99dujuumyllvvsurvu72keaeh74e25358nhah',
+      token_x: Assets.Fungible.ILIS,
+      token_y: Assets.Fungible.XRD,
+    },
+    WEFT_XRD: {
+      name: 'WEFT/XRD',
+      componentAddress:
+        'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
+      poolAddress:
+        'pool_rdx1ck5w5vnm6qwrmcp4way3wtyjztk7armjea3xc5xaktlk9r4gq6s3ee',
+      lpResourceAddress:
+        'resource_rdx1th5slwxk8x8xs7438ek6kp7kvrz5lxuu823tql4dqvd92q2fzxr3aq',
+      token_x: Assets.Fungible.WEFT,
       token_y: Assets.Fungible.XRD,
     },
   },

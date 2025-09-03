@@ -3504,6 +3504,30 @@ export const accountBalanceFixture = {
         usdValue: '2.75797087413288215346768302365265246540713581',
       },
       {
+        activityId: 'c9_lp_nat_dfp2-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_der_dfp2-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_ho_dfp2-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_nat_early-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_der_early-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_ho_early-xrd',
+        usdValue: '0',
+      },
+      {
         activityId: 'c9_lp_nat_lsulp-reddicks',
         usdValue: '1.768581541167191584205273716858953588406597073078848560774',
       },
@@ -3552,6 +3576,18 @@ export const accountBalanceFixture = {
         usdValue: '2.09423999983566011834012002244413207877158400811140385765',
       },
       {
+        activityId: 'oc_lp_nat_weft-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'oc_lp_der_weft-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'oc_ho_weft-xrd',
+        usdValue: '0',
+      },
+      {
         activityId: 'oc_lp_blu_xrd-xwbtc',
         usdValue: '0.7644877982784',
       },
@@ -3598,6 +3634,18 @@ export const accountBalanceFixture = {
       {
         activityId: 'oc_lp_sta_xrd-xusdt',
         usdValue: '1.1266510682241108',
+      },
+      {
+        activityId: 'oc_lp_nat_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'oc_lp_der_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'oc_ho_reddicks-xrd',
+        usdValue: '0',
       },
       {
         activityId: 'ho_xrd',
@@ -3747,6 +3795,78 @@ export const accountBalanceFixture = {
       {
         activityId: 'dp_lp_nat_dfp2-xrd',
         usdValue: '0.42774466860186911257522044085695562436070697873196774025',
+      },
+      {
+        activityId: 'dp_lp_nat_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_der_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_ho_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_nat_early-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_der_early-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_ho_early-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_nat_ilis-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_der_ilis-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_ho_ilis-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_nat_floop-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_der_floop-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_ho_floop-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_nat_weft-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_der_weft-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_ho_weft-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_nat_oci-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_der_oci-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_ho_oci-xrd',
+        usdValue: '0',
       },
       {
         activityId: 'su_lp_sta_susd',
