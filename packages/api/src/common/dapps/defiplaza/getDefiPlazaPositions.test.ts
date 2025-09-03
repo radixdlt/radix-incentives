@@ -222,7 +222,7 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                   {
                     resourceAddress:
-                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                      'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
                     amount: {
                       s: 1,
                       e: 0,
@@ -246,7 +246,7 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                   {
                     resourceAddress:
-                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                      'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
                     amount: {
                       s: 1,
                       e: 0,
@@ -270,7 +270,7 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                   {
                     resourceAddress:
-                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                      'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
                     amount: {
                       s: 1,
                       e: 0,
@@ -294,7 +294,7 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                   {
                     resourceAddress:
-                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                      'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
                     amount: {
                       s: 1,
                       e: 0,
@@ -318,7 +318,7 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                   {
                     resourceAddress:
-                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                      'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
                     amount: {
                       s: 1,
                       e: 0,
@@ -342,7 +342,7 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                   {
                     resourceAddress:
-                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                      'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
                     amount: {
                       s: 1,
                       e: 0,
