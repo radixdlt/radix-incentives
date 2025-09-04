@@ -31,7 +31,7 @@ import { ActivityCategoryWeekService } from '../activity-category-week/activityC
 import {
   type CalculateTWASQLInput,
   CalculateTWASQLService,
-} from '../activity-points/calculateTWASQL';
+} from '../activity-points';
 import { ActivityWeekService } from '../activity-week/activityWeek';
 import {
   GetActivityWeeksByWeekIdsLive,
@@ -56,6 +56,8 @@ import {
 } from '../config/notificationService';
 import { DappService } from '../dapp/dapp';
 import { createDbClientLive } from '../db/dbClient';
+import { ActivityDisplayService } from '../leaderboard/activityDisplay';
+import { ActivityPointsAdjustmentService } from '../leaderboard/activityPointsAdjustment';
 import { LeaderboardService } from '../leaderboard/leaderboard';
 import { getAccountsProgram } from '../programs/getAccounts';
 import {
@@ -410,6 +412,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const getLatestAccountBalancesServiceLive =
     AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
 
+  const activityDisplayServiceLive = ActivityDisplayService.Default;
+
+  const activityPointsAdjustmentServiceLive =
+    ActivityPointsAdjustmentService.Default;
+
   const leaderboardLive = LeaderboardService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(weekLive),
@@ -417,6 +424,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(activityCategoryServiceLive),
     Layer.provide(activityCategoryWeekServiceLive),
     Layer.provide(activityWeekServiceLive),
+    Layer.provide(activityDisplayServiceLive),
+    Layer.provide(activityPointsAdjustmentServiceLive),
   );
 
   const getLatestAccountBalances = ({ userId }: { userId: string }) => {
@@ -552,7 +561,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const dappServiceLive = DappService.Default.pipe(Layer.provide(dbClientLive));
+  const dappServiceLive = DappService.Default;
 
   const getDapps = () => {
     const program = Effect.provide(

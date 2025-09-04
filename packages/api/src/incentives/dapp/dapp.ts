@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
 import { z } from 'zod';
-import { DbClientService, DbError } from '../db/dbClient';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export const DappSchema = z.object({
   id: z.string(),
@@ -11,6 +11,7 @@ export const DappSchema = z.object({
 export type Dapp = z.infer<typeof DappSchema>;
 
 export class DappService extends Effect.Service<DappService>()('DappService', {
+  dependencies: [dbClientLive],
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
     return {

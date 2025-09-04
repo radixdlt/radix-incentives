@@ -1,12 +1,10 @@
-import type { Db } from 'db/incentives';
 import {
-  activities,
   categoryLeaderboardCache,
   leaderboardStatsCache,
   seasonLeaderboardCache,
   users,
 } from 'db/incentives';
-import { and, asc, eq, inArray, sql } from 'drizzle-orm';
+import { and, asc, eq, sql } from 'drizzle-orm';
 import { Data, Effect } from 'effect';
 import { ActivityCategoryService } from '../activity-category/activityCategory';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
@@ -14,6 +12,7 @@ import { ActivityWeekService } from '../activity-week/activityWeek';
 import { DbClientService, DbError } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { WeekService } from '../week/week';
+import { ActivityPointsAdjustmentService } from './activityPointsAdjustment';
 
 // Custom error for when cache is being built
 export class CacheNotAvailableError extends Data.TaggedError(
@@ -39,10 +38,17 @@ interface BuildLeaderboardResponseParams {
   } | null;
   userId?: string;
   additionalUserData?: Record<string, unknown>;
+  adjustedTotalPoints?: string;
 }
 
 const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
-  const { cachedData, statsCache, userId, additionalUserData } = params;
+  const {
+    cachedData,
+    statsCache,
+    userId,
+    additionalUserData,
+    adjustedTotalPoints,
+  } = params;
 
   // Get top 5 users
   const topUsers = cachedData.slice(0, 5).map((user) => ({
@@ -62,7 +68,7 @@ const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
       );
       userStats = {
         rank: userEntry.rank,
-        totalPoints: userEntry.totalPoints,
+        totalPoints: adjustedTotalPoints || userEntry.totalPoints, // Use adjusted points if available
         percentile,
         // Merge any additional user-specific data (like activityBreakdown)
         ...additionalUserData,
@@ -77,82 +83,6 @@ const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
   };
 
   return { topUsers, userStats, globalStats };
-};
-
-// Helper to get activity breakdown for category leaderboards
-const getActivityBreakdown = function* (params: {
-  db: Db;
-  userEntry: { activityBreakdown: Record<string, number> | unknown };
-  activityIds: string[];
-  weekId: string;
-  userId: string;
-}) {
-  const { db, userEntry } = params;
-
-  // Parse activity breakdown from cached JSONB, should be Record<string, number>
-  const activityBreakdown =
-    userEntry.activityBreakdown &&
-    typeof userEntry.activityBreakdown === 'object' &&
-    userEntry.activityBreakdown !== null &&
-    !Array.isArray(userEntry.activityBreakdown)
-      ? (userEntry.activityBreakdown as Record<string, number>)
-      : {};
-
-  let activityBreakdownData: Array<{
-    activityId: string;
-    activityName: string;
-    points: string;
-  }> = [];
-
-  // If we have cached breakdown data, use it
-  if (Object.keys(activityBreakdown).length > 0) {
-    const breakdown = yield* Effect.tryPromise(() =>
-      db
-        .select({
-          activityId: activities.id,
-          activityName: activities.name,
-        })
-        .from(activities)
-        .where(inArray(activities.id, Object.keys(activityBreakdown))),
-    ).pipe(
-      Effect.catchAll((error) =>
-        Effect.gen(function* () {
-          yield* Effect.logError(
-            'Failed to fetch activity breakdown for activity names',
-            error,
-          );
-          return [];
-        }),
-      ),
-    );
-
-    // Create a map of activity ID to name for quick lookup
-    const activityNameMap = breakdown.reduce(
-      (
-        acc: Record<string, string>,
-        activity: { activityId: string; activityName: string | null },
-      ) => {
-        acc[activity.activityId] = activity.activityName || activity.activityId;
-        return acc;
-      },
-      {} as Record<string, string>,
-    );
-
-    // Map the breakdown data, using activity ID as fallback if name not found
-    activityBreakdownData = Object.entries(activityBreakdown)
-      .filter(([_, points]) => points > 0) // Only show activities with points
-      .map(([activityId, points]) => ({
-        activityId,
-        activityName: activityNameMap[activityId] || activityId,
-        points: points.toString(),
-      }));
-  } else {
-    // No cached breakdown data available, return empty array
-    // We intentionally don't do real-time calcs, but only show data if there's a cache
-    activityBreakdownData = [];
-  }
-
-  return activityBreakdownData;
 };
 
 export interface ActivityCategoryLeaderboardData {
@@ -221,6 +151,8 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const activityCategoryService = yield* ActivityCategoryService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
       const activityWeekService = yield* ActivityWeekService;
+      const activityPointsAdjustmentService =
+        yield* ActivityPointsAdjustmentService;
 
       const getSeasonLeaderboard = Effect.fn(function* (input: {
         seasonId: string;
@@ -447,18 +379,31 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
         // Get activity breakdown for user if needed
         let additionalUserData: Record<string, unknown> = {};
+        let adjustedTotalPoints: string | undefined;
         if (input.userId) {
           const userEntry = cachedData.find(
             (user) => user.userId === input.userId,
           );
           if (userEntry) {
-            const activityBreakdownData = yield* getActivityBreakdown({
-              db,
-              userEntry: { activityBreakdown: userEntry.activityBreakdown },
-              activityIds,
-              weekId: input.weekId,
-              userId: input.userId,
-            });
+            const { activityBreakdownData, zeroMultiplierPointsToSubtract } =
+              yield* activityPointsAdjustmentService.calculateActivityBreakdown(
+                {
+                  userEntry: { activityBreakdown: userEntry.activityBreakdown },
+                  activityIds,
+                  weekId: input.weekId,
+                  userId: input.userId,
+                },
+              );
+
+            // Calculate adjusted total points by subtracting zero-multiplier points
+            adjustedTotalPoints =
+              yield* activityPointsAdjustmentService.calculateAdjustedTotalPoints(
+                {
+                  originalTotal: userEntry.totalPoints,
+                  zeroMultiplierPointsToSubtract,
+                },
+              );
+
             additionalUserData = { activityBreakdown: activityBreakdownData };
           }
         }
@@ -469,6 +414,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           statsCache: statsCache ?? null,
           userId: input.userId,
           additionalUserData,
+          adjustedTotalPoints,
         });
 
         return {

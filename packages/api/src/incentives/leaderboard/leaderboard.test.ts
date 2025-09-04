@@ -23,6 +23,8 @@ import { ActivityWeekService } from '../activity-week/activityWeek';
 import { createDbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { WeekService } from '../week/week';
+import { ActivityDisplayService } from './activityDisplay';
+import { ActivityPointsAdjustmentService } from './activityPointsAdjustment';
 import { CacheNotAvailableError, LeaderboardService } from './leaderboard';
 
 describe(
@@ -56,6 +58,11 @@ describe(
       Layer.provide(dbLive),
     );
 
+    const activityDisplayServiceLive = ActivityDisplayService.Default;
+
+    const activityPointsAdjustmentServiceLive =
+      ActivityPointsAdjustmentService.Default;
+
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(weekLive),
@@ -63,6 +70,8 @@ describe(
       Layer.provide(activityCategoryServiceLive),
       Layer.provide(activityCategoryWeekServiceLive),
       Layer.provide(activityWeekServiceLive),
+      Layer.provide(activityDisplayServiceLive),
+      Layer.provide(activityPointsAdjustmentServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
     );
 
@@ -449,12 +458,12 @@ describe(
                 {
                   activityId: 'c9_trade_xrd-xusdc',
                   activityName: 'c9_trade_xrd-xusdc',
-                  points: '300',
+                  points: '300.000000',
                 },
                 {
                   activityId: 'c9_trade_xrd-xusdt',
                   activityName: 'c9_trade_xrd-xusdt',
-                  points: '200',
+                  points: '200.000000',
                 },
               ],
             });

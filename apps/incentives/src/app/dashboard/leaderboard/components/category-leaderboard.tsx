@@ -7,6 +7,7 @@ import { api } from '~/trpc/react';
 import { CategoryInfo } from './category-info';
 import { CategorySelectors } from './category-selectors';
 import { EmptyState } from './empty-state';
+import { LeaderboardBuildingState } from './leaderboard-building-state';
 import { LeaderboardContent } from './leaderboard-content';
 import { LoadingState } from './loading-state';
 
@@ -148,14 +149,14 @@ export function CategoryLeaderboard() {
       {leaderboardLoading ? (
         <LoadingState message="Loading leaderboard..." />
       ) : leaderboardError ? (
-        <EmptyState
-          message={
-            leaderboardError.data?.code === 'PRECONDITION_FAILED'
-              ? leaderboardError.message ||
-                'Leaderboard data is being processed. Please check back in a few minutes.'
-              : 'Failed to load leaderboard data. Please try again later.'
-          }
-        />
+        leaderboardError.data?.code === 'PRECONDITION_FAILED' ? (
+          <LeaderboardBuildingState
+            message="This leaderboard is awaiting the next snapshot, after which it will be built."
+            title="Activity Leaderboard Being Built"
+          />
+        ) : (
+          <EmptyState message="Failed to load leaderboard data. Please try again later." />
+        )
       ) : leaderboardData ? (
         <LeaderboardContent
           topUsers={leaderboardData.topUsers}
