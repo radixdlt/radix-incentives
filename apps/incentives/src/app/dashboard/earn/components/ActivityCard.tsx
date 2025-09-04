@@ -1,4 +1,4 @@
-import type { Activity, ActivityCategory, Dapp } from 'api/incentives';
+import type { ActivityCategory, Dapp } from 'api/incentives';
 import {
   Coins,
   CreditCard,
@@ -20,13 +20,14 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
+import type { RouterOutputs } from '~/trpc/react';
 
 export const ActivityCard = ({
   activity,
   dappMap,
   activityCategoryMap,
 }: {
-  activity: Activity;
+  activity: RouterOutputs['activity']['getActivityData'][number];
   dappMap: Record<string, Dapp>;
   activityCategoryMap: Record<string, ActivityCategory>;
 }) => {
@@ -141,7 +142,7 @@ export const ActivityCard = ({
         <CardFooter className="pt-3">
           <Button variant="outline" size="sm" className="w-full" asChild>
             <a
-              href={dapp.website}
+              href={activity?.metadata?.url || dapp.website}
               target="_blank"
               rel="noopener noreferrer"
               className="inline-flex items-center gap-2"

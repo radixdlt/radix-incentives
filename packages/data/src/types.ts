@@ -46,6 +46,7 @@ export type ActivityData = {
   dAppId: DappId;
   tokenPair: string;
   assets: TokenDetails[];
+  metadata?: Record<string, string>;
 };
 
 export const deriveLpActionFromDappId = (dAppId: DappId) => {

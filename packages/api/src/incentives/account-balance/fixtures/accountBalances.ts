@@ -3431,77 +3431,94 @@ export const accountBalanceFixture = {
     timestamp: new Date('2025-07-20T00:00:00.000Z'),
   },
   output: {
-    timestamp: new Date('2025-07-20T00:00:00.000Z'),
+    timestamp: '2025-07-20T00:00:00.000Z',
     accountAddress:
       'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
     data: [
       {
         activityId: 'c9_lp_der_lsulp-xrd',
         usdValue: '25.44216302516449829084729953124342735418789733374490959429',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_lsulp-xrd',
         usdValue: '25.44216302516449829084729953124342735418789733374490959429',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_blu_xrd-xwbtc',
         usdValue: '1.04449794262615328004576',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xrd-xwbtc',
         usdValue: '0.26955338861866225858773516',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xrd-xwbtc',
         usdValue: '1.35669175694927377633808748',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xrd-xusdc',
         usdValue: '0.00715081290703514899399368',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xrd-xusdc',
         usdValue: '8.33472013121614171080005826125367',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_sta_xrd-xusdc',
         usdValue: '4.347380132678728384169594580580176',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_blu_xeth-xrd',
         usdValue: '0',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xeth-xrd',
         usdValue: '1.25007351993455976190210932',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xeth-xrd',
         usdValue: '1.25007351993455976190210932',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xrd-xusdt',
         usdValue: '0.11732434892226341159380668',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xrd-xusdt',
         usdValue: '1.0118411117798406060488061204',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_sta_xrd-xusdt',
         usdValue: '0.8945167628575771944549994404',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_nat_floop-xrd',
         usdValue: '1.42114247967611343978210036491718211512363456',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_floop-xrd',
         usdValue: '1.33682839445676871368558265873547035028350125',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_floop-xrd',
         usdValue: '2.75797087413288215346768302365265246540713581',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_nat_dfp2-xrd',
@@ -3530,50 +3547,119 @@ export const accountBalanceFixture = {
       {
         activityId: 'c9_lp_nat_lsulp-reddicks',
         usdValue: '1.768581541167191584205273716858953588406597073078848560774',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_lsulp-reddicks',
         usdValue: '1.752212251136252139073397690324515864715183392048393300265',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_lsulp-reddicks',
         usdValue: '3.520793792303443723278671407183469453121780465127241861039',
-      },
-      {
-        activityId: 'oc_lp_nat_early-xrd',
-        usdValue: '0.384684985790892910092365242640142360006280802559668100664',
-      },
-      {
-        activityId: 'oc_lp_der_early-xrd',
-        usdValue: '0.3849654975195441707109268129498549355589402792',
-      },
-      {
-        activityId: 'oc_ho_early-xrd',
-        usdValue: '0.769650483310437080803292055589997295565221081759668100664',
-      },
-      {
-        activityId: 'oc_lp_nat_oci-xrd',
-        usdValue: '1.21387352759922353769428907996458442485710905542328',
-      },
-      {
-        activityId: 'oc_lp_der_oci-xrd',
-        usdValue: '1.467908742710847401406114616148347467416777112',
-      },
-      {
-        activityId: 'oc_ho_oci-xrd',
-        usdValue: '4.55041717082201291940927511502133189227388616742328',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_nat_ilis-xrd',
         usdValue: '1.04483603352485224242803777337327010427310395811140385765',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_ilis-xrd',
         usdValue: '1.04940396631080787591208224907086197449848005',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_ilis-xrd',
         usdValue: '2.09423999983566011834012002244413207877158400811140385765',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_blu_xrd-xwbtc',
+        usdValue: '0.7644877982784',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_der_xrd-xwbtc',
+        usdValue: '1.01696001295794157167904044',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_ho_xrd-xwbtc',
+        usdValue: '3.6261867207919886272798632',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_der_xeth-xrd',
+        usdValue: '0.74766297423637649825227008',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_ho_xeth-xrd',
+        usdValue: '3.5503325661433655783534487516295',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_blu_xeth-xrd',
+        usdValue: '0.993340514646564717245438645521',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_sta_xrd-xusdc',
+        usdValue: '0.969030668110163125092',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_der_xrd-xusdc',
+        usdValue: '1.28744913281493353074491492',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_ho_xrd-xusdc',
+        usdValue: '9.55166349031112212855466904',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_der_xrd-xusdt',
+        usdValue: '0.8455211545313148272774082',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_ho_xrd-xusdt',
+        usdValue: '3.96870247878276964322207376',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_sta_xrd-xusdt',
+        usdValue: '1.1266510682241108',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_nat_oci-xrd',
+        usdValue: '1.21387352759922353769428907996458442485710905542328',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_der_oci-xrd',
+        usdValue: '1.467908742710847401406114616148347467416777112',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_ho_oci-xrd',
+        usdValue: '4.55041717082201291940927511502133189227388616742328',
+        metadata: undefined,
+      },
+      {
+        activityId: 'oc_lp_nat_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'oc_lp_der_reddicks-xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'oc_ho_reddicks-xrd',
+        usdValue: '0',
       },
       {
         activityId: 'oc_lp_nat_weft-xrd',
@@ -3588,64 +3674,19 @@ export const accountBalanceFixture = {
         usdValue: '0',
       },
       {
-        activityId: 'oc_lp_blu_xrd-xwbtc',
-        usdValue: '0.7644877982784',
+        activityId: 'oc_lp_nat_early-xrd',
+        usdValue: '0.384684985790892910092365242640142360006280802559668100664',
+        metadata: undefined,
       },
       {
-        activityId: 'oc_lp_der_xrd-xwbtc',
-        usdValue: '1.01696001295794157167904044',
+        activityId: 'oc_lp_der_early-xrd',
+        usdValue: '0.3849654975195441707109268129498549355589402792',
+        metadata: undefined,
       },
       {
-        activityId: 'oc_ho_xrd-xwbtc',
-        usdValue: '3.6261867207919886272798632',
-      },
-      {
-        activityId: 'oc_lp_der_xeth-xrd',
-        usdValue: '0.74766297423637649825227008',
-      },
-      {
-        activityId: 'oc_ho_xeth-xrd',
-        usdValue: '3.5503325661433655783534487516295',
-      },
-      {
-        activityId: 'oc_lp_blu_xeth-xrd',
-        usdValue: '0.993340514646564717245438645521',
-      },
-      {
-        activityId: 'oc_lp_sta_xrd-xusdc',
-        usdValue: '0.969030668110163125092',
-      },
-      {
-        activityId: 'oc_lp_der_xrd-xusdc',
-        usdValue: '1.28744913281493353074491492',
-      },
-      {
-        activityId: 'oc_ho_xrd-xusdc',
-        usdValue: '9.55166349031112212855466904',
-      },
-      {
-        activityId: 'oc_lp_der_xrd-xusdt',
-        usdValue: '0.8455211545313148272774082',
-      },
-      {
-        activityId: 'oc_ho_xrd-xusdt',
-        usdValue: '3.96870247878276964322207376',
-      },
-      {
-        activityId: 'oc_lp_sta_xrd-xusdt',
-        usdValue: '1.1266510682241108',
-      },
-      {
-        activityId: 'oc_lp_nat_reddicks-xrd',
-        usdValue: '0',
-      },
-      {
-        activityId: 'oc_lp_der_reddicks-xrd',
-        usdValue: '0',
-      },
-      {
-        activityId: 'oc_ho_reddicks-xrd',
-        usdValue: '0',
+        activityId: 'oc_ho_early-xrd',
+        usdValue: '0.769650483310437080803292055589997295565221081759668100664',
+        metadata: undefined,
       },
       {
         activityId: 'ho_xrd',
@@ -3691,110 +3732,137 @@ export const accountBalanceFixture = {
       {
         activityId: 'we_le_sta_xusdc',
         usdValue: '1.19127241207433674957769202120006438',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_sta_xusdt',
         usdValue: '1.09196615511161480939406965244',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_blu_xwbtc',
         usdValue: '1.151338763882365410362724',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_blu_xeth',
         usdValue: '1.074134525261061221491950946191805',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_der_xrd',
         usdValue: '0.2622159118507289885127313668',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_sta_xusdc',
         usdValue: '0.15589656499456550468640489606910214038614526387615062',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_sta_xusdt',
         usdValue: '0.48993637320088129198440622814300642030946166206',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_blu_xwbtc',
         usdValue: '0.8564171965622092624578157991502118334950776',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_blu_xeth',
         usdValue: '1.251258219990524415439388414349202870604533307202825',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_der_xrd',
         usdValue: '0.84580478142228848368822989018931637101174728',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_der_lsulp',
         usdValue: '4.809525635832720511465509865663180550469895424461624245',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_sta_xrd-xusdc',
         usdValue: '0.01751845154575657132546679227395606258150372121515846',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xrd-xusdc',
         usdValue: '0.4497913456138135326409595090285959240072796448',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xrd-xusdc',
         usdValue: '0.46730979715957010396642630130255198658878336601515846',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_sta_xrd-xusdt',
         usdValue: '0.268881428102894680225654190054115317346394002912',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xrd-xusdt',
         usdValue: '0.5889840574150880767959712252132446879854760252',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xrd-xusdt',
         usdValue: '0.857865485517982757021625415267360005331870028112',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_blu_xeth-xrd',
         usdValue: '0.1562077622482928409600801327272597596581097921128',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xeth-xrd',
         usdValue: '0.5124882479304346093078840030537102885638722784',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xeth-xrd',
         usdValue: '0.6686960101787274502679641357809700482219820705128',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_blu_xrd-xwbtc',
         usdValue: '0.300621884523159643607733728509538747253288',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xrd-xwbtc',
         usdValue: '0.6349132477099749380156771409980890323186999474',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xrd-xwbtc',
         usdValue: '0.9355351322331345816234108695076277795719879474',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_nat_astrl-dfp2',
         usdValue: '1.168604040275732055329504082241654729288785198161612364',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_dfp2-xrd',
         usdValue: '0.4363159437378297727627358894388481016997883182',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_dfp2-xrd',
         usdValue: '0.86406061233969888533795633029580372606049529693196774025',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_nat_dfp2-xrd',
         usdValue: '0.42774466860186911257522044085695562436070697873196774025',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_nat_dfp2-reddicks',
@@ -3823,6 +3891,7 @@ export const accountBalanceFixture = {
       {
         activityId: 'su_lp_sta_susd',
         usdValue: '0.9906007512251859275999283546619794212457270487689432',
+        metadata: undefined,
       },
     ],
   },

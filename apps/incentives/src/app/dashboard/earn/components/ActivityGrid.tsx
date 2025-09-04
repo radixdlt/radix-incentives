@@ -1,4 +1,5 @@
-import type { Activity, ActivityCategory, Dapp } from 'api/incentives';
+import type { ActivityCategory, Dapp } from 'api/incentives';
+import type { RouterOutputs } from '~/trpc/react';
 import { ActivityCard } from './ActivityCard';
 
 export const ActivityGrid = ({
@@ -6,7 +7,7 @@ export const ActivityGrid = ({
   dapps,
   activityCategories,
 }: {
-  activities: Activity[];
+  activities: RouterOutputs['activity']['getActivityData'];
   dapps: Dapp[];
   activityCategories: ActivityCategory[];
 }) => {
