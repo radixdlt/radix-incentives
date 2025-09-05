@@ -75,13 +75,23 @@ export const ActivityId = {
   common: 'common',
   componentCalls: 'componentCalls',
   'dp_ho_dfp2-xrd': 'dp_ho_dfp2-xrd',
+  'dp_ho_heth-xrd': 'dp_ho_heth-xrd',
+  'dp_ho_husdc-xrd': 'dp_ho_husdc-xrd',
+  'dp_ho_husdt-xrd': 'dp_ho_husdt-xrd',
+  'dp_ho_hwbtc-xrd': 'dp_ho_hwbtc-xrd',
   'dp_ho_xeth-xrd': 'dp_ho_xeth-xrd',
   'dp_ho_xrd-xusdc': 'dp_ho_xrd-xusdc',
   'dp_ho_xrd-xusdt': 'dp_ho_xrd-xusdt',
   'dp_ho_xrd-xwbtc': 'dp_ho_xrd-xwbtc',
+  'dp_lp_blu_heth-xrd': 'dp_lp_blu_heth-xrd',
+  'dp_lp_blu_hwbtc-xrd': 'dp_lp_blu_hwbtc-xrd',
   'dp_lp_blu_xeth-xrd': 'dp_lp_blu_xeth-xrd',
   'dp_lp_blu_xrd-xwbtc': 'dp_lp_blu_xrd-xwbtc',
   'dp_lp_der_dfp2-xrd': 'dp_lp_der_dfp2-xrd',
+  'dp_lp_der_heth-xrd': 'dp_lp_der_heth-xrd',
+  'dp_lp_der_husdc-xrd': 'dp_lp_der_husdc-xrd',
+  'dp_lp_der_husdt-xrd': 'dp_lp_der_husdt-xrd',
+  'dp_lp_der_hwbtc-xrd': 'dp_lp_der_hwbtc-xrd',
   'dp_lp_der_xeth-xrd': 'dp_lp_der_xeth-xrd',
   'dp_lp_der_xrd-xusdc': 'dp_lp_der_xrd-xusdc',
   'dp_lp_der_xrd-xusdt': 'dp_lp_der_xrd-xusdt',
@@ -94,6 +104,8 @@ export const ActivityId = {
   'dp_lp_nat_dfp2-reddicks': 'dp_lp_nat_dfp2-reddicks',
   'dp_lp_nat_dfp2-weft': 'dp_lp_nat_dfp2-weft',
   'dp_lp_nat_dfp2-xrd': 'dp_lp_nat_dfp2-xrd',
+  'dp_lp_sta_husdc-xrd': 'dp_lp_sta_husdc-xrd',
+  'dp_lp_sta_husdt-xrd': 'dp_lp_sta_husdt-xrd',
   'dp_lp_sta_xrd-xusdc': 'dp_lp_sta_xrd-xusdc',
   'dp_lp_sta_xrd-xusdt': 'dp_lp_sta_xrd-xusdt',
   'dp_tr_astrl-dfp2': 'dp_tr_astrl-dfp2',
@@ -104,6 +116,10 @@ export const ActivityId = {
   'dp_tr_dfp2-reddicks': 'dp_tr_dfp2-reddicks',
   'dp_tr_dfp2-weft': 'dp_tr_dfp2-weft',
   'dp_tr_dfp2-xrd': 'dp_tr_dfp2-xrd',
+  'dp_tr_heth-xrd': 'dp_tr_heth-xrd',
+  'dp_tr_husdc-xrd': 'dp_tr_husdc-xrd',
+  'dp_tr_husdt-xrd': 'dp_tr_husdt-xrd',
+  'dp_tr_hwbtc-xrd': 'dp_tr_hwbtc-xrd',
   'dp_tr_xeth-xrd': 'dp_tr_xeth-xrd',
   'dp_tr_xrd-xusdc': 'dp_tr_xrd-xusdc',
   'dp_tr_xrd-xusdt': 'dp_tr_xrd-xusdt',
@@ -207,12 +223,15 @@ const componentAddresses = [
   'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
   'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
   'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
+  'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
   'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
   'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
   'component_rdx1cqly8sxtv7xfe8td9uxvyhw585szj2a5p220dn28ru5d2phcwdcgg5',
   'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
   'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
+  'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
   'component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5',
+  'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
   'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
   'component_rdx1cr4w4kezazrxwzy2yyndep2nc55j4plhpg8d4z57cd4u75rpqwfeg2',
   'component_rdx1cr6lxkr83gzhmyg4uxg49wkug5s4wwc3c7cgmhxuczxraa09a97wcu',
@@ -230,6 +249,7 @@ const componentAddresses = [
   'component_rdx1crvsxzkyh0609z4jj7vjzwrnede37676al287rumvy5p32wpvtr59e',
   'component_rdx1crvtvnr02f5fl49jvap4rndlepfsgta455wcyteacr7dtfgzvqqw6n',
   'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+  'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
   'component_rdx1cz2p7z6dfnns6ctcacns96rnxmaxuhlxwns6cyd8avd8jnemnj9kvf',
   'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
   'component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n',
@@ -349,6 +369,14 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'dp_tr_dfp2-weft',
   component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh:
     'dp_tr_dfp2-oci',
+  component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2:
+    'dp_tr_heth-xrd',
+  component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj:
+    'dp_tr_husdc-xrd',
+  component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz:
+    'dp_tr_hwbtc-xrd',
+  component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh:
+    'dp_tr_husdt-xrd',
 };
 
 export const getTradingActivityIdByComponentAddress = (
@@ -455,6 +483,14 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'dp_lp_nat_dfp2-weft',
   component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh:
     'dp_lp_nat_dfp2-oci',
+  component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2:
+    'dp_lp_der_heth-xrd',
+  component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj:
+    'dp_lp_der_husdc-xrd',
+  component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz:
+    'dp_lp_der_hwbtc-xrd',
+  component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh:
+    'dp_lp_der_husdt-xrd',
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g:
     'su_lp_sta_susd',
 };
@@ -3859,6 +3895,342 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'tr',
       componentAddresses: [
         'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+      ],
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'dp_lp_blu_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+      ],
+    },
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'dp_lp_sta_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+      ],
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'dp_lp_blu_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+      ],
+    },
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'dp_lp_sta_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
       ],
     },
   ],
@@ -7653,6 +8025,342 @@ export const activityData: ActivityData[] = [
     action: 'tr',
     componentAddresses: [
       'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
+    ],
+  },
+  {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'dp_lp_blu_heth-xrd',
+    dAppId: 'dp',
+    tokenPair: 'heth-xrd',
+    assets: [
+      {
+        name: 'heth',
+        resourceAddress:
+          'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_heth-xrd',
+    dAppId: 'dp',
+    tokenPair: 'heth-xrd',
+    assets: [
+      {
+        name: 'heth',
+        resourceAddress:
+          'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_heth-xrd',
+    dAppId: 'dp',
+    tokenPair: 'heth-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_heth-xrd',
+    dAppId: 'dp',
+    tokenPair: 'heth-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+    ],
+  },
+  {
+    categoryId: 'provideStablesLiquidityToDex',
+    activityId: 'dp_lp_sta_husdc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdc-xrd',
+    assets: [
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_husdc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdc-xrd',
+    assets: [
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_husdc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdc-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_husdc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdc-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+    ],
+  },
+  {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'dp_lp_blu_hwbtc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hwbtc-xrd',
+    assets: [
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_hwbtc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hwbtc-xrd',
+    assets: [
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_hwbtc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hwbtc-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_hwbtc-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hwbtc-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+    ],
+  },
+  {
+    categoryId: 'provideStablesLiquidityToDex',
+    activityId: 'dp_lp_sta_husdt-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdt-xrd',
+    assets: [
+      {
+        name: 'husdt',
+        resourceAddress:
+          'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+        assetType: 'sta',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_husdt-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdt-xrd',
+    assets: [
+      {
+        name: 'husdt',
+        resourceAddress:
+          'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+        assetType: 'sta',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_husdt-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdt-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_husdt-xrd',
+    dAppId: 'dp',
+    tokenPair: 'husdt-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
     ],
   },
   {
@@ -12745,6 +13453,386 @@ export const componentAddressActivityDataMap: Record<
         },
       ],
       action: 'tr',
+    },
+  ],
+  component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'dp_lp_blu_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_heth-xrd',
+      dAppId: 'dp',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj: [
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'dp_lp_sta_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_husdc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'dp_lp_blu_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_hwbtc-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hwbtc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh: [
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'dp_lp_sta_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_husdt-xrd',
+      dAppId: 'dp',
+      tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
     },
   ],
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g: [
