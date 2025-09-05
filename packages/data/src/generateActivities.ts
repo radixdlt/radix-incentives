@@ -230,6 +230,8 @@ const deriveActivities = (
     const isSingleTokenPool =
       assets[0].resourceAddress === assets[1].resourceAddress;
 
+    const isSameAssetType = assets[0].assetType === assets[1].assetType;
+
     const holdActivityId = isSingleTokenPool
       ? `${dAppId}_${Action.HOLD}_${asset.name}`
       : `${dAppId}_${Action.HOLD}_${tokenPair}`;
@@ -257,7 +259,7 @@ const deriveActivities = (
         componentAddress,
         dAppId,
         tokenPair,
-        assets: [asset],
+        assets: isSameAssetType && !isSingleTokenPool ? assets : [asset],
         action,
         metadata,
       },

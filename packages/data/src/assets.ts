@@ -31,6 +31,13 @@ export const Assets = {
       'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
     HLP: 'resource_rdx1th0f0khh9g8hwa0qtxsarmq8y7yeekjnh4n74494d5zf4k5vw8qv6m',
     WEFT: 'resource_rdx1tk3fxrz75ghllrqhyq8e574rkf4lsq2x5a0vegxwlh3defv225cth3',
+    hwBTC:
+      'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+    hETH: 'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+    hUSDC:
+      'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+    hUSDT:
+      'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
   },
 } as const;
 
@@ -56,11 +63,15 @@ export const tokenNameMap = {
   bluechipAssets: {
     [Assets.Fungible.wxBTC]: 'xwbtc',
     [Assets.Fungible.xETH]: 'xeth',
+    [Assets.Fungible.hwBTC]: 'hwbtc',
+    [Assets.Fungible.hETH]: 'heth',
   },
   stableAssets: {
     [Assets.Fungible.xUSDC]: 'xusdc',
     [Assets.Fungible.xUSDT]: 'xusdt',
     [Assets.Fungible.sUSD]: 'susd',
+    [Assets.Fungible.hUSDC]: 'husdc',
+    [Assets.Fungible.hUSDT]: 'husdt',
   },
 } as const;
 

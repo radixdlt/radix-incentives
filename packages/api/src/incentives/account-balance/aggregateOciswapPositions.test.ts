@@ -223,44 +223,108 @@ describe('AggregateOciswapPositionsService', () => {
 
         const expected: Record<string, AccountBalanceData> = [
           {
-            activityId: 'oc_lp_nat_early-xrd',
-            usdValue:
-              '0.384684985790892910092365242640142360006280802559668100664',
-          },
-          {
-            activityId: 'oc_lp_der_early-xrd',
-            usdValue: '0.3849654975195441707109268129498549355589402792',
-          },
-          {
-            activityId: 'oc_ho_early-xrd',
-            usdValue:
-              '0.769650483310437080803292055589997295565221081759668100664',
-          },
-          {
-            activityId: 'oc_lp_nat_oci-xrd',
-            usdValue: '1.21387352759922353769428907996458442485710905542328',
-          },
-          {
-            activityId: 'oc_lp_der_oci-xrd',
-            usdValue: '1.467908742710847401406114616148347467416777112',
-          },
-          {
-            activityId: 'oc_ho_oci-xrd',
-            usdValue: '4.55041717082201291940927511502133189227388616742328',
-          },
-          {
             activityId: 'oc_lp_nat_ilis-xrd',
             usdValue:
               '1.04483603352485224242803777337327010427310395811140385765',
+            metadata: undefined,
           },
           {
             activityId: 'oc_lp_der_ilis-xrd',
             usdValue: '1.04940396631080787591208224907086197449848005',
+            metadata: undefined,
           },
           {
             activityId: 'oc_ho_ilis-xrd',
             usdValue:
               '2.09423999983566011834012002244413207877158400811140385765',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_blu_xrd-xwbtc',
+            usdValue: '0.7644877982784',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_der_xrd-xwbtc',
+            usdValue: '1.01696001295794157167904044',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_ho_xrd-xwbtc',
+            usdValue: '3.6261867207919886272798632',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_der_xeth-xrd',
+            usdValue: '0.74766297423637649825227008',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_ho_xeth-xrd',
+            usdValue: '3.5503325661433655783534487516295',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_blu_xeth-xrd',
+            usdValue: '0.993340514646564717245438645521',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_sta_xrd-xusdc',
+            usdValue: '0.969030668110163125092',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_der_xrd-xusdc',
+            usdValue: '1.28744913281493353074491492',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_ho_xrd-xusdc',
+            usdValue: '9.55166349031112212855466904',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_der_xrd-xusdt',
+            usdValue: '0.8455211545313148272774082',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_ho_xrd-xusdt',
+            usdValue: '3.96870247878276964322207376',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_sta_xrd-xusdt',
+            usdValue: '1.1266510682241108',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_nat_oci-xrd',
+            usdValue: '1.21387352759922353769428907996458442485710905542328',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_der_oci-xrd',
+            usdValue: '1.467908742710847401406114616148347467416777112',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_ho_oci-xrd',
+            usdValue: '4.55041717082201291940927511502133189227388616742328',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_nat_reddicks-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_reddicks-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_reddicks-xrd',
+            usdValue: '0',
           },
           {
             activityId: 'oc_lp_nat_weft-xrd',
@@ -275,64 +339,69 @@ describe('AggregateOciswapPositionsService', () => {
             usdValue: '0',
           },
           {
-            activityId: 'oc_lp_blu_xrd-xwbtc',
-            usdValue: '0.7644877982784',
-          },
-          {
-            activityId: 'oc_lp_der_xrd-xwbtc',
-            usdValue: '1.01696001295794157167904044',
-          },
-          {
-            activityId: 'oc_ho_xrd-xwbtc',
-            usdValue: '3.6261867207919886272798632',
-          },
-          {
-            activityId: 'oc_lp_der_xeth-xrd',
-            usdValue: '0.74766297423637649825227008',
-          },
-          {
-            activityId: 'oc_ho_xeth-xrd',
-            usdValue: '3.5503325661433655783534487516295',
-          },
-          {
-            activityId: 'oc_lp_blu_xeth-xrd',
-            usdValue: '0.993340514646564717245438645521',
-          },
-          {
-            activityId: 'oc_lp_sta_xrd-xusdc',
-            usdValue: '0.969030668110163125092',
-          },
-          {
-            activityId: 'oc_lp_der_xrd-xusdc',
-            usdValue: '1.28744913281493353074491492',
-          },
-          {
-            activityId: 'oc_ho_xrd-xusdc',
-            usdValue: '9.55166349031112212855466904',
-          },
-          {
-            activityId: 'oc_lp_der_xrd-xusdt',
-            usdValue: '0.8455211545313148272774082',
-          },
-          {
-            activityId: 'oc_ho_xrd-xusdt',
-            usdValue: '3.96870247878276964322207376',
-          },
-          {
-            activityId: 'oc_lp_sta_xrd-xusdt',
-            usdValue: '1.1266510682241108',
-          },
-          {
-            activityId: 'oc_lp_nat_reddicks-xrd',
+            activityId: 'oc_lp_der_husdc-xrd',
             usdValue: '0',
           },
           {
-            activityId: 'oc_lp_der_reddicks-xrd',
+            activityId: 'oc_ho_husdc-xrd',
             usdValue: '0',
           },
           {
-            activityId: 'oc_ho_reddicks-xrd',
+            activityId: 'oc_lp_sta_husdc-xrd',
             usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_husdt-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_husdt-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_sta_husdt-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_blu_hwbtc-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_hwbtc-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_hwbtc-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_heth-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_heth-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_blu_heth-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_nat_early-xrd',
+            usdValue:
+              '0.384684985790892910092365242640142360006280802559668100664',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_lp_der_early-xrd',
+            usdValue: '0.3849654975195441707109268129498549355589402792',
+            metadata: undefined,
+          },
+          {
+            activityId: 'oc_ho_early-xrd',
+            usdValue:
+              '0.769650483310437080803292055589997295565221081759668100664',
+            metadata: undefined,
           },
         ].reduce(
           (acc, item) => {

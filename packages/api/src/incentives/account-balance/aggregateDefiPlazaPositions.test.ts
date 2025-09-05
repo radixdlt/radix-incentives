@@ -72,68 +72,84 @@ describe('AggregateDefiPlazaPositionsService', () => {
         {
           activityId: 'dp_lp_sta_xrd-xusdc',
           usdValue: '0.01751845154575657132546679227395606258150372121515846',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_der_xrd-xusdc',
           usdValue: '0.4497913456138135326409595090285959240072796448',
+          metadata: undefined,
         },
         {
           activityId: 'dp_ho_xrd-xusdc',
           usdValue: '0.46730979715957010396642630130255198658878336601515846',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_sta_xrd-xusdt',
           usdValue: '0.268881428102894680225654190054115317346394002912',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_der_xrd-xusdt',
           usdValue: '0.5889840574150880767959712252132446879854760252',
+          metadata: undefined,
         },
         {
           activityId: 'dp_ho_xrd-xusdt',
           usdValue: '0.857865485517982757021625415267360005331870028112',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_blu_xeth-xrd',
           usdValue: '0.1562077622482928409600801327272597596581097921128',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_der_xeth-xrd',
           usdValue: '0.5124882479304346093078840030537102885638722784',
+          metadata: undefined,
         },
         {
           activityId: 'dp_ho_xeth-xrd',
           usdValue: '0.6686960101787274502679641357809700482219820705128',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_blu_xrd-xwbtc',
           usdValue: '0.300621884523159643607733728509538747253288',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_der_xrd-xwbtc',
           usdValue: '0.6349132477099749380156771409980890323186999474',
+          metadata: undefined,
         },
         {
           activityId: 'dp_ho_xrd-xwbtc',
           usdValue: '0.9355351322331345816234108695076277795719879474',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_nat_astrl-dfp2',
           usdValue: '1.168604040275732055329504082241654729288785198161612364',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_der_dfp2-xrd',
           usdValue: '0.4363159437378297727627358894388481016997883182',
+          metadata: undefined,
         },
         {
           activityId: 'dp_ho_dfp2-xrd',
           usdValue:
             '0.86406061233969888533795633029580372606049529693196774025',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_nat_dfp2-xrd',
           usdValue:
             '0.42774466860186911257522044085695562436070697873196774025',
+          metadata: undefined,
         },
         {
           activityId: 'dp_lp_nat_dfp2-reddicks',
@@ -157,6 +173,54 @@ describe('AggregateDefiPlazaPositionsService', () => {
         },
         {
           activityId: 'dp_lp_nat_dfp2-oci',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_blu_heth-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_heth-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_heth-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_sta_husdc-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_husdc-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_husdc-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_blu_hwbtc-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_hwbtc-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_hwbtc-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_sta_husdt-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_der_husdt-xrd',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_ho_husdt-xrd',
           usdValue: '0',
         },
       ].reduce(

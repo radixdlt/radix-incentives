@@ -33,6 +33,10 @@ export type ShapeLiquidityAsset = {
   isActive: boolean;
 };
 
+export type GetShapeLiquidityAssetsServiceOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof GetShapeLiquidityAssetsService)['Service']>>
+>;
+
 export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiquidityAssetsService>()(
   'GetShapeLiquidityAssetsService',
   {
@@ -68,10 +72,13 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
           },
         });
 
+        // Component state is not found at state version
         if (componentStateResult.length === 0) {
-          return yield* Effect.fail(
-            new FailedToParseComponentStateError('Component not found'),
-          );
+          return input.addresses.map((address) => ({
+            at_ledger_state: input.at_ledger_state,
+            address,
+            items: [],
+          }));
         }
 
         const componentResult = componentStateResult[0];

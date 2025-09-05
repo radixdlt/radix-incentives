@@ -181,6 +181,74 @@ export const DefiPlazaConstants = {
     componentAddress:
       'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
   },
+  hethPool: {
+    type: 'component',
+    baseResourceAddress:
+      'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+    basePoolAddress:
+      'pool_rdx1ckfa8h47ghy8enmz29k6cxgl5x87qy3gkzetsw82fpuvrdzc6563q2',
+    baseLpResourceAddress:
+      'resource_rdx1tha0rthe4jgmwuz0074eazu3n8w2v8m5mpx453vq5ux7dqnaxz0y0g',
+    quoteResourceAddress:
+      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+    quotePoolAddress:
+      'pool_rdx1chawt3wgkpe0jkdhgrysw9dducx3032nse8r9tfl4gsxfqp2z2alx5',
+    quoteLpResourceAddress:
+      'resource_rdx1t4xldwkew79skplfk3lempg459xhlhzj5xy5r86jfjrud29lpalytd',
+    componentAddress:
+      'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
+  },
+  husdcPool: {
+    type: 'component',
+    baseResourceAddress:
+      'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+    basePoolAddress:
+      'pool_rdx1chxzajmur7p67h0uvk7etgnm9m67ptzfv7ysfdvq35ck2zz6zuttqq',
+    baseLpResourceAddress:
+      'resource_rdx1t5qsyevr7ry54uxeh9s7nm6wjdan0c8ks63c2dmpdxsdumum2vsl82',
+    quoteResourceAddress:
+      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+    quotePoolAddress:
+      'pool_rdx1c5t2v0jac6sdyv9qs5hur76uc5kjr70sl8dftc5aa92k0tsuc06r04',
+    quoteLpResourceAddress:
+      'resource_rdx1tkjvn5zek8aj34rmzd9vd5qtr35x4ytlud857cgnq066lzkc0mygzw',
+    componentAddress:
+      'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+  },
+  hwbtcPool: {
+    type: 'component',
+    baseResourceAddress:
+      'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+    basePoolAddress:
+      'pool_rdx1c5xdcsxjfpled776cl2ln2mdv9svh5sp4z8u3qhv5r5sslnuxul7rs',
+    baseLpResourceAddress:
+      'resource_rdx1tkaems6ywyrqrs7vk0fjk87s8sa2n0wcc4zzkyms04nu6mv739xpyd',
+    quoteResourceAddress:
+      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+    quotePoolAddress:
+      'pool_rdx1ckv54hdmtyn308zkm3mq98876puwhpqa3hrn8d27swgspaackvnmu7',
+    quoteLpResourceAddress:
+      'resource_rdx1t575tme0szzjp78ms6m2h6suale84d9ululvwhfkm0jdw2y9n50c2f',
+    componentAddress:
+      'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
+  },
+  husdtPool: {
+    type: 'component',
+    baseResourceAddress:
+      'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+    basePoolAddress:
+      'pool_rdx1ch5zj8tlarxz38kwh4ss3jn5mphd98rssalkmfut6mhzvswezzg3vd',
+    baseLpResourceAddress:
+      'resource_rdx1t46hgy2ut87zeu8jfv6k24d8l4s7mjwjdqsd2qnvu644gyc4l7g0xn',
+    quoteResourceAddress:
+      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+    quotePoolAddress:
+      'pool_rdx1ckvu5wqp2pc284yj7jssckueqtcvt72gjjwz4sv4rl5kdtk70etg2n',
+    quoteLpResourceAddress:
+      'resource_rdx1t45t2dpdgydlrtpxejwm04uvn2dc8p7nmch8ffcd0vf25axd0aptdk',
+    componentAddress:
+      'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+  },
 } as const;
 
 export const defiPlazaComponentSet = new Map<

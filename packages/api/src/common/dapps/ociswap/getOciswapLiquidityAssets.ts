@@ -29,6 +29,10 @@ export type OciswapLiquidityAsset = {
   isActive: boolean;
 };
 
+export type GetOciswapLiquidityAssetsServiceOutput = Effect.Effect.Success<
+  Awaited<ReturnType<(typeof GetOciswapLiquidityAssetsService)['Service']>>
+>;
+
 export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapLiquidityAssetsService>()(
   'GetOciswapLiquidityAssetsService',
   {
@@ -72,10 +76,12 @@ export class GetOciswapLiquidityAssetsService extends Effect.Service<GetOciswapL
                 at_ledger_state: input.at_ledger_state,
               });
 
+        // Component state is not found at state version
         if (componentStateResult.length === 0) {
-          return yield* Effect.fail(
-            new FailedToParseOciswapComponentStateError('Component not found'),
-          );
+          return input.addresses.map((address) => ({
+            address,
+            items: [],
+          }));
         }
 
         const componentResult = componentStateResult[0];

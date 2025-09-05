@@ -81,6 +81,51 @@ export const OciswapConstants = {
       divisibility_x: 18,
       divisibility_y: 18,
     },
+    hUSDC_XRD: {
+      name: 'hUSDC/XRD',
+      componentAddress:
+        'component_rdx1czy2naejcqx8gv46zdsex2syuxrs4jnqzug58e66zr8wglxzvu97qr',
+      lpResourceAddress:
+        'resource_rdx1ngd0xja03m9qs03a969c3dqa8xpkxfjddx3qvty0sk6escqfl95cry',
+      token_x: Assets.Fungible.XRD,
+      token_y: Assets.Fungible.hUSDC,
+      divisibility_x: 6,
+      divisibility_y: 18,
+    },
+
+    hUSDT_XRD: {
+      name: 'hUSDT/XRD',
+      componentAddress:
+        'component_rdx1cprwh9r3wx6vvt0gnv8wscwljegzcevp0hzuju2873eza7fgg493fw',
+      lpResourceAddress:
+        'resource_rdx1nf2fcykqc67ff0yh4a9m4wvpt0vkwct256lvz4h0h2fa85wzpg8j6z',
+      token_y: Assets.Fungible.hUSDT,
+      token_x: Assets.Fungible.XRD,
+      divisibility_x: 6,
+      divisibility_y: 18,
+    },
+    hwBTC_XRD: {
+      name: 'hwBTC/XRD',
+      componentAddress:
+        'component_rdx1crd7xk0nu07kj60artzz6evws7r6w69lwarf0nqmkxuwwluy5xjud0',
+      lpResourceAddress:
+        'resource_rdx1ng9scnrsyp2hcezn0lg026xnayvh69wz0qjq2dhxw36v5rknddf8pc',
+      token_x: Assets.Fungible.hwBTC,
+      token_y: Assets.Fungible.XRD,
+      divisibility_x: 8,
+      divisibility_y: 18,
+    },
+    hETH_XRD: {
+      name: 'hETH/XRD',
+      componentAddress:
+        'component_rdx1crumqsy0nu4pl3fwah3nkf8eg8qhltxenk83wh9tzlmr5jnsqs3x4c',
+      lpResourceAddress:
+        'resource_rdx1ntjl2shav6nez5wdesv2cghms5v5vu3qv3cgeysrwgj2j89agxl4pt',
+      token_x: Assets.Fungible.XRD,
+      token_y: Assets.Fungible.hETH,
+      divisibility_x: 18,
+      divisibility_y: 18,
+    },
   },
   basicPools: {
     EARLY_XRD: {
