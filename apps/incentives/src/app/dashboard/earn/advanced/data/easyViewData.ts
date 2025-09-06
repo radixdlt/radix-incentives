@@ -1,3 +1,9 @@
+export interface DappLogo {
+  name: string;
+  logoPath: string;
+  websiteUrl: string;
+}
+
 export interface EasyViewData {
   id: string;
   name: string;
@@ -7,6 +13,8 @@ export interface EasyViewData {
   component_addresses: string;
   AP: boolean;
   multiplier: boolean;
+  seasonPointsPerWeek?: number;
+  dappLogos?: DappLogo[];
 }
 
 export const easyViewData: EasyViewData[] = [
@@ -31,6 +39,24 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 500000,
+    dappLogos: [
+      {
+        name: 'CaviarNine',
+        logoPath: '/caviarnine-logo.png',
+        websiteUrl: 'https://www.caviarnine.com/',
+      },
+      {
+        name: 'Ociswap',
+        logoPath: '/ociswap-logo.jpg',
+        websiteUrl: 'https://ociswap.com/',
+      },
+      {
+        name: 'DeFiPlaza',
+        logoPath: '/defiplaza-logo.jpg',
+        websiteUrl: 'https://defiplaza.net/',
+      },
+    ],
   },
   {
     id: 'ph_lp_der',
@@ -42,6 +68,24 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: true,
+    seasonPointsPerWeek: 100000,
+    dappLogos: [
+      {
+        name: 'CaviarNine',
+        logoPath: '/caviarnine-logo.png',
+        websiteUrl: 'https://www.caviarnine.com/',
+      },
+      {
+        name: 'Ociswap',
+        logoPath: '/ociswap-logo.jpg',
+        websiteUrl: 'https://ociswap.com/',
+      },
+      {
+        name: 'DeFiPlaza',
+        logoPath: '/defiplaza-logo.jpg',
+        websiteUrl: 'https://defiplaza.net/',
+      },
+    ],
   },
   {
     id: 'ph_lp_nat',
@@ -53,6 +97,24 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 100000,
+    dappLogos: [
+      {
+        name: 'CaviarNine',
+        logoPath: '/caviarnine-logo.png',
+        websiteUrl: 'https://www.caviarnine.com/',
+      },
+      {
+        name: 'Ociswap',
+        logoPath: '/ociswap-logo.jpg',
+        websiteUrl: 'https://ociswap.com/',
+      },
+      {
+        name: 'DeFiPlaza',
+        logoPath: '/defiplaza-logo.jpg',
+        websiteUrl: 'https://defiplaza.net/',
+      },
+    ],
   },
   {
     id: 'ph_lp_sta',
@@ -64,17 +126,58 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: true,
+    seasonPointsPerWeek: 500000,
+    dappLogos: [
+      {
+        name: 'CaviarNine',
+        logoPath: '/caviarnine-logo.png',
+        websiteUrl: 'https://www.caviarnine.com/',
+      },
+      {
+        name: 'Ociswap',
+        logoPath: '/ociswap-logo.jpg',
+        websiteUrl: 'https://ociswap.com/',
+      },
+      {
+        name: 'DeFiPlaza',
+        logoPath: '/defiplaza-logo.jpg',
+        websiteUrl: 'https://defiplaza.net/',
+      },
+      {
+        name: 'Surge',
+        logoPath: '/surge-logo.png',
+        websiteUrl: 'https://www.surge.trade/',
+      },
+    ],
   },
   {
     id: 'ph_tr',
     name: 'Trade on Radix DEXs',
     description:
-      'Earn points by trading on Radix-based DEXs on any asset supported in Radix Rewards. Higher trading volume gives you more rewards.',
+      'Earn points by trading on Radix-based DEXs or aggregators on any asset supported in Radix Rewards. Higher trading volume gives you more rewards.',
     category: 'tradingVolume',
     dapp: '',
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 100000,
+    dappLogos: [
+      {
+        name: 'CaviarNine',
+        logoPath: '/caviarnine-logo.png',
+        websiteUrl: 'https://www.caviarnine.com/',
+      },
+      {
+        name: 'Ociswap',
+        logoPath: '/ociswap-logo.jpg',
+        websiteUrl: 'https://ociswap.com/',
+      },
+      {
+        name: 'Astrolescent',
+        logoPath: '/astrolescent-logo.png',
+        websiteUrl: 'https://astrolescent.com/',
+      },
+    ],
   },
   {
     id: 'ph_compnentCall',
@@ -86,6 +189,7 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 100000,
   },
   {
     id: 'ph_le_blu',
@@ -96,6 +200,19 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 500000,
+    dappLogos: [
+      {
+        name: 'Root Finance',
+        logoPath: '/root-logo.png',
+        websiteUrl: 'https://rootfinance.xyz/',
+      },
+      {
+        name: 'Weft Finance',
+        logoPath: '/weft-logo.png',
+        websiteUrl: 'https://weft.finance/',
+      },
+    ],
   },
   {
     id: 'ph_le_der',
@@ -107,6 +224,19 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: true,
+    seasonPointsPerWeek: 100000,
+    dappLogos: [
+      {
+        name: 'Root Finance',
+        logoPath: '/root-logo.png',
+        websiteUrl: 'https://rootfinance.xyz/',
+      },
+      {
+        name: 'Weft Finance',
+        logoPath: '/weft-logo.png',
+        websiteUrl: 'https://weft.finance/',
+      },
+    ],
   },
   {
     id: 'ph_le_sta',
@@ -117,16 +247,30 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 500000,
+    dappLogos: [
+      {
+        name: 'Root Finance',
+        logoPath: '/root-logo.png',
+        websiteUrl: 'https://rootfinance.xyz/',
+      },
+      {
+        name: 'Weft Finance',
+        logoPath: '/weft-logo.png',
+        websiteUrl: 'https://weft.finance/',
+      },
+    ],
   },
   {
     id: 'ph_tx',
     name: 'Make Radix Transactions',
     description:
-      'Every transaction on Radix counts. Pay transaction fees, interact with the network, and you’ll earn points as part of your regular activity.',
+      "Every transaction on Radix counts. Pay transaction fees, interact with the network, and you'll earn points as part of your regular activity.",
     category: 'transactionFees',
     dapp: '',
     component_addresses: '',
     AP: true,
     multiplier: false,
+    seasonPointsPerWeek: 100000,
   },
 ];
