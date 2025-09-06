@@ -31,11 +31,16 @@ export class AggregateWeftFinancePositionsService extends Effect.Service<Aggrega
           // Stables
           [Assets.Fungible.xUSDC]: ActivityId.we_le_sta_xusdc,
           [Assets.Fungible.xUSDT]: ActivityId.we_le_sta_xusdt,
+          [Assets.Fungible.hUSDC]: ActivityId.we_le_sta_husdc,
+          [Assets.Fungible.hUSDT]: ActivityId.we_le_sta_husdt,
           // Blue chips
           [Assets.Fungible.wxBTC]: ActivityId.we_le_blu_xwbtc,
           [Assets.Fungible.xETH]: ActivityId.we_le_blu_xeth,
-          // Native assets (XRD only, LSULP excluded)
+          [Assets.Fungible.hwBTC]: ActivityId.we_le_blu_hwbtc,
+          [Assets.Fungible.hETH]: ActivityId.we_le_blu_heth,
+          // XRD derivatives
           [Assets.Fungible.XRD]: ActivityId.we_le_der_xrd,
+          [Assets.Fungible.LSULP]: ActivityId.we_le_der_lsulp,
         } as const;
 
         if (accountBalance.weftFinancePositions.lending.length === 0) {
@@ -76,11 +81,17 @@ export class AggregateWeftFinancePositionsService extends Effect.Service<Aggrega
         )) {
           const amount = aggregatedAmounts[resourceAddress] ?? new BigNumber(0);
 
-          const usdValue = yield* getUsdValueService({
-            amount,
-            resourceAddress,
-            timestamp: input.timestamp,
-          });
+          // Skip price fetching for zero balances
+          let usdValue: BigNumber;
+          if (amount.isZero()) {
+            usdValue = new BigNumber(0);
+          } else {
+            usdValue = yield* getUsdValueService({
+              amount,
+              resourceAddress,
+              timestamp: input.timestamp,
+            });
+          }
 
           results.push({
             activityId,

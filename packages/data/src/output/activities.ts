@@ -194,9 +194,14 @@ export const ActivityId = {
   we_ho_stakedXrd: 'we_ho_stakedXrd',
   we_ho_unstakedXrd: 'we_ho_unstakedXrd',
   we_ho_xrd: 'we_ho_xrd',
+  we_le_blu_heth: 'we_le_blu_heth',
+  we_le_blu_hwbtc: 'we_le_blu_hwbtc',
   we_le_blu_xeth: 'we_le_blu_xeth',
   we_le_blu_xwbtc: 'we_le_blu_xwbtc',
+  we_le_der_lsulp: 'we_le_der_lsulp',
   we_le_der_xrd: 'we_le_der_xrd',
+  we_le_sta_husdc: 'we_le_sta_husdc',
+  we_le_sta_husdt: 'we_le_sta_husdt',
   we_le_sta_xusdc: 'we_le_sta_xusdc',
   we_le_sta_xusdt: 'we_le_sta_xusdt',
 } as const;
@@ -4295,6 +4300,42 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
+      categoryId: 'lendingXrdDerivative',
+      activityId: 'we_le_der_lsulp',
+      dAppId: 'we',
+      tokenPair: 'lsulp-lsulp',
+      assets: [
+        {
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+          assetType: 'der',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'we_ho_lsulp',
+      dAppId: 'we',
+      tokenPair: 'lsulp-lsulp',
+      assets: [
+        {
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
       categoryId: 'lendingStables',
       activityId: 'we_le_sta_xusdc',
       dAppId: 'we',
@@ -4367,6 +4408,78 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
+      categoryId: 'lendingStables',
+      activityId: 'we_le_sta_husdc',
+      dAppId: 'we',
+      tokenPair: 'husdc-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'we_le_sta_husdt',
+      dAppId: 'we',
+      tokenPair: 'husdt-husdt',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_hwbtc',
+      dAppId: 'we',
+      tokenPair: 'hwbtc-hwbtc',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_heth',
+      dAppId: 'we',
+      tokenPair: 'heth-heth',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
       categoryId: 'maintainXrdBalance',
       activityId: 'we_ho_stakedXrd',
       dAppId: 'we',
@@ -4384,24 +4497,6 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       tokenPair: 'unstakedXrd',
       action: 'ho',
       assets: [],
-      componentAddresses: [
-        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
-      ],
-    },
-    {
-      categoryId: 'maintainXrdBalance',
-      activityId: 'we_ho_lsulp',
-      dAppId: 'we',
-      tokenPair: 'lsulp',
-      action: 'ho',
-      assets: [
-        {
-          assetType: 'nat',
-          name: 'lsulp',
-          resourceAddress:
-            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-        },
-      ],
       componentAddresses: [
         'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
       ],
@@ -8421,6 +8516,42 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
+    categoryId: 'lendingXrdDerivative',
+    activityId: 'we_le_der_lsulp',
+    dAppId: 'we',
+    tokenPair: 'lsulp-lsulp',
+    assets: [
+      {
+        name: 'lsulp',
+        resourceAddress:
+          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+        assetType: 'der',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'we_ho_lsulp',
+    dAppId: 'we',
+    tokenPair: 'lsulp-lsulp',
+    assets: [
+      {
+        name: 'lsulp',
+        resourceAddress:
+          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
     categoryId: 'lendingStables',
     activityId: 'we_le_sta_xusdc',
     dAppId: 'we',
@@ -8484,6 +8615,78 @@ export const activityData: ActivityData[] = [
         name: 'xeth',
         resourceAddress:
           'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
+        assetType: 'blu',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
+    categoryId: 'lendingStables',
+    activityId: 'we_le_sta_husdc',
+    dAppId: 'we',
+    tokenPair: 'husdc-husdc',
+    assets: [
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
+    categoryId: 'lendingStables',
+    activityId: 'we_le_sta_husdt',
+    dAppId: 'we',
+    tokenPair: 'husdt-husdt',
+    assets: [
+      {
+        name: 'husdt',
+        resourceAddress:
+          'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+        assetType: 'sta',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
+    categoryId: 'lendingBlueChips',
+    activityId: 'we_le_blu_hwbtc',
+    dAppId: 'we',
+    tokenPair: 'hwbtc-hwbtc',
+    assets: [
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
+    categoryId: 'lendingBlueChips',
+    activityId: 'we_le_blu_heth',
+    dAppId: 'we',
+    tokenPair: 'heth-heth',
+    assets: [
+      {
+        name: 'heth',
+        resourceAddress:
+          'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
         assetType: 'blu',
       },
     ],
@@ -8704,24 +8907,6 @@ export const activityData: ActivityData[] = [
     tokenPair: 'unstakedXrd',
     action: 'ho',
     assets: [],
-    componentAddresses: [
-      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
-    ],
-  },
-  {
-    categoryId: 'maintainXrdBalance',
-    activityId: 'we_ho_lsulp',
-    dAppId: 'we',
-    tokenPair: 'lsulp',
-    action: 'ho',
-    assets: [
-      {
-        assetType: 'nat',
-        name: 'lsulp',
-        resourceAddress:
-          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-      },
-    ],
     componentAddresses: [
       'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
     ],
@@ -13935,6 +14120,66 @@ export const componentAddressActivityDataMap: Record<
       action: 'ho',
     },
     {
+      categoryId: 'lendingXrdDerivative',
+      activityId: 'we_le_der_lsulp',
+      dAppId: 'we',
+      tokenPair: 'lsulp-lsulp',
+      assets: [
+        {
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+          assetType: 'der',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'we_ho_lsulp',
+      dAppId: 'we',
+      tokenPair: 'lsulp-lsulp',
+      assets: [
+        {
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+    {
+      categoryId: 'lendingXrdDerivative',
+      activityId: 'we_le_der_lsulp',
+      dAppId: 'we',
+      tokenPair: 'lsulp-lsulp',
+      assets: [
+        {
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+          assetType: 'der',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'we_ho_lsulp',
+      dAppId: 'we',
+      tokenPair: 'lsulp-lsulp',
+      assets: [
+        {
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+    {
       categoryId: 'lendingStables',
       activityId: 'we_le_sta_xusdc',
       dAppId: 'we',
@@ -14049,6 +14294,126 @@ export const componentAddressActivityDataMap: Record<
           name: 'xeth',
           resourceAddress:
             'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'we_le_sta_husdc',
+      dAppId: 'we',
+      tokenPair: 'husdc-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'we_le_sta_husdc',
+      dAppId: 'we',
+      tokenPair: 'husdc-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'we_le_sta_husdt',
+      dAppId: 'we',
+      tokenPair: 'husdt-husdt',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'we_le_sta_husdt',
+      dAppId: 'we',
+      tokenPair: 'husdt-husdt',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_hwbtc',
+      dAppId: 'we',
+      tokenPair: 'hwbtc-hwbtc',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_hwbtc',
+      dAppId: 'we',
+      tokenPair: 'hwbtc-hwbtc',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_heth',
+      dAppId: 'we',
+      tokenPair: 'heth-heth',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_heth',
+      dAppId: 'we',
+      tokenPair: 'heth-heth',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
           assetType: 'blu',
         },
       ],

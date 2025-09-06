@@ -6,7 +6,6 @@ import {
   DappConstants,
 } from 'data';
 import { Effect } from 'effect';
-import type { GetWeftFinancePositionsOutput } from '../../common/dapps/weftFinance/getWeftFinancePositions';
 import { GetUsdValueService } from '../token-price/getUsdValue';
 import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
@@ -151,19 +150,29 @@ const processLendingProtocols = (
     // Weft Finance lending and collateral
     const weftFinancePositions = accountBalance.weftFinancePositions;
 
-    // Process lending positions (only w2-assets like w2XRD)
-    const weftLendingXrd = weftFinancePositions.lending.reduce(
-      (
-        acc: BigNumber,
-        position: GetWeftFinancePositionsOutput['lending'][number],
-      ) => {
-        if (position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD) {
-          return acc.plus(position.unwrappedAsset.amount);
-        }
-        return acc;
-      },
-      new BigNumber(0),
-    );
+    // Process lending positions (only w2-assets like w2XRD and w2LSULP)
+    const { weftLendingXrd, weftLendingLsulp } =
+      weftFinancePositions.lending.reduce(
+        (acc, position) => {
+          if (position.unwrappedAsset.resourceAddress === Assets.Fungible.XRD) {
+            acc.weftLendingXrd = acc.weftLendingXrd.plus(
+              position.unwrappedAsset.amount,
+            );
+          }
+          if (
+            position.unwrappedAsset.resourceAddress === Assets.Fungible.LSULP
+          ) {
+            acc.weftLendingLsulp = acc.weftLendingLsulp.plus(
+              position.unwrappedAsset.amount,
+            );
+          }
+          return acc;
+        },
+        {
+          weftLendingXrd: new BigNumber(0),
+          weftLendingLsulp: new BigNumber(0),
+        },
+      );
 
     // Process collateral positions
     let weftCollateralXrd = new BigNumber(0);
@@ -201,7 +210,7 @@ const processLendingProtocols = (
 
     // Add combined lending + collateral results
     const totalWeftXrd = weftLendingXrd.plus(weftCollateralXrd);
-    const totalWeftLsulp = weftCollateralLsulp; // Only from collateral
+    const totalWeftLsulp = weftLendingLsulp.plus(weftCollateralLsulp); // Only from collateral
 
     output.push(
       {
