@@ -4911,6 +4911,22 @@ export const accountBalanceFixture = {
         },
       },
       {
+        activityId: 'we_le_sta_husdc',
+        usdValue: '0',
+        metadata: {
+          resource_rdx1t4kxe9n00hgzng02myj6a320qxcma2umxj8ygr795cc5m0hsj3p4l2:
+            '0',
+        },
+      },
+      {
+        activityId: 'we_le_sta_husdt',
+        usdValue: '0',
+        metadata: {
+          resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe:
+            '0',
+        },
+      },
+      {
         activityId: 'we_le_blu_xwbtc',
         usdValue: '1.151338763882365410362724',
         metadata: {
@@ -4927,11 +4943,35 @@ export const accountBalanceFixture = {
         },
       },
       {
+        activityId: 'we_le_blu_hwbtc',
+        usdValue: '0',
+        metadata: {
+          resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5:
+            '0',
+        },
+      },
+      {
+        activityId: 'we_le_blu_heth',
+        usdValue: '0',
+        metadata: {
+          resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0:
+            '0',
+        },
+      },
+      {
         activityId: 'we_le_der_xrd',
         usdValue: '0.2622159118507289885127313668',
         metadata: {
           resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd:
             '31.03308478201574857303',
+        },
+      },
+      {
+        activityId: 'we_le_der_lsulp',
+        usdValue: '0',
+        metadata: {
+          resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf:
+            '0',
         },
       },
       {

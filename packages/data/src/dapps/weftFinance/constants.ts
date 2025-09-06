@@ -45,6 +45,11 @@ export const WeftFinanceConstants = {
       resourceAddress:
         'resource_rdx1th0gjs665xgm343j4jee7k8apu8l8pg9cf8x587qprszeeknu8wsxz',
     },
+    w2LSULP: {
+      type: 'fungible',
+      resourceAddress:
+        'resource_rdx1t4p82pms6r20k87rscms728tekujacd0sgxyysk7yvl0jgf56gvjuc',
+    },
     w2xUSDC: {
       type: 'fungible',
       resourceAddress:
@@ -64,6 +69,26 @@ export const WeftFinanceConstants = {
       type: 'fungible',
       resourceAddress:
         'resource_rdx1t456hgpk6kwn4lqut5p2mqqmuuwngzhwxlgyyk9dwv4t5hmp37d7xf',
+    },
+    w2hUSDC: {
+      type: 'fungible',
+      resourceAddress:
+        'resource_rdx1t4kxe9n00hgzng02myj6a320qxcma2umxj8ygr795cc5m0hsj3p4l2',
+    },
+    w2hUSDT: {
+      type: 'fungible',
+      resourceAddress:
+        'resource_rdx1t48fy4e7d0zfzkky5yxvgaxvewp65ecv49vtccyawlulhegk3sw7kz',
+    },
+    w2hwBTC: {
+      type: 'fungible',
+      resourceAddress:
+        'resource_rdx1t4y98gg8r4mvlaf6tyut0natx874er06qy84ct3d5dvg0c3j2d6d4s',
+    },
+    w2hETH: {
+      type: 'fungible',
+      resourceAddress:
+        'resource_rdx1t5tcgsd0m6ptqsd0g70xu08tzdhy23ml5ql9xlmmv9wpchg3lw7dtk',
     },
     WeftyV2: {
       type: 'nonFungible',
@@ -89,10 +114,15 @@ export const weftFungibleRecourceAddresses = new Map<string, string>([
     CaviarNineConstants.LSULP.resourceAddress,
   ],
   [WeftFinanceConstants.v2.w2XRD.resourceAddress, Assets.Fungible.XRD],
+  [WeftFinanceConstants.v2.w2LSULP.resourceAddress, Assets.Fungible.LSULP],
   [WeftFinanceConstants.v2.w2xUSDC.resourceAddress, Assets.Fungible.xUSDC],
   [WeftFinanceConstants.v2.w2xUSDT.resourceAddress, Assets.Fungible.xUSDT],
   [WeftFinanceConstants.v2.w2xwBTC.resourceAddress, Assets.Fungible.wxBTC],
   [WeftFinanceConstants.v2.w2wETH.resourceAddress, Assets.Fungible.xETH],
+  [WeftFinanceConstants.v2.w2hUSDC.resourceAddress, Assets.Fungible.hUSDC],
+  [WeftFinanceConstants.v2.w2hUSDT.resourceAddress, Assets.Fungible.hUSDT],
+  [WeftFinanceConstants.v2.w2hwBTC.resourceAddress, Assets.Fungible.hwBTC],
+  [WeftFinanceConstants.v2.w2hETH.resourceAddress, Assets.Fungible.hETH],
 ]);
 
 export const weftFungibleComponentAddressSet = new Set<string>([
