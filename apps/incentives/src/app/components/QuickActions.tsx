@@ -20,7 +20,7 @@ export const QuickActions = () => {
       title: 'Bridge Assets',
       description: 'Bridge your assets to Radix network',
       icon: ArrowLeftRightIcon,
-      href: 'https://www.instabridge.io',
+      href: 'https://astrolescent.com',
       target: '_blank',
       color: { from: 'rgba(30, 249, 186, 0.4)', to: 'rgba(0, 194, 168, 0.4)' }, // Cyan gradient
     },
