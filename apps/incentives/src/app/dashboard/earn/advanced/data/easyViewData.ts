@@ -58,7 +58,7 @@ export const easyViewData: EasyViewData[] = [
     id: 'ph_lp_sta',
     name: 'Add USDC/T DEX Liquidity',
     description:
-      'Provide liquidity on DEXs using hUSDC, hUSDT, xUSDC, or xUSDT in supported pools on CaviarNine, Ociswap, and DeFiPlaza. Any XRD paired is included in multiplier.',
+      'Provide liquidity on DEXs using hUSDC, hUSDT, xUSDC, or xUSDT in supported pools on CaviarNine, Ociswap, and DeFiPlaza. Also includes xUSDC added to Surge LP. Any XRD paired is included in multiplier.',
     category: 'provideStablesLiquidityToDex',
     dapp: '',
     component_addresses: '',
