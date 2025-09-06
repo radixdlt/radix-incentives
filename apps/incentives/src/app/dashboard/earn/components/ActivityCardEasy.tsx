@@ -3,16 +3,19 @@ import {
   Coins,
   CreditCard,
   Droplet,
+  ExternalLink,
   FileText,
   Settings,
   TrendingUp,
   Wallet,
 } from 'lucide-react';
+import Image from 'next/image';
 import { Badge } from '~/components/ui/badge';
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
@@ -98,7 +101,7 @@ export const ActivityCardEasy = ({
             </div>
           </div>
         </div>
-        <div className="mt-2 flex gap-1">
+        <div className="mt-2 flex flex-wrap gap-1">
           {activity.AP && (
             <Badge variant="secondary" className="text-xs">
               AP
@@ -107,6 +110,11 @@ export const ActivityCardEasy = ({
           {activity.multiplier && (
             <Badge variant="default" className="text-xs">
               Multiplier
+            </Badge>
+          )}
+          {activity.seasonPointsPerWeek && (
+            <Badge variant="outline" className="text-xs">
+              {(activity.seasonPointsPerWeek / 1000).toLocaleString()}k SP/week
             </Badge>
           )}
         </div>
@@ -127,21 +135,35 @@ export const ActivityCardEasy = ({
         </div>
       </CardContent>
 
-      {/* {dapp && (
+      {activity.dappLogos && activity.dappLogos.length > 0 && (
         <CardFooter className="pt-3">
-          <Button variant="outline" size="sm" className="w-full" asChild>
-            <a
-              href={activity?.metadata?.url || dapp.website}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2"
-            >
-              Visit dApp
-              <ExternalLink className="h-4 w-4" />
-            </a>
-          </Button>
+          <div className="flex w-full items-center justify-between">
+            <span className="text-muted-foreground text-xs">Available on:</span>
+            <div className="flex gap-2">
+              {activity.dappLogos.map((dappLogo) => (
+                <a
+                  key={dappLogo.name}
+                  href={dappLogo.websiteUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="group relative"
+                  title={dappLogo.name}
+                >
+                  <div className="relative h-8 w-8 overflow-hidden rounded-full border bg-white transition-transform duration-200 group-hover:scale-105">
+                    <Image
+                      src={dappLogo.logoPath}
+                      alt={`${dappLogo.name} logo`}
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <ExternalLink className="-right-1 -top-1 absolute h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
+                </a>
+              ))}
+            </div>
+          </div>
         </CardFooter>
-      )} */}
+      )}
     </Card>
   );
 };
