@@ -103,7 +103,7 @@ describe('GetRootFinancePositionService', () => {
           'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
         ],
         at_ledger_state: {
-          timestamp: new Date('2025-07-25T00:00:00Z'),
+          timestamp: new Date('2025-09-07T07:00:00Z'),
         },
       });
 
@@ -123,21 +123,21 @@ describe('GetRootFinancePositionService', () => {
                   resource_rdx1t5kmyj54jt85malva7fxdrnpvgfgs623yt7ywdaval25vrdlmnwe97:
                     '3431.65301219063',
                   resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-                    '0.15729165084904900461533186135590679355',
+                    '0.1685227823089104852680137987813775309',
                   resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd:
-                    '100.11927219258979110506850436224421905',
+                    '100.292203775003279397649907302889805174',
                   resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75:
-                    '0.0000074389330650136446225220367402994',
+                    '0.00000744589713877216459080112087012062',
                   resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww:
-                    '0.00034946983525823083419950622758474985',
+                    '0.0003495224333614079983569939258341247',
                   resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf:
-                    '500.00470929512909167980875707003637673',
+                    '500.00631517791909945592516827096744294',
                   resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw:
-                    '0.49501081762677235203768615687828843671',
+                    '0.49586763527531299662316033656214321176',
                 },
                 loans: {
                   resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-                    '0.10077000718925633084245647493453883267532029004752829736',
+                    '0.10867669820570661535111213963132775912194237454457337152',
                 },
               },
             ],

@@ -3428,570 +3428,97 @@ export const accountBalanceFixture = {
         convertLsuToXrdMap: new Map(),
       },
     ],
-    timestamp: new Date('2025-07-20T00:00:00.000Z'),
+    timestamp: new Date('2025-09-07T00:00:00.000Z'),
   },
   output: {
-    timestamp: '2025-07-20T00:00:00.000Z',
+    timestamp: '2025-09-07T00:00:00.000Z',
     accountAddress:
       'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
     data: [
       {
         activityId: 'c9_lp_der_lsulp-xrd',
-        usdValue: '25.44216302516449829084729953124342735418789733374490959429',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_lsulp-xrd',
-              componentAddress:
-                'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
-              token: {
-                name: 'lsulp',
-                resourceAddress:
-                  'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '378.35968019921791819269384391602874959429',
-            },
-            {
-              activityId: 'c9_lp_der_lsulp-xrd',
-              componentAddress:
-                'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '2244.15753546059865772820231608838697973425',
-            },
-            {
-              activityId: 'c9_lp_der_lsulp-xrd',
-              componentAddress:
-                'component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas',
-              token: {
-                name: 'lsulp',
-                resourceAddress:
-                  'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0',
-            },
-            {
-              activityId: 'c9_lp_der_lsulp-xrd',
-              componentAddress:
-                'component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '336.181460597432553394',
-            },
-          ],
-        },
+        usdValue: '15.64190492080525373220362135143940038900232997218829197647',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_lsulp-xrd',
-        usdValue: '25.44216302516449829084729953124342735418789733374490959429',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_lsulp-xrd',
-              componentAddress:
-                'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
-              token: {
-                name: 'lsulp',
-                resourceAddress:
-                  'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '378.35968019921791819269384391602874959429',
-            },
-            {
-              activityId: 'c9_ho_lsulp-xrd',
-              componentAddress:
-                'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '2244.15753546059865772820231608838697973425',
-            },
-            {
-              activityId: 'c9_ho_lsulp-xrd',
-              componentAddress:
-                'component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas',
-              token: {
-                name: 'lsulp',
-                resourceAddress:
-                  'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0',
-            },
-            {
-              activityId: 'c9_ho_lsulp-xrd',
-              componentAddress:
-                'component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '336.181460597432553394',
-            },
-          ],
-        },
+        usdValue: '15.64190492080525373220362135143940038900232997218829197647',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_blu_xrd-xwbtc',
-        usdValue: '1.04449794262615328004576',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_blu_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed',
-              token: {
-                name: 'xwbtc',
-                resourceAddress:
-                  'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.000009072043209396',
-            },
-          ],
-        },
+        usdValue: '1.06668631147996917034259538456',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xrd-xwbtc',
-        usdValue: '0.26955338861866225858773516',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '5.046466999992690472',
-              totalWithinPriceBounds: '31.901470445640040261',
-            },
-          ],
-        },
+        usdValue: '0.16563594371551210943954071',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xrd-xwbtc',
-        usdValue: '1.35669175694927377633808748',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed',
-              token: {
-                name: 'xwbtc',
-                resourceAddress:
-                  'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.000009072043209396',
-            },
-            {
-              activityId: 'c9_ho_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '36.947937445632730733',
-            },
-          ],
-        },
+        usdValue: '1.25852406697081332790871201456',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xrd-xusdc',
-        usdValue: '0.00715081290703514899399368',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cr6lxkr83gzhmyg4uxg49wkug5s4wwc3c7cgmhxuczxraa09a97wcu',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0.068853999999405757',
-              totalWithinPriceBounds: '0.846294115555738878',
-            },
-          ],
-        },
+        usdValue: '0.00439405214031810738585258',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xrd-xusdc',
-        usdValue: '8.33472013121614171080005826125367',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cr6lxkr83gzhmyg4uxg49wkug5s4wwc3c7cgmhxuczxraa09a97wcu',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.915148115555144635',
-            },
-            {
-              activityId: 'c9_ho_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cr6lxkr83gzhmyg4uxg49wkug5s4wwc3c7cgmhxuczxraa09a97wcu',
-              token: {
-                name: 'xusdc',
-                resourceAddress:
-                  'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '8.399026428929255265',
-            },
-          ],
-        },
+        usdValue: '8.133145225279371378257835872453686',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_sta_xrd-xusdc',
-        usdValue: '4.347380132678728384169594580580176',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_sta_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cr6lxkr83gzhmyg4uxg49wkug5s4wwc3c7cgmhxuczxraa09a97wcu',
-              token: {
-                name: 'xusdc',
-                resourceAddress:
-                  'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '4.014035999999938473',
-              totalWithinPriceBounds: '4.384990428929316792',
-            },
-          ],
-        },
+        usdValue: '4.2436976203927556905225659656037408',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_blu_xeth-xrd',
         usdValue: '0',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_blu_xeth-xrd',
-              componentAddress:
-                'component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82',
-              token: {
-                name: 'xeth',
-                resourceAddress:
-                  'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0',
-            },
-          ],
-        },
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xeth-xrd',
-        usdValue: '1.25007351993455976190210932',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_xeth-xrd',
-              componentAddress:
-                'component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '147.945398332523795547',
-            },
-          ],
-        },
+        usdValue: '0.76814878213628012409753417',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xeth-xrd',
-        usdValue: '1.25007351993455976190210932',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_xeth-xrd',
-              componentAddress:
-                'component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82',
-              token: {
-                name: 'xeth',
-                resourceAddress:
-                  'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0',
-            },
-            {
-              activityId: 'c9_ho_xeth-xrd',
-              componentAddress:
-                'component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '147.945398332523795547',
-            },
-          ],
-        },
+        usdValue: '0.76814878213628012409753417',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_xrd-xusdt',
-        usdValue: '0.11732434892226341159380668',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '13.885261353521770553',
-            },
-          ],
-        },
+        usdValue: '0.07209380432623392010593683',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_xrd-xusdt',
-        usdValue: '1.0118411117798406060488061204',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '13.885261353521770553',
-            },
-            {
-              activityId: 'c9_ho_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
-              token: {
-                name: 'xusdt',
-                resourceAddress:
-                  'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.903366195563406361',
-            },
-          ],
-        },
+        usdValue: '0.9492880658367661089544320255591067',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_sta_xrd-xusdt',
-        usdValue: '0.8945167628575771944549994404',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_sta_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
-              token: {
-                name: 'xusdt',
-                resourceAddress:
-                  'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.903366195563406361',
-            },
-          ],
-        },
+        usdValue: '0.8771942615105321888484951955591067',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_nat_floop-xrd',
-        usdValue: '1.42114247967611343978210036491718211512363456',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_nat_floop-xrd',
-              componentAddress:
-                'component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz',
-              token: {
-                name: 'floop',
-                resourceAddress:
-                  'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.000933033147095601',
-            },
-            {
-              activityId: 'c9_lp_nat_floop-xrd',
-              componentAddress:
-                'component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c',
-              token: {
-                name: 'floop',
-                resourceAddress:
-                  'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.0008189799999287687103743593878439134',
-            },
-          ],
-        },
+        usdValue: '0.96803222179660778023209635201997576360806638127763',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_floop-xrd',
-        usdValue: '1.33682839445676871368558265873547035028350125',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_floop-xrd',
-              componentAddress:
-                'component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '106.369616086403329204',
-            },
-            {
-              activityId: 'c9_lp_der_floop-xrd',
-              componentAddress:
-                'component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '103.6863318699999998524496941226455224375',
-            },
-          ],
-        },
+        usdValue: '0.8214581676611484392103317306755645217514840625',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_floop-xrd',
-        usdValue: '2.75797087413288215346768302365265246540713581',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_floop-xrd',
-              componentAddress:
-                'component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz',
-              token: {
-                name: 'floop',
-                resourceAddress:
-                  'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.000933033147095601',
-            },
-            {
-              activityId: 'c9_ho_floop-xrd',
-              componentAddress:
-                'component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '106.369616086403329204',
-            },
-            {
-              activityId: 'c9_ho_floop-xrd',
-              componentAddress:
-                'component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c',
-              token: {
-                name: 'floop',
-                resourceAddress:
-                  'resource_rdx1t5pyvlaas0ljxy0wytm5gvyamyv896m69njqdmm2stukr3xexc2up9',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.0008189799999287687103743593878439134',
-            },
-            {
-              activityId: 'c9_ho_floop-xrd',
-              componentAddress:
-                'component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '103.6863318699999998524496941226455224375',
-            },
-          ],
-        },
+        usdValue: '1.78949038945775621944242808269554028535955044377763',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_nat_dfp2-xrd',
@@ -4107,599 +3634,108 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_lp_nat_lsulp-reddicks',
-        usdValue: '1.768581541167191584205273716858953588406597073078848560774',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_nat_lsulp-reddicks',
-              componentAddress:
-                'component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n',
-              token: {
-                name: 'reddicks',
-                resourceAddress:
-                  'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '1352.66856951620688506685848059819718320858',
-            },
-          ],
-        },
+        usdValue: '0.86763621255391880726617151846230644203331329393993818068',
+        metadata: undefined,
       },
       {
         activityId: 'c9_lp_der_lsulp-reddicks',
-        usdValue: '1.752212251136252139073397690324515864715183392048393300265',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_lp_der_lsulp-reddicks',
-              componentAddress:
-                'component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n',
-              token: {
-                name: 'lsulp',
-                resourceAddress:
-                  'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '364.32395417255954918673261399877166660053',
-            },
-          ],
-        },
+        usdValue: '1.080619220389014396232527159405230716863286100062868838395',
+        metadata: undefined,
       },
       {
         activityId: 'c9_ho_lsulp-reddicks',
-        usdValue: '3.520793792303443723278671407183469453121780465127241861039',
-        metadata: {
-          items: [
-            {
-              activityId: 'c9_ho_lsulp-reddicks',
-              componentAddress:
-                'component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n',
-              token: {
-                name: 'reddicks',
-                resourceAddress:
-                  'resource_rdx1t42hpqvsk4t42l6aw09hwphd2axvetp6gvas9ztue0p30f4hzdwxrp',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '1352.66856951620688506685848059819718320858',
-            },
-            {
-              activityId: 'c9_ho_lsulp-reddicks',
-              componentAddress:
-                'component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n',
-              token: {
-                name: 'lsulp',
-                resourceAddress:
-                  'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '364.32395417255954918673261399877166660053',
-            },
-          ],
-        },
+        usdValue: '1.948255432942933203498698677867537158896599394002807019075',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_nat_ilis-xrd',
-        usdValue: '1.04483603352485224242803777337327010427310395811140385765',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_nat_ilis-xrd',
-              componentAddress:
-                'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
-              token: {
-                name: 'ilis',
-                resourceAddress:
-                  'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '286.78361117925567465544897935822220277365',
-            },
-          ],
-        },
+        usdValue: '0.6863445252211383661764673091192682406162397514199950191',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_ilis-xrd',
-        usdValue: '1.04940396631080787591208224907086197449848005',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_ilis-xrd',
-              componentAddress:
-                'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '248.3925710476777195290837035468975838975',
-            },
-          ],
-        },
+        usdValue: '0.6448407760311789821720753940114412071650243625',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_ilis-xrd',
-        usdValue: '2.09423999983566011834012002244413207877158400811140385765',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_ilis-xrd',
-              componentAddress:
-                'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
-              token: {
-                name: 'ilis',
-                resourceAddress:
-                  'resource_rdx1t4r86qqjtzl8620ahvsxuxaf366s6rf6cpy24psdkmrlkdqvzn47c2',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '286.78361117925567465544897935822220277365',
-            },
-            {
-              activityId: 'oc_ho_ilis-xrd',
-              componentAddress:
-                'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '248.3925710476777195290837035468975838975',
-            },
-          ],
-        },
+        usdValue: '1.3311853012523173483485427031307094477812641139199950191',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_blu_xrd-xwbtc',
-        usdValue: '0.7644877982784',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_blu_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr',
-              token: {
-                name: 'xwbtc',
-                resourceAddress:
-                  'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0.00001243',
-              totalWithinPriceBounds: '0.00000664',
-            },
-          ],
-        },
+        usdValue: '0.7807278850800970704',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_xrd-xwbtc',
-        usdValue: '1.01696001295794157167904044',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '48.952485321702793471',
-              totalWithinPriceBounds: '120.356564478853522749',
-            },
-          ],
-        },
+        usdValue: '0.62490452199630016400031039',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_xrd-xwbtc',
-        usdValue: '3.6261867207919886272798632',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr',
-              token: {
-                name: 'xwbtc',
-                resourceAddress:
-                  'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.00001907',
-            },
-            {
-              activityId: 'oc_ho_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1cpgmgrskahkxe4lnpp9s2f5ga0z8jkl7ne8gjmw3fc2224lxq505mr',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '169.30904980055631622',
-            },
-          ],
-        },
+        usdValue: '3.1213122901499440352090242',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_xeth-xrd',
-        usdValue: '0.74766297423637649825227008',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_xeth-xrd',
-              componentAddress:
-                'component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '147.70772111025070934',
-              totalWithinPriceBounds: '88.485432878916357568',
-            },
-          ],
-        },
+        usdValue: '0.45942610090495040929238848',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_xeth-xrd',
-        usdValue: '3.5503325661433655783534487516295',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_xeth-xrd',
-              componentAddress:
-                'component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '236.193153989167066908',
-            },
-            {
-              activityId: 'oc_ho_xeth-xrd',
-              componentAddress:
-                'component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm',
-              token: {
-                name: 'xeth',
-                resourceAddress:
-                  'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.000434192411259383',
-            },
-          ],
-        },
+        usdValue: '3.171870918262544187534433666266',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_blu_xeth-xrd',
-        usdValue: '0.993340514646564717245438645521',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_blu_xeth-xrd',
-              componentAddress:
-                'component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm',
-              token: {
-                name: 'xeth',
-                resourceAddress:
-                  'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0.000156757888416429',
-              totalWithinPriceBounds: '0.000277434522842954',
-            },
-          ],
-        },
+        usdValue: '1.243129073290475988708339850908',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_sta_xrd-xusdc',
-        usdValue: '0.969030668110163125092',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_sta_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f',
-              token: {
-                name: 'xusdc',
-                resourceAddress:
-                  'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '3.270811',
-              totalWithinPriceBounds: '0.977414',
-            },
-          ],
-        },
+        usdValue: '0.9459198447900250957736',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_xrd-xusdc',
-        usdValue: '1.28744913281493353074491492',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '479.602086899797473627',
-              totalWithinPriceBounds: '152.368778115657327807',
-            },
-          ],
-        },
+        usdValue: '0.79111545654208556828000277',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_xrd-xusdc',
-        usdValue: '9.55166349031112212855466904',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f',
-              token: {
-                name: 'xusdc',
-                resourceAddress:
-                  'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '4.248225',
-            },
-            {
-              activityId: 'oc_ho_xrd-xusdc',
-              componentAddress:
-                'component_rdx1cz8daq5nwmtdju4hj5rxud0ta26wf90sdk5r4nj9fqjcde5eht8p0f',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '631.970865015454801434',
-            },
-          ],
-        },
+        usdValue: '7.39260128405790881306348574',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_xrd-xusdt',
-        usdValue: '0.8455211545313148272774082',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '66.872350201748258601',
-              totalWithinPriceBounds: '100.066885675859432595',
-            },
-          ],
-        },
+        usdValue: '0.51955827778648651857082545',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_xrd-xusdt',
-        usdValue: '3.96870247878276964322207376',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '166.939235877607691196',
-            },
-            {
-              activityId: 'oc_ho_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
-              token: {
-                name: 'xusdt',
-                resourceAddress:
-                  'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '2.583447',
-            },
-          ],
-        },
+        usdValue: '3.37536736873423407740656356',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_sta_xrd-xusdt',
-        usdValue: '1.1266510682241108',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_sta_xrd-xusdt',
-              componentAddress:
-                'component_rdx1cz79xc57dpuhzd3wylnc88m3pyvfk7c5e03me2qv7x8wh9t6c3aw4g',
-              token: {
-                name: 'xusdt',
-                resourceAddress:
-                  'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '1.44565',
-              totalWithinPriceBounds: '1.137797',
-            },
-          ],
-        },
+        usdValue: '1.1048332382433559168159',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_nat_oci-xrd',
-        usdValue: '1.21387352759922353769428907996458442485710905542328',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_nat_oci-xrd',
-              componentAddress:
-                'component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp',
-              token: {
-                name: 'oci',
-                resourceAddress:
-                  'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '136.584185640255619909',
-              totalWithinPriceBounds: '96.2997800336819719',
-            },
-            {
-              activityId: 'oc_lp_nat_oci-xrd',
-              componentAddress:
-                'component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw',
-              token: {
-                name: 'oci',
-                resourceAddress:
-                  'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '109.7781300978726184248244827271419103956',
-            },
-          ],
-        },
+        usdValue: '0.7318907061004291557361409022781539764659625898785084942',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_oci-xrd',
-        usdValue: '1.467908742710847401406114616148347467416777112',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_oci-xrd',
-              componentAddress:
-                'component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '91.368081469017053894',
-              totalWithinPriceBounds: '121.494128932301811473',
-            },
-            {
-              activityId: 'oc_lp_der_oci-xrd',
-              componentAddress:
-                'component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '104.4638562598827175039440482459080632404',
-            },
-          ],
-        },
+        usdValue: '0.902004798133443386556779496169030857115556622',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_oci-xrd',
-        usdValue: '4.55041717082201291940927511502133189227388616742328',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_oci-xrd',
-              componentAddress:
-                'component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp',
-              token: {
-                name: 'oci',
-                resourceAddress:
-                  'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '232.883965673937591809',
-            },
-            {
-              activityId: 'oc_ho_oci-xrd',
-              componentAddress:
-                'component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '212.862210401318865367',
-            },
-            {
-              activityId: 'oc_ho_oci-xrd',
-              componentAddress:
-                'component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw',
-              token: {
-                name: 'oci',
-                resourceAddress:
-                  'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '109.7781300978726184248244827271419103956',
-            },
-            {
-              activityId: 'oc_ho_oci-xrd',
-              componentAddress:
-                'component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '104.4638562598827175039440482459080632404',
-            },
-          ],
-        },
+        usdValue: '2.7694795834508217465408759316274321845815192118785084942',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_nat_reddicks-xrd',
@@ -4775,91 +3811,28 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_lp_nat_early-xrd',
-        usdValue: '0.384684985790892910092365242640142360006280802559668100664',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_nat_early-xrd',
-              componentAddress:
-                'component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p',
-              token: {
-                name: 'early',
-                resourceAddress:
-                  'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '768.02507669935598006464156597557261955444',
-            },
-          ],
-        },
+        usdValue:
+          '0.1471159138499252719873263174553979536715794692798361055286',
+        metadata: undefined,
       },
       {
         activityId: 'oc_lp_der_early-xrd',
-        usdValue: '0.3849654975195441707109268129498549355589402792',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_lp_der_early-xrd',
-              componentAddress:
-                'component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '91.12083884120455283137271359688668653964',
-            },
-          ],
-        },
+        usdValue: '0.2365547092779032854006492899967656670246651202',
+        metadata: undefined,
       },
       {
         activityId: 'oc_ho_early-xrd',
-        usdValue: '0.769650483310437080803292055589997295565221081759668100664',
-        metadata: {
-          items: [
-            {
-              activityId: 'oc_ho_early-xrd',
-              componentAddress:
-                'component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p',
-              token: {
-                name: 'early',
-                resourceAddress:
-                  'resource_rdx1t5xv44c0u99z096q00mv74emwmxwjw26m98lwlzq6ddlpe9f5cuc7s',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '768.02507669935598006464156597557261955444',
-            },
-            {
-              activityId: 'oc_ho_early-xrd',
-              componentAddress:
-                'component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '91.12083884120455283137271359688668653964',
-            },
-          ],
-        },
+        usdValue:
+          '0.3836706231278285573879756074521636206962445894798361055286',
+        metadata: undefined,
       },
       {
         activityId: 'ho_xrd',
-        usdValue: '529.06471895778960336558715188',
+        usdValue: '325.10121449494754490535586553',
       },
       {
         activityId: 'ho_stakedXrd',
-        usdValue: '2.14165920052786958131827689810267774082474348',
+        usdValue: '1.31601292276198487635550711106943960690421263',
       },
       {
         activityId: 'ho_unstakedXrd',
@@ -4867,24 +3840,24 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'ho_lsulp',
-        usdValue: '4.329913697653143622347701141691024140195205702',
+        usdValue: '2.6606578577726962744838456173795302179698030995',
       },
       {
         activityId: 'ro_ho_xrd',
-        usdValue: '0.84580478142228848368822989018931637101174728',
+        usdValue: '0.51973256165652155367172909537903173929693418',
       },
       {
         activityId: 'ro_ho_lsulp',
         usdValue:
-          '4.821300127650755555445371196421750137529720348806529880612660994',
+          '2.9626064085913070535014209311080497808843817098454679129360349265',
       },
       {
         activityId: 'we_ho_xrd',
-        usdValue: '0.2622159118507289885127313668',
+        usdValue: '0.1611271898275517883235147933',
       },
       {
         activityId: 'we_ho_lsulp',
-        usdValue: '0.2054970348210219561598396059371148015129370248',
+        usdValue: '0.1262744106751802826179191361895948584403608538',
       },
       {
         activityId: 'we_ho_stakedXrd',
@@ -4892,567 +3865,187 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'we_ho_unstakedXrd',
-        usdValue: '7.18212599999999999409375756',
+        usdValue: '4.41329349999999999637071511',
       },
       {
         activityId: 'we_le_sta_xusdc',
-        usdValue: '1.19127241207433674957769202120006438',
-        metadata: {
-          resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-            '1.20157841407229450721',
-        },
+        usdValue: '1.162861251161032404527758903896287004',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_sta_xusdt',
-        usdValue: '1.09196615511161480939406965244',
-        metadata: {
-          resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw:
-            '1.1027689498807518671',
-        },
+        usdValue: '1.07082000561697398396812113003860637',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_sta_husdc',
         usdValue: '0',
-        metadata: {
-          resource_rdx1t4kxe9n00hgzng02myj6a320qxcma2umxj8ygr795cc5m0hsj3p4l2:
-            '0',
-        },
+        metadata: undefined,
       },
       {
         activityId: 'we_le_sta_husdt',
         usdValue: '0',
-        metadata: {
-          resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe:
-            '0',
-        },
+        metadata: undefined,
       },
       {
         activityId: 'we_le_blu_xwbtc',
-        usdValue: '1.151338763882365410362724',
-        metadata: {
-          resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75:
-            '0.00001000001492423415',
-        },
+        usdValue: '1.175796762434749258081352918469',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_blu_xeth',
-        usdValue: '1.074134525261061221491950946191805',
-        metadata: {
-          resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww:
-            '0.00029999984405244557',
-        },
+        usdValue: '1.34423980225168826633359230871614',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_blu_hwbtc',
         usdValue: '0',
-        metadata: {
-          resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5:
-            '0',
-        },
+        metadata: undefined,
       },
       {
         activityId: 'we_le_blu_heth',
         usdValue: '0',
-        metadata: {
-          resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0:
-            '0',
-        },
+        metadata: undefined,
       },
       {
         activityId: 'we_le_der_xrd',
-        usdValue: '0.2622159118507289885127313668',
-        metadata: {
-          resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd:
-            '31.03308478201574857303',
-        },
+        usdValue: '0.1611271898275517883235147933',
+        metadata: undefined,
       },
       {
         activityId: 'we_le_der_lsulp',
         usdValue: '0',
-        metadata: {
-          resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf:
-            '0',
-        },
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_sta_xusdc',
-        usdValue: '0.15589656499456550468640489606910214038614526387615062',
-        metadata: {
-          resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-            '0.15724526600872823798814323040719783529',
-        },
+        usdValue: '0.152178521708244841852715485133781859292311606250559996',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_sta_xusdt',
-        usdValue: '0.48993637320088129198440622814300642030946166206',
-        metadata: {
-          resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw:
-            '0.49478330189445739713422353967427271915',
-        },
+        usdValue: '0.480448654426750417154009041307377966686119820075811505',
+        metadata: undefined,
+      },
+      {
+        activityId: 'ro_le_sta_husdc',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
+        activityId: 'ro_le_sta_husdt',
+        usdValue: '0',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_blu_xwbtc',
-        usdValue: '0.8564171965622092624578157991502118334950776',
-        metadata: {
-          resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75:
-            '0.00000743845774645340103401790339430221',
-        },
+        usdValue: '0.8746101482900946858630593647754593775842881134406',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_blu_xeth',
-        usdValue: '1.251258219990524415439388414349202870604533307202825',
-        metadata: {
-          resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww:
-            '0.00034946951432853814878521769963658905',
-        },
+        usdValue: '1.5659035834427399044633596127084124620027654793031',
+        metadata: undefined,
+      },
+      {
+        activityId: 'ro_le_blu_hwbtc',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
+        activityId: 'ro_le_blu_heth',
+        usdValue: '0',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_der_xrd',
-        usdValue: '0.84580478142228848368822989018931637101174728',
-        metadata: {
-          resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd:
-            '100.100452736271295036455139698317589438',
-        },
+        usdValue: '0.51973256165652155367172909537903173929693418',
+        metadata: undefined,
       },
       {
         activityId: 'ro_le_der_lsulp',
-        usdValue: '4.809525635832720511465509865663180550469895424461624245',
-        metadata: {
-          resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf:
-            '500.003751316260267807081260647981624245',
-        },
+        usdValue: '2.966116598981816769419336473061052685840015929731333535',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_sta_xrd-xusdc',
-        usdValue: '0.01751845154575657132546679227395606258150372121515846',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_sta_xrd-xusdc',
-              componentAddress:
-                'component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g',
-              token: {
-                name: 'xusdc',
-                resourceAddress:
-                  'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '0.03534001629182190152882788276480782114',
-            },
-          ],
-        },
+        usdValue: '0.017100646566161898297711826538950546649294011452530268',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xrd-xusdc',
-        usdValue: '0.4497913456138135326409595090285959240072796448',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_der_xrd-xusdc',
-              componentAddress:
-                'component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '106.46503382751611507367472602800522725616',
-            },
-          ],
-        },
+        usdValue: '0.2763890833930923481175886408786331102444904488',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xrd-xusdc',
-        usdValue: '0.46730979715957010396642630130255198658878336601515846',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_ho_xrd-xusdc',
-              componentAddress:
-                'component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g',
-              token: {
-                name: 'xusdc',
-                resourceAddress:
-                  'resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '0.03534001629182190152882788276480782114',
-            },
-            {
-              activityId: 'dp_ho_xrd-xusdc',
-              componentAddress:
-                'component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '106.46503382751611507367472602800522725616',
-            },
-          ],
-        },
+        usdValue: '0.293489729959254246415300467417583656893784460252530268',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_sta_xrd-xusdt',
-        usdValue: '0.268881428102894680225654190054115317346394002912',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_sta_xrd-xusdt',
-              componentAddress:
-                'component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj',
-              token: {
-                name: 'xusdt',
-                resourceAddress:
-                  'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '0.54308293113930440688087369646234284016',
-            },
-          ],
-        },
+        usdValue: '0.263674483868972743616100621370688080570213090910243176',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xrd-xusdt',
-        usdValue: '0.5889840574150880767959712252132446879854760252',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_der_xrd-xusdt',
-              componentAddress:
-                'component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '139.41176994188764309525495415459377482034',
-            },
-          ],
-        },
+        usdValue: '0.3619206224164871252956521000078039420912177587',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xrd-xusdt',
-        usdValue: '0.857865485517982757021625415267360005331870028112',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_ho_xrd-xusdt',
-              componentAddress:
-                'component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj',
-              token: {
-                name: 'xusdt',
-                resourceAddress:
-                  'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
-                assetType: 'sta',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '0.54308293113930440688087369646234284016',
-            },
-            {
-              activityId: 'dp_ho_xrd-xusdt',
-              componentAddress:
-                'component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '139.41176994188764309525495415459377482034',
-            },
-          ],
-        },
+        usdValue: '0.625595106285459868911752721378492022661430849610243176',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_blu_xeth-xrd',
-        usdValue: '0.1562077622482928409600801327272597596581097921128',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_blu_xeth-xrd',
-              componentAddress:
-                'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
-              token: {
-                name: 'xeth',
-                resourceAddress:
-                  'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.0000872559315657036098814470515405344',
-            },
-          ],
-        },
+        usdValue: '0.1954882619416683397160965468415136431716199125344',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xeth-xrd',
-        usdValue: '0.5124882479304346093078840030537102885638722784',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_der_xeth-xrd',
-              componentAddress:
-                'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '121.30531008252136426225365653447286925328',
-            },
-          ],
-        },
+        usdValue: '0.3149152567662800002998449163146009645893238104',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xeth-xrd',
-        usdValue: '0.6686960101787274502679641357809700482219820705128',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_ho_xeth-xrd',
-              componentAddress:
-                'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
-              token: {
-                name: 'xeth',
-                resourceAddress:
-                  'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.0000872559315657036098814470515405344',
-            },
-            {
-              activityId: 'dp_ho_xeth-xrd',
-              componentAddress:
-                'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '121.30531008252136426225365653447286925328',
-            },
-          ],
-        },
+        usdValue: '0.5104035187079483400159414631561146077609437229344',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_blu_xrd-xwbtc',
-        usdValue: '0.300621884523159643607733728509538747253288',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_blu_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29',
-              token: {
-                name: 'xwbtc',
-                resourceAddress:
-                  'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.0000052221351805195426191145869007646',
-            },
-          ],
-        },
+        usdValue: '0.307008023726610951760623683540788591380155118978',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_xrd-xwbtc',
-        usdValue: '0.6349132477099749380156771409980890323186999474',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_der_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '150.28315029657755859847782393357501037183',
-            },
-          ],
-        },
+        usdValue: '0.39014332374318165388737134721187707355084113065',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_xrd-xwbtc',
-        usdValue: '0.9355351322331345816234108695076277795719879474',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_ho_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29',
-              token: {
-                name: 'xwbtc',
-                resourceAddress:
-                  'resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75',
-                assetType: 'blu',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds: '0.0000052221351805195426191145869007646',
-            },
-            {
-              activityId: 'dp_ho_xrd-xwbtc',
-              componentAddress:
-                'component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '150.28315029657755859847782393357501037183',
-            },
-          ],
-        },
+        usdValue: '0.697151347469792605647995030752665664930996249628',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_nat_astrl-dfp2',
-        usdValue: '1.168604040275732055329504082241654729288785198161612364',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_nat_astrl-dfp2',
-              componentAddress:
-                'component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5',
-              token: {
-                name: 'astrl',
-                resourceAddress:
-                  'resource_rdx1t4tjx4g3qzd98nayqxm7qdpj0a0u8ns6a0jrchq49dyfevgh6u0gj3',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '31.62732999185709355405716373852248135858',
-            },
-            {
-              activityId: 'dp_lp_nat_astrl-dfp2',
-              componentAddress:
-                'component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5',
-              token: {
-                name: 'dfp2',
-                resourceAddress:
-                  'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '69.9249977801652589965340509543833507592',
-            },
-          ],
-        },
+        usdValue: '0.8922346281833236803662131053990636627992889950688623586',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_der_dfp2-xrd',
-        usdValue: '0.4363159437378297727627358894388481016997883182',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_der_dfp2-xrd',
-              componentAddress:
-                'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '103.27542351029634034499687307714202909969',
-            },
-          ],
-        },
+        usdValue: '0.26810867958102236583433085733627995035439572295',
+        metadata: undefined,
       },
       {
         activityId: 'dp_ho_dfp2-xrd',
-        usdValue: '0.86406061233969888533795633029580372606049529693196774025',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_ho_dfp2-xrd',
-              componentAddress:
-                'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
-              token: {
-                name: 'xrd',
-                resourceAddress:
-                  'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-                assetType: 'der',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '103.27542351029634034499687307714202909969',
-            },
-            {
-              activityId: 'dp_ho_dfp2-xrd',
-              componentAddress:
-                'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
-              token: {
-                name: 'dfp2',
-                resourceAddress:
-                  'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '90.57390696483483330539138629935583491895',
-            },
-          ],
-        },
+        usdValue: '0.5622603463906111919787271842139294115389942210907290615',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_nat_dfp2-xrd',
-        usdValue: '0.42774466860186911257522044085695562436070697873196774025',
-        metadata: {
-          items: [
-            {
-              activityId: 'dp_lp_nat_dfp2-xrd',
-              componentAddress:
-                'component_rdx1cppd8rq7gfwad75z56mz9tldqmw4aps48hqnx2stf4eeew8v6tyd72',
-              token: {
-                name: 'dfp2',
-                resourceAddress:
-                  'resource_rdx1t5ywq4c6nd2lxkemkv4uzt8v7x7smjcguzq5sgafwtasa6luq7fclq',
-                assetType: 'nat',
-              },
-              totalOutsidePriceBounds: '0',
-              totalWithinPriceBounds:
-                '90.57390696483483330539138629935583491895',
-            },
-          ],
-        },
+        usdValue: '0.2941516668095888261443963268776494611845984981407290615',
+        metadata: undefined,
       },
       {
         activityId: 'dp_lp_nat_dfp2-reddicks',
@@ -5528,11 +4121,8 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'su_lp_sta_susd',
-        usdValue: '0.9906007512251859275999283546619794212457270487689432',
-        metadata: {
-          resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-            '0.9991706914150441649103109005151369444',
-        },
+        usdValue: '0.96697549384606792710603281587732532961376427969737456',
+        metadata: undefined,
       },
     ],
   },

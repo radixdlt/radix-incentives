@@ -37,9 +37,13 @@ export class AggregateRootFinancePositionsService extends Effect.Service<Aggrega
           // Stables
           [Assets.Fungible.xUSDC]: ActivityId.ro_le_sta_xusdc,
           [Assets.Fungible.xUSDT]: ActivityId.ro_le_sta_xusdt,
+          [Assets.Fungible.hUSDC]: ActivityId.ro_le_sta_husdc,
+          [Assets.Fungible.hUSDT]: ActivityId.ro_le_sta_husdt,
           // Blue chips
           [Assets.Fungible.wxBTC]: ActivityId.ro_le_blu_xwbtc,
           [Assets.Fungible.xETH]: ActivityId.ro_le_blu_xeth,
+          [Assets.Fungible.hwBTC]: ActivityId.ro_le_blu_hwbtc,
+          [Assets.Fungible.hETH]: ActivityId.ro_le_blu_heth,
           // Native assets
           [Assets.Fungible.XRD]: ActivityId.ro_le_der_xrd,
           [CaviarNineConstants.LSULP.resourceAddress]:
