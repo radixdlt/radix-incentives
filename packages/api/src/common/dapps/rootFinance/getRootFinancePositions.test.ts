@@ -103,7 +103,7 @@ describe('GetRootFinancePositionService', () => {
           'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
         ],
         at_ledger_state: {
-          timestamp: new Date('2025-09-07T07:00:00Z'),
+          state_version: 372140439,
         },
       });
 
@@ -123,21 +123,25 @@ describe('GetRootFinancePositionService', () => {
                   resource_rdx1t5kmyj54jt85malva7fxdrnpvgfgs623yt7ywdaval25vrdlmnwe97:
                     '3431.65301219063',
                   resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-                    '0.1685227823089104852680137987813775309',
+                    '0.16857042737660426977806261354099274698',
                   resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd:
-                    '100.292203775003279397649907302889805174',
+                    '100.293569619190605983163624804775638144',
                   resource_rdx1t580qxc7upat7lww4l2c4jckacafjeudxj5wpjrrct0p3e82sq4y75:
-                    '0.00000744589713877216459080112087012062',
+                    '0.00000744592725423359457797882475951234',
                   resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww:
-                    '0.0003495224333614079983569939258341247',
+                    '0.0003495224438278389261646231287041382',
                   resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf:
-                    '500.00631517791909945592516827096744294',
+                    '500.0063234027345259525524291428065885',
                   resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw:
-                    '0.49586763527531299662316033656214321176',
+                    '0.4958824108530005249429693426180575614',
+                  resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv:
+                    '0.50000164854400898152357410593342843524',
+                  resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5:
+                    '0.00001',
                 },
                 loans: {
                   resource_rdx1t4upr78guuapv5ept7d7ptekk9mqhy605zgms33mcszen8l9fac8vf:
-                    '0.10867669820570661535111213963132775912194237454457337152',
+                    '0.1087217669563301446170674789460402248667456399175245076',
                 },
               },
             ],

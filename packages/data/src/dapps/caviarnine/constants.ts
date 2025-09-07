@@ -230,6 +230,28 @@ export const CaviarNineConstants = {
       token_x: Assets.Fungible.FLOOP,
       token_y: Assets.Fungible.XRD,
     },
+    HUSDC_XRD: {
+      name: 'HUSDC/XRD',
+      componentAddress:
+        'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
+      poolAddress:
+        'pool_rdx1c5dcv0r8tz0tzw8radv3grwvdj6jkya84c93k30mqmx70tyatlye0n',
+      lpResourceAddress:
+        'resource_rdx1tk9hawstw3k86c7qynvvr5tssttnsy4uurkz7d36fkz8cug9yw9925',
+      token_x: Assets.Fungible.hUSDC,
+      token_y: Assets.Fungible.XRD,
+    },
+    HETH_XRD: {
+      name: 'HETH/XRD',
+      componentAddress:
+        'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
+      poolAddress:
+        'pool_rdx1chcefkz8qqlhl4tk6vm2ftwh7qmht8yru5cxwl0e5r444tw86vzjwd',
+      lpResourceAddress:
+        'resource_rdx1t5qpw4hf8k60mvn708c46rm7wu8st7kaqwy98nkf987fa2w7ue8kyz',
+      token_x: Assets.Fungible.hETH,
+      token_y: Assets.Fungible.XRD,
+    },
   },
 } as const;
 

@@ -227,6 +227,7 @@ const componentAddresses = [
   'component_rdx1cpr3gvk0r3nauc24kt0y0w5cpvjcxe54z07nu26z83qk2tgeangmdl',
   'component_rdx1cprwh9r3wx6vvt0gnv8wscwljegzcevp0hzuju2873eza7fgg493fw',
   'component_rdx1cpsvw207842gafeyvf6tc0gdnq47u3mn74kvzszqlhc03lrns52v82',
+  'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
   'component_rdx1cpwwhuxpe2npedx0axkj4nae8uv5222r0syjtu5fxuaxaj78rf30v9',
   'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
   'component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf',
@@ -239,6 +240,7 @@ const componentAddresses = [
   'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
   'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
   'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
+  'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
   'component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5',
   'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
   'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
@@ -320,6 +322,10 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'c9_tr_lsulp-reddicks',
   component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c:
     'c9_tr_floop-xrd',
+  component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw:
+    'c9_tr_husdc-xrd',
+  component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q:
+    'c9_tr_heth-xrd',
   component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf:
     'c9_tr_lsulp-xrd',
   component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
@@ -434,6 +440,10 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'c9_lp_der_lsulp-reddicks',
   component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c:
     'c9_lp_der_floop-xrd',
+  component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw:
+    'c9_lp_der_husdc-xrd',
+  component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q:
+    'c9_lp_der_heth-xrd',
   component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf:
     'c9_lp_der_lsulp-xrd',
   component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
@@ -1415,6 +1425,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       },
       componentAddresses: [
         'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+        'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
       ],
     },
     {
@@ -1439,6 +1450,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'tr',
       componentAddresses: [
         'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+        'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
       ],
     },
     {
@@ -1457,6 +1469,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'ho',
       componentAddresses: [
         'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+        'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
       ],
     },
     {
@@ -1479,6 +1492,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       },
       componentAddresses: [
         'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+        'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
       ],
     },
     {
@@ -1569,6 +1583,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       },
       componentAddresses: [
         'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+        'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
       ],
     },
     {
@@ -1593,6 +1608,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'tr',
       componentAddresses: [
         'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+        'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
       ],
     },
     {
@@ -1615,6 +1631,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       },
       componentAddresses: [
         'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+        'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
       ],
     },
     {
@@ -1633,6 +1650,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'ho',
       componentAddresses: [
         'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+        'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
       ],
     },
     {
@@ -5711,6 +5729,7 @@ export const activityData: ActivityData[] = [
     },
     componentAddresses: [
       'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+      'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
     ],
   },
   {
@@ -5735,6 +5754,7 @@ export const activityData: ActivityData[] = [
     action: 'tr',
     componentAddresses: [
       'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+      'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
     ],
   },
   {
@@ -5753,6 +5773,7 @@ export const activityData: ActivityData[] = [
     action: 'ho',
     componentAddresses: [
       'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+      'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
     ],
   },
   {
@@ -5775,6 +5796,7 @@ export const activityData: ActivityData[] = [
     },
     componentAddresses: [
       'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
+      'component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
     ],
   },
   {
@@ -5865,6 +5887,7 @@ export const activityData: ActivityData[] = [
     },
     componentAddresses: [
       'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+      'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
     ],
   },
   {
@@ -5889,6 +5912,7 @@ export const activityData: ActivityData[] = [
     action: 'tr',
     componentAddresses: [
       'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+      'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
     ],
   },
   {
@@ -5911,6 +5935,7 @@ export const activityData: ActivityData[] = [
     },
     componentAddresses: [
       'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+      'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
     ],
   },
   {
@@ -5929,6 +5954,7 @@ export const activityData: ActivityData[] = [
     action: 'ho',
     componentAddresses: [
       'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
+      'component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
     ],
   },
   {
@@ -10982,6 +11008,200 @@ export const componentAddressActivityDataMap: Record<
       activityId: 'c9_ho_floop-xrd',
       dAppId: 'c9',
       tokenPair: 'floop-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw: [
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'c9_lp_sta_husdc-xrd',
+      dAppId: 'c9',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_husdc-xrd',
+      dAppId: 'c9',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_husdc-xrd',
+      dAppId: 'c9',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cqth4gp6fedux4rrjzk6gu04c24sfnhzrh9t052ufsh7n5ljrslltw',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_husdc-xrd',
+      dAppId: 'c9',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_husdc-xrd',
+      dAppId: 'c9',
+      tokenPair: 'husdc-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_heth-xrd',
+      dAppId: 'c9',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_heth-xrd',
+      dAppId: 'c9',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_heth-xrd',
+      dAppId: 'c9',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cpwu2rv3p4qqsayk5tc072kw94ygqyusemuqje7udxhgt3253m830q',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_heth-xrd',
+      dAppId: 'c9',
+      tokenPair: 'heth-xrd',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_heth-xrd',
+      dAppId: 'c9',
+      tokenPair: 'heth-xrd',
       assets: [
         {
           name: 'xrd',
