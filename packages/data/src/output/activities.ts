@@ -182,10 +182,14 @@ export const ActivityId = {
   'oc_tr_xrd-xwbtc': 'oc_tr_xrd-xwbtc',
   ro_ho_lsulp: 'ro_ho_lsulp',
   ro_ho_xrd: 'ro_ho_xrd',
+  ro_le_blu_heth: 'ro_le_blu_heth',
+  ro_le_blu_hwbtc: 'ro_le_blu_hwbtc',
   ro_le_blu_xeth: 'ro_le_blu_xeth',
   ro_le_blu_xwbtc: 'ro_le_blu_xwbtc',
   ro_le_der_lsulp: 'ro_le_der_lsulp',
   ro_le_der_xrd: 'ro_le_der_xrd',
+  ro_le_sta_husdc: 'ro_le_sta_husdc',
+  ro_le_sta_husdt: 'ro_le_sta_husdt',
   ro_le_sta_xusdc: 'ro_le_sta_xusdc',
   ro_le_sta_xusdt: 'ro_le_sta_xusdt',
   su_lp_sta_susd: 'su_lp_sta_susd',
@@ -4576,6 +4580,78 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
+      categoryId: 'lendingStables',
+      activityId: 'ro_le_sta_husdc',
+      dAppId: 'ro',
+      tokenPair: 'husdc-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      ],
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'ro_le_sta_husdt',
+      dAppId: 'ro',
+      tokenPair: 'husdt-husdt',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      ],
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'ro_le_blu_hwbtc',
+      dAppId: 'ro',
+      tokenPair: 'hwbtc-hwbtc',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      ],
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'ro_le_blu_heth',
+      dAppId: 'ro',
+      tokenPair: 'heth-heth',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      ],
+    },
+    {
       categoryId: 'lendingXrdDerivative',
       activityId: 'ro_le_der_xrd',
       dAppId: 'ro',
@@ -8759,6 +8835,78 @@ export const activityData: ActivityData[] = [
         name: 'xeth',
         resourceAddress:
           'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
+        assetType: 'blu',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+    ],
+  },
+  {
+    categoryId: 'lendingStables',
+    activityId: 'ro_le_sta_husdc',
+    dAppId: 'ro',
+    tokenPair: 'husdc-husdc',
+    assets: [
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+    ],
+  },
+  {
+    categoryId: 'lendingStables',
+    activityId: 'ro_le_sta_husdt',
+    dAppId: 'ro',
+    tokenPair: 'husdt-husdt',
+    assets: [
+      {
+        name: 'husdt',
+        resourceAddress:
+          'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+        assetType: 'sta',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+    ],
+  },
+  {
+    categoryId: 'lendingBlueChips',
+    activityId: 'ro_le_blu_hwbtc',
+    dAppId: 'ro',
+    tokenPair: 'hwbtc-hwbtc',
+    assets: [
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+    ],
+  },
+  {
+    categoryId: 'lendingBlueChips',
+    activityId: 'ro_le_blu_heth',
+    dAppId: 'ro',
+    tokenPair: 'heth-heth',
+    assets: [
+      {
+        name: 'heth',
+        resourceAddress:
+          'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
         assetType: 'blu',
       },
     ],
@@ -14567,6 +14715,126 @@ export const componentAddressActivityDataMap: Record<
           name: 'xeth',
           resourceAddress:
             'resource_rdx1th88qcj5syl9ghka2g9l7tw497vy5x6zaatyvgfkwcfe8n9jt2npww',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'ro_le_sta_husdc',
+      dAppId: 'ro',
+      tokenPair: 'husdc-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'ro_le_sta_husdc',
+      dAppId: 'ro',
+      tokenPair: 'husdc-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'ro_le_sta_husdt',
+      dAppId: 'ro',
+      tokenPair: 'husdt-husdt',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingStables',
+      activityId: 'ro_le_sta_husdt',
+      dAppId: 'ro',
+      tokenPair: 'husdt-husdt',
+      assets: [
+        {
+          name: 'husdt',
+          resourceAddress:
+            'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
+          assetType: 'sta',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'ro_le_blu_hwbtc',
+      dAppId: 'ro',
+      tokenPair: 'hwbtc-hwbtc',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'ro_le_blu_hwbtc',
+      dAppId: 'ro',
+      tokenPair: 'hwbtc-hwbtc',
+      assets: [
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'ro_le_blu_heth',
+      dAppId: 'ro',
+      tokenPair: 'heth-heth',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'ro_le_blu_heth',
+      dAppId: 'ro',
+      tokenPair: 'heth-heth',
+      assets: [
+        {
+          name: 'heth',
+          resourceAddress:
+            'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
           assetType: 'blu',
         },
       ],

@@ -34,6 +34,30 @@ export const RootFinanceConstants = {
         'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
       resourceAddress: Assets.Fungible.xETH,
     },
+    hUSDC: {
+      type: 'fungible',
+      componentAddress:
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      resourceAddress: Assets.Fungible.hUSDC,
+    },
+    hUSDT: {
+      type: 'fungible',
+      componentAddress:
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      resourceAddress: Assets.Fungible.hUSDT,
+    },
+    hwBTC: {
+      type: 'fungible',
+      componentAddress:
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      resourceAddress: Assets.Fungible.hwBTC,
+    },
+    hETH: {
+      type: 'fungible',
+      componentAddress:
+        'component_rdx1crwusgp2uy9qkzje9cqj6pdpx84y94ss8pe7vehge3dg54evu29wtq',
+      resourceAddress: Assets.Fungible.hETH,
+    },
     XRD: {
       type: 'fungible',
       componentAddress:
