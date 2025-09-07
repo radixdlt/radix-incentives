@@ -10,7 +10,7 @@ import { TRPCReactProvider } from '~/trpc/react';
 export const metadata: Metadata = {
   title: 'Radix Incentives',
   description: 'Dashboard for the Radix Incentives campaign',
-  icons: [{ rel: 'icon', url: '/favicon.ico' }],
+  icons: [{ rel: 'icon', url: '/favicon.png' }],
 };
 
 const geist = Geist({
