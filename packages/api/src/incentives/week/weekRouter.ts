@@ -86,6 +86,31 @@ export const weekAdminRouter = createTRPCRouter({
       });
     }),
 
+  updateCategoryWeekLowerBoundsPercentage: publicProcedure
+    .input(
+      z.object({
+        weekId: z.string(),
+        activityCategoryId: z.string(),
+        lowerBoundsPercentage: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result =
+        await ctx.dependencyLayer.updateCategoryWeekLowerBoundsPercentage({
+          weekId: input.weekId,
+          activityCategoryId: input.activityCategoryId,
+          lowerBoundsPercentage: input.lowerBoundsPercentage,
+        });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
   createWeek: publicProcedure
     .input(
       z.object({

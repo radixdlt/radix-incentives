@@ -1,0 +1,1 @@
+ALTER TABLE "activity_category_weeks" ADD COLUMN "lower_bounds_percentage" numeric DEFAULT '0.1' NOT NULL;

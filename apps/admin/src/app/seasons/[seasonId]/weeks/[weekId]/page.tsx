@@ -18,6 +18,8 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   const addProcessWeekJob = api.season.addProcessWeekJob.useMutation();
   const updatePointsPool = api.week.updatePointsPool.useMutation();
   const updateMultiplier = api.week.updateActivityWeekMultiplier.useMutation();
+  const updateLowerBoundsPercentage =
+    api.week.updateCategoryWeekLowerBoundsPercentage.useMutation();
   const {
     data: seasonData,
     refetch: refetchSeason,
@@ -91,6 +93,24 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
       await refetchWeek();
     } catch (error) {
       console.error('Failed to update multiplier:', error);
+    }
+  };
+
+  const handleUpdateLowerBoundsPercentage = async (
+    categoryId: string,
+    newLowerBoundsPercentage: string,
+  ) => {
+    try {
+      await updateLowerBoundsPercentage.mutateAsync({
+        weekId: params.weekId,
+        activityCategoryId: categoryId,
+        lowerBoundsPercentage: newLowerBoundsPercentage,
+      });
+      await refetchWeek();
+      toast.success('Lower bounds percentage updated successfully');
+    } catch (error) {
+      console.error('Failed to update lower bounds percentage:', error);
+      toast.error('Failed to update lower bounds percentage');
     }
   };
 
@@ -234,6 +254,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         onTriggerActivityPoints={handleTriggerActivityPoints}
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}
+        onUpdateLowerBoundsPercentage={handleUpdateLowerBoundsPercentage}
         onCalculateMultiplier={handleCalculateMultiplier}
       />
     </div>

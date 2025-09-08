@@ -11,8 +11,9 @@ import { Effect } from 'effect';
  * @returns Effect containing filtered users array
  */
 export const supplyPercentileTrim = (
-  users: { points: BigNumber; userId: string }[],
-  options: { lowerBoundsPercentage: number },
+  users: { points: BigNumber; userId: string; multiplier: string }[],
+  options: { lowerBoundsPercentage: BigNumber },
+  activityCategory: string,
 ) =>
   Effect.gen(function* () {
     const totalPoints = users.reduce(
@@ -56,5 +57,17 @@ export const supplyPercentileTrim = (
     });
 
     // Return users in their original order, but only those that qualified
-    return users.filter((user) => qualifiedUserIds.has(user.userId));
+    const output = users.filter((user) => qualifiedUserIds.has(user.userId));
+
+    // requires a custom logger to output data to a file
+    yield* Effect.logDebug({
+      writeToFile: true,
+      name: `${options.lowerBoundsPercentage}-${activityCategory}`,
+      data: sortedUsers.map((u) => ({
+        ...u,
+        qualified: qualifiedUserIds.has(u.userId),
+      })),
+    });
+
+    return output;
   });

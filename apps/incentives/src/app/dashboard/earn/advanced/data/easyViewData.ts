@@ -91,7 +91,7 @@ export const easyViewData: EasyViewData[] = [
     id: 'ph_lp_nat',
     name: 'Add Radix Native Alts DEX Liquidity',
     description:
-      'Provide liquidity on DEXs using ASTRL, DEP2, EARLY, FLOOP, ILIS, Reddicks, OCI, or WEFT in supported pools on CaviarNine, Ociswap, and DeFiPlaza. Any XRD paired is included in multiplier.',
+      'Provide liquidity on DEXs using ASTRL, DFP2, EARLY, FLOOP, ILIS, Reddicks, OCI, or WEFT in supported pools on CaviarNine, Ociswap, and DeFiPlaza. Any XRD paired is included in multiplier.',
     category: 'provideNativeLiquidityToDex',
     dapp: '',
     component_addresses: '',

@@ -27,6 +27,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   columns: {
                     activityCategoryId: true,
                     pointsPool: true,
+                    lowerBoundsPercentage: true,
                   },
                 }),
               catch: (error) => new DbError(error),
@@ -72,6 +73,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   multiplier: new BigNumber(item.multiplier),
                 })),
                 pointsPool,
+                lowerBoundsPercentage: new BigNumber(
+                  categoryWeek.lowerBoundsPercentage,
+                ),
               };
             }),
           );
@@ -88,6 +92,28 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 .set({
                   pointsPool: input.pointsPool,
                 })
+                .where(
+                  and(
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    eq(
+                      activityCategoryWeeks.activityCategoryId,
+                      input.activityCategoryId,
+                    ),
+                  ),
+                ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        updateLowerBoundsPercentage: Effect.fn(function* (input: {
+          weekId: string;
+          activityCategoryId: string;
+          lowerBoundsPercentage: string;
+        }) {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(activityCategoryWeeks)
+                .set({ lowerBoundsPercentage: input.lowerBoundsPercentage })
                 .where(
                   and(
                     eq(activityCategoryWeeks.weekId, input.weekId),

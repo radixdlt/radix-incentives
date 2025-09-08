@@ -13,12 +13,15 @@
     "nft-balance:inspect": "tsx --inspect-brk src/getNonFungibleBalance.ts"
   },
   "devDependencies": {
+    "@types/inquirer": "catalog:",
     "tsup": "catalog:",
     "tsx": "catalog:",
-    "vitest": "catalog:",
-    "@types/inquirer": "catalog:"
+    "vitest": "catalog:"
   },
   "dependencies": {
+    "@effect/opentelemetry": "catalog:",
+    "@opentelemetry/exporter-trace-otlp-http": "catalog:",
+    "@opentelemetry/sdk-trace-base": "catalog:",
     "@testcontainers/postgresql": "catalog:",
     "@types/fs-extra": "^11.0.4",
     "api": "workspace:*",
@@ -29,9 +32,7 @@
     "effect": "catalog:",
     "fs-extra": "^11.3.0",
     "inquirer": "catalog:",
-    "postgres": "catalog:",
-    "@effect/opentelemetry": "catalog:",
-    "@opentelemetry/sdk-trace-base": "catalog:",
-    "@opentelemetry/exporter-trace-otlp-http": "catalog:"
+    "papaparse": "^5.5.3",
+    "postgres": "catalog:"
   }
 }

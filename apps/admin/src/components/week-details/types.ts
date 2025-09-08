@@ -11,5 +11,9 @@ export interface AdminWeekDetailsProps {
   onTriggerActivityPoints?: () => void;
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
   onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
+  onUpdateLowerBoundsPercentage?: (
+    categoryId: string,
+    newLowerBoundsPercentage: string,
+  ) => void;
   onCalculateMultiplier?: () => void;
 }
