@@ -81,7 +81,7 @@ describe('AggregateDefiPlazaPositionsService', () => {
         },
         {
           activityId: 'dp_ho_xrd-xusdc',
-          usdValue: '0.46730979715957010396642630130255198658878336601515846',
+          usdValue: '0.8995826912276270652819190180571918480145592896',
           metadata: undefined,
         },
         {
@@ -96,7 +96,7 @@ describe('AggregateDefiPlazaPositionsService', () => {
         },
         {
           activityId: 'dp_ho_xrd-xusdt',
-          usdValue: '0.857865485517982757021625415267360005331870028112',
+          usdValue: '1.1779681148301761535919424504264893759709520504',
           metadata: undefined,
         },
         {
@@ -111,7 +111,7 @@ describe('AggregateDefiPlazaPositionsService', () => {
         },
         {
           activityId: 'dp_ho_xeth-xrd',
-          usdValue: '0.6686960101787274502679641357809700482219820705128',
+          usdValue: '1.0249764958608692186157680061074205771277445568',
           metadata: undefined,
         },
         {
@@ -126,7 +126,7 @@ describe('AggregateDefiPlazaPositionsService', () => {
         },
         {
           activityId: 'dp_ho_xrd-xwbtc',
-          usdValue: '0.9355351322331345816234108695076277795719879474',
+          usdValue: '1.2698264954199498760313542819961780646373998948',
           metadata: undefined,
         },
         {
@@ -141,8 +141,7 @@ describe('AggregateDefiPlazaPositionsService', () => {
         },
         {
           activityId: 'dp_ho_dfp2-xrd',
-          usdValue:
-            '0.86406061233969888533795633029580372606049529693196774025',
+          usdValue: '0.8726318874756595455254717788776962033995766364',
           metadata: undefined,
         },
         {

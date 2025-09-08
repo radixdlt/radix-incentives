@@ -2,6 +2,7 @@ import { BigNumber } from 'bignumber.js';
 import {
   type AccountBalanceData,
   Action,
+  AssetType,
   type DappId,
   deriveHoldActivityId,
   deriveLpActivityId,
@@ -180,7 +181,10 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                   ),
                 totalOutsidePriceBounds: new BigNumber(0),
               },
-            ];
+            ].filter(
+              (activity) =>
+                activity.token.assetType === AssetType.XRD_DERIVATIVE,
+            );
 
             return {
               lpActivities,
@@ -213,7 +217,7 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
           totalOutsidePriceBounds: BigNumber;
         }[],
         timestamp: Date,
-        _applyMultiplier: boolean,
+        isLpActivity: boolean,
       ) {
         const groupedByActivityId = groupBy(items, (item) => item.activityId);
 
@@ -236,7 +240,8 @@ export class AggregatePoolPositionsService extends Effect.Service<AggregatePoolP
                         timestamp,
                       }).pipe(
                         Effect.map((usdValue) => {
-                          if (isPoolConstantProduct) {
+                          // Only apply constant product multiplier for LP activities, not holdings
+                          if (isLpActivity && isPoolConstantProduct) {
                             return usdValue.multipliedBy(
                               CONSTANT_PRODUCT_MULTIPLIER,
                             );

@@ -235,8 +235,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_ilis-xrd',
-            usdValue:
-              '2.09423999983566011834012002244413207877158400811140385765',
+            usdValue: '2.0988079326216157518241644981417239489969601',
             metadata: undefined,
           },
           {
@@ -251,7 +250,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_xrd-xwbtc',
-            usdValue: '3.6261867207919886272798632',
+            usdValue: '1.4305869748327886272798632',
             metadata: undefined,
           },
           {
@@ -261,7 +260,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_xeth-xrd',
-            usdValue: '3.5503325661433655783534487516295',
+            usdValue: '1.99572822622070648186316048',
             metadata: undefined,
           },
           {
@@ -281,7 +280,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_xrd-xusdc',
-            usdValue: '9.55166349031112212855466904',
+            usdValue: '5.33987574219998627200466904',
             metadata: undefined,
           },
           {
@@ -291,7 +290,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_xrd-xusdt',
-            usdValue: '3.96870247878276964322207376',
+            usdValue: '1.41056308990199884322207376',
             metadata: undefined,
           },
           {
@@ -311,7 +310,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_oci-xrd',
-            usdValue: '4.55041717082201291940927511502133189227388616742328',
+            usdValue: '2.681265639817822446563013992296694934833554224',
             metadata: undefined,
           },
           {
@@ -399,8 +398,7 @@ describe('AggregateOciswapPositionsService', () => {
           },
           {
             activityId: 'oc_ho_early-xrd',
-            usdValue:
-              '0.769650483310437080803292055589997295565221081759668100664',
+            usdValue: '0.7699309950390883414218536258997098711178805584',
             metadata: undefined,
           },
         ].reduce(
