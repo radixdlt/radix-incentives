@@ -3457,7 +3457,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_ho_xrd-xwbtc',
-        usdValue: '1.25852406697081332790871201456',
+        usdValue: '0.19183775549084415756611663',
         metadata: undefined,
       },
       {
@@ -3467,7 +3467,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_ho_xrd-xusdc',
-        usdValue: '8.133145225279371378257835872453686',
+        usdValue: '0.00475154968225502201082985',
         metadata: undefined,
       },
       {
@@ -3497,7 +3497,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_ho_xrd-xusdt',
-        usdValue: '0.9492880658367661089544320255591067',
+        usdValue: '0.07209380432623392010593683',
         metadata: undefined,
       },
       {
@@ -3517,7 +3517,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_ho_floop-xrd',
-        usdValue: '1.78949038945775621944242808269554028535955044377763',
+        usdValue: '1.090633587943921288827283021351129043502968125',
         metadata: undefined,
       },
       {
@@ -3644,7 +3644,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_ho_lsulp-reddicks',
-        usdValue: '1.948255432942933203498698677867537158896599394002807019075',
+        usdValue: '2.16123844077802879246505431881046143372657220012573767679',
         metadata: undefined,
       },
       {
@@ -3659,7 +3659,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_ilis-xrd',
-        usdValue: '1.3311853012523173483485427031307094477812641139199950191',
+        usdValue: '1.289681552062357964344150788022882414330048725',
         metadata: undefined,
       },
       {
@@ -3674,7 +3674,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_xrd-xwbtc',
-        usdValue: '3.1213122901499440352090242',
+        usdValue: '0.8790712105599664550090242',
         metadata: undefined,
       },
       {
@@ -3684,7 +3684,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_xeth-xrd',
-        usdValue: '3.171870918262544187534433666266',
+        usdValue: '1.22634083675869421976369588',
         metadata: undefined,
       },
       {
@@ -3704,7 +3704,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_xrd-xusdc',
-        usdValue: '7.39260128405790881306348574',
+        usdValue: '3.28126224795539302907348574',
         metadata: undefined,
       },
       {
@@ -3714,7 +3714,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_xrd-xusdt',
-        usdValue: '3.37536736873423407740656356',
+        usdValue: '0.86676687599248566953566356',
         metadata: undefined,
       },
       {
@@ -3734,7 +3734,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_oci-xrd',
-        usdValue: '2.7694795834508217465408759316274321845815192118785084942',
+        usdValue: '1.647591843972291350440057302338061714231113244',
         metadata: undefined,
       },
       {
@@ -3822,8 +3822,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'oc_ho_early-xrd',
-        usdValue:
-          '0.3836706231278285573879756074521636206962445894798361055286',
+        usdValue: '0.4731094185558065708012985799935313340493302404',
         metadata: undefined,
       },
       {
@@ -3979,7 +3978,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'dp_ho_xrd-xusdc',
-        usdValue: '0.293489729959254246415300467417583656893784460252530268',
+        usdValue: '0.5527781667861846962351772817572662204889808976',
         metadata: undefined,
       },
       {
@@ -3994,7 +3993,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'dp_ho_xrd-xusdt',
-        usdValue: '0.625595106285459868911752721378492022661430849610243176',
+        usdValue: '0.7238412448329742505913042000156078841824355174',
         metadata: undefined,
       },
       {
@@ -4009,7 +4008,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'dp_ho_xeth-xrd',
-        usdValue: '0.5104035187079483400159414631561146077609437229344',
+        usdValue: '0.6298305135325600005996898326292019291786476208',
         metadata: undefined,
       },
       {
@@ -4024,7 +4023,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'dp_ho_xrd-xwbtc',
-        usdValue: '0.697151347469792605647995030752665664930996249628',
+        usdValue: '0.7802866474863633077747426944237541471016822613',
         metadata: undefined,
       },
       {
@@ -4039,7 +4038,7 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'dp_ho_dfp2-xrd',
-        usdValue: '0.5622603463906111919787271842139294115389942210907290615',
+        usdValue: '0.5362173591620447316686617146725599007087914459',
         metadata: undefined,
       },
       {
