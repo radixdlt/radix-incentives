@@ -163,7 +163,10 @@ const processLendingProtocols = (
             position.unwrappedAsset.resourceAddress === Assets.Fungible.LSULP
           ) {
             acc.weftLendingLsulp = acc.weftLendingLsulp.plus(
-              position.unwrappedAsset.amount,
+              convertLsulpToXrd(
+                position.unwrappedAsset.amount,
+                accountBalance.lsulp.lsulpValue,
+              ),
             );
           }
           return acc;
