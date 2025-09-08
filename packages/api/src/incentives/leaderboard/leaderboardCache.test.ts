@@ -18,7 +18,7 @@ import { and, eq } from 'drizzle-orm';
 import { drizzle } from 'drizzle-orm/postgres-js';
 import { Effect, Layer } from 'effect';
 import postgres from 'postgres';
-import { describe, inject } from 'vitest';
+import { beforeEach, describe, inject } from 'vitest';
 import { truncateAllTables } from '../../integration-tests/utils';
 import { createActivities } from '../../test-config/helpers';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
@@ -640,6 +640,166 @@ describe(
           expect(duration).toBeLessThan(10000); // 10 seconds max for 100 users
 
           console.log(`Cache population for 100 users took ${duration}ms`);
+        }).pipe(Effect.provide(leaderboardCacheServiceLive)),
+    );
+
+    it.effect(
+      'should properly aggregate points across multiple accounts per user',
+      () =>
+        Effect.gen(function* () {
+          yield* setupTestData;
+
+          // Add a second account for USER_ID_1 and third account for USER_ID_2
+          yield* Effect.promise(() =>
+            db.insert(accounts).values([
+              {
+                userId: USER_ID_1,
+                address: 'account_rdx1111_secondary',
+                label: 'Account 1 Secondary',
+              },
+              {
+                userId: USER_ID_2,
+                address: 'account_rdx2222_secondary',
+                label: 'Account 2 Secondary',
+              },
+              {
+                userId: USER_ID_2,
+                address: 'account_rdx2222_tertiary',
+                label: 'Account 2 Tertiary',
+              },
+            ]),
+          );
+
+          yield* Effect.promise(() =>
+            db.insert(activityCategoryWeeks).values([
+              {
+                activityCategoryId: ActivityCategoryId.tradingVolume,
+                weekId: WEEK_ID_1,
+                pointsPool: 100,
+              },
+            ]),
+          );
+
+          yield* Effect.promise(() =>
+            db.insert(activityWeeks).values([
+              {
+                activityId: ActivityId['c9_tr_xrd-xusdc'],
+                weekId: WEEK_ID_1,
+                multiplier: '1',
+              },
+              {
+                activityId: ActivityId['c9_tr_xrd-xusdt'],
+                weekId: WEEK_ID_1,
+                multiplier: '1',
+              },
+            ]),
+          );
+
+          // Insert activity points across multiple accounts for the same users
+          yield* Effect.promise(() =>
+            db.insert(accountActivityPoints).values([
+              // USER_ID_1 has two accounts with different points for same activity
+              {
+                accountAddress: 'account_rdx1111',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdc'],
+                activityPoints: '100.0',
+              },
+              {
+                accountAddress: 'account_rdx1111_secondary',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdc'],
+                activityPoints: '50.0', // Should sum to 150.0 for this activity
+              },
+              {
+                accountAddress: 'account_rdx1111_secondary',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdt'],
+                activityPoints: '25.0', // Additional activity on secondary account
+              },
+
+              // USER_ID_2 has three accounts with points across multiple activities
+              {
+                accountAddress: 'account_rdx2222',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdc'],
+                activityPoints: '80.0',
+              },
+              {
+                accountAddress: 'account_rdx2222_secondary',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdc'],
+                activityPoints: '40.0', // Should sum to 120.0 for this activity
+              },
+              {
+                accountAddress: 'account_rdx2222_tertiary',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdt'],
+                activityPoints: '60.0', // Different activity on third account
+              },
+
+              // USER_ID_3 has only one account for comparison
+              {
+                accountAddress: 'account_rdx3333',
+                weekId: WEEK_ID_1,
+                activityId: ActivityId['c9_tr_xrd-xusdc'],
+                activityPoints: '90.0',
+              },
+            ]),
+          );
+
+          const leaderboardCacheService = yield* LeaderboardCacheService;
+
+          // Populate cache for specific week
+          yield* leaderboardCacheService.populateAll({ weekId: WEEK_ID_1 });
+
+          // Verify category cache aggregates correctly across multiple accounts
+          const categoryCache = yield* Effect.promise(() =>
+            db
+              .select()
+              .from(categoryLeaderboardCache)
+              .where(
+                and(
+                  eq(categoryLeaderboardCache.weekId, WEEK_ID_1),
+                  eq(
+                    categoryLeaderboardCache.categoryId,
+                    ActivityCategoryId.tradingVolume,
+                  ),
+                ),
+              )
+              .orderBy(categoryLeaderboardCache.rank),
+          );
+
+          expect(categoryCache).toHaveLength(3);
+
+          // Expected totals:
+          // USER_ID_2: 120.0 (xrd-xusdc) + 60.0 (xrd-xusdt) = 180.0 (rank 1)
+          // USER_ID_1: 150.0 (xrd-xusdc) + 25.0 (xrd-xusdt) = 175.0 (rank 2)
+          // USER_ID_3: 90.0 (xrd-xusdc) = 90.0 (rank 3)
+
+          expect(categoryCache[0].userId).toBe(USER_ID_2);
+          expect(categoryCache[0].totalPoints).toBe('180.000000');
+          expect(categoryCache[0].rank).toBe(1);
+
+          expect(categoryCache[1].userId).toBe(USER_ID_1);
+          expect(categoryCache[1].totalPoints).toBe('175.000000');
+          expect(categoryCache[1].rank).toBe(2);
+
+          expect(categoryCache[2].userId).toBe(USER_ID_3);
+          expect(categoryCache[2].totalPoints).toBe('90.000000');
+          expect(categoryCache[2].rank).toBe(3);
+
+          // Verify activity breakdown is correctly aggregated for USER_ID_1
+          expect(categoryCache[1].activityBreakdown).toEqual({
+            [ActivityId['c9_tr_xrd-xusdc']]: 150, // 100 + 50 from both accounts
+            [ActivityId['c9_tr_xrd-xusdt']]: 25, // 25 from secondary account
+          });
+
+          // Verify activity breakdown is correctly aggregated for USER_ID_2
+          expect(categoryCache[0].activityBreakdown).toEqual({
+            [ActivityId['c9_tr_xrd-xusdc']]: 120, // 80 + 40 from first two accounts
+            [ActivityId['c9_tr_xrd-xusdt']]: 60, // 60 from third account
+          });
         }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
   },
