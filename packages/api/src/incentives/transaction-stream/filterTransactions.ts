@@ -4,6 +4,7 @@ import { type Account, accounts } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
+import { isSurgeComponent } from '../surge/surgeComponentAddressService';
 import {
   type TransformedTransaction,
   transformTransactions,
@@ -102,6 +103,27 @@ export class FilterTransactionsService extends Effect.Service<FilterTransactions
 
           if (transaction) {
             filteredTransactions.push({ ...transaction, highestFeePayer });
+          }
+        }
+
+        // Always include Surge transactions regardless of registered account involvement
+        for (const transaction of transactions) {
+          const hasSurgeEvents = transaction.events.some((event) =>
+            isSurgeComponent(event.emitter.globalEmitter),
+          );
+
+          if (hasSurgeEvents) {
+            // Check if this transaction is already included to avoid duplicates
+            const alreadyIncluded = filteredTransactions.some(
+              (ft) => ft.transactionId === transaction.transactionId,
+            );
+
+            if (!alreadyIncluded) {
+              filteredTransactions.push({
+                ...transaction,
+                highestFeePayer: undefined,
+              });
+            }
           }
         }
 

@@ -2,7 +2,28 @@ import { NodeSdk } from '@effect/opentelemetry';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
 import { BatchSpanProcessor } from '@opentelemetry/sdk-trace-base';
 import { Effect, Exit, Layer, Logger, LogLevel } from 'effect';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
+
+// Mock the MarginAccountDbService module before any imports
+vi.mock('../surge/marginAccountDbService', () => {
+  const { Effect } = require('effect');
+
+  class MockMarginAccountDbService extends Effect.Service()(
+    'MarginAccountDbService',
+    {
+      effect: Effect.gen(function* () {
+        return {
+          getMarginAccountsByCollateralAddresses: () => Effect.succeed([]),
+        };
+      }),
+    },
+  ) {}
+
+  return {
+    MarginAccountDbService: MockMarginAccountDbService,
+  };
+});
+
 import { GetCaviarnineResourcePoolPositionsService } from '../../common/dapps/caviarnine/getCaviarnineResourcePoolPositions';
 import { GetHyperstakePositionsService } from '../../common/dapps/caviarnine/getHyperstakePositions';
 // DApp services
@@ -17,6 +38,7 @@ import { GetOciswapLiquidityClaimsService } from '../../common/dapps/ociswap/get
 import { GetOciswapResourcePoolPositionsService } from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
 import { GetRootFinancePositionsService } from '../../common/dapps/rootFinance/getRootFinancePositions';
 import { GetSurgeLiquidityPositionsService } from '../../common/dapps/surge/getSurgeLiquidityPositions';
+import { GetSurgeMarginAccountBalancesService } from '../../common/dapps/surge/getSurgeMarginAccountBalances';
 import { GetWeftFinancePositionsService } from '../../common/dapps/weftFinance/getWeftFinancePositions';
 import { EntityFungiblesPageService } from '../../common/gateway/entityFungiblesPage';
 import { EntityNonFungibleDataService } from '../../common/gateway/entityNonFungiblesData';
@@ -42,6 +64,8 @@ import { GetUserStakingPositionsLive } from '../../common/staking/getUserStaking
 import { UnstakingReceiptProcessorService } from '../../common/staking/unstakingReceiptProcessor';
 // Config and fixtures
 import { createAppConfigLive } from '../config/appConfig';
+// Surge services - now safely mocked at module level
+import { MarginAccountDbService } from '../surge/marginAccountDbService';
 // Test target
 import { GetAccountBalancesAtStateVersionService } from './getAccountBalancesAtStateVersion';
 
@@ -312,6 +336,13 @@ const getSurgeLiquidityPositionsLive =
     Layer.provide(getComponentStateLive),
   );
 
+const getSurgeMarginAccountBalancesLive =
+  GetSurgeMarginAccountBalancesService.Default.pipe(
+    Layer.provide(getFungibleBalanceServiceLive),
+  );
+
+const marginAccountDbServiceLive = MarginAccountDbService.Default;
+
 const getOciswapResourcePoolPositionsLive =
   GetOciswapResourcePoolPositionsService.Default.pipe(
     Layer.provide(getResourcePoolUnitsLive),
@@ -334,6 +365,8 @@ const getAccountBalancesAtStateVersionLive =
     Layer.provide(getHyperstakePositionsLive),
     Layer.provide(getOciswapLiquidityAssetsService),
     Layer.provide(getSurgeLiquidityPositionsLive),
+    Layer.provide(getSurgeMarginAccountBalancesLive),
+    Layer.provide(marginAccountDbServiceLive),
     Layer.provide(getOciswapResourcePoolPositionsLive),
     Layer.provide(getCaviarnineResourcePoolPositionsLive),
     Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
@@ -372,6 +405,7 @@ describe('getAccountBalancesAtStateVersion', () => {
     );
 
     const result = await Effect.runPromiseExit(
+      // @ts-expect-error - TypeScript can't resolve mocked MarginAccountDbService dependencies at compile time
       program.pipe(Effect.provide(NodeSdkLive)),
     );
 

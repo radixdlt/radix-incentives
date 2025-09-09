@@ -59,32 +59,9 @@ const aggregateEventsByActivity = (
 };
 
 /**
- * Processes a group of trading events for a single transaction
- * Returns null if no valid trading volume item can be created
- */
-const processTransactionGroup = (
-  transactionId: string,
-  events: TradingEventWithTokens[],
-  highestFeePayerMap: Map<string, string>,
-): TradingVolumeItem | null => {
-  if (!events.length) return null;
-
-  const accountAddress = highestFeePayerMap.get(transactionId);
-  if (!accountAddress) return null;
-
-  const data = aggregateEventsByActivity(events);
-  if (!data.length) return null;
-
-  return {
-    timestamp: events[0]!.timestamp,
-    accountAddress,
-    data,
-  };
-};
-
-/**
  * Service that processes swap events to calculate trading volumes per account and activity
- * Groups events by transaction and aggregates USD values by activity before persisting
+ * Each event gets attributed to its specific account (trading account for Surge, fee payer for others)
+ * Groups events by account+timestamp and aggregates USD values by activity before persisting
  */
 export class ProcessSwapEventTradingVolumeService extends Effect.Service<ProcessSwapEventTradingVolumeService>()(
   'ProcessSwapEventTradingVolumeService',
@@ -101,27 +78,50 @@ export class ProcessSwapEventTradingVolumeService extends Effect.Service<Process
         input: ProcessSwapEventTradingVolumeServiceInput,
       ) {
         const filteredEvents = yield* filterTradingEventsService(input.events);
-        const groupedByTransactionId = groupBy(
-          filteredEvents,
-          (event) => event.transactionId,
-        );
+
+        // Create a map to group events by account address and timestamp
+        const groupedByAccountAndTime = new Map<
+          string,
+          TradingEventWithTokens[]
+        >();
+
+        // Process each event individually with its own account
+        for (const event of filteredEvents) {
+          // For Surge events, use the account address from the event (trading account)
+          // For other events, use the highest fee payer
+          const accountAddress =
+            event.accountAddress ||
+            input.highestFeePayerMap.get(event.transactionId);
+
+          if (!accountAddress) continue;
+
+          const key = `${accountAddress}-${event.timestamp.getTime()}`;
+          if (!groupedByAccountAndTime.has(key)) {
+            groupedByAccountAndTime.set(key, []);
+          }
+          groupedByAccountAndTime.get(key)!.push(event);
+        }
 
         const items: TradingVolumeItem[] = [];
 
-        for (const [transactionId, events] of Object.entries(
-          groupedByTransactionId,
-        )) {
-          if (!events) continue;
+        // Convert grouped events to TradingVolumeItems
+        for (const [_, events] of groupedByAccountAndTime) {
+          if (!events.length) continue;
 
-          const item = processTransactionGroup(
-            transactionId,
-            events,
-            input.highestFeePayerMap,
-          );
+          const accountAddress =
+            events[0]!.accountAddress ||
+            input.highestFeePayerMap.get(events[0]!.transactionId);
 
-          if (item) {
-            items.push(item);
-          }
+          if (!accountAddress) continue;
+
+          const data = aggregateEventsByActivity(events);
+          if (!data.length) continue;
+
+          items.push({
+            timestamp: events[0]!.timestamp,
+            accountAddress,
+            data,
+          });
         }
 
         if (items.length > 0) {
