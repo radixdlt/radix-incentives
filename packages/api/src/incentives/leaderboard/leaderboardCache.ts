@@ -1,12 +1,10 @@
 import {
-  accountActivityPoints,
-  accounts,
   categoryLeaderboardCache,
   leaderboardStatsCache,
   seasonLeaderboardCache,
   userSeasonPoints,
 } from 'db/incentives';
-import { and, desc, eq, inArray, sql } from 'drizzle-orm';
+import { desc, eq, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
@@ -174,37 +172,47 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
 
           const activityIds = categoryActivities.map((a) => a.id);
 
-          // Calculate category totals and rankings
+          // Calculate category totals using SQL aggregation - sum first, then jsonb_object_agg
           const categoryTotals = yield* Effect.tryPromise({
             try: () =>
-              db
-                .select({
-                  userId: accounts.userId,
-                  totalPoints: sql<number>`SUM(${accountActivityPoints.activityPoints})`,
-                  activityBreakdown: sql<Record<string, number>>`
-                    jsonb_object_agg(
-                      ${accountActivityPoints.activityId},
-                      ${accountActivityPoints.activityPoints}
-                    )
-                  `,
-                })
-                .from(accountActivityPoints)
-                .innerJoin(
-                  accounts,
-                  eq(accountActivityPoints.accountAddress, accounts.address),
-                )
-                .where(
-                  and(
-                    eq(accountActivityPoints.weekId, input.weekId),
-                    inArray(accountActivityPoints.activityId, activityIds),
-                  ),
-                )
-                .groupBy(accounts.userId)
-                .orderBy(
-                  desc(sql`SUM(${accountActivityPoints.activityPoints})`),
+              db.execute(sql`
+                WITH user_activity_sums AS (
+                  SELECT 
+                    a.user_id,
+                    aap.activity_id,
+                    SUM(aap.activity_points) as activity_points
+                  FROM account_activity_points aap
+                  INNER JOIN account a ON aap.account_address = a.address
+                  WHERE aap.week_id = ${input.weekId}
+                    AND aap.activity_id = ANY(${sql.raw(`'{${activityIds.join(',')}}'`)})
+                  GROUP BY a.user_id, aap.activity_id
                 ),
+                user_totals AS (
+                  SELECT 
+                    user_id,
+                    SUM(activity_points) as total_points,
+                    jsonb_object_agg(activity_id, activity_points) as activity_breakdown
+                  FROM user_activity_sums
+                  GROUP BY user_id
+                )
+                SELECT 
+                  user_id as "userId",
+                  total_points as "totalPoints",
+                  activity_breakdown as "activityBreakdown"
+                FROM user_totals
+                ORDER BY total_points DESC
+              `),
             catch: (error) => new DbError(error),
-          });
+          }).pipe(
+            Effect.map(
+              (result) =>
+                result as unknown as Array<{
+                  userId: string;
+                  totalPoints: string;
+                  activityBreakdown: Record<string, number>;
+                }>,
+            ),
+          );
 
           // Insert category cache entries
           const cacheEntries = categoryTotals.map((entry, index) => ({
