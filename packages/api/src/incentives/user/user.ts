@@ -3,6 +3,7 @@ import {
   accounts,
   activities,
   activityCategories,
+  categoryLeaderboardCache,
   seasonPointsMultiplier,
   userSeasonPoints,
 } from 'db/incentives';
@@ -81,78 +82,35 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       weekId: string;
       userId: string;
     }) {
-      // Get all available categories with activities
-      const categoriesWithActivities = yield* Effect.tryPromise({
-        try: () =>
-          db
-            .select({
-              categoryId: activities.category,
-              categoryName: activityCategories.name,
-            })
-            .from(activities)
-            .innerJoin(
-              activityCategories,
-              eq(activities.category, activityCategories.id),
-            )
-            .where(
-              and(
-                // Exclude hold_ activities (they're for multiplier calculation, not leaderboards)
-                sql`${activities.id} NOT LIKE '%hold_%'`,
-                // Exclude common activity (not rewarded)
-                sql`${activities.id} != 'common'`,
-              ),
-            )
-            .groupBy(activities.category, activityCategories.name),
-        catch: (error) => new DbError(error),
-      });
-
-      // Get user's points for all categories in this week
+      // Get user's category points from leaderboard cache
       const userCategoryPoints = yield* Effect.tryPromise({
         try: () =>
           db
             .select({
-              categoryId: activities.category,
-              totalPoints: sum(accountActivityPoints.activityPoints).as(
-                'totalPoints',
-              ),
+              categoryId: categoryLeaderboardCache.categoryId,
+              categoryName: activityCategories.name,
+              totalPoints: categoryLeaderboardCache.totalPoints,
             })
-            .from(accountActivityPoints)
+            .from(categoryLeaderboardCache)
             .innerJoin(
-              accounts,
-              eq(accountActivityPoints.accountAddress, accounts.address),
-            )
-            .innerJoin(
-              activities,
-              eq(accountActivityPoints.activityId, activities.id),
+              activityCategories,
+              eq(categoryLeaderboardCache.categoryId, activityCategories.id),
             )
             .where(
               and(
-                eq(accounts.userId, input.userId),
-                eq(accountActivityPoints.weekId, input.weekId),
-                // Same exclusions as above
-                sql`${activities.id} NOT LIKE '%hold_%'`,
-                sql`${activities.id} != 'common'`,
+                eq(categoryLeaderboardCache.weekId, input.weekId),
+                eq(categoryLeaderboardCache.userId, input.userId),
               ),
-            )
-            .groupBy(activities.category),
+            ),
         catch: (error) => new DbError(error),
       });
 
-      // Combine category info with user points
-      const categoryBreakdown = categoriesWithActivities
-        .map((category) => {
-          const userPoints = userCategoryPoints.find(
-            (up) => up.categoryId === category.categoryId,
-          );
-          return {
-            categoryId: category.categoryId,
-            categoryName: category.categoryName,
-            points: userPoints
-              ? Number.parseFloat(userPoints.totalPoints || '0')
-              : 0,
-          };
-        })
-        .filter((category) => category.points > 0); // Only return categories with points
+      // Transform cache data to expected format
+      const categoryBreakdown = userCategoryPoints.map((category) => ({
+        categoryId: category.categoryId,
+        categoryName: category.categoryName,
+        points: Math.round(Number.parseFloat(category.totalPoints || '0')),
+      }));
 
       return categoryBreakdown;
     });
