@@ -10,6 +10,7 @@ import {
   Play,
   Shield,
   Users,
+  Wallet,
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -36,6 +37,11 @@ const navigationItems = [
     title: 'Component Whitelist',
     href: '/component-whitelist',
     icon: <Shield className="h-5 w-5" />,
+  },
+  {
+    title: 'Margin Accounts',
+    href: '/margin-accounts',
+    icon: <Wallet className="h-5 w-5" />,
   },
   {
     title: 'User Management',
