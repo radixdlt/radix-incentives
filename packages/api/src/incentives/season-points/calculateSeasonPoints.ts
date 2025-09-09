@@ -14,6 +14,7 @@ import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { WeekService } from '../week/week';
 import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
 import { createUserBands } from './createUserBands';
+import { detectOutliers } from './detectOutliers';
 import { distributeSeasonPoints } from './distributePoints';
 import { supplyPercentileTrim } from './supplyPercentileTrim';
 
@@ -228,6 +229,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   categoryId: activityCategory.categoryId,
                   pointsPool: activityCategory.pointsPool,
                   lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
+                  outlierThresholdPercentage:
+                    activityCategory.outlierThresholdPercentage,
                   users: Object.entries(users).map(([userId, points]) => ({
                     userId,
                     points,
@@ -263,9 +266,16 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 `processing ${activityCategory.users.length} users`,
               );
 
-              // remove users with low activity points
-              const withoutLowerBounds = yield* supplyPercentileTrim(
+              // first remove outliers from top suppliers
+              const withoutOutliers = yield* detectOutliers(
                 activityCategory.users,
+                activityCategory.outlierThresholdPercentage,
+                activityCategory.categoryId,
+              );
+
+              // then remove users with low activity points using revised set
+              const withoutLowerBounds = yield* supplyPercentileTrim(
+                withoutOutliers,
                 {
                   lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
                 },

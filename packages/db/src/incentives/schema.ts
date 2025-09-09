@@ -241,6 +241,9 @@ export const activityCategoryWeeks = createTable(
     lowerBoundsPercentage: decimal('lower_bounds_percentage')
       .notNull()
       .default('0.1'),
+    outlierThresholdPercentage: decimal('outlier_threshold_percentage')
+      .notNull()
+      .default('0.05'),
   },
   (table) => ({
     pk: primaryKey({

@@ -1,0 +1,1 @@
+ALTER TABLE "activity_category_weeks" ADD COLUMN "outlier_threshold_percentage" numeric DEFAULT '0.05' NOT NULL;

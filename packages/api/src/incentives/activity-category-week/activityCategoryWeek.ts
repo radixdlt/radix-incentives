@@ -28,6 +28,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                     activityCategoryId: true,
                     pointsPool: true,
                     lowerBoundsPercentage: true,
+                    outlierThresholdPercentage: true,
                   },
                 }),
               catch: (error) => new DbError(error),
@@ -76,6 +77,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 lowerBoundsPercentage: new BigNumber(
                   categoryWeek.lowerBoundsPercentage,
                 ),
+                outlierThresholdPercentage: new BigNumber(
+                  categoryWeek.outlierThresholdPercentage,
+                ),
               };
             }),
           );
@@ -114,6 +118,30 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
               db
                 .update(activityCategoryWeeks)
                 .set({ lowerBoundsPercentage: input.lowerBoundsPercentage })
+                .where(
+                  and(
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    eq(
+                      activityCategoryWeeks.activityCategoryId,
+                      input.activityCategoryId,
+                    ),
+                  ),
+                ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        updateOutlierThresholdPercentage: Effect.fn(function* (input: {
+          weekId: string;
+          activityCategoryId: string;
+          outlierThresholdPercentage: string;
+        }) {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(activityCategoryWeeks)
+                .set({
+                  outlierThresholdPercentage: input.outlierThresholdPercentage,
+                })
                 .where(
                   and(
                     eq(activityCategoryWeeks.weekId, input.weekId),
