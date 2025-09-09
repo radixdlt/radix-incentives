@@ -41,7 +41,7 @@ function ParticipationInstructions() {
                   </li>
                   <li>
                     Please note, linking multiple accounts will not be visible
-                    on-chain or in any UX. It is stored off-ledger.
+                    on-chain or in any public UX. It is stored off-ledger.
                   </li>
                 </ul>
               </div>
