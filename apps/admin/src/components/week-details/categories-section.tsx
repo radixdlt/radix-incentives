@@ -22,6 +22,10 @@ interface CategoriesSectionProps {
   activityUserCounts?: { activityId: string; numberOfAccounts: number }[];
   onUpdatePointsPool?: (categoryId: string, newPointsPool: number) => void;
   onUpdateMultiplier?: (activityId: string, newMultiplier: number) => void;
+  onUpdateLowerBoundsPercentage?: (
+    categoryId: string,
+    newLowerBoundsPercentage: string,
+  ) => void;
 }
 
 export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
@@ -31,6 +35,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   activityUserCounts,
   onUpdatePointsPool,
   onUpdateMultiplier,
+  onUpdateLowerBoundsPercentage,
 }) => {
   const categories = weekData.activityCategories || [];
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -52,6 +57,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     null,
   );
   const [editingMultiplierValue, setEditingMultiplierValue] =
+    useState<string>('');
+  const [editingLowerBounds, setEditingLowerBounds] = useState<string | null>(
+    null,
+  );
+  const [editingLowerBoundsValue, setEditingLowerBoundsValue] =
     useState<string>('');
 
   const toggleCategory = (categoryId: string) => {
@@ -114,6 +124,29 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     setEditingMultiplierValue('');
   };
 
+  const startEditingLowerBounds = (
+    categoryId: string,
+    currentValue: number | string | { toString(): string },
+  ) => {
+    setEditingLowerBounds(categoryId);
+    const valueString = String(currentValue);
+    setEditingLowerBoundsValue(valueString);
+  };
+
+  const cancelEditingLowerBounds = () => {
+    setEditingLowerBounds(null);
+    setEditingLowerBoundsValue('');
+  };
+
+  const saveLowerBounds = (categoryId: string) => {
+    const cleanValue = editingLowerBoundsValue.trim();
+    if (cleanValue && onUpdateLowerBoundsPercentage) {
+      onUpdateLowerBoundsPercentage(categoryId, cleanValue);
+    }
+    setEditingLowerBounds(null);
+    setEditingLowerBoundsValue('');
+  };
+
   if (categories.length === 0) {
     return (
       <Card>
@@ -153,7 +186,77 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                       ({category.activities.length} activities)
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-4">
+                    {editingLowerBounds === category.categoryId ? (
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground text-sm">
+                          Lower Bounds %:
+                        </span>
+                        <Input
+                          type="text"
+                          value={editingLowerBoundsValue}
+                          onChange={(e) =>
+                            setEditingLowerBoundsValue(e.target.value)
+                          }
+                          className="h-8 w-20 text-sm"
+                          onClick={(e) => e.stopPropagation()}
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                            if (e.key === 'Enter') {
+                              saveLowerBounds(category.categoryId);
+                            } else if (e.key === 'Escape') {
+                              cancelEditingLowerBounds();
+                            }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            saveLowerBounds(category.categoryId);
+                          }}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cancelEditingLowerBounds();
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1">
+                        <span className="text-muted-foreground text-sm">
+                          Lower Bounds:{' '}
+                          {category.lowerBoundsPercentage?.toString() || '0'}
+                        </span>
+                        {onUpdateLowerBoundsPercentage &&
+                          editingLowerBounds !== category.categoryId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 w-8 p-0"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditingLowerBounds(
+                                  category.categoryId,
+                                  category.lowerBoundsPercentage || '0',
+                                );
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
+                      </div>
+                    )}
                     {editingPointsPool === category.categoryId ? (
                       <div className="flex items-center gap-1">
                         <span className="text-muted-foreground text-sm">

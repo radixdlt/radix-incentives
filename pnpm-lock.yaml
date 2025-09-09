@@ -1230,6 +1230,9 @@ importers:
       inquirer:
         specifier: 'catalog:'
         version: 8.2.6
+      papaparse:
+        specifier: ^5.5.3
+        version: 5.5.3
       postgres:
         specifier: 'catalog:'
         version: 3.4.5

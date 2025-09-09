@@ -655,6 +655,21 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const updateCategoryWeekLowerBoundsPercentage = (input: {
+    weekId: string;
+    activityCategoryId: string;
+    lowerBoundsPercentage: string;
+  }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+        yield* activityCategoryWeekService.updateLowerBoundsPercentage(input);
+      }),
+      ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
+    );
+    return Effect.runPromiseExit(program);
+  };
+
   const createSeason = (input: Omit<Season, 'id'>) => {
     const runnable = Effect.gen(function* () {
       const seasonService = yield* SeasonService;
@@ -1019,5 +1034,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getSeasonLeaderboardPaginated,
     getIncentivesData,
     seedActivities,
+    updateCategoryWeekLowerBoundsPercentage,
   };
 };

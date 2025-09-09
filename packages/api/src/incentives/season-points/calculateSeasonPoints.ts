@@ -60,7 +60,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
-      const lowerBoundsPercentage = 0.1;
+
       const minimumAPThresholdMap = new Map<ActivityCategoryId, number>([
         [ActivityCategoryId.common, 1],
         [ActivityCategoryId.tradingVolume, 1],
@@ -172,6 +172,12 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               weekId: input.weekId,
             });
 
+          const seasonPointMultipliers = yield* getSeasonPointMultiplier
+            .run({
+              weekId: input.weekId,
+            })
+            .pipe(Effect.map((items) => groupBy(items, (item) => item.userId)));
+
           const userActivityPointsGroupedByActivityCategory =
             yield* Effect.forEach(
               activityCategories,
@@ -221,19 +227,16 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 return {
                   categoryId: activityCategory.categoryId,
                   pointsPool: activityCategory.pointsPool,
+                  lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
                   users: Object.entries(users).map(([userId, points]) => ({
                     userId,
                     points,
+                    multiplier:
+                      seasonPointMultipliers[userId]?.[0]?.multiplier ?? '0',
                   })),
                 };
               }),
             );
-
-          const seasonPointMultipliers = yield* getSeasonPointMultiplier
-            .run({
-              weekId: input.weekId,
-            })
-            .pipe(Effect.map((items) => groupBy(items, (item) => item.userId)));
 
           const userSeasonPoints = yield* Effect.forEach(
             userActivityPointsGroupedByActivityCategory,
@@ -264,8 +267,9 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               const withoutLowerBounds = yield* supplyPercentileTrim(
                 activityCategory.users,
                 {
-                  lowerBoundsPercentage,
+                  lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
                 },
+                activityCategory.categoryId,
               );
 
               const bands = yield* createUserBands({

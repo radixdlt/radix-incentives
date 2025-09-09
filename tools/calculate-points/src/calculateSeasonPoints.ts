@@ -1,16 +1,6 @@
 import fs from 'node:fs';
 import path from 'node:path';
-import {
-  ActivityCategoryWeekService,
-  AddSeasonPointsToUserService,
-  CalculateSeasonPointsService,
-  createDbClientLive,
-  GetSeasonPointMultiplierService,
-  SeasonService,
-  UpdateWeekStatusService,
-  UserActivityPointsService,
-  WeekService,
-} from 'api/incentives';
+import { CalculateSeasonPointsService } from 'api/incentives';
 import {
   accountActivityPoints,
   accounts,
@@ -21,62 +11,47 @@ import {
   weeks,
 } from 'db/incentives';
 import { desc, eq } from 'drizzle-orm';
-import { Effect, Layer, Logger } from 'effect';
+import { Effect, Logger, LogLevel } from 'effect';
 import { groupBy } from 'effect/Array';
-import { ActivityWeekService } from '../../../packages/api/src/incentives/activity-week/activityWeek';
-import { GetUsersPaginatedLive } from '../../../packages/api/src/incentives/user/getUsersPaginated';
+import Papa from 'papaparse';
+
+const outputDir = path.join(import.meta.dirname, '../output');
+
+// Custom logger that outputs log messages to the console
+const logger = Logger.make(({ logLevel, message }) => {
+  const structuredMessage = Array.isArray(message) ? message[0] : null;
+
+  if (logLevel.label === 'DEBUG' && structuredMessage?.writeToFile) {
+    const data = structuredMessage.data;
+    const name = structuredMessage.name;
+    const _dirPath = structuredMessage.path;
+
+    const csv = Papa.unparse(data, {
+      quotes: false, //or array of booleans
+      quoteChar: '"',
+      escapeChar: '"',
+      delimiter: ',',
+      header: true,
+      newline: '\r\n',
+      skipEmptyLines: false, //other option is 'greedy', meaning skip delimiters, quotes, and whitespace.
+      columns: null, //or array of strings
+    });
+    // // @ts-ignore
+
+    fs.writeFileSync(path.join(outputDir, `${name}.csv`), csv);
+  }
+
+  globalThis.console.log(`[${logLevel.label}] ${message}`);
+});
+
+const loggerLayer = Logger.replace(Logger.defaultLogger, logger);
 
 const runnable = Effect.gen(function* () {
-  const outputDir = path.join(import.meta.dirname, '../output');
+  yield* Effect.log('Results written to file');
 
   yield* Effect.log('Running season points calculation');
 
-  const dbLayer = createDbClientLive(db);
-
-  const seasonServiceLive = SeasonService.Default.pipe(Layer.provide(dbLayer));
-
-  const activityWeekServiceLive = ActivityWeekService.Default.pipe(
-    Layer.provide(dbLayer),
-  );
-  const activityCategoryWeekServiceLive =
-    ActivityCategoryWeekService.Default.pipe(Layer.provide(dbLayer));
-
-  const weekServiceLive = WeekService.Default.pipe(
-    Layer.provide(dbLayer),
-    Layer.provide(activityCategoryWeekServiceLive),
-    Layer.provide(activityWeekServiceLive),
-  );
-  const userActivityPointsServiceLive = UserActivityPointsService.Default.pipe(
-    Layer.provide(dbLayer),
-  );
-  const getSeasonPointMultiplierServiceLive =
-    GetSeasonPointMultiplierService.Default.pipe(Layer.provide(dbLayer));
-
-  const addSeasonPointsToUserServiceLive =
-    AddSeasonPointsToUserService.Default.pipe(Layer.provide(dbLayer));
-
-  const updateWeekStatusServiceLive = UpdateWeekStatusService.Default.pipe(
-    Layer.provide(dbLayer),
-  );
-
-  const getUsersPaginatedServiceLive = GetUsersPaginatedLive.pipe(
-    Layer.provide(dbLayer),
-  );
-
-  const calculateSeasonPointsServiceLive =
-    CalculateSeasonPointsService.Default.pipe(
-      Layer.provide(seasonServiceLive),
-      Layer.provide(weekServiceLive),
-      Layer.provide(activityCategoryWeekServiceLive),
-      Layer.provide(activityWeekServiceLive),
-      Layer.provide(userActivityPointsServiceLive),
-      Layer.provide(getSeasonPointMultiplierServiceLive),
-      Layer.provide(addSeasonPointsToUserServiceLive),
-      Layer.provide(updateWeekStatusServiceLive),
-      Layer.provide(getUsersPaginatedServiceLive),
-      Layer.provide(activityWeekServiceLive),
-      Layer.provide(dbLayer),
-    );
+  const calculateSeasonPointsServiceLive = CalculateSeasonPointsService.Default;
 
   const service = yield* Effect.provide(
     CalculateSeasonPointsService,
@@ -157,7 +132,7 @@ const runnable = Effect.gen(function* () {
     (item) => item.userId,
   );
 
-  const withActivityPoints = userSeasonPointsResults.map(
+  const _withActivityPoints = userSeasonPointsResults.map(
     ({ userId, points }) => ({
       userId,
       seasonPoints: points,
@@ -186,12 +161,18 @@ const runnable = Effect.gen(function* () {
     fs.mkdirSync(outputDir, { recursive: true });
   }
 
-  fs.writeFileSync(
-    path.join(outputDir, 'results.json'),
-    JSON.stringify(withActivityPoints, null, 2),
-  );
+  // fs.writeFileSync(
+  //   path.join(outputDir, 'results.json'),
+  //   JSON.stringify(withActivityPoints, null, 2),
+  // );
 
   yield* Effect.log('Results written to file');
 });
 
-await Effect.runPromise(runnable.pipe(Effect.provide(Logger.pretty)));
+await Effect.runPromise(
+  runnable.pipe(
+    Effect.provide(Logger.pretty),
+    Logger.withMinimumLogLevel(LogLevel.Debug),
+    Effect.provide(loggerLayer),
+  ),
+);

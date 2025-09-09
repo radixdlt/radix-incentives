@@ -19,6 +19,10 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
     console.log(`Update points pool for ${categoryId} to ${newPointsPool}`),
   onUpdateMultiplier = (activityId, newMultiplier) =>
     console.log(`Update multiplier for ${activityId} to ${newMultiplier}`),
+  onUpdateLowerBoundsPercentage = (categoryId, newLowerBoundsPercentage) =>
+    console.log(
+      `Update lower bounds percentage for ${categoryId} to ${newLowerBoundsPercentage}`,
+    ),
   onCalculateMultiplier = () =>
     console.log('Calculate season points multiplier'),
 }) => {
@@ -42,6 +46,7 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
         activityUserCounts={activityUserCounts}
         onUpdatePointsPool={onUpdatePointsPool}
         onUpdateMultiplier={onUpdateMultiplier}
+        onUpdateLowerBoundsPercentage={onUpdateLowerBoundsPercentage}
       />
     </div>
   );

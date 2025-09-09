@@ -238,6 +238,9 @@ export const activityCategoryWeeks = createTable(
       .notNull()
       .references(() => weeks.id, { onDelete: 'cascade' }),
     pointsPool: integer('points_pool').notNull(),
+    lowerBoundsPercentage: decimal('lower_bounds_percentage')
+      .notNull()
+      .default('0.1'),
   },
   (table) => ({
     pk: primaryKey({
