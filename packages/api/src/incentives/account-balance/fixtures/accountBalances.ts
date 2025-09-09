@@ -3634,6 +3634,18 @@ export const accountBalanceFixture = {
         usdValue: '0',
       },
       {
+        activityId: 'c9_lp_blu_heth-xeth',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_blu_hwbtc-xwbtc',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_sta_husdc-xusdc',
+        usdValue: '0',
+      },
+      {
         activityId: 'c9_lp_nat_lsulp-reddicks',
         usdValue: '0.86763621255391880726617151846230644203331329393993818068',
         metadata: undefined,

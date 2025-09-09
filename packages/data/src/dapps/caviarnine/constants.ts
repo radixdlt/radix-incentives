@@ -32,6 +32,15 @@ export const CaviarNineConstants = {
       liquidity_receipt:
         'resource_rdx1ntrysy2sncpj6t6shjlgsfr55dns9290e2zsy67fwwrp6mywsrrgsc',
     },
+    LSULP_XRD_2: {
+      name: 'lsulp/xrd',
+      componentAddress:
+        'component_rdx1crjdsyydayu8wuk6zayxlp26fxlsqghvn4cfr0vy5cqqv84qw9fzsx',
+      token_x: Assets.Fungible.LSULP,
+      token_y: Assets.Fungible.XRD,
+      liquidity_receipt:
+        'resource_rdx1nfq77djs9udlkhg0ft3qyh2ksjfs0syehq36h5n6ysrr7kvedagzkw',
+    },
     xwBTC_XRD: {
       name: 'xwBTC/XRD',
       componentAddress:
@@ -205,6 +214,33 @@ export const CaviarNineConstants = {
         'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
       liquidity_receipt:
         'resource_rdx1ntl0y0z5cgqc8egu35cm2yeqtvyafpvfgszt2q6008xreec4cnd0qg',
+    },
+    hETH_xETH: {
+      name: 'heth/xeth',
+      componentAddress:
+        'component_rdx1cr4lw3pfgeel7fex4ur53k7k63s5wu3q28mtr5mpp3hddug55pfwy3',
+      token_x: Assets.Fungible.hETH,
+      token_y: Assets.Fungible.xETH,
+      liquidity_receipt:
+        'resource_rdx1nf0jww747g422rs9nekfunzq8y8en9qwtm59zf3t7ushjj8sxq08hz',
+    },
+    hwBTC_xwBTC: {
+      name: 'hwbtc/xwbtc',
+      componentAddress:
+        'component_rdx1cp02473rjv7gxxwxa3xu9wn32um5h9t6wjm0azn6eqag639fc0ts9h',
+      token_x: Assets.Fungible.hwBTC,
+      token_y: Assets.Fungible.wxBTC,
+      liquidity_receipt:
+        'resource_rdx1ntpl2m2phtrgs4pee98nlvfet86w9y0j7rnvdfjlanrmawwpx3kwcs',
+    },
+    hUSDC_xUSDC: {
+      name: 'husdc/xusdc',
+      componentAddress:
+        'component_rdx1crnu90a65rkdswza2sfk734yu29zh0x27ur0wqwntdfe8gm9s42yfr',
+      token_x: Assets.Fungible.hUSDC,
+      token_y: Assets.Fungible.xUSDC,
+      liquidity_receipt:
+        'resource_rdx1nf28trqttfav6drssyqgc2vjl66kewxh3y2w0z8fws5kjj0lwetmdq',
     },
   },
   simplePools: {
