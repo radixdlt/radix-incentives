@@ -2,7 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import * as React from 'react';
+import { Button } from '~/components/ui/button';
 import { Separator } from '~/components/ui/separator';
+import { useUploadActivityCsv } from '~/lib/hooks/useUploadActivityCsv';
 import { api } from '~/trpc/react';
 import { ActivityFilters, ActivityTable, type FilterState } from './components';
 
@@ -45,6 +47,9 @@ function ManageActivitiesPage() {
     React.useState<SortDirection>('asc');
   const [editingId, setEditingId] = React.useState<string | null>(null);
   const [editingName, setEditingName] = React.useState<string>('');
+  const { upload } = useUploadActivityCsv();
+
+  const inputRef = React.useRef<HTMLInputElement>(null);
 
   const updateActivityMutation = api.activity.updateActivity.useMutation({
     onSuccess: () => {
@@ -309,6 +314,7 @@ function ManageActivitiesPage() {
             </p>
           </div>
         </div>
+        <Button onClick={() => inputRef.current?.click()}>Upload CSV</Button>
       </div>
 
       <Separator className="my-6" />
@@ -339,6 +345,17 @@ function ManageActivitiesPage() {
         onCancelEdit={cancelEdit}
         onNameChange={setEditingName}
         searchTerm={filters.search}
+      />
+
+      <input
+        title="Upload CSV"
+        className="hidden"
+        type="file"
+        accept=".csv,text/csv"
+        onChange={async (event) =>
+          await upload(event.target.files ?? new FileList())
+        }
+        ref={inputRef}
       />
     </div>
   );

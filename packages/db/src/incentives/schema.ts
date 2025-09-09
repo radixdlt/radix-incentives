@@ -15,6 +15,7 @@ import {
   uuid,
   varchar,
 } from 'drizzle-orm/pg-core';
+import { z } from 'zod';
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -594,6 +595,20 @@ export type ActivityData = {
   ap?: boolean;
   multiplier?: boolean;
 };
+
+export const ActivitySchema = z.object({
+  id: z.string(),
+  category: z.string(),
+  name: z.string(),
+  description: z.string().nullable(),
+  dapp: z.string().nullable(),
+  componentAddresses: z.array(z.string()),
+  data: z.object({
+    showOnEarnPage: z.boolean().optional(),
+    ap: z.boolean().optional(),
+    multiplier: z.boolean().optional(),
+  }),
+});
 
 export type Event = InferSelectModel<typeof events>;
 export type Snapshot = InferSelectModel<typeof snapshots>;

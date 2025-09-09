@@ -1,15 +1,17 @@
 import { TRPCError } from '@trpc/server';
 import BigNumber from 'bignumber.js';
 import {
+  ActivitySchema,
   accountActivityPoints,
   accountBalances,
   accounts,
+  activities,
   db,
   seasonPointsMultiplier,
   user,
   userSeasonPoints,
 } from 'db/incentives';
-import { and, count, desc, eq, inArray, lte, sum } from 'drizzle-orm';
+import { and, count, desc, eq, inArray, lte, sql, sum } from 'drizzle-orm';
 import { Exit } from 'effect';
 import { groupBy } from 'effect/Array';
 import { z } from 'zod';
@@ -301,6 +303,21 @@ export const adminRouter = createTRPCRouter({
             code: 'INTERNAL_SERVER_ERROR',
           });
         }
+      }),
+
+    bulkEdit: publicProcedure
+      .input(z.array(ActivitySchema))
+      .mutation(async ({ input }) => {
+        await db
+          .insert(activities)
+          .values(input)
+          .onConflictDoUpdate({
+            target: [activities.id],
+            set: {
+              name: sql`excluded.name`,
+              data: sql`excluded.data`,
+            },
+          });
       }),
   },
   transactionStream: {
