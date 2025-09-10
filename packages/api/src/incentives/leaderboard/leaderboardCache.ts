@@ -190,7 +190,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
 
           const activityIds = categoryActivities.map((a) => a.id);
 
-          // Calculate category totals using SQL aggregation with week progress scaling
+          // Determine if this category should bypass week progress scaling
+          const bypassWeekProgress = [
+            'tradingVolume',
+            'transactionFees',
+            'componentCalls',
+          ].includes(category.id);
+
+          const progressMultiplier = bypassWeekProgress ? 1 : weekProgress;
+
+          // Calculate category totals using SQL aggregation with conditional week progress scaling
           const categoryTotals = yield* Effect.tryPromise({
             try: () =>
               db.execute(sql`
@@ -198,7 +207,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
                   SELECT 
                     a.user_id,
                     aap.activity_id,
-                    SUM(aap.activity_points * ${weekProgress}) as activity_points
+                    SUM(aap.activity_points * ${progressMultiplier}) as activity_points
                   FROM account_activity_points aap
                   INNER JOIN account a ON aap.account_address = a.address
                   WHERE aap.week_id = ${input.weekId}
