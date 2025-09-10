@@ -10,8 +10,6 @@ import {
 } from '../../common/gateway';
 import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
-import { GetEntitiesByRoleRequirementService } from '../../common/gateway/getEntitiesByRoleRequirement';
-import { GetEntityRoleAssignmentsService } from '../../common/gateway/getEntityRoleAssignments';
 import { AccountBalanceService } from '../account/accountBalance';
 import { GetAccountsByAddressLive } from '../account/getAccountsByAddress';
 import { UpsertAccountsLive } from '../account/upsertAccounts';
@@ -89,10 +87,6 @@ import { CreateSessionLive } from '../session/createSession';
 import { GenerateSessionTokenLive } from '../session/generateSessionToken';
 import { GetSessionLive } from '../session/getSession';
 import { InvalidateSessionLive } from '../session/invalidateSession';
-import { MarginAccountDbService } from '../surge/marginAccountDbService';
-import { MarginAccountSeedingService } from '../surge/marginAccountSeedingService';
-import { parseCsvMarginAccounts } from '../surge/parseCsvMarginAccounts';
-import { UpdateMarginAccountOwnerService } from '../surge/updateMarginAccountOwner';
 import {
   type SetStateInput,
   type SetStateVersionInput,
@@ -585,42 +579,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(appConfigLive),
   );
 
-  const marginAccountDbServiceLive = MarginAccountDbService.Default.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const getEntityRoleAssignmentsLive =
-    GetEntityRoleAssignmentsService.Default.pipe(
-      Layer.provide(gatewayApiClientLive),
-    );
-
-  const getEntitiesByRoleRequirementLive =
-    GetEntitiesByRoleRequirementService.Default.pipe(
-      Layer.provide(gatewayApiClientLive),
-    );
-
-  const getLedgerStateLive = GetLedgerStateService.Default.pipe(
-    Layer.provide(gatewayApiClientLive),
-  );
-
-  const configServiceLive = ConfigService.Default.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(getLedgerStateLive),
-  );
-
-  const updateMarginAccountOwnerLive =
-    UpdateMarginAccountOwnerService.Default.pipe(
-      Layer.provide(getEntityRoleAssignmentsLive),
-      Layer.provide(getEntitiesByRoleRequirementLive),
-    );
-
-  const marginAccountSeedingServiceLive =
-    MarginAccountSeedingService.Default.pipe(
-      Layer.provide(marginAccountDbServiceLive),
-      Layer.provide(updateMarginAccountOwnerLive),
-      Layer.provide(configServiceLive),
-    );
-
   const getActivityCategories = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -786,47 +744,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getMarginAccountCount = () => {
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const service = yield* MarginAccountDbService;
-        return yield* service.getCount();
-      }),
-      marginAccountDbServiceLive,
-    );
-    return Effect.runPromiseExit(program);
-  };
-
-  const uploadMarginAccountSeedingCsv = (csvData: string) => {
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        // Parse CSV first
-        const parseResult = yield* parseCsvMarginAccounts({ csvData });
-
-        // Seed margin accounts
-        const service = yield* MarginAccountSeedingService;
-        const result = yield* service.seedMarginAccounts({
-          marginAccountAddresses: parseResult.marginAccountAddresses,
-        });
-
-        return {
-          success: true,
-          processed: result.processed,
-          inserted: result.inserted,
-          updated: result.updated,
-          skipped: result.skipped,
-          errors: result.errors,
-          message:
-            result.errors.length > 0
-              ? `Processed ${result.processed} margin accounts. ${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped, ${result.errors.length} errors.`
-              : `Successfully processed ${result.processed} margin accounts. ${result.inserted} inserted, ${result.updated} updated, ${result.skipped} skipped.`,
-        };
-      }),
-      marginAccountSeedingServiceLive,
-    );
-    return Effect.runPromiseExit(program);
-  };
-
   const notificationServiceLive = NotificationService.Default.pipe(
     Layer.provide(dbClientLive),
   );
@@ -862,6 +779,15 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getLedgerStateServiceLive = GetLedgerStateService.Default.pipe(
+    Layer.provide(gatewayApiClientLive),
+  );
+
+  const configServiceLive = ConfigService.Default.pipe(
+    Layer.provide(dbClientLive),
+    Layer.provide(getLedgerStateServiceLive),
+  );
+
   const getTransactionStreamState = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -886,7 +812,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         );
         const getLedgerStateService = yield* Effect.provide(
           GetLedgerStateService,
-          getLedgerStateLive,
+          getLedgerStateServiceLive,
         );
         const stateVersion = yield* configService.getStateVersion();
         if (!stateVersion) {
@@ -912,7 +838,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     const program = Effect.gen(function* () {
       const getLedgerStateService = yield* Effect.provide(
         GetLedgerStateService,
-        getLedgerStateLive,
+        getLedgerStateServiceLive,
       );
       return yield* getLedgerStateService(input);
     });
@@ -1092,8 +1018,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     createWeek,
     getComponentWhitelistCount,
     uploadComponentWhitelistCsv,
-    getMarginAccountCount,
-    uploadMarginAccountSeedingCsv,
     getNotificationSettings,
     updateNotificationSettings,
     calculateTWASQL,

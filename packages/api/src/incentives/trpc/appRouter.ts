@@ -11,7 +11,6 @@ import { adminDappRouter, dappRouter } from '../dapp/dappRouter';
 import { leaderboardRouter } from '../leaderboard/leaderboardRouter';
 import { adminSeasonRouter } from '../season/seasonRouter';
 import { adminSeedRouter } from '../seed/seedRouter';
-import { adminMarginAccountSeedingRouter } from '../surge/marginAccountSeedingRouter';
 import { adminUserRouter, userRouter } from '../user/userRouter';
 import { weekAdminRouter, weekRouter } from '../week/weekRouter';
 import { createCallerFactory, createTRPCRouter } from '.';
@@ -43,7 +42,6 @@ export const adminAppRouter = createTRPCRouter({
   dapps: adminDappRouter,
   week: weekAdminRouter,
   componentWhitelist: adminComponentWhitelistRouter,
-  marginAccountSeeding: adminMarginAccountSeedingRouter,
   seed: adminSeedRouter,
   admin: adminRouter,
 });
