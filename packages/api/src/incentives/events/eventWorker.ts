@@ -25,7 +25,8 @@ export class EventWorkerService extends Effect.Service<EventWorkerService>()(
         yield* DeriveAccountFromEventService;
       const db = yield* DbClientService;
       return Effect.fn(function* (input: EventWorkerInput) {
-        const result = yield* deriveAccountFromEventService(input.items);
+        const rawResult = yield* deriveAccountFromEventService(input.items);
+        const result = rawResult.flat();
 
         const addToSnapshotQueue = (job: {
           timestamp: string;

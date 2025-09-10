@@ -1,4 +1,13 @@
 export const Assets = {
+  // Network signature resources
+  Signature: {
+    // EdDSA Ed25519 signature resource
+    ED25519:
+      'resource_rdx1nfxxxxxxxxxxed25sgxxxxxxxxx002236757237xxxxxxxxxed25sg',
+    // ECDSA Secp256k1 signature resource
+    SECP256K1:
+      'resource_rdx1nfxxxxxxxxxxsecpsgxxxxxxxxx004638826440xxxxxxxxxsecpsg',
+  },
   Fungible: {
     XRD: 'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
 
