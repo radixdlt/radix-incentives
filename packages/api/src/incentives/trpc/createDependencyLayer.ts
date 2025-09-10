@@ -426,6 +426,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(activityWeekServiceLive),
     Layer.provide(activityDisplayServiceLive),
     Layer.provide(activityPointsAdjustmentServiceLive),
+    Layer.provide(userLive),
   );
 
   const getLatestAccountBalances = ({ userId }: { userId: string }) => {
