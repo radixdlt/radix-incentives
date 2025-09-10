@@ -101,50 +101,6 @@ const processBasicXrdHoldings = (
     return output;
   });
 
-// Extract Surge margin account collateral processing
-const processSurgeMarginAccountCollateral = (
-  accountBalance: AccountBalanceFromSnapshot,
-  xrdToUsd: XrdValueConverter,
-) =>
-  Effect.gen(function* () {
-    const output: AccountBalanceData[] = [];
-
-    let surgeMarginXrd = new BigNumber(0);
-    let surgeMarginLsulp = new BigNumber(0);
-
-    // Process all margin account balances for this user
-    for (const marginBalance of accountBalance.surgeMarginAccountBalances ||
-      []) {
-      for (const resource of marginBalance.fungibleResources) {
-        if (resource.resourceAddress === Assets.Fungible.XRD) {
-          surgeMarginXrd = surgeMarginXrd.plus(resource.amount);
-        } else if (
-          resource.resourceAddress === CaviarNineConstants.LSULP.resourceAddress
-        ) {
-          // Convert LSULP to XRD equivalent for su_ho_lsulp activity
-          const lsulpXrdEquivalent = convertLsulpToXrd(
-            resource.amount,
-            accountBalance.lsulp.lsulpValue,
-          );
-          surgeMarginLsulp = surgeMarginLsulp.plus(lsulpXrdEquivalent);
-        }
-      }
-    }
-
-    output.push(
-      {
-        activityId: ActivityId.su_ho_xrd,
-        usdValue: yield* xrdToUsd(surgeMarginXrd),
-      },
-      {
-        activityId: ActivityId.su_ho_lsulp,
-        usdValue: yield* xrdToUsd(surgeMarginLsulp),
-      },
-    );
-
-    return output;
-  });
-
 // Extract lending protocol processing
 const processLendingProtocols = (
   accountBalance: AccountBalanceFromSnapshot,
@@ -318,15 +274,13 @@ export class XrdBalanceService extends Effect.Service<XrdBalanceService>()(
           }).pipe(Effect.map((usdValue) => usdValue.toString()));
 
         // Process all different types of XRD holdings in parallel
-        const [basicHoldings, lendingHoldings, surgeMarginHoldings] =
-          yield* Effect.all([
-            processBasicXrdHoldings(input.accountBalance, xrdToUsd),
-            processLendingProtocols(input.accountBalance, xrdToUsd),
-            processSurgeMarginAccountCollateral(input.accountBalance, xrdToUsd),
-          ]);
+        const [basicHoldings, lendingHoldings] = yield* Effect.all([
+          processBasicXrdHoldings(input.accountBalance, xrdToUsd),
+          processLendingProtocols(input.accountBalance, xrdToUsd),
+        ]);
 
         // Combine all results
-        return [...basicHoldings, ...lendingHoldings, ...surgeMarginHoldings];
+        return [...basicHoldings, ...lendingHoldings];
       });
     }),
   },

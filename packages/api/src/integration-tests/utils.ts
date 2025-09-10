@@ -34,8 +34,9 @@ export const truncateAllTables = async (
     );
   }
 
-  const { users, weeks, seasons, activityCategories, marginAccounts } =
-    await import('db/incentives');
+  const { users, weeks, seasons, activityCategories } = await import(
+    'db/incentives'
+  );
 
   console.log('Truncating all tables...');
 
@@ -43,7 +44,6 @@ export const truncateAllTables = async (
   await db.delete(weeks);
   await db.delete(seasons);
   await db.delete(activityCategories);
-  await db.delete(marginAccounts);
 
   console.log('All tables truncated successfully');
 };

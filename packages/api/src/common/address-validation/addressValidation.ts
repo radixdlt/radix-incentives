@@ -387,133 +387,129 @@ export const isHlpPoolComponent = (componentAddress: string): boolean => {
   return componentAddress === CaviarNineConstants.HLP.componentAddress;
 };
 
-export const AddressValidationServiceLive = Layer.effect(
+export const AddressValidationServiceLive = Layer.succeed(
   AddressValidationService,
-  Effect.gen(function* () {
-    return {
-      // Generic validation methods (cases where any dApp is acceptable)
-      isValidPoolComponent: matchComponentAddress,
+  {
+    // Generic validation methods (cases where any dApp is acceptable)
+    isValidPoolComponent: matchComponentAddress,
 
-      // dApp-specific pool component validation
-      isCaviarNinePoolComponent,
-      isCaviarNinePrecisionPoolComponent,
-      isCaviarNineHyperstakePoolComponent,
-      isCaviarNineSimplePoolComponent,
-      isDefiPlazaPoolComponent,
-      isOciswapPoolComponent,
-      isOciswapPrecisionPoolComponent,
-      isOciswapFlexPoolComponent,
-      isOciswapBasicPoolComponent,
+    // dApp-specific pool component validation
+    isCaviarNinePoolComponent,
+    isCaviarNinePrecisionPoolComponent,
+    isCaviarNineHyperstakePoolComponent,
+    isCaviarNineSimplePoolComponent,
+    isDefiPlazaPoolComponent,
+    isOciswapPoolComponent,
+    isOciswapPrecisionPoolComponent,
+    isOciswapFlexPoolComponent,
+    isOciswapBasicPoolComponent,
 
-      isValidProtocolComponent: (
-        componentAddress: string,
-        packageAddress?: string,
-      ): boolean => {
-        // Generic validation - checks ALL protocols
-        const protocolValidations = [
-          ...extractProtocolValidations(WeftFinanceConstants),
-          ...extractProtocolValidations(RootFinanceConstants),
-        ];
+    isValidProtocolComponent: (
+      componentAddress: string,
+      packageAddress?: string,
+    ): boolean => {
+      // Generic validation - checks ALL protocols
+      const protocolValidations = [
+        ...extractProtocolValidations(WeftFinanceConstants),
+        ...extractProtocolValidations(RootFinanceConstants),
+      ];
 
-        return protocolValidations.some((validation) => {
-          const componentMatches =
-            validation.componentAddress === componentAddress;
-          // If validation has no package requirement, only check component
-          if (!validation.packageAddress) {
-            return componentMatches;
-          }
-          // If validation requires package, both must match
-          return (
-            componentMatches && validation.packageAddress === packageAddress
-          );
+      return protocolValidations.some((validation) => {
+        const componentMatches =
+          validation.componentAddress === componentAddress;
+        // If validation has no package requirement, only check component
+        if (!validation.packageAddress) {
+          return componentMatches;
+        }
+        // If validation requires package, both must match
+        return componentMatches && validation.packageAddress === packageAddress;
+      });
+    },
+
+    // dApp-specific protocol component validation
+    isWeftFinanceComponent: (
+      componentAddress: string,
+      packageAddress?: string,
+    ): boolean => {
+      return isWeftFinanceComponent(componentAddress, packageAddress || '');
+    },
+
+    isRootFinanceComponent: (
+      componentAddress: string,
+      packageAddress?: string,
+    ): boolean => {
+      return isRootFinanceComponent(componentAddress, packageAddress || '');
+    },
+
+    isValidResourceAddress,
+
+    // dApp-specific resource validation
+    isCaviarNineResource: (resourceAddress: string): boolean => {
+      return caviarNineResources.has(resourceAddress);
+    },
+
+    isDefiPlazaResource: (resourceAddress: string): boolean => {
+      return defiPlazaResources.has(resourceAddress);
+    },
+
+    isOciswapResource: (resourceAddress: string): boolean => {
+      return ociswapResources.has(resourceAddress);
+    },
+
+    isWeftFinanceResource: (resourceAddress: string): boolean => {
+      return weftResources.has(resourceAddress);
+    },
+
+    isRootFinanceResource: (resourceAddress: string): boolean => {
+      return rootResources.has(resourceAddress);
+    },
+
+    isSurgeResource: (resourceAddress: string): boolean => {
+      return surgeResources.has(resourceAddress);
+    },
+
+    isBaseAssetResource: (resourceAddress: string): boolean => {
+      return baseAssets.has(resourceAddress);
+    },
+
+    getTradingActivityIdForPool: (
+      componentAddress: string,
+    ): ActivityId | undefined => {
+      return getTradingActivityIdByComponentAddress(componentAddress);
+    },
+
+    getTokenName: (
+      resourceAddress: string,
+    ): Effect.Effect<string, UnknownTokenError> => {
+      const tokenName =
+        flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
+
+      if (tokenName) {
+        return Effect.succeed(tokenName);
+      }
+
+      return Effect.fail(new UnknownTokenError(resourceAddress));
+    },
+
+    getTokenNameAndNativeAssetStatus: (
+      resourceAddress: string,
+    ): Effect.Effect<TokenInfo, UnknownTokenError> => {
+      const tokenName =
+        flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
+
+      if (tokenName) {
+        return Effect.succeed({
+          name: tokenName,
+          isNativeAsset: nativeAssets.has(resourceAddress),
         });
-      },
+      }
 
-      // dApp-specific protocol component validation
-      isWeftFinanceComponent: (
-        componentAddress: string,
-        packageAddress?: string,
-      ): boolean => {
-        return isWeftFinanceComponent(componentAddress, packageAddress || '');
-      },
+      return Effect.fail(new UnknownTokenError(resourceAddress));
+    },
 
-      isRootFinanceComponent: (
-        componentAddress: string,
-        packageAddress?: string,
-      ): boolean => {
-        return isRootFinanceComponent(componentAddress, packageAddress || '');
-      },
-
-      isValidResourceAddress,
-
-      // dApp-specific resource validation
-      isCaviarNineResource: (resourceAddress: string): boolean => {
-        return caviarNineResources.has(resourceAddress);
-      },
-
-      isDefiPlazaResource: (resourceAddress: string): boolean => {
-        return defiPlazaResources.has(resourceAddress);
-      },
-
-      isOciswapResource: (resourceAddress: string): boolean => {
-        return ociswapResources.has(resourceAddress);
-      },
-
-      isWeftFinanceResource: (resourceAddress: string): boolean => {
-        return weftResources.has(resourceAddress);
-      },
-
-      isRootFinanceResource: (resourceAddress: string): boolean => {
-        return rootResources.has(resourceAddress);
-      },
-
-      isSurgeResource: (resourceAddress: string): boolean => {
-        return surgeResources.has(resourceAddress);
-      },
-
-      isBaseAssetResource: (resourceAddress: string): boolean => {
-        return baseAssets.has(resourceAddress);
-      },
-
-      getTradingActivityIdForPool: (
-        componentAddress: string,
-      ): ActivityId | undefined => {
-        return getTradingActivityIdByComponentAddress(componentAddress);
-      },
-
-      getTokenName: (
-        resourceAddress: string,
-      ): Effect.Effect<string, UnknownTokenError> => {
-        const tokenName =
-          flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
-
-        if (tokenName) {
-          return Effect.succeed(tokenName);
-        }
-
-        return Effect.fail(new UnknownTokenError(resourceAddress));
-      },
-
-      getTokenNameAndNativeAssetStatus: (
-        resourceAddress: string,
-      ): Effect.Effect<TokenInfo, UnknownTokenError> => {
-        const tokenName =
-          flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
-
-        if (tokenName) {
-          return Effect.succeed({
-            name: tokenName,
-            isNativeAsset: nativeAssets.has(resourceAddress),
-          });
-        }
-
-        return Effect.fail(new UnknownTokenError(resourceAddress));
-      },
-
-      // Pool efficiency methods
-      isConstantProductPool: (componentAddress: string): boolean => {
-        return constantProductPools.has(componentAddress);
-      },
-    };
-  }),
+    // Pool efficiency methods
+    isConstantProductPool: (componentAddress: string): boolean => {
+      return constantProductPools.has(componentAddress);
+    },
+  },
 );
