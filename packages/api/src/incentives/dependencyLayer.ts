@@ -29,7 +29,6 @@ import {
   type SnapshotWorkerInput,
   SnapshotWorkerService,
 } from './snapshot/snapshotWorker';
-
 import { WeekService } from './week/week';
 
 const appConfig = createConfig();

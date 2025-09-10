@@ -23,6 +23,7 @@ import { Action, type ActivityData, DappId, deriveLpActivityId } from './types';
 const PoolType = {
   DEX: 'DEX',
   LENDING: 'LENDING',
+  HOLDING: 'HOLDING',
 } as const;
 
 type PoolType = (typeof PoolType)[keyof typeof PoolType];
@@ -42,7 +43,14 @@ type LendingPool = {
   componentAddress: string;
 };
 
-type Pool = DexPool | LendingPool;
+type HoldingPool = {
+  dAppId: DappId;
+  poolType: (typeof PoolType)['HOLDING'];
+  tokens: [string];
+  componentAddress: string;
+};
+
+type Pool = DexPool | LendingPool | HoldingPool;
 
 const outputPath = path.join(import.meta.dirname, 'output', 'activities.ts');
 
@@ -145,6 +153,22 @@ const allSurgePools = [
       url: `https://www.surge.trade/liquidity`,
     },
   } satisfies DexPool,
+  // XRD holding pool for margin collateral
+  {
+    dAppId: DappId.surge,
+    poolType: PoolType.HOLDING,
+    tokens: [SurgeConstants.marginAccountCollaterals.xrd.token],
+    componentAddress:
+      SurgeConstants.marginAccountCollaterals.xrd.componentAddress,
+  } satisfies HoldingPool,
+  // LSULP holding pool for margin collateral
+  {
+    dAppId: DappId.surge,
+    poolType: PoolType.HOLDING,
+    tokens: [SurgeConstants.marginAccountCollaterals.lsulp.token],
+    componentAddress:
+      SurgeConstants.marginAccountCollaterals.lsulp.componentAddress,
+  } satisfies HoldingPool,
 ];
 
 const allWeftPools: LendingPool[] = Object.values(WeftFinanceConstants.v2)
@@ -185,6 +209,11 @@ const allPools: Pool[] = [
 ];
 
 const assetTypeToCategoryId = (assetType: AssetType, poolType: PoolType) => {
+  // For holding pools (like Surge margin collateral), use maintainXrdBalance category
+  if (poolType === PoolType.HOLDING) {
+    return ActivityCategoryId.maintainXrdBalance;
+  }
+
   switch (assetType) {
     case AssetType.XRD_DERIVATIVE:
       return poolType === PoolType.DEX
@@ -211,6 +240,9 @@ const deriveActionFromPool = (input: Pool) => {
   if (input.poolType === PoolType.DEX) {
     return Action.LP;
   }
+  if (input.poolType === PoolType.HOLDING) {
+    return Action.HOLD;
+  }
   return Action.LEND;
 };
 
@@ -228,9 +260,10 @@ const deriveActivities = (
 
   return assets.flatMap((asset) => {
     const isSingleTokenPool =
-      assets[0].resourceAddress === assets[1].resourceAddress;
+      assets.length === 1 ||
+      assets[0].resourceAddress === assets[1]?.resourceAddress;
 
-    const isSameAssetType = assets[0].assetType === assets[1].assetType;
+    const isSameAssetType = assets[0].assetType === assets[1]?.assetType;
 
     const holdActivityId = isSingleTokenPool
       ? `${dAppId}_${Action.HOLD}_${asset.name}`
@@ -242,6 +275,9 @@ const deriveActivities = (
       isSingleTokenPool,
       tokenDetails: asset,
     });
+
+    const primaryActivityId =
+      action === Action.HOLD ? holdActivityId : lpActivityId;
 
     const activities: {
       activityId: string;
@@ -255,7 +291,7 @@ const deriveActivities = (
     }[] = [
       {
         categoryId: assetTypeToCategoryId(asset.assetType, poolType),
-        activityId: lpActivityId,
+        activityId: primaryActivityId,
         componentAddress,
         dAppId,
         tokenPair,
@@ -280,7 +316,12 @@ const deriveActivities = (
       });
     }
 
-    if (asset.assetType === AssetType.XRD_DERIVATIVE) {
+    // Only add XRD derivative holding activity if it's not already a HOLDING pool
+    // (HOLDING pools already generate the correct holding activity as their primary activity)
+    if (
+      asset.assetType === AssetType.XRD_DERIVATIVE &&
+      poolType !== PoolType.HOLDING
+    ) {
       activities.push({
         categoryId: ActivityCategoryId.maintainXrdBalance,
         activityId: holdActivityId,
@@ -307,7 +348,22 @@ const deriveActivityDetails = Effect.fn(function* (input: Pool) {
     tokenB,
   );
 
-  const activities = deriveActivities({ ...input, tokenPair, assets });
+  // For HOLDING pools with single tokens, deduplicate assets to avoid duplicate activities
+  const deduplicatedAssets =
+    input.poolType === PoolType.HOLDING
+      ? assets.filter(
+          (asset, index, arr) =>
+            arr.findIndex(
+              (a) => a.resourceAddress === asset.resourceAddress,
+            ) === index,
+        )
+      : assets;
+
+  const activities = deriveActivities({
+    ...input,
+    tokenPair,
+    assets: deduplicatedAssets,
+  });
 
   return activities;
 });
@@ -407,6 +463,16 @@ const runnable = Effect.gen(function* () {
         },
       ],
     },
+    // Surge trading activities for all supported pairs
+    ...SurgeConstants.tradingPairs.map((pair) => ({
+      categoryId: ActivityCategoryId.tradingVolume,
+      activityId: `${DappId.surge}_${Action.TRADE}_${pair}`,
+      componentAddress: SurgeConstants.exchange.componentAddress,
+      dAppId: DappId.surge,
+      tokenPair: pair,
+      action: Action.TRADE,
+      assets: [],
+    })),
     {
       categoryId: ActivityCategoryId.componentCalls,
       activityId: 'componentCalls',
@@ -446,9 +512,6 @@ const runnable = Effect.gen(function* () {
           .map((item) => item.componentAddress)
           .filter((item) => !!item),
       );
-
-      if (firstActivity.activityId === 'oc_tr_ilis-xrd') {
-      }
 
       const { componentAddress, ...activityWithoutSingularComponentAddress } =
         firstActivity;

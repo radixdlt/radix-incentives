@@ -37,12 +37,27 @@ export type CommonEmittableEvents =
         amount: string;
         accountAddress: string;
       };
-    };
+    }
+  | { readonly type: 'SetRoleEvent'; data: Record<string, never> };
 
 export type CapturedCommonEvent = CapturedEvent<CommonEmittableEvents>;
 
 export const withdrawDepositEventMatcherFn = (input: TransformedEvent) =>
   Effect.gen(function* () {
+    // Handle SetRoleEvent for margin account ownership tracking
+    if (input?.event.name === 'SetRoleEvent') {
+      return yield* Effect.succeed({
+        globalEmitter: input.emitter.globalEmitter,
+        packageAddress: input.package.address,
+        blueprint: input.package.blueprint,
+        eventName: input.event.name,
+        eventData: {
+          type: 'SetRoleEvent' as const,
+          data: {},
+        },
+      });
+    }
+
     const withdrawNonFungibleEventResult = parseWithdrawEvent(input, {
       isWhiteListedResourceAddress: isValidResourceAddress,
     });
