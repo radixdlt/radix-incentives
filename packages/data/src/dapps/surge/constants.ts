@@ -16,8 +16,8 @@ export const SurgeConstants = {
     // This is hardcoded and changes every time Surge upgrades, it will be out of date soon.
     // The incentives program detects upgrades and stores the new componentAddress in the config table of the database
     componentAddress:
-      //'component_rdx1cp92uemllvxuewz93s5h8f36plsmrysssjjl02vve3zvsdlyxhmne7', // use if state_version < 346689452
-      EXCHANGE_ADDRESS,
+      'component_rdx1cp92uemllvxuewz93s5h8f36plsmrysssjjl02vve3zvsdlyxhmne7', // use if state_version < 346689452
+    //EXCHANGE_ADDRESS,
   },
   sUSD: {
     resourceAddress:
