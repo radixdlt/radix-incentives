@@ -179,6 +179,14 @@ export const Footer: React.FC<FooterProps> = ({ className }) => {
                     Privacy Notice
                   </Link>
                   <Link
+                    href="https://cdn.prod.website-files.com/6053f7fca5bf627283b582c2/68c1810c6472b72f0f2a2b60_2025.09.08%20TERMS%20OF%20INCENTIVE%20DISTRIBUTION%20.docx.pdf"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block text-white/70 transition-colors duration-200 hover:text-white"
+                  >
+                    Terms of Service
+                  </Link>
+                  <Link
                     href="https://www.radixdlt.com/radix-brand-pack"
                     target="_blank"
                     rel="noopener noreferrer"
