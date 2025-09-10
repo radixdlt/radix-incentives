@@ -5,8 +5,8 @@ export interface FaqItemData {
 
 export const faqItems: FaqItemData[] = [
   {
-    question: 'What is the Radix Incentives Program?',
-    answer: `The Radix Rewards program is designed to reward meaningful on-chain economic activity on the Radix network. Participants earn points through activities like trading on DEXs, providing liquidity, lending/borrowing, and holding XRD/LSUs. The program has a total budget of 1 billion XRD that will be distributed across multiple seasons to encourage sustained network participation. More details can be found <a class="underline" href='https://www.radixdlt.com/blog/backing-growth-radix-incentives-campaign-proposal' target='_blank'>here</a>.`,
+    question: 'What is the Radix Rewards Program?',
+    answer: `The Radix Rewards program is designed to reward meaningful on-chain economic activity on the Radix network. Participants earn points through activities like trading on DEXs, providing liquidity, lending/borrowing, and holding XRD/LSUs. The program has a total budget of 1 billion XRD that will be distributed across multiple seasons to encourage sustained network participation. More details can be found <a class="underline" href='https://www.radixdlt.com/blog/radix-rewards-season-1-is-live' target='_blank'>here</a>.`,
   },
   {
     question: 'How do I qualify for the program?',
@@ -16,28 +16,28 @@ export const faqItems: FaqItemData[] = [
   {
     question: 'What are points and how are they calculated?',
     answer: `There are two main types of points in the Radix Rewards program; weekly Activity Points (AP) and Season Points (SP). 
-Activity points are earned by using assets in supported dApps and pools, such as supplying xUSDC on lending markets, or trading xWBTC on DEXs. Current activities can be found here (not live in testing).
+Activity points are earned by using assets in supported dApps and pools, such as supplying hUSDC on lending markets, or trading hWBTC on DEXs. Current activities can be found on the <a class='underline' href='/dashboard/accounts'>Earn</a> page.
 <br /><br />
 
-Each activity has a set amount of Season Points each week. Your weekly Activity Points are ranked percentile-wise against other participants in each category, then converted to season points. A multiplier based on your XRD/LSU holdings (ranging from 0.5x to 3x) is applied to boost your final season points.
+Every activity falls in an Activity Category (e.g. Providing stablecoin liquidity on DEXs), with a set amount of Season Points each week. Your weekly Activity Points per category are ranked percentile-wise against other participants in that category, then converted to season points. A multiplier based on your XRD/LSU holdings (ranging from 0.5x to 3x) is applied to boost your final season points.
 `,
   },
   {
     question: 'What are the supported assets and activities?',
     answer: `Assets and activities may change each week, but generally look at providing liquidity in a range of assets to DeFi dApps, trading activity in certain assets, and general use of the Radix ecosystem. 
 <br /><br />
-The current list of rewarded activities can be found here (not live in testing)`,
+The current list of rewarded activities can be found on the <a class='underline' href='/dashboard/accounts'>Earn</a> page`,
   },
   {
     question: 'What are multipliers and how do they work?',
-    answer: `Multipliers are bonuses applied to your season points based on your XRD and LSU holdings, as well as XRD or LSUs in supported DeFi applications such as LSULP, or XRD in support DEX pools. 
+    answer: `Multipliers are bonuses applied to your season points based on your XRD and LSU holdings, as well as XRD or LSUs in supported DeFi applications such as LSULP, or XRD in supported DEX pools. 
 <br /><br />
-The multiplier follows an S-curve pattern, with significant increases from $5,000 to $100,000 in holdings, then diminishing returns above that. The maximum multiplier is 3x. You must maintain holdings for at least 24 hours to qualify for multiplier benefits.`,
+The multiplier follows an S-curve pattern, with significant increases from $5,000 to $100,000 in holdings, then diminishing returns above that. The maximum multiplier is 3x.`,
   },
   {
     question: 'When can I claim my rewards?',
     answer:
-      "Rewards are distributed at the end of each season based on your accumulated season points and final ranking.The distribution mechanism and claiming process will be announced as each season concludes, and may be adjusted based if exploitation is detected. Points are calculated weekly but converted to season points that determine your final reward allocation from that season's XRD pool.",
+      "Rewards are distributed at the end of each season based on your accumulated season points and final ranking. The distribution mechanism and claiming process will be announced as each season concludes, and may be adjusted based if exploitation is detected. Points are calculated weekly but converted to season points that determine your final reward allocation from that season's XRD pool.",
   },
   {
     question:

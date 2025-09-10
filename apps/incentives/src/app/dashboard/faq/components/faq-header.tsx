@@ -12,7 +12,7 @@ export const FaqHeader = React.forwardRef<HTMLDivElement, FaqHeaderProps>(
   (
     {
       title = 'Frequently Asked Questions',
-      description = 'Find answers to common questions about the Radix Incentives Program, qualification requirements, points calculation, and reward claiming process.',
+      description = 'Find answers to common questions about the Radix Rewards Program, qualification requirements, points calculation, and reward claiming process.',
     },
     ref,
   ) => {
