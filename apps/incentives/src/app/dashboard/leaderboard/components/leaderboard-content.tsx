@@ -23,6 +23,7 @@ interface UserStatsData {
 
 interface GlobalStats {
   totalUsers: number;
+  totalUsersInSystem: number;
   median: string;
   average: string;
 }

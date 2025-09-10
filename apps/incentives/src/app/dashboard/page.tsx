@@ -159,7 +159,11 @@ export default function DashboardPage() {
 
         <MetricCard
           title="Multiplier"
-          value={userStats.data?.multiplier?.value ?? '0'}
+          value={
+            userStats.data?.multiplier?.value
+              ? Number(userStats.data.multiplier.value).toLocaleString()
+              : '0'
+          }
           icon={Zap}
           description="Current points multiplier"
           iconColor="text-amber-500"

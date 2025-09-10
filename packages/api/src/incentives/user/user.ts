@@ -6,8 +6,9 @@ import {
   categoryLeaderboardCache,
   seasonPointsMultiplier,
   userSeasonPoints,
+  users,
 } from 'db/incentives';
-import { and, eq, sql, sum } from 'drizzle-orm';
+import { and, count, eq, sql, sum } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';
 
@@ -157,6 +158,18 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       };
     });
 
+    const getTotalUserCount = Effect.fn(function* () {
+      const result = yield* Effect.tryPromise({
+        try: () =>
+          db
+            .select({ count: count() })
+            .from(users)
+            .then((result) => result[0]?.count || 0),
+        catch: (error) => new DbError(error),
+      });
+      return result;
+    });
+
     return {
       getUserStats: Effect.fn(function* (input: {
         userId: string;
@@ -176,6 +189,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       }),
       getUserCategoryBreakdown,
       getUserWeekActivityPoints,
+      getTotalUserCount,
       getAccountsByUserId: Effect.fn(function* (input: { userId: string }) {
         const result = yield* Effect.tryPromise({
           try: () =>
