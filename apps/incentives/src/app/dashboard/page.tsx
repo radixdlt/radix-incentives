@@ -77,6 +77,15 @@ export default function DashboardPage() {
     },
   );
 
+  // Get category breakdown to calculate total from cache
+  const categoryData = api.user.getUserCategoryBreakdown.useQuery(
+    { weekId: selectedWeek ?? '' },
+    {
+      enabled: !!persona && !!selectedWeek,
+      retry: false,
+    },
+  );
+
   if (accounts.isLoading || weeks.isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -106,8 +115,12 @@ export default function DashboardPage() {
     );
   }
 
-  // Get total points for the selected week directly
-  const latestWeeklyPoints = userStats.data?.activityPoints?.totalPoints ?? 0;
+  // Calculate total points from category breakdown (from cache)
+  const latestWeeklyPoints =
+    categoryData.data?.reduce(
+      (total, category) => total + category.points,
+      0,
+    ) ?? 0;
 
   // Check if the selected week is completed
   const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
