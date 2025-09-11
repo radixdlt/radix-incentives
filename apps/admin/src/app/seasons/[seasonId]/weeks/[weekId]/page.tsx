@@ -148,7 +148,7 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
       });
       await refetchWeek();
       toast.success(
-        `Outlier detection ${enableOutlierDetection ? 'enabled' : 'disabled'} successfully`
+        `Outlier detection ${enableOutlierDetection ? 'enabled' : 'disabled'} successfully`,
       );
     } catch (error) {
       console.error('Failed to update outlier detection setting:', error);
@@ -297,7 +297,9 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}
         onUpdateLowerBoundsPercentage={handleUpdateLowerBoundsPercentage}
-        onUpdateOutlierThresholdPercentage={handleUpdateOutlierThresholdPercentage}
+        onUpdateOutlierThresholdPercentage={
+          handleUpdateOutlierThresholdPercentage
+        }
         onUpdateEnableOutlierDetection={handleUpdateEnableOutlierDetection}
         onCalculateMultiplier={handleCalculateMultiplier}
       />

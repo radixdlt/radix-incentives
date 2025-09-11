@@ -678,7 +678,9 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const activityCategoryWeekService = yield* ActivityCategoryWeekService;
-        yield* activityCategoryWeekService.updateOutlierThresholdPercentage(input);
+        yield* activityCategoryWeekService.updateOutlierThresholdPercentage(
+          input,
+        );
       }),
       ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
     );

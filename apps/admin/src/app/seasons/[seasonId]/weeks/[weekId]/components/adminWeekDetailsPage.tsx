@@ -23,7 +23,10 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
     console.log(
       `Update lower bounds percentage for ${categoryId} to ${newLowerBoundsPercentage}`,
     ),
-  onUpdateOutlierThresholdPercentage = (categoryId, newOutlierThresholdPercentage) =>
+  onUpdateOutlierThresholdPercentage = (
+    categoryId,
+    newOutlierThresholdPercentage,
+  ) =>
     console.log(
       `Update outlier threshold percentage for ${categoryId} to ${newOutlierThresholdPercentage}`,
     ),
