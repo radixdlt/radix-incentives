@@ -14,7 +14,7 @@
     "test:ci": "turbo run test:ci --filter=api",
     "lint": "biome lint --write ./packages/**/**/*.ts",
     "format": "biome format --write .",
-    "check-types": "biome check .",
+    "check-types": "biome check . --max-diagnostics 50",
     "db:start": "docker compose -f docker-compose.yml up -d",
     "db:generate": "turbo run db:generate:incentives",
     "db:migrate": "turbo run db:migrate:incentives",

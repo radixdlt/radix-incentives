@@ -231,7 +231,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
                   outlierThresholdPercentage:
                     activityCategory.outlierThresholdPercentage,
-                  enableOutlierDetection: activityCategory.enableOutlierDetection,
+                  enableOutlierDetection:
+                    activityCategory.enableOutlierDetection,
                   users: Object.entries(users).map(([userId, points]) => ({
                     userId,
                     points,
