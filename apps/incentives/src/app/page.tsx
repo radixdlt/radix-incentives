@@ -1,6 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import { Footer } from '~/components/Footer';
 import { NotificationBar } from '~/components/NotificationBar';
 import { api } from '~/trpc/react';
 import { HeroSection } from './components/HeroSection';
@@ -13,7 +14,7 @@ export default function Home() {
 
   return (
     <div
-      className="grid-pattern relative min-h-screen w-full overflow-hidden"
+      className="grid-pattern relative w-full overflow-hidden"
       style={{
         background:
           'radial-gradient(circle at 5% 85%, rgba(225, 52, 176, 0.25) 0%, transparent 35%), radial-gradient(circle at 95% 15%, rgba(30, 249, 186, 0.22) 0%, transparent 35%), #0a0a0a',
@@ -47,6 +48,9 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Footer with 200px margin */}
+      <Footer className="mt-[200px]" />
     </div>
   );
 }

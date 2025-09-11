@@ -1,6 +1,9 @@
 import { Config, Effect, Layer, Schedule } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { ConfigService } from '../config/configService';
+import { MarginAccountDbService } from '../surge/marginAccountDbService';
+import { SurgeComponentAddressService } from '../surge/surgeComponentAddressService';
+import { UpdateMarginAccountOwnerService } from '../surge/updateMarginAccountOwner';
 import { TransactionStreamLoopService } from './transactionStreamLoop';
 import {
   setTransactionStreamState,
@@ -9,8 +12,6 @@ import {
 } from './transactionStreamState';
 
 const getLedgerStateLive = GetLedgerStateService.Default;
-
-const transactionStreamLoopLive = TransactionStreamLoopService.Default;
 
 export const transactionStreamLoopProgram = async () => {
   await Effect.runPromise(
@@ -56,6 +57,9 @@ export const transactionStreamLoopProgram = async () => {
         return;
       }
 
+      const surgeComponentAddressService = yield* SurgeComponentAddressService;
+      yield* surgeComponentAddressService.initialize();
+
       const transactionStreamLoopService = yield* TransactionStreamLoopService;
       const getLedgerStateService = yield* GetLedgerStateService;
 
@@ -95,9 +99,12 @@ export const transactionStreamLoopProgram = async () => {
       }
     }),
     Layer.mergeAll(
-      transactionStreamLoopLive,
+      TransactionStreamLoopService.Default,
       ConfigService.Default,
       getLedgerStateLive,
+      SurgeComponentAddressService.Default,
+      MarginAccountDbService.Default,
+      UpdateMarginAccountOwnerService.Default,
     ),
   ).pipe(
     Effect.provideService(

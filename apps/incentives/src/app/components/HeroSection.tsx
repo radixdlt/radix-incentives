@@ -28,7 +28,7 @@ export const HeroSection = () => {
       >
         <TrophyIcon className="h-4 w-4 text-brand-cyan" />
         <span className="text-sm text-white/80 tracking-wide">
-          Radix Incentives Campaign Platform
+          Radix Rewards
         </span>
       </motion.div>
 

@@ -12,6 +12,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import React, { useState } from 'react';
+import { Footer } from '~/components/Footer';
 import { Logo } from '~/components/Logo';
 import { NotificationBar } from '~/components/NotificationBar';
 import { Button } from '~/components/ui/button';
@@ -222,11 +223,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
         <main className="flex-1 overflow-hidden">
           <div
             className={cn(
-              'h-full overflow-y-auto p-6 md:p-8',
+              'overflow-y-auto overflow-x-hidden p-6 md:p-8',
               'pb-24 md:pb-8', // Add bottom padding on mobile for bottom nav
             )}
           >
-            {children}
+            {/* Content wrapper with min height */}
+            <div style={{ minHeight: '90vh' }}>{children}</div>
+
+            {/* Footer - Inside main content so sidebar goes through */}
+            <Footer />
           </div>
         </main>
       </div>

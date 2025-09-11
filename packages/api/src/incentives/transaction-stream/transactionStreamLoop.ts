@@ -9,9 +9,14 @@ import { defiPlazaEventMatcher } from '../events/event-matchers/defiPlazaEventMa
 import { hlpEventMatcher } from '../events/event-matchers/hlpEventMatcher';
 import { ociswapEventMatcher } from '../events/event-matchers/ociswapEventMatcher';
 import { rootFinanceEventMatcher } from '../events/event-matchers/rootFinanceEventMatcher';
+import { surgeEventMatcher } from '../events/event-matchers/surgeEventMatcher';
 import type { EmittableEvent } from '../events/event-matchers/types';
 import { weftFinanceEventMatcher } from '../events/event-matchers/weftFinanceEventMatcher';
 import { AddEventsToDbService } from '../events/queries/addEventToDb';
+import {
+  findFirstSurgeUpgradeTransaction,
+  ProcessSurgeEventsService,
+} from '../surge/processSurgeEvents';
 import { ProcessSwapEventTradingVolumeService } from '../trading-volume/processSwapEventTradingVolume';
 import { AddTransactionFeeService } from '../transaction-fee/addTransactionFee';
 import { FilterTransactionsService } from './filterTransactions';
@@ -33,6 +38,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
       AddTransactionFeeService.Default,
       AddComponentCallsService.Default,
       ProcessSwapEventTradingVolumeService.Default,
+      ProcessSurgeEventsService.Default,
     ],
     effect: Effect.gen(function* () {
       const transactionStreamService = yield* TransactionStreamService;
@@ -44,6 +50,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
       const addComponentCallsService = yield* AddComponentCallsService;
       const processSwapEventTradingVolumeService =
         yield* ProcessSwapEventTradingVolumeService;
+      const processSurgeEventsService = yield* ProcessSurgeEventsService;
 
       const eventProcessingEnabled = yield* Config.boolean(
         'TRANSACTION_STREAM_EVENT_PROCESSING_ENABLED',
@@ -92,26 +99,45 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
               );
               const uniqueTransactions = Array.from(transactionMap.values());
 
-              // get all weft finance events from transactions data
-              const weftFinanceEvents =
-                yield* weftFinanceEventMatcher(uniqueTransactions);
+              // Check if there's a SurgeUpgradeEvent in this batch and process it first
+              const upgradeTransactionIndex =
+                findFirstSurgeUpgradeTransaction(uniqueTransactions);
 
-              const rootFinanceEvents =
-                yield* rootFinanceEventMatcher(uniqueTransactions);
+              if (upgradeTransactionIndex !== -1) {
+                yield* Effect.logInfo(
+                  `Found SurgeUpgradeEvent at transaction ${upgradeTransactionIndex}. Processing upgrade events and updating component addresses.`,
+                );
 
-              const caviarnineEvents =
-                yield* caviarnineEventMatcher(uniqueTransactions);
+                // Process upgrade events to get new component addresses
+                yield* processSurgeEventsService.processSurgeUpgradeEvents(
+                  uniqueTransactions,
+                );
 
-              const hlpEvents = yield* hlpEventMatcher(uniqueTransactions);
+                yield* Effect.logInfo(
+                  `Surge upgrade processing complete. All event matchers now support both old and new component addresses.`,
+                );
+              }
 
-              const defiPlazaEvents =
-                yield* defiPlazaEventMatcher(uniqueTransactions);
-
-              const ociswapEvents =
-                yield* ociswapEventMatcher(uniqueTransactions);
-
-              const commonEvents =
-                yield* commonEventMatcher(uniqueTransactions);
+              // Process all event matchers in parallel - they now handle all historical component addresses
+              const [
+                weftFinanceEvents,
+                rootFinanceEvents,
+                caviarnineEvents,
+                hlpEvents,
+                defiPlazaEvents,
+                ociswapEvents,
+                commonEvents,
+                surgeEvents,
+              ] = yield* Effect.all([
+                weftFinanceEventMatcher(uniqueTransactions),
+                rootFinanceEventMatcher(uniqueTransactions),
+                caviarnineEventMatcher(uniqueTransactions),
+                hlpEventMatcher(uniqueTransactions),
+                defiPlazaEventMatcher(uniqueTransactions),
+                ociswapEventMatcher(uniqueTransactions),
+                commonEventMatcher(uniqueTransactions),
+                surgeEventMatcher(uniqueTransactions),
+              ]);
 
               // concat all captured events
               const allCapturedEvents = [
@@ -122,7 +148,13 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 ...weftFinanceEvents,
                 ...rootFinanceEvents,
                 ...commonEvents,
+                ...surgeEvents,
               ] as CapturedEvent<EmittableEvent>[];
+
+              // Process Surge events for margin account indexing
+              yield* processSurgeEventsService.processSurgeAccountEvents(
+                allCapturedEvents,
+              );
 
               const highestFeePayerMap = new Map<string, string>();
 

@@ -11,6 +11,7 @@ import { ActivityCategoryWeekService } from '../activity-category-week/activityC
 import { ActivityWeekService } from '../activity-week/activityWeek';
 import { DbClientService, DbError } from '../db/dbClient';
 import { SeasonService } from '../season/season';
+import { UserService } from '../user/user';
 import { WeekService } from '../week/week';
 import { ActivityPointsAdjustmentService } from './activityPointsAdjustment';
 
@@ -36,6 +37,7 @@ interface BuildLeaderboardResponseParams {
     median?: string | null;
     average?: string | null;
   } | null;
+  totalUsersInSystem: number;
   userId?: string;
   additionalUserData?: Record<string, unknown>;
   adjustedTotalPoints?: string;
@@ -45,6 +47,7 @@ const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
   const {
     cachedData,
     statsCache,
+    totalUsersInSystem,
     userId,
     additionalUserData,
     adjustedTotalPoints,
@@ -78,6 +81,7 @@ const buildLeaderboardResponse = (params: BuildLeaderboardResponseParams) => {
 
   const globalStats = {
     totalUsers: statsCache?.totalUsers || cachedData.length,
+    totalUsersInSystem,
     median: statsCache?.median || '0',
     average: statsCache?.average || '0',
   };
@@ -104,6 +108,7 @@ export interface ActivityCategoryLeaderboardData {
   } | null;
   globalStats: {
     totalUsers: number;
+    totalUsersInSystem: number;
     median: string;
     average: string;
   };
@@ -132,6 +137,7 @@ export interface SeasonLeaderboardData {
   } | null;
   globalStats: {
     totalUsers: number;
+    totalUsersInSystem: number;
     median: string;
     average: string;
   };
@@ -153,6 +159,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
       const activityWeekService = yield* ActivityWeekService;
       const activityPointsAdjustmentService =
         yield* ActivityPointsAdjustmentService;
+      const userService = yield* UserService;
 
       const getSeasonLeaderboard = Effect.fn(function* (input: {
         seasonId: string;
@@ -235,10 +242,14 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .then((result) => result[0]),
         ).pipe(Effect.catchAll(() => Effect.succeed(null)));
 
+        // Get total users count in the system
+        const totalUsersInSystem = yield* userService.getTotalUserCount();
+
         // Build common leaderboard response
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
           cachedData: cachedData,
           statsCache: statsCache ?? null,
+          totalUsersInSystem,
           userId: input.userId,
         });
 
@@ -377,6 +388,9 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .then((result) => result[0]),
         ).pipe(Effect.catchAll(() => Effect.succeed(null)));
 
+        // Get total users count in the system
+        const totalUsersInSystem = yield* userService.getTotalUserCount();
+
         // Get activity breakdown for user if needed
         let additionalUserData: Record<string, unknown> = {};
         let adjustedTotalPoints: string | undefined;
@@ -412,6 +426,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
           cachedData: cachedData,
           statsCache: statsCache ?? null,
+          totalUsersInSystem,
           userId: input.userId,
           additionalUserData,
           adjustedTotalPoints,

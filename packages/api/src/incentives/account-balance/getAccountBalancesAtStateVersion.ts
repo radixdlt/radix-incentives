@@ -35,6 +35,10 @@ import {
   GetSurgeLiquidityPositionsService,
 } from '../../common/dapps/surge/getSurgeLiquidityPositions';
 import {
+  GetSurgeMarginAccountBalancesService,
+  type SurgeMarginAccountBalance,
+} from '../../common/dapps/surge/getSurgeMarginAccountBalances';
+import {
   type GetWeftFinancePositionsOutput,
   GetWeftFinancePositionsService,
 } from '../../common/dapps/weftFinance/getWeftFinancePositions';
@@ -49,6 +53,7 @@ import {
 } from '../../common/gateway/schemas';
 import { ConvertLsuToXrdService } from '../../common/staking/convertLsuToXrd';
 import { GetUserStakingPositionsService } from '../../common/staking/getUserStakingPositions';
+import { MarginAccountDbService } from '../surge/marginAccountDbService';
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;
@@ -122,6 +127,7 @@ export type AccountBalance = {
   defiPlazaPositions: DefiPlazaPosition;
   hyperstakePositions: HyperstakePosition;
   surgePositions: SurgePosition;
+  surgeMarginAccountBalances: SurgeMarginAccountBalance[];
   convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
 };
 
@@ -155,6 +161,8 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
       ConvertLsuToXrdService.Default,
       GetWeftFinancePositionsService.Default,
       GetRootFinancePositionsService.Default,
+      MarginAccountDbService.Default,
+      GetSurgeMarginAccountBalancesService.Default,
     ],
     effect: Effect.gen(function* () {
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
@@ -182,6 +190,9 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         yield* GetOciswapResourcePoolPositionsService;
       const getCaviarnineResourcePoolPositionsService =
         yield* GetCaviarnineResourcePoolPositionsService;
+      const getSurgeMarginAccountBalancesService =
+        yield* GetSurgeMarginAccountBalancesService;
+      const marginAccountDbService = yield* MarginAccountDbService;
 
       return Effect.fn(function* (
         input: GetAccountBalancesAtStateVersionInput,
@@ -206,6 +217,17 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
             validator.claimNftResourceAddress,
           ]),
         );
+
+        // Get margin accounts for all collateral addresses (user addresses)
+        // These are users who might have margin accounts where they are the collateral owner
+        yield* Effect.logDebug(
+          'getting margin accounts by collateral addresses',
+        );
+        const marginAccountMappings =
+          yield* marginAccountDbService.getMarginAccountsByCollateralAddresses(
+            input.addresses,
+            state_version,
+          );
 
         yield* Effect.logDebug('getting non fungible and fungible balance');
         const [nonFungibleBalanceResults, fungibleBalanceResults] =
@@ -247,7 +269,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         const allOciswapPoolsV2 = Object.values(OciswapConstants.poolsV2);
 
         yield* Effect.logDebug(
-          'getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, lsulp value',
+          'getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, surge margin account balances, lsulp value',
         );
         const [
           userStakingPositions,
@@ -261,6 +283,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           allSurgeLiquidityPositions,
           allOciswapResourcePoolPositions,
           allCaviarnineResourcePoolPositions,
+          allSurgeMarginAccountBalances,
           lsulpValue,
         ] = yield* Effect.all(
           [
@@ -396,6 +419,10 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
               .pipe(
                 Effect.withSpan('getCaviarnineResourcePoolPositionsService'),
               ),
+            getSurgeMarginAccountBalancesService({
+              marginAccountMappings,
+              at_ledger_state: atLedgerState,
+            }).pipe(Effect.withSpan('getSurgeMarginAccountBalancesService')),
             getLsulpValueService({
               at_ledger_state: atLedgerState,
             }).pipe(Effect.withSpan('getLsulpValueService')),
@@ -488,6 +515,22 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         const surgeLiquidityPositionsMap = new Map(
           allSurgeLiquidityPositions.map((item) => [item.address, item]),
         );
+
+        // Create lookup map for surge margin account balances by collateral address
+        const surgeMarginAccountBalancesMap = new Map<
+          string,
+          SurgeMarginAccountBalance[]
+        >();
+        for (const balance of allSurgeMarginAccountBalances) {
+          const collateralAddress = balance.collateralAccountAddress;
+          const existingBalances =
+            surgeMarginAccountBalancesMap.get(collateralAddress) ?? [];
+          existingBalances.push(balance);
+          surgeMarginAccountBalancesMap.set(
+            collateralAddress,
+            existingBalances,
+          );
+        }
 
         // Create lookup maps for CaviarNine shape liquidity assets for O(1) access
         const caviarNineShapeLiquidityPositions = new Map(
@@ -595,6 +638,9 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                   },
                 };
 
+              const accountSurgeMarginAccountBalances: SurgeMarginAccountBalance[] =
+                surgeMarginAccountBalancesMap.get(address) ?? [];
+
               const caviarninePositions: CaviarNinePosition = {};
 
               for (const [
@@ -650,6 +696,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 defiPlazaPositions: accountDefiPlazaPositions,
                 hyperstakePositions: accountHyperstakePositions,
                 surgePositions: accountSurgePositions,
+                surgeMarginAccountBalances: accountSurgeMarginAccountBalances,
                 convertLsuToXrdMap,
               } satisfies AccountBalance;
             }),

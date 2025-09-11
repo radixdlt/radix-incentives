@@ -648,3 +648,47 @@ export type CategoryLeaderboardCache = InferSelectModel<
 export type LeaderboardStatsCache = InferSelectModel<
   typeof leaderboardStatsCache
 >;
+
+// Margin account lookup table for Surge trading
+export const marginAccounts = createTable(
+  'margin_accounts',
+  {
+    marginAccountAddress: varchar('margin_account_address', {
+      length: 255,
+    }).notNull(),
+    recoveryAccountAddress: varchar('recovery_account_address', {
+      length: 255,
+    }),
+    collateralAccountAddress: varchar('collateral_account_address', {
+      length: 255,
+    }),
+    tradingAccountAddress: varchar('trading_account_address', {
+      length: 255,
+    }),
+    stateVersion: integer('state_version').notNull(),
+  },
+  (table) => ({
+    // Composite primary key to allow multiple ownership records per margin account
+    pk: primaryKey({
+      columns: [table.marginAccountAddress, table.stateVersion],
+    }),
+    recoveryAccountIdx: index('idx_margin_accounts_recovery').on(
+      table.recoveryAccountAddress,
+    ),
+    collateralAccountIdx: index('idx_margin_accounts_collateral').on(
+      table.collateralAccountAddress,
+    ),
+    tradingAccountIdx: index('idx_margin_accounts_trading').on(
+      table.tradingAccountAddress,
+    ),
+    stateVersionIdx: index('idx_margin_accounts_state_version').on(
+      table.stateVersion,
+    ),
+  }),
+);
+
+// Note: No foreign key relation to accounts table since margin accounts
+// should be able to link to any parent account, regardless of whether
+// that parent account is registered in the incentives program
+
+export type MarginAccount = InferSelectModel<typeof marginAccounts>;

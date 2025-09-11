@@ -195,6 +195,13 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
               gatewayApiClient.extensions,
             ),
           ),
+          innerClient: {
+            entitiesByRoleRequirementLookup: wrapMethod(
+              gatewayApiClient.extensions.innerClient.entitiesByRoleRequirementLookup.bind(
+                gatewayApiClient.extensions.innerClient,
+              ),
+            ),
+          },
         },
         // Get raw client for any methods not wrapped
         rawClient: gatewayApiClient,

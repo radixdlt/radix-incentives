@@ -3425,6 +3425,7 @@ export const accountBalanceFixture = {
             amount: new BigNumber('0.9991706914150441649103109005151369444'),
           },
         },
+        surgeMarginAccountBalances: [],
         convertLsuToXrdMap: new Map(),
       },
     ],
@@ -3630,6 +3631,18 @@ export const accountBalanceFixture = {
       },
       {
         activityId: 'c9_lp_sta_husdc-hwbtc',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_blu_heth-xeth',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_blu_hwbtc-xwbtc',
+        usdValue: '0',
+      },
+      {
+        activityId: 'c9_lp_sta_husdc-xusdc',
         usdValue: '0',
       },
       {
@@ -3865,6 +3878,14 @@ export const accountBalanceFixture = {
       {
         activityId: 'we_ho_unstakedXrd',
         usdValue: '4.41329349999999999637071511',
+      },
+      {
+        activityId: 'su_ho_xrd',
+        usdValue: '0',
+      },
+      {
+        activityId: 'su_ho_lsulp',
+        usdValue: '0',
       },
       {
         activityId: 'we_le_sta_xusdc',

@@ -21,6 +21,7 @@ import { ActivityCategoryWeekService } from '../activity-category-week/activityC
 import { ActivityWeekService } from '../activity-week/activityWeek';
 import { createDbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
+import { UserService } from '../user/user';
 import { WeekService } from '../week/week';
 import { ActivityDisplayService } from './activityDisplay';
 import { ActivityPointsAdjustmentService } from './activityPointsAdjustment';
@@ -73,6 +74,8 @@ describe(
     const activityPointsAdjustmentServiceLive =
       ActivityPointsAdjustmentService.Default;
 
+    const userServiceLive = UserService.Default.pipe(Layer.provide(dbLive));
+
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),
       Layer.provide(weekLive),
@@ -82,6 +85,7 @@ describe(
       Layer.provide(activityWeekServiceLive),
       Layer.provide(activityDisplayServiceLive),
       Layer.provide(activityPointsAdjustmentServiceLive),
+      Layer.provide(userServiceLive),
       Layer.provide(Logger.minimumLogLevel(LogLevel.None)),
     );
 

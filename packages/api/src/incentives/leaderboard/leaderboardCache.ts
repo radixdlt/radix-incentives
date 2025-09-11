@@ -154,6 +154,24 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           catch: (error) => new DbError(error),
         });
 
+        // Get week information to calculate progress
+        const week = yield* weekService.getById(input.weekId);
+        const currentTime = new Date();
+
+        // Calculate week progress: 0 to 1, where 1 means week is complete
+        const weekProgress = Math.min(
+          1,
+          Math.max(
+            0,
+            (currentTime.getTime() - week.startDate.getTime()) /
+              (week.endDate.getTime() - week.startDate.getTime()),
+          ),
+        );
+
+        yield* Effect.log(
+          `Week progress: ${(weekProgress * 100).toFixed(1)}% for week ${input.weekId}`,
+        );
+
         // Get all activity categories that have activities with points for this week
         const categories =
           yield* activityCategoryWeekService.getAvailableForWeek({
@@ -172,7 +190,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
 
           const activityIds = categoryActivities.map((a) => a.id);
 
-          // Calculate category totals using SQL aggregation - sum first, then jsonb_object_agg
+          // Determine if this category should bypass week progress scaling
+          const bypassWeekProgress = [
+            'tradingVolume',
+            'transactionFees',
+            'componentCalls',
+          ].includes(category.id);
+
+          const progressMultiplier = bypassWeekProgress ? 1 : weekProgress;
+
+          // Calculate category totals using SQL aggregation with conditional week progress scaling
           const categoryTotals = yield* Effect.tryPromise({
             try: () =>
               db.execute(sql`
@@ -180,7 +207,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
                   SELECT 
                     a.user_id,
                     aap.activity_id,
-                    SUM(aap.activity_points) as activity_points
+                    SUM(aap.activity_points * ${progressMultiplier}) as activity_points
                   FROM account_activity_points aap
                   INNER JOIN account a ON aap.account_address = a.address
                   WHERE aap.week_id = ${input.weekId}

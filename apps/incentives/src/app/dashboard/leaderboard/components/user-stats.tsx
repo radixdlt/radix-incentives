@@ -13,6 +13,7 @@ interface UserStatsProps {
   } | null;
   globalStats: {
     totalUsers: number;
+    totalUsersInSystem: number;
     median: string;
     average: string;
   };
@@ -61,7 +62,8 @@ export function UserStats({
           <div className="mb-2 font-medium text-lg">{title}</div>
           <p className="mb-4 text-muted-foreground text-sm">{description}</p>
           <div className="text-muted-foreground text-xs">
-            Total participants: {globalStats.totalUsers.toLocaleString()}
+            Total participants: {globalStats.totalUsers.toLocaleString()} of{' '}
+            {globalStats.totalUsersInSystem.toLocaleString()} users
           </div>
         </div>
 
@@ -108,9 +110,6 @@ export function UserStats({
           <div className="mb-2 font-medium text-sm text-white/80">Ranking</div>
           <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             #{stats.rank}
-          </div>
-          <div className="mt-1 text-white/60 text-xs">
-            of {globalStats.totalUsers.toLocaleString()}
           </div>
         </div>
 
@@ -175,7 +174,8 @@ export function UserStats({
             Participants
           </h4>
           <div className="font-semibold text-base sm:text-lg">
-            {globalStats.totalUsers.toLocaleString()}
+            {globalStats.totalUsers.toLocaleString()} of{' '}
+            {globalStats.totalUsersInSystem.toLocaleString()}
           </div>
           <div className="mt-1 text-muted-foreground text-xs sm:text-sm">
             Total users
