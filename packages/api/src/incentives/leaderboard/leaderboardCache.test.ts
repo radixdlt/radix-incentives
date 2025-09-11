@@ -643,131 +643,174 @@ describe(
         }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
-    it.effect('should apply week progress scaling correctly', () =>
-      Effect.gen(function* () {
-        yield* setupTestData;
+    it.effect(
+      'should conditionally apply week progress scaling based on category',
+      () =>
+        Effect.gen(function* () {
+          yield* setupTestData;
 
-        // Set week dates so we can control the progress calculation
-        // Week starts Jan 1, ends Jan 8 (7 days = 168 hours)
-        // Jan 4 at 12:00 = 3.5 days = 84 hours from start = 50% progress
-        const mockCurrentTime = new Date('2025-01-04T12:00:00Z'); // Exactly middle of week
-        const originalDateNow = Date.now;
-        global.Date.now = () => mockCurrentTime.getTime();
-        const originalDate = global.Date;
-        global.Date = class extends originalDate {
-          constructor(...args: any[]) {
-            if (args.length === 0) {
-              super(mockCurrentTime.getTime());
-            } else {
-              super(...args);
+          // Set week dates so we can control the progress calculation
+          // Week starts Jan 1, ends Jan 8 (7 days = 168 hours)
+          // Jan 4 at 12:00 = 3.5 days = 84 hours from start = 50% progress
+          const mockCurrentTime = new Date('2025-01-04T12:00:00Z'); // Exactly middle of week
+          const originalDateNow = Date.now;
+          global.Date.now = () => mockCurrentTime.getTime();
+          const originalDate = global.Date;
+          global.Date = class extends originalDate {
+            constructor(...args: any[]) {
+              if (args.length === 0) {
+                super(mockCurrentTime.getTime());
+              } else {
+                super(...args);
+              }
             }
-          }
-          static now() {
-            return mockCurrentTime.getTime();
-          }
-        } as any;
+            static now() {
+              return mockCurrentTime.getTime();
+            }
+          } as any;
 
-        try {
-          yield* Effect.promise(() =>
-            db.insert(activityCategoryWeeks).values([
-              {
-                activityCategoryId: ActivityCategoryId.tradingVolume,
-                weekId: WEEK_ID_1,
-                pointsPool: 100,
-              },
-            ]),
-          );
+          try {
+            // Set up two categories: one that bypasses progress (tradingVolume) and one that uses it (maintainXrdBalance)
+            yield* Effect.promise(() =>
+              db.insert(activityCategoryWeeks).values([
+                {
+                  activityCategoryId: ActivityCategoryId.tradingVolume,
+                  weekId: WEEK_ID_1,
+                  pointsPool: 100,
+                },
+                {
+                  activityCategoryId: ActivityCategoryId.maintainXrdBalance,
+                  weekId: WEEK_ID_1,
+                  pointsPool: 100,
+                },
+              ]),
+            );
 
-          yield* Effect.promise(() =>
-            db.insert(activityWeeks).values([
-              {
-                activityId: ActivityId['c9_tr_xrd-xusdc'],
-                weekId: WEEK_ID_1,
-                multiplier: '1',
-              },
-            ]),
-          );
+            yield* Effect.promise(() =>
+              db.insert(activityWeeks).values([
+                {
+                  activityId: ActivityId['c9_tr_xrd-xusdc'], // tradingVolume activity
+                  weekId: WEEK_ID_1,
+                  multiplier: '1',
+                },
+                {
+                  activityId: ActivityId['ho_xrd'], // maintainXrdBalance activity
+                  weekId: WEEK_ID_1,
+                  multiplier: '1',
+                },
+              ]),
+            );
 
-          // Insert test activity points data
-          yield* Effect.promise(() =>
-            db.insert(accountActivityPoints).values([
-              {
-                accountAddress: 'account_rdx1111',
-                weekId: WEEK_ID_1,
-                activityId: ActivityId['c9_tr_xrd-xusdc'],
-                activityPoints: '100.0', // Should be scaled to 50.0 (100 * 0.5 progress)
-              },
-              {
-                accountAddress: 'account_rdx2222',
-                weekId: WEEK_ID_1,
-                activityId: ActivityId['c9_tr_xrd-xusdc'],
-                activityPoints: '200.0', // Should be scaled to 100.0 (200 * 0.5 progress)
-              },
-            ]),
-          );
+            // Insert test activity points data for both categories
+            yield* Effect.promise(() =>
+              db.insert(accountActivityPoints).values([
+                // Trading volume points (should bypass progress scaling)
+                {
+                  accountAddress: 'account_rdx1111',
+                  weekId: WEEK_ID_1,
+                  activityId: ActivityId['c9_tr_xrd-xusdc'],
+                  activityPoints: '100.0', // Should remain 100.0 (no scaling)
+                },
+                {
+                  accountAddress: 'account_rdx2222',
+                  weekId: WEEK_ID_1,
+                  activityId: ActivityId['c9_tr_xrd-xusdc'],
+                  activityPoints: '200.0', // Should remain 200.0 (no scaling)
+                },
+                // XRD balance points (should apply progress scaling)
+                {
+                  accountAddress: 'account_rdx1111',
+                  weekId: WEEK_ID_1,
+                  activityId: ActivityId['ho_xrd'],
+                  activityPoints: '100.0', // Should be scaled to ~50.0 (100 * 0.5 progress)
+                },
+                {
+                  accountAddress: 'account_rdx2222',
+                  weekId: WEEK_ID_1,
+                  activityId: ActivityId['ho_xrd'],
+                  activityPoints: '200.0', // Should be scaled to ~100.0 (200 * 0.5 progress)
+                },
+              ]),
+            );
 
-          const leaderboardCacheService = yield* LeaderboardCacheService;
+            const leaderboardCacheService = yield* LeaderboardCacheService;
 
-          // Populate cache - should apply week progress scaling
-          yield* leaderboardCacheService.populateAll({ weekId: WEEK_ID_1 });
+            // Populate cache
+            yield* leaderboardCacheService.populateAll({ weekId: WEEK_ID_1 });
 
-          // Verify cache contains progress-scaled points
-          const categoryCache = yield* Effect.promise(() =>
-            db
-              .select()
-              .from(categoryLeaderboardCache)
-              .where(
-                and(
-                  eq(categoryLeaderboardCache.weekId, WEEK_ID_1),
-                  eq(
-                    categoryLeaderboardCache.categoryId,
-                    ActivityCategoryId.tradingVolume,
+            // Test tradingVolume category - should bypass week progress scaling
+            const tradingVolumeCache = yield* Effect.promise(() =>
+              db
+                .select()
+                .from(categoryLeaderboardCache)
+                .where(
+                  and(
+                    eq(categoryLeaderboardCache.weekId, WEEK_ID_1),
+                    eq(
+                      categoryLeaderboardCache.categoryId,
+                      ActivityCategoryId.tradingVolume,
+                    ),
                   ),
-                ),
-              )
-              .orderBy(categoryLeaderboardCache.rank),
-          );
+                )
+                .orderBy(categoryLeaderboardCache.rank),
+            );
 
-          expect(categoryCache).toHaveLength(2);
+            expect(tradingVolumeCache).toHaveLength(2);
 
-          // Calculate expected progress: Jan 4 12:00 from Jan 1 00:00 to Jan 8 00:00
-          // This should be 3.5 days / 7 days = 0.5 progress
-          // But let's verify what we actually got and adjust expectations accordingly
-          const actualProgress =
-            Number.parseFloat(categoryCache[0].totalPoints) / 200.0;
+            // tradingVolume should use full values (no scaling)
+            expect(tradingVolumeCache[0].userId).toBe(USER_ID_2);
+            expect(Number.parseFloat(tradingVolumeCache[0].totalPoints)).toBe(
+              200.0,
+            );
+            expect(tradingVolumeCache[0].rank).toBe(1);
 
-          expect(categoryCache[0].userId).toBe(USER_ID_2);
-          expect(actualProgress).toBeGreaterThan(0.4); // At least 40% progress
-          expect(actualProgress).toBeLessThan(0.7); // At most 70% progress
-          expect(categoryCache[0].rank).toBe(1);
+            expect(tradingVolumeCache[1].userId).toBe(USER_ID_1);
+            expect(Number.parseFloat(tradingVolumeCache[1].totalPoints)).toBe(
+              100.0,
+            );
+            expect(tradingVolumeCache[1].rank).toBe(2);
 
-          expect(categoryCache[1].userId).toBe(USER_ID_1);
-          const expectedUser1Points = 100.0 * actualProgress;
-          expect(Number.parseFloat(categoryCache[1].totalPoints)).toBeCloseTo(
-            expectedUser1Points,
-            1,
-          );
-          expect(categoryCache[1].rank).toBe(2);
+            // Test maintainXrdBalance category - should apply week progress scaling
+            const xrdBalanceCache = yield* Effect.promise(() =>
+              db
+                .select()
+                .from(categoryLeaderboardCache)
+                .where(
+                  and(
+                    eq(categoryLeaderboardCache.weekId, WEEK_ID_1),
+                    eq(
+                      categoryLeaderboardCache.categoryId,
+                      ActivityCategoryId.maintainXrdBalance,
+                    ),
+                  ),
+                )
+                .orderBy(categoryLeaderboardCache.rank),
+            );
 
-          // Verify activity breakdown is also scaled by the same progress
-          const expectedUser2ActivityPoints = 200.0 * actualProgress;
-          const expectedUser1ActivityPoints = 100.0 * actualProgress;
-          expect(
-            Number(
-              categoryCache[0].activityBreakdown[ActivityId['c9_tr_xrd-xusdc']],
-            ),
-          ).toBeCloseTo(expectedUser2ActivityPoints, 1);
-          expect(
-            Number(
-              categoryCache[1].activityBreakdown[ActivityId['c9_tr_xrd-xusdc']],
-            ),
-          ).toBeCloseTo(expectedUser1ActivityPoints, 1);
-        } finally {
-          // Restore original Date
-          global.Date = originalDate;
-          global.Date.now = originalDateNow;
-        }
-      }).pipe(Effect.provide(leaderboardCacheServiceLive)),
+            expect(xrdBalanceCache).toHaveLength(2);
+
+            // Calculate expected progress: Jan 4 12:00 from Jan 1 00:00 to Jan 8 00:00
+            // This should be 3.5 days / 7 days = 0.5 progress
+            const actualProgress =
+              Number.parseFloat(xrdBalanceCache[0].totalPoints) / 200.0;
+
+            expect(xrdBalanceCache[0].userId).toBe(USER_ID_2);
+            expect(actualProgress).toBeGreaterThan(0.4); // At least 40% progress
+            expect(actualProgress).toBeLessThan(0.6); // At most 60% progress
+            expect(xrdBalanceCache[0].rank).toBe(1);
+
+            expect(xrdBalanceCache[1].userId).toBe(USER_ID_1);
+            const expectedUser1Points = 100.0 * actualProgress;
+            expect(
+              Number.parseFloat(xrdBalanceCache[1].totalPoints),
+            ).toBeCloseTo(expectedUser1Points, 1);
+            expect(xrdBalanceCache[1].rank).toBe(2);
+          } finally {
+            // Restore original Date
+            global.Date = originalDate;
+            global.Date.now = originalDateNow;
+          }
+        }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
     it.effect(
