@@ -20,6 +20,10 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
   const updateMultiplier = api.week.updateActivityWeekMultiplier.useMutation();
   const updateLowerBoundsPercentage =
     api.week.updateCategoryWeekLowerBoundsPercentage.useMutation();
+  const updateOutlierThresholdPercentage =
+    api.week.updateCategoryWeekOutlierThresholdPercentage.useMutation();
+  const updateEnableOutlierDetection =
+    api.week.updateCategoryWeekEnableOutlierDetection.useMutation();
   const {
     data: seasonData,
     refetch: refetchSeason,
@@ -111,6 +115,44 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
     } catch (error) {
       console.error('Failed to update lower bounds percentage:', error);
       toast.error('Failed to update lower bounds percentage');
+    }
+  };
+
+  const handleUpdateOutlierThresholdPercentage = async (
+    categoryId: string,
+    newOutlierThresholdPercentage: string,
+  ) => {
+    try {
+      await updateOutlierThresholdPercentage.mutateAsync({
+        weekId: params.weekId,
+        activityCategoryId: categoryId,
+        outlierThresholdPercentage: newOutlierThresholdPercentage,
+      });
+      await refetchWeek();
+      toast.success('Outlier threshold percentage updated successfully');
+    } catch (error) {
+      console.error('Failed to update outlier threshold percentage:', error);
+      toast.error('Failed to update outlier threshold percentage');
+    }
+  };
+
+  const handleUpdateEnableOutlierDetection = async (
+    categoryId: string,
+    enableOutlierDetection: boolean,
+  ) => {
+    try {
+      await updateEnableOutlierDetection.mutateAsync({
+        weekId: params.weekId,
+        activityCategoryId: categoryId,
+        enableOutlierDetection: enableOutlierDetection,
+      });
+      await refetchWeek();
+      toast.success(
+        `Outlier detection ${enableOutlierDetection ? 'enabled' : 'disabled'} successfully`
+      );
+    } catch (error) {
+      console.error('Failed to update outlier detection setting:', error);
+      toast.error('Failed to update outlier detection setting');
     }
   };
 
@@ -255,6 +297,8 @@ const WeekPage: FC<WeekPageProps> = ({ params: paramsPromise }) => {
         onUpdatePointsPool={handleUpdatePointsPool}
         onUpdateMultiplier={handleUpdateMultiplier}
         onUpdateLowerBoundsPercentage={handleUpdateLowerBoundsPercentage}
+        onUpdateOutlierThresholdPercentage={handleUpdateOutlierThresholdPercentage}
+        onUpdateEnableOutlierDetection={handleUpdateEnableOutlierDetection}
         onCalculateMultiplier={handleCalculateMultiplier}
       />
     </div>

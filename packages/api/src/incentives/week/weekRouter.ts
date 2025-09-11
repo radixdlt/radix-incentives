@@ -111,6 +111,56 @@ export const weekAdminRouter = createTRPCRouter({
       });
     }),
 
+  updateCategoryWeekOutlierThresholdPercentage: publicProcedure
+    .input(
+      z.object({
+        weekId: z.string(),
+        activityCategoryId: z.string(),
+        outlierThresholdPercentage: z.string(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result =
+        await ctx.dependencyLayer.updateCategoryWeekOutlierThresholdPercentage({
+          weekId: input.weekId,
+          activityCategoryId: input.activityCategoryId,
+          outlierThresholdPercentage: input.outlierThresholdPercentage,
+        });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
+  updateCategoryWeekEnableOutlierDetection: publicProcedure
+    .input(
+      z.object({
+        weekId: z.string(),
+        activityCategoryId: z.string(),
+        enableOutlierDetection: z.boolean(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const result =
+        await ctx.dependencyLayer.updateCategoryWeekEnableOutlierDetection({
+          weekId: input.weekId,
+          activityCategoryId: input.activityCategoryId,
+          enableOutlierDetection: input.enableOutlierDetection,
+        });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
   createWeek: publicProcedure
     .input(
       z.object({
