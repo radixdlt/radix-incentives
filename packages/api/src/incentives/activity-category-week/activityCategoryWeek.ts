@@ -29,6 +29,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                     pointsPool: true,
                     lowerBoundsPercentage: true,
                     outlierThresholdPercentage: true,
+                    enableOutlierDetection: true,
                   },
                 }),
               catch: (error) => new DbError(error),
@@ -80,6 +81,7 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 outlierThresholdPercentage: new BigNumber(
                   categoryWeek.outlierThresholdPercentage,
                 ),
+                enableOutlierDetection: categoryWeek.enableOutlierDetection,
               };
             }),
           );
@@ -141,6 +143,30 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                 .update(activityCategoryWeeks)
                 .set({
                   outlierThresholdPercentage: input.outlierThresholdPercentage,
+                })
+                .where(
+                  and(
+                    eq(activityCategoryWeeks.weekId, input.weekId),
+                    eq(
+                      activityCategoryWeeks.activityCategoryId,
+                      input.activityCategoryId,
+                    ),
+                  ),
+                ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        updateEnableOutlierDetection: Effect.fn(function* (input: {
+          weekId: string;
+          activityCategoryId: string;
+          enableOutlierDetection: boolean;
+        }) {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(activityCategoryWeeks)
+                .set({
+                  enableOutlierDetection: input.enableOutlierDetection,
                 })
                 .where(
                   and(

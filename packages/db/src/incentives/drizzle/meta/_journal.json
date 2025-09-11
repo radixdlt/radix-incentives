@@ -197,6 +197,13 @@
       "when": 1757413185959,
       "tag": "0027_giant_red_skull",
       "breakpoints": true
+    },
+    {
+      "idx": 28,
+      "version": "7",
+      "when": 1757578947320,
+      "tag": "0028_loving_bloodstrike",
+      "breakpoints": true
     }
   ]
 }

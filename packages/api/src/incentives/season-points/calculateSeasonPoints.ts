@@ -231,6 +231,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
                   outlierThresholdPercentage:
                     activityCategory.outlierThresholdPercentage,
+                  enableOutlierDetection: activityCategory.enableOutlierDetection,
                   users: Object.entries(users).map(([userId, points]) => ({
                     userId,
                     points,
@@ -266,12 +267,14 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 `processing ${activityCategory.users.length} users`,
               );
 
-              // first remove outliers from top suppliers
-              const withoutOutliers = yield* detectOutliers(
-                activityCategory.users,
-                activityCategory.outlierThresholdPercentage,
-                activityCategory.categoryId,
-              );
+              // conditionally remove outliers from top suppliers
+              const withoutOutliers = activityCategory.enableOutlierDetection
+                ? yield* detectOutliers(
+                    activityCategory.users,
+                    activityCategory.outlierThresholdPercentage,
+                    activityCategory.categoryId,
+                  )
+                : activityCategory.users;
 
               // then remove users with low activity points using revised set
               const withoutLowerBounds = yield* supplyPercentileTrim(

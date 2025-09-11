@@ -1,0 +1,1 @@
+ALTER TABLE "activity_category_weeks" ADD COLUMN "enable_outlier_detection" boolean DEFAULT true NOT NULL;
