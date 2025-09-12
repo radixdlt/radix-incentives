@@ -288,6 +288,50 @@ export const CaviarNineConstants = {
       token_x: Assets.Fungible.hETH,
       token_y: Assets.Fungible.XRD,
     },
+    HWBTC_XRD: {
+      name: 'HWBTC/XRD',
+      componentAddress:
+        'component_rdx1cpftfjyyyrca5twzsr557at8uka20ynsn5wucy9pe7sgxnrse24m5h',
+      poolAddress:
+        'pool_rdx1ck3ckkse8g2ct0ep4gcymctkfs56ff37lfwlg4w3ehwvgz64evlhf5',
+      lpResourceAddress:
+        'resource_rdx1thzkkqkeye5qzp5p4nweux47v2elz3v693dg6z20q2ayxaxmdjy52h',
+      token_x: Assets.Fungible.hwBTC,
+      token_y: Assets.Fungible.XRD,
+    },
+    HETH_HWBTC: {
+      name: 'HETH/HWBTC',
+      componentAddress:
+        'component_rdx1crm92dlh8clzlgvr3dy06ud3l0ye0p5lvmga7cfq0shjp4l05cjrzf',
+      poolAddress:
+        'pool_rdx1c4wszvdz7nhjhez0ylyykw6pa8uk9d6k3ae53tmenwhj2w92qhe53a',
+      lpResourceAddress:
+        'resource_rdx1tkhvjj3cnkh8qt50dlza6fjdtv37n00dta9lr4mlt2yrd8yj3n7m5l',
+      token_x: Assets.Fungible.hETH,
+      token_y: Assets.Fungible.hwBTC,
+    },
+    HETH_HUSDC: {
+      name: 'HETH/HUSDC',
+      componentAddress:
+        'component_rdx1cq7wwa9p4fpnksd5sw7lav7ayu5xt9e8l0nges6lwnnxyhcrxsc4ff',
+      poolAddress:
+        'pool_rdx1ch73xqzrkl9h8ph6t3870zzd5azg2e8l035sh4supw5m4fx4g5qy7c',
+      lpResourceAddress:
+        'resource_rdx1t5ed9l2gj23esycjwvjk2ylawdkmy272lnu7mt00rvc5kxemd6fh2q',
+      token_x: Assets.Fungible.hETH,
+      token_y: Assets.Fungible.hUSDC,
+    },
+    HWBTC_HUSDC: {
+      name: 'HWBTC/HUSDC',
+      componentAddress:
+        'component_rdx1czs3nlt4vx8rq0qytvxtsxmjvppd29n72quelmvww4kx25ryz5jk0q',
+      poolAddress:
+        'pool_rdx1c49sgm0d82y03kazsqrpsqqchjyvqxnjgfms9g7avvy73fdvrua0vl',
+      lpResourceAddress:
+        'resource_rdx1th9wru7f8grz38apla0kaeelw30zn2da0e30mkzd0cyvzdjkpaewdu',
+      token_x: Assets.Fungible.hwBTC,
+      token_y: Assets.Fungible.hUSDC,
+    },
   },
 } as const;
 
