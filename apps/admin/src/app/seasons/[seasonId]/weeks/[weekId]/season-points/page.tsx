@@ -42,6 +42,7 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
       <Table>
         <TableHeader>
           <TableRow className="border-b">
+            <TableHead className="border-r text-center">#</TableHead>
             <TableHead className="border-r">Username</TableHead>
             <TableHead className="border-r text-right">Multiplier</TableHead>
             <TableHead className="border-r text-right">Season Points</TableHead>
@@ -53,8 +54,11 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
             data
               .filter((user) => user.points.gt(0))
               .sort((a, b) => b.points.minus(a.points).toNumber())
-              .map((user) => (
+              .map((user, index) => (
                 <TableRow key={user.userId} className="border-b">
+                  <TableCell className="border-r text-center font-mono">
+                    {index + 1}
+                  </TableCell>
                   <TableCell className="border-r">
                     <Link
                       href={`/users/${user.userId}`}
@@ -86,7 +90,7 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
               ))
           ) : (
             <TableRow>
-              <TableCell colSpan={4} className="h-24 text-center">
+              <TableCell colSpan={5} className="h-24 text-center">
                 No users with points found.
               </TableCell>
             </TableRow>
@@ -231,6 +235,9 @@ export default function SeasonPointsPage() {
               <Table>
                 <TableHeader>
                   <TableRow>
+                    <TableHead className="text-center">
+                      <div className="mx-auto h-4 w-6 animate-pulse rounded bg-gray-200" />
+                    </TableHead>
                     <TableHead>
                       <div className="h-4 w-24 animate-pulse rounded bg-gray-200" />
                     </TableHead>
@@ -249,6 +256,9 @@ export default function SeasonPointsPage() {
                   {Array.from({ length: 5 }, (_, i) => (
                     // biome-ignore lint/suspicious/noArrayIndexKey: skeleton loading rows are temporary
                     <TableRow key={`skeleton-loading-${i}`}>
+                      <TableCell className="text-center">
+                        <div className="mx-auto h-4 w-6 animate-pulse rounded bg-gray-200" />
+                      </TableCell>
                       <TableCell>
                         <div className="h-4 w-32 animate-pulse rounded bg-gray-200" />
                       </TableCell>
