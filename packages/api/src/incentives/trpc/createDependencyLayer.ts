@@ -568,7 +568,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const dappServiceLive = DappService.Default;
+  const dappServiceLive = DappService.Default.pipe(Layer.provide(dbClientLive));
 
   const getDapps = () => {
     const program = Effect.provide(

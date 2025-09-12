@@ -9,6 +9,7 @@ import {
   LogOut,
   Play,
   Shield,
+  Tags,
   Users,
   Wallet,
 } from 'lucide-react';
@@ -27,6 +28,11 @@ const navigationItems = [
     title: 'Activities',
     href: '/activities',
     icon: <Activity className="h-5 w-5" />,
+  },
+  {
+    title: 'Activity Categories',
+    href: '/activity-categories',
+    icon: <Tags className="h-5 w-5" />,
   },
   {
     title: 'Notifications',

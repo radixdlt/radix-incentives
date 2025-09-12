@@ -1,0 +1,1 @@
+ALTER TABLE "activity_categories" ADD COLUMN "show_on_earn_page" boolean DEFAULT true NOT NULL;

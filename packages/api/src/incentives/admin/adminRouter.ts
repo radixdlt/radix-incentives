@@ -6,15 +6,24 @@ import {
   accountBalances,
   accounts,
   activities,
+  activityCategories,
+  activityCategoryWeeks,
+  dapps,
   db,
   seasonPointsMultiplier,
   user,
   userSeasonPoints,
+  weeks,
 } from 'db/incentives';
 import { and, count, desc, eq, inArray, lte, sql, sum } from 'drizzle-orm';
 import { Exit } from 'effect';
 import { groupBy } from 'effect/Array';
 import { z } from 'zod';
+import {
+  CreateActivityCategorySchema,
+  UpdateActivityCategorySchema,
+} from '../activity-category/activityCategory';
+import { CreateDappSchema, UpdateDappSchema } from '../dapp/dapp';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import {
   seasonPointsMultiplierJobSchema,
@@ -421,4 +430,280 @@ export const adminRouter = createTRPCRouter({
         });
       }),
   },
+
+  // Activity Categories Management
+  getActivityCategories: publicProcedure.query(async () => {
+    const categoriesData = await db.select().from(activityCategories);
+
+    const categoriesWithDapps = await Promise.all(
+      categoriesData.map(async (category) => {
+        const dappIds = (category.dappIds as string[]) || [];
+        let relatedDapps = [];
+
+        if (dappIds.length > 0) {
+          relatedDapps = await db
+            .select()
+            .from(dapps)
+            .where(inArray(dapps.id, dappIds));
+        }
+
+        return {
+          id: category.id,
+          name: category.name,
+          description: category.description,
+          multiplier: category.multiplier || false,
+          dappIds,
+          showOnEarnPage: category.showOnEarnPage || true,
+          dapps: relatedDapps,
+        };
+      }),
+    );
+
+    return categoriesWithDapps;
+  }),
+
+  createActivityCategory: publicProcedure
+    .input(CreateActivityCategorySchema)
+    .mutation(async ({ input }) => {
+      try {
+        const result = await db
+          .insert(activityCategories)
+          .values({
+            id: input.id,
+            name: input.name,
+            description: input.description,
+            multiplier: input.multiplier,
+            dappIds: input.dappIds,
+            showOnEarnPage: input.showOnEarnPage,
+          })
+          .returning();
+
+        return result[0];
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create activity category',
+        });
+      }
+    }),
+
+  updateActivityCategory: publicProcedure
+    .input(UpdateActivityCategorySchema)
+    .mutation(async ({ input }) => {
+      try {
+        const result = await db
+          .update(activityCategories)
+          .set({
+            name: input.name,
+            description: input.description,
+            multiplier: input.multiplier,
+            dappIds: input.dappIds,
+            showOnEarnPage: input.showOnEarnPage,
+          })
+          .where(eq(activityCategories.id, input.id))
+          .returning();
+
+        if (result.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Activity category not found',
+          });
+        }
+
+        return result[0];
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update activity category',
+        });
+      }
+    }),
+
+  deleteActivityCategory: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await db
+          .delete(activityCategories)
+          .where(eq(activityCategories.id, input.id))
+          .returning();
+
+        if (result.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'Activity category not found',
+          });
+        }
+
+        return result[0];
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete activity category',
+        });
+      }
+    }),
+
+  // Earn Page Data with Current Week SP
+  getEarnPageCategories: publicProcedure.query(async () => {
+    try {
+      // First, get the current active week (most recent week)
+      const currentWeek = await db
+        .select({ id: weeks.id })
+        .from(weeks)
+        .orderBy(desc(weeks.startDate))
+        .limit(1);
+
+      if (currentWeek.length === 0) {
+        return [];
+      }
+
+      const currentWeekId = currentWeek[0].id;
+
+      // Get all categories that should be shown on earn page
+      const categoriesData = await db
+        .select()
+        .from(activityCategories)
+        .where(eq(activityCategories.showOnEarnPage, true));
+
+      // Get SP allocations for current week
+      const spAllocations = await db
+        .select({
+          activityCategoryId: activityCategoryWeeks.activityCategoryId,
+          pointsPool: activityCategoryWeeks.pointsPool,
+        })
+        .from(activityCategoryWeeks)
+        .where(eq(activityCategoryWeeks.weekId, currentWeekId));
+
+      const spAllocationMap = new Map(
+        spAllocations.map((alloc) => [
+          alloc.activityCategoryId,
+          alloc.pointsPool,
+        ]),
+      );
+
+      // Get related dApps for each category
+      const categoriesWithData = await Promise.all(
+        categoriesData.map(async (category) => {
+          const dappIds = (category.dappIds as string[]) || [];
+          let relatedDapps = [];
+
+          if (dappIds.length > 0) {
+            relatedDapps = await db
+              .select()
+              .from(dapps)
+              .where(inArray(dapps.id, dappIds));
+          }
+
+          return {
+            id: category.id,
+            name: category.name,
+            description: category.description,
+            multiplier: category.multiplier || false,
+            dappIds,
+            showOnEarnPage: category.showOnEarnPage || true,
+            seasonPointsPerWeek: spAllocationMap.get(category.id) || 0,
+            dapps: relatedDapps,
+          };
+        }),
+      );
+
+      return categoriesWithData;
+    } catch (error) {
+      console.error(error);
+      throw new TRPCError({
+        code: 'INTERNAL_SERVER_ERROR',
+        message: 'Failed to fetch earn page categories',
+      });
+    }
+  }),
+
+  // DApps Management
+  getDapps: publicProcedure.query(async () => {
+    return await db.select().from(dapps);
+  }),
+
+  createDapp: publicProcedure
+    .input(CreateDappSchema)
+    .mutation(async ({ input }) => {
+      try {
+        const result = await db
+          .insert(dapps)
+          .values({
+            id: input.id,
+            name: input.name,
+            website: input.website,
+            logoFileName: input.logoFileName || null,
+          })
+          .returning();
+
+        return result[0];
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to create dapp',
+        });
+      }
+    }),
+
+  updateDapp: publicProcedure
+    .input(UpdateDappSchema)
+    .mutation(async ({ input }) => {
+      try {
+        const result = await db
+          .update(dapps)
+          .set({
+            name: input.name,
+            website: input.website,
+            logoFileName: input.logoFileName || null,
+          })
+          .where(eq(dapps.id, input.id))
+          .returning();
+
+        if (result.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'DApp not found',
+          });
+        }
+
+        return result[0];
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to update dapp',
+        });
+      }
+    }),
+
+  deleteDapp: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const result = await db
+          .delete(dapps)
+          .where(eq(dapps.id, input.id))
+          .returning();
+
+        if (result.length === 0) {
+          throw new TRPCError({
+            code: 'NOT_FOUND',
+            message: 'DApp not found',
+          });
+        }
+
+        return result[0];
+      } catch (error) {
+        console.error(error);
+        throw new TRPCError({
+          code: 'INTERNAL_SERVER_ERROR',
+          message: 'Failed to delete dapp',
+        });
+      }
+    }),
 });

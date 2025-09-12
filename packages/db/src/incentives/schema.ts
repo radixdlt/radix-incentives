@@ -159,13 +159,25 @@ export const activityCategories = createTable('activity_categories', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
+  multiplier: boolean('multiplier').notNull().default(false),
+  dappIds: jsonb('dapp_ids').$defaultFn(() => []),
+  showOnEarnPage: boolean('show_on_earn_page').notNull().default(true),
 });
 
 export const dapps = createTable('dapp', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   website: text('website').notNull(),
+  logoFileName: text('logo_file_name'),
 });
+
+export const activityCategoriesRelations = relations(
+  activityCategories,
+  ({ many }) => ({
+    activities: many(activities),
+    activityCategoryWeeks: many(activityCategoryWeeks),
+  }),
+);
 
 export const dappsRelations = relations(dapps, ({ many }) => ({
   activities: many(activities),
@@ -579,6 +591,7 @@ export type ActivityCategory = Omit<
 > & {
   id: ActivityCategoryId;
 };
+export type Dapp = InferSelectModel<typeof dapps>;
 export type NewActivity = typeof activities.$inferInsert;
 export type Activity = Omit<
   InferSelectModel<typeof activities>,

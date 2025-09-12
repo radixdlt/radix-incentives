@@ -1,26 +1,16 @@
 'use client';
 import { api, type RouterOutputs } from '~/trpc/react';
 import { ActivityCardSkeleton } from './advanced/components';
-import { easyViewData } from './advanced/data/easyViewData';
-import { ActivityCardEasy } from './components/ActivityCardEasy';
+import { ActivityCardDynamic } from './components/ActivityCardDynamic';
 
 type ActivityCategory =
   RouterOutputs['activity']['getActivityCategories'][number];
 
 export default function EarnPage() {
-  const { data: activityCategories, isLoading } =
-    api.activity.getActivityCategories.useQuery();
+  const { data: earnPageCategories, isLoading: categoriesLoading } =
+    api.activity.getEarnPageCategories.useQuery();
 
-  const activityCategoryMap =
-    activityCategories?.reduce<Record<string, ActivityCategory>>(
-      (acc, category) => {
-        acc[category.id] = category;
-        return acc;
-      },
-      {},
-    ) ?? {};
-
-  if (isLoading)
+  if (categoriesLoading)
     return (
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         <ActivityCardSkeleton key="skeleton-1" />
@@ -31,15 +21,12 @@ export default function EarnPage() {
         <ActivityCardSkeleton key="skeleton-6" />
       </div>
     );
+
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {easyViewData.map((activity) => (
-        <ActivityCardEasy
-          key={activity.id}
-          activity={activity}
-          activityCategoryMap={activityCategoryMap}
-        />
-      ))}
+      {earnPageCategories?.map((category) => (
+        <ActivityCardDynamic key={category.id} category={category} />
+      )) ?? []}
     </div>
   );
 }
