@@ -38,7 +38,7 @@ export const easyViewData: EasyViewData[] = [
     dapp: '',
     component_addresses: '',
     AP: true,
-    multiplier: false,
+    multiplier: true,
     seasonPointsPerWeek: 500000,
     dappLogos: [
       {
@@ -96,7 +96,7 @@ export const easyViewData: EasyViewData[] = [
     dapp: '',
     component_addresses: '',
     AP: true,
-    multiplier: false,
+    multiplier: true,
     seasonPointsPerWeek: 100000,
     dappLogos: [
       {
@@ -160,7 +160,7 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
-    seasonPointsPerWeek: 100000,
+    seasonPointsPerWeek: 500000,
     dappLogos: [
       {
         name: 'CaviarNine',
@@ -271,6 +271,6 @@ export const easyViewData: EasyViewData[] = [
     component_addresses: '',
     AP: true,
     multiplier: false,
-    seasonPointsPerWeek: 100000,
+    seasonPointsPerWeek: 500000,
   },
 ];
