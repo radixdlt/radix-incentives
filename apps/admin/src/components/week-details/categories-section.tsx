@@ -236,7 +236,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                   {/* Configuration items on second row */}
                   <div className="flex flex-wrap items-center gap-4">
                     {editingOutlierThreshold === category.categoryId ? (
-                      <div className="flex items-center gap-1">
+                      <div
+                        className={`flex items-center gap-1 ${
+                          !category.enableOutlierDetection ? 'opacity-50' : ''
+                        }`}
+                      >
                         <span className="text-muted-foreground text-sm">
                           Outlier Threshold:
                         </span>
@@ -248,6 +252,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                           }
                           className="h-8 w-20 text-sm"
                           onClick={(e) => e.stopPropagation()}
+                          disabled={!category.enableOutlierDetection}
                           onKeyDown={(e) => {
                             e.stopPropagation();
                             if (e.key === 'Enter') {
@@ -261,6 +266,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                           size="sm"
                           variant="ghost"
                           className="h-8 w-8 p-0"
+                          disabled={!category.enableOutlierDetection}
                           onClick={(e) => {
                             e.stopPropagation();
                             saveOutlierThreshold(category.categoryId);
@@ -281,7 +287,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                         </Button>
                       </div>
                     ) : (
-                      <div className="flex items-center gap-1">
+                      <div
+                        className={`flex items-center gap-1 ${
+                          !category.enableOutlierDetection ? 'opacity-50' : ''
+                        }`}
+                      >
                         <span className="text-muted-foreground text-sm">
                           Outlier Threshold:{' '}
                           {category.outlierThresholdPercentage?.toString() ||
@@ -293,6 +303,7 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                               size="sm"
                               variant="outline"
                               className="h-8 w-8 p-0"
+                              disabled={!category.enableOutlierDetection}
                               onClick={(e) => {
                                 e.stopPropagation();
                                 startEditingOutlierThreshold(
