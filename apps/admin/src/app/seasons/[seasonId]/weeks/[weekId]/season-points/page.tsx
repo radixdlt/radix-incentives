@@ -143,13 +143,13 @@ export default function SeasonPointsPage() {
     });
 
   const handleDownloadSeasonPoints = () => {
-    if (!seasonPoints || seasonPoints.length === 0) {
-      toast.error('No season points data to download');
+    if (!calculationResult || calculationResult.length === 0) {
+      toast.error('No calculation results to download');
       return;
     }
 
     // Transform the data for CSV export
-    const csvData = seasonPoints
+    const csvData = calculationResult
       .filter((user) => user.points.gt(0))
       .sort((a, b) => b.points.minus(a.points).toNumber())
       .map((user) => ({
@@ -159,8 +159,8 @@ export default function SeasonPointsPage() {
         seasonPoints: user.points.toFixed(2),
       }));
 
-    downloadCSV(csvData, `season-points-week-${params.weekId}.csv`);
-    toast.success('Season points data downloaded successfully');
+    downloadCSV(csvData, `season-points-calculation-week-${params.weekId}.csv`);
+    toast.success('Season points calculation data downloaded successfully');
   };
 
   const handleDownloadActivityData = () => {
@@ -303,27 +303,30 @@ export default function SeasonPointsPage() {
           </div>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownloadSeasonPoints}
-            disabled={!seasonPoints || seasonPoints.length === 0}
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Season Points CSV
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownloadActivityData}
-            disabled={
-              !weekData?.activityCategories ||
-              weekData.activityCategories.length === 0
-            }
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Activity Data CSV
-          </Button>
+          {calculationResult && calculationResult.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadSeasonPoints}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download Calculation Results
+            </Button>
+          )}
+          {calculationResult && calculationResult.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadActivityData}
+              disabled={
+                !weekData?.activityCategories ||
+                weekData.activityCategories.length === 0
+              }
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Activity Data CSV
+            </Button>
+          )}
           <Button
             onClick={() => calculateSeasonPoints({ weekId: params.weekId })}
             disabled={isCalculating}
