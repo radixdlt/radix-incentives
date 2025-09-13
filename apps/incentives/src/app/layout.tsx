@@ -1,7 +1,7 @@
 import '~/styles/globals.css';
 
 import type { Metadata } from 'next';
-import { Geist } from 'next/font/google';
+import { Space_Grotesk } from 'next/font/google';
 
 import { Toaster } from 'sonner';
 import { RadixDappToolkitProvider } from '~/lib/providers/rdtProvider';
@@ -13,16 +13,16 @@ export const metadata: Metadata = {
   icons: [{ rel: 'icon', url: '/favicon.png' }],
 };
 
-const geist = Geist({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
-  variable: '--font-geist-sans',
+  variable: '--font-space-grotesk',
 });
 
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className={geist.variable}>
+    <html lang="en" className={spaceGrotesk.variable}>
       <head>
         <meta name="color-scheme" content="dark light" />
       </head>

@@ -63,7 +63,7 @@ export class ActivityCategoryService extends Effect.Service<ActivityCategoryServ
               const categoriesWithDapps = await Promise.all(
                 categoriesData.map(async (category) => {
                   const dappIds = (category.dappIds as string[]) || [];
-                  let relatedDapps = [];
+                  let relatedDapps: any[] = [];
 
                   if (dappIds.length > 0) {
                     relatedDapps = await db
@@ -103,7 +103,7 @@ export class ActivityCategoryService extends Effect.Service<ActivityCategoryServ
               if (!categoryData) return null;
 
               const dappIds = (categoryData.dappIds as string[]) || [];
-              let relatedDapps = [];
+              let relatedDapps: any[] = [];
 
               if (dappIds.length > 0) {
                 relatedDapps = await db

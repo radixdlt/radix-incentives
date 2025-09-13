@@ -1,14 +1,20 @@
 'use client';
 
-import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
+import {
+  Clock,
+  DollarSign,
+  MoveUpRight,
+  Trophy,
+  Wallet,
+  Zap,
+} from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { MetricCard } from '~/components/dashboard';
-import { WeekSelector } from '~/components/dashboard/WeekSelector';
 import { EmptyState } from '~/components/ui/empty-state';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { getNextUpdateTime } from '~/lib/utils';
 import { api } from '~/trpc/react';
-import { CategoryBreakdown } from './components/category-breakdown';
+import { EnhancedCategoryBreakdown } from './components/enhanced-category-breakdown';
 
 const NextUpdateNotification = () => {
   const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
@@ -41,7 +47,7 @@ const NextUpdateNotification = () => {
 export default function DashboardPage() {
   const persona = usePersona();
 
-  const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
+  const [currentWeek, setCurrentWeek] = useState<string | null>(null);
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
@@ -53,38 +59,50 @@ export default function DashboardPage() {
     refetchOnMount: true,
   });
 
-  // Set default selected week to the most recent week when weeks data is loaded
+  // Set current week to the most recent week when weeks data is loaded
   useEffect(() => {
-    if (weeks.data && weeks.data.length > 0 && !selectedWeek) {
+    if (weeks.data && weeks.data.length > 0 && !currentWeek) {
       // Sort weeks by start date descending and select the most recent
       const sortedWeeks = [...weeks.data].sort(
         (a, b) =>
           new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
       );
       if (sortedWeeks[0]) {
-        setSelectedWeek(sortedWeeks[0].id);
+        setCurrentWeek(sortedWeeks[0].id);
       }
     }
-  }, [weeks.data, selectedWeek]);
+  }, [weeks.data, currentWeek]);
 
   const userStats = api.user.getUserStats.useQuery(
-    { weekId: selectedWeek ?? '' },
+    { weekId: currentWeek ?? '' },
     {
       refetchOnMount: true,
-      enabled:
-        accounts.isSuccess && accounts.data?.length > 0 && !!selectedWeek,
+      enabled: accounts.isSuccess && accounts.data?.length > 0 && !!currentWeek,
       retry: false,
     },
   );
 
   // Get category breakdown to calculate total from cache
   const categoryData = api.user.getUserCategoryBreakdown.useQuery(
-    { weekId: selectedWeek ?? '' },
+    { weekId: currentWeek ?? '' },
     {
-      enabled: !!persona && !!selectedWeek,
+      enabled: !!persona && !!currentWeek,
       retry: false,
     },
   );
+
+  // Get categories with user investment data
+  const categoriesWithUserData =
+    api.activity.getEarnPageCategoriesWithUserData.useQuery(undefined, {
+      enabled: !!persona,
+      retry: false,
+    });
+
+  // Get all-time SP data (mock for now - would need proper API)
+  // const allTimeSeasonPoints = api.user.getAllTimeSeasonPoints.useQuery(undefined, {
+  //   enabled: !!persona,
+  //   retry: false,
+  // });
 
   if (accounts.isLoading || weeks.isLoading) {
     return (
@@ -122,55 +140,65 @@ export default function DashboardPage() {
       0,
     ) ?? 0;
 
-  // Check if the selected week is completed
-  const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
-  const isWeekCompleted = selectedWeekData
-    ? new Date(selectedWeekData.endDate) < new Date()
+  // Calculate total investment across all categories
+  const totalInvestment =
+    categoriesWithUserData.data?.reduce(
+      (total, category) => total + (category.userInvestment || 0),
+      0,
+    ) ?? 0;
+
+  // Mock all-time SP data (would come from proper API)
+  const allTimeSeasonPoints = latestWeeklyPoints * 4; // Mock: assume 4x current week
+
+  // Check if the current week is completed
+  const currentWeekData = weeks.data?.find((week) => week.id === currentWeek);
+  const _isWeekCompleted = currentWeekData
+    ? new Date(currentWeekData.endDate) < new Date()
     : false;
 
   return (
     <div className="space-y-6">
       <NextUpdateNotification />
 
-      {weeks.data && (
-        <WeekSelector
-          weeks={weeks.data}
-          selectedWeek={selectedWeek}
-          onWeekChange={setSelectedWeek}
-        />
-      )}
-
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          title={
-            isWeekCompleted
-              ? 'Activity Points Earned'
-              : 'Activity Points Earned So Far'
-          }
+          title="Activity Points"
           value={latestWeeklyPoints.toLocaleString()}
           icon={MoveUpRight}
-          description={
-            isWeekCompleted
-              ? 'Activity Points earned this week'
-              : 'Activity Points earned so far this week'
-          }
+          description="For this week"
           iconColor="text-green-500"
         />
 
         <MetricCard
-          title="Multiplier"
+          title="Tracked Capital"
+          value={`$${totalInvestment.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+          icon={DollarSign}
+          description="Tracked capital deployed in DeFi"
+          iconColor="text-blue-500"
+        />
+
+        <MetricCard
+          title="Season Points"
+          value={allTimeSeasonPoints.toLocaleString()}
+          icon={Trophy}
+          description="Season Points earned in current season"
+          iconColor="text-purple-500"
+        />
+
+        <MetricCard
+          title="SP Multiplier"
           value={
             userStats.data?.multiplier?.value
               ? Number(userStats.data.multiplier.value).toLocaleString()
               : '0'
           }
           icon={Zap}
-          description="Current points multiplier"
+          description="Season Point multiplier"
           iconColor="text-amber-500"
         />
       </div>
 
-      {selectedWeek && <CategoryBreakdown weekId={selectedWeek} />}
+      {currentWeek && <EnhancedCategoryBreakdown weekId={currentWeek} />}
     </div>
   );
 }

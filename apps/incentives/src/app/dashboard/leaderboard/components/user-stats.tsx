@@ -1,4 +1,4 @@
-import { StackedProgressBar } from '~/components/ui/stacked-progress-bar';
+import { SimpleCategoryBreakdown } from './simple-category-breakdown';
 
 interface UserStatsProps {
   stats: {
@@ -185,18 +185,16 @@ export function UserStats({
 
       {/* Sub-Activities Breakdown (for category leaderboard) */}
       {stats?.activityBreakdown && stats.activityBreakdown.length > 0 && (
-        <div className="space-y-4">
-          <StackedProgressBar
-            items={stats.activityBreakdown.map((activity) => ({
-              id: activity.activityId,
-              name: activity.activityName || activity.activityId,
-              value: Number.parseFloat(activity.points),
-            }))}
-            title="Your Sub-Activities"
-            formatValue={(value) => formatPoints(value.toString())}
-            valueSuffix=" AP"
-          />
-        </div>
+        <SimpleCategoryBreakdown
+          items={stats.activityBreakdown.map((activity) => ({
+            id: activity.activityId,
+            name: activity.activityName || activity.activityId,
+            value: Number.parseFloat(activity.points),
+          }))}
+          title="Your Sub-Activities"
+          formatValue={(value) => formatPoints(value.toString())}
+          valueSuffix=" AP"
+        />
       )}
     </div>
   );
