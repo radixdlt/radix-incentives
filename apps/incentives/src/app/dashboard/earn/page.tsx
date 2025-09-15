@@ -1,24 +1,11 @@
 'use client';
-import { api, type RouterOutputs } from '~/trpc/react';
+import { api } from '~/trpc/react';
 import { ActivityCardSkeleton } from './advanced/components';
-import { easyViewData } from './advanced/data/easyViewData';
 import { ActivityCardEasy } from './components/ActivityCardEasy';
 
-type ActivityCategory =
-  RouterOutputs['activity']['getActivityCategories'][number];
-
 export default function EarnPage() {
-  const { data: activityCategories, isLoading } =
-    api.activity.getActivityCategories.useQuery();
-
-  const activityCategoryMap =
-    activityCategories?.reduce<Record<string, ActivityCategory>>(
-      (acc, category) => {
-        acc[category.id] = category;
-        return acc;
-      },
-      {},
-    ) ?? {};
+  const { data: earnPageData, isLoading } =
+    api.activityCategory.getEarnPageData.useQuery();
 
   if (isLoading)
     return (
@@ -33,11 +20,28 @@ export default function EarnPage() {
     );
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {easyViewData.map((activity) => (
+      {earnPageData?.map((category) => (
         <ActivityCardEasy
-          key={activity.id}
-          activity={activity}
-          activityCategoryMap={activityCategoryMap}
+          key={category.id}
+          activity={{
+            id: category.id,
+            name: category.name,
+            description: category.description || '',
+            dapp: '',
+            component_addresses: '',
+            AP:
+              (typeof category.seasonPointsPerWeek === 'number'
+                ? category.seasonPointsPerWeek
+                : Number(category.seasonPointsPerWeek)) > 0,
+            multiplier: category.multiplier ?? false,
+            seasonPointsPerWeek:
+              typeof category.seasonPointsPerWeek === 'number'
+                ? category.seasonPointsPerWeek
+                : Number(category.seasonPointsPerWeek),
+            icon: category.icon || undefined,
+            color: category.color || undefined,
+            dappLogos: category.dappLogos,
+          }}
         />
       ))}
     </div>

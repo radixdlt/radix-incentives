@@ -1,4 +1,3 @@
-import type { ActivityCategory } from 'api/incentives';
 import {
   Coins,
   CreditCard,
@@ -20,61 +19,43 @@ import {
   CardTitle,
 } from '~/components/ui/card';
 import { cn } from '~/lib/utils';
-import type { EasyViewData } from '../advanced/data/easyViewData';
 
-export const ActivityCardEasy = ({
-  activity,
-  activityCategoryMap,
-}: {
-  activity: EasyViewData;
-  activityCategoryMap: Record<string, ActivityCategory>;
-}) => {
-  const activityCategory = activityCategoryMap[activity.category];
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'lendingStables':
-        return <Coins className="h-5 w-5" />;
-      case 'maintainXrdBalance':
-        return <Wallet className="h-5 w-5" />;
-      case 'provideBlueChipLiquidityToDex':
-        return <Droplet className="h-5 w-5" />;
-      case 'provideNativeLiquidityToDex':
-        return <Droplet className="h-5 w-5" />;
-      case 'provideStablesLiquidityToDex':
-        return <Droplet className="h-5 w-5" />;
-      case 'tradingVolume':
-        return <TrendingUp className="h-5 w-5" />;
-      case 'transactionFees':
-        return <CreditCard className="h-5 w-5" />;
-      case 'componentCalls':
-        return <Settings className="h-5 w-5" />;
-      default:
-        return <FileText className="h-5 w-5" />;
-    }
-  };
+const iconMap = {
+  Coins,
+  CreditCard,
+  Droplet,
+  FileText,
+  Settings,
+  TrendingUp,
+  Wallet,
+} as const;
 
-  const getCategoryColor = (category: string) => {
-    switch (category) {
-      case 'lendingStables':
-        return 'bg-green-500/10 text-green-600';
-      case 'maintainXrdBalance':
-        return 'bg-blue-500/10 text-blue-600';
-      case 'provideBlueChipLiquidityToDex':
-        return 'bg-purple-500/10 text-purple-600';
-      case 'provideNativeLiquidityToDex':
-        return 'bg-cyan-500/10 text-cyan-600';
-      case 'provideStablesLiquidityToDex':
-        return 'bg-emerald-500/10 text-emerald-600';
-      case 'tradingVolume':
-        return 'bg-orange-500/10 text-orange-600';
-      case 'transactionFees':
-        return 'bg-red-500/10 text-red-600';
-      case 'componentCalls':
-        return 'bg-gray-500/10 text-gray-600';
-      default:
-        return 'bg-slate-500/10 text-slate-600';
-    }
-  };
+const getIcon = (iconName?: string) => {
+  if (!iconName) return FileText;
+  return iconMap[iconName as keyof typeof iconMap] || FileText;
+};
+
+type EasyViewData = {
+  id: string;
+  name: string;
+  description: string;
+  dapp: string;
+  component_addresses: string;
+  AP: boolean;
+  multiplier: boolean;
+  seasonPointsPerWeek?: number;
+  icon?: string;
+  color?: string;
+  dappLogos?: {
+    name: string;
+    logoPath: string;
+    websiteUrl: string;
+  }[];
+};
+
+export const ActivityCardEasy = ({ activity }: { activity: EasyViewData }) => {
+  const IconComponent = getIcon(activity.icon);
+  const colorClasses = activity.color || 'bg-primary/10 text-primary';
 
   return (
     <Card
@@ -86,13 +67,8 @@ export const ActivityCardEasy = ({
       <CardHeader className="pb-4">
         <div className="flex items-start justify-between">
           <div className="flex items-center gap-3">
-            <div
-              className={cn(
-                'rounded-lg p-2',
-                getCategoryColor(activity.category),
-              )}
-            >
-              {getCategoryIcon(activity.category)}
+            <div className={cn('rounded-lg p-2', colorClasses)}>
+              <IconComponent className="h-5 w-5" />
             </div>
             <div>
               <CardTitle className="text-lg">
@@ -112,11 +88,13 @@ export const ActivityCardEasy = ({
               Multiplier
             </Badge>
           )}
-          {activity.seasonPointsPerWeek && (
-            <Badge variant="outline" className="text-xs">
-              {(activity.seasonPointsPerWeek / 1000).toLocaleString()}k SP/week
-            </Badge>
-          )}
+          {activity.seasonPointsPerWeek != null &&
+            activity.seasonPointsPerWeek > 0 && (
+              <Badge variant="outline" className="text-xs">
+                {(activity.seasonPointsPerWeek / 1000).toLocaleString()}k
+                SP/week
+              </Badge>
+            )}
         </div>
       </CardHeader>
 
@@ -124,21 +102,14 @@ export const ActivityCardEasy = ({
         <CardDescription className="text-sm">
           {activity.description}
         </CardDescription>
-
-        <div>
-          <h4 className="mb-2 font-medium text-foreground text-sm">
-            Category:
-          </h4>
-          <p className="text-muted-foreground text-xs">
-            {activityCategory?.name}
-          </p>
-        </div>
       </CardContent>
 
       {activity.dappLogos && activity.dappLogos.length > 0 && (
         <CardFooter className="pt-3">
-          <div className="flex w-full items-center justify-between">
-            <span className="text-muted-foreground text-xs">Available on:</span>
+          <div className="flex items-center gap-3">
+            <span className="text-muted-foreground text-xs">
+              Visit to earn:
+            </span>
             <div className="flex gap-2">
               {activity.dappLogos.map((dappLogo) => (
                 <a
