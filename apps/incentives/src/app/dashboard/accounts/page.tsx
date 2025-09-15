@@ -80,12 +80,12 @@ function ParticipationInstructions() {
 }
 
 export default function AccountsPage() {
-  const persona = usePersona();
+  const { persona, isInitialized } = usePersona();
   const rdt = useDappToolkit();
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
-    enabled: !!persona,
+    enabled: isInitialized && !!persona,
     retry: false,
   });
 

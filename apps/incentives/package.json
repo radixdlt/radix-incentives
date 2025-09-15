@@ -25,6 +25,7 @@
 		"@radix-ui/react-select": "^2.1.6",
 		"@radix-ui/react-separator": "^1.0.3",
 		"@radix-ui/react-slot": "^1.2.0",
+		"@radix-ui/react-tooltip": "^1.2.8",
 		"@radixdlt/radix-dapp-toolkit": "^2.2.1",
 		"@t3-oss/env-nextjs": "catalog:",
 		"@tanstack/react-query": "catalog:",

@@ -5,24 +5,48 @@ import {
 import SuperJSON from 'superjson';
 
 const getStaleTimeForQuery = (queryKey: unknown[]): number => {
-  // Check if this is a tRPC query key structure: [["leaderboard", "method"], input]
+  // Check if this is a tRPC query key structure: [["routerName", "method"], input]
   const trpcKey = queryKey[0];
-  if (Array.isArray(trpcKey) && trpcKey[0] === 'leaderboard') {
+  if (Array.isArray(trpcKey)) {
+    const routerName = trpcKey[0];
     const method = trpcKey[1];
 
-    if (
-      method === 'getAvailableSeasons' ||
-      method === 'getAvailableWeeks' ||
-      method === 'getAvailableCategories'
-    ) {
+    // User queries - long cache time since they're invalidated on persona changes
+    if (routerName === 'user') {
+      if (
+        method === 'getUserCapitalAtWork' ||
+        method === 'getMultiplierByUserId' ||
+        method === 'getUserCategoryBreakdown'
+      ) {
+        return 10 * 60 * 1000; // 10 minutes
+      }
+    }
+
+    // Week and activity category queries - semi-static data
+    if (routerName === 'week' && method === 'getWeeks') {
       return 5 * 60 * 1000; // 5 minutes
     }
 
-    if (
-      method === 'getSeasonLeaderboard' ||
-      method === 'getActivityCategoryLeaderboard'
-    ) {
-      return 2 * 60 * 1000; // 2 minutes
+    if (routerName === 'activityCategory' && method === 'getEarnPageData') {
+      return 5 * 60 * 1000; // 5 minutes
+    }
+
+    // Leaderboard queries
+    if (routerName === 'leaderboard') {
+      if (
+        method === 'getAvailableSeasons' ||
+        method === 'getAvailableWeeks' ||
+        method === 'getAvailableCategories'
+      ) {
+        return 5 * 60 * 1000; // 5 minutes
+      }
+
+      if (
+        method === 'getSeasonLeaderboard' ||
+        method === 'getActivityCategoryLeaderboard'
+      ) {
+        return 2 * 60 * 1000; // 2 minutes
+      }
     }
   }
 

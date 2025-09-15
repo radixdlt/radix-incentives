@@ -1,3 +1,4 @@
+import { activityData, dappsData } from 'data';
 import { activities, type NewActivity } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
@@ -95,6 +96,53 @@ export class ActivityService extends Effect.Service<ActivityService>()(
             },
             catch: (error) => new DbError(error),
           });
+        }),
+        getDappForActivities: Effect.fn(function* (activityIds: string[]) {
+          const result = new Map<string, (typeof dappsData)[0] | null>();
+
+          for (const activityId of activityIds) {
+            const activity = activityData.find(
+              (a) => a.activityId === activityId,
+            );
+
+            if (!activity) {
+              result.set(activityId, null);
+              continue;
+            }
+
+            const dapp = dappsData.find((dapp) => dapp.id === activity.dAppId);
+            result.set(activityId, dapp || null);
+          }
+
+          return result;
+        }),
+        getActivityToCategoryMap: Effect.fn(function* () {
+          return new Map(
+            activityData.map((activity) => [
+              activity.activityId,
+              activity.categoryId,
+            ]),
+          );
+        }),
+        getCategoriesWithActiveActivities: Effect.fn(function* (
+          activeActivityIds: string[],
+        ) {
+          const activityToCategoryMap = new Map(
+            activityData.map((activity) => [
+              activity.activityId,
+              activity.categoryId,
+            ]),
+          );
+          const categoriesWithActiveActivities = new Set<string>();
+
+          for (const activityId of activeActivityIds) {
+            const categoryId = activityToCategoryMap.get(activityId);
+            if (categoryId) {
+              categoriesWithActiveActivities.add(categoryId);
+            }
+          }
+
+          return categoriesWithActiveActivities;
         }),
       };
     }),

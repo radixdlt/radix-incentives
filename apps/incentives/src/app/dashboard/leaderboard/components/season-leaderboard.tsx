@@ -12,7 +12,7 @@ import { WeekInProgressState } from './week-in-progress-state';
 
 export function SeasonLeaderboard() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');
-  const persona = usePersona();
+  const { persona, isInitialized } = usePersona();
   const utils = api.useUtils();
 
   // Fetch available seasons
@@ -28,7 +28,7 @@ export function SeasonLeaderboard() {
   const { data: referralStats, isLoading: referralStatsLoading } =
     api.user.getUserReferralStats.useQuery(
       { seasonId: selectedSeasonId },
-      { enabled: !!selectedSeasonId },
+      { enabled: isInitialized && !!persona && !!selectedSeasonId },
     );
 
   // Set default season when seasons load and prefetch other seasons with cache

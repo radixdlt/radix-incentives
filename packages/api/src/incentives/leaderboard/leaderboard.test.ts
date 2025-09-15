@@ -17,6 +17,8 @@ import { drizzle } from 'drizzle-orm/postgres-js';
 import { Effect, Layer, Logger, LogLevel } from 'effect';
 import postgres from 'postgres';
 import { describe, inject } from 'vitest';
+import { AccountBalanceService } from '../account/accountBalance';
+import { ActivityService } from '../activity/activity';
 import { ActivityCategoryService } from '../activity-category/activityCategory';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
@@ -64,7 +66,20 @@ describe(
     const activityPointsAdjustmentServiceLive =
       ActivityPointsAdjustmentService.Default;
 
-    const userServiceLive = UserService.Default.pipe(Layer.provide(dbLive));
+    const accountBalanceServiceLive = AccountBalanceService.Default.pipe(
+      Layer.provide(dbLive),
+    );
+
+    const activityServiceLive = ActivityService.Default.pipe(
+      Layer.provide(dbLive),
+    );
+
+    const userServiceLive = UserService.Default.pipe(
+      Layer.provide(dbLive),
+      Layer.provide(accountBalanceServiceLive),
+      Layer.provide(activityServiceLive),
+      Layer.provide(activityWeekServiceLive),
+    );
 
     const leaderboardServiceLive = LeaderboardService.Default.pipe(
       Layer.provide(dbLive),

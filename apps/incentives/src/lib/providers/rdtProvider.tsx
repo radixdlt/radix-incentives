@@ -45,7 +45,10 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
           'account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh',
         networkId: 1,
         onDisconnect: async () => {
-          await signOut.mutateAsync();
+          // Only sign out if we actually had a persona connected
+          if (personaRef.current) {
+            await signOut.mutateAsync();
+          }
         },
       });
 

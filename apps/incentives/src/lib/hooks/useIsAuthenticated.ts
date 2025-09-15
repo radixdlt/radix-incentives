@@ -5,7 +5,7 @@ import { usePersona } from './usePersona';
 import { useDappToolkit } from './useRdt';
 
 export const useIsAuthenticated = () => {
-  const persona = usePersona();
+  const { persona } = usePersona();
   const rdt = useDappToolkit();
 
   const isAuthenticated = api.auth.isSignedIn.useQuery(undefined, {
