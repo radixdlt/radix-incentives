@@ -50,6 +50,9 @@
     },
     "generate": {
       "cache": false
+    },
+    "component": {
+      "cache": false
     }
   }
 }

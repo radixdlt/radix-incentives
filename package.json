@@ -26,7 +26,8 @@
     "queue:add": "pnpm --filter queue-helper run queue",
     "verify:activities": "turbo run verify:activities",
     "data:generate": "turbo run generate",
-    "prepare": "husky"
+    "prepare": "husky",
+    "component": "turbo run component --"
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.3",
