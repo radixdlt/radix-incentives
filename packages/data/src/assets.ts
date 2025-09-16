@@ -91,6 +91,10 @@ export const flatTokenNameMap = {
   ...tokenNameMap.xrdDerivativeAssets,
 } as const;
 
+export const resourceAddresses = Object.keys(
+  flatTokenNameMap,
+) as readonly (keyof typeof flatTokenNameMap)[];
+
 export const AssetType = {
   XRD_DERIVATIVE: 'der',
   NATIVE: 'nat',
@@ -107,6 +111,46 @@ export const xrdDerivativeAssets = new Set(
 );
 export const bluechipAssets = new Set(Object.keys(tokenNameMap.bluechipAssets));
 export const stableAssets = new Set(Object.keys(tokenNameMap.stableAssets));
+
+export const getAssetByResourceAddress = (resourceAddress: string) => {
+  if (nativeAssets.has(resourceAddress)) {
+    return {
+      resourceAddress,
+      assetType: AssetType.NATIVE,
+      symbol:
+        tokenNameMap.nativeAssets[
+          resourceAddress as keyof typeof tokenNameMap.nativeAssets
+        ],
+    };
+  } else if (xrdDerivativeAssets.has(resourceAddress)) {
+    return {
+      resourceAddress,
+      assetType: AssetType.XRD_DERIVATIVE,
+      symbol:
+        tokenNameMap.xrdDerivativeAssets[
+          resourceAddress as keyof typeof tokenNameMap.xrdDerivativeAssets
+        ],
+    };
+  } else if (bluechipAssets.has(resourceAddress)) {
+    return {
+      resourceAddress,
+      assetType: AssetType.BLUECHIP,
+      symbol:
+        tokenNameMap.bluechipAssets[
+          resourceAddress as keyof typeof tokenNameMap.bluechipAssets
+        ],
+    };
+  } else if (stableAssets.has(resourceAddress)) {
+    return {
+      resourceAddress,
+      assetType: AssetType.STABLE,
+      symbol:
+        tokenNameMap.stableAssets[
+          resourceAddress as keyof typeof tokenNameMap.stableAssets
+        ],
+    };
+  }
+};
 
 export type TokenInfo = {
   name: string;
