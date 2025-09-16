@@ -28,20 +28,6 @@ export function SeasonSelector({
   selectedSeasonId,
   onSeasonChange,
 }: SeasonSelectorProps) {
-  const formatSeasonRange = (startDate: Date, endDate: Date) => {
-    const start = new Date(startDate).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    const end = new Date(endDate).toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: 'numeric',
-    });
-    return `${start} - ${end}`;
-  };
-
   const getSeasonStatus = (status: string, startDate: Date, endDate: Date) => {
     const now = new Date();
     const start = new Date(startDate);
@@ -104,12 +90,6 @@ export function SeasonSelector({
                       <div className="text-left font-medium text-base text-white">
                         Season {getSeasonNumber(selectedSeasonData.name)}
                       </div>
-                      <div className="flex items-center gap-2 text-left text-sm text-white/60">
-                        {formatSeasonRange(
-                          selectedSeasonData.startDate,
-                          selectedSeasonData.endDate,
-                        )}
-                      </div>
                     </div>
                   </>
                 )}
@@ -145,9 +125,6 @@ export function SeasonSelector({
                     <div className="flex-1 text-left">
                       <div className="text-left font-medium">
                         Season {getSeasonNumber(season.name)}
-                      </div>
-                      <div className="flex items-center gap-2 text-left text-sm opacity-60">
-                        {formatSeasonRange(season.startDate, season.endDate)}
                       </div>
                     </div>
                   </div>
