@@ -28,7 +28,11 @@ import {
   GetActivityByIdLive,
   GetActivityByIdService,
 } from '../activity/getActivityById';
-import { ActivityCategoryService } from '../activity-category/activityCategory';
+import {
+  ActivityCategoryService,
+  type UpdateActivityCategory,
+} from '../activity-category/activityCategory';
+import { EarnPageService } from '../activity-category/earnPageService';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import {
   type CalculateTWASQLInput,
@@ -384,10 +388,16 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive),
   );
 
+  const dappServiceLive = DappService.Default;
+
   const weekLive = WeekService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(activityCategoryWeekServiceLive),
     Layer.provide(activityWeekServiceLive),
+  );
+
+  const earnPageServiceLive = EarnPageService.Default.pipe(
+    Layer.provide(dbClientLive),
   );
 
   const userLive = UserService.Default.pipe(
@@ -568,8 +578,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const dappServiceLive = DappService.Default;
-
   const getDapps = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -629,6 +637,42 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
         return yield* activityCategoryService.list();
       }),
       activityCategoryServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateActivityCategory = (
+    id: string,
+    updates: UpdateActivityCategory,
+  ) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryService = yield* ActivityCategoryService;
+        return yield* activityCategoryService.update(id, updates);
+      }),
+      activityCategoryServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const getActivityCategoriesForEarnPage = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryService = yield* ActivityCategoryService;
+        return yield* activityCategoryService.listForEarnPage();
+      }),
+      activityCategoryServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const getEarnPageData = (weekId: string) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const earnPageService = yield* EarnPageService;
+        return yield* earnPageService.getData(weekId);
+      }),
+      earnPageServiceLive,
     );
     return Effect.runPromiseExit(program);
   };
@@ -1085,6 +1129,9 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateActivity,
     getDapps,
     getActivityCategories,
+    updateActivityCategory,
+    getActivityCategoriesForEarnPage,
+    getEarnPageData,
     getWeekDetails,
     updateCategoryWeekPointsPool,
     updateActivityWeekMultiplier,

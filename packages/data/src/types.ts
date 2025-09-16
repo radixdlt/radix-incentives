@@ -10,6 +10,7 @@ export const DappId = {
   weft: 'we',
   surge: 'su',
   radix: 'ra',
+  astrolescent: 'as',
 } as const;
 
 export type DappId = (typeof DappId)[keyof typeof DappId];
