@@ -5232,6 +5232,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       componentAddresses: [],
     },
   ],
+  as: [],
 };
 
 export const activityData: ActivityData[] = [

@@ -159,6 +159,11 @@ export const activityCategories = createTable('activity_categories', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
+  dappIds: jsonb('dapp_ids').$defaultFn(() => []),
+  showOnEarnPage: boolean('show_on_earn_page').notNull().default(true),
+  multiplier: boolean('multiplier').notNull().default(false),
+  icon: text('icon').default('FileText'),
+  color: text('color').default('bg-slate-500/10 text-slate-600'),
 });
 
 export const dapps = createTable('dapp', {

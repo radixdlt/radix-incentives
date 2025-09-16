@@ -102,6 +102,7 @@ export const activityRouter = createTRPCRouter({
       },
     });
   }),
+
   getActivityData: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getActivityData();
 

@@ -3,6 +3,10 @@ import {
   activityRouter,
   adminActivityRouter,
 } from '../activity/activityRouter';
+import {
+  activityCategoryRouter,
+  adminActivityCategoryRouter,
+} from '../activity-category/activityCategoryRouter';
 import { adminRouter } from '../admin/adminRouter';
 import { authRouter } from '../auth/authRouter';
 import { adminComponentWhitelistRouter } from '../component/componentWhitelistRouter';
@@ -27,6 +31,7 @@ export const appRouter = createTRPCRouter({
   user: userRouter,
   leaderboard: leaderboardRouter,
   activity: activityRouter,
+  activityCategory: activityCategoryRouter,
   config: configRouter,
   week: weekRouter,
   dapps: dappRouter,
@@ -36,6 +41,7 @@ export const adminAppRouter = createTRPCRouter({
   auth: authRouter,
   account: accountRouter,
   activity: adminActivityRouter,
+  activityCategory: adminActivityCategoryRouter,
   season: adminSeasonRouter,
   user: adminUserRouter,
   leaderboard: leaderboardRouter,

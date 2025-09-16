@@ -33,6 +33,11 @@ export const dappsData = [
   },
   { id: DappId.surge, website: 'https://www.surge.trade', name: 'Surge' },
   { id: DappId.radix, website: 'https://radixdlt.com', name: 'Radix' },
+  {
+    id: DappId.astrolescent,
+    website: 'https://astrolescent.com',
+    name: 'Astrolescent',
+  },
 ];
 
 export const DappConstants = {

@@ -2,7 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { Exit } from 'effect';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
-export const adminDappRouter = createTRPCRouter({
+export const dappRouter = createTRPCRouter({
   getDapps: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getDapps();
 
@@ -20,7 +20,8 @@ export const adminDappRouter = createTRPCRouter({
     });
   }),
 });
-export const dappRouter = createTRPCRouter({
+
+export const adminDappRouter = createTRPCRouter({
   getDapps: publicProcedure.query(async ({ ctx }) => {
     const result = await ctx.dependencyLayer.getDapps();
 

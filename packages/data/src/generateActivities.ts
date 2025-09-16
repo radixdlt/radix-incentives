@@ -527,6 +527,13 @@ const runnable = Effect.gen(function* () {
     groupBy((item) => item.dAppId),
   );
 
+  // Ensure all DappIds are present in the output, even if they have no activities
+  Object.values(DappId).forEach((dappId) => {
+    if (!activitiesGroupedByDappId[dappId]) {
+      activitiesGroupedByDappId[dappId] = [];
+    }
+  });
+
   const activityIds = pipe(
     deduplicatedActivities,
     (items) => items.map((item) => item.activityId),

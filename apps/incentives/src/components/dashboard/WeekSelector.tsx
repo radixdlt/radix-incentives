@@ -14,6 +14,7 @@ type WeekData = {
   startDate: Date;
   endDate: Date;
   seasonName: string;
+  seasonId: string;
 };
 
 type WeekSelectorProps = {
@@ -38,6 +39,18 @@ const WeekSelector = ({
       year: 'numeric',
     });
     return `${start} - ${end}`;
+  };
+
+  const getWeekNumber = (weekId: string, seasonId: string) => {
+    const seasonWeeks = weeks
+      .filter((week) => week.seasonId === seasonId)
+      .sort(
+        (a, b) =>
+          new Date(a.startDate).getTime() - new Date(b.startDate).getTime(),
+      );
+
+    const weekIndex = seasonWeeks.findIndex((week) => week.id === weekId);
+    return weekIndex + 1;
   };
 
   const getWeekStatus = (startDate: Date, endDate: Date) => {
@@ -90,15 +103,19 @@ const WeekSelector = ({
                             : 'bg-pink-400'
                       }`}
                     />
-                    <div>
-                      <div className="font-medium text-base text-white">
+                    <div className="text-left">
+                      <div className="text-left font-medium text-base text-white">
+                        {selectedWeekData.seasonName}, Week{' '}
+                        {getWeekNumber(
+                          selectedWeekData.id,
+                          selectedWeekData.seasonId,
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-left text-sm text-white/60">
                         {formatWeekRange(
                           selectedWeekData.startDate,
                           selectedWeekData.endDate,
                         )}
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-white/60">
-                        {selectedWeekData.seasonName}
                         <span className="rounded-full bg-muted px-2 py-0.5 text-xs">
                           {getWeekStatus(
                             selectedWeekData.startDate,
@@ -134,12 +151,13 @@ const WeekSelector = ({
                             : 'bg-pink-400'
                       }`}
                     />
-                    <div className="flex-1">
-                      <div className="font-medium">
-                        {formatWeekRange(week.startDate, week.endDate)}
+                    <div className="flex-1 text-left">
+                      <div className="text-left font-medium">
+                        {week.seasonName}, Week{' '}
+                        {getWeekNumber(week.id, week.seasonId)}
                       </div>
-                      <div className="flex items-center gap-2 text-sm opacity-60">
-                        {week.seasonName}
+                      <div className="flex items-center gap-2 text-left text-sm opacity-60">
+                        {formatWeekRange(week.startDate, week.endDate)}
                         <span className="rounded-full bg-muted/50 px-2 py-0.5 text-xs">
                           {status === 'current' && 'Active'}
                         </span>
