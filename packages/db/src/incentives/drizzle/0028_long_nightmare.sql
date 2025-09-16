@@ -1,2 +1,0 @@
-ALTER TABLE "activity_category_weeks" ADD COLUMN "outlier_threshold_percentage" numeric DEFAULT '0.05' NOT NULL;--> statement-breakpoint
-ALTER TABLE "activity_category_weeks" ADD COLUMN "enable_outlier_detection" boolean DEFAULT true NOT NULL;
