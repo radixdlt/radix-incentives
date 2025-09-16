@@ -694,7 +694,7 @@ describe(
                   multiplier: '1',
                 },
                 {
-                  activityId: ActivityId['ho_xrd'], // maintainXrdBalance activity
+                  activityId: ActivityId.ho_xrd, // maintainXrdBalance activity
                   weekId: WEEK_ID_1,
                   multiplier: '1',
                 },
@@ -721,13 +721,13 @@ describe(
                 {
                   accountAddress: 'account_rdx1111',
                   weekId: WEEK_ID_1,
-                  activityId: ActivityId['ho_xrd'],
+                  activityId: ActivityId.ho_xrd,
                   activityPoints: '100.0', // Should be scaled to ~50.0 (100 * 0.5 progress)
                 },
                 {
                   accountAddress: 'account_rdx2222',
                   weekId: WEEK_ID_1,
-                  activityId: ActivityId['ho_xrd'],
+                  activityId: ActivityId.ho_xrd,
                   activityPoints: '200.0', // Should be scaled to ~100.0 (200 * 0.5 progress)
                 },
               ]),

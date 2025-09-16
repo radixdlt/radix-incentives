@@ -1,0 +1,13 @@
+{
+  "name": "component-helper",
+  "type": "module",
+  "scripts": {
+    "component": "tsx src/index.ts"
+  },
+  "dependencies": {
+    "effect": "catalog:"
+  },
+  "devDependencies": {
+    "tsx": "catalog:"
+  }
+}
