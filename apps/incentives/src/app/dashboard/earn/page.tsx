@@ -1,11 +1,33 @@
 'use client';
+import { useEffect, useState } from 'react';
 import { api } from '~/trpc/react';
 import { ActivityCardSkeleton } from './advanced/components';
 import { ActivityCardEasy } from './components/ActivityCardEasy';
 
 export default function EarnPage() {
+  const [selectedWeekId, setSelectedWeekId] = useState<string>('');
+
+  const { data: weeks } = api.week.getWeeks.useQuery();
+
+  // Set default selected week to the most recent week when weeks data is loaded
+  useEffect(() => {
+    if (weeks && weeks.length > 0 && !selectedWeekId) {
+      // Sort weeks by start date descending and select the most recent
+      const sortedWeeks = [...weeks].sort(
+        (a, b) =>
+          new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+      );
+      if (sortedWeeks[0]) {
+        setSelectedWeekId(sortedWeeks[0].id);
+      }
+    }
+  }, [weeks, selectedWeekId]);
+
   const { data: earnPageData, isLoading } =
-    api.activityCategory.getEarnPageData.useQuery();
+    api.activityCategory.getEarnPageData.useQuery(
+      { weekId: selectedWeekId },
+      { enabled: !!selectedWeekId },
+    );
 
   if (isLoading)
     return (

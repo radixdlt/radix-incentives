@@ -22,22 +22,24 @@ export const activityCategoryRouter = createTRPCRouter({
     });
   }),
 
-  getEarnPageData: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.dependencyLayer.getEarnPageData();
+  getEarnPageData: publicProcedure
+    .input(z.object({ weekId: z.string() }))
+    .query(async ({ input, ctx }) => {
+      const result = await ctx.dependencyLayer.getEarnPageData(input.weekId);
 
-    return Exit.match(result, {
-      onSuccess: (value) => {
-        return value;
-      },
-      onFailure: (error) => {
-        console.error(error);
-        throw new TRPCError({
-          code: 'INTERNAL_SERVER_ERROR',
-          message: 'An unexpected error occurred',
-        });
-      },
-    });
-  }),
+      return Exit.match(result, {
+        onSuccess: (value) => {
+          return value;
+        },
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: 'An unexpected error occurred',
+          });
+        },
+      });
+    }),
 });
 
 export const adminActivityCategoryRouter = createTRPCRouter({

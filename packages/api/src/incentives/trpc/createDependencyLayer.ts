@@ -397,10 +397,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const earnPageServiceLive = EarnPageService.Default.pipe(
-    Layer.provide(activityCategoryServiceLive),
-    Layer.provide(dappServiceLive),
-    Layer.provide(weekLive),
-    Layer.provide(activityCategoryWeekServiceLive),
+    Layer.provide(dbClientLive),
   );
 
   const userLive = UserService.Default.pipe(
@@ -669,11 +666,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getEarnPageData = () => {
+  const getEarnPageData = (weekId: string) => {
     const program = Effect.provide(
       Effect.gen(function* () {
         const earnPageService = yield* EarnPageService;
-        return yield* earnPageService.getData();
+        return yield* earnPageService.getData(weekId);
       }),
       earnPageServiceLive,
     );

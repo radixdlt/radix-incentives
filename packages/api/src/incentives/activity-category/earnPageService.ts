@@ -1,9 +1,9 @@
+import { dappsData } from 'data';
+import { activityCategories, activityCategoryWeeks } from 'db/incentives';
+import { and, eq } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { z } from 'zod';
-import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
-import { DappService } from '../dapp/dapp';
-import { WeekService } from '../week/week';
-import { ActivityCategoryService } from './activityCategory';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export const EarnPageCategorySchema = z.object({
   id: z.string(),
@@ -28,49 +28,61 @@ export class EarnPageService extends Effect.Service<EarnPageService>()(
   'EarnPageService',
   {
     effect: Effect.gen(function* () {
-      const activityCategoryService = yield* ActivityCategoryService;
-      const dappService = yield* DappService;
-      const weekService = yield* WeekService;
-      const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      const db = yield* DbClientService;
 
       return {
-        getData: Effect.fn(function* () {
-          // Get current week
-          const currentWeek = yield* weekService.getByDate(new Date());
-
-          // Get activity categories for earn page
-          const categories = yield* activityCategoryService.listForEarnPage();
-
-          // Get all dapps
-          const dapps = yield* dappService.list();
-
-          // Get SP/week data for current week
-          const categoryWeeks = yield* activityCategoryWeekService.getByWeekId({
-            weekId: currentWeek.id,
+        getData: Effect.fn(function* (weekId: string) {
+          // Single query to get all earn page data with joins
+          const earnPageData = yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  id: activityCategories.id,
+                  name: activityCategories.name,
+                  description: activityCategories.description,
+                  multiplier: activityCategories.multiplier,
+                  icon: activityCategories.icon,
+                  color: activityCategories.color,
+                  dappIds: activityCategories.dappIds,
+                  seasonPointsPerWeek: activityCategoryWeeks.pointsPool,
+                })
+                .from(activityCategories)
+                .leftJoin(
+                  activityCategoryWeeks,
+                  and(
+                    eq(
+                      activityCategories.id,
+                      activityCategoryWeeks.activityCategoryId,
+                    ),
+                    eq(activityCategoryWeeks.weekId, weekId),
+                  ),
+                )
+                .where(eq(activityCategories.showOnEarnPage, true)),
+            catch: (error) => new DbError(error),
           });
 
-          // Create lookup maps
-          const dappMap = new Map(dapps.map((dapp) => [dapp.id, dapp]));
-          const categoryWeekMap = new Map(
-            categoryWeeks.map((cw) => [cw.categoryId as string, cw.pointsPool]),
-          );
+          // Create dapp lookup map from constants
+          const dappMap = new Map(dappsData.map((dapp) => [dapp.id, dapp]));
 
-          // Transform and combine the data
-          const result = categories.map((category) => ({
+          // Transform the data
+          const result = earnPageData.map((category) => ({
             id: category.id,
             name: category.name,
             description: category.description,
             multiplier: category.multiplier,
-            seasonPointsPerWeek: categoryWeekMap.get(category.id) || 0,
+            seasonPointsPerWeek: Number(category.seasonPointsPerWeek) || 0,
             icon: category.icon,
             color: category.color,
-            dappLogos: (category.dappIds || [])
+            dappLogos: (category.dappIds && Array.isArray(category.dappIds)
+              ? category.dappIds
+              : []
+            )
               .map((dappId) => {
-                const dapp = dappMap.get(dappId as string);
+                const dapp = dappMap.get(dappId);
                 return dapp
                   ? {
                       name: dapp.name,
-                      logoPath: `/dapp-logos/${dappId as string}.png`,
+                      logoPath: `/dapp-logos/${dappId}.png`,
                       websiteUrl: dapp.website,
                     }
                   : null;
@@ -78,13 +90,14 @@ export class EarnPageService extends Effect.Service<EarnPageService>()(
               .filter(Boolean) as EarnPageCategory['dappLogos'],
           }));
 
-          // Sort categories: XRD Points Multiplier first, then maintain original order
+          // Sort categories: XRD Points Multiplier first, then alphabetically by name
           return result.sort((a, b) => {
             // XRD Points Multiplier should always be first
             if (a.id === 'maintainXrdBalance') return -1;
             if (b.id === 'maintainXrdBalance') return 1;
 
-            return 0;
+            // Sort remaining categories alphabetically by name
+            return a.name.localeCompare(b.name);
           });
         }),
       };
