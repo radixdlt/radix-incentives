@@ -251,7 +251,7 @@ export const activityCategoryWeeks = createTable(
       .default('0.05'),
     enableOutlierDetection: boolean('enable_outlier_detection')
       .notNull()
-      .default(true),
+      .default(false),
   },
   (table) => ({
     pk: primaryKey({
