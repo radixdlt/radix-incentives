@@ -23,6 +23,17 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
     console.log(
       `Update lower bounds percentage for ${categoryId} to ${newLowerBoundsPercentage}`,
     ),
+  onUpdateOutlierThresholdPercentage = (
+    categoryId,
+    newOutlierThresholdPercentage,
+  ) =>
+    console.log(
+      `Update outlier threshold percentage for ${categoryId} to ${newOutlierThresholdPercentage}`,
+    ),
+  onUpdateEnableOutlierDetection = (categoryId, enableOutlierDetection) =>
+    console.log(
+      `Update enable outlier detection for ${categoryId} to ${enableOutlierDetection}`,
+    ),
   onCalculateMultiplier = () =>
     console.log('Calculate season points multiplier'),
 }) => {
@@ -47,6 +58,8 @@ const AdminWeekDetails: React.FC<AdminWeekDetailsProps> = ({
         onUpdatePointsPool={onUpdatePointsPool}
         onUpdateMultiplier={onUpdateMultiplier}
         onUpdateLowerBoundsPercentage={onUpdateLowerBoundsPercentage}
+        onUpdateOutlierThresholdPercentage={onUpdateOutlierThresholdPercentage}
+        onUpdateEnableOutlierDetection={onUpdateEnableOutlierDetection}
       />
     </div>
   );

@@ -14,6 +14,7 @@ import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { WeekService } from '../week/week';
 import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
 import { createUserBands } from './createUserBands';
+import { detectOutliers } from './detectOutliers';
 import { distributeSeasonPoints } from './distributePoints';
 import { supplyPercentileTrim } from './supplyPercentileTrim';
 
@@ -228,6 +229,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   categoryId: activityCategory.categoryId,
                   pointsPool: activityCategory.pointsPool,
                   lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
+                  outlierThresholdPercentage:
+                    activityCategory.outlierThresholdPercentage,
+                  enableOutlierDetection:
+                    activityCategory.enableOutlierDetection,
                   users: Object.entries(users).map(([userId, points]) => ({
                     userId,
                     points,
@@ -263,20 +268,49 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 `processing ${activityCategory.users.length} users`,
               );
 
-              // remove users with low activity points
+              // conditionally detect outliers but keep them separate for later
+              let withoutOutliers: typeof activityCategory.users;
+              let outliers: typeof activityCategory.users;
+
+              if (activityCategory.enableOutlierDetection) {
+                const detected = yield* detectOutliers(
+                  activityCategory.users,
+                  activityCategory.outlierThresholdPercentage,
+                  activityCategory.categoryId,
+                );
+                const outlierUserIds = new Set(
+                  activityCategory.users
+                    .filter(
+                      (user) => !detected.some((d) => d.userId === user.userId),
+                    )
+                    .map((user) => user.userId),
+                );
+                withoutOutliers = detected;
+                outliers = activityCategory.users.filter((user) =>
+                  outlierUserIds.has(user.userId),
+                );
+              } else {
+                withoutOutliers = activityCategory.users;
+                outliers = [];
+              }
+
+              // then remove users with low activity points using revised set (without outliers)
               const withoutLowerBounds = yield* supplyPercentileTrim(
-                activityCategory.users,
+                withoutOutliers,
                 {
                   lowerBoundsPercentage: activityCategory.lowerBoundsPercentage,
                 },
                 activityCategory.categoryId,
               );
 
+              // add outliers back after supply percentile trim
+              const finalUsers = [...withoutLowerBounds, ...outliers];
+
               const bands = yield* createUserBands({
                 numberOfBands: 20,
                 poolShareStart: new BigNumber('0.98').div(100),
                 poolShareStep: new BigNumber('1.15'),
-                users: withoutLowerBounds,
+                users: finalUsers,
               });
 
               const seasonPoints = yield* distributeSeasonPoints({

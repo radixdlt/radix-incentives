@@ -26,6 +26,14 @@ interface CategoriesSectionProps {
     categoryId: string,
     newLowerBoundsPercentage: string,
   ) => void;
+  onUpdateOutlierThresholdPercentage?: (
+    categoryId: string,
+    newOutlierThresholdPercentage: string,
+  ) => void;
+  onUpdateEnableOutlierDetection?: (
+    categoryId: string,
+    enableOutlierDetection: boolean,
+  ) => void;
 }
 
 export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
@@ -36,6 +44,8 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
   onUpdatePointsPool,
   onUpdateMultiplier,
   onUpdateLowerBoundsPercentage,
+  onUpdateOutlierThresholdPercentage,
+  onUpdateEnableOutlierDetection,
 }) => {
   const categories = weekData.activityCategories || [];
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(
@@ -62,6 +72,11 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     null,
   );
   const [editingLowerBoundsValue, setEditingLowerBoundsValue] =
+    useState<string>('');
+  const [editingOutlierThreshold, setEditingOutlierThreshold] = useState<
+    string | null
+  >(null);
+  const [editingOutlierThresholdValue, setEditingOutlierThresholdValue] =
     useState<string>('');
 
   const toggleCategory = (categoryId: string) => {
@@ -147,6 +162,29 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
     setEditingLowerBoundsValue('');
   };
 
+  const startEditingOutlierThreshold = (
+    categoryId: string,
+    currentValue: number | string | { toString(): string },
+  ) => {
+    setEditingOutlierThreshold(categoryId);
+    const valueString = String(currentValue);
+    setEditingOutlierThresholdValue(valueString);
+  };
+
+  const cancelEditingOutlierThreshold = () => {
+    setEditingOutlierThreshold(null);
+    setEditingOutlierThresholdValue('');
+  };
+
+  const saveOutlierThreshold = (categoryId: string) => {
+    const cleanValue = editingOutlierThresholdValue.trim();
+    if (cleanValue && onUpdateOutlierThresholdPercentage) {
+      onUpdateOutlierThresholdPercentage(categoryId, cleanValue);
+    }
+    setEditingOutlierThreshold(null);
+    setEditingOutlierThresholdValue('');
+  };
+
   if (categories.length === 0) {
     return (
       <Card>
@@ -177,16 +215,142 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                 className="cursor-pointer"
                 onClick={() => toggleCategory(category.categoryId)}
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CardTitle className="text-lg">
-                      {category.categoryId}
-                    </CardTitle>
-                    <div className="text-muted-foreground text-sm">
-                      ({category.activities.length} activities)
+                <div className="space-y-3">
+                  {/* Category ID and activity count on top row */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <CardTitle className="text-lg">
+                        {category.categoryId}
+                      </CardTitle>
+                      <div className="text-muted-foreground text-sm">
+                        ({category.activities.length} activities)
+                      </div>
                     </div>
+                    {isExpanded ? (
+                      <ChevronUp className="h-4 w-4" />
+                    ) : (
+                      <ChevronDown className="h-4 w-4" />
+                    )}
                   </div>
-                  <div className="flex items-center gap-4">
+
+                  {/* Configuration items on second row */}
+                  <div className="flex flex-wrap items-center gap-4">
+                    {editingOutlierThreshold === category.categoryId ? (
+                      <div
+                        className={`flex items-center gap-1 ${
+                          !category.enableOutlierDetection ? 'opacity-50' : ''
+                        }`}
+                      >
+                        <span className="text-muted-foreground text-sm">
+                          Outlier Threshold:
+                        </span>
+                        <Input
+                          type="text"
+                          value={editingOutlierThresholdValue}
+                          onChange={(e) =>
+                            setEditingOutlierThresholdValue(e.target.value)
+                          }
+                          className="h-8 w-20 text-sm"
+                          onClick={(e) => e.stopPropagation()}
+                          disabled={!category.enableOutlierDetection}
+                          onKeyDown={(e) => {
+                            e.stopPropagation();
+                            if (e.key === 'Enter') {
+                              saveOutlierThreshold(category.categoryId);
+                            } else if (e.key === 'Escape') {
+                              cancelEditingOutlierThreshold();
+                            }
+                          }}
+                        />
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          disabled={!category.enableOutlierDetection}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            saveOutlierThreshold(category.categoryId);
+                          }}
+                        >
+                          <Check className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-8 w-8 p-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            cancelEditingOutlierThreshold();
+                          }}
+                        >
+                          <X className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    ) : (
+                      <div
+                        className={`flex items-center gap-1 ${
+                          !category.enableOutlierDetection ? 'opacity-50' : ''
+                        }`}
+                      >
+                        <span className="text-muted-foreground text-sm">
+                          Outlier Threshold:{' '}
+                          {category.outlierThresholdPercentage?.toString() ||
+                            '0.05'}
+                        </span>
+                        {onUpdateOutlierThresholdPercentage &&
+                          editingOutlierThreshold !== category.categoryId && (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="h-8 w-8 p-0"
+                              disabled={!category.enableOutlierDetection}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                startEditingOutlierThreshold(
+                                  category.categoryId,
+                                  category.outlierThresholdPercentage || '0.05',
+                                );
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                          )}
+                      </div>
+                    )}
+                    {onUpdateEnableOutlierDetection ? (
+                      <Button
+                        size="sm"
+                        variant={
+                          category.enableOutlierDetection
+                            ? 'default'
+                            : 'outline'
+                        }
+                        className={`h-8 px-3 font-medium text-sm ${
+                          category.enableOutlierDetection
+                            ? 'bg-green-600 text-white hover:bg-green-700'
+                            : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                        }`}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onUpdateEnableOutlierDetection(
+                            category.categoryId,
+                            !category.enableOutlierDetection,
+                          );
+                        }}
+                      >
+                        Outlier Detection:{' '}
+                        {category.enableOutlierDetection
+                          ? 'Enabled'
+                          : 'Disabled'}
+                      </Button>
+                    ) : (
+                      <span className="text-muted-foreground text-sm">
+                        Outlier Detection:{' '}
+                        {category.enableOutlierDetection
+                          ? 'Enabled'
+                          : 'Disabled'}
+                      </span>
+                    )}
                     {editingLowerBounds === category.categoryId ? (
                       <div className="flex items-center gap-1">
                         <span className="text-muted-foreground text-sm">
@@ -327,11 +491,6 @@ export const CategoriesSection: React.FC<CategoriesSectionProps> = ({
                           <Edit className="h-4 w-4" />
                         </Button>
                       )}
-                    {isExpanded ? (
-                      <ChevronUp className="h-4 w-4" />
-                    ) : (
-                      <ChevronDown className="h-4 w-4" />
-                    )}
                   </div>
                 </div>
               </CardHeader>

@@ -1,7 +1,13 @@
 'use client';
 
 import BigNumber from 'bignumber.js';
-import { AlertCircle, ArrowLeft, Calculator, Loader2 } from 'lucide-react';
+import {
+  AlertCircle,
+  ArrowLeft,
+  Calculator,
+  Download,
+  Loader2,
+} from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useState } from 'react';
@@ -24,6 +30,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import { downloadCSV } from '~/lib/utils';
 import type { RouterOutputs } from '~/trpc/react';
 import { api } from '~/trpc/react';
 
@@ -109,6 +116,12 @@ export default function SeasonPointsPage() {
     weekId: params.weekId,
   });
 
+  // Get week data for activity category information
+  const { data: weekData, isLoading: isWeekDataLoading } =
+    api.week.getWeekDetails.useQuery({
+      weekId: params.weekId,
+    });
+
   const { mutate: calculateSeasonPoints } =
     api.admin.user.simulateCalculateSeasonPoints.useMutation({
       onMutate: () => {
@@ -129,6 +142,57 @@ export default function SeasonPointsPage() {
       },
     });
 
+  const handleDownloadSeasonPoints = () => {
+    if (!calculationResult || calculationResult.length === 0) {
+      toast.error('No calculation results to download');
+      return;
+    }
+
+    // Transform the data for CSV export
+    const csvData = calculationResult
+      .filter((user) => user.points.gt(0))
+      .sort((a, b) => b.points.minus(a.points).toNumber())
+      .map((user) => ({
+        userId: user.userId,
+        username: user.label || '-',
+        multiplier: Number(user.multiplier).toFixed(2),
+        seasonPoints: user.points.toFixed(2),
+      }));
+
+    downloadCSV(csvData, `season-points-calculation-week-${params.weekId}.csv`);
+    toast.success('Season points calculation data downloaded successfully');
+  };
+
+  const handleDownloadActivityData = () => {
+    if (
+      !weekData?.activityCategories ||
+      weekData.activityCategories.length === 0
+    ) {
+      toast.error('No activity category data to download');
+      return;
+    }
+
+    // Transform the activity data for CSV export
+    const csvData = weekData.activityCategories.flatMap((category) =>
+      category.activities.map((activity) => ({
+        categoryId: category.categoryId,
+        activityId: activity.id,
+        multiplier: activity.multiplier ? activity.multiplier.toString() : '1',
+        pointsPool: category.pointsPool ? category.pointsPool.toString() : '0',
+        lowerBoundsPercentage: category.lowerBoundsPercentage
+          ? category.lowerBoundsPercentage.toString()
+          : '0',
+        outlierThresholdPercentage: category.outlierThresholdPercentage
+          ? category.outlierThresholdPercentage.toString()
+          : '0.95',
+        enableOutlierDetection: category.enableOutlierDetection || false,
+      })),
+    );
+
+    downloadCSV(csvData, `activity-categories-week-${params.weekId}.csv`);
+    toast.success('Activity category data downloaded successfully');
+  };
+
   if (error) {
     return (
       <div className="container mx-auto p-6">
@@ -142,7 +206,7 @@ export default function SeasonPointsPage() {
     );
   }
 
-  if (isLoading) {
+  if (isLoading || isWeekDataLoading) {
     return (
       <div className="container mx-auto py-6 pr-6 pl-6">
         {/* Header Section Skeleton */}
@@ -237,22 +301,48 @@ export default function SeasonPointsPage() {
             </p>
           </div>
         </div>
-        <Button
-          onClick={() => calculateSeasonPoints({ weekId: params.weekId })}
-          disabled={isCalculating}
-        >
-          {isCalculating ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Calculating...
-            </>
-          ) : (
-            <>
-              <Calculator className="mr-2 h-4 w-4" />
-              Calculate Points
-            </>
+        <div className="flex items-center gap-2">
+          {calculationResult && calculationResult.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadSeasonPoints}
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Download Calculation Results
+            </Button>
           )}
-        </Button>
+          {calculationResult && calculationResult.length > 0 && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDownloadActivityData}
+              disabled={
+                !weekData?.activityCategories ||
+                weekData.activityCategories.length === 0
+              }
+            >
+              <Download className="mr-2 h-4 w-4" />
+              Activity Data CSV
+            </Button>
+          )}
+          <Button
+            onClick={() => calculateSeasonPoints({ weekId: params.weekId })}
+            disabled={isCalculating}
+          >
+            {isCalculating ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Calculating...
+              </>
+            ) : (
+              <>
+                <Calculator className="mr-2 h-4 w-4" />
+                Calculate Points
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <Separator className="my-6" />

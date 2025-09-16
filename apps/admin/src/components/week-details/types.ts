@@ -15,5 +15,13 @@ export interface AdminWeekDetailsProps {
     categoryId: string,
     newLowerBoundsPercentage: string,
   ) => void;
+  onUpdateOutlierThresholdPercentage?: (
+    categoryId: string,
+    newOutlierThresholdPercentage: string,
+  ) => void;
+  onUpdateEnableOutlierDetection?: (
+    categoryId: string,
+    enableOutlierDetection: boolean,
+  ) => void;
   onCalculateMultiplier?: () => void;
 }

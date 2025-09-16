@@ -133,7 +133,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message: 'Enter addresses (comma-separated, optional):',
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
           const addresses = (input as string)
             .split(',')
             .map((addr: string) => addr.trim());
@@ -225,7 +225,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         },
         suggestOnly: true,
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
 
           const patterns = (input as string)
             .split(',')
@@ -247,7 +247,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message: 'Enter USD threshold (optional, e.g., 50):',
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
           const num = Number(input);
           if (Number.isNaN(num) || num < 0) {
             return 'USD threshold must be a positive number';
@@ -308,7 +308,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message: 'Enter addresses (comma-separated, optional):',
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
           const addresses = (input as string)
             .split(',')
             .map((addr: string) => addr.trim());
@@ -408,7 +408,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         },
         suggestOnly: true,
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
 
           const patterns = (input as string)
             .split(',')
@@ -430,7 +430,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message: 'Enter USD threshold (optional, e.g., 50):',
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
           const num = Number(input);
           if (Number.isNaN(num) || num < 0) {
             return 'USD threshold must be a positive number';
@@ -468,7 +468,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message: 'Enter addresses (comma-separated, optional):',
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
           const addresses = (input as string)
             .split(',')
             .map((addr: string) => addr.trim());
@@ -521,7 +521,7 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
         type: 'input',
         message: 'Enter user IDs (comma-separated, optional):',
         validate: (input) => {
-          if (!(input as string).trim()) return true; // Optional field
+          if (!input || !(input as string).trim()) return true; // Optional field
           const userIds = (input as string)
             .split(',')
             .map((id: string) => id.trim());
