@@ -175,18 +175,17 @@ export default function SeasonPointsPage() {
     // Transform the activity data for CSV export
     const csvData = weekData.activityCategories.flatMap((category) =>
       category.activities.map((activity) => ({
-        categoryId: category.id,
-        categoryName: category.name,
+        categoryId: category.categoryId,
         activityId: activity.id,
-        activityName: activity.name,
-        multiplier: activity.activityWeeks?.[0]?.multiplier || 1,
-        pointsPool: category.categoryWeeks?.[0]?.pointsPool || 0,
-        lowerBoundsPercentage:
-          category.categoryWeeks?.[0]?.lowerBoundsPercentage || '0',
-        outlierThresholdPercentage:
-          category.categoryWeeks?.[0]?.outlierThresholdPercentage || '95',
-        enableOutlierDetection:
-          category.categoryWeeks?.[0]?.enableOutlierDetection || false,
+        multiplier: activity.multiplier ? activity.multiplier.toString() : '1',
+        pointsPool: category.pointsPool ? category.pointsPool.toString() : '0',
+        lowerBoundsPercentage: category.lowerBoundsPercentage
+          ? category.lowerBoundsPercentage.toString()
+          : '0',
+        outlierThresholdPercentage: category.outlierThresholdPercentage
+          ? category.outlierThresholdPercentage.toString()
+          : '0.95',
+        enableOutlierDetection: category.enableOutlierDetection || false,
       })),
     );
 
