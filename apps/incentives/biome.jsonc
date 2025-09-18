@@ -1,4 +1,5 @@
 {
+	"root": false,
 	"$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
 	"vcs": {
 		"enabled": true,
@@ -7,10 +8,10 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"include": ["**", "!.next", "!node_modules", "!.turbo"]
+		"includes": ["**", "!.next", "!node_modules", "!.turbo"]
 	},
 	"formatter": { "enabled": true },
-	"organizeImports": { "enabled": true },
+	"assist": { "actions": { "source": { "organizeImports": "on" } } },
 	"linter": {
 		"enabled": true,
 		"rules": {

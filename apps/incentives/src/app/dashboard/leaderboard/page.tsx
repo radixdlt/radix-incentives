@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { CategoryLeaderboard } from './components/category-leaderboard';
 import { SeasonLeaderboard } from './components/season-leaderboard';
@@ -9,15 +8,17 @@ type TabType = 'category' | 'season';
 
 export default function LeaderboardPage() {
   const [activeTab, setActiveTab] = useState<TabType>('season');
-  const searchParams = useSearchParams();
 
   // Switch to activity points tab if coming from dashboard with category parameter
   useEffect(() => {
-    const categoryParam = searchParams.get('category');
-    if (categoryParam) {
-      setActiveTab('category');
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      const categoryParam = searchParams.get('category');
+      if (categoryParam) {
+        setActiveTab('category');
+      }
     }
-  }, [searchParams]);
+  }, []);
 
   return (
     <div className="space-y-6">
