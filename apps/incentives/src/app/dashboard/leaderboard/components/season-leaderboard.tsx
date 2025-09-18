@@ -25,6 +25,12 @@ export function SeasonLeaderboard() {
     { enabled: !!selectedSeasonId },
   );
 
+  const { data: referralStats, isLoading: referralStatsLoading } =
+    api.user.getUserReferralStats.useQuery(
+      { seasonId: selectedSeasonId },
+      { enabled: !!selectedSeasonId },
+    );
+
   // Set default season when seasons load and prefetch other seasons with cache
   useEffect(() => {
     if (seasons && seasons.length > 0 && !selectedSeasonId) {
@@ -151,6 +157,11 @@ export function SeasonLeaderboard() {
           pointsLabel="season points"
           emptyMessage="Leaderboard data is being processed. Please check back later."
           isUserConnected={!!persona}
+          referralCode={referralStats?.referralCode}
+          numberOfReferrals={referralStats?.numberOfReferrals}
+          referralPoints={referralStats?.referralPoints}
+          isReferralStatsLoading={referralStatsLoading}
+          referralPercentage={referralStats?.percentage}
         />
       ) : (
         <LoadingState message="Loading leaderboard..." />

@@ -42,5 +42,3 @@ export class VerifyChallengeService extends Effect.Service<VerifyChallengeServic
     }),
   },
 ) {}
-
-export const VerifyChallengeLive = VerifyChallengeService.Default;

@@ -1,6 +1,7 @@
 'use client';
 
 import { Podium } from './podium';
+import { ReferralStats } from './referral-stats';
 import { UserStats } from './user-stats';
 
 interface User {
@@ -35,6 +36,11 @@ interface LeaderboardContentProps {
   pointsLabel: string;
   emptyMessage: string;
   isUserConnected?: boolean;
+  referralCode?: string;
+  numberOfReferrals?: number;
+  referralPoints?: string;
+  isReferralStatsLoading?: boolean;
+  referralPercentage?: number;
 }
 
 export function LeaderboardContent({
@@ -44,6 +50,11 @@ export function LeaderboardContent({
   pointsLabel,
   emptyMessage,
   isUserConnected = false,
+  referralCode,
+  numberOfReferrals,
+  referralPoints,
+  isReferralStatsLoading = false,
+  referralPercentage,
 }: LeaderboardContentProps) {
   if (topUsers.length === 0) {
     return (
@@ -82,6 +93,19 @@ export function LeaderboardContent({
           isUserConnected={isUserConnected}
         />
       </div>
+
+      {isUserConnected && (
+        <div className="rounded-lg border bg-card p-6">
+          <h3 className="mb-4 font-semibold text-lg">Referral Stats</h3>
+          <ReferralStats
+            referralCode={referralCode}
+            numberOfReferrals={numberOfReferrals}
+            referralPoints={referralPoints}
+            isLoading={isReferralStatsLoading}
+            percentage={referralPercentage}
+          />
+        </div>
+      )}
     </div>
   );
 }

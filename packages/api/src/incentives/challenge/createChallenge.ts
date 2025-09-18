@@ -1,4 +1,4 @@
-import { challenge } from 'db/consultation';
+import { challenge } from 'db/incentives';
 import { Effect } from 'effect';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 

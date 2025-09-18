@@ -1,6 +1,7 @@
-import { users } from 'db/incentives';
-import { eq } from 'drizzle-orm';
+import { user, userSeasonPoints, users } from 'db/incentives';
+import { and, count, eq, sum } from 'drizzle-orm';
 import { Data, Effect, Schema } from 'effect';
+import { ConfigService } from '../config/configService';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export const ReferralCodeSchema = Schema.String.pipe(
@@ -21,9 +22,10 @@ class UserNotFoundError extends Data.TaggedError('UserNotFoundError')<{
 export class UserReferral extends Effect.Service<UserReferral>()(
   'UserReferral',
   {
-    dependencies: [dbClientLive],
+    dependencies: [dbClientLive, ConfigService.Default],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+      const config = yield* ConfigService;
 
       const generateReferralCode = Effect.fnUntraced(function* () {
         return crypto.randomUUID().slice(0, 6);
@@ -81,6 +83,65 @@ export class UserReferral extends Effect.Service<UserReferral>()(
               });
             }),
           );
+        }),
+        getUserReferralStats: Effect.fnUntraced(function* (input: {
+          userId: string;
+          seasonId: string;
+        }) {
+          const referralPercentage = yield* config.getReferralPercentage();
+
+          const [referralCode, numberOfReferrals, referralPoints]: [
+            string,
+            number,
+            string,
+          ] = yield* Effect.all(
+            [
+              Effect.tryPromise({
+                try: () =>
+                  db
+                    .select({
+                      referralCode: user.referralCode,
+                    })
+                    .from(user)
+                    .where(eq(user.id, input.userId))
+                    .then((result) => result[0]?.referralCode || ''),
+                catch: (error) => new DbError(error),
+              }),
+              Effect.tryPromise({
+                try: () =>
+                  db
+                    .select({ count: count() })
+                    .from(user)
+                    .where(eq(user.referredBy, input.userId))
+                    .then((result) => result[0]?.count || 0),
+                catch: (error) => new DbError(error),
+              }),
+              Effect.tryPromise({
+                try: () =>
+                  db
+                    .select({
+                      referralPoints: sum(userSeasonPoints.referralPoints),
+                    })
+                    .from(userSeasonPoints)
+                    .where(
+                      and(
+                        eq(userSeasonPoints.userId, input.userId),
+                        eq(userSeasonPoints.seasonId, input.seasonId),
+                      ),
+                    )
+                    .then((result) => result[0]?.referralPoints || '0'),
+                catch: (error) => new DbError(error),
+              }),
+            ],
+            { concurrency: 'unbounded' },
+          );
+
+          return {
+            numberOfReferrals: numberOfReferrals ?? 0,
+            referralPoints: referralPoints ?? '0',
+            percentage: referralPercentage,
+            referralCode,
+          };
         }),
       };
     }),

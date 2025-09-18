@@ -45,17 +45,6 @@ export class RolaService extends Effect.Service<RolaService>()('RolaService', {
         verifySignedChallenge(signedChallenge),
       );
 
-      yield* Effect.log({
-        signedChallenge,
-        result,
-        rolaConfig: {
-          networkId,
-          applicationName,
-          dAppDefinitionAddress,
-          expectedOrigin,
-        },
-      });
-
       if (result.isErr()) {
         return yield* Effect.fail(
           new VerifyRolaProofError({

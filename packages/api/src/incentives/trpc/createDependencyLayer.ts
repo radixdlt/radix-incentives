@@ -99,6 +99,7 @@ import {
   GetUsersPaginatedService,
 } from '../user/getUsersPaginated';
 import { UserService } from '../user/user';
+import { UserReferral } from '../user-referral/userReferral';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
 import {
@@ -1084,6 +1085,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getUserReferralStats = (input: {
+    userId: string;
+    seasonId: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const service = yield* UserReferral;
+      return yield* service.getUserReferralStats(input);
+    }).pipe(Effect.provide(UserReferral.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1143,5 +1156,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateCategoryWeekLowerBoundsPercentage,
     updateCategoryWeekOutlierThresholdPercentage,
     updateCategoryWeekEnableOutlierDetection,
+    getUserReferralStats,
   };
 };

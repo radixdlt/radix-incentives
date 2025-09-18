@@ -37,6 +37,22 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+
+  getUserReferralStats: protectedProcedure
+    .input(z.object({ seasonId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getUserReferralStats({
+        userId: ctx.session.user.id,
+        seasonId: input.seasonId,
+      });
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
 });
 
 export const adminUserRouter = createTRPCRouter({
