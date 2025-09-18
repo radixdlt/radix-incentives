@@ -1,12 +1,18 @@
 'use client';
 
 import Cookies from 'js-cookie';
-import { useSearchParams } from 'next/navigation';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const useReferralCode = () => {
-  const searchParams = useSearchParams();
-  const referralCode = searchParams.get('ref');
+  const [referralCode, setReferralCode] = useState<string | null>(null);
+
+  useEffect(() => {
+    // Only access searchParams on the client side
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      setReferralCode(searchParams.get('ref'));
+    }
+  }, []);
 
   const clearReferralCode = useCallback(() => {
     Cookies.remove('ref');

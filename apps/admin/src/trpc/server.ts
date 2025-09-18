@@ -32,6 +32,10 @@ const createContext = cache(async () => {
       // TODO: Implement getSessionToken
       return null;
     },
+    getReferralCode: async () => {
+      // TODO: Implement getReferralCode
+      return undefined;
+    },
   });
 });
 
