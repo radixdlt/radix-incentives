@@ -1097,6 +1097,14 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getUserByIdentityAddress = (input: { identityAddress: string }) => {
+    const program = Effect.gen(function* () {
+      const service = yield* UserService;
+      return yield* service.getUserByIdentityAddress(input);
+    }).pipe(Effect.provide(UserService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1157,5 +1165,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateCategoryWeekOutlierThresholdPercentage,
     updateCategoryWeekEnableOutlierDetection,
     getUserReferralStats,
+    getUserByIdentityAddress,
   };
 };

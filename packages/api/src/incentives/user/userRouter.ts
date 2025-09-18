@@ -53,6 +53,26 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+
+  userExists: publicProcedure
+    .input(z.object({ identityAddress: z.string() }))
+    .mutation(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getUserByIdentityAddress({
+        identityAddress: input.identityAddress,
+      });
+      return Exit.match(result, {
+        onSuccess: (value) => !!value,
+        onFailure: (error) => {
+          if (error._tag === 'Fail') {
+            if (error.error._tag === 'UserNotFoundError') {
+              return false;
+            }
+          }
+
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
 });
 
 export const adminUserRouter = createTRPCRouter({

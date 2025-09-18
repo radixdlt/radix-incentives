@@ -25,13 +25,6 @@ export class RolaService extends Effect.Service<RolaService>()('RolaService', {
     );
     const gatewayApiClient = yield* GatewayApiClientService;
 
-    yield* Effect.log('rolaConfig', {
-      networkId,
-      applicationName,
-      dAppDefinitionAddress,
-      expectedOrigin,
-    });
-
     const { verifySignedChallenge } = Rola({
       networkId,
       applicationName,

@@ -4,31 +4,41 @@ import Cookies from 'js-cookie';
 import { useCallback, useEffect, useState } from 'react';
 
 export const useReferralCode = () => {
+  const KEY = 'ref';
   const [referralCode, setReferralCode] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Only access searchParams on the client side
+  const setCookie = useCallback((code: string) => {
+    Cookies.set(KEY, code, {
+      expires: 30,
+      path: '/',
+      secure: true,
+      sameSite: 'lax',
+      httpOnly: false,
+    });
+  }, []);
+
+  const clearCookie = useCallback(() => {
+    Cookies.remove(KEY);
+  }, []);
+
+  const setCookieFromSearchParams = useCallback(() => {
     if (typeof window !== 'undefined') {
       const searchParams = new URLSearchParams(window.location.search);
-      setReferralCode(searchParams.get('ref'));
-    }
-  }, []);
+      const value = searchParams.get(KEY);
 
-  const clearReferralCode = useCallback(() => {
-    Cookies.remove('ref');
+      if (value) {
+        setCookie(value);
+      }
+      return value;
+    }
   }, []);
 
   useEffect(() => {
-    if (referralCode) {
-      Cookies.set('ref', referralCode, {
-        expires: 30,
-        path: '/',
-        secure: true,
-        sameSite: 'lax',
-        httpOnly: false,
-      });
+    const value = Cookies.get(KEY);
+    if (value) {
+      setReferralCode(value);
     }
-  }, [referralCode]);
+  }, [setCookieFromSearchParams]);
 
-  return clearReferralCode;
+  return { referralCode, clearCookie, setCookie, setCookieFromSearchParams };
 };
