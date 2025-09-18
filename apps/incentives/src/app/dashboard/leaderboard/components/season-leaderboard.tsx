@@ -162,6 +162,7 @@ export function SeasonLeaderboard() {
           referralPoints={referralStats?.referralPoints}
           isReferralStatsLoading={referralStatsLoading}
           referralPercentage={referralStats?.percentage}
+          showReferralStats
         />
       ) : (
         <LoadingState message="Loading leaderboard..." />

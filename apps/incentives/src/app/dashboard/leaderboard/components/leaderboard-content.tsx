@@ -41,6 +41,7 @@ interface LeaderboardContentProps {
   referralPoints?: string;
   isReferralStatsLoading?: boolean;
   referralPercentage?: number;
+  showReferralStats?: boolean;
 }
 
 export function LeaderboardContent({
@@ -55,6 +56,7 @@ export function LeaderboardContent({
   referralPoints,
   isReferralStatsLoading = false,
   referralPercentage,
+  showReferralStats = false,
 }: LeaderboardContentProps) {
   if (topUsers.length === 0) {
     return (
@@ -94,7 +96,7 @@ export function LeaderboardContent({
         />
       </div>
 
-      {isUserConnected && (
+      {isUserConnected && showReferralStats && (
         <div className="rounded-lg border bg-card p-6">
           <h3 className="mb-4 font-semibold text-lg">Referral Stats</h3>
           <ReferralStats
