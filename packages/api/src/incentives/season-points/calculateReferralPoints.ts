@@ -35,11 +35,16 @@ export class CalculateReferralPoints extends Effect.Service<CalculateReferralPoi
           }
         }
 
-        return users.map((user) => ({
-          ...user,
-          referralPoints:
-            referralPointsMap.get(user.userId) ?? new BigNumber(0),
-        }));
+        return users.map((user) => {
+          const referralPoints =
+            referralPointsMap.get(user.userId) ?? new BigNumber(0);
+          const seasonPoints = user.points.plus(referralPoints);
+          return {
+            ...user,
+            referralPoints,
+            points: seasonPoints,
+          };
+        });
       });
     }),
   },
