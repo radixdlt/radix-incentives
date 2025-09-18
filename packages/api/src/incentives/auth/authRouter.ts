@@ -31,7 +31,11 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ input, ctx }) => {
-      const result = await ctx.dependencyLayer.signIn(input);
+      const referralCode = await ctx.getReferralCode();
+      const result = await ctx.dependencyLayer.signIn({
+        rolaProof: input,
+        referralCode,
+      });
 
       if (result._tag === 'Failure') {
         console.error(result.cause);
@@ -66,5 +70,9 @@ export const authRouter = createTRPCRouter({
     return {
       success: true,
     };
+  }),
+
+  isSignedIn: protectedProcedure.query(async () => {
+    return true;
   }),
 });

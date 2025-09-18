@@ -41,25 +41,37 @@ export const challenge = createTable('challenge', {
     .defaultNow(),
 });
 
-export const users = createTable('user', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  identityAddress: varchar('identity_address', { length: 255 })
-    .unique()
-    .notNull(),
-  label: varchar('label', { length: 255 }),
-  createdAt: timestamp('created_at', {
-    mode: 'date',
-    withTimezone: true,
-  })
-    .defaultNow()
-    .notNull(),
-});
+export const users = createTable(
+  'user',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    identityAddress: varchar('identity_address', { length: 255 })
+      .unique()
+      .notNull(),
+    label: varchar('label', { length: 255 }),
+    referralCode: varchar('referral_code', { length: 6 }).unique(),
+    referredBy: uuid('referred_by'),
+    createdAt: timestamp('created_at', {
+      mode: 'date',
+      withTimezone: true,
+    })
+      .defaultNow()
+      .notNull(),
+  },
+  (table) => ({
+    referredByIdx: index('referred_by_idx').on(table.referredBy),
+  }),
+);
 
 export const user = users;
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations = relations(users, ({ many, one }) => ({
   sessions: many(sessions),
   accounts: many(accounts),
+  referredBy: one(users, {
+    fields: [users.referredBy],
+    references: [users.id],
+  }),
 }));
 
 export const sessions = createTable('session', {
@@ -397,6 +409,10 @@ export const userSeasonPoints = createTable(
       .notNull()
       .references(() => weeks.id, { onDelete: 'cascade' }),
     points: decimal('points', { precision: 18, scale: 6 }).notNull(),
+    referralPoints: decimal('referral_points', {
+      precision: 18,
+      scale: 6,
+    }),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.seasonId, table.weekId] }),

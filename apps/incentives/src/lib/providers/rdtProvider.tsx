@@ -5,9 +5,11 @@ import {
   type Persona,
   RadixDappToolkit,
 } from '@radixdlt/radix-dapp-toolkit';
+
 import { createContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { usePersonaConnectionWarning } from '~/components/ui/PersonaConnectionWarning';
+import { useReferralCode } from '~/lib/hooks/useReferralCode';
 import { api } from '~/trpc/react';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
@@ -22,6 +24,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   const [persona, setPersona] = useState<Persona | undefined>(undefined);
   const { showWarning, WarningDialog } = usePersonaConnectionWarning();
   const personaRef = useRef(persona);
+  const clearReferralCode = useReferralCode();
 
   personaRef.current = persona;
 
@@ -66,15 +69,21 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       const { label } = request.persona;
 
       try {
-        const _result = await signIn.mutateAsync({
+        await signIn.mutateAsync({
           address,
           type,
           label,
           challenge,
           proof,
         });
-      } catch (_error) {
+        clearReferralCode();
+      } catch (error) {
         rdt.disconnect();
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to sign in',
+        );
+        // need to throw error to prevent RDT from getting into a logged in state
+        throw error;
       }
     });
 

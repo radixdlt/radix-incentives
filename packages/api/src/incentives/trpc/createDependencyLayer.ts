@@ -8,13 +8,12 @@ import {
   type GetLedgerStateInput,
   GetLedgerStateService,
 } from '../../common/gateway';
-import { CheckAccountPersistenceServiceLive } from '../../common/gateway/checkAccountPersistence';
+
 import { GatewayApiClientLive } from '../../common/gateway/gatewayApiClient';
 import { GetEntitiesByRoleRequirementService } from '../../common/gateway/getEntitiesByRoleRequirement';
 import { GetEntityRoleAssignmentsService } from '../../common/gateway/getEntityRoleAssignments';
 import { AccountBalanceService } from '../account/accountBalance';
-import { GetAccountsByAddressLive } from '../account/getAccountsByAddress';
-import { UpsertAccountsLive } from '../account/upsertAccounts';
+
 import {
   ActivityService,
   type UpdateActivityInput,
@@ -44,10 +43,16 @@ import {
   GetActivityWeeksByWeekIdsService,
 } from '../activity-week/getActivityWeeksByWeekIds';
 import {
-  CreateChallengeLive,
-  createChallengeProgram,
-} from '../challenge/createChallenge';
-import { VerifyChallengeLive } from '../challenge/verifyChallenge';
+  type SignInWithRolaProofInput,
+  SignInWithRolaProofService,
+} from '../auth/signInWithRolaProof';
+import { SignOutService } from '../auth/signOut';
+import {
+  type VerifyAccountOwnershipInput,
+  VerifyAccountOwnershipService,
+} from '../auth/verifyAccountOwnership';
+import { CreateChallengeService } from '../challenge/createChallenge';
+import { VerifyChallengeService } from '../challenge/verifyChallenge';
 import { ComponentWhitelistService } from '../component/componentWhitelist';
 import { parseCsvWhitelist } from '../component/parseCsvWhitelist';
 import {
@@ -66,31 +71,18 @@ import { ActivityDisplayService } from '../leaderboard/activityDisplay';
 import { ActivityPointsAdjustmentService } from '../leaderboard/activityPointsAdjustment';
 import { LeaderboardService } from '../leaderboard/leaderboard';
 import { getAccountsProgram } from '../programs/getAccounts';
-import {
-  type SignInWithRolaProofInput,
-  signInWithRolaProof,
-} from '../programs/signInWithRolaProof';
-import { signOutProgram } from '../programs/signOutProgram';
 import { validateSessionTokenProgram } from '../programs/validateSessionToken';
-import {
-  type VerifyAccountOwnershipInput,
-  verifyAccountOwnershipProgram,
-} from '../programs/verifyAccountOwnership';
-import { RolaServiceLive } from '../rola/rola';
-import { VerifyRolaProofLive } from '../rola/verifyRolaProof';
 import {
   GetSeasonByIdLive,
   GetSeasonByIdService,
 } from '../season/getSeasonById';
 import { GetSeasonsLive, GetSeasonsService } from '../season/getSeasons';
 import { type EditSeasonInput, SeasonService } from '../season/season';
-
 import {
   type CalculateSeasonPointsInput,
   CalculateSeasonPointsService,
 } from '../season-points/calculateSeasonPoints';
-import { CreateSessionLive } from '../session/createSession';
-import { GenerateSessionTokenLive } from '../session/generateSessionToken';
+import { SeedUserReferralCodesService } from '../seed/seedUserReferralCodes';
 import { GetSessionLive } from '../session/getSession';
 import { InvalidateSessionLive } from '../session/invalidateSession';
 import { MarginAccountDbService } from '../surge/marginAccountDbService';
@@ -106,9 +98,7 @@ import {
   GetUsersPaginatedLive,
   GetUsersPaginatedService,
 } from '../user/getUsersPaginated';
-import { UpsertUserLive } from '../user/upsertUser';
 import { UserService } from '../user/user';
-
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
 import {
@@ -132,43 +122,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const gatewayApiClientLive = GatewayApiClientLive;
 
-  const checkAccountPersistenceLive = CheckAccountPersistenceServiceLive.pipe(
-    Layer.provide(gatewayApiClientLive),
-  );
-
-  const rolaServiceLive = RolaServiceLive.pipe(Layer.provide(appConfigLive));
-
-  const createChallengeLive = CreateChallengeLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const upsertUserLive = UpsertUserLive.pipe(Layer.provide(dbClientLive));
-
-  const generateSessionTokenLive = GenerateSessionTokenLive;
-
-  const verifyChallengeLive = VerifyChallengeLive.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(appConfigLive),
-  );
-
-  const createSessionLive = CreateSessionLive.pipe(
-    Layer.provide(dbClientLive),
-    Layer.provide(appConfigLive),
-  );
-
-  const verifyRolaProofLive = VerifyRolaProofLive.pipe(
-    Layer.provide(rolaServiceLive),
-  );
-
   const invalidateSessionLive = InvalidateSessionLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const upsertAccountsLive = UpsertAccountsLive.pipe(
-    Layer.provide(dbClientLive),
-  );
-
-  const getAccountsByAddressLive = GetAccountsByAddressLive.pipe(
     Layer.provide(dbClientLive),
   );
 
@@ -192,9 +146,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive),
   );
 
-  const updateWeekStatusLive = UpdateWeekStatusService.Default.pipe(
-    Layer.provide(dbClientLive),
-  );
+  const updateWeekStatusLive = UpdateWeekStatusService.Default;
 
   const NodeSdkLive = NodeSdk.layer(() => ({
     resource: { serviceName: 'api' },
@@ -205,27 +157,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     ),
   }));
 
-  const createChallenge = () =>
-    Effect.runPromiseExit(
-      createChallengeProgram.pipe(Effect.provide(createChallengeLive)),
-    );
+  const createChallenge = () => {
+    const runnable = Effect.gen(function* () {
+      const createChallenge = yield* CreateChallengeService;
+      return yield* createChallenge();
+    }).pipe(Effect.provide(CreateChallengeService.Default));
+
+    return Effect.runPromiseExit(runnable);
+  };
 
   const signIn = (input: SignInWithRolaProofInput) => {
-    const program = Effect.provide(
-      signInWithRolaProof(input),
-      Layer.mergeAll(
-        rolaServiceLive,
-        appConfigLive,
-        dbClientLive,
-        verifyRolaProofLive,
-        createSessionLive,
-        generateSessionTokenLive,
-        upsertUserLive,
-        verifyChallengeLive,
-      ),
-    );
+    const runnable = Effect.gen(function* () {
+      const signInWithRolaProof = yield* SignInWithRolaProofService;
+      return yield* signInWithRolaProof(input);
+    }).pipe(Effect.provide(SignInWithRolaProofService.Default));
 
-    return Effect.runPromiseExit(program);
+    return Effect.runPromiseExit(runnable);
   };
 
   const validateSessionToken = (sessionToken: string) => {
@@ -243,21 +190,15 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   };
 
   const verifyAccountOwnership = (input: VerifyAccountOwnershipInput) => {
-    const program = Effect.provide(
-      verifyAccountOwnershipProgram(input),
-      Layer.mergeAll(
-        rolaServiceLive,
-        appConfigLive,
-        dbClientLive,
-        verifyRolaProofLive,
-        verifyChallengeLive,
-        upsertAccountsLive,
-        getAccountsByAddressLive,
-        checkAccountPersistenceLive,
-      ),
+    const runnable = Effect.gen(function* () {
+      const verifyAccountOwnership = yield* VerifyAccountOwnershipService;
+      return yield* verifyAccountOwnership(input);
+    }).pipe(
+      Effect.provide(VerifyAccountOwnershipService.Default),
+      Effect.provide(VerifyChallengeService.Default),
     );
 
-    return Effect.runPromiseExit(program);
+    return Effect.runPromiseExit(runnable);
   };
 
   const getAccounts = (userId: string) => {
@@ -270,12 +211,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   };
 
   const signOut = (userId: string) => {
-    const program = Effect.provide(
-      signOutProgram(userId),
-      Layer.mergeAll(dbClientLive),
-    );
+    const runnable = Effect.gen(function* () {
+      const signOutService = yield* SignOutService;
+      return yield* signOutService(userId);
+    }).pipe(Effect.provide(SignOutService.Default));
 
-    return Effect.runPromiseExit(program);
+    return Effect.runPromiseExit(runnable);
   };
 
   const getActivities = () => {
@@ -1135,6 +1076,14 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const seedUserReferralCodes = () => {
+    const program = Effect.gen(function* () {
+      const service = yield* SeedUserReferralCodesService;
+      return yield* service();
+    }).pipe(Effect.provide(SeedUserReferralCodesService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1190,6 +1139,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getSeasonLeaderboardPaginated,
     getIncentivesData,
     seedActivities,
+    seedUserReferralCodes,
     updateCategoryWeekLowerBoundsPercentage,
     updateCategoryWeekOutlierThresholdPercentage,
     updateCategoryWeekEnableOutlierDetection,

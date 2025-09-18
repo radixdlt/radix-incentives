@@ -1,32 +1,29 @@
 import { challenge } from 'db/consultation';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
-export class ChallengeService extends Context.Tag('ChallengeService')<
-  ChallengeService,
-  string
->() {}
+export class CreateChallengeService extends Effect.Service<CreateChallengeService>()(
+  'CreateChallengeService',
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
 
-export const CreateChallengeLive = Layer.effect(
-  ChallengeService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-    const value = yield* Effect.tryPromise({
-      try: () =>
-        db
-          .insert(challenge)
-          .values({})
-          .returning()
-          .then(([value]) => value),
-      catch: (error) => new DbError(error),
-    });
-    if (!value) return yield* Effect.fail(new DbError('No challenge created'));
+      return Effect.fnUntraced(function* () {
+        const value = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .insert(challenge)
+              .values({})
+              .returning()
+              .then(([value]) => value),
+          catch: (error) => new DbError(error),
+        });
+        if (!value)
+          return yield* Effect.fail(new DbError('No challenge created'));
 
-    return value.challenge;
-  }),
-);
-
-export const createChallengeProgram = Effect.gen(function* () {
-  const challenge = yield* ChallengeService;
-  return challenge;
-});
+        return value.challenge;
+      });
+    }),
+  },
+) {}

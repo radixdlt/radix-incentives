@@ -1,5 +1,11 @@
-import { Effect } from 'effect';
+import { Data, Effect } from 'effect';
 import { GatewayApiClientService } from './gatewayApiClient';
+
+export class VirtualAccountError extends Data.TaggedError(
+  'VirtualAccountError',
+)<{
+  address: string;
+}> {}
 
 export class CheckAccountPersistenceService extends Effect.Service<CheckAccountPersistenceService>()(
   'CheckAccountPersistenceService',
@@ -9,7 +15,7 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
       const gatewayClient = yield* GatewayApiClientService;
 
       return Effect.fn(function* (addresses: string[]) {
-        return yield* Effect.forEach(
+        const results = yield* Effect.forEach(
           addresses,
           Effect.fn(function* (address) {
             yield* Effect.log(`Checking persistence for account: ${address}`);
@@ -69,34 +75,19 @@ export class CheckAccountPersistenceService extends Effect.Service<CheckAccountP
             };
           }),
         );
+
+        const virtualAccounts = results.filter((result) => !result.isPersisted);
+
+        if (virtualAccounts.length > 0) {
+          // Return the first virtual account found
+          const firstVirtualAccount = virtualAccounts[0];
+          if (firstVirtualAccount) {
+            return yield* Effect.fail(
+              new VirtualAccountError({ address: firstVirtualAccount.address }),
+            );
+          }
+        }
       });
     }),
   },
 ) {}
-
-export const CheckAccountPersistenceServiceLive =
-  CheckAccountPersistenceService.Default;
-
-export class VirtualAccountError {
-  readonly _tag = 'VirtualAccountError';
-  constructor(readonly address: string) {}
-}
-
-// Helper function to check if any accounts are virtual
-export const checkForVirtualAccounts = (addresses: string[]) =>
-  Effect.gen(function* () {
-    const checkAccountPersistence = yield* CheckAccountPersistenceService;
-    const results = yield* checkAccountPersistence(addresses);
-
-    const virtualAccounts = results.filter((result) => !result.isPersisted);
-
-    if (virtualAccounts.length > 0) {
-      // Return the first virtual account found
-      const firstVirtualAccount = virtualAccounts[0];
-      if (firstVirtualAccount) {
-        return yield* Effect.fail(
-          new VirtualAccountError(firstVirtualAccount.address),
-        );
-      }
-    }
-  });

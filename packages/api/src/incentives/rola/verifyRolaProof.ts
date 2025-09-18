@@ -1,4 +1,4 @@
-import { Effect } from 'effect';
+import { Data, Effect } from 'effect';
 
 import { z } from 'zod';
 import { RolaService } from './rola';
@@ -21,26 +21,18 @@ export const signedChallengeSchema = z.object({
 
 export type VerifyRolaProofInput = z.infer<typeof signedChallengeSchema>;
 
-export class ParseRolaProofInputError {
-  readonly _tag: 'ParseRolaProofInputError';
-  constructor(readonly error: z.ZodError<VerifyRolaProofInput>) {
-    this._tag = 'ParseRolaProofInputError';
-  }
-}
-
-export class VerifyRolaProofError {
-  readonly _tag: 'VerifyRolaProofError';
-  constructor(readonly error: unknown) {
-    this._tag = 'VerifyRolaProofError';
-  }
-}
+export class ParseRolaProofInputError extends Data.TaggedError(
+  'ParseRolaProofInputError',
+)<{ error: z.ZodError<VerifyRolaProofInput> }> {}
 
 export class VerifyRolaProofService extends Effect.Service<VerifyRolaProofService>()(
   'VerifyRolaProofService',
   {
+    dependencies: [RolaService.Default],
     effect: Effect.gen(function* () {
       const verifySignedChallenge = yield* RolaService;
-      return Effect.fn(function* (input: VerifyRolaProofInput) {
+
+      return Effect.fnUntraced(function* (input: VerifyRolaProofInput) {
         const verifyInputResult = yield* Effect.tryPromise(() =>
           signedChallengeSchema.safeParseAsync(input),
         );
@@ -55,41 +47,27 @@ export class VerifyRolaProofService extends Effect.Service<VerifyRolaProofServic
           );
 
           return yield* Effect.fail(
-            new ParseRolaProofInputError(verifyInputResult.error),
+            new ParseRolaProofInputError({ error: verifyInputResult.error }),
           );
         }
 
         const signedChallenge = verifyInputResult.data;
 
-        const items = signedChallenge.items
-          .map((item) => ({
-            ...item,
-            challenge: signedChallenge.challenge,
-          }))
-          .map((item) => Effect.tryPromise(() => verifySignedChallenge(item)));
-
-        const result = yield* Effect.all(items);
-
-        const errors = result
-          .filter((item) => item.isErr())
-          .map((item) => item.error);
-
-        if (errors.length > 0) {
-          yield* Effect.logError(
-            {
-              input,
-              errors,
-            },
-            'verifySignedChallenge failed',
-          );
-
-          return yield* Effect.fail(new VerifyRolaProofError(errors));
-        }
+        yield* Effect.forEach(
+          signedChallenge.items,
+          Effect.fnUntraced(function* (item) {
+            yield* verifySignedChallenge({
+              ...item,
+              challenge: signedChallenge.challenge,
+            });
+          }),
+          {
+            concurrency: 'unbounded',
+          },
+        );
 
         return true;
       });
     }),
   },
 ) {}
-
-export const VerifyRolaProofLive = VerifyRolaProofService.Default;

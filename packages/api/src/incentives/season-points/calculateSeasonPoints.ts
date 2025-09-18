@@ -13,6 +13,7 @@ import { UserActivityPointsService } from '../user/userActivityPoints';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { WeekService } from '../week/week';
 import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
+import { CalculateReferralPoints } from './calculateReferralPoints';
 import { createUserBands } from './createUserBands';
 import { detectOutliers } from './detectOutliers';
 import { distributeSeasonPoints } from './distributePoints';
@@ -49,6 +50,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       UpdateWeekStatusService.Default,
       GetSeasonPointMultiplierService.Default,
       ActivityCategoryWeekService.Default,
+      CalculateReferralPoints.Default,
     ],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -59,6 +61,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const updateWeekStatus = yield* UpdateWeekStatusService;
       const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
+      const calculateReferralPoints = yield* CalculateReferralPoints;
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
 
@@ -129,14 +132,19 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         );
       });
 
-      const getAllUserIds = Effect.fn(function* () {
+      const getUserIdAndReferredBy = Effect.fn(function* () {
         // Get all user IDs directly from database
         return yield* Effect.tryPromise({
           try: () =>
             db
-              .select({ id: users.id })
+              .select({ id: users.id, referredBy: users.referredBy })
               .from(users)
-              .then((result) => result.map((row) => row.id)),
+              .then((result) =>
+                result.map((row) => ({
+                  userId: row.id,
+                  referredBy: row.referredBy,
+                })),
+              ),
           catch: (error) => new DbError(error),
         });
       });
@@ -354,7 +362,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           );
 
           // Get all user IDs from the database
-          const allUserIds = yield* getAllUserIds();
+          const userIdAndReferredBy = yield* getUserIdAndReferredBy();
 
           // Extract user IDs that already have season points
           const existingUserIds = new Set(
@@ -362,30 +370,45 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           );
 
           // Find users that don't have season points
-          const missingUserIds = allUserIds.filter(
-            (userId) => !existingUserIds.has(userId),
+          const missingUserIds = userIdAndReferredBy.filter(
+            ({ userId }) => !existingUserIds.has(userId),
           );
 
           // Create zero season points for missing users
-          const zeroSeasonPoints = missingUserIds.map((userId) => ({
+          const zeroSeasonPoints = missingUserIds.map(({ userId }) => ({
             userId,
             seasonId: season.id,
             points: new BigNumber(0),
             weekId: input.weekId,
           }));
 
+          const referredByMap = new Map<string, string>();
+
+          for (const user of userIdAndReferredBy) {
+            if (user.referredBy) {
+              referredByMap.set(user.userId, user.referredBy);
+            }
+          }
+
           // Combine existing season points with zero season points for missing users
           const completeUserSeasonPoints = [
             ...zeroSeasonPoints,
             ...userSeasonPoints,
-          ];
+          ].map((user) => ({
+            ...user,
+            referredBy: referredByMap.get(user.userId),
+          }));
 
           yield* Effect.log(
             `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`,
           );
 
+          const withReferralPoints = yield* calculateReferralPoints(
+            completeUserSeasonPoints,
+          );
+
           if (!input.dryRun) {
-            yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
+            yield* addSeasonPointsToUser.run(withReferralPoints);
             yield* markAsProcessed(input);
           }
 
@@ -394,7 +417,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           yield* Effect.log(
             `season points for week ${input.weekId} successfully applied to users`,
           );
-          return completeUserSeasonPoints;
+          return withReferralPoints;
         }),
       };
     }),

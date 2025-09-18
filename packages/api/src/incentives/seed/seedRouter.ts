@@ -8,15 +8,29 @@ export const adminSeedRouter = createTRPCRouter({
     try {
       await seedActivities();
 
-      const result = await ctx.dependencyLayer.seedActivities();
+      const seedActivitiesResult = await ctx.dependencyLayer.seedActivities();
 
-      Exit.match(result, {
+      Exit.match(seedActivitiesResult, {
         onSuccess: () => {},
         onFailure: (error) => {
           console.error(error);
           throw new TRPCError({
             code: 'INTERNAL_SERVER_ERROR',
             message: `Failed to seed activities`,
+          });
+        },
+      });
+
+      const seedUserReferralCodesResult =
+        await ctx.dependencyLayer.seedUserReferralCodes();
+
+      Exit.match(seedUserReferralCodesResult, {
+        onSuccess: () => {},
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: `Failed to seed user referral codes`,
           });
         },
       });

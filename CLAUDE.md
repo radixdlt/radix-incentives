@@ -141,6 +141,7 @@ pnpm build:clean
 ### Effect.Service Guidelines
 When creating services using the Effect library:
 - Use `Effect.Service<ServiceName>()` pattern instead of `Context.Tag` + `Layer.effect`
+- **NEVER remove dependencies from services** - if a service has dependencies listed, they must be kept even if they seem to cause type errors
 - Service class structure:
   ```typescript
   export class ServiceName extends Effect.Service<ServiceName>()(

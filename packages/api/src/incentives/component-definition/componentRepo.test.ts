@@ -1,7 +1,6 @@
 import { layer } from '@effect/vitest';
 
 import { Effect, Logger } from 'effect';
-import { DbClientService, dbClientLive } from '../db/dbClient';
 import { HyperStakeComponent } from './caviarnine/hyperStake';
 import { QuantaSwapComponent } from './caviarnine/quantaSwap';
 import { WeightedPoolComponent } from './caviarnine/weightedPool';

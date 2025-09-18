@@ -1,33 +1,29 @@
-import { type Account, accounts } from 'db/incentives';
+import { accounts } from 'db/incentives';
 import { inArray } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 type GetAccountsByAddressInput = {
   addresses: string[];
 };
 
-export class GetAccountsByAddressService extends Context.Tag(
+export class GetAccountsByAddressService extends Effect.Service<GetAccountsByAddressService>()(
   'GetAccountsByAddressService',
-)<
-  GetAccountsByAddressService,
-  (input: GetAccountsByAddressInput) => Effect.Effect<Account[], DbError>
->() {}
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
+      return Effect.fnUntraced(function* (input: GetAccountsByAddressInput) {
+        return yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select()
+              .from(accounts)
+              .where(inArray(accounts.address, input.addresses)),
 
-export const GetAccountsByAddressLive = Layer.effect(
-  GetAccountsByAddressService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-
-    return (input) =>
-      Effect.tryPromise({
-        try: () =>
-          db
-            .select()
-            .from(accounts)
-            .where(inArray(accounts.address, input.addresses)),
-
-        catch: (error) => new DbError(error),
+          catch: (error) => new DbError(error),
+        });
       });
-  }),
-);
+    }),
+  },
+) {}

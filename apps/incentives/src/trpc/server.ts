@@ -42,6 +42,12 @@ const createContext = cache(async () => {
 
       return sessionToken ?? null;
     },
+    getReferralCode: async () => {
+      const cookieStore = await cookies();
+      const referralCode = cookieStore.get('ref')?.value;
+
+      return referralCode;
+    },
   });
 });
 
