@@ -9,8 +9,30 @@ import { TRPCReactProvider } from '~/trpc/react';
 
 export const metadata: Metadata = {
   title: 'Radix Incentives',
-  description: 'Dashboard for the Radix Incentives campaign',
+  description:
+    'The race for 1 billion $XRD is on! Connect your Radix Wallet to track your points in real-time, and push your rank to the top of the leaderboard.',
   icons: [{ rel: 'icon', url: '/favicon.png' }],
+  openGraph: {
+    type: 'website',
+    title: 'Radix Incentives',
+    description:
+      'The race for 1 billion $XRD is on! Connect your Radix Wallet to track your points in real-time, and push your rank to the top of the leaderboard.',
+    images: [
+      {
+        url: '/og.png',
+        width: 1200,
+        height: 630,
+        alt: 'Radix Incentives',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Radix Incentives',
+    description:
+      'The race for 1 billion $XRD is on! Connect your Radix Wallet to track your points in real-time, and push your rank to the top of the leaderboard.',
+    images: ['/og.png'],
+  },
 };
 
 const geist = Geist({
