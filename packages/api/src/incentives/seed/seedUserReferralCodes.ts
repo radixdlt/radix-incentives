@@ -1,6 +1,7 @@
 import { users } from 'db/incentives';
 import { isNull, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
+import { chunker } from '../../common';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { UserReferral } from '../user-referral/userReferral';
 
@@ -36,17 +37,22 @@ export class SeedUserReferralCodesService extends Effect.Service<SeedUserReferra
           }),
         );
 
-        yield* Effect.tryPromise({
-          try: () =>
-            db
-              .insert(users)
-              .values(usersWithReferralCode)
-              .onConflictDoUpdate({
-                target: [users.id],
-                set: { referralCode: sql`excluded.referral_code` },
-              }),
-          catch: (error) => new DbError(error),
-        });
+        yield* Effect.forEach(
+          chunker(usersWithReferralCode, 500),
+          Effect.fnUntraced(function* (chunk) {
+            yield* Effect.tryPromise({
+              try: () =>
+                db
+                  .insert(users)
+                  .values(chunk)
+                  .onConflictDoUpdate({
+                    target: [users.id],
+                    set: { referralCode: sql`excluded.referral_code` },
+                  }),
+              catch: (error) => new DbError(error),
+            });
+          }),
+        );
       });
     }),
   },
