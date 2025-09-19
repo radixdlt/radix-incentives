@@ -1,3 +1,4 @@
+import { BigNumber } from 'bignumber.js';
 import { accountBalances } from 'db/incentives';
 import { and, between, desc, inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
@@ -16,8 +17,8 @@ export type LatestAccountBalance = {
 };
 
 export type CapitalAggregation = {
-  capitalByCategory: Map<string, number>;
-  capitalByActivity: Map<string, number>;
+  capitalByCategory: Map<string, BigNumber>;
+  capitalByActivity: Map<string, BigNumber>;
 };
 
 export class AccountBalanceService extends Effect.Service<AccountBalanceService>()(
@@ -79,8 +80,8 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
           activeActivityIds: string[];
           activityToCategoryMap: Map<string, string>;
         }) {
-          const capitalByCategory = new Map<string, number>();
-          const capitalByActivity = new Map<string, number>();
+          const capitalByCategory = new Map<string, BigNumber>();
+          const capitalByActivity = new Map<string, BigNumber>();
 
           // Group account balances by category and activity, but only for active activities
           for (const balance of input.latestBalances) {
@@ -94,18 +95,22 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
                 item.activityId,
               );
               if (categoryId && item.usdValue) {
-                const usdValue = parseFloat(item.usdValue);
+                const usdValue = new BigNumber(item.usdValue);
 
                 // Category totals
-                const currentCapital = capitalByCategory.get(categoryId) || 0;
-                capitalByCategory.set(categoryId, currentCapital + usdValue);
+                const currentCapital =
+                  capitalByCategory.get(categoryId) || new BigNumber(0);
+                capitalByCategory.set(
+                  categoryId,
+                  currentCapital.plus(usdValue),
+                );
 
                 // Individual activity totals
                 const currentActivityCapital =
-                  capitalByActivity.get(item.activityId) || 0;
+                  capitalByActivity.get(item.activityId) || new BigNumber(0);
                 capitalByActivity.set(
                   item.activityId,
-                  currentActivityCapital + usdValue,
+                  currentActivityCapital.plus(usdValue),
                 );
               }
             }

@@ -2,57 +2,9 @@ import {
   defaultShouldDehydrateQuery,
   QueryClient,
 } from '@tanstack/react-query';
+import { getQueryKey } from '@trpc/react-query';
 import SuperJSON from 'superjson';
-
-const getStaleTimeForQuery = (queryKey: unknown[]): number => {
-  // Check if this is a tRPC query key structure: [["routerName", "method"], input]
-  const trpcKey = queryKey[0];
-  if (Array.isArray(trpcKey)) {
-    const routerName = trpcKey[0];
-    const method = trpcKey[1];
-
-    // User queries - long cache time since they're invalidated on persona changes
-    if (routerName === 'user') {
-      if (
-        method === 'getUserCapitalAtWork' ||
-        method === 'getMultiplierByUserId' ||
-        method === 'getUserCategoryBreakdown'
-      ) {
-        return 10 * 60 * 1000; // 10 minutes
-      }
-    }
-
-    // Week and activity category queries - semi-static data
-    if (routerName === 'week' && method === 'getWeeks') {
-      return 5 * 60 * 1000; // 5 minutes
-    }
-
-    if (routerName === 'activityCategory' && method === 'getEarnPageData') {
-      return 5 * 60 * 1000; // 5 minutes
-    }
-
-    // Leaderboard queries
-    if (routerName === 'leaderboard') {
-      if (
-        method === 'getAvailableSeasons' ||
-        method === 'getAvailableWeeks' ||
-        method === 'getAvailableCategories'
-      ) {
-        return 5 * 60 * 1000; // 5 minutes
-      }
-
-      if (
-        method === 'getSeasonLeaderboard' ||
-        method === 'getActivityCategoryLeaderboard'
-      ) {
-        return 2 * 60 * 1000; // 2 minutes
-      }
-    }
-  }
-
-  // Default stale time for other queries
-  return 30 * 1000; // 30 seconds
-};
+import { api } from './react';
 
 export const createQueryClient = () => {
   const queryClient = new QueryClient({
@@ -77,16 +29,17 @@ export const createQueryClient = () => {
     },
   });
 
-  // Override the getOptions method to provide custom stale times
-  const originalGetQueryDefaults =
-    queryClient.getQueryDefaults.bind(queryClient);
-  queryClient.getQueryDefaults = (queryKey) => {
-    const defaults = originalGetQueryDefaults(queryKey);
-    return {
-      ...defaults,
-      staleTime: getStaleTimeForQuery([...(queryKey ?? [])]),
-    };
-  };
+  // Set query defaults for specific user queries with longer cache times
+  queryClient.setQueryDefaults(
+    [
+      getQueryKey(api.user.getUserCapitalAtWork),
+      getQueryKey(api.user.getMultiplierByUserId),
+      getQueryKey(api.user.getUserCategoryBreakdown),
+    ],
+    {
+      staleTime: 10 * 60 * 1000,
+    },
+  );
 
   return queryClient;
 };

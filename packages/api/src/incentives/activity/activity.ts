@@ -1,4 +1,4 @@
-import { activityData, dappsData } from 'data';
+import { type ActivityId, activityDataMap, dappsData } from 'data';
 import { activities, type NewActivity } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
@@ -41,6 +41,16 @@ export class ActivityService extends Effect.Service<ActivityService>()(
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+
+      const activityToCategoryMap = new Map(
+        Object.entries(activityDataMap).map(([activityId, activity]) => [
+          activityId,
+          activity.categoryId,
+        ]),
+      );
+
+      const dappDataMap = new Map(dappsData.map((dapp) => [dapp.id, dapp]));
+
       return {
         list: Effect.fn(function* () {
           return yield* Effect.tryPromise({
@@ -101,38 +111,25 @@ export class ActivityService extends Effect.Service<ActivityService>()(
           const result = new Map<string, (typeof dappsData)[0] | null>();
 
           for (const activityId of activityIds) {
-            const activity = activityData.find(
-              (a) => a.activityId === activityId,
-            );
+            const activity = activityDataMap[activityId as ActivityId];
 
             if (!activity) {
               result.set(activityId, null);
               continue;
             }
 
-            const dapp = dappsData.find((dapp) => dapp.id === activity.dAppId);
+            const dapp = dappDataMap.get(activity.dAppId);
             result.set(activityId, dapp || null);
           }
 
           return result;
         }),
         getActivityToCategoryMap: Effect.fn(function* () {
-          return new Map(
-            activityData.map((activity) => [
-              activity.activityId,
-              activity.categoryId,
-            ]),
-          );
+          return activityToCategoryMap;
         }),
         getCategoriesWithActiveActivities: Effect.fn(function* (
           activeActivityIds: string[],
         ) {
-          const activityToCategoryMap = new Map(
-            activityData.map((activity) => [
-              activity.activityId,
-              activity.categoryId,
-            ]),
-          );
           const categoriesWithActiveActivities = new Set<string>();
 
           for (const activityId of activeActivityIds) {

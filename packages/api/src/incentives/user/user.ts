@@ -1,3 +1,4 @@
+import { BigNumber } from 'bignumber.js';
 import {
   accountActivityPoints,
   accounts,
@@ -39,12 +40,21 @@ type AnonymousUserData = {
 }[];
 
 export class UserService extends Effect.Service<UserService>()('UserService', {
-  dependencies: [dbClientLive],
+  dependencies: [
+    dbClientLive,
+    AccountBalanceService.Default,
+    ActivityWeekService.Default,
+    ActivityService.Default,
+  ],
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
     const accountBalanceService = yield* AccountBalanceService;
     const activityWeekService = yield* ActivityWeekService;
     const activityService = yield* ActivityService;
+
+    // Pre-computed mappings for efficiency
+    const activityToCategoryMap =
+      yield* activityService.getActivityToCategoryMap();
 
     const getMultiplierByUserId = Effect.fn(function* (input: {
       userId: string;
@@ -242,15 +252,13 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       activeActivityIds: string[];
       activityNamesMap: Map<string, string | null | undefined>;
     }) {
-      // Get activity-to-category mapping, categories with activities, and all dapps for activities
-      const [activityToCategoryMap, categoriesWithActiveActivities, dappMap] =
-        yield* Effect.all([
-          activityService.getActivityToCategoryMap(),
-          activityService.getCategoriesWithActiveActivities(
-            input.activeActivityIds,
-          ),
-          activityService.getDappForActivities(input.activeActivityIds),
-        ]);
+      // Get categories with activities, and all dapps for activities
+      const [categoriesWithActiveActivities, dappMap] = yield* Effect.all([
+        activityService.getCategoriesWithActiveActivities(
+          input.activeActivityIds,
+        ),
+        activityService.getDappForActivities(input.activeActivityIds),
+      ]);
 
       const result: AnonymousUserData = [];
 
@@ -326,15 +334,13 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       }
 
       // For authenticated users, get their data
-      const [userAccounts, categoryBreakdown, activityToCategoryMap] =
-        yield* Effect.all([
-          getAccountsByUserId({ userId: input.userId }),
-          getUserCategoryBreakdown({
-            userId: input.userId,
-            weekId: input.weekId,
-          }),
-          activityService.getActivityToCategoryMap(),
-        ]);
+      const [userAccounts, categoryBreakdown] = yield* Effect.all([
+        getAccountsByUserId({ userId: input.userId }),
+        getUserCategoryBreakdown({
+          userId: input.userId,
+          weekId: input.weekId,
+        }),
+      ]);
 
       const accountAddresses = userAccounts.map((account) => account.address);
 
@@ -351,8 +357,8 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
               });
             })
           : {
-              capitalByCategory: new Map<string, number>(),
-              capitalByActivity: new Map<string, number>(),
+              capitalByCategory: new Map<string, BigNumber>(),
+              capitalByActivity: new Map<string, BigNumber>(),
             };
 
       // Create lookup for earned AP by category from existing service result
@@ -386,7 +392,8 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
 
       // Process each category that has active activities
       for (const categoryId of categoriesWithActiveActivities) {
-        const capitalAtWork = capitalByCategory.get(categoryId) || 0;
+        const capitalAtWork =
+          capitalByCategory.get(categoryId) || new BigNumber(0);
         const earnedAP = earnedAPByCategory.get(categoryId) || 0;
 
         // Calculate AP/hour only for categories that have capital contribution
@@ -394,18 +401,19 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
         const apPerHour =
           categoryId === 'maintainXrdBalance'
             ? null
-            : capitalAtWork / hoursInWeek;
+            : capitalAtWork.dividedBy(hoursInWeek);
 
         // Get individual activities for this category (only active ones)
         const activities = [];
         for (const activityId of activeActivityIds) {
           if (activityToCategoryMap.get(activityId) === categoryId) {
-            const activityCapital = capitalByActivity.get(activityId) || 0;
+            const activityCapital =
+              capitalByActivity.get(activityId) || new BigNumber(0);
             const activityAP = earnedAPByActivity.get(activityId) || 0;
             const activityAPPerHour =
               categoryId === 'maintainXrdBalance'
                 ? null
-                : activityCapital / hoursInWeek;
+                : activityCapital.dividedBy(hoursInWeek);
 
             const dapp = dappMap.get(activityId);
             activities.push({
