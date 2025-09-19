@@ -30,6 +30,9 @@ catalogs:
     '@hono/node-server':
       specifier: ^1.14.2
       version: 1.14.3
+    '@noble/curves':
+      specifier: ^1.8.1
+      version: 1.8.1
     '@noble/hashes':
       specifier: ^1.8.0
       version: 1.8.0
@@ -616,6 +619,9 @@ importers:
       framer-motion:
         specifier: ^12.6.3
         version: 12.6.3(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.5
       lucide-react:
         specifier: ^0.487.0
         version: 0.487.0(react@19.1.0)
@@ -659,6 +665,9 @@ importers:
       '@tailwindcss/postcss':
         specifier: ^4.0.15
         version: 4.1.2
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
       '@types/node':
         specifier: ^20.14.10
         version: 20.17.30
@@ -1119,6 +1128,9 @@ importers:
       '@effect/vitest':
         specifier: ^0.20.10
         version: 0.20.10(effect@3.14.6)(vitest@3.1.1(@types/node@22.15.17)(jiti@2.4.2)(lightningcss@1.29.2)(tsx@4.19.3)(yaml@2.8.0))
+      '@noble/curves':
+        specifier: 'catalog:'
+        version: 1.8.1
       '@testcontainers/postgresql':
         specifier: 'catalog:'
         version: 11.2.1
@@ -4034,6 +4046,9 @@ packages:
   '@types/inquirer@9.0.8':
     resolution: {integrity: sha512-CgPD5kFGWsb8HJ5K7rfWlifao87m4ph8uioU7OTncJevmE/VLIqAAjfQtko578JZg7/f69K4FgqYym3gNr7DeA==}
 
+  '@types/js-cookie@3.0.6':
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
+
   '@types/jsonfile@6.1.4':
     resolution: {integrity: sha512-D5qGUYwjvnNNextdU59/+fI+spnwtTFmyQP0h+PfIOSkNfpU6AOICUOkm4i0OnSk+NyjdPJrxCDro0sJsWlRpQ==}
 
@@ -5229,6 +5244,10 @@ packages:
   joycon@3.1.1:
     resolution: {integrity: sha512-34wB/Y7MW7bzjKRjUKTa46I2Z7eV62Rkhva+KkopW7Qvv/OSWBqvkSY7vusOPrNuZcUG3tApvdVgNB8POj3SPw==}
     engines: {node: '>=10'}
+
+  js-cookie@3.0.5:
+    resolution: {integrity: sha512-cEiJEAEoIbWfCZYKWhVwFuvPX1gETRYPw6LlaTKoxD3s2AkXzkCjnp6h0V77ozyqj0jakteJ4YqDJT830+lVGw==}
+    engines: {node: '>=14'}
 
   js-tokens@9.0.1:
     resolution: {integrity: sha512-mxa9E9ITFOt0ban3j6L5MpjwegGz6lBQmM1IJkWeBZGcMxto50+eWdjC/52xDbS2vy0k7vIMK0Fe2wfL9OQSpQ==}
@@ -9258,6 +9277,8 @@ snapshots:
       '@types/through': 0.0.33
       rxjs: 7.8.2
 
+  '@types/js-cookie@3.0.6': {}
+
   '@types/jsonfile@6.1.4':
     dependencies:
       '@types/node': 22.15.17
@@ -10551,6 +10572,8 @@ snapshots:
   jose@6.0.10: {}
 
   joycon@3.1.1: {}
+
+  js-cookie@3.0.5: {}
 
   js-tokens@9.0.1: {}
 

@@ -1,39 +1,44 @@
-import { challenge } from 'db/consultation';
+import { challenge } from 'db/incentives';
 import { and, eq, gt } from 'drizzle-orm';
-import { Context, Effect, Layer } from 'effect';
-import { AppConfigService } from '../config/appConfig';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Config, Data, Effect } from 'effect';
+import { defaultAppConfig } from '../config';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
-export class VerifyChallengeService extends Context.Tag(
+class InvalidChallengeError extends Data.TaggedError('InvalidChallengeError') {}
+
+export class VerifyChallengeService extends Effect.Service<VerifyChallengeService>()(
   'VerifyChallengeService',
-)<
-  VerifyChallengeService,
-  (input: string) => Effect.Effect<boolean, DbError>
->() {}
+  {
+    dependencies: [dbClientLive],
+    effect: Effect.gen(function* () {
+      const db = yield* DbClientService;
 
-export const VerifyChallengeLive = Layer.effect(
-  VerifyChallengeService,
-  Effect.gen(function* () {
-    const db = yield* DbClientService;
-    const appConfig = yield* AppConfigService;
+      const challengeTTL = yield* Config.number('CHALLENGE_TTL').pipe(
+        Config.withDefault(defaultAppConfig.challengeTTL),
+      );
 
-    return (input: string) =>
-      Effect.tryPromise({
-        try: () =>
-          db
-            .delete(challenge)
-            .where(
-              and(
-                eq(challenge.challenge, input),
-                gt(
-                  challenge.createdAt,
-                  new Date(Date.now() - appConfig.challengeTTL),
+      return Effect.fnUntraced(function* (input: string) {
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .delete(challenge)
+              .where(
+                and(
+                  eq(challenge.challenge, input),
+                  gt(challenge.createdAt, new Date(Date.now() - challengeTTL)),
                 ),
-              ),
-            )
-            .returning()
-            .then(([value]) => !!value),
-        catch: (error) => new DbError(error),
+              )
+              .returning()
+              .then(([value]) => !!value),
+          catch: (error) => new DbError(error),
+        });
+
+        if (!result) {
+          return yield* Effect.fail(new InvalidChallengeError());
+        }
+
+        return result;
       });
-  }),
-);
+    }),
+  },
+) {}

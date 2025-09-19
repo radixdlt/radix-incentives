@@ -81,4 +81,5 @@ catalog:
   "undici": "^7.13.0"
   "@effect/sql-drizzle": "^0.43.0"
   "papaparse": "^5.5.3"
+  "@noble/curves": "^1.8.1"
   

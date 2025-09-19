@@ -38,6 +38,7 @@ export const createTRPCContext = async (opts: {
   dependencyLayer: DependencyLayer;
   setSessionToken: (token: string, expiresAt: Date) => Promise<void>;
   getSessionToken: () => Promise<string | null>;
+  getReferralCode: () => Promise<string | undefined>;
 }) => {
   const sessionToken = await opts.getSessionToken();
 

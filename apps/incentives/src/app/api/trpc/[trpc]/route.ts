@@ -36,6 +36,12 @@ const createContext = async (req: NextRequest) => {
 
       return sessionToken ?? null;
     },
+    getReferralCode: async () => {
+      const cookieStore = await cookies();
+      const referralCode = cookieStore.get('ref')?.value;
+
+      return referralCode;
+    },
   });
 };
 

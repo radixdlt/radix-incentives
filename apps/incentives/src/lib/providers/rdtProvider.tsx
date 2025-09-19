@@ -5,9 +5,12 @@ import {
   type Persona,
   RadixDappToolkit,
 } from '@radixdlt/radix-dapp-toolkit';
+
 import { createContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { usePersonaConnectionWarning } from '~/components/ui/PersonaConnectionWarning';
+import { useReferrerInputModal } from '~/components/ui/ReferrerInputModal';
+import { useReferralCode } from '~/lib/hooks/useReferralCode';
 import { api } from '~/trpc/react';
 
 export const RadixContext = createContext<RadixDappToolkit | null>(null);
@@ -21,13 +24,19 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
   const [rdt, setRdt] = useState<RadixDappToolkit | undefined>(undefined);
   const [persona, setPersona] = useState<Persona | undefined>(undefined);
   const { showWarning, WarningDialog } = usePersonaConnectionWarning();
+  const { showModal: showReferrerInputModal, Modal: ReferrerInputModal } =
+    useReferrerInputModal();
   const personaRef = useRef(persona);
+  const { clearCookie, setCookieFromSearchParams } = useReferralCode();
+  const userExists = api.user.userExists.useMutation();
 
   personaRef.current = persona;
 
   useEffect(() => {
     // RDT is not available on server
     if (typeof window === 'undefined') return;
+
+    setCookieFromSearchParams();
 
     const rdt =
       rdtSingleton ??
@@ -66,15 +75,28 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
       const { label } = request.persona;
 
       try {
-        const _result = await signIn.mutateAsync({
+        const userExistsResult = await userExists.mutateAsync({
+          identityAddress: address,
+        });
+        if (!userExistsResult) {
+          await showReferrerInputModal();
+        }
+
+        await signIn.mutateAsync({
           address,
           type,
           label,
           challenge,
           proof,
         });
-      } catch (_error) {
+        clearCookie();
+      } catch (error) {
         rdt.disconnect();
+        toast.error(
+          error instanceof Error ? error.message : 'Failed to sign in',
+        );
+        // need to throw error to prevent RDT from getting into a logged in state
+        throw error;
       }
     });
 
@@ -108,6 +130,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
     <RadixContext.Provider value={rdt ?? null}>
       {props.children}
       <WarningDialog />
+      <ReferrerInputModal />
     </RadixContext.Provider>
   );
 }

@@ -25,6 +25,9 @@ const createContext = async (req: NextRequest) => {
       // TODO: Implement getSessionToken
       return null;
     },
+    getReferralCode: async () => {
+      return undefined;
+    },
   });
 };
 

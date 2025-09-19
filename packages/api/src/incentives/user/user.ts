@@ -9,10 +9,15 @@ import {
   users,
 } from 'db/incentives';
 import { and, count, eq, sql, sum } from 'drizzle-orm';
-import { Effect } from 'effect';
-import { DbClientService, DbError } from '../db/dbClient';
+import { Data, Effect } from 'effect';
+import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
+
+class UserNotFoundError extends Data.TaggedError('UserNotFoundError')<{
+  identityAddress: string;
+}> {}
 
 export class UserService extends Effect.Service<UserService>()('UserService', {
+  dependencies: [dbClientLive],
   effect: Effect.gen(function* () {
     const db = yield* DbClientService;
 
@@ -170,6 +175,28 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       return result;
     });
 
+    const getUserByIdentityAddress = Effect.fn(function* (input: {
+      identityAddress: string;
+    }) {
+      const result = yield* Effect.tryPromise({
+        try: () =>
+          db
+            .select()
+            .from(users)
+            .where(eq(users.identityAddress, input.identityAddress))
+            .then((result) => result[0]),
+        catch: (error) => new DbError(error),
+      });
+
+      if (!result) {
+        return yield* Effect.fail(
+          new UserNotFoundError({ identityAddress: input.identityAddress }),
+        );
+      }
+
+      return result;
+    });
+
     return {
       getUserStats: Effect.fn(function* (input: {
         userId: string;
@@ -198,6 +225,7 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
         });
         return result;
       }),
+      getUserByIdentityAddress,
     };
   }),
 }) {}

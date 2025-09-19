@@ -1,6 +1,6 @@
 import { config } from 'db/incentives';
 import { eq } from 'drizzle-orm';
-import { Cache, Duration, Effect } from 'effect';
+import { Cache, Config, Duration, Effect } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
@@ -22,6 +22,9 @@ export class ConfigService extends Effect.Service<ConfigService>()(
     effect: Effect.gen(function* () {
       const dbClient = yield* DbClientService;
       const getLedgerStateService = yield* GetLedgerStateService;
+      const defaultReferralPercentage = yield* Config.number(
+        'REFERRAL_PERCENTAGE',
+      ).pipe(Config.withDefault(0.05));
 
       const getConfigFromDb = Effect.fn(function* <T = unknown>(key: string) {
         const result = yield* Effect.tryPromise({
@@ -89,6 +92,17 @@ export class ConfigService extends Effect.Service<ConfigService>()(
           value: TransactionStreamStateKeys,
         ) {
           yield* setConfig('transactionStreamState', value);
+        }),
+        getReferralPercentage: Effect.fn(function* () {
+          const referralPercentage =
+            yield* getConfig<number>('referralPercentage');
+
+          return referralPercentage ?? defaultReferralPercentage;
+        }),
+        setReferralPercentage: Effect.fn(function* (
+          referralPercentage: number,
+        ) {
+          yield* setConfig('referralPercentage', referralPercentage);
         }),
       };
     }),

@@ -1,6 +1,5 @@
 'use client';
 
-import { useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { api } from '~/trpc/react';
@@ -14,9 +13,17 @@ import { LoadingState } from './loading-state';
 export function CategoryLeaderboard() {
   const [selectedWeekId, setSelectedWeekId] = useState<string>('');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
+  const [urlParams, setUrlParams] = useState<URLSearchParams | null>(null);
   const persona = usePersona();
-  const searchParams = useSearchParams();
   const utils = api.useUtils();
+
+  // Get URL parameters on client side
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const searchParams = new URLSearchParams(window.location.search);
+      setUrlParams(searchParams);
+    }
+  }, []);
 
   // Fetch available weeks and activities (categories)
   const { data: weeks, isLoading: weeksLoading } =
@@ -29,8 +36,7 @@ export function CategoryLeaderboard() {
 
   // Set defaults when data loads, or use URL parameters
   useEffect(() => {
-    const urlWeek = searchParams.get('week');
-    const _urlCategory = searchParams.get('category');
+    const urlWeek = urlParams?.get('week');
 
     if (weeks && weeks.length > 0 && !selectedWeekId) {
       if (urlWeek && weeks.some((w) => w.id === urlWeek)) {
@@ -43,10 +49,10 @@ export function CategoryLeaderboard() {
         }
       }
     }
-  }, [weeks, selectedWeekId, searchParams]);
+  }, [weeks, selectedWeekId, urlParams]);
 
   useEffect(() => {
-    const urlCategory = searchParams.get('category');
+    const urlCategory = urlParams?.get('category');
 
     if (categories && categories.length > 0 && !selectedCategoryId) {
       if (urlCategory && categories.some((c) => c.id === urlCategory)) {
@@ -59,7 +65,7 @@ export function CategoryLeaderboard() {
         }
       }
     }
-  }, [categories, selectedCategoryId, searchParams]);
+  }, [categories, selectedCategoryId, urlParams]);
 
   // Prefetch category leaderboard data for other categories
   useEffect(() => {

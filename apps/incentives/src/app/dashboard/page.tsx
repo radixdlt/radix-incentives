@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { MetricCard } from '~/components/dashboard';
 import { WeekSelector } from '~/components/dashboard/WeekSelector';
 import { EmptyState } from '~/components/ui/empty-state';
+import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { getNextUpdateTime } from '~/lib/utils';
 import { api } from '~/trpc/react';
@@ -40,6 +41,7 @@ const NextUpdateNotification = () => {
 
 export default function DashboardPage() {
   const persona = usePersona();
+  void useIsAuthenticated();
 
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
 
@@ -94,7 +96,7 @@ export default function DashboardPage() {
     );
   }
 
-  if (accounts.isError || weeks.isError) {
+  if ((persona && accounts.isError) || weeks.isError) {
     return (
       <div className="flex h-96 items-center justify-center">
         <div className="text-2xl text-red-500">Error loading data.</div>
