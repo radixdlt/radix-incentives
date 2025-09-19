@@ -8,6 +8,7 @@ import {
 import { and, asc, eq, sql } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { groupBy } from 'effect/Array';
+import { chunker } from '../../common';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class ActivityCategoryWeekService extends Effect.Service<ActivityCategoryWeekService>()(
@@ -289,11 +290,16 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             }));
           });
 
-          yield* Effect.tryPromise({
-            try: () =>
-              db.insert(activityWeeks).values(input).onConflictDoNothing(),
-            catch: (error) => new DbError(error),
-          });
+          yield* Effect.forEach(
+            chunker(input, 500),
+            Effect.fnUntraced(function* (chunk) {
+              yield* Effect.tryPromise({
+                try: () =>
+                  db.insert(activityWeeks).values(chunk).onConflictDoNothing(),
+                catch: (error) => new DbError(error),
+              });
+            }),
+          );
         }),
       };
     }),
