@@ -23,6 +23,16 @@ export const RadixDataTypeSchema = {
 } as const;
 
 export const MetadataSchema = {
+  String: Schema.Struct({
+    value: Schema.NonEmptyString,
+    type: Schema.Literal('String'),
+  }).pipe(
+    Schema.transform(Schema.NonEmptyString, {
+      decode: (value) => value.value,
+      encode: (value) => ({ value }),
+      strict: false,
+    }),
+  ),
   ResourceAddress: Schema.Struct({
     value: Schema.NonEmptyString,
     type: Schema.Literal('GlobalAddress'),
@@ -155,5 +165,9 @@ export const parseComponentStateSchema = <SD extends StructDefinition>(
 
 export const parseAssetFromResourceAddress = (resourceAddress: string) =>
   AssetSchema.fromResourceAddress(resourceAddress).pipe(
-    Effect.catchAll((err) => ParseResult.fail(err.issue)),
+    Effect.catchTags({
+      ConfigError: (err) =>
+        ParseResult.fail(new ParseResult.Unexpected(err, 'config error')),
+      ParseError: (err) => ParseResult.fail(err.issue),
+    }),
   );

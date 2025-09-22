@@ -1,11 +1,8 @@
-import {
-  AssetType,
-  flatTokenNameMap,
-  getAssetByResourceAddress,
-  resourceAddresses,
-  tokenNameMap,
-} from 'data';
-import { flow, Schema } from 'effect';
+import { AssetType, getAssetByResourceAddress, tokenNameMap } from 'data';
+import { Effect, Schema } from 'effect';
+import { MetadataSchema } from '../../incentives/component-definition/schemas';
+import { GetEntityDetailsService } from '../gateway/getEntityDetails';
+import { transformMetadata } from '../helpers/transformMetadata';
 
 const AssetTypeLiteral = {
   XRD_DERIVATIVE: Schema.transform(
@@ -95,12 +92,44 @@ export const AssetUnionSchema = Schema.Union(
 );
 
 export class AssetSchema extends Schema.Class<AssetSchema>('AssetSchema')({
-  resourceAddress: Schema.Literal(...resourceAddresses),
-  assetType: Schema.Literal(...Object.values(AssetType)),
-  symbol: Schema.Literal(...Object.values(flatTokenNameMap)),
+  resourceAddress: Schema.String,
+  assetType: Schema.String,
+  symbol: Schema.String,
 }) {
-  static fromResourceAddress = flow(
-    getAssetByResourceAddress,
-    AssetSchema.pipe(Schema.decodeUnknown),
-  );
+  static fromResourceAddress = (resourceAddress: string) =>
+    Effect.gen(function* () {
+      const getEntityDetailsService = yield* GetEntityDetailsService;
+      const asset = getAssetByResourceAddress(resourceAddress);
+      if (!asset) {
+        const entityDetails = yield* getEntityDetailsService(
+          [resourceAddress],
+          {},
+          {
+            timestamp: new Date(),
+          },
+        ).pipe(Effect.orDie);
+        const firstEntity = entityDetails[0];
+        if (!firstEntity) {
+          return {
+            resourceAddress,
+            assetType: AssetType.NATIVE,
+            symbol: 'UNKNOWN',
+          };
+        }
+        const plainMetadata = transformMetadata(firstEntity.metadata);
+
+        const metadata = yield* Schema.decodeUnknown(
+          Schema.Struct({
+            symbol: MetadataSchema.String,
+          }),
+        )(plainMetadata);
+
+        return {
+          resourceAddress,
+          assetType: AssetType.NATIVE,
+          symbol: metadata.symbol,
+        };
+      }
+      return yield* AssetSchema.pipe(Schema.decodeUnknown)(asset);
+    }).pipe(Effect.provide(GetEntityDetailsService.Default));
 }

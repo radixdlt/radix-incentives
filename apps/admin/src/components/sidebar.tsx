@@ -2,6 +2,7 @@
 
 import {
   Activity,
+  BarChart3,
   Bell,
   CalendarDays,
   Database,
@@ -43,6 +44,11 @@ const navigationItems = [
     title: 'Component Whitelist',
     href: '/component-whitelist',
     icon: <Shield className="h-5 w-5" />,
+  },
+  {
+    title: 'DEX Pools',
+    href: '/dex-pools',
+    icon: <BarChart3 className="h-5 w-5" />,
   },
   {
     title: 'Margin Accounts',

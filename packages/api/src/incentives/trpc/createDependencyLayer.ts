@@ -94,6 +94,7 @@ import {
   type SetStateVersionInput,
   TransactionStreamApiService,
 } from '../transaction-stream/transactionStreamApi';
+import { TVLService } from '../tvl/tvl';
 import {
   GetUsersPaginatedLive,
   GetUsersPaginatedService,
@@ -1132,6 +1133,14 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getDexComponentTvl = () => {
+    const program = Effect.gen(function* () {
+      const service = yield* TVLService;
+      return yield* service.shapeLiquidityComponents();
+    }).pipe(Effect.provide(TVLService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1195,5 +1204,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateCategoryWeekEnableOutlierDetection,
     getUserReferralStats,
     getUserByIdentityAddress,
+    getDexComponentTvl,
   };
 };

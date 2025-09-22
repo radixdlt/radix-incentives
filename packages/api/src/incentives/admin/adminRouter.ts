@@ -421,4 +421,18 @@ export const adminRouter = createTRPCRouter({
         });
       }),
   },
+  dex: {
+    getDexComponentTvl: publicProcedure.query(async ({ ctx }) => {
+      const result = await ctx.dependencyLayer.getDexComponentTvl();
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        },
+      });
+    }),
+  },
 });

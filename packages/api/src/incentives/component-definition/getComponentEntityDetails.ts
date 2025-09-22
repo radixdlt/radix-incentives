@@ -105,12 +105,15 @@ export class GetComponentEntityDetails extends Effect.Service<GetComponentEntity
 
             const metadata = transformMetadata(entityDetail.metadata);
 
+            const fungibleResources = entityDetail.fungible_resources;
+
             return {
               packageAddress: package_address,
               componentAddress: entityDetail.address,
               blueprintName: details.blueprint_name,
               metadata,
               componentState: state,
+              fungibleResources,
             };
           }),
         );
