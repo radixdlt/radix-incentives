@@ -8,7 +8,7 @@ export const createRolaMessage = (challenge: string) =>
       'DAPP_DEFINITION_ADDRESS',
     ).pipe(Config.withDefault(defaultAppConfig.dAppDefinitionAddress));
 
-    const expectedOrigin = yield* Config.string('EXPECTED_ORIGIN').pipe(
+    const expectedOrigin = yield* Config.string('APP_URL').pipe(
       Config.withDefault(defaultAppConfig.expectedOrigin),
     );
 

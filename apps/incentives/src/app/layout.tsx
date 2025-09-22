@@ -8,9 +8,7 @@ import { RadixDappToolkitProvider } from '~/lib/providers/rdtProvider';
 import { TRPCReactProvider } from '~/trpc/react';
 
 export const metadata: Metadata = {
-  metadataBase: process.env.EXPECTED_ORIGIN
-    ? new URL(process.env.EXPECTED_ORIGIN)
-    : null,
+  metadataBase: process.env.APP_URL ? new URL(process.env.APP_URL) : null,
   title: 'Radix Incentives',
   description:
     'The race for 1 billion $XRD is on! Connect your Radix Wallet to track your points in real-time, and push your rank to the top of the leaderboard.',
