@@ -6,6 +6,7 @@ import { Geist } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { RadixDappToolkitProvider } from '~/lib/providers/rdtProvider';
 import { TRPCReactProvider } from '~/trpc/react';
+import CookieConsent from './components/CookieConsent';
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://incentives.radixdlt.com'),
@@ -54,6 +55,7 @@ export default function RootLayout({
           <RadixDappToolkitProvider>
             {children}
             <Toaster richColors position="top-right" />
+            <CookieConsent />
           </RadixDappToolkitProvider>
         </TRPCReactProvider>
       </body>
