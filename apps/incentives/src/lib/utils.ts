@@ -139,6 +139,39 @@ export const formatSeasonPointsPerWeek = (
 };
 
 /**
+ * Format milestone rewards (XRD amounts) with locale support
+ * @param rewardXrd - The reward amount in XRD (string or number)
+ * @param locale - The locale to use (defaults to 'en-US')
+ * @returns Formatted reward string (e.g., "5M XRD", "500K XRD")
+ */
+export const formatMilestoneReward = (
+  rewardXrd: string | number,
+  locale = 'en-US',
+): string => {
+  const num = typeof rewardXrd === 'string' ? parseFloat(rewardXrd) : rewardXrd;
+
+  if (Number.isNaN(num) || num === 0) return '0 XRD';
+
+  // Convert to millions for display (divide by 1,000,000)
+  const millions = num / 1000000;
+
+  if (millions >= 1) {
+    // Show as "XM XRD" for values 1M and above
+    return `${new Intl.NumberFormat(locale, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    }).format(millions)}M XRD`;
+  }
+
+  // Show as "XK XRD" for values under 1M
+  const thousands = num / 1000;
+  return `${new Intl.NumberFormat(locale, {
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(thousands)}K XRD`;
+};
+
+/**
  * Format activity names from camelCase IDs to readable names
  * @param activityId - The activity ID in camelCase
  * @param activityName - The explicit activity name if available
@@ -251,6 +284,15 @@ export type IconName = keyof typeof ICON_MAP;
 export const getIcon = (iconName?: string): LucideIcon => {
   if (!iconName) return FileText;
   return ICON_MAP[iconName as IconName] || FileText;
+};
+
+/**
+ * Get token logo path from ticker symbol
+ * @param ticker - The token ticker (e.g., 'xrd', 'btc')
+ * @returns The path to the token logo
+ */
+export const getTokenLogo = (ticker: string): string => {
+  return `/token-logos/${ticker.toLowerCase()}-logo.png`;
 };
 
 export function getNextUpdateTime() {

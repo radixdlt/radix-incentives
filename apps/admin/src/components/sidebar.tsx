@@ -11,6 +11,7 @@ import {
   Play,
   Shield,
   Tag,
+  Target,
   Users,
   Wallet,
 } from 'lucide-react';
@@ -34,6 +35,11 @@ const navigationItems = [
     title: 'Activity Categories',
     href: '/activity-categories',
     icon: <Tag className="h-5 w-5" />,
+  },
+  {
+    title: 'Milestones',
+    href: '/milestones',
+    icon: <Target className="h-5 w-5" />,
   },
   {
     title: 'Notifications',

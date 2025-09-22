@@ -13,6 +13,10 @@ import { adminComponentWhitelistRouter } from '../component/componentWhitelistRo
 import { adminConfigRouter, configRouter } from '../config/configRouter';
 import { adminDappRouter, dappRouter } from '../dapp/dappRouter';
 import { leaderboardRouter } from '../leaderboard/leaderboardRouter';
+import {
+  adminMilestoneRouter,
+  milestoneRouter,
+} from '../milestones/milestoneRouter';
 import { adminSeasonRouter } from '../season/seasonRouter';
 import { adminSeedRouter } from '../seed/seedRouter';
 import { adminMarginAccountSeedingRouter } from '../surge/marginAccountSeedingRouter';
@@ -35,6 +39,7 @@ export const appRouter = createTRPCRouter({
   config: configRouter,
   week: weekRouter,
   dapps: dappRouter,
+  milestones: milestoneRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
@@ -52,6 +57,7 @@ export const adminAppRouter = createTRPCRouter({
   marginAccountSeeding: adminMarginAccountSeedingRouter,
   seed: adminSeedRouter,
   admin: adminRouter,
+  milestones: adminMilestoneRouter,
 });
 
 // export type definition of API
