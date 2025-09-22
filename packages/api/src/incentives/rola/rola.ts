@@ -20,7 +20,7 @@ export class RolaService extends Effect.Service<RolaService>()('RolaService', {
     const dAppDefinitionAddress = yield* Config.string(
       'DAPP_DEFINITION_ADDRESS',
     ).pipe(Config.withDefault(defaultAppConfig.dAppDefinitionAddress));
-    const expectedOrigin = yield* Config.string('EXPECTED_ORIGIN').pipe(
+    const expectedOrigin = yield* Config.string('APP_URL').pipe(
       Config.withDefault(defaultAppConfig.expectedOrigin),
     );
     const gatewayApiClient = yield* GatewayApiClientService;
