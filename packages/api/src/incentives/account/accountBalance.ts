@@ -1,3 +1,4 @@
+import { BigNumber } from 'bignumber.js';
 import { accountBalances } from 'db/incentives';
 import { and, between, desc, inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
@@ -13,6 +14,11 @@ export type LatestAccountBalance = {
   accountAddress: string;
   timestamp: Date;
   data: AccountBalanceItem[];
+};
+
+export type CapitalAggregation = {
+  capitalByCategory: Map<string, BigNumber>;
+  capitalByActivity: Map<string, BigNumber>;
 };
 
 export class AccountBalanceService extends Effect.Service<AccountBalanceService>()(
@@ -69,6 +75,52 @@ export class AccountBalanceService extends Effect.Service<AccountBalanceService>
 
             return latestBalances;
           }),
+        aggregateCapitalByActivity: Effect.fn(function* (input: {
+          latestBalances: LatestAccountBalance[];
+          activeActivityIds: string[];
+          activityToCategoryMap: Map<string, string>;
+        }) {
+          const capitalByCategory = new Map<string, BigNumber>();
+          const capitalByActivity = new Map<string, BigNumber>();
+
+          // Group account balances by category and activity, but only for active activities
+          for (const balance of input.latestBalances) {
+            for (const item of balance.data) {
+              // Only include activities with multiplier > 0
+              if (!input.activeActivityIds.includes(item.activityId)) {
+                continue;
+              }
+
+              const categoryId = input.activityToCategoryMap.get(
+                item.activityId,
+              );
+              if (categoryId && item.usdValue) {
+                const usdValue = new BigNumber(item.usdValue);
+
+                // Category totals
+                const currentCapital =
+                  capitalByCategory.get(categoryId) || new BigNumber(0);
+                capitalByCategory.set(
+                  categoryId,
+                  currentCapital.plus(usdValue),
+                );
+
+                // Individual activity totals
+                const currentActivityCapital =
+                  capitalByActivity.get(item.activityId) || new BigNumber(0);
+                capitalByActivity.set(
+                  item.activityId,
+                  currentActivityCapital.plus(usdValue),
+                );
+              }
+            }
+          }
+
+          return {
+            capitalByCategory,
+            capitalByActivity,
+          };
+        }),
       };
     }),
   },

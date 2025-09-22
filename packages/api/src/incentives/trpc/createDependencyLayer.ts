@@ -342,9 +342,19 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     Layer.provide(dbClientLive),
   );
 
+  const getLatestAccountBalancesServiceLive =
+    AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
+
+  const activityServiceLive = ActivityService.Default.pipe(
+    Layer.provide(dbClientLive),
+  );
+
   const userLive = UserService.Default.pipe(
     Layer.provide(dbClientLive),
     Layer.provide(seasonLive),
+    Layer.provide(getLatestAccountBalancesServiceLive),
+    Layer.provide(activityServiceLive),
+    Layer.provide(activityWeekServiceLive),
   );
 
   const getUserStats = (input: { userId: string; weekId: string }) => {
@@ -367,8 +377,17 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const getLatestAccountBalancesServiceLive =
-    AccountBalanceService.Default.pipe(Layer.provide(dbClientLive));
+  const getMultiplierByUserId = (input: { userId: string; weekId: string }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const userService = yield* UserService;
+        return yield* userService.getMultiplierByUserId(input);
+      }),
+      userLive,
+    );
+
+    return Effect.runPromiseExit(program);
+  };
 
   const activityDisplayServiceLive = ActivityDisplayService.Default;
 
@@ -493,6 +512,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getUserCapitalAtWork = (input: { weekId: string; userId?: string }) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const userService = yield* UserService;
+        return yield* userService.getUserCapitalAtWork(input);
+      }),
+      userLive,
+    );
+
+    return Effect.runPromiseExit(program);
+  };
+
   const getActivityData = () => {
     const program = Effect.provide(
       Effect.gen(function* () {
@@ -504,10 +535,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
     return Effect.runPromiseExit(program);
   };
-
-  const activityServiceLive = ActivityService.Default.pipe(
-    Layer.provide(dbClientLive),
-  );
 
   const updateActivity = (input: UpdateActivityInput) => {
     const program = Effect.provide(
@@ -1101,7 +1128,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     const program = Effect.gen(function* () {
       const service = yield* UserService;
       return yield* service.getUserByIdentityAddress(input);
-    }).pipe(Effect.provide(UserService.Default));
+    }).pipe(Effect.provide(userLive));
     return Effect.runPromiseExit(program);
   };
 
@@ -1120,10 +1147,12 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getUsersPaginated,
     updateWeekStatus,
     getUserStats,
+    getMultiplierByUserId,
     getLatestAccountBalances,
     getSeasonLeaderboard,
     getActivityCategoryLeaderboard,
     getUserCategoryBreakdown,
+    getUserCapitalAtWork,
     getAvailableSeasons,
     getAvailableWeeks,
     getAvailableCategories,

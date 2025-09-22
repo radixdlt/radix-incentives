@@ -132,6 +132,24 @@ export class ActivityWeekService extends Effect.Service<ActivityWeekService>()(
             {} as Record<string, number>,
           );
         }),
+        getActivitiesWithMultipliers: Effect.fn(function* (weekId: string) {
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select({
+                  activityId: activityWeeks.activityId,
+                  multiplier: activityWeeks.multiplier,
+                  activityName: activities.name,
+                })
+                .from(activityWeeks)
+                .innerJoin(
+                  activities,
+                  eq(activityWeeks.activityId, activities.id),
+                )
+                .where(eq(activityWeeks.weekId, weekId)),
+            catch: (error) => new DbError(error),
+          });
+        }),
       };
     }),
   },

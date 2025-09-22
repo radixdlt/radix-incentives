@@ -522,6 +522,12 @@ const runnable = Effect.gen(function* () {
     },
   );
 
+  const activityMap = pipe(
+    deduplicatedActivities,
+    (items) => items.map((item) => [item.activityId, item]),
+    (items) => Object.fromEntries(items),
+  );
+
   const activitiesGroupedByDappId = pipe(
     deduplicatedActivities,
     groupBy((item) => item.dAppId),
@@ -631,6 +637,12 @@ const runnable = Effect.gen(function* () {
 
     `export const activityData: ActivityData[] = ${JSON.stringify(
       deduplicatedActivities,
+      null,
+      2,
+    )}`,
+
+    `export const activityDataMap: Record<ActivityId, ActivityData> = ${JSON.stringify(
+      activityMap,
       null,
       2,
     )}`,

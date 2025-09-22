@@ -1,3 +1,4 @@
+import { type ActivityId, activityDataMap, dappsData } from 'data';
 import { activities, type NewActivity } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
@@ -40,6 +41,16 @@ export class ActivityService extends Effect.Service<ActivityService>()(
   {
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
+
+      const activityToCategoryMap = new Map(
+        Object.entries(activityDataMap).map(([activityId, activity]) => [
+          activityId,
+          activity.categoryId,
+        ]),
+      );
+
+      const dappDataMap = new Map(dappsData.map((dapp) => [dapp.id, dapp]));
+
       return {
         list: Effect.fn(function* () {
           return yield* Effect.tryPromise({
@@ -95,6 +106,40 @@ export class ActivityService extends Effect.Service<ActivityService>()(
             },
             catch: (error) => new DbError(error),
           });
+        }),
+        getDappForActivities: Effect.fn(function* (activityIds: string[]) {
+          const result = new Map<string, (typeof dappsData)[0] | null>();
+
+          for (const activityId of activityIds) {
+            const activity = activityDataMap[activityId as ActivityId];
+
+            if (!activity) {
+              result.set(activityId, null);
+              continue;
+            }
+
+            const dapp = dappDataMap.get(activity.dAppId);
+            result.set(activityId, dapp || null);
+          }
+
+          return result;
+        }),
+        getActivityToCategoryMap: Effect.fn(function* () {
+          return activityToCategoryMap;
+        }),
+        getCategoriesWithActiveActivities: Effect.fn(function* (
+          activeActivityIds: string[],
+        ) {
+          const categoriesWithActiveActivities = new Set<string>();
+
+          for (const activityId of activeActivityIds) {
+            const categoryId = activityToCategoryMap.get(activityId);
+            if (categoryId) {
+              categoriesWithActiveActivities.add(categoryId);
+            }
+          }
+
+          return categoriesWithActiveActivities;
         }),
       };
     }),

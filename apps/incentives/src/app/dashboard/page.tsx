@@ -3,13 +3,16 @@
 import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { MetricCard } from '~/components/dashboard';
-import { WeekSelector } from '~/components/dashboard/WeekSelector';
 import { EmptyState } from '~/components/ui/empty-state';
 import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { usePersona } from '~/lib/hooks/usePersona';
-import { getNextUpdateTime } from '~/lib/utils';
+import {
+  EXCLUDED_CATEGORIES,
+  formatActivityPoints,
+  getNextUpdateTime,
+} from '~/lib/utils';
 import { api } from '~/trpc/react';
-import { CategoryBreakdown } from './components/category-breakdown';
+import { DashboardActivityBreakdown } from './components/DashboardActivityBreakdown';
 
 const NextUpdateNotification = () => {
   const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
@@ -40,7 +43,7 @@ const NextUpdateNotification = () => {
 };
 
 export default function DashboardPage() {
-  const persona = usePersona();
+  const { persona } = usePersona();
   void useIsAuthenticated();
 
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
@@ -55,9 +58,9 @@ export default function DashboardPage() {
     refetchOnMount: true,
   });
 
-  // Set default selected week to the most recent week when weeks data is loaded
+  // Always use the most recent week (current week)
   useEffect(() => {
-    if (weeks.data && weeks.data.length > 0 && !selectedWeek) {
+    if (weeks.data && weeks.data.length > 0) {
       // Sort weeks by start date descending and select the most recent
       const sortedWeeks = [...weeks.data].sort(
         (a, b) =>
@@ -67,7 +70,7 @@ export default function DashboardPage() {
         setSelectedWeek(sortedWeeks[0].id);
       }
     }
-  }, [weeks.data, selectedWeek]);
+  }, [weeks.data]);
 
   const userStats = api.user.getUserStats.useQuery(
     { weekId: selectedWeek ?? '' },
@@ -79,11 +82,13 @@ export default function DashboardPage() {
     },
   );
 
-  // Get category breakdown to calculate total from cache
-  const categoryData = api.user.getUserCategoryBreakdown.useQuery(
+  // Activity points are now obtained from userStats query above (more efficient)
+
+  // Get user's capital at work data for the total capital card
+  const { data: userCapitalData } = api.user.getUserCapitalAtWork.useQuery(
     { weekId: selectedWeek ?? '' },
     {
-      enabled: !!persona && !!selectedWeek,
+      enabled: !!selectedWeek && !!persona,
       retry: false,
     },
   );
@@ -117,12 +122,15 @@ export default function DashboardPage() {
     );
   }
 
-  // Calculate total points from category breakdown (from cache)
-  const latestWeeklyPoints =
-    categoryData.data?.reduce(
-      (total, category) => total + category.points,
-      0,
-    ) ?? 0;
+  // Calculate total AP from the same data source as the breakdown (leaderboard cache)
+  const latestWeeklyPoints = (userCapitalData || [])
+    .filter(
+      (category) =>
+        !EXCLUDED_CATEGORIES.includes(
+          category.categoryId as (typeof EXCLUDED_CATEGORIES)[number],
+        ),
+    )
+    .reduce((total, category) => total + parseFloat(category.earnedAP), 0);
 
   // Check if the selected week is completed
   const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
@@ -134,22 +142,14 @@ export default function DashboardPage() {
     <div className="space-y-6">
       <NextUpdateNotification />
 
-      {weeks.data && (
-        <WeekSelector
-          weeks={weeks.data}
-          selectedWeek={selectedWeek}
-          onWeekChange={setSelectedWeek}
-        />
-      )}
-
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-2">
+      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
         <MetricCard
           title={
             isWeekCompleted
               ? 'Activity Points Earned'
               : 'Activity Points Earned So Far'
           }
-          value={latestWeeklyPoints.toLocaleString()}
+          value={formatActivityPoints(latestWeeklyPoints)}
           icon={MoveUpRight}
           description={
             isWeekCompleted
@@ -157,6 +157,29 @@ export default function DashboardPage() {
               : 'Activity Points earned so far this week'
           }
           iconColor="text-green-500"
+        />
+
+        <MetricCard
+          title="Capital at Work"
+          value={
+            persona && userCapitalData
+              ? userCapitalData
+                  .reduce(
+                    (total, category) =>
+                      total + parseFloat(category.capitalAtWork),
+                    0,
+                  )
+                  .toLocaleString('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0,
+                  })
+              : '-'
+          }
+          icon={Wallet}
+          description="Total USD value contributing to activities"
+          iconColor="text-blue-500"
         />
 
         <MetricCard
@@ -172,7 +195,13 @@ export default function DashboardPage() {
         />
       </div>
 
-      {selectedWeek && <CategoryBreakdown weekId={selectedWeek} />}
+      {selectedWeek && (
+        <DashboardActivityBreakdown
+          weekId={selectedWeek}
+          isAnonymous={!persona}
+          multiplierData={userStats.data?.multiplier}
+        />
+      )}
     </div>
   );
 }

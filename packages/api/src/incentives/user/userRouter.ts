@@ -45,6 +45,39 @@ export const userRouter = createTRPCRouter({
         userId: ctx.session.user.id,
         seasonId: input.seasonId,
       });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
+  getUserCapitalAtWork: protectedProcedure
+    .input(z.object({ weekId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getUserCapitalAtWork({
+        userId: ctx.session.user.id,
+        weekId: input.weekId,
+      });
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
+  getAnonymousCapitalAtWork: publicProcedure
+    .input(z.object({ weekId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getUserCapitalAtWork({
+        userId: undefined, // Explicitly undefined for anonymous data
+        weekId: input.weekId,
+      });
       return Exit.match(result, {
         onSuccess: (value) => value,
         onFailure: (error) => {
@@ -69,6 +102,23 @@ export const userRouter = createTRPCRouter({
             }
           }
 
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
+  getMultiplierByUserId: protectedProcedure
+    .input(z.object({ weekId: z.string().uuid() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getMultiplierByUserId({
+        userId: ctx.session.user.id,
+        weekId: input.weekId,
+      });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
           throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
         },
       });
