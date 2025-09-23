@@ -83,7 +83,11 @@ const fromComponentEntityDetails = (
 
     return yield* Schema.decodeUnknown(QuantaSwapComponent)({
       ...input,
-      data,
+      data: {
+        xToken: data.token_x,
+        yToken: data.token_y,
+        liquidityReceipt: data.liquidity_receipt,
+      },
       tvl,
       url: `https://www.caviarnine.com/earn/shape-liquidity/pool/${input.componentAddress}`,
     });
@@ -98,9 +102,9 @@ export class QuantaSwapComponent extends ComponentDefinition.extend<QuantaSwapCo
     'package_rdx1p4r9rkp0cq67wmlve544zgy0l45mswn6h798qdqm47x4762h383wa3',
   ),
   data: Schema.Struct({
-    token_x: AssetSchema,
-    token_y: AssetSchema,
-    liquidity_receipt: RadixDataTypeSchema.ResourceAddress,
+    xToken: AssetSchema,
+    yToken: AssetSchema,
+    liquidityReceipt: RadixDataTypeSchema.ResourceAddress,
   }),
   tvl: Schema.Array(fungibleResourceBalanceSchema),
   url: Schema.String,

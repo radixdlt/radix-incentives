@@ -55,6 +55,7 @@ export class ComponentRepo extends Effect.Service<ComponentRepo>()(
                 componentEntityDetail,
               );
             }),
+            { concurrency: 25 },
           );
 
           return components;

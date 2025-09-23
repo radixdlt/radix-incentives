@@ -49,28 +49,28 @@ export function DexPoolsTable({ pools }: DexPoolsTableProps) {
 
     switch (sortField) {
       case 'dapp':
-        aValue = a.dappId || '';
-        bValue = b.dappId || '';
+        aValue = a.dex || '';
+        bValue = b.dex || '';
         break;
       case 'poolAddress':
         aValue = a.componentAddress;
         bValue = b.componentAddress;
         break;
       case 'tvl':
-        aValue = Number.parseFloat(a.tvlUsd?.toString() || '0');
-        bValue = Number.parseFloat(b.tvlUsd?.toString() || '0');
+        aValue = Number.parseFloat(a.tvl?.toString() || '0');
+        bValue = Number.parseFloat(b.tvl?.toString() || '0');
         break;
       case 'token0':
-        aValue = a.data.token_x.symbol || '';
-        bValue = b.data.token_x.symbol || '';
+        aValue = a.xToken.symbol || '';
+        bValue = b.xToken.symbol || '';
         break;
       case 'token1':
-        aValue = a.data.token_y.symbol || '';
-        bValue = b.data.token_y.symbol || '';
+        aValue = a.yToken.symbol || '';
+        bValue = b.yToken.symbol || '';
         break;
       case 'exists':
-        aValue = a.exists ? 1 : 0;
-        bValue = b.exists ? 1 : 0;
+        aValue = a.inCampaign ? 1 : 0;
+        bValue = b.inCampaign ? 1 : 0;
         break;
       case 'blueprintName':
         aValue = a.blueprintName || '';
@@ -194,7 +194,7 @@ export function DexPoolsTable({ pools }: DexPoolsTableProps) {
             sortedPools.map((pool) => (
               <TableRow key={pool.componentAddress}>
                 <TableCell>
-                  <Badge variant="outline">{pool.dappId || 'Unknown'}</Badge>
+                  <Badge variant="outline">{pool.dex || 'Unknown'}</Badge>
                 </TableCell>
                 <TableCell>
                   <Badge variant="secondary">
@@ -209,36 +209,36 @@ export function DexPoolsTable({ pools }: DexPoolsTableProps) {
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium">
-                      {pool.data.token_x.symbol || 'Unknown'}
+                      {pool.xToken.symbol || 'Unknown'}
                     </span>
                     <span
                       className="font-mono text-muted-foreground text-xs"
-                      title={pool.data.token_x.resourceAddress}
+                      title={pool.xToken.resourceAddress}
                     >
-                      {truncateAddress(pool.data.token_x.resourceAddress)}
+                      {truncateAddress(pool.xToken.resourceAddress)}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell>
                   <div className="flex flex-col">
                     <span className="font-medium">
-                      {pool.data.token_y.symbol || 'Unknown'}
+                      {pool.yToken.symbol || 'Unknown'}
                     </span>
                     <span
                       className="font-mono text-muted-foreground text-xs"
-                      title={pool.data.token_y.resourceAddress}
+                      title={pool.yToken.resourceAddress}
                     >
-                      {truncateAddress(pool.data.token_y.resourceAddress)}
+                      {truncateAddress(pool.yToken.resourceAddress)}
                     </span>
                   </div>
                 </TableCell>
                 <TableCell>
-                  <Badge variant={pool.exists ? 'default' : 'secondary'}>
-                    {pool.exists ? 'Yes' : 'No'}
+                  <Badge variant={pool.inCampaign ? 'default' : 'secondary'}>
+                    {pool.inCampaign ? 'Yes' : 'No'}
                   </Badge>
                 </TableCell>
                 <TableCell className="text-right font-medium">
-                  {formatTvl(pool.tvlUsd)}
+                  {formatTvl(pool.tvl)}
                 </TableCell>
                 <TableCell>
                   {pool.url && (

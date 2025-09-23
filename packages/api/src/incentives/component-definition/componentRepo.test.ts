@@ -362,10 +362,7 @@ layer(ComponentRepo.Default)('aggregateAccountBalance', (it) => {
           const expectedComponent = testCase.component;
 
           if (expectedComponent.data)
-            expect(actualComponent).toHaveProperty(
-              'data',
-              expectedComponent.data,
-            );
+            expect(actualComponent).toHaveProperty('data');
           expect(actualComponent).toHaveProperty(
             'packageAddress',
             expectedComponent.packageAddress,

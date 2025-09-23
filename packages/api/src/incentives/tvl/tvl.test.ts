@@ -1,8 +1,13 @@
-import { describe, it } from 'vitest';
+import { layer } from '@effect/vitest';
+import { Effect, Logger } from 'effect';
+import { TVLService } from './tvl';
 
-describe('TVL Service', () => {
-  it.skip('should get shape liquidity components', () => {
-    // This test requires external API calls to CaviarNine
-    // and should be integration tests rather than unit tests
+layer(TVLService.Default)('dexComponentsTvl', (it) => {
+  it.effect.skip('should get dex components tvl', () => {
+    return Effect.gen(function* () {
+      const tvlService = yield* TVLService;
+      const result = yield* tvlService.dexComponentsTvl();
+      yield* Effect.log(result);
+    }).pipe(Effect.provide(Logger.pretty));
   });
 });
