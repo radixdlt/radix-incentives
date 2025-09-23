@@ -21,6 +21,23 @@ const getShapeLiquidityComponents = Effect.promise(() =>
   Effect.map((data) => [...data.components]),
 );
 
+const getSimplePoolsComponents = Effect.promise(() =>
+  fetch('https://api-core.caviarnine.com/v1.0/stats/product/simplepools').then(
+    (res) => res.json(),
+  ),
+).pipe(
+  Effect.flatMap((data) =>
+    Schema.decodeUnknown(
+      Schema.Struct({
+        summary: Schema.Struct({
+          components: Schema.Array(RadixDataTypeSchema.ComponentAddress),
+        }),
+      }),
+    )(data),
+  ),
+  Effect.map((data) => [...data.summary.components]),
+);
+
 const getOciswapComponents = Effect.promise(() =>
   fetch(
     'https://api.ociswap.com/pools?cursor=0&limit=100&order=rank&direction=asc',
@@ -79,12 +96,13 @@ export class TVLService extends Effect.Service<TVLService>()('TVLService', {
   effect: Effect.gen(function* () {
     const getUsdValue = yield* GetUsdValueService;
     const componentRepo = yield* ComponentRepo;
-    const defiPlazaComponents = yield* getDefiPlazaComponents;
 
     return {
       dexComponentsTvl: Effect.fn(function* () {
         const shapeLiquidityComponents = yield* getShapeLiquidityComponents;
+        const simplePoolsComponents = yield* getSimplePoolsComponents;
         const ociswapComponents = yield* getOciswapComponents;
+        const defiPlazaComponents = yield* getDefiPlazaComponents;
 
         const timestamp = new Date();
 
@@ -92,6 +110,7 @@ export class TVLService extends Effect.Service<TVLService>()('TVLService', {
           ...ociswapComponents,
           ...shapeLiquidityComponents,
           ...defiPlazaComponents,
+          ...simplePoolsComponents,
         ]);
 
         const items = yield* Effect.forEach(

@@ -72,7 +72,7 @@ const fromComponentEntityDetails = (
 
     const tvl = yield* Schema.decodeUnknown(
       fromFungibleResourcesVaultCollection,
-    )(poolEntityDetails.fungible_resources);
+    )(poolEntityDetails?.fungible_resources);
 
     return yield* BasicPoolComponent.pipe(Schema.decodeUnknown)({
       ...input,

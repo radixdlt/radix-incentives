@@ -43,11 +43,11 @@ const fromComponentEntityDetails = (
 
     const tvlBase = yield* Schema.decodeUnknown(
       fromFungibleResourcesVaultCollection,
-    )(baseEntityDetails.fungible_resources);
+    )(baseEntityDetails?.fungible_resources);
 
     const tvlQuote = yield* Schema.decodeUnknown(
       fromFungibleResourcesVaultCollection,
-    )(quoteEntityDetails.fungible_resources);
+    )(quoteEntityDetails?.fungible_resources);
 
     const tvl = tvlBase.concat(tvlQuote);
 
