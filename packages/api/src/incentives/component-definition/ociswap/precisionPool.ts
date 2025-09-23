@@ -1,5 +1,9 @@
 import { Effect, Schema } from 'effect';
 import { AssetSchema } from '../../../common/assets/schemas';
+import {
+  fromFungibleResourcesVaultCollection,
+  fungibleResourceBalanceSchema,
+} from '../../../common/schemas/fungibleResource';
 import type { ComponentEntityDetailsOutput } from '../getComponentEntityDetails';
 import {
   ComponentDefinition,
@@ -55,16 +59,29 @@ const fromComponentEntityDetails = (
       lp_address: MetadataSchema.ResourceAddress,
     }).pipe(Schema.decodeUnknown)(input.metadata);
 
+    const tvl = yield* Schema.decodeUnknown(
+      fromFungibleResourcesVaultCollection,
+    )(input.fungibleResources);
+
     const data = yield* Schema.decode(DataSchema)({
       poolAddress: metadata.pool_address,
       xToken: metadata.x_address,
       yToken: metadata.y_address,
       lpAddress: metadata.lp_address,
-    });
+    }).pipe(
+      Effect.map((data) => ({
+        poolAddress: data.poolAddress,
+        xToken: data.xToken,
+        yToken: data.yToken,
+        liquidityReceipt: data.lpAddress,
+      })),
+    );
 
     return yield* PrecisionPoolComponent.pipe(Schema.decodeUnknown)({
       ...input,
+      tvl,
       data,
+      url: `https://ociswap.com/pools/${input.componentAddress}`,
     });
   });
 
@@ -81,8 +98,10 @@ export class PrecisionPoolComponent extends ComponentDefinition.extend<Precision
     poolAddress: RadixDataTypeSchema.ComponentAddress,
     xToken: AssetSchema,
     yToken: AssetSchema,
-    lpAddress: RadixDataTypeSchema.ResourceAddress,
+    liquidityReceipt: RadixDataTypeSchema.ResourceAddress,
   }),
+  tvl: Schema.Array(fungibleResourceBalanceSchema),
+  url: Schema.String,
 }) {
   static matchPackageAddress = (input: string) =>
     input === PrecisionPoolComponent.fields.packageAddress.literals[0] ||

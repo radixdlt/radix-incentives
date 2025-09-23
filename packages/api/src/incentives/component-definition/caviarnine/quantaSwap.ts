@@ -1,5 +1,9 @@
 import { Effect, ParseResult, Schema } from 'effect';
 import { AssetSchema } from '../../../common/assets/schemas';
+import {
+  fromFungibleResourcesVaultCollection,
+  fungibleResourceBalanceSchema,
+} from '../../../common/schemas/fungibleResource';
 import type { ComponentEntityDetailsOutput } from '../getComponentEntityDetails';
 import {
   CaviarNineLiteralSchema,
@@ -20,15 +24,27 @@ const DataSchema = Schema.transformOrFail(
     liquidity_receipt: RadixDataTypeSchema.ResourceAddress,
   }),
   {
-    decode: (value) =>
+    decode: (value, ast) =>
       Effect.gen(function* () {
         const token_x = yield* AssetSchema.fromResourceAddress(
           value.token_x,
-        ).pipe(Effect.catchAll((err) => ParseResult.fail(err.issue)));
+        ).pipe(
+          Effect.catchTags({
+            ConfigError: () =>
+              ParseResult.fail(new ParseResult.Unexpected(ast, 'config error')),
+            ParseError: (err) => ParseResult.fail(err.issue),
+          }),
+        );
 
         const token_y = yield* AssetSchema.fromResourceAddress(
           value.token_y,
-        ).pipe(Effect.catchAll((err) => ParseResult.fail(err.issue)));
+        ).pipe(
+          Effect.catchTags({
+            ConfigError: () =>
+              ParseResult.fail(new ParseResult.Unexpected(ast, 'config error')),
+            ParseError: (err) => ParseResult.fail(err.issue),
+          }),
+        );
 
         return {
           token_x,
@@ -61,9 +77,19 @@ const fromComponentEntityDetails = (
 
     const data = yield* Schema.decode(DataSchema)(metadata);
 
+    const tvl = yield* Schema.decodeUnknown(
+      fromFungibleResourcesVaultCollection,
+    )(input.fungibleResources);
+
     return yield* Schema.decodeUnknown(QuantaSwapComponent)({
       ...input,
-      data,
+      data: {
+        xToken: data.token_x,
+        yToken: data.token_y,
+        liquidityReceipt: data.liquidity_receipt,
+      },
+      tvl,
+      url: `https://www.caviarnine.com/earn/shape-liquidity/pool/${input.componentAddress}`,
     });
   });
 
@@ -76,10 +102,12 @@ export class QuantaSwapComponent extends ComponentDefinition.extend<QuantaSwapCo
     'package_rdx1p4r9rkp0cq67wmlve544zgy0l45mswn6h798qdqm47x4762h383wa3',
   ),
   data: Schema.Struct({
-    token_x: AssetSchema,
-    token_y: AssetSchema,
-    liquidity_receipt: RadixDataTypeSchema.ResourceAddress,
+    xToken: AssetSchema,
+    yToken: AssetSchema,
+    liquidityReceipt: RadixDataTypeSchema.ResourceAddress,
   }),
+  tvl: Schema.Array(fungibleResourceBalanceSchema),
+  url: Schema.String,
 }) {
   static packageAddresses = QuantaSwapComponent.fields.packageAddress.literals;
   static fromComponentEntityDetails = fromComponentEntityDetails;

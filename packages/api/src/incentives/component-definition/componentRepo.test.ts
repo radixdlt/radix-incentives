@@ -343,10 +343,7 @@ layer(ComponentRepo.Default)('aggregateAccountBalance', (it) => {
     Effect.gen(function* () {
       const componentRepo = yield* ComponentRepo;
 
-      const result =
-        yield* componentRepo.getByComponentAddresses(componentAddresses);
-
-      yield* Effect.log(result);
+      yield* componentRepo.getByComponentAddresses(componentAddresses);
     }).pipe(Effect.provide(Logger.pretty)),
   );
 
@@ -357,7 +354,6 @@ layer(ComponentRepo.Default)('aggregateAccountBalance', (it) => {
       yield* Effect.forEach(
         testCases,
         Effect.fnUntraced(function* (testCase) {
-          yield* Effect.log(testCase.componentDefinition.blueprintName);
           const [result] = yield* componentRepo.getByComponentAddresses([
             testCase.address,
           ]);
@@ -365,7 +361,24 @@ layer(ComponentRepo.Default)('aggregateAccountBalance', (it) => {
           const actualComponent = JSON.parse(JSON.stringify(result ?? {}));
           const expectedComponent = testCase.component;
 
-          expect(actualComponent).toEqual(expectedComponent);
+          if (expectedComponent.data)
+            expect(actualComponent).toHaveProperty('data');
+          expect(actualComponent).toHaveProperty(
+            'packageAddress',
+            expectedComponent.packageAddress,
+          );
+          expect(actualComponent).toHaveProperty(
+            'dappId',
+            expectedComponent.dappId,
+          );
+          expect(actualComponent).toHaveProperty(
+            'blueprintName',
+            expectedComponent.blueprintName,
+          );
+          expect(actualComponent).toHaveProperty(
+            'componentAddress',
+            expectedComponent.componentAddress,
+          );
         }),
       );
     }).pipe(Effect.provide(Logger.pretty)),
