@@ -1,5 +1,10 @@
 import { Effect, Schema } from 'effect';
 import { AssetSchema } from '../../../common/assets/schemas';
+import { GetEntityDetailsService } from '../../../common/gateway/getEntityDetails';
+import {
+  fromFungibleResourcesVaultCollection,
+  fungibleResourceBalanceSchema,
+} from '../../../common/schemas/fungibleResource';
 import {
   type ComponentEntityDetailsOutput,
   GetComponentEntityDetails,
@@ -15,15 +20,51 @@ const fromComponentEntityDetails = (
   input: ComponentEntityDetailsOutput[number],
 ) =>
   Effect.gen(function* () {
+    const getEntityDetails = yield* GetEntityDetailsService;
     const componentState = yield* parsePlazaPairComponentState(
       input.componentState,
     );
 
+    const [baseEntityDetails] = yield* getEntityDetails(
+      [componentState.base_pool],
+      {},
+      {
+        timestamp: new Date(),
+      },
+    );
+
+    const [quoteEntityDetails] = yield* getEntityDetails(
+      [componentState.quote_pool],
+      {},
+      {
+        timestamp: new Date(),
+      },
+    );
+
+    const tvlBase = yield* Schema.decodeUnknown(
+      fromFungibleResourcesVaultCollection,
+    )(baseEntityDetails.fungible_resources);
+
+    const tvlQuote = yield* Schema.decodeUnknown(
+      fromFungibleResourcesVaultCollection,
+    )(quoteEntityDetails.fungible_resources);
+
+    const tvl = tvlBase.concat(tvlQuote);
+
     return yield* PlazaPairSchema.pipe(Schema.decodeUnknown)({
       ...input,
-      data: { ...componentState },
+      data: {
+        ...componentState,
+        xToken: componentState.base_address,
+        yToken: componentState.quote_address,
+      },
+      tvl,
+      url: `https://radix.defiplaza.net/liquidity/add/${componentState.base_address.resourceAddress}?direction=base`,
     });
-  }).pipe(Effect.provide(GetComponentEntityDetails.Default));
+  }).pipe(
+    Effect.provide(GetComponentEntityDetails.Default),
+    Effect.provide(GetEntityDetailsService.Default),
+  );
 
 export class PlazaPairSchema extends ComponentDefinition.extend<PlazaPairSchema>(
   'PlazaPairSchema',
@@ -37,11 +78,16 @@ export class PlazaPairSchema extends ComponentDefinition.extend<PlazaPairSchema>
   data: Schema.Struct({
     quote_pool_unit: RadixDataTypeSchema.ResourceAddress,
     base_pool_unit: RadixDataTypeSchema.ResourceAddress,
-    base_address: AssetSchema,
+    // base
+    xToken: AssetSchema,
+    // quote
+    yToken: AssetSchema,
     quote_address: AssetSchema,
     base_pool: RadixDataTypeSchema.PoolAddress,
     quote_pool: RadixDataTypeSchema.PoolAddress,
   }),
+  tvl: Schema.Array(fungibleResourceBalanceSchema),
+  url: Schema.String,
 }) {
   static packageAddresses = PlazaPairSchema.fields.packageAddress.literals;
   static matchPackageAddress = (input: string) =>

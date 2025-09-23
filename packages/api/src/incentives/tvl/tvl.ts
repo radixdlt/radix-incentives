@@ -40,6 +40,23 @@ const getOciswapComponents = Effect.promise(() =>
   Effect.map((data) => [...data.data.flatMap((item) => item.address)]),
 );
 
+const getDefiPlazaComponents = Effect.promise(() =>
+  fetch('https://radix.defiplaza.net/api/pairs').then((res) => res.json()),
+).pipe(
+  Effect.flatMap((data) =>
+    Schema.decodeUnknown(
+      Schema.Struct({
+        data: Schema.Array(
+          Schema.Struct({
+            address: RadixDataTypeSchema.ComponentAddress,
+          }),
+        ),
+      }),
+    )(data),
+  ),
+  Effect.map((data) => [...data.data.flatMap((item) => item.address)]),
+);
+
 export class TvlSchema extends Schema.Class<TvlSchema>('TvlSchema')({
   dex: Schema.String,
   blueprintName: Schema.String,
@@ -62,6 +79,7 @@ export class TVLService extends Effect.Service<TVLService>()('TVLService', {
   effect: Effect.gen(function* () {
     const getUsdValue = yield* GetUsdValueService;
     const componentRepo = yield* ComponentRepo;
+    const defiPlazaComponents = yield* getDefiPlazaComponents;
 
     return {
       dexComponentsTvl: Effect.fn(function* () {
@@ -73,6 +91,7 @@ export class TVLService extends Effect.Service<TVLService>()('TVLService', {
         const components = yield* componentRepo.getByComponentAddresses([
           ...ociswapComponents,
           ...shapeLiquidityComponents,
+          ...defiPlazaComponents,
         ]);
 
         const items = yield* Effect.forEach(
