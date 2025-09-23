@@ -30,6 +30,12 @@ secrets:
     aws_secret_key: "admin_jwt_secret"
     secret_key: "admin_jwt_secret"
 
+  - external_secret_name: transaction-stream-token-price-service-key
+    env_variable: "TOKEN_PRICE_SERVICE_API_KEY"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/secrets"
+    aws_secret_key: "token_price_service_key"
+    secret_key: "token_price_service_key"
+    
 ingress:
   enabled: true
   className: nginx-internal
