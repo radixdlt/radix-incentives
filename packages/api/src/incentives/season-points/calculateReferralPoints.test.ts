@@ -34,14 +34,16 @@ layer(CalculateReferralPoints.Default)('calculateReferralPoints', (it) => {
       const actual = yield* service(input);
 
       expect(actual).toEqual([
+        // userA has no points, so should have no referral points
         {
           userId: 'userA',
           referredBy: undefined,
           seasonId: 'season1',
-          points: new BigNumber(50),
-          referralPoints: new BigNumber(50),
+          points: new BigNumber(0),
+          referralPoints: new BigNumber(0),
           weekId: 'week1',
         },
+        // userB has 1000 points, so should have 25 referral points
         {
           userId: 'userB',
           referredBy: 'userA',
@@ -50,6 +52,7 @@ layer(CalculateReferralPoints.Default)('calculateReferralPoints', (it) => {
           referralPoints: new BigNumber(25),
           weekId: 'week1',
         },
+        // userC has 500 points but no referrals so should have no referral points
         {
           userId: 'userC',
           referredBy: 'userB',
