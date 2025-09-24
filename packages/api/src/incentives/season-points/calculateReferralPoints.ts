@@ -20,9 +20,16 @@ export class CalculateReferralPoints extends Effect.Service<CalculateReferralPoi
         const referralPercentage = yield* config.getReferralPercentage();
 
         const referralPointsMap = new Map<string, BigNumber>();
+        const pointsMap = new Map<string, BigNumber>();
+        for (const user of users) {
+          pointsMap.set(user.userId, user.points);
+        }
 
         for (const user of users) {
-          if (user.referredBy) {
+          if (
+            user.referredBy &&
+            pointsMap.get(user.referredBy)?.isGreaterThan(0)
+          ) {
             const referralPoints = user.points.multipliedBy(referralPercentage);
 
             const currentReferralPoints =
