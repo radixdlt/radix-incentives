@@ -13,6 +13,15 @@ params:
   APP_URL : "https://incentives-pr-{{ .StateValues.ci.prNumber }}.rdx-works-main.extratools.works"
   APPLICATION_NAME: "incentives-pr-{{ .StateValues.ci.prNumber }}"
 
+
+secrets:
+  - external_secret_name: incentives-radix-charts-key
+    env_variable: "RADIX_CHARTS_AUTHORIZATION_TOKEN"
+    aws_secret_name: "rdx-works-main/eks/incentives/dev/secrets"
+    aws_secret_key: "api_key"
+    secret_key: "api_key"
+
+
 ingress:
   enabled: true
   annotations:
