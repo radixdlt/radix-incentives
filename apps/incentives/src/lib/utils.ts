@@ -311,3 +311,26 @@ export function getNextUpdateTime() {
 
   return formatted;
 }
+
+/**
+ * Reverse calculation to get XRD amount from multiplier using the S-curve formula
+ * @param multiplier - The multiplier value to reverse-calculate from
+ * @returns The XRD amount that would produce this multiplier
+ */
+export const calculateXrdFromMultiplier = (multiplier: number): number => {
+  if (multiplier <= 0.5) return 0;
+  if (multiplier >= 3.0) return 75000000;
+
+  // Reverse the S-curve formula: m(B) = 0.5 + 2.586/(1 + exp[-0.9×(ln(B)-14.4)])
+  // Rearranging: 2.586/(m-0.5) = 1 + exp[-0.9×(ln(B)-14.4)]
+  // exp[-0.9×(ln(B)-14.4)] = 2.586/(m-0.5) - 1
+  // -0.9×(ln(B)-14.4) = ln(2.586/(m-0.5) - 1)
+  // ln(B)-14.4 = -ln(2.586/(m-0.5) - 1) / 0.9
+  // ln(B) = 14.4 - ln(2.586/(m-0.5) - 1) / 0.9
+  const adjustedMultiplier = multiplier - 0.5;
+  const ratio = 2.586 / adjustedMultiplier - 1;
+  if (ratio <= 0) return 75000000; // Edge case
+
+  const lnB = 14.4 - Math.log(ratio) / 0.9;
+  return Math.exp(lnB);
+};
