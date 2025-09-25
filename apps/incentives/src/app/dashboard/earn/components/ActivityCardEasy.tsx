@@ -122,21 +122,21 @@ const getStatusBadge = (
       return {
         icon: CheckCircle,
         text: 'Earning',
-        className: 'bg-green-500/20 text-green-700 border-green-500/30',
+        className: 'bg-green-500/20 text-green-200 border-green-500/30',
         tooltip: 'You are actively earning points in this category',
       };
     case 'partial':
       return {
         icon: Clock,
         text: 'Partial',
-        className: 'bg-orange-500/20 text-orange-700 border-orange-500/30',
+        className: 'bg-orange-500/20 text-orange-200 border-orange-500/30',
         tooltip: 'You are only partially participating in this category',
       };
     case 'idle':
       return {
         icon: XCircle,
         text: 'Idle',
-        className: 'bg-red-500/20 text-red-700 border-red-500/30',
+        className: 'bg-red-500/20 text-red-200 border-red-500/30',
         tooltip: 'You are not currently participating in this category',
       };
     default:
