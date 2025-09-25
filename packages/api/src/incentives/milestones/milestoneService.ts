@@ -1,6 +1,7 @@
 import { milestones } from 'db/incentives';
 import { and, eq } from 'drizzle-orm';
 import { Effect } from 'effect';
+import { groupBy } from 'effect/Array';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 import { DexVolumeService } from './dexVolumeService';
 import { TransactionCountService } from './transactionCountService';
@@ -287,13 +288,10 @@ export class MilestoneService extends Effect.Service<MilestoneService>()(
           });
 
           // Group milestones by type for staleness checking
-          const tvlMilestones = allMilestones.filter((m) => m.type === 'tvl');
-          const transactionMilestones = allMilestones.filter(
-            (m) => m.type === 'transactions',
-          );
-          const dexVolumeMilestones = allMilestones.filter(
-            (m) => m.type === 'dex_volume',
-          );
+          const groupedMilestones = groupBy(allMilestones, (m) => m.type);
+          const tvlMilestones = groupedMilestones.tvl || [];
+          const transactionMilestones = groupedMilestones.transactions || [];
+          const dexVolumeMilestones = groupedMilestones.dex_volume || [];
 
           // Check staleness and update data if needed
           let milestonesToUse = allMilestones;

@@ -45,9 +45,10 @@ export class DexVolumeService extends Effect.Service<DexVolumeService>()(
   {
     effect: Effect.gen(function* () {
       const SEPTEMBER_8_2025_TIMESTAMP = 1757289600; // September 8, 2025 00:00:00 UTC
-      const DEX_NAMES = ['ociswap', 'defiplaza', 'caviarnine'];
+      const DEX_NAMES = ['ociswap', 'defiplaza', 'caviarnine'] as const;
+      type DexName = (typeof DEX_NAMES)[number];
 
-      const fetchDexVolumeData = Effect.fn(function* (dexName: string) {
+      const fetchDexVolumeData = Effect.fn(function* (dexName: DexName) {
         const url = `https://api.llama.fi/summary/dexs/${dexName}?excludeTotalDataChart=true&excludeTotalDataChartBreakdown=false`;
 
         const response = yield* Effect.tryPromise({
