@@ -713,3 +713,46 @@ export const marginAccounts = createTable(
 // that parent account is registered in the incentives program
 
 export type MarginAccount = InferSelectModel<typeof marginAccounts>;
+
+export const milestoneType = pgEnum('milestone_type', [
+  'tvl',
+  'transactions',
+  'dex_volume',
+  'wallet_downloads',
+]);
+
+export const milestones = createTable(
+  'milestone',
+  {
+    seasonId: uuid('season_id')
+      .notNull()
+      .references(() => seasons.id),
+    type: milestoneType('type').notNull(),
+    goal: decimal('goal', { precision: 20, scale: 2 }).notNull(),
+    rewardXrd: decimal('reward_xrd', { precision: 20, scale: 0 }).notNull(),
+    currentValue: decimal('current_value', { precision: 20, scale: 2 })
+      .notNull()
+      .default('0'),
+    isAchieved: boolean('is_achieved').notNull().default(false),
+    lastUpdated: timestamp('last_updated', { mode: 'date', withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.seasonId, table.type, table.goal] }),
+    seasonIdx: index('idx_milestones_season').on(table.seasonId),
+    lastUpdatedIdx: index('idx_milestones_last_updated').on(table.lastUpdated),
+  }),
+);
+
+export type Milestone = InferSelectModel<typeof milestones>;
+
+// Transaction Count Table - tracks total transaction count at specific timestamps
+export const transactionCounts = createTable('transaction_count', {
+  timestamp: timestamp('timestamp', { mode: 'date', withTimezone: true })
+    .notNull()
+    .primaryKey(),
+  totalTransactionCount: integer('total_transaction_count').notNull(),
+});
+
+export type TransactionCount = InferSelectModel<typeof transactionCounts>;

@@ -70,6 +70,7 @@ import { createDbClientLive } from '../db/dbClient';
 import { ActivityDisplayService } from '../leaderboard/activityDisplay';
 import { ActivityPointsAdjustmentService } from '../leaderboard/activityPointsAdjustment';
 import { LeaderboardService } from '../leaderboard/leaderboard';
+import { MilestoneService } from '../milestones/milestoneService';
 import { getAccountsProgram } from '../programs/getAccounts';
 import { validateSessionTokenProgram } from '../programs/validateSessionToken';
 import {
@@ -1138,6 +1139,68 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       const service = yield* TVLService;
       return yield* service.dexComponentsTvl();
     }).pipe(Effect.provide(TVLService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  // Milestone service functions
+  const getMilestoneProgress = (input: { seasonId: string }) => {
+    const program = Effect.gen(function* () {
+      const milestoneService = yield* MilestoneService;
+      return yield* milestoneService.getMilestoneProgress(input.seasonId);
+    }).pipe(Effect.provide(MilestoneService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getAllMilestonesGroupedBySeason = () => {
+    const program = Effect.gen(function* () {
+      const milestoneService = yield* MilestoneService;
+      return yield* milestoneService.getAllMilestonesGroupedBySeason();
+    }).pipe(Effect.provide(MilestoneService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const createMilestone = (input: {
+    seasonId: string;
+    type: 'tvl' | 'transactions' | 'dex_volume' | 'wallet_downloads';
+    goal: string;
+    rewardXrd: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const milestoneService = yield* MilestoneService;
+      return yield* milestoneService.createMilestone(input);
+    }).pipe(Effect.provide(MilestoneService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateMilestone = (input: {
+    seasonId: string;
+    type: 'tvl' | 'transactions' | 'dex_volume' | 'wallet_downloads';
+    goal: string;
+    newGoal?: string;
+    rewardXrd?: string;
+    currentValue?: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const milestoneService = yield* MilestoneService;
+      return yield* milestoneService.updateMilestone(input);
+    }).pipe(Effect.provide(MilestoneService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const deleteMilestone = (input: {
+    seasonId: string;
+    type: 'tvl' | 'transactions' | 'dex_volume' | 'wallet_downloads';
+    goal: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const milestoneService = yield* MilestoneService;
+      return yield* milestoneService.deleteMilestone(input);
+    }).pipe(Effect.provide(MilestoneService.Default));
     return Effect.runPromiseExit(program);
   };
 
@@ -1205,5 +1268,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getUserReferralStats,
     getUserByIdentityAddress,
     getDexComponentTvl,
+    getMilestoneProgress,
+    getAllMilestonesGroupedBySeason,
+    createMilestone,
+    updateMilestone,
+    deleteMilestone,
   };
 };

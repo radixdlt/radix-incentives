@@ -2,7 +2,7 @@
 
 import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { MetricCard } from '~/components/dashboard';
+import { MetricCard, RadixRewardsIntro } from '~/components/dashboard';
 import { EmptyState } from '~/components/ui/empty-state';
 import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { usePersona } from '~/lib/hooks/usePersona';
@@ -140,6 +140,8 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
+      <RadixRewardsIntro seasonId={selectedWeekData?.seasonId} />
+
       <NextUpdateNotification />
 
       <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">

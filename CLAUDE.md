@@ -37,8 +37,9 @@ pnpm install
 # Start database (requires Docker)
 pnpm db:start
 
-# Set required environment variable
+# Set required environment variables
 export DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentives"
+export RADIX_CHARTS_AUTHORIZATION_TOKEN="your_radix_charts_api_token"
 
 # Run database migrations
 pnpm db:migrate
