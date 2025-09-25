@@ -55,7 +55,7 @@ export class TransactionCountService extends Effect.Service<TransactionCountServ
       const db = yield* DbClientService;
       const authToken = yield* Config.string(
         'RADIX_CHARTS_AUTHORIZATION_TOKEN',
-      );
+      ).pipe(Config.withDefault('admin-readonly-token'));
 
       const fetchCurrentTransactionCount = Effect.fn(function* () {
         const response = yield* Effect.tryPromise({
