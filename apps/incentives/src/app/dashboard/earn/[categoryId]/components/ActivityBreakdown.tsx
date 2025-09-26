@@ -144,7 +144,7 @@ export function ActivityBreakdown({
 
   if (activities.length === 0) {
     return (
-      <Card>
+      <Card noHover>
         <CardHeader>
           <CardTitle>Activity Breakdown</CardTitle>
         </CardHeader>
@@ -158,7 +158,7 @@ export function ActivityBreakdown({
   }
 
   return (
-    <Card>
+    <Card noHover>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="min-w-0 flex-shrink">Activities</CardTitle>

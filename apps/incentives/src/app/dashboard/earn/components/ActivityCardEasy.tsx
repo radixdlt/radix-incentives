@@ -2,6 +2,7 @@ import {
   CheckCircle,
   Clock,
   ExternalLink,
+  Info,
   type LucideIcon,
   XCircle,
 } from 'lucide-react';
@@ -223,7 +224,7 @@ export const ActivityCardEasy = ({
                 <Badge
                   variant="outline"
                   className={cn(
-                    'flex cursor-help items-center gap-1 font-medium text-xs',
+                    'flex cursor-help items-center gap-1 font-medium text-xs transition-opacity hover:opacity-80',
                     statusBadge.className,
                   )}
                 >
@@ -243,8 +244,12 @@ export const ActivityCardEasy = ({
                   </p>
                 }
               >
-                <Badge variant="secondary" className="cursor-help text-xs">
+                <Badge
+                  variant="secondary"
+                  className="flex cursor-help items-center gap-1 text-xs transition-opacity hover:opacity-80"
+                >
                   AP
+                  <Info className="h-3 w-3 opacity-60" />
                 </Badge>
               </MobileTooltip>
             )}
@@ -257,8 +262,12 @@ export const ActivityCardEasy = ({
                   </p>
                 }
               >
-                <Badge variant="default" className="cursor-help text-xs">
+                <Badge
+                  variant="default"
+                  className="flex cursor-help items-center gap-1 text-xs transition-opacity hover:opacity-80"
+                >
                   Multiplier
+                  <Info className="h-3 w-3 opacity-60" />
                 </Badge>
               </MobileTooltip>
             )}
@@ -272,8 +281,12 @@ export const ActivityCardEasy = ({
                     </p>
                   }
                 >
-                  <Badge variant="outline" className="cursor-help text-xs">
+                  <Badge
+                    variant="outline"
+                    className="flex cursor-help items-center gap-1 text-xs transition-opacity hover:opacity-80"
+                  >
                     {formatSeasonPointsPerWeek(activity.seasonPointsPerWeek)}
+                    <Info className="h-3 w-3 opacity-60" />
                   </Badge>
                 </MobileTooltip>
               )}

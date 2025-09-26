@@ -111,7 +111,7 @@ export default function CategoryDetailPage() {
       </div>
 
       {/* Category Info Section */}
-      <Card>
+      <Card noHover>
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
@@ -151,6 +151,7 @@ export default function CategoryDetailPage() {
             icon={TrendingUp}
             description="Activity Points earned this week"
             iconColor="text-green-500"
+            noHover
           />
         )}
 
@@ -167,6 +168,7 @@ export default function CategoryDetailPage() {
             icon={Wallet}
             description="USD value contributing to this category"
             iconColor="text-blue-500"
+            noHover
           />
         )}
 
@@ -186,6 +188,7 @@ export default function CategoryDetailPage() {
             icon={Zap}
             description="Activity Points earned per hour"
             iconColor="text-amber-500"
+            noHover
           />
         )}
 
