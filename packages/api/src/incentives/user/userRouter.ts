@@ -141,4 +141,26 @@ export const adminUserRouter = createTRPCRouter({
 
       return result.value;
     }),
+
+  getUserActivityPointsByWeek: publicProcedure
+    .input(
+      z.object({
+        userId: z.string(),
+        weekId: z.string(),
+      }),
+    )
+    .query(async ({ input, ctx }) => {
+      const result =
+        await ctx.dependencyLayer.getUserActivityPointsByWeek(input);
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+          });
+        },
+      });
+    }),
 });

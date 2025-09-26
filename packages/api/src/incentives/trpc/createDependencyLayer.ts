@@ -101,6 +101,7 @@ import {
   GetUsersPaginatedService,
 } from '../user/getUsersPaginated';
 import { UserService } from '../user/user';
+import { UserActivityPointsService } from '../user/userActivityPoints';
 import { UserReferral } from '../user-referral/userReferral';
 import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { type CreateWeekInput, WeekService } from '../week/week';
@@ -1204,6 +1205,19 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getUserActivityPointsByWeek = (input: {
+    userId: string;
+    weekId: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const userActivityPointsService = yield* UserActivityPointsService;
+      return yield* userActivityPointsService.getUserActivityPointsByWeek(
+        input,
+      );
+    }).pipe(Effect.provide(UserActivityPointsService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1273,5 +1287,6 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     createMilestone,
     updateMilestone,
     deleteMilestone,
+    getUserActivityPointsByWeek,
   };
 };

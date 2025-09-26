@@ -20,6 +20,20 @@ export const weekRouter = createTRPCRouter({
 });
 
 export const weekAdminRouter = createTRPCRouter({
+  getWeeks: publicProcedure.query(async ({ ctx }) => {
+    const result = await ctx.dependencyLayer.getAvailableWeeks({
+      seasonId: undefined,
+    });
+
+    return Exit.match(result, {
+      onSuccess: (value) => value,
+      onFailure: (error) => {
+        console.error(error);
+        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+      },
+    });
+  }),
+
   getWeekDetails: publicProcedure
     .input(
       z.object({
