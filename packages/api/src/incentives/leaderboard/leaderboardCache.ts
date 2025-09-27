@@ -100,43 +100,147 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           catch: (error) => new DbError(error),
         });
 
-        // Calculate season totals and rankings
+        // Get all weeks for this season
+        const weeks = yield* weekService.list({ seasonId: input.seasonId });
+
+        // Populate season totals (weekId = null) - aggregated across all weeks
+        yield* populateSeasonTotals({ seasonId: input.seasonId });
+
+        // Populate weekly data for each week
+        for (const week of weeks) {
+          yield* populateWeeklySeasonData({
+            seasonId: input.seasonId,
+            weekId: week.id,
+          });
+        }
+
+        yield* Effect.log(
+          `Populated season leaderboard cache for season ${input.seasonId} with totals and ${weeks.length} weeks`,
+        );
+      }
+
+      function* populateSeasonTotals(input: { seasonId: string }) {
+        // Calculate season totals aggregated across all weeks
         const seasonTotals = yield* Effect.tryPromise({
+          try: () =>
+            db.execute(sql`
+              WITH category_sums AS (
+                SELECT
+                  user_id,
+                  category_key,
+                  SUM(category_value::numeric) as category_total
+                FROM ${userSeasonPoints},
+                LATERAL jsonb_each_text(COALESCE(data, '{}'::jsonb)) AS category_data(category_key, category_value)
+                WHERE season_id = ${input.seasonId}
+                  AND category_key IS NOT NULL
+                GROUP BY user_id, category_key
+              ),
+              user_totals AS (
+                SELECT
+                  user_id,
+                  SUM(points::numeric) as total_points,
+                  SUM(COALESCE(referral_points::numeric, 0)) as total_referral_points
+                FROM ${userSeasonPoints}
+                WHERE season_id = ${input.seasonId}
+                GROUP BY user_id
+              ),
+              category_breakdowns AS (
+                SELECT
+                  user_id,
+                  jsonb_object_agg(category_key, category_total::text) as category_breakdown
+                FROM category_sums
+                GROUP BY user_id
+              )
+              SELECT
+                ut.user_id as "userId",
+                ut.total_points::text as "totalPoints",
+                ut.total_referral_points::text as "totalReferralPoints",
+                COALESCE(cb.category_breakdown, '{}'::jsonb) as "categoryBreakdown"
+              FROM user_totals ut
+              LEFT JOIN category_breakdowns cb ON ut.user_id = cb.user_id
+              ORDER BY ut.total_points DESC
+            `),
+          catch: (error) => new DbError(error),
+        }).pipe(
+          Effect.map(
+            (result) =>
+              result as unknown as Array<{
+                userId: string;
+                totalPoints: string;
+                totalReferralPoints: string;
+                categoryBreakdown: Record<string, string>;
+              }>,
+          ),
+        );
+
+        // Insert season totals with special sentinel weekId for totals
+        const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
+        const seasonCacheEntries = seasonTotals.map((entry, index) => ({
+          seasonId: input.seasonId,
+          weekId: SEASON_TOTALS_WEEK_ID,
+          userId: entry.userId,
+          totalPoints: entry.totalPoints,
+          totalReferralPoints: entry.totalReferralPoints || '0',
+          categoryBreakdown: entry.categoryBreakdown || {},
+          rank: index + 1,
+        }));
+
+        if (seasonCacheEntries.length > 0) {
+          yield* Effect.tryPromise({
+            try: () =>
+              db.insert(seasonLeaderboardCache).values(seasonCacheEntries),
+            catch: (error) => new DbError(error),
+          });
+        }
+
+        yield* Effect.log(
+          `Populated season totals cache with ${seasonCacheEntries.length} entries`,
+        );
+      }
+
+      function* populateWeeklySeasonData(input: {
+        seasonId: string;
+        weekId: string;
+      }) {
+        // Get weekly season points data with category breakdown
+        const weeklyData = yield* Effect.tryPromise({
           try: () =>
             db
               .select({
                 userId: userSeasonPoints.userId,
-                totalPoints: sql<number>`SUM(${userSeasonPoints.points})`,
+                totalPoints: userSeasonPoints.points,
+                totalReferralPoints: userSeasonPoints.referralPoints,
+                categoryBreakdown: userSeasonPoints.data,
               })
               .from(userSeasonPoints)
-              .where(eq(userSeasonPoints.seasonId, input.seasonId))
-              .groupBy(userSeasonPoints.userId)
-              .orderBy(desc(sql`SUM(${userSeasonPoints.points})`)),
+              .where(
+                sql`${userSeasonPoints.seasonId} = ${input.seasonId} AND ${userSeasonPoints.weekId} = ${input.weekId}`,
+              )
+              .orderBy(desc(userSeasonPoints.points)),
           catch: (error) => new DbError(error),
         });
 
-        // Insert with rankings
-        const cacheEntries = seasonTotals.map((entry, index) => ({
+        // Insert weekly data
+        const weeklyCacheEntries = weeklyData.map((entry, index) => ({
           seasonId: input.seasonId,
+          weekId: input.weekId,
           userId: entry.userId,
-          totalPoints: entry.totalPoints.toString(),
+          totalPoints: entry.totalPoints,
+          totalReferralPoints: entry.totalReferralPoints || '0',
+          categoryBreakdown: entry.categoryBreakdown || {},
           rank: index + 1,
         }));
 
-        if (cacheEntries.length > 0) {
-          // Insert in batches
-          const batchSize = 1000;
-          for (let i = 0; i < cacheEntries.length; i += batchSize) {
-            const batch = cacheEntries.slice(i, i + batchSize);
-            yield* Effect.tryPromise({
-              try: () => db.insert(seasonLeaderboardCache).values(batch),
-              catch: (error) => new DbError(error),
-            });
-          }
+        if (weeklyCacheEntries.length > 0) {
+          yield* Effect.tryPromise({
+            try: () =>
+              db.insert(seasonLeaderboardCache).values(weeklyCacheEntries),
+            catch: (error) => new DbError(error),
+          });
         }
 
         yield* Effect.log(
-          `Populated season leaderboard cache with ${cacheEntries.length} entries`,
+          `Populated weekly season cache for week ${input.weekId} with ${weeklyCacheEntries.length} entries`,
         );
       }
 
@@ -275,12 +379,14 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         });
 
         // Calculate season stats using SQL aggregation - no memory loading
+        // Group by both seasonId and weekId to get stats for both season totals and individual weeks
+        // Use consistent cache key pattern: season_{seasonId}_week_{weekId}
         const seasonStats = yield* Effect.tryPromise({
           try: () =>
             db
               .select({
                 cacheKey:
-                  sql<string>`'season_' || ${seasonLeaderboardCache.seasonId}`.as(
+                  sql<string>`'season_' || ${seasonLeaderboardCache.seasonId} || '_week_' || ${seasonLeaderboardCache.weekId}`.as(
                     'cache_key',
                   ),
                 totalUsers: sql<number>`COUNT(*)`.as('total_users'),
@@ -294,7 +400,10 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
                   ),
               })
               .from(seasonLeaderboardCache)
-              .groupBy(seasonLeaderboardCache.seasonId),
+              .groupBy(
+                seasonLeaderboardCache.seasonId,
+                seasonLeaderboardCache.weekId,
+              ),
           catch: (error) => new DbError(error),
         });
 

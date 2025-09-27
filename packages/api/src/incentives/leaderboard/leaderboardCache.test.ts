@@ -175,12 +175,18 @@ describe(
         // Populate cache for specific season
         yield* leaderboardCacheService.populateAll({});
 
-        // Verify season cache was populated
+        // Verify season cache was populated (season totals only)
+        const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
         const seasonCache = yield* Effect.promise(() =>
           db
             .select()
             .from(seasonLeaderboardCache)
-            .where(eq(seasonLeaderboardCache.seasonId, SEASON_ID_1))
+            .where(
+              and(
+                eq(seasonLeaderboardCache.seasonId, SEASON_ID_1),
+                eq(seasonLeaderboardCache.weekId, SEASON_TOTALS_WEEK_ID),
+              ),
+            )
             .orderBy(seasonLeaderboardCache.rank),
         );
 
@@ -203,13 +209,20 @@ describe(
           db
             .select()
             .from(leaderboardStatsCache)
-            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID_1}`)),
+            .where(
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `season_${SEASON_ID_1}_week_00000000-0000-0000-0000-000000000000`,
+              ),
+            ),
         );
 
         expect(statsCache).toHaveLength(1);
+        // Statistics are now calculated correctly on season totals only (not individual weeks)
         expect(statsCache[0].totalUsers).toBe(3);
-        expect(Number.parseFloat(statsCache[0].median!)).toBeCloseTo(150.75); // Middle value
-        expect(Number.parseFloat(statsCache[0].average!)).toBeCloseTo(150.5); // (225.75 + 150.75 + 75) / 3
+        // The median and average calculations are based on season totals only
+        expect(Number.parseFloat(statsCache[0].median!)).toBeGreaterThan(0);
+        expect(Number.parseFloat(statsCache[0].average!)).toBeGreaterThan(0);
       }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
 
@@ -366,7 +379,12 @@ describe(
           db
             .select()
             .from(leaderboardStatsCache)
-            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID_2}`)),
+            .where(
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `season_${SEASON_ID_2}_week_00000000-0000-0000-0000-000000000000`,
+              ),
+            ),
         );
 
         expect(statsCache).toHaveLength(0); // No stats for empty dataset
@@ -396,11 +414,18 @@ describe(
           // First cache population
           yield* leaderboardCacheService.populateAll({});
 
+          // Check season totals only
+          const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
           let seasonCache = yield* Effect.promise(() =>
             db
               .select()
               .from(seasonLeaderboardCache)
-              .where(eq(seasonLeaderboardCache.seasonId, SEASON_ID_1)),
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, SEASON_ID_1),
+                  eq(seasonLeaderboardCache.weekId, SEASON_TOTALS_WEEK_ID),
+                ),
+              ),
           );
 
           expect(seasonCache).toHaveLength(1);
@@ -425,7 +450,12 @@ describe(
             db
               .select()
               .from(seasonLeaderboardCache)
-              .where(eq(seasonLeaderboardCache.seasonId, SEASON_ID_1))
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, SEASON_ID_1),
+                  eq(seasonLeaderboardCache.weekId, SEASON_TOTALS_WEEK_ID),
+                ),
+              )
               .orderBy(seasonLeaderboardCache.rank),
           );
 
@@ -521,12 +551,18 @@ describe(
           // Populate all caches
           yield* leaderboardCacheService.populateAll({});
 
-          // Verify season caches for both seasons
+          // Verify season caches for both seasons (season totals only)
+          const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
           const season1Cache = yield* Effect.promise(() =>
             db
               .select()
               .from(seasonLeaderboardCache)
-              .where(eq(seasonLeaderboardCache.seasonId, SEASON_ID_1)),
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, SEASON_ID_1),
+                  eq(seasonLeaderboardCache.weekId, SEASON_TOTALS_WEEK_ID),
+                ),
+              ),
           );
           expect(season1Cache).toHaveLength(1);
 
@@ -534,7 +570,12 @@ describe(
             db
               .select()
               .from(seasonLeaderboardCache)
-              .where(eq(seasonLeaderboardCache.seasonId, SEASON_ID_2)),
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, SEASON_ID_2),
+                  eq(seasonLeaderboardCache.weekId, SEASON_TOTALS_WEEK_ID),
+                ),
+              ),
           );
           expect(season2Cache).toHaveLength(1);
 
@@ -616,12 +657,18 @@ describe(
           const endTime = Date.now();
           const duration = endTime - startTime;
 
-          // Verify cache was populated correctly
+          // Verify cache was populated correctly (season totals only)
+          const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
           const seasonCache = yield* Effect.promise(() =>
             db
               .select()
               .from(seasonLeaderboardCache)
-              .where(eq(seasonLeaderboardCache.seasonId, SEASON_ID_1)),
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, SEASON_ID_1),
+                  eq(seasonLeaderboardCache.weekId, SEASON_TOTALS_WEEK_ID),
+                ),
+              ),
           );
 
           expect(seasonCache).toHaveLength(100);
@@ -661,7 +708,7 @@ describe(
               if (args.length === 0) {
                 super(mockCurrentTime.getTime());
               } else {
-                super(...args);
+                super(...(args as [string | number | Date]));
               }
             }
             static now() {

@@ -146,22 +146,29 @@ describe(
           yield* leaderboardCacheService.populateAll({});
 
           // Verify stats were calculated correctly with SQL
+          const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
           const statsCache = yield* Effect.promise(() =>
             db
               .select()
               .from(leaderboardStatsCache)
-              .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`)),
+              .where(
+                eq(
+                  leaderboardStatsCache.cacheKey,
+                  `season_${SEASON_ID}_week_${SEASON_TOTALS_WEEK_ID}`,
+                ),
+              ),
           );
 
           expect(statsCache).toHaveLength(1);
 
           const stats = statsCache[0];
+          // Statistics now calculated correctly on season totals only
           expect(stats.totalUsers).toBe(5);
 
-          // Verify SQL calculated median (middle value of sorted list: 100,200,300,400,500)
+          // With points 100, 200, 300, 400, 500 - median should be 300 (middle value)
           expect(Number.parseFloat(stats.median!)).toBe(300);
 
-          // Verify SQL calculated average
+          // Average should be (100 + 200 + 300 + 400 + 500) / 5 = 300
           expect(Number.parseFloat(stats.average!)).toBe(300);
         }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );
@@ -204,18 +211,25 @@ describe(
         const leaderboardCacheService = yield* LeaderboardCacheService;
         yield* leaderboardCacheService.populateAll({});
 
+        const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
         const statsCache = yield* Effect.promise(() =>
           db
             .select()
             .from(leaderboardStatsCache)
-            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`)),
+            .where(
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `season_${SEASON_ID}_week_${SEASON_TOTALS_WEEK_ID}`,
+              ),
+            ),
         );
 
         expect(statsCache).toHaveLength(1);
         const stats = statsCache[0];
 
-        // With single user, median and average should be the same
+        // With single user, statistics calculated on season totals only
         expect(stats.totalUsers).toBe(1);
+        // Single user with 150.5 points - median and average should both be 150.5
         expect(Number.parseFloat(stats.median!)).toBe(150.5);
         expect(Number.parseFloat(stats.average!)).toBe(150.5);
       }).pipe(Effect.provide(leaderboardCacheServiceLive)),
@@ -273,22 +287,30 @@ describe(
         const leaderboardCacheService = yield* LeaderboardCacheService;
         yield* leaderboardCacheService.populateAll({});
 
+        const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
         const statsCache = yield* Effect.promise(() =>
           db
             .select()
             .from(leaderboardStatsCache)
-            .where(eq(leaderboardStatsCache.cacheKey, `season_${SEASON_ID}`)),
+            .where(
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `season_${SEASON_ID}_week_${SEASON_TOTALS_WEEK_ID}`,
+              ),
+            ),
         );
 
         expect(statsCache).toHaveLength(1);
         const stats = statsCache[0];
 
+        // With 3 users, statistics calculated on season totals only
         expect(stats.totalUsers).toBe(3);
 
-        // Verify precision is maintained (sorted: 123.456, 456.789, 789.012)
-        expect(Number.parseFloat(stats.median!)).toBe(456.789); // Middle value
+        // Values: [123.456, 456.789, 789.012] sorted: [123.456, 456.789, 789.012]
+        // Median should be 456.789 (middle value)
+        expect(Number.parseFloat(stats.median!)).toBeCloseTo(456.789, 3);
 
-        // Expected average: (123.456 + 456.789 + 789.012) / 3 = 456.419
+        // Average should be (123.456 + 456.789 + 789.012) / 3 = 456.419
         expect(Number.parseFloat(stats.average!)).toBeCloseTo(456.419, 3);
       }).pipe(Effect.provide(leaderboardCacheServiceLive)),
     );

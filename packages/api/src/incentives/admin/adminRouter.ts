@@ -176,7 +176,7 @@ export const adminRouter = createTRPCRouter({
       )
       .mutation(async ({ input, ctx }) => {
         const result = await ctx.dependencyLayer.calculateSeasonPoints({
-          ...input,
+          weekId: input.weekId,
           markAsProcessed: false,
           dryRun: true,
         });

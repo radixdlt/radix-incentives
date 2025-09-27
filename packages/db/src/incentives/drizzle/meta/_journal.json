@@ -225,6 +225,13 @@
       "when": 1758716682378,
       "tag": "0031_giant_microchip",
       "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1758968989822,
+      "tag": "0032_watery_namor",
+      "breakpoints": true
     }
   ]
 }

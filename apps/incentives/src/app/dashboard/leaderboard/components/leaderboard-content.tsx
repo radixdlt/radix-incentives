@@ -20,6 +20,11 @@ interface UserStatsData {
     activityName: string;
     points: string;
   }>;
+  categoryBreakdown?: Array<{
+    categoryId: string;
+    categoryName: string;
+    points: string;
+  }>;
 }
 
 interface GlobalStats {

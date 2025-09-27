@@ -326,28 +326,49 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                 bands,
               });
 
-              return seasonPoints;
+              return seasonPoints.map((sp) => ({
+                ...sp,
+                categoryId: activityCategory.categoryId,
+              }));
             }),
           ).pipe(
             // flatten and filter out undefined
             Effect.map((items) => items.flat().filter((p) => p !== undefined)),
 
-            // aggregate season points by user
-            Effect.map((items) =>
-              items.reduce<Record<string, BigNumber>>((acc, curr) => {
-                if (!acc[curr.userId]) {
-                  acc[curr.userId] = new BigNumber(0);
+            // aggregate season points by user and capture category breakdowns
+            Effect.map((items) => {
+              const userTotals: Record<string, BigNumber> = {};
+              const userCategoryBreakdowns: Record<
+                string,
+                Record<string, string>
+              > = {};
+
+              for (const item of items) {
+                // Aggregate totals
+                if (!userTotals[item.userId]) {
+                  userTotals[item.userId] = new BigNumber(0);
+                  userCategoryBreakdowns[item.userId] = {};
                 }
 
-                acc[curr.userId] = acc[curr.userId]!.plus(curr.seasonPoints);
+                userTotals[item.userId] = userTotals[item.userId]!.plus(
+                  item.seasonPoints,
+                );
 
-                return acc;
-              }, {}),
-            ),
+                // Capture category breakdown
+                const multiplier =
+                  seasonPointMultipliers[item.userId]?.[0]?.multiplier ?? '0';
+                const multipliedPoints =
+                  item.seasonPoints.multipliedBy(multiplier);
+                userCategoryBreakdowns[item.userId]![item.categoryId] =
+                  multipliedPoints.decimalPlaces(6).toString();
+              }
 
-            // multiply season points by multiplier
-            Effect.map((items) =>
-              Object.entries(items).map(([userId, seasonPoints]) => {
+              return { userTotals, userCategoryBreakdowns };
+            }),
+
+            // multiply season points by multiplier and include category data
+            Effect.map(({ userTotals, userCategoryBreakdowns }) =>
+              Object.entries(userTotals).map(([userId, seasonPoints]) => {
                 const multiplier =
                   seasonPointMultipliers[userId]?.[0]?.multiplier ?? '0';
 
@@ -356,6 +377,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
                   seasonId: season.id,
                   points: seasonPoints.multipliedBy(multiplier),
                   weekId: input.weekId,
+                  data: userCategoryBreakdowns[userId],
                 };
               }),
             ),
@@ -380,6 +402,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             seasonId: season.id,
             points: new BigNumber(0),
             weekId: input.weekId,
+            data: {},
           }));
 
           const referredByMap = new Map<string, string>();

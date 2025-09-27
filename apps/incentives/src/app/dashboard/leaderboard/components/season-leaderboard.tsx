@@ -7,11 +7,12 @@ import { EmptyState } from './empty-state';
 import { LeaderboardBuildingState } from './leaderboard-building-state';
 import { LeaderboardContent } from './leaderboard-content';
 import { LoadingState } from './loading-state';
-import { SeasonSelector } from './season-selector';
+import { SeasonWeekSelector } from './season-week-selector';
 import { WeekInProgressState } from './week-in-progress-state';
 
 export function SeasonLeaderboard() {
   const [selectedSeasonId, setSelectedSeasonId] = useState<string>('');
+  const [selectedWeekId, setSelectedWeekId] = useState<string | null>(null); // null = overall season
   const { persona, isInitialized } = usePersona();
   const utils = api.useUtils();
 
@@ -63,7 +64,10 @@ export function SeasonLeaderboard() {
     error: leaderboardError,
     refetch: refetchLeaderboard,
   } = api.leaderboard.getSeasonLeaderboard.useQuery(
-    { seasonId: selectedSeasonId },
+    {
+      seasonId: selectedSeasonId,
+      weekId: selectedWeekId || undefined,
+    },
     {
       enabled: !!selectedSeasonId,
       refetchOnWindowFocus: false,
@@ -85,7 +89,7 @@ export function SeasonLeaderboard() {
         refetchLeaderboard();
       });
     }
-  }, [refetchLeaderboard, selectedSeasonId, utils]);
+  }, [refetchLeaderboard, selectedSeasonId, selectedWeekId, utils]);
 
   if (seasonsLoading) {
     return <LoadingState message="Loading seasons..." />;
@@ -95,13 +99,20 @@ export function SeasonLeaderboard() {
     return <EmptyState message="No seasons available yet." />;
   }
 
+  const selectedSeason = seasons.find((s) => s.id === selectedSeasonId);
+
   return (
     <div className="space-y-6">
-      {/* Season Selector */}
-      <SeasonSelector
+      {/* Combined Season and Week Selector */}
+      <SeasonWeekSelector
         seasons={seasons}
+        weeks={weeks || []}
         selectedSeasonId={selectedSeasonId}
-        onSeasonChange={setSelectedSeasonId}
+        selectedWeekId={selectedWeekId}
+        onSelectionChange={(seasonId, weekId) => {
+          setSelectedSeasonId(seasonId);
+          setSelectedWeekId(weekId);
+        }}
       />
 
       {leaderboardLoading ? (
