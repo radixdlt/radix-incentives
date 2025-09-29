@@ -69,7 +69,7 @@ releases:
 
   - name: redis
     chart: bitnami/redis
-    version: 18.6.4
+    version: 18.19.4
     values:
       - environments/{{ .Environment.Name }}/redis.yaml
 
