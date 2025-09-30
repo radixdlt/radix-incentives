@@ -210,6 +210,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         }
 
         // Get cached data, which we know exists now
+        // Filter out users with 0 points to match stats calculations
         const cachedData = yield* Effect.tryPromise({
           try: () =>
             db
@@ -227,6 +228,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                 and(
                   eq(seasonLeaderboardCache.seasonId, input.seasonId),
                   eq(seasonLeaderboardCache.weekId, weekIdForCache),
+                  sql`${seasonLeaderboardCache.totalPoints}::numeric > 0`,
                 ),
               )
               .orderBy(asc(seasonLeaderboardCache.rank)),
@@ -406,6 +408,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         }
 
         // Get cached data, which we know exists here
+        // Filter out users with 0 points to match stats calculations
         const cachedData = yield* Effect.tryPromise({
           try: () =>
             db
@@ -422,6 +425,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                 and(
                   eq(categoryLeaderboardCache.weekId, input.weekId),
                   eq(categoryLeaderboardCache.categoryId, input.categoryId),
+                  sql`${categoryLeaderboardCache.totalPoints}::numeric > 0`,
                 ),
               )
               .orderBy(asc(categoryLeaderboardCache.rank)),
@@ -567,6 +571,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                   and(
                     eq(categoryLeaderboardCache.weekId, input.weekId),
                     eq(categoryLeaderboardCache.categoryId, input.categoryId),
+                    sql`${categoryLeaderboardCache.totalPoints}::numeric > 0`,
                   ),
                 )
                 .orderBy(asc(categoryLeaderboardCache.rank))
@@ -623,7 +628,12 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
               })
               .from(seasonLeaderboardCache)
               .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
-              .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, input.seasonId),
+                  sql`${seasonLeaderboardCache.totalPoints}::numeric > 0`,
+                ),
+              )
               .orderBy(asc(seasonLeaderboardCache.rank))
               .limit(limit)
               .offset(page * limit),

@@ -381,6 +381,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         // Calculate season stats using SQL aggregation - no memory loading
         // Group by both seasonId and weekId to get stats for both season totals and individual weeks
         // Use consistent cache key pattern: season_{seasonId}_week_{weekId}
+        // Filter out 0 values from median/average calculations and user count
         const seasonStats = yield* Effect.tryPromise({
           try: () =>
             db
@@ -389,13 +390,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
                   sql<string>`'season_' || ${seasonLeaderboardCache.seasonId} || '_week_' || ${seasonLeaderboardCache.weekId}`.as(
                     'cache_key',
                   ),
-                totalUsers: sql<number>`COUNT(*)`.as('total_users'),
+                totalUsers:
+                  sql<number>`COUNT(*) FILTER (WHERE ${seasonLeaderboardCache.totalPoints}::numeric > 0)`.as(
+                    'total_users',
+                  ),
                 median:
-                  sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ${seasonLeaderboardCache.totalPoints}::numeric)`.as(
+                  sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ${seasonLeaderboardCache.totalPoints}::numeric) FILTER (WHERE ${seasonLeaderboardCache.totalPoints}::numeric > 0)`.as(
                     'median',
                   ),
                 average:
-                  sql<string>`AVG(${seasonLeaderboardCache.totalPoints}::numeric)`.as(
+                  sql<string>`AVG(${seasonLeaderboardCache.totalPoints}::numeric) FILTER (WHERE ${seasonLeaderboardCache.totalPoints}::numeric > 0)`.as(
                     'average',
                   ),
               })
@@ -408,6 +412,7 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         });
 
         // Calculate category stats using SQL aggregation, no memory loading to avoid out of memory issues
+        // Filter out 0 values from median/average calculations and user count
         const categoryStats = yield* Effect.tryPromise({
           try: () =>
             db
@@ -416,13 +421,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
                   sql<string>`'category_' || ${categoryLeaderboardCache.weekId} || '_' || ${categoryLeaderboardCache.categoryId}`.as(
                     'cache_key',
                   ),
-                totalUsers: sql<number>`COUNT(*)`.as('total_users'),
+                totalUsers:
+                  sql<number>`COUNT(*) FILTER (WHERE ${categoryLeaderboardCache.totalPoints}::numeric > 0)`.as(
+                    'total_users',
+                  ),
                 median:
-                  sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ${categoryLeaderboardCache.totalPoints}::numeric)`.as(
+                  sql<string>`PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY ${categoryLeaderboardCache.totalPoints}::numeric) FILTER (WHERE ${categoryLeaderboardCache.totalPoints}::numeric > 0)`.as(
                     'median',
                   ),
                 average:
-                  sql<string>`AVG(${categoryLeaderboardCache.totalPoints}::numeric)`.as(
+                  sql<string>`AVG(${categoryLeaderboardCache.totalPoints}::numeric) FILTER (WHERE ${categoryLeaderboardCache.totalPoints}::numeric > 0)`.as(
                     'average',
                   ),
               })
