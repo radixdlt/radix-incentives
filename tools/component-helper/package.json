@@ -5,6 +5,7 @@
     "component": "tsx src/index.ts"
   },
   "dependencies": {
+    "data": "workspace:*",
     "effect": "catalog:"
   },
   "devDependencies": {
