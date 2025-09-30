@@ -1,6 +1,6 @@
-import { Effect } from 'effect';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { Effect } from 'effect';
 
 type ComponentData = {
   componentAddress: string;
@@ -22,7 +22,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
   {
     effect: Effect.gen(function* () {
       const getConstantsFilePath = (dappId: string): string => {
-        const basePath = path.join(process.cwd(), '../../packages/data/src/dapps');
+        const basePath = path.join(
+          process.cwd(),
+          '../../packages/data/src/dapps',
+        );
         switch (dappId) {
           case 'c9':
             return path.join(basePath, 'caviarnine/constants.ts');
@@ -35,7 +38,6 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         }
       };
 
-
       const generatePoolKey = (xToken: string, yToken: string): string => {
         return `${xToken.toUpperCase()}_${yToken.toUpperCase()}`;
       };
@@ -43,19 +45,29 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
       // Package address mappings
       const PACKAGE_MAPPINGS = {
         c9: {
-          shapeLiquidityPools: 'package_rdx1p4r9rkp0cq67wmlve544zgy0l45mswn6h798qdqm47x4762h383wa3', // QuantaSwap
-          simplePools: 'package_rdx1pkhxu8zy5t7h3rww6jsftca22e2jdgqpc28rje7lnmkjxxf50zagr7', // WeightedPool
+          shapeLiquidityPools:
+            'package_rdx1p4r9rkp0cq67wmlve544zgy0l45mswn6h798qdqm47x4762h383wa3', // QuantaSwap
+          simplePools:
+            'package_rdx1pkhxu8zy5t7h3rww6jsftca22e2jdgqpc28rje7lnmkjxxf50zagr7', // WeightedPool
         },
         oc: {
-          pools: 'package_rdx1pkrgvskdkglfd2ar4jkpw5r2tsptk85gap4hzr9h3qxw6ca40ts8dt',
-          poolsV2: 'package_rdx1pkl8tdw43xqx64etxwdf8rjtvptqurq4c3fky0kaj6vwa0zrkfmcmc',
-          basicPools: 'package_rdx1p5l6dp3slnh9ycd7gk700czwlck9tujn0zpdnd0efw09n2zdnn0lzx',
-          flexPools: 'package_rdx1pkzxm6nw55wvz0e2fn79hd8t07834cxa8kpdlhq8s5lp5ldqpcglwe',
+          pools:
+            'package_rdx1pkrgvskdkglfd2ar4jkpw5r2tsptk85gap4hzr9h3qxw6ca40ts8dt',
+          poolsV2:
+            'package_rdx1pkl8tdw43xqx64etxwdf8rjtvptqurq4c3fky0kaj6vwa0zrkfmcmc',
+          basicPools:
+            'package_rdx1p5l6dp3slnh9ycd7gk700czwlck9tujn0zpdnd0efw09n2zdnn0lzx',
+          flexPools:
+            'package_rdx1pkzxm6nw55wvz0e2fn79hd8t07834cxa8kpdlhq8s5lp5ldqpcglwe',
         },
       };
 
-      const getPoolTypeFromPackageAddress = (dappId: string, packageAddress: string): string | null => {
-        const mappings = PACKAGE_MAPPINGS[dappId as keyof typeof PACKAGE_MAPPINGS];
+      const getPoolTypeFromPackageAddress = (
+        dappId: string,
+        packageAddress: string,
+      ): string | null => {
+        const mappings =
+          PACKAGE_MAPPINGS[dappId as keyof typeof PACKAGE_MAPPINGS];
         if (!mappings) return null;
 
         for (const [poolType, packageAddr] of Object.entries(mappings)) {
@@ -66,14 +78,25 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         return null;
       };
 
-      const addToCaviarNineConstants = Effect.fn(function* (component: ComponentData) {
+      const addToCaviarNineConstants = Effect.fn(function* (
+        component: ComponentData,
+      ) {
         const filePath = getConstantsFilePath(component.dappId);
-        const fileContent = yield* Effect.tryPromise(() => fs.readFile(filePath, 'utf-8'));
+        const fileContent = yield* Effect.tryPromise(() =>
+          fs.readFile(filePath, 'utf-8'),
+        );
 
         // Determine pool type based on package address
-        const poolType = getPoolTypeFromPackageAddress(component.dappId, component.packageAddress);
+        const poolType = getPoolTypeFromPackageAddress(
+          component.dappId,
+          component.packageAddress,
+        );
         if (!poolType) {
-          return yield* Effect.fail(new Error(`Unknown package address for CaviarNine: ${component.packageAddress}`));
+          return yield* Effect.fail(
+            new Error(
+              `Unknown package address for CaviarNine: ${component.packageAddress}`,
+            ),
+          );
         }
 
         // Extract token information
@@ -81,7 +104,9 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         const yToken = component.data.yToken || component.data.y_address;
 
         if (!xToken || !yToken) {
-          return yield* Effect.fail(new Error('Missing token information for CaviarNine component'));
+          return yield* Effect.fail(
+            new Error('Missing token information for CaviarNine component'),
+          );
         }
 
         const poolKey = generatePoolKey(xToken.symbol, yToken.symbol);
@@ -99,8 +124,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         if (poolType === 'shapeLiquidityPools') {
           // Find the closing brace of shapeLiquidityPools
           for (let i = lines.length - 1; i >= 0; i--) {
-            if (lines[i].includes('  },') &&
-                lines[i + 1]?.includes('  simplePools: {')) {
+            if (
+              lines[i].includes('  },') &&
+              lines[i + 1]?.includes('  simplePools: {')
+            ) {
               insertIndex = i;
               break;
             }
@@ -108,8 +135,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         } else if (poolType === 'simplePools') {
           // Find the closing brace of simplePools
           for (let i = lines.length - 1; i >= 0; i--) {
-            if (lines[i].includes('  },') &&
-                lines[i + 1]?.includes('} as const;')) {
+            if (
+              lines[i].includes('  },') &&
+              lines[i + 1]?.includes('} as const;')
+            ) {
               insertIndex = i;
               break;
             }
@@ -117,7 +146,11 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         }
 
         if (insertIndex === -1) {
-          return yield* Effect.fail(new Error(`Could not find insertion point in CaviarNine ${poolType}`));
+          return yield* Effect.fail(
+            new Error(
+              `Could not find insertion point in CaviarNine ${poolType}`,
+            ),
+          );
         }
 
         // Generate the new pool entry based on pool type
@@ -132,9 +165,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
             `      liquidity_receipt:`,
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LIQUIDITY_RECEIPT'}',`,
-            `    },`
+            `    },`,
           ];
-        } else { // simplePools
+        } else {
+          // simplePools
           newPoolEntry = [
             `    ${poolKey}: {`,
             `      name: '${poolName.toUpperCase()}',`,
@@ -146,7 +180,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LP_RESOURCE'}',`,
             `      token_x: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
             `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
-            `    },`
+            `    },`,
           ];
         }
 
@@ -159,14 +193,25 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         return `Added ${poolKey} to CaviarNine ${poolType}`;
       });
 
-      const addToOciswapConstants = Effect.fn(function* (component: ComponentData) {
+      const addToOciswapConstants = Effect.fn(function* (
+        component: ComponentData,
+      ) {
         const filePath = getConstantsFilePath(component.dappId);
-        const fileContent = yield* Effect.tryPromise(() => fs.readFile(filePath, 'utf-8'));
+        const fileContent = yield* Effect.tryPromise(() =>
+          fs.readFile(filePath, 'utf-8'),
+        );
 
         // Determine pool type based on package address
-        const poolType = getPoolTypeFromPackageAddress(component.dappId, component.packageAddress);
+        const poolType = getPoolTypeFromPackageAddress(
+          component.dappId,
+          component.packageAddress,
+        );
         if (!poolType) {
-          return yield* Effect.fail(new Error(`Unknown package address for Ociswap: ${component.packageAddress}`));
+          return yield* Effect.fail(
+            new Error(
+              `Unknown package address for Ociswap: ${component.packageAddress}`,
+            ),
+          );
         }
 
         // Extract token information
@@ -174,7 +219,9 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         const yToken = component.data.yToken || component.data.y_address;
 
         if (!xToken || !yToken) {
-          return yield* Effect.fail(new Error('Missing token information for Ociswap component'));
+          return yield* Effect.fail(
+            new Error('Missing token information for Ociswap component'),
+          );
         }
 
         const poolKey = generatePoolKey(xToken.symbol, yToken.symbol);
@@ -192,8 +239,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         if (poolType === 'pools') {
           // Find closing brace of pools
           for (let i = lines.length - 1; i >= 0; i--) {
-            if (lines[i].includes('  },') &&
-                lines[i + 1]?.includes('  poolsV2: {')) {
+            if (
+              lines[i].includes('  },') &&
+              lines[i + 1]?.includes('  poolsV2: {')
+            ) {
               insertIndex = i;
               break;
             }
@@ -201,8 +250,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         } else if (poolType === 'poolsV2') {
           // Find closing brace of poolsV2
           for (let i = lines.length - 1; i >= 0; i--) {
-            if (lines[i].includes('  },') &&
-                lines[i + 1]?.includes('  basicPools: {')) {
+            if (
+              lines[i].includes('  },') &&
+              lines[i + 1]?.includes('  basicPools: {')
+            ) {
               insertIndex = i;
               break;
             }
@@ -210,8 +261,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         } else if (poolType === 'basicPools') {
           // Find closing brace of basicPools
           for (let i = lines.length - 1; i >= 0; i--) {
-            if (lines[i].includes('  },') &&
-                lines[i + 1]?.includes('  flexPools: {')) {
+            if (
+              lines[i].includes('  },') &&
+              lines[i + 1]?.includes('  flexPools: {')
+            ) {
               insertIndex = i;
               break;
             }
@@ -219,8 +272,10 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         } else if (poolType === 'flexPools') {
           // Find closing brace of flexPools
           for (let i = lines.length - 1; i >= 0; i--) {
-            if (lines[i].includes('  },') &&
-                lines[i + 1]?.includes('} as const;')) {
+            if (
+              lines[i].includes('  },') &&
+              lines[i + 1]?.includes('} as const;')
+            ) {
               insertIndex = i;
               break;
             }
@@ -228,7 +283,9 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         }
 
         if (insertIndex === -1) {
-          return yield* Effect.fail(new Error(`Could not find insertion point in Ociswap ${poolType}`));
+          return yield* Effect.fail(
+            new Error(`Could not find insertion point in Ociswap ${poolType}`),
+          );
         }
 
         // Generate the new pool entry based on pool type
@@ -245,7 +302,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LP_RESOURCE'}',`,
             `      token_x: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
             `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
-            `    },`
+            `    },`,
           ];
         } else {
           // For pools, poolsV2, and flexPools
@@ -260,7 +317,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
             `      divisibility_x: 18,`,
             `      divisibility_y: 18,`,
-            `    },`
+            `    },`,
           ];
         }
 
@@ -273,16 +330,22 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         return `Added ${poolKey} to Ociswap ${poolType}`;
       });
 
-      const addToDefiPlazaConstants = Effect.fn(function* (component: ComponentData) {
+      const addToDefiPlazaConstants = Effect.fn(function* (
+        component: ComponentData,
+      ) {
         const filePath = getConstantsFilePath(component.dappId);
-        const fileContent = yield* Effect.tryPromise(() => fs.readFile(filePath, 'utf-8'));
+        const fileContent = yield* Effect.tryPromise(() =>
+          fs.readFile(filePath, 'utf-8'),
+        );
 
         // Extract token information
         const xToken = component.data.xToken || component.data.x_address;
         const yToken = component.data.yToken || component.data.y_address;
 
         if (!xToken || !yToken) {
-          return yield* Effect.fail(new Error('Missing token information for DefiPlaza component'));
+          return yield* Effect.fail(
+            new Error('Missing token information for DefiPlaza component'),
+          );
         }
 
         const poolKey = `${xToken.symbol.toLowerCase()}${yToken.symbol.toLowerCase()}Pool`;
@@ -297,15 +360,19 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         // Find the closing brace before '} as const;'
         let insertIndex = -1;
         for (let i = lines.length - 1; i >= 0; i--) {
-          if (lines[i].includes('  },') &&
-              lines[i + 1]?.includes('} as const;')) {
+          if (
+            lines[i].includes('  },') &&
+            lines[i + 1]?.includes('} as const;')
+          ) {
             insertIndex = i;
             break;
           }
         }
 
         if (insertIndex === -1) {
-          return yield* Effect.fail(new Error('Could not find insertion point in DefiPlaza constants'));
+          return yield* Effect.fail(
+            new Error('Could not find insertion point in DefiPlaza constants'),
+          );
         }
 
         // Generate the new pool entry (simplified structure for DefiPlaza)
@@ -320,7 +387,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           `    baseLpResourceAddress: 'UNKNOWN_BASE_LP',`,
           `    quotePoolAddress: 'UNKNOWN_QUOTE_POOL',`,
           `    quoteLpResourceAddress: 'UNKNOWN_QUOTE_LP',`,
-          `  },`
+          `  },`,
         ];
 
         // Insert the new pool entry
@@ -332,7 +399,9 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         return `Added ${poolKey} to DefiPlaza constants`;
       });
 
-      const addComponentToConstants = Effect.fn(function* (component: ComponentData) {
+      const addComponentToConstants = Effect.fn(function* (
+        component: ComponentData,
+      ) {
         switch (component.dappId) {
           case 'c9':
             return yield* addToCaviarNineConstants(component);
@@ -349,5 +418,5 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         addComponentToConstants,
       };
     }),
-  }
+  },
 ) {}

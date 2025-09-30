@@ -97,7 +97,7 @@ function CreateMilestoneDialog({ onSuccess }: { onSuccess: () => void }) {
       onSuccess();
     },
     onError: (error) => {
-      toast.error('Failed to create milestone: ' + error.message);
+      toast.error(`Failed to create milestone: ${error.message}`);
     },
   });
 
@@ -224,7 +224,7 @@ function EditMilestoneDialog({
       onSuccess();
     },
     onError: (error) => {
-      toast.error('Failed to update milestone: ' + error.message);
+      toast.error(`Failed to update milestone: ${error.message}`);
     },
   });
 
@@ -345,7 +345,7 @@ function DeleteMilestoneDialog({
       onSuccess();
     },
     onError: (error) => {
-      toast.error('Failed to delete milestone: ' + error.message);
+      toast.error(`Failed to delete milestone: ${error.message}`);
     },
   });
 
@@ -413,7 +413,7 @@ function ManageMilestonesPage() {
       void refetch();
     },
     onError: (error) => {
-      toast.error('Failed to update milestone: ' + error.message);
+      toast.error(`Failed to update milestone: ${error.message}`);
     },
   });
 
@@ -427,7 +427,7 @@ function ManageMilestonesPage() {
       if (!grouped[milestone.seasonId]) {
         grouped[milestone.seasonId] = [];
       }
-      grouped[milestone.seasonId]!.push(milestone);
+      grouped[milestone.seasonId]?.push(milestone);
     }
 
     return grouped;

@@ -17,14 +17,17 @@ const runnable = Effect.gen(function* () {
   console.log(`Fetching component details for: ${input}`);
   console.log('Checking for missing assets...\n');
 
-  const result = yield* enhancedFetcher.fetchComponentsWithAssetValidation([input]);
+  const result = yield* enhancedFetcher.fetchComponentsWithAssetValidation([
+    input,
+  ]);
 
   // Remove the _assetAdditions and _constantsAdditions fields from the output for cleaner display
-  const cleanResult = result.map(component => {
-    const { _assetAdditions, _constantsAdditions, ...cleanComponent } = component as Record<string, unknown> & {
-      _assetAdditions?: unknown;
-      _constantsAdditions?: unknown;
-    };
+  const cleanResult = result.map((component) => {
+    const { _assetAdditions, _constantsAdditions, ...cleanComponent } =
+      component as Record<string, unknown> & {
+        _assetAdditions?: unknown;
+        _constantsAdditions?: unknown;
+      };
     return cleanComponent;
   });
 
@@ -32,14 +35,26 @@ const runnable = Effect.gen(function* () {
   console.log(JSON.stringify(cleanResult, null, 2));
 
   // Summary of asset additions
-  const allAssetAdditions = result.flatMap((component: Record<string, unknown> & {
-    _assetAdditions?: Array<{ resourceAddress: string; symbol: string; added: boolean }>
-  }) => component._assetAdditions || []);
+  const allAssetAdditions = result.flatMap(
+    (
+      component: Record<string, unknown> & {
+        _assetAdditions?: Array<{
+          resourceAddress: string;
+          symbol: string;
+          added: boolean;
+        }>;
+      },
+    ) => component._assetAdditions || [],
+  );
 
   // Summary of constants additions
-  const allConstantsAdditions = result.flatMap((component: Record<string, unknown> & {
-    _constantsAdditions?: Array<string>
-  }) => component._constantsAdditions || []);
+  const allConstantsAdditions = result.flatMap(
+    (
+      component: Record<string, unknown> & {
+        _constantsAdditions?: Array<string>;
+      },
+    ) => component._constantsAdditions || [],
+  );
 
   if (allAssetAdditions.length > 0) {
     console.log('\n=== Asset Additions Summary ===');
@@ -58,13 +73,15 @@ const runnable = Effect.gen(function* () {
     }
     console.log('\nPlease review the changes in the DApp constants files');
   } else {
-    console.log('\n✅ Component already exists in constants files or unsupported DApp');
+    console.log(
+      '\n✅ Component already exists in constants files or unsupported DApp',
+    );
   }
 }).pipe(
   Effect.provide(ComponentRepo.Default),
   Effect.provide(AssetManager.Default),
   Effect.provide(DappConstantsManager.Default),
-  Effect.provide(EnhancedComponentFetcher.Default)
+  Effect.provide(EnhancedComponentFetcher.Default),
 );
 
 await Effect.runPromise(runnable);
