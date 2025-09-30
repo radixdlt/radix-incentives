@@ -56,6 +56,10 @@ releases:
       - auth:
           postgresPassword: "secretString123"
           database: incentives
+        image:
+          registry: public.ecr.aws
+          repository: bitnami/postgresql
+          tag: 15.4.0-debian-11-r56
         primary:
           persistence:
             enabled: false
