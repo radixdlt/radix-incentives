@@ -38,6 +38,7 @@ export const leaderboardRouter = createTRPCRouter({
     .input(
       z.object({
         seasonId: z.string().uuid(),
+        weekId: z.string().uuid().optional(), // Optional week filter
       }),
     )
     .query(async ({ ctx, input }) => {
@@ -45,6 +46,7 @@ export const leaderboardRouter = createTRPCRouter({
 
       const result = await ctx.dependencyLayer.getSeasonLeaderboard({
         seasonId: input.seasonId,
+        weekId: input.weekId,
         userId,
       });
 

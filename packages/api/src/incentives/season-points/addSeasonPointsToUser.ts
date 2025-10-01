@@ -11,6 +11,7 @@ export type AddSeasonPointsToUserInput = {
   weekId: string;
   points: BigNumber;
   referralPoints: BigNumber;
+  data?: Record<string, string>;
 }[];
 
 export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPointsToUserService>()(
@@ -41,6 +42,7 @@ export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPoints
                         referralPoints: item.referralPoints
                           .decimalPlaces(6)
                           .toString(),
+                        data: item.data,
                       })),
                     )
                     .onConflictDoUpdate({
@@ -52,6 +54,7 @@ export class AddSeasonPointsToUserService extends Effect.Service<AddSeasonPoints
                       set: {
                         points: sql`excluded.points`,
                         referralPoints: sql`excluded.referral_points`,
+                        data: sql`excluded.data`,
                       },
                     }),
                 catch: (error) => new DbError(error),

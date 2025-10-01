@@ -435,6 +435,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getSeasonLeaderboard = (input: {
     seasonId: string;
+    weekId?: string;
     userId?: string;
   }) => {
     const program = Effect.provide(

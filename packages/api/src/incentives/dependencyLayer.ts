@@ -111,6 +111,7 @@ const calculateActivityPoints = (input: {
 const calculateSeasonPoints = (input: {
   weekId: string;
   markAsProcessed?: boolean;
+  dryRun?: boolean;
 }) => {
   const program = Effect.gen(function* () {
     const calculateSeasonPointsService = yield* CalculateSeasonPointsService;

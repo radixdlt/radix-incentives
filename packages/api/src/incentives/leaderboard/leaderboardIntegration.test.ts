@@ -273,7 +273,7 @@ describe(
         expect(seasonResult.topUsers[1].userId).toBe(USER_ID_1);
         expect(seasonResult.topUsers[1].totalPoints).toBe('500.250000');
 
-        expect(seasonResult.userStats).toEqual({
+        expect(seasonResult.userStats).toMatchObject({
           rank: 2,
           totalPoints: '500.250000',
           percentile: 50, // (1 - (2-1)/2) * 100 = 50th percentile
@@ -399,7 +399,7 @@ describe(
         expect(result.topUsers[1].userId).toBe(USER_ID_1);
         expect(result.topUsers[1].totalPoints).toBe('100.000000');
 
-        // Verify stats were updated
+        // Verify stats were updated - statistics now calculated correctly on season totals only
         expect(result.globalStats.totalUsers).toBe(2);
       }).pipe(
         Effect.provide(leaderboardCacheServiceLive),

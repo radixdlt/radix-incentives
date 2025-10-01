@@ -413,6 +413,7 @@ export const userSeasonPoints = createTable(
       precision: 18,
       scale: 6,
     }),
+    data: jsonb('data'),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.userId, table.seasonId, table.weekId] }),
@@ -527,10 +528,16 @@ export const seasonLeaderboardCache = createTable(
     seasonId: uuid('season_id')
       .notNull()
       .references(() => seasons.id, { onDelete: 'cascade' }),
+    weekId: uuid('week_id').notNull(),
     userId: uuid('user_id')
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     totalPoints: decimal('total_points', { precision: 18, scale: 6 }).notNull(),
+    totalReferralPoints: decimal('total_referral_points', {
+      precision: 18,
+      scale: 6,
+    }),
+    categoryBreakdown: jsonb('category_breakdown').notNull(),
     rank: integer('rank').notNull(),
     lastUpdated: timestamp('last_updated', {
       mode: 'date',
@@ -540,9 +547,10 @@ export const seasonLeaderboardCache = createTable(
       .defaultNow(),
   },
   (table) => ({
-    pk: primaryKey({ columns: [table.seasonId, table.userId] }),
+    pk: primaryKey({ columns: [table.seasonId, table.weekId, table.userId] }),
     rankIdx: index('idx_season_leaderboard_rank').on(
       table.seasonId,
+      table.weekId,
       table.rank,
     ),
     userIdx: index('idx_season_leaderboard_user').on(table.userId),
