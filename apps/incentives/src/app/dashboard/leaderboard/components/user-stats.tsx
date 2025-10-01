@@ -10,6 +10,11 @@ interface UserStatsProps {
       activityName: string;
       points: string;
     }>;
+    categoryBreakdown?: Array<{
+      categoryId: string;
+      categoryName: string;
+      points: string;
+    }>;
   } | null;
   globalStats: {
     totalUsers: number;
@@ -195,6 +200,22 @@ export function UserStats({
             title="Your Sub-Activities"
             formatValue={(value) => formatPoints(value.toString())}
             valueSuffix=" AP"
+          />
+        </div>
+      )}
+
+      {/* Category Breakdown (for season leaderboard) */}
+      {stats?.categoryBreakdown && stats.categoryBreakdown.length > 0 && (
+        <div className="space-y-4">
+          <StackedProgressBar
+            items={stats.categoryBreakdown.map((category) => ({
+              id: category.categoryId,
+              name: category.categoryName || category.categoryId,
+              value: Number.parseFloat(category.points),
+            }))}
+            title="Your Category Breakdown"
+            formatValue={(value) => formatPoints(value.toString())}
+            valueSuffix=" SP"
           />
         </div>
       )}

@@ -206,6 +206,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                             weekId: string;
                             activityCategoryId: string;
                             pointsPool: number;
+                            lowerBoundsPercentage: string;
+                            outlierThresholdPercentage: string;
+                            enableOutlierDetection: boolean;
                           }
                         >,
                       ),
@@ -218,6 +221,12 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
             activityCategoryId: item,
             weekId: input.toWeekId,
             pointsPool: activityCategoriesMap[item]?.pointsPool ?? 0,
+            lowerBoundsPercentage:
+              activityCategoriesMap[item]?.lowerBoundsPercentage ?? '0.1',
+            outlierThresholdPercentage:
+              activityCategoriesMap[item]?.outlierThresholdPercentage ?? '0.05',
+            enableOutlierDetection:
+              activityCategoriesMap[item]?.enableOutlierDetection ?? false,
           }));
 
           yield* Effect.tryPromise({
@@ -232,6 +241,9 @@ export class ActivityCategoryWeekService extends Effect.Service<ActivityCategory
                   ],
                   set: {
                     pointsPool: sql`excluded.points_pool`,
+                    lowerBoundsPercentage: sql`excluded.lower_bounds_percentage`,
+                    outlierThresholdPercentage: sql`excluded.outlier_threshold_percentage`,
+                    enableOutlierDetection: sql`excluded.enable_outlier_detection`,
                   },
                 }),
             catch: (error) => new DbError(error),

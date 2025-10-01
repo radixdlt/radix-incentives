@@ -6,11 +6,12 @@ import {
   ArrowLeft,
   Calculator,
   Download,
+  Eye,
   Loader2,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { toast } from 'sonner';
 import { Alert, AlertDescription } from '~/components/ui/alert';
 import { Button } from '~/components/ui/button';
@@ -21,6 +22,15 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
+import { Checkbox } from '~/components/ui/checkbox';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
 import { Separator } from '~/components/ui/separator';
 import {
   Table,
@@ -34,9 +44,97 @@ import { downloadCSV } from '~/lib/utils';
 import type { RouterOutputs } from '~/trpc/react';
 import { api } from '~/trpc/react';
 
-type SeasonPointsData = RouterOutputs['admin']['user']['getSeasonPoints'][0];
+type SeasonPointsData = RouterOutputs['admin']['user']['getSeasonPoints'][0] & {
+  data?: Record<string, string>;
+};
 
-const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
+type AvailableCategory =
+  RouterOutputs['leaderboard']['getAvailableCategories'][0];
+
+const UserBreakdownDialog = ({
+  user,
+  categories,
+  selectedCategories,
+}: {
+  user: SeasonPointsData;
+  categories: AvailableCategory[];
+  selectedCategories: string[];
+}) => {
+  if (!user.data || Object.keys(user.data).length === 0) {
+    return null;
+  }
+
+  const categoryMap = new Map(categories.map((cat) => [cat.id, cat.name]));
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm">
+          <Eye className="mr-1 h-3 w-3" />
+          View Breakdown
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="max-h-[80vh] w-[480px] max-w-none">
+        <DialogHeader>
+          <DialogTitle>
+            {user.label && user.label.length > 25
+              ? `${user.label.substring(0, 25)}...`
+              : user.label || 'User'}{' '}
+            - Category Breakdown
+          </DialogTitle>
+          <DialogDescription>
+            Season points by selected categories for this user
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[60vh] space-y-2 overflow-y-auto p-2">
+          {Object.entries(user.data)
+            .filter(
+              ([categoryId, points]) =>
+                selectedCategories.includes(categoryId) &&
+                points &&
+                Number(points) > 0,
+            )
+            .sort(([, a], [, b]) => Number(b) - Number(a))
+            .map(([categoryId, points]) => (
+              <div
+                key={categoryId}
+                className="flex items-center justify-between rounded border bg-muted/50 p-2 text-sm"
+              >
+                <span className="truncate pr-2 font-medium">
+                  {categoryMap.get(categoryId) || categoryId}
+                </span>
+                <span className="whitespace-nowrap font-mono font-semibold">
+                  {Number(points).toLocaleString(undefined, {
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              </div>
+            ))}
+          {Object.entries(user.data).filter(
+            ([categoryId, points]) =>
+              selectedCategories.includes(categoryId) &&
+              points &&
+              Number(points) > 0,
+          ).length === 0 && (
+            <div className="py-8 text-center text-muted-foreground">
+              No points in selected categories
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+const SeasonPointsTable = ({
+  data,
+  categories,
+  selectedCategories,
+}: {
+  data: SeasonPointsData[];
+  categories: AvailableCategory[];
+  selectedCategories: string[];
+}) => {
   return (
     <div className="rounded-lg border">
       <Table>
@@ -76,15 +174,22 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
                     {user.points.toFormat(2)}
                   </TableCell>
                   <TableCell className="text-center">
-                    <Button variant="outline" size="sm" asChild>
-                      <Link
-                        href={`/users/${user.userId}/account-balance`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        View Balances
-                      </Link>
-                    </Button>
+                    <div className="flex justify-center gap-2">
+                      <Button variant="outline" size="sm" asChild>
+                        <Link
+                          href={`/users/${user.userId}/account-balance`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          View Balances
+                        </Link>
+                      </Button>
+                      <UserBreakdownDialog
+                        user={user}
+                        categories={categories}
+                        selectedCategories={selectedCategories}
+                      />
+                    </div>
                   </TableCell>
                 </TableRow>
               ))
@@ -101,11 +206,91 @@ const SeasonPointsTable = ({ data }: { data: SeasonPointsData[] }) => {
   );
 };
 
+const _CategoryFilterSection = ({
+  categories,
+  selectedCategories,
+  onCategoryToggle,
+  setSelectedCategories,
+}: {
+  categories: AvailableCategory[];
+  selectedCategories: string[];
+  onCategoryToggle: (categoryId: string, checked: boolean) => void;
+  setSelectedCategories: (categories: string[]) => void;
+}) => {
+  const allSelected =
+    selectedCategories.length === categories.length && categories.length > 0;
+  const _noneSelected = selectedCategories.length === 0;
+
+  const handleSelectAll = () => {
+    console.log('handleSelectAll clicked', {
+      allSelected,
+      selectedLength: selectedCategories.length,
+      categoriesLength: categories.length,
+    });
+    if (allSelected) {
+      // Deselect all - directly set empty array
+      console.log('Deselecting all categories');
+      setSelectedCategories([]);
+    } else {
+      // Select all - set all category IDs
+      console.log('Selecting all categories');
+      setSelectedCategories(categories.map((cat) => cat.id));
+    }
+  };
+
+  return (
+    <Card className="mb-6">
+      <CardHeader>
+        <CardTitle>Category Filter</CardTitle>
+        <CardDescription>
+          Select which activity categories to include in the displayed results.
+          Changes are applied instantly.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-4">
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" onClick={handleSelectAll}>
+              {allSelected ? 'Deselect All' : 'Select All'}
+            </Button>
+            <span className="text-muted-foreground text-sm">
+              {selectedCategories.length} of {categories.length} categories
+              selected
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+            {categories.map((category) => (
+              <div key={category.id} className="flex items-center space-x-2">
+                <Checkbox
+                  id={category.id}
+                  checked={selectedCategories.includes(category.id)}
+                  onCheckedChange={(checked) =>
+                    onCategoryToggle(category.id, !!checked)
+                  }
+                />
+                <label
+                  htmlFor={category.id}
+                  className="font-medium text-sm leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                >
+                  {category.name}
+                </label>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export default function SeasonPointsPage() {
   const params = useParams<{ seasonId: string; weekId: string }>();
   const [calculationResult, setCalculationResult] =
     useState<typeof seasonPoints>();
+  const [fullCalculationResult, setFullCalculationResult] =
+    useState<typeof seasonPoints>();
   const [isCalculating, setIsCalculating] = useState(false);
+  const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
   const {
     data: seasonPoints,
@@ -122,13 +307,84 @@ export default function SeasonPointsPage() {
       weekId: params.weekId,
     });
 
+  // Get available categories for filtering
+  const { data: availableCategories, isLoading: isCategoriesLoading } =
+    api.leaderboard.getAvailableCategories.useQuery({
+      weekId: params.weekId,
+    });
+
+  // Initialize selected categories when available categories are loaded (only once)
+  const [hasInitialized, setHasInitialized] = React.useState(false);
+  React.useEffect(() => {
+    if (availableCategories && !hasInitialized) {
+      setSelectedCategories(availableCategories.map((cat) => cat.id));
+      setHasInitialized(true);
+    }
+  }, [availableCategories, hasInitialized]);
+
+  const handleCategoryToggle = (categoryId: string, checked: boolean) => {
+    setSelectedCategories((prev) =>
+      checked ? [...prev, categoryId] : prev.filter((id) => id !== categoryId),
+    );
+  };
+
+  // Function to filter and recalculate user points based on selected categories
+  const filterAndRecalculateResults = React.useCallback(
+    (fullResults: SeasonPointsData[] | undefined, selectedCats: string[]) => {
+      if (!fullResults || selectedCats.length === 0) {
+        return [];
+      }
+
+      return fullResults.map((user) => {
+        if (!user.data || Object.keys(user.data).length === 0) {
+          // User has no category breakdown, return with 0 points
+          return {
+            ...user,
+            points: new BigNumber(0),
+          };
+        }
+
+        // Calculate new total points from selected categories only
+        const filteredPoints = Object.entries(user.data)
+          .filter(([categoryId]) => selectedCats.includes(categoryId))
+          .reduce((total, [, points]) => {
+            return total.plus(new BigNumber(points || 0));
+          }, new BigNumber(0));
+
+        return {
+          ...user,
+          points: filteredPoints,
+        };
+      });
+    },
+    [],
+  );
+
+  // Update calculation result when selected categories change
+  React.useEffect(() => {
+    if (fullCalculationResult && selectedCategories.length > 0) {
+      const filteredResults = filterAndRecalculateResults(
+        fullCalculationResult,
+        selectedCategories,
+      );
+      setCalculationResult(filteredResults);
+    }
+  }, [fullCalculationResult, selectedCategories, filterAndRecalculateResults]);
+
   const { mutate: calculateSeasonPoints } =
     api.admin.user.simulateCalculateSeasonPoints.useMutation({
       onMutate: () => {
         setIsCalculating(true);
       },
       onSuccess: (data) => {
-        setCalculationResult(data);
+        // Store the full calculation result
+        setFullCalculationResult(data);
+        // Apply current category filter
+        const filteredResults = filterAndRecalculateResults(
+          data,
+          selectedCategories,
+        );
+        setCalculationResult(filteredResults);
         toast.success('Season points calculation completed');
         refetch();
       },
@@ -206,7 +462,7 @@ export default function SeasonPointsPage() {
     );
   }
 
-  if (isLoading || isWeekDataLoading) {
+  if (isLoading || isWeekDataLoading || isCategoriesLoading) {
     return (
       <div className="container mx-auto py-6 pr-6 pl-6">
         {/* Header Section Skeleton */}
@@ -368,10 +624,93 @@ export default function SeasonPointsPage() {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
+            <div className="space-y-6">
+              {/* Category Filter Section */}
+              {availableCategories && availableCategories.length > 0 && (
+                <div className="space-y-4 rounded-lg border bg-muted/30 p-4">
+                  <div>
+                    <h4 className="mb-2 font-medium text-sm">
+                      Category Filter
+                    </h4>
+                    <p className="mb-4 text-muted-foreground text-xs">
+                      Select which activity categories to include in the
+                      displayed results. Changes are applied instantly.
+                    </p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const allSelected =
+                            selectedCategories.length ===
+                              availableCategories.length &&
+                            availableCategories.length > 0;
+                          console.log('Button clicked', {
+                            allSelected,
+                            selectedLength: selectedCategories.length,
+                            categoriesLength: availableCategories.length,
+                          });
+                          if (allSelected) {
+                            console.log('Deselecting all categories');
+                            setSelectedCategories([]);
+                          } else {
+                            console.log('Selecting all categories');
+                            setSelectedCategories(
+                              availableCategories.map((cat) => cat.id),
+                            );
+                          }
+                        }}
+                        className="rounded border px-3 py-1 text-xs transition-colors hover:bg-muted"
+                      >
+                        {selectedCategories.length ===
+                        availableCategories.length
+                          ? 'Deselect All'
+                          : 'Select All'}
+                      </button>
+                      <span className="text-muted-foreground text-xs">
+                        {selectedCategories.length} of{' '}
+                        {availableCategories.length} categories selected
+                      </span>
+                    </div>
+                    <div className="grid grid-cols-2 gap-3 md:grid-cols-3 lg:grid-cols-4">
+                      {availableCategories.map((category) => (
+                        <div
+                          key={category.id}
+                          className="flex items-center space-x-2"
+                        >
+                          <input
+                            type="checkbox"
+                            id={category.id}
+                            checked={selectedCategories.includes(category.id)}
+                            onChange={(e) =>
+                              handleCategoryToggle(
+                                category.id,
+                                e.target.checked,
+                              )
+                            }
+                            className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                          />
+                          <label
+                            htmlFor={category.id}
+                            className="cursor-pointer select-none font-medium text-sm leading-none"
+                          >
+                            {category.name}
+                          </label>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div>
                 <h4 className="font-medium text-muted-foreground text-sm">
-                  Total Distributed
+                  Total Distributed{' '}
+                  {selectedCategories.length <
+                  (availableCategories?.length || 0)
+                    ? '(Filtered)'
+                    : ''}
                 </h4>
                 <p className="font-mono text-lg">
                   {calculationResult
@@ -381,6 +720,13 @@ export default function SeasonPointsPage() {
                     )
                     .toFormat(2)}
                 </p>
+                {selectedCategories.length <
+                  (availableCategories?.length || 0) && (
+                  <p className="text-muted-foreground text-xs">
+                    Showing {selectedCategories.length} of{' '}
+                    {availableCategories?.length || 0} categories
+                  </p>
+                )}
               </div>
               <div>
                 <h4 className="font-medium text-muted-foreground text-sm">
@@ -394,7 +740,11 @@ export default function SeasonPointsPage() {
                 <h4 className="mb-2 font-medium text-muted-foreground text-sm">
                   All Users with Points
                 </h4>
-                <SeasonPointsTable data={calculationResult || []} />
+                <SeasonPointsTable
+                  data={calculationResult || []}
+                  categories={availableCategories || []}
+                  selectedCategories={selectedCategories}
+                />
               </div>
             </div>
           </CardContent>
@@ -412,7 +762,11 @@ export default function SeasonPointsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="p-0">
-          <SeasonPointsTable data={seasonPoints || []} />
+          <SeasonPointsTable
+            data={seasonPoints || []}
+            categories={availableCategories || []}
+            selectedCategories={selectedCategories}
+          />
         </CardContent>
       </Card>
     </div>

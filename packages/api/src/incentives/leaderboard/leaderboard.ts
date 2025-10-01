@@ -134,6 +134,11 @@ export interface SeasonLeaderboardData {
     rank: number;
     totalPoints: string;
     percentile: number;
+    categoryBreakdown?: Array<{
+      categoryId: string;
+      categoryName: string;
+      points: string;
+    }>;
   } | null;
   globalStats: {
     totalUsers: number;
@@ -144,6 +149,11 @@ export interface SeasonLeaderboardData {
   seasonInfo: {
     id: string;
     name: string;
+  };
+  weekInfo?: {
+    id: string;
+    startDate: Date;
+    endDate: Date;
   };
 }
 
@@ -163,22 +173,35 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
       const getSeasonLeaderboard = Effect.fn(function* (input: {
         seasonId: string;
+        weekId?: string;
         userId?: string;
       }) {
         // Get season info
         const seasonInfo = yield* seasonService.getById(input.seasonId);
+
+        // Determine weekId for cache lookup (null for season totals, or specific week)
+        const weekIdForCache =
+          input.weekId || '00000000-0000-0000-0000-000000000000';
 
         // Check cache availability first
         const cacheCount = yield* Effect.tryPromise(() =>
           db
             .select({ count: sql<number>`count(*)` })
             .from(seasonLeaderboardCache)
-            .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+            .where(
+              and(
+                eq(seasonLeaderboardCache.seasonId, input.seasonId),
+                eq(seasonLeaderboardCache.weekId, weekIdForCache),
+              ),
+            )
             .then((result) => result[0]?.count || 0),
         ).pipe(Effect.catchAll(() => Effect.succeed(0)));
 
         if (cacheCount === 0) {
-          yield* Effect.log(`No cache available for season ${input.seasonId}`);
+          const cacheType = input.weekId ? 'weekly' : 'season total';
+          yield* Effect.log(
+            `No ${cacheType} cache available for season ${input.seasonId}, week ${weekIdForCache}`,
+          );
           return yield* Effect.fail(
             new CacheNotAvailableError({
               message: `Season leaderboard cache is being built for season ${input.seasonId}. Please check back in a few minutes.`,
@@ -187,6 +210,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         }
 
         // Get cached data, which we know exists now
+        // Filter out users with 0 points to match stats calculations
         const cachedData = yield* Effect.tryPromise({
           try: () =>
             db
@@ -194,11 +218,19 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                 userId: seasonLeaderboardCache.userId,
                 label: users.label,
                 totalPoints: seasonLeaderboardCache.totalPoints,
+                totalReferralPoints: seasonLeaderboardCache.totalReferralPoints,
+                categoryBreakdown: seasonLeaderboardCache.categoryBreakdown,
                 rank: seasonLeaderboardCache.rank,
               })
               .from(seasonLeaderboardCache)
               .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
-              .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, input.seasonId),
+                  eq(seasonLeaderboardCache.weekId, weekIdForCache),
+                  sql`${seasonLeaderboardCache.totalPoints}::numeric > 0`,
+                ),
+              )
               .orderBy(asc(seasonLeaderboardCache.rank)),
           catch: (error) => new DbError(error),
         });
@@ -236,7 +268,10 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .select()
             .from(leaderboardStatsCache)
             .where(
-              eq(leaderboardStatsCache.cacheKey, `season_${input.seasonId}`),
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `season_${input.seasonId}_week_${weekIdForCache}`,
+              ),
             )
             .limit(1)
             .then((result) => result[0]),
@@ -245,12 +280,53 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         // Get total users count in the system
         const totalUsersInSystem = yield* userService.getTotalUserCount();
 
+        // Get week info if specific week is requested
+        let weekInfo:
+          | { id: string; startDate: Date; endDate: Date }
+          | undefined;
+        if (input.weekId) {
+          const week = yield* weekService.getById(input.weekId);
+          weekInfo = {
+            id: week.id,
+            startDate: week.startDate,
+            endDate: week.endDate,
+          };
+        }
+
+        // Get category breakdown for user if needed
+        let additionalUserData: Record<string, unknown> = {};
+        if (input.userId) {
+          const userEntry = cachedData.find(
+            (user) => user.userId === input.userId,
+          );
+          if (userEntry?.categoryBreakdown) {
+            // Get all available activity categories for breakdown naming
+            const allCategories = yield* activityCategoryService.list();
+
+            const categoryBreakdownData = Object.entries(
+              userEntry.categoryBreakdown,
+            )
+              .filter(([, points]) => points && Number(points) > 0)
+              .map(([categoryId, points]) => ({
+                categoryId,
+                categoryName:
+                  allCategories.find((cat) => cat.id === categoryId)?.name ||
+                  categoryId,
+                points: points.toString(),
+              }))
+              .sort((a, b) => Number(b.points) - Number(a.points));
+
+            additionalUserData = { categoryBreakdown: categoryBreakdownData };
+          }
+        }
+
         // Build common leaderboard response
         const { topUsers, userStats, globalStats } = buildLeaderboardResponse({
           cachedData: cachedData,
           statsCache: statsCache ?? null,
           totalUsersInSystem,
           userId: input.userId,
+          additionalUserData,
         });
 
         return {
@@ -258,6 +334,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
           userStats,
           globalStats,
           seasonInfo,
+          weekInfo,
         };
       });
 
@@ -331,6 +408,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         }
 
         // Get cached data, which we know exists here
+        // Filter out users with 0 points to match stats calculations
         const cachedData = yield* Effect.tryPromise({
           try: () =>
             db
@@ -347,6 +425,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                 and(
                   eq(categoryLeaderboardCache.weekId, input.weekId),
                   eq(categoryLeaderboardCache.categoryId, input.categoryId),
+                  sql`${categoryLeaderboardCache.totalPoints}::numeric > 0`,
                 ),
               )
               .orderBy(asc(categoryLeaderboardCache.rank)),
@@ -492,6 +571,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
                   and(
                     eq(categoryLeaderboardCache.weekId, input.weekId),
                     eq(categoryLeaderboardCache.categoryId, input.categoryId),
+                    sql`${categoryLeaderboardCache.totalPoints}::numeric > 0`,
                   ),
                 )
                 .orderBy(asc(categoryLeaderboardCache.rank))
@@ -517,6 +597,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
         const page = input.page ?? 0;
         const limit = Math.min(input.limit ?? 100, 100);
 
+        const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
         const statsCacheResult = yield* Effect.tryPromise(() =>
           db
             .select({
@@ -524,7 +605,10 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             })
             .from(leaderboardStatsCache)
             .where(
-              eq(leaderboardStatsCache.cacheKey, `season_${input.seasonId}`),
+              eq(
+                leaderboardStatsCache.cacheKey,
+                `season_${input.seasonId}_week_${SEASON_TOTALS_WEEK_ID}`,
+              ),
             )
             .limit(1)
             .then((result) => result[0]),
@@ -544,7 +628,12 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
               })
               .from(seasonLeaderboardCache)
               .innerJoin(users, eq(seasonLeaderboardCache.userId, users.id))
-              .where(eq(seasonLeaderboardCache.seasonId, input.seasonId))
+              .where(
+                and(
+                  eq(seasonLeaderboardCache.seasonId, input.seasonId),
+                  sql`${seasonLeaderboardCache.totalPoints}::numeric > 0`,
+                ),
+              )
               .orderBy(asc(seasonLeaderboardCache.rank))
               .limit(limit)
               .offset(page * limit),
