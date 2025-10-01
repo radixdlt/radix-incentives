@@ -234,10 +234,18 @@ export function SeasonWeekSelector({
 
                   {/* Individual weeks for this season */}
                   {seasonWeeks
+                    .filter((week) => {
+                      // Hide active/current weeks - leaderboard is only built after week ends
+                      const weekStatus = getWeekStatus(
+                        week.startDate,
+                        week.endDate,
+                      );
+                      return weekStatus !== 'current';
+                    })
                     .sort(
                       (a, b) =>
-                        new Date(a.startDate).getTime() -
-                        new Date(b.startDate).getTime(),
+                        new Date(b.startDate).getTime() -
+                        new Date(a.startDate).getTime(),
                     )
                     .map((week) => {
                       const weekStatus = getWeekStatus(
