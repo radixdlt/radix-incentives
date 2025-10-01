@@ -16,7 +16,10 @@ export class AssetManager extends Effect.Service<AssetManager>()(
       const addedAssetsInThisSession = new Set<string>();
 
       const checkAssetExists = (resourceAddress: string): boolean => {
-        return resourceAddress in flatTokenNameMap;
+        return (
+          resourceAddress in flatTokenNameMap ||
+          addedAssetsInThisSession.has(resourceAddress)
+        );
       };
 
       const fetchTokenMetadata = Effect.fn(function* (resourceAddress: string) {
@@ -76,13 +79,21 @@ export class AssetManager extends Effect.Service<AssetManager>()(
         resourceAddress: string,
         symbol: string,
       ) {
+        // Skip assets with non-alphanumeric symbols or starting with digits
+        if (!/^[a-zA-Z][a-zA-Z0-9]*$/.test(symbol)) {
+          return `🚫 Asset ${symbol} skipped - must start with a letter and contain only alphanumeric characters`;
+        }
+
         const fileContent = yield* Effect.tryPromise(() =>
           fs.readFile(assetsFilePath, 'utf-8'),
         );
 
         // Check if asset already exists in the file content
         const symbolUpper = symbol.toUpperCase();
-        if (fileContent.includes(`${symbolUpper}: '${resourceAddress}'`)) {
+        if (
+          fileContent.includes(`${symbolUpper}: '${resourceAddress}'`) ||
+          new RegExp(`\\s+${symbolUpper}:\\s+['"]`).test(fileContent)
+        ) {
           return `Asset ${symbolUpper} already exists in file`;
         }
 
@@ -91,12 +102,13 @@ export class AssetManager extends Effect.Service<AssetManager>()(
         // Step 1: Find and add to Assets.Fungible
         let fungibleInsertIndex = -1;
         for (let i = 0; i < lines.length; i++) {
-          if (
-            lines[i].includes('  },') &&
-            lines[i + 1]?.includes('} as const;')
-          ) {
-            fungibleInsertIndex = i;
-            break;
+          // Look for the closing brace of the Fungible section
+          if (lines[i].trim() === '},') {
+            // Check if the next line is the closing of Assets object
+            if (lines[i + 1]?.includes('} as const;')) {
+              fungibleInsertIndex = i;
+              break;
+            }
           }
         }
 
@@ -113,15 +125,19 @@ export class AssetManager extends Effect.Service<AssetManager>()(
         // Step 2: Find and add to nativeAssets mapping
         let nativeAssetsInsertIndex = -1;
         for (let i = 0; i < lines.length; i++) {
-          if (lines[i].includes('  // Native Radix assets')) {
+          if (lines[i].includes('// Native Radix assets')) {
             // Find the closing brace of nativeAssets
             for (let j = i + 1; j < lines.length; j++) {
-              if (
-                lines[j].includes('  },') &&
-                lines[j + 1]?.includes('  // Wrapped/bridged assets')
-              ) {
-                nativeAssetsInsertIndex = j;
-                break;
+              if (lines[j].trim() === '},') {
+                // Check if the next line starts a new section or ends the object
+                if (
+                  lines[j + 1]?.includes('// Wrapped/bridged assets') ||
+                  lines[j + 1]?.includes('bluechipAssets') ||
+                  lines[j + 1]?.includes('} as const;')
+                ) {
+                  nativeAssetsInsertIndex = j;
+                  break;
+                }
               }
             }
             break;

@@ -6,7 +6,8 @@
   },
   "dependencies": {
     "data": "workspace:*",
-    "effect": "catalog:"
+    "effect": "catalog:",
+    "inquirer": "catalog:"
   },
   "devDependencies": {
     "tsx": "catalog:"

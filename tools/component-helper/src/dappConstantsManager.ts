@@ -1,6 +1,7 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { Effect } from 'effect';
+import type { Assets } from '../../../packages/data/src/assets';
 
 type ComponentData = {
   componentAddress: string;
@@ -40,6 +41,100 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
 
       const generatePoolKey = (xToken: string, yToken: string): string => {
         return `${xToken.toUpperCase()}_${yToken.toUpperCase()}`;
+      };
+
+      // Map symbol to correct Assets.Fungible key
+      const getAssetKey = (symbol: string): string => {
+        const symbolLower = symbol.toLowerCase();
+        const symbolUpper = symbol.toUpperCase();
+
+        // Create a lookup map of lowercase symbols to actual Assets.Fungible keys
+        const symbolMap: Record<string, keyof typeof Assets.Fungible> = {
+          xrd: 'XRD',
+          xusdc: 'xUSDC',
+          xusdt: 'xUSDT',
+          xeth: 'xETH',
+          xwbtc: 'wxBTC',
+          husdc: 'hUSDC',
+          husdt: 'hUSDT',
+          heth: 'hETH',
+          hwbtc: 'hwBTC',
+          lsulp: 'LSULP',
+          caviar: 'CAVIAR',
+          gab: 'GAB',
+          elt: 'ELT',
+          foton: 'FOTON',
+          floop: 'FLOOP',
+          oci: 'OCI',
+          early: 'EARLY',
+          dfp2: 'DFP2',
+          astrl: 'ASTRL',
+          ilis: 'ILIS',
+          reddicks: 'REDDICKS',
+          weft: 'WEFT',
+          hlp: 'HLP',
+          susd: 'sUSD',
+          dph: 'DPH',
+          radit: 'RADIT',
+          ida: 'IDA',
+          scam: 'SCAM',
+          notusdc: 'NOTUSDC',
+          notusdt: 'NOTUSDT',
+          notxrd: 'NOTXRD',
+          noteth: 'NOTETH',
+          notbtc: 'NOTBTC',
+          slg: 'SLG',
+          mrk: 'MRK',
+          ist: 'IST',
+          swt: 'SWT',
+          fire: 'FIRE',
+          hug: 'HUG',
+          guh: 'GUH',
+          thc: 'THC',
+          twerk: 'TWERK',
+          rst: 'RST',
+          scorp: 'SCORP',
+          hodl: 'HODL',
+          naka: 'NAKA',
+          jit: 'JIT',
+          mnc: 'MNC',
+          now: 'NOW',
+          farm: 'FARM',
+          sim: 'SIM',
+          chug: 'CHUG',
+          blss: 'BLSS',
+          zrck: 'ZRCK',
+          popey: 'POPEY',
+          dgc: 'DGC',
+          long: 'LONG',
+          wowo: 'WOWO',
+          crew: 'CREW',
+          rdv: 'RDV',
+          'i£': 'I£',
+          ipound: 'IPOUND',
+          box: 'BOX',
+          panda: 'PANDA',
+        };
+
+        // First try the exact symbol mapping
+        if (symbolMap[symbolLower]) {
+          return symbolMap[symbolLower];
+        }
+
+        // If not found, try direct uppercase (for new tokens)
+        return symbolUpper;
+      };
+
+      // Format Assets.Fungible access for special characters
+      const formatAssetAccess = (assetKey: string): string => {
+        return assetKey.includes('£')
+          ? `Assets.Fungible['${assetKey}']`
+          : `Assets.Fungible.${assetKey}`;
+      };
+
+      // Format pool key for special characters
+      const formatPoolKey = (key: string): string => {
+        return key.includes('£') ? `'${key}'` : key;
       };
 
       // Package address mappings
@@ -92,11 +187,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           component.packageAddress,
         );
         if (!poolType) {
-          return yield* Effect.fail(
-            new Error(
-              `Unknown package address for CaviarNine: ${component.packageAddress}`,
-            ),
-          );
+          return `🚫 Component ${component.componentAddress} skipped - unknown package address for CaviarNine: ${component.packageAddress}`;
         }
 
         // Extract token information
@@ -109,7 +200,14 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           );
         }
 
-        const poolKey = generatePoolKey(xToken.symbol, yToken.symbol);
+        // Skip components with invalid symbols (must start with letter and be alphanumeric)
+        const isValidSymbol = (symbol: string) =>
+          /^[a-zA-Z][a-zA-Z0-9]*$/.test(symbol);
+        if (!isValidSymbol(xToken.symbol) || !isValidSymbol(yToken.symbol)) {
+          return `🚫 Component ${component.componentAddress} skipped - invalid symbol (must start with letter and contain only alphanumeric characters): ${xToken.symbol} or ${yToken.symbol}`;
+        }
+
+        let poolKey = generatePoolKey(xToken.symbol, yToken.symbol);
         const poolName = `${xToken.symbol.toLowerCase()}/${yToken.symbol.toLowerCase()}`;
 
         // Check if component already exists
@@ -117,13 +215,71 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           return `Component ${component.componentAddress} already exists in CaviarNine constants`;
         }
 
+        // Check for duplicate pool key and generate unique key if needed
+        let keyCounter = 1;
+        const originalPoolKey = poolKey;
+        while (fileContent.includes(`    ${poolKey}: {`)) {
+          keyCounter++;
+          poolKey = `${originalPoolKey}_${keyCounter}`;
+        }
+
+        // Check for duplicate token pairs
+        const xTokenKey = getAssetKey(xToken.symbol);
+        const yTokenKey = getAssetKey(yToken.symbol);
+
+        // Look for existing token pairs in the same pool type
+        const tokenPairPattern = new RegExp(
+          `token_x: Assets\\.Fungible\\.${xTokenKey},\\s*\\n\\s*token_y: Assets\\.Fungible\\.${yTokenKey},|` +
+            `token_x: Assets\\.Fungible\\.${yTokenKey},\\s*\\n\\s*token_y: Assets\\.Fungible\\.${xTokenKey},`,
+        );
+
+        // Check if this token pair already exists in the specified pool type section
+        let inTargetPoolSection = false;
+        let existingPairFound = false;
+
         const lines = fileContent.split('\n');
+        for (let i = 0; i < lines.length; i++) {
+          const line = lines[i];
+
+          // Detect when we enter the target pool type section
+          if (line.includes(`${poolType}: {`)) {
+            inTargetPoolSection = true;
+            continue;
+          }
+
+          // Detect when we exit the target pool type section
+          if (
+            inTargetPoolSection &&
+            (line.includes('  },') || line.includes('} as const;'))
+          ) {
+            break;
+          }
+
+          // Check for token pair match within the target section
+          if (
+            inTargetPoolSection &&
+            line.includes('token_x: Assets.Fungible.')
+          ) {
+            const nextLine = lines[i + 1];
+            if (nextLine?.includes('token_y: Assets.Fungible.')) {
+              const currentPair = `${line.trim()}\n${nextLine.trim()}`;
+              if (tokenPairPattern.test(currentPair)) {
+                existingPairFound = true;
+                break;
+              }
+            }
+          }
+        }
+
+        if (existingPairFound) {
+          return `🔴 Component ${component.componentAddress} ignored - token pair ${xToken.symbol.toUpperCase()}/${yToken.symbol.toUpperCase()} already exists in ${poolType}`;
+        }
 
         // Find the correct insertion point based on pool type
         let insertIndex = -1;
         if (poolType === 'shapeLiquidityPools') {
-          // Find the closing brace of shapeLiquidityPools
-          for (let i = lines.length - 1; i >= 0; i--) {
+          // Find the closing brace of shapeLiquidityPools (before simplePools)
+          for (let i = 0; i < lines.length; i++) {
             if (
               lines[i].includes('  },') &&
               lines[i + 1]?.includes('  simplePools: {')
@@ -133,8 +289,8 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             }
           }
         } else if (poolType === 'simplePools') {
-          // Find the closing brace of simplePools
-          for (let i = lines.length - 1; i >= 0; i--) {
+          // Find the closing brace of simplePools (before } as const;)
+          for (let i = 0; i < lines.length; i++) {
             if (
               lines[i].includes('  },') &&
               lines[i + 1]?.includes('} as const;')
@@ -157,12 +313,12 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         let newPoolEntry: string[];
         if (poolType === 'shapeLiquidityPools') {
           newPoolEntry = [
-            `    ${poolKey}: {`,
+            `    ${formatPoolKey(poolKey)}: {`,
             `      name: '${poolName}',`,
             `      componentAddress:`,
             `        '${component.componentAddress}',`,
-            `      token_x: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
-            `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
+            `      token_x: ${formatAssetAccess(getAssetKey(xToken.symbol))},`,
+            `      token_y: ${formatAssetAccess(getAssetKey(yToken.symbol))},`,
             `      liquidity_receipt:`,
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LIQUIDITY_RECEIPT'}',`,
             `    },`,
@@ -170,7 +326,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         } else {
           // simplePools
           newPoolEntry = [
-            `    ${poolKey}: {`,
+            `    ${formatPoolKey(poolKey)}: {`,
             `      name: '${poolName.toUpperCase()}',`,
             `      componentAddress:`,
             `        '${component.componentAddress}',`,
@@ -178,8 +334,8 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             `        '${component.data.poolAddress || component.data.liquidityPool || 'UNKNOWN_POOL_ADDRESS'}',`,
             `      lpResourceAddress:`,
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LP_RESOURCE'}',`,
-            `      token_x: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
-            `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
+            `      token_x: ${formatAssetAccess(getAssetKey(xToken.symbol))},`,
+            `      token_y: ${formatAssetAccess(getAssetKey(yToken.symbol))},`,
             `    },`,
           ];
         }
@@ -207,11 +363,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           component.packageAddress,
         );
         if (!poolType) {
-          return yield* Effect.fail(
-            new Error(
-              `Unknown package address for Ociswap: ${component.packageAddress}`,
-            ),
-          );
+          return `🚫 Component ${component.componentAddress} skipped - unknown package address for Ociswap: ${component.packageAddress}`;
         }
 
         // Extract token information
@@ -224,12 +376,27 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           );
         }
 
-        const poolKey = generatePoolKey(xToken.symbol, yToken.symbol);
+        // Skip components with invalid symbols (must start with letter and be alphanumeric)
+        const isValidSymbol = (symbol: string) =>
+          /^[a-zA-Z][a-zA-Z0-9]*$/.test(symbol);
+        if (!isValidSymbol(xToken.symbol) || !isValidSymbol(yToken.symbol)) {
+          return `🚫 Component ${component.componentAddress} skipped - invalid symbol (must start with letter and contain only alphanumeric characters): ${xToken.symbol} or ${yToken.symbol}`;
+        }
+
+        let poolKey = generatePoolKey(xToken.symbol, yToken.symbol);
         const poolName = `${xToken.symbol}/${yToken.symbol}`;
 
         // Check if component already exists
         if (fileContent.includes(component.componentAddress)) {
           return `Component ${component.componentAddress} already exists in Ociswap constants`;
+        }
+
+        // Check for duplicate pool key and generate unique key if needed
+        let keyCounter = 1;
+        const originalPoolKey = poolKey;
+        while (fileContent.includes(`    ${poolKey}: {`)) {
+          keyCounter++;
+          poolKey = `${originalPoolKey}_${keyCounter}`;
         }
 
         const lines = fileContent.split('\n');
@@ -292,7 +459,7 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         let newPoolEntry: string[];
         if (poolType === 'basicPools') {
           newPoolEntry = [
-            `    ${poolKey}: {`,
+            `    ${formatPoolKey(poolKey)}: {`,
             `      name: '${poolName}',`,
             `      componentAddress:`,
             `        '${component.componentAddress}',`,
@@ -300,21 +467,21 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
             `        '${component.data.poolAddress || component.data.liquidityPool || 'UNKNOWN_POOL_ADDRESS'}',`,
             `      lpResourceAddress:`,
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LP_RESOURCE'}',`,
-            `      token_x: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
-            `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
+            `      token_x: ${formatAssetAccess(getAssetKey(xToken.symbol))},`,
+            `      token_y: ${formatAssetAccess(getAssetKey(yToken.symbol))},`,
             `    },`,
           ];
         } else {
           // For pools, poolsV2, and flexPools
           newPoolEntry = [
-            `    ${poolKey}: {`,
+            `    ${formatPoolKey(poolKey)}: {`,
             `      name: '${poolName}',`,
             `      componentAddress:`,
             `        '${component.componentAddress}',`,
             `      lpResourceAddress:`,
             `        '${component.data.liquidityReceipt || 'UNKNOWN_LP_RESOURCE'}',`,
-            `      token_x: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
-            `      token_y: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
+            `      token_x: ${formatAssetAccess(getAssetKey(xToken.symbol))},`,
+            `      token_y: ${formatAssetAccess(getAssetKey(yToken.symbol))},`,
             `      divisibility_x: 18,`,
             `      divisibility_y: 18,`,
             `    },`,
@@ -348,6 +515,13 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
           );
         }
 
+        // Skip components with invalid symbols (must start with letter and be alphanumeric)
+        const isValidSymbol = (symbol: string) =>
+          /^[a-zA-Z][a-zA-Z0-9]*$/.test(symbol);
+        if (!isValidSymbol(xToken.symbol) || !isValidSymbol(yToken.symbol)) {
+          return `🚫 Component ${component.componentAddress} skipped - invalid symbol (must start with letter and contain only alphanumeric characters): ${xToken.symbol} or ${yToken.symbol}`;
+        }
+
         const poolKey = `${xToken.symbol.toLowerCase()}${yToken.symbol.toLowerCase()}Pool`;
 
         // Check if component already exists
@@ -379,8 +553,8 @@ export class DappConstantsManager extends Effect.Service<DappConstantsManager>()
         const newPoolEntry = [
           `  ${poolKey}: {`,
           `    type: 'component',`,
-          `    baseResourceAddress: Assets.Fungible.${xToken.symbol.toUpperCase()},`,
-          `    quoteResourceAddress: Assets.Fungible.${yToken.symbol.toUpperCase()},`,
+          `    baseResourceAddress: Assets.Fungible.${getAssetKey(xToken.symbol)},`,
+          `    quoteResourceAddress: Assets.Fungible.${getAssetKey(yToken.symbol)},`,
           `    componentAddress:`,
           `      '${component.componentAddress}',`,
           `    basePoolAddress: 'UNKNOWN_BASE_POOL',`,
