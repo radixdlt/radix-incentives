@@ -99,8 +99,6 @@ export function SeasonLeaderboard() {
     return <EmptyState message="No seasons available yet." />;
   }
 
-  const selectedSeason = seasons.find((s) => s.id === selectedSeasonId);
-
   return (
     <div className="space-y-6">
       {/* Combined Season and Week Selector */}
@@ -165,7 +163,7 @@ export function SeasonLeaderboard() {
           topUsers={leaderboardData.topUsers}
           userStats={leaderboardData.userStats}
           globalStats={leaderboardData.globalStats}
-          pointsLabel="season points"
+          pointsLabel="SP"
           emptyMessage="Leaderboard data is being processed. Please check back later."
           isUserConnected={!!persona}
           referralCode={referralStats?.referralCode}
@@ -174,6 +172,8 @@ export function SeasonLeaderboard() {
           isReferralStatsLoading={referralStatsLoading}
           referralPercentage={referralStats?.percentage}
           showReferralStats
+          seasonId={selectedSeasonId}
+          weekId={selectedWeekId || undefined}
         />
       ) : (
         <LoadingState message="Loading leaderboard..." />

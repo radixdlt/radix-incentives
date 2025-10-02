@@ -334,3 +334,20 @@ export const calculateXrdFromMultiplier = (multiplier: number): number => {
   const lnB = 14.4 - Math.log(ratio) / 0.9;
   return Math.exp(lnB);
 };
+
+/**
+ * Truncate long words in a text string
+ * @param text - The text to process
+ * @param maxWordLength - Maximum length for individual words (default: 14)
+ * @returns Text with long words truncated and followed by "..."
+ */
+export const truncateLongWords = (text: string, maxWordLength = 14): string => {
+  return text
+    .split(' ')
+    .map((word) =>
+      word.length > maxWordLength
+        ? `${word.substring(0, maxWordLength)}...`
+        : word,
+    )
+    .join(' ');
+};

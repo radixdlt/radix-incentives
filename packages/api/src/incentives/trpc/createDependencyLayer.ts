@@ -1039,6 +1039,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
 
   const getSeasonLeaderboardPaginated = (input: {
     seasonId: string;
+    weekId?: string;
     page?: number;
     limit?: number;
   }) => {
