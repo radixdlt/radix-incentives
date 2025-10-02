@@ -4,6 +4,7 @@ import {
   CreditCard,
   Droplet,
   FileText,
+  HandCoins,
   type LucideIcon,
   Settings,
   TrendingUp,
@@ -272,6 +273,7 @@ export const ICON_MAP = {
   Settings,
   TrendingUp,
   Wallet,
+  HandCoins,
 } as const;
 
 export type IconName = keyof typeof ICON_MAP;

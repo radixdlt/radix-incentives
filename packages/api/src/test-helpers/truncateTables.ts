@@ -2,6 +2,8 @@ import {
   activityCategories,
   challenge,
   marginAccounts,
+  resourceRewardClaims,
+  resourceRewardDefinitions,
   seasons,
   sessions,
   users,
@@ -20,6 +22,8 @@ export const truncateTables = async () => {
         db.delete(marginAccounts),
         db.delete(challenge),
         db.delete(sessions),
+        db.delete(resourceRewardDefinitions),
+        db.delete(resourceRewardClaims),
       ]),
     );
   }).pipe(Effect.provide(dbClientLive));
