@@ -1,22 +1,19 @@
 'use client';
 
-import { useMemo, useState } from 'react';
-import { api, type RouterOutputs } from '~/trpc/react';
+import { useMemo } from 'react';
+import { api } from '~/trpc/react';
 
 export const useMostRecentWeek = () => {
-  const [week, setWeek] = useState<
-    RouterOutputs['week']['getWeeks'][number] | undefined
-  >();
-
   const { data } = api.week.getWeeks.useQuery();
 
-  useMemo(() => {
-    const weeks = data ? [...data] : [];
+  const week = useMemo(() => {
+    if (!data) return undefined;
+    const weeks = [...data];
     const mostRecentWeek = weeks.sort(
       (a, b) => b.startDate.getTime() - a.startDate.getTime(),
     )[0];
 
-    setWeek(mostRecentWeek ?? undefined);
+    return mostRecentWeek;
   }, [data]);
 
   return week;

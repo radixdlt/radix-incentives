@@ -424,6 +424,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           ].map((user) => ({
             ...user,
             referredBy: referredByMap.get(user.userId),
+            data: user.data ?? {},
           }));
 
           yield* Effect.log(

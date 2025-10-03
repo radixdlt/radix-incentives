@@ -14,6 +14,7 @@ export class CalculateResourceRewardPointsService extends Effect.Service<Calcula
           seasonId: string;
           points: BigNumber;
           weekId: string;
+          data: Record<string, string>;
         }[];
         weekId: string;
       }) {
@@ -35,12 +36,22 @@ export class CalculateResourceRewardPointsService extends Effect.Service<Calcula
         return input.users.map((user) => {
           if (!user.points.isGreaterThan(0)) return user;
           const resourceReward = resourceRewardsMap.get(user.userId);
+
+          const updatedData = { ...user.data };
+
+          if (resourceReward?.isGreaterThan(0)) {
+            updatedData.resourceRewards = resourceReward
+              .decimalPlaces(6)
+              .toString();
+          }
+
           return {
             ...user,
             resourceRewardPoints: resourceReward,
             points: resourceReward
               ? user.points.plus(resourceReward)
               : user.points,
+            data: updatedData,
           };
         });
       });
