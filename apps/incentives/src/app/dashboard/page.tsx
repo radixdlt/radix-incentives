@@ -2,7 +2,11 @@
 
 import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { MetricCard, RadixRewardsIntro } from '~/components/dashboard';
+import {
+  MetricCard,
+  MultiplierModal,
+  RadixRewardsIntro,
+} from '~/components/dashboard';
 import { EmptyState } from '~/components/ui/empty-state';
 import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { usePersona } from '~/lib/hooks/usePersona';
@@ -47,6 +51,7 @@ export default function DashboardPage() {
   void useIsAuthenticated();
 
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
+  const [multiplierModalOpen, setMultiplierModalOpen] = useState(false);
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
@@ -194,6 +199,8 @@ export default function DashboardPage() {
           icon={Zap}
           description="Current points multiplier"
           iconColor="text-amber-500"
+          onClick={() => setMultiplierModalOpen(true)}
+          clickHint="Click for details"
         />
       </div>
 
@@ -204,6 +211,12 @@ export default function DashboardPage() {
           multiplierData={userStats.data?.multiplier}
         />
       )}
+
+      <MultiplierModal
+        open={multiplierModalOpen}
+        onOpenChange={setMultiplierModalOpen}
+        multiplierValue={userStats.data?.multiplier?.value || '0'}
+      />
     </div>
   );
 }

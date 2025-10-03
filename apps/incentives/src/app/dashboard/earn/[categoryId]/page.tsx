@@ -4,7 +4,7 @@ import { ArrowLeft, TrendingUp, Wallet, Zap } from 'lucide-react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { MetricCard } from '~/components/dashboard';
+import { MetricCard, MultiplierModal } from '~/components/dashboard';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Card, CardHeader, CardTitle } from '~/components/ui/card';
@@ -17,6 +17,7 @@ export default function CategoryDetailPage() {
   const categoryId = params.categoryId as string;
   const { persona, isInitialized } = usePersona();
   const [selectedWeekId, setSelectedWeekId] = useState<string>('');
+  const [multiplierModalOpen, setMultiplierModalOpen] = useState(false);
 
   const { data: weeks } = api.week.getWeeks.useQuery();
 
@@ -193,12 +194,14 @@ export default function CategoryDetailPage() {
             title="Multiplier"
             value={
               persona && userMultiplier?.value
-                ? `${Number(userMultiplier.value).toLocaleString()}x`
+                ? Number(userMultiplier.value).toLocaleString()
                 : '-'
             }
             icon={Zap}
             description="Current points multiplier"
             iconColor="text-amber-500"
+            onClick={() => setMultiplierModalOpen(true)}
+            clickHint="Click for details"
           />
         )}
       </div>
@@ -209,6 +212,12 @@ export default function CategoryDetailPage() {
         categoryData={categoryCapitalData}
         weekId={selectedWeekId}
         isAnonymous={!persona}
+      />
+
+      <MultiplierModal
+        open={multiplierModalOpen}
+        onOpenChange={setMultiplierModalOpen}
+        multiplierValue={userMultiplier?.value || '0'}
       />
     </div>
   );
