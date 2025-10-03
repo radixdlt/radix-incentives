@@ -1,3 +1,5 @@
+import { truncateLongWords } from '~/lib/utils';
+
 interface PodiumUser {
   userId: string;
   label: string | null;
@@ -30,7 +32,8 @@ export function Podium({
   };
 
   const getDisplayName = (user: PodiumUser) => {
-    return user.label || 'Anonymous User';
+    const name = user.label || 'Anonymous User';
+    return truncateLongWords(name);
   };
 
   const isCurrentUser = (user: PodiumUser) => {

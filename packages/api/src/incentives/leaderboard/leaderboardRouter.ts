@@ -168,4 +168,57 @@ export const leaderboardRouter = createTRPCRouter({
         },
       });
     }),
+
+  getSeasonLeaderboardPaginated: publicProcedure
+    .input(
+      z.object({
+        seasonId: z.string().uuid(),
+        weekId: z.string().uuid().optional(),
+        page: z.number().int().min(0).optional(),
+        limit: z.number().int().min(1).max(100).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.getSeasonLeaderboardPaginated({
+        seasonId: input.seasonId,
+        weekId: input.weekId,
+        page: input.page,
+        limit: input.limit,
+      });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
+
+  getActivityCategoryLeaderboardPaginated: publicProcedure
+    .input(
+      z.object({
+        categoryId: z.string(),
+        weekId: z.string().uuid(),
+        page: z.number().int().min(0).optional(),
+        limit: z.number().int().min(1).max(100).optional(),
+      }),
+    )
+    .query(async ({ ctx, input }) => {
+      const result =
+        await ctx.dependencyLayer.getActivityCategoryLeaderboardPaginated({
+          categoryId: input.categoryId,
+          weekId: input.weekId,
+          page: input.page,
+          limit: input.limit,
+        });
+
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
 });

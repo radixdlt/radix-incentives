@@ -1,5 +1,9 @@
 'use client';
 
+import { LayoutList, Trophy } from 'lucide-react';
+import { useState } from 'react';
+import { Button } from '~/components/ui/button';
+import { LeaderboardListView } from './leaderboard-list-view';
 import { Podium } from './podium';
 import { ReferralStats } from './referral-stats';
 import { UserStats } from './user-stats';
@@ -47,7 +51,12 @@ interface LeaderboardContentProps {
   isReferralStatsLoading?: boolean;
   referralPercentage?: number;
   showReferralStats?: boolean;
+  seasonId?: string;
+  categoryId?: string;
+  weekId?: string;
 }
+
+type ViewMode = 'podium' | 'list';
 
 export function LeaderboardContent({
   topUsers,
@@ -62,7 +71,12 @@ export function LeaderboardContent({
   isReferralStatsLoading = false,
   referralPercentage,
   showReferralStats = false,
+  seasonId,
+  categoryId,
+  weekId,
 }: LeaderboardContentProps) {
+  const [viewMode, setViewMode] = useState<ViewMode>('podium');
+
   if (topUsers.length === 0) {
     return (
       <div className="py-12 text-center">
@@ -73,21 +87,63 @@ export function LeaderboardContent({
 
   return (
     <div className="space-y-8">
-      {/* Podium */}
+      {/* Ranking Section with View Toggle */}
       <div className="rounded-lg border bg-card p-6">
-        <h3 className="mb-4 font-semibold text-lg">Top Performers</h3>
-        <Podium
-          users={topUsers}
-          pointsLabel={pointsLabel}
-          userStats={
-            userStats
-              ? {
-                  rank: userStats.rank,
-                  totalPoints: userStats.totalPoints,
-                }
-              : null
-          }
-        />
+        <div className="mb-4 flex items-center justify-between">
+          <h3 className="font-semibold text-lg">Ranking</h3>
+          <div className="flex gap-1">
+            <Button
+              variant={viewMode === 'podium' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('podium')}
+              className="!px-4 flex h-8 items-center gap-1 py-1 text-xs"
+            >
+              <Trophy className="h-3 w-3" />
+              Podium
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+              className="!px-4 flex h-8 items-center gap-1 py-1 text-xs"
+            >
+              <LayoutList className="h-3 w-3" />
+              List
+            </Button>
+          </div>
+        </div>
+
+        {viewMode === 'podium' ? (
+          <Podium
+            users={topUsers}
+            pointsLabel={pointsLabel}
+            userStats={
+              userStats
+                ? {
+                    rank: userStats.rank,
+                    totalPoints: userStats.totalPoints,
+                  }
+                : null
+            }
+          />
+        ) : (
+          <LeaderboardListView
+            seasonId={seasonId}
+            categoryId={categoryId}
+            weekId={weekId}
+            pointsLabel={pointsLabel}
+            highlightUserId={
+              userStats && isUserConnected
+                ? Object.values(topUsers).find((u) => u.rank === userStats.rank)
+                    ?.userId
+                : undefined
+            }
+            currentUserRank={
+              userStats && isUserConnected ? userStats.rank : undefined
+            }
+            isSeasonView={!!seasonId}
+          />
+        )}
       </div>
 
       {/* User Stats - Always show */}
