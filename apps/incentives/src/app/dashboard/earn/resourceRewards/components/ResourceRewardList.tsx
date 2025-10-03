@@ -71,7 +71,7 @@ const ResourceRewardItem = ({
     ? isClaiming
       ? 'Claiming...'
       : `${unclaimedPoints} points to claim`
-    : 'Login to claim points';
+    : 'Connect to claim points';
 
   return (
     <Card>

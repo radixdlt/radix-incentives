@@ -19,6 +19,9 @@ export default function ResourceRewardsPage() {
   const [resourceRewards, setResourceRewards] = useState<
     ResourceRewardListProps['resourceRewards']
   >([]);
+  const [totalPointsEarned, setTotalPointsEarned] = useState<
+    string | undefined
+  >(undefined);
   const week = useMostRecentWeek();
   const { persona } = usePersona();
 
@@ -71,24 +74,35 @@ export default function ResourceRewardsPage() {
         iconUrl: item.iconUrl!,
         address: item.address!,
         points: item.points,
-        claims:
-          userResourceRewardsData?.claims
-            .filter((claim) => claim.resourceManager === item.address)
-            .map((claim) => ({
-              localId: claim.localId,
-              claimedAt: claim.claimedAt,
-            })) ?? [],
-        nfHoldings:
-          userResourceRewardsData?.nfHoldings
-            .filter((holding) => holding.resourceManager === item.address)
-            .flatMap((holding) => holding.nfIds) ?? [],
+        claims: persona
+          ? (userResourceRewardsData?.claims
+              .filter((claim) => claim.resourceManager === item.address)
+              .map((claim) => ({
+                localId: claim.localId,
+                claimedAt: claim.claimedAt,
+              })) ?? [])
+          : [],
+        nfHoldings: persona
+          ? (userResourceRewardsData?.nfHoldings
+              .filter((holding) => holding.resourceManager === item.address)
+              .flatMap((holding) => holding.nfIds) ?? [])
+          : [],
       }));
 
+      const totalPointsEarned = persona
+        ? items.reduce(
+            (total, item) => total + item.claims.length * item.points,
+            0,
+          )
+        : 0;
+
       setResourceRewards(items);
+      setTotalPointsEarned(totalPointsEarned.toString());
     } else {
       setResourceRewards([]);
+      setTotalPointsEarned(undefined);
     }
-  }, [resourceRewardsData, userResourceRewardsData]);
+  }, [resourceRewardsData, userResourceRewardsData, persona]);
 
   return (
     <div className="space-y-6">
@@ -98,6 +112,7 @@ export default function ResourceRewardsPage() {
         name={categoryData?.name}
         description={categoryData?.description}
         loading={isLoading}
+        totalPointsEarned={totalPointsEarned}
       />
 
       <ResourceRewardList

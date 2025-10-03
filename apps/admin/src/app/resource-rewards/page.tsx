@@ -133,28 +133,6 @@ export default function ResourceRewardsPage() {
     void refetch();
   };
 
-  const _getTypeLabel = (type: string) => {
-    switch (type) {
-      case 'fungible':
-        return 'Fungible';
-      case 'nft':
-        return 'NFT';
-      default:
-        return type;
-    }
-  };
-
-  const _getFrequencyLabel = (frequency: string) => {
-    switch (frequency) {
-      case 'week':
-        return 'Weekly';
-      case 'season':
-        return 'Per Season';
-      default:
-        return frequency;
-    }
-  };
-
   return (
     <div className="container mx-auto py-6 pr-6 pl-6">
       {/* Header Section */}

@@ -1,3 +1,4 @@
+import { MetricCard } from '~/components/dashboard';
 import { Card, CardHeader, CardTitle } from '~/components/ui/card';
 import { Skeleton } from '~/components/ui/skeleton';
 
@@ -5,9 +6,11 @@ export const EarnPageItemCategoryCard = ({
   name,
   description,
   loading,
+  totalPointsEarned,
 }: {
   name?: string | null;
   description?: string | null;
+  totalPointsEarned?: string | null;
   loading: boolean;
 }) => {
   if (loading) {
@@ -21,15 +24,22 @@ export const EarnPageItemCategoryCard = ({
     );
   }
   return (
-    <Card>
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div>
-            <CardTitle className="text-2xl">{name}</CardTitle>
-            <div className="mt-2 text-muted-foreground">{description}</div>
+    <div className="grid gap-4 md:grid-cols-3">
+      <Card className="sm:col-span-2">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="text-2xl">{name}</CardTitle>
+              <div className="mt-2 text-muted-foreground">{description}</div>
+            </div>
           </div>
-        </div>
-      </CardHeader>
-    </Card>
+        </CardHeader>
+      </Card>
+      <MetricCard
+        title="Points Earned"
+        value={totalPointsEarned ?? '0'}
+        description="Points earned this week"
+      />
+    </div>
   );
 };
