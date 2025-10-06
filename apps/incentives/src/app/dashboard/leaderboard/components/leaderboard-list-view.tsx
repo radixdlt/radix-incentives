@@ -199,7 +199,7 @@ export function LeaderboardListView({
                   </div>
                 </div>
                 <div
-                  className={`flex items-center justify-end font-semibold tabular-nums text-xs sm:text-base ${textColorClass}`}
+                  className={`flex items-center justify-end font-semibold text-xs tabular-nums sm:text-base ${textColorClass}`}
                 >
                   {formatPoints(entry.totalPoints)}
                 </div>
