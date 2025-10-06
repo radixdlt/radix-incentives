@@ -1,15 +1,22 @@
-import { RootFinanceConstants, WeftFinanceConstants } from 'data';
+import {
+  DappConstants,
+  RootFinanceConstants,
+  WeftFinanceConstants,
+} from 'data';
 import { Effect } from 'effect';
 import type { AtLedgerState } from '../../common';
 import { GetAddressByNonFungibleService } from '../../common/gateway/getAddressByNonFungible';
 import { GetAccountsIntersectionService } from '../account/getAccountsIntersection';
 import { MarginAccountDbService } from '../surge/marginAccountDbService';
 import type { CommonEmittableEvents } from './event-matchers/commonEventMatcher';
+import type { FluxEmittableEvents } from './event-matchers/fluxEventMatcher';
 import type { RootFinanceEmittableEvents } from './event-matchers/rootFinanceEventMatcher';
 import type { SurgeEmittableEvents } from './event-matchers/surgeEventMatcher';
 import type { WeftFinanceEmittableEvents } from './event-matchers/weftFinanceEventMatcher';
 import type { EventQueueClientInput } from './eventQueueClient';
 import { GetEventsFromDbService } from './queries/getEventsFromDb';
+
+const FluxConstants = DappConstants.Flux.constants;
 
 export class InvalidEventError {
   _tag = 'InvalidEventError';
@@ -236,6 +243,52 @@ export class DeriveAccountFromEventService extends Effect.Service<DeriveAccountF
                 const result =
                   yield* getRegisteredAccountAddressFromNonFungible(
                     RootFinanceConstants.receiptResourceAddress,
+                    nonFungibleId,
+                    at_ledger_state,
+                  );
+
+                if (result === null) {
+                  return {
+                    timestamp: event.timestamp.toISOString(),
+                    transactionId: event.transactionId,
+                  };
+                }
+
+                return {
+                  address: result.address,
+                  timestamp: event.timestamp.toISOString(),
+                  transactionId: event.transactionId,
+                };
+              }
+
+              return {
+                timestamp: event.timestamp.toISOString(),
+                transactionId: event.transactionId,
+              };
+            }
+
+            // Flux CDP events
+            if (event.dApp === 'Flux') {
+              yield* Effect.logDebug('Flux event', event.eventData);
+
+              const eventData = event.eventData as FluxEmittableEvents;
+
+              if (
+                eventData.type === 'EventUpdateCdp' ||
+                eventData.type === 'EventNewCdp' ||
+                eventData.type === 'EventRedeemCdp' ||
+                eventData.type === 'EventCloseCdp' ||
+                eventData.type === 'EventLiquidateCdp'
+              ) {
+                const nonFungibleId = eventData.data.cdp_id;
+
+                const at_ledger_state = {
+                  timestamp: event.timestamp,
+                };
+
+                const result =
+                  yield* getRegisteredAccountAddressFromNonFungible(
+                    FluxConstants.receiptResourceAddress,
                     nonFungibleId,
                     at_ledger_state,
                   );

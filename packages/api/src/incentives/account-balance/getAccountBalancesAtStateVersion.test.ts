@@ -33,6 +33,8 @@ import { GetQuantaSwapBinMapLive } from '../../common/dapps/caviarnine/getQuanta
 import { GetShapeLiquidityAssetsLive } from '../../common/dapps/caviarnine/getShapeLiquidityAssets';
 import { GetShapeLiquidityClaimsLive } from '../../common/dapps/caviarnine/getShapeLiquidityClaims';
 import { GetDefiPlazaPositionsLive } from '../../common/dapps/defiplaza/getDefiPlazaPositions';
+import { GetFluxCdpsService } from '../../common/dapps/flux/getFluxCdps';
+import { GetFluxReservoirService } from '../../common/dapps/flux/getFluxReservoir';
 import { GetOciswapLiquidityAssetsService } from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
 import { GetOciswapLiquidityClaimsService } from '../../common/dapps/ociswap/getOciswapLiquidityClaims';
 import { GetOciswapResourcePoolPositionsService } from '../../common/dapps/ociswap/getOciswapResourcePoolPositions';
@@ -208,6 +210,19 @@ const getRootFinancePositionLive = GetRootFinancePositionsService.Default.pipe(
   Layer.provide(keyValueStoreKeysServiceLive),
 );
 
+const getFluxCdpsLive = GetFluxCdpsService.Default.pipe(
+  Layer.provide(getNonFungibleBalanceLive),
+  Layer.provide(entityNonFungibleDataServiceLive),
+  Layer.provide(keyValueStoreKeysServiceLive),
+  Layer.provide(keyValueStoreDataServiceLive),
+);
+
+const getFluxReservoirLive = GetFluxReservoirService.Default.pipe(
+  Layer.provide(getFungibleBalanceLive),
+  Layer.provide(gatewayApiClientLive),
+  Layer.provide(getEntityDetailsServiceLive),
+);
+
 const keyValueStoreDataLive = KeyValueStoreDataService.Default.pipe(
   Layer.provide(gatewayApiClientLive),
 );
@@ -298,6 +313,8 @@ const testStakingLive = Layer.mergeAll(
 const testDappLive = Layer.mergeAll(
   getWeftFinancePositionsLive,
   getRootFinancePositionLive,
+  getFluxCdpsLive,
+  getFluxReservoirLive,
   getShapeLiquidityAssetsLive,
   getShapeLiquidityClaimsLive,
   getQuantaSwapBinMapLive,
@@ -390,10 +407,10 @@ describe('getAccountBalancesAtStateVersion', () => {
 
         return yield* getAccountBalancesAtStateVersionService({
           addresses: [
-            'account_rdx12xwrtgmq68wqng0d69qx2j627ld2dnfufdklkex5fuuhc8eaeltq2k',
+            'account_rdx16y4gqnchvxeszcpswg2zldgsle6uqvnl0znerne70tw9535njhkgzk',
           ],
           at_ledger_state: {
-            timestamp: new Date('2025-06-05T08:00:00.000Z'),
+            timestamp: new Date('2025-10-06T08:00:00.000Z'),
           },
           validators: validators,
         }).pipe(Effect.withSpan('getAccountBalancesAtStateVersionService'));
@@ -405,7 +422,6 @@ describe('getAccountBalancesAtStateVersion', () => {
     );
 
     const result = await Effect.runPromiseExit(
-      // @ts-expect-error - TypeScript can't resolve mocked MarginAccountDbService dependencies at compile time
       program.pipe(Effect.provide(NodeSdkLive)),
     );
 

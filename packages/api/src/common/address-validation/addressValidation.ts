@@ -18,6 +18,7 @@ const CaviarNineConstants = DappConstants.CaviarNine.constants;
 const DefiPlazaConstants = DappConstants.DefiPlaza.constants;
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;
 const RootFinanceConstants = DappConstants.RootFinance.constants;
+const FluxConstants = DappConstants.Flux.constants;
 const OciswapConstants = DappConstants.Ociswap.constants;
 const SurgeConstants = DappConstants.Surge.constants;
 
@@ -71,6 +72,7 @@ export class AddressValidationService extends Context.Tag(
       address: string,
       packageAddress?: string,
     ) => boolean;
+    isFluxComponent: (address: string, packageAddress?: string) => boolean;
 
     // Resource validation by dApp
     isCaviarNineResource: (address: string) => boolean;
@@ -177,6 +179,9 @@ const validResourceAddresses = new Set([
   ...extractPropertyValues(RootFinanceConstants, 'resourceAddress'),
   RootFinanceConstants.receiptResourceAddress,
   ...extractPropertyValues(SurgeConstants, 'resourceAddress'),
+  FluxConstants.receiptResourceAddress,
+  FluxConstants.collaterals.xrd.stabilityPoolTokenAddress,
+  FluxConstants.collaterals.lsulp.stabilityPoolTokenAddress,
 ]);
 
 const caviarNinePrecisionPoolComponents = new Set([
@@ -383,6 +388,16 @@ export const isRootFinanceComponent = (
   return isRootFinanceEvent && isExpectedPackage;
 };
 
+export const isFluxComponent = (
+  componentAddress: string,
+  packageAddress: string,
+): boolean => {
+  const isFluxEvent = componentAddress === FluxConstants.logicComponentAddress;
+  const isExpectedPackage = packageAddress === FluxConstants.packageAddress;
+
+  return isFluxEvent && isExpectedPackage;
+};
+
 export const isHlpPoolComponent = (componentAddress: string): boolean => {
   return componentAddress === CaviarNineConstants.HLP.componentAddress;
 };
@@ -442,6 +457,13 @@ export const AddressValidationServiceLive = Layer.effect(
         packageAddress?: string,
       ): boolean => {
         return isRootFinanceComponent(componentAddress, packageAddress || '');
+      },
+
+      isFluxComponent: (
+        componentAddress: string,
+        packageAddress?: string,
+      ): boolean => {
+        return isFluxComponent(componentAddress, packageAddress || '');
       },
 
       isValidResourceAddress,

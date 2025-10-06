@@ -6,6 +6,7 @@ import { ActivityCategoryId } from './activityCategories';
 import { Assets, AssetType } from './assets';
 import { CaviarNineConstants } from './dapps/caviarnine/constants';
 import { DefiPlazaConstants } from './dapps/defiPlaza/constants';
+import { FluxConstants } from './dapps/flux/constants';
 import { OciswapConstants } from './dapps/ociswap/constants';
 import { RootFinanceConstants } from './dapps/rootFinance/constants';
 import { SurgeConstants } from './dapps/surge/constants';
@@ -500,6 +501,122 @@ const runnable = Effect.gen(function* () {
       action: Action.OTHER,
       assets: [],
     },
+    // Flux activities - manually defined due to unique structure
+    ...[
+      {
+        category: ActivityCategoryId.lendingStables,
+        id: 'sta_fusd',
+        component: FluxConstants.cdpManager.componentAddress,
+        action: Action.LEND,
+        asset: {
+          type: AssetType.STABLE,
+          name: 'fusd',
+          address: Assets.Fungible.fUSD,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'xrd',
+        component: FluxConstants.cdpManager.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.NATIVE,
+          name: 'xrd',
+          address: Assets.Fungible.XRD,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'lsulp',
+        component: FluxConstants.cdpManager.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'lsulp',
+          address: FluxConstants.collaterals.lsulp.collateralAddress,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'xrdfusd',
+        component: FluxConstants.reservoirs.xrd.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.NATIVE,
+          name: 'xrd',
+          address: Assets.Fungible.XRD,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'lsulpfusd',
+        component: FluxConstants.reservoirs.lsulp.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'lsulp',
+          address: FluxConstants.collaterals.lsulp.collateralAddress,
+        },
+      },
+      {
+        category: ActivityCategoryId.provideStablesLiquidityToDex,
+        id: 'sta_xrdfusd',
+        component: FluxConstants.reservoirs.xrd.componentAddress,
+        action: Action.LP,
+        asset: {
+          type: AssetType.STABLE,
+          name: 'fusd',
+          address: Assets.Fungible.fUSD,
+        },
+      },
+      {
+        category: ActivityCategoryId.provideStablesLiquidityToDex,
+        id: 'sta_lsulpfusd',
+        component: FluxConstants.reservoirs.lsulp.componentAddress,
+        action: Action.LP,
+        asset: {
+          type: AssetType.STABLE,
+          name: 'fusd',
+          address: Assets.Fungible.fUSD,
+        },
+      },
+      {
+        category: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
+        id: 'der_lsulpfusd',
+        component: FluxConstants.reservoirs.lsulp.componentAddress,
+        action: Action.LP,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'lsulp',
+          address: FluxConstants.collaterals.lsulp.collateralAddress,
+        },
+      },
+      {
+        category: ActivityCategoryId.provideNativeLiquidityToDex,
+        id: 'der_xrdfusd',
+        component: FluxConstants.reservoirs.xrd.componentAddress,
+        action: Action.LP,
+        asset: {
+          type: AssetType.NATIVE,
+          name: 'xrd',
+          address: Assets.Fungible.XRD,
+        },
+      },
+    ].map((spec) => ({
+      categoryId: spec.category,
+      activityId: `${DappId.flux}_${spec.action}_${spec.id}`,
+      componentAddress: spec.component,
+      dAppId: DappId.flux,
+      tokenPair: spec.id,
+      action: spec.action,
+      assets: [
+        {
+          assetType: spec.asset.type,
+          name: spec.asset.name,
+          resourceAddress: spec.asset.address,
+        },
+      ],
+    })),
   );
 
   const groupedActivities = groupBy(activities, (item) => item.activityId);

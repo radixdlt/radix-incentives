@@ -10,6 +10,7 @@ import { GetUsdValueService } from '../token-price/getUsdValue';
 import type { AccountBalance as AccountBalanceFromSnapshot } from './getAccountBalancesAtStateVersion';
 
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
+const FluxConstants = DappConstants.Flux.constants;
 
 // Helper function to check if a resource address is XRD or LSULP
 
@@ -291,6 +292,95 @@ const processLendingProtocols = (
     return output;
   });
 
+// Extract Flux collateral and reservoir processing
+const processFluxPositions = (
+  accountBalance: AccountBalanceFromSnapshot,
+  xrdToUsd: XrdValueConverter,
+) =>
+  Effect.gen(function* () {
+    const output: AccountBalanceData[] = [];
+
+    let xrdCollateral = new BigNumber(0);
+    let lsulpCollateral = new BigNumber(0);
+    let xrdReservoirXrd = new BigNumber(0);
+    let lsulpReservoirLsulp = new BigNumber(0);
+
+    // Aggregate CDP collateral
+    if (accountBalance.fluxCdpPositions.cdpPositions) {
+      for (const cdp of accountBalance.fluxCdpPositions.cdpPositions) {
+        const collateralAmount = new BigNumber(cdp.collateralAmount);
+        if (collateralAmount.isFinite() && !collateralAmount.isNaN()) {
+          if (
+            cdp.collateralAddress ===
+            FluxConstants.collaterals.xrd.collateralAddress
+          ) {
+            xrdCollateral = xrdCollateral.plus(collateralAmount);
+          } else if (
+            cdp.collateralAddress ===
+            FluxConstants.collaterals.lsulp.collateralAddress
+          ) {
+            // Convert LSULP to XRD equivalent
+            const lsulpXrdEquivalent = convertLsulpToXrd(
+              collateralAmount,
+              accountBalance.lsulp.lsulpValue,
+            );
+            lsulpCollateral = lsulpCollateral.plus(lsulpXrdEquivalent);
+          }
+        }
+      }
+    }
+
+    // Aggregate Reservoir positions (collateral part only)
+    if (accountBalance.fluxReservoirPositions.reservoirPositions) {
+      for (const reservoir of accountBalance.fluxReservoirPositions
+        .reservoirPositions) {
+        const collateralValue = new BigNumber(
+          reservoir.userPoolTokenValue.collateral,
+        );
+
+        if (collateralValue.isFinite() && !collateralValue.isNaN()) {
+          if (
+            reservoir.collateralAddress ===
+            FluxConstants.collaterals.xrd.collateralAddress
+          ) {
+            xrdReservoirXrd = xrdReservoirXrd.plus(collateralValue);
+          } else if (
+            reservoir.collateralAddress ===
+            FluxConstants.collaterals.lsulp.collateralAddress
+          ) {
+            // Convert LSULP to XRD equivalent
+            const lsulpXrdEquivalent = convertLsulpToXrd(
+              collateralValue,
+              accountBalance.lsulp.lsulpValue,
+            );
+            lsulpReservoirLsulp = lsulpReservoirLsulp.plus(lsulpXrdEquivalent);
+          }
+        }
+      }
+    }
+
+    output.push(
+      {
+        activityId: ActivityId.fl_ho_xrd,
+        usdValue: yield* xrdToUsd(xrdCollateral),
+      },
+      {
+        activityId: ActivityId.fl_ho_lsulp,
+        usdValue: yield* xrdToUsd(lsulpCollateral),
+      },
+      {
+        activityId: ActivityId.fl_ho_xrdfusd,
+        usdValue: yield* xrdToUsd(xrdReservoirXrd),
+      },
+      {
+        activityId: ActivityId.fl_ho_lsulpfusd,
+        usdValue: yield* xrdToUsd(lsulpReservoirLsulp),
+      },
+    );
+
+    return output;
+  });
+
 export type XrdBalanceInput = {
   accountBalance: AccountBalanceFromSnapshot;
   timestamp: Date;
@@ -318,15 +408,25 @@ export class XrdBalanceService extends Effect.Service<XrdBalanceService>()(
           }).pipe(Effect.map((usdValue) => usdValue.toString()));
 
         // Process all different types of XRD holdings in parallel
-        const [basicHoldings, lendingHoldings, surgeMarginHoldings] =
-          yield* Effect.all([
-            processBasicXrdHoldings(input.accountBalance, xrdToUsd),
-            processLendingProtocols(input.accountBalance, xrdToUsd),
-            processSurgeMarginAccountCollateral(input.accountBalance, xrdToUsd),
-          ]);
+        const [
+          basicHoldings,
+          lendingHoldings,
+          surgeMarginHoldings,
+          fluxHoldings,
+        ] = yield* Effect.all([
+          processBasicXrdHoldings(input.accountBalance, xrdToUsd),
+          processLendingProtocols(input.accountBalance, xrdToUsd),
+          processSurgeMarginAccountCollateral(input.accountBalance, xrdToUsd),
+          processFluxPositions(input.accountBalance, xrdToUsd),
+        ]);
 
         // Combine all results
-        return [...basicHoldings, ...lendingHoldings, ...surgeMarginHoldings];
+        return [
+          ...basicHoldings,
+          ...lendingHoldings,
+          ...surgeMarginHoldings,
+          ...fluxHoldings,
+        ];
       });
     }),
   },

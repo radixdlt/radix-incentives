@@ -2,6 +2,7 @@ import type { AccountBalance } from 'db/incentives';
 import { Effect } from 'effect';
 import { AggregateCaviarninePositionsService } from './aggregateCaviarninePositions';
 import { AggregateDefiPlazaPositionsService } from './aggregateDefiPlazaPositions';
+import { AggregateFluxPositionsService } from './aggregateFluxPositions';
 import { AggregateOciswapPositionsService } from './aggregateOciswapPositions';
 import { AggregateRootFinancePositionsService } from './aggregateRootFinancePositions';
 import { AggregateSurgePositionsService } from './aggregateSurgePositions';
@@ -27,6 +28,7 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
       AggregateRootFinancePositionsService.Default,
       AggregateDefiPlazaPositionsService.Default,
       AggregateSurgePositionsService.Default,
+      AggregateFluxPositionsService.Default,
     ],
     effect: Effect.gen(function* () {
       const aggregateCaviarninePositionsService =
@@ -42,6 +44,8 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
         yield* AggregateDefiPlazaPositionsService;
       const aggregateSurgePositionsService =
         yield* AggregateSurgePositionsService;
+      const aggregateFluxPositionsService =
+        yield* AggregateFluxPositionsService;
       return Effect.fn('aggregateAccountBalance')(function* (
         input: AggregateAccountBalanceInput,
       ) {
@@ -84,6 +88,11 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
                 timestamp: input.timestamp,
               });
 
+            const fluxPositions = yield* aggregateFluxPositionsService({
+              accountBalance,
+              timestamp: input.timestamp,
+            });
+
             return {
               timestamp: input.timestamp,
               accountAddress: accountBalance.address,
@@ -95,6 +104,7 @@ export class AggregateAccountBalanceService extends Effect.Service<AggregateAcco
                 ...rootFinancePositions,
                 ...defiPlazaPositions,
                 ...surgePositions,
+                ...fluxPositions,
               ],
             };
           }),

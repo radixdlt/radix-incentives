@@ -11,6 +11,7 @@ export const DappId = {
   surge: 'su',
   radix: 'ra',
   astrolescent: 'as',
+  flux: 'fl',
 } as const;
 
 export type DappId = (typeof DappId)[keyof typeof DappId];
@@ -60,6 +61,7 @@ export const deriveLpActionFromDappId = (dAppId: DappId) => {
 
     case DappId.root:
     case DappId.weft:
+    case DappId.flux:
       return Action.LEND;
   }
 };

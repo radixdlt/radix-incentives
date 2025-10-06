@@ -1,6 +1,7 @@
 import { DappId } from '../types';
 import { CaviarNineConstants } from './caviarnine/constants';
 import { DefiPlazaConstants } from './defiPlaza/constants';
+import { FluxConstants } from './flux/constants';
 import { OciswapConstants } from './ociswap/constants';
 import { RootFinanceConstants } from './rootFinance/constants';
 import { SurgeConstants } from './surge/constants';
@@ -38,6 +39,7 @@ export const dappsData = [
     website: 'https://astrolescent.com',
     name: 'Astrolescent',
   },
+  { id: DappId.flux, website: 'https://flux.ilikeitstable.com', name: 'Flux' },
 ];
 
 export const DappConstants = {
@@ -77,5 +79,11 @@ export const DappConstants = {
     website: 'https://www.surge.trade',
     name: 'Surge',
     constants: SurgeConstants,
+  },
+  Flux: {
+    id: DappId.flux,
+    website: 'https://flux.ilikeitstable.com',
+    name: 'Flux',
+    constants: FluxConstants,
   },
 } as const;
