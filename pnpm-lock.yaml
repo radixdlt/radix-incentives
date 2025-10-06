@@ -607,6 +607,9 @@ importers:
       '@trpc/server':
         specifier: 'catalog:'
         version: 11.0.2(typescript@5.8.2)
+      '@types/d3':
+        specifier: ^7.4.3
+        version: 7.4.3
       api:
         specifier: workspace:*
         version: link:../../packages/api
@@ -619,6 +622,9 @@ importers:
       clsx:
         specifier: 'catalog:'
         version: 2.1.1
+      d3:
+        specifier: ^7.9.0
+        version: 7.9.0
       db:
         specifier: workspace:*
         version: link:../../packages/db

@@ -591,13 +591,17 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
 
       const getSeasonLeaderboardPaginated = Effect.fn(function* (input: {
         seasonId: string;
+        weekId?: string;
         page?: number;
         limit?: number;
       }) {
         const page = input.page ?? 0;
         const limit = Math.min(input.limit ?? 100, 100);
 
-        const SEASON_TOTALS_WEEK_ID = '00000000-0000-0000-0000-000000000000';
+        // Determine weekId for cache lookup (null for season totals, or specific week)
+        const weekIdForCache =
+          input.weekId || '00000000-0000-0000-0000-000000000000';
+
         const statsCacheResult = yield* Effect.tryPromise(() =>
           db
             .select({
@@ -607,7 +611,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
             .where(
               eq(
                 leaderboardStatsCache.cacheKey,
-                `season_${input.seasonId}_week_${SEASON_TOTALS_WEEK_ID}`,
+                `season_${input.seasonId}_week_${weekIdForCache}`,
               ),
             )
             .limit(1)
@@ -631,6 +635,7 @@ export class LeaderboardService extends Effect.Service<LeaderboardService>()(
               .where(
                 and(
                   eq(seasonLeaderboardCache.seasonId, input.seasonId),
+                  eq(seasonLeaderboardCache.weekId, weekIdForCache),
                   sql`${seasonLeaderboardCache.totalPoints}::numeric > 0`,
                 ),
               )

@@ -168,9 +168,11 @@ export function CategoryLeaderboard() {
           topUsers={leaderboardData.topUsers}
           userStats={leaderboardData.userStats}
           globalStats={leaderboardData.globalStats}
-          pointsLabel="activity points"
+          pointsLabel="AP"
           emptyMessage="Leaderboard data is being processed. Please check back later."
           isUserConnected={!!persona}
+          categoryId={selectedCategoryId}
+          weekId={selectedWeekId}
         />
       ) : (
         <LoadingState message="Loading leaderboard..." />

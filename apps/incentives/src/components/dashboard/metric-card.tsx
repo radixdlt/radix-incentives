@@ -1,4 +1,5 @@
 import type { LucideIcon } from 'lucide-react';
+import { ChevronRight } from 'lucide-react';
 import { Card } from '~/components/ui/card';
 
 interface MetricCardProps {
@@ -12,6 +13,8 @@ interface MetricCardProps {
   icon?: LucideIcon;
   description: string;
   iconColor?: string;
+  onClick?: () => void;
+  clickHint?: string;
 }
 
 export const MetricCard = ({
@@ -21,13 +24,23 @@ export const MetricCard = ({
   icon: Icon,
   description,
   iconColor = 'text-cyan-400',
+  onClick,
+  clickHint,
 }: MetricCardProps) => {
   return (
-    <Card className="group overflow-hidden">
+    <Card
+      className={`group overflow-hidden ${onClick ? 'cursor-pointer border-primary/20 transition-all duration-500 ease-in-out hover:border-primary/50 hover:bg-muted/50 hover:shadow-lg' : ''}`}
+      onClick={onClick}
+    >
       <div className="flex flex-col space-y-4 p-6">
         <div className="flex items-center justify-between">
           <span className="font-medium text-sm text-white/80">{title}</span>
-          {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
+          <div className="flex items-center gap-2">
+            {Icon && <Icon className={`h-5 w-5 ${iconColor}`} />}
+            {onClick && (
+              <ChevronRight className="h-4 w-4 text-white/40 transition-colors duration-500 ease-in-out group-hover:text-white/70" />
+            )}
+          </div>
         </div>
 
         <div className="flex items-end gap-3">
@@ -46,7 +59,14 @@ export const MetricCard = ({
           )}
         </div>
 
-        <div className="text-sm text-white/60">{description}</div>
+        <div className="flex items-center justify-between">
+          <div className="text-sm text-white/60">{description}</div>
+          {onClick && clickHint && (
+            <div className="text-white/40 text-xs transition-colors duration-500 ease-in-out group-hover:text-white/60">
+              {clickHint}
+            </div>
+          )}
+        </div>
       </div>
     </Card>
   );
