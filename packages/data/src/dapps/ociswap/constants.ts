@@ -2055,7 +2055,7 @@ export const OciswapConstants = {
       token_x: Assets.Fungible.ILIS,
       token_y: Assets.Fungible.XRD,
     },
-    XRD_CVX: {
+    /*XRD_CVX: {
       name: 'xrd/CVX',
       componentAddress:
         'component_rdx1crzyyrrlu3t6yftk4z2v7uf3g54fh0y98z08zvk6sgwlxkkzl6avmc',
@@ -2362,7 +2362,7 @@ export const OciswapConstants = {
       token_y: Assets.Fungible.CAVIAR,
       divisibility_x: 18,
       divisibility_y: 18,
-    },
+    },*/
   },
 } as const;
 

@@ -69,12 +69,19 @@ export const getTokenDetailsFromResourceAddress = Effect.fn(function* (
     flatTokenNameMap[resourceAddress as keyof typeof flatTokenNameMap];
 
   if (!maybeToken) {
-    return yield* Effect.fail(
-      new TokenNotFoundError({
-        resourceAddress,
-        message: `Token not found for resource address: ${resourceAddress}`,
-      }),
+    console.warn(
+      `WARNING: Token not found for resource address ${resourceAddress}, using placeholder 'UNKNOWN'`,
     );
+    // For load testing: return placeholder for unknown tokens
+    // Try to get asset type, but default to NATIVE if that also fails
+    const assetType = yield* getAssetTypeFromResourceAddress(
+      resourceAddress,
+    ).pipe(Effect.catchAll(() => Effect.succeed(AssetType.NATIVE)));
+    return {
+      name: 'UNKNOWN',
+      resourceAddress,
+      assetType,
+    } as TokenDetails;
   }
   const assetType = yield* getAssetTypeFromResourceAddress(resourceAddress);
   return {
