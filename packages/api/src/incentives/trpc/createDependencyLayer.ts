@@ -95,7 +95,7 @@ import {
   type SetStateVersionInput,
   TransactionStreamApiService,
 } from '../transaction-stream/transactionStreamApi';
-import { TVLService } from '../tvl/tvl';
+import { TVLService, type TvlSchema } from '../tvl/tvl';
 import {
   GetUsersPaginatedLive,
   GetUsersPaginatedService,
@@ -1141,7 +1141,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     const program = Effect.gen(function* () {
       const service = yield* TVLService;
       return yield* service.dexComponentsTvl();
-    }).pipe(Effect.provide(TVLService.Default));
+    }).pipe(Effect.provide(TVLService.Default)) as Effect.Effect<
+      TvlSchema[],
+      unknown,
+      never
+    >;
 
     return Effect.runPromiseExit(program);
   };

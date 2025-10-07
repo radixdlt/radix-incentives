@@ -4,7 +4,10 @@ import { Data, Effect, Schema } from 'effect';
 import { AssetSchema } from '../../common/assets/schemas';
 import { ComponentRepo } from '../component-definition/componentRepo';
 import { RadixDataTypeSchema } from '../component-definition/schemas';
-import { GetUsdValueService } from '../token-price/getUsdValue';
+import {
+  GetUsdValueService,
+  PriceServiceApiError,
+} from '../token-price/getUsdValue';
 
 const getShapeLiquidityComponents = Effect.promise(() =>
   fetch(
@@ -136,7 +139,8 @@ export class TVLService extends Effect.Service<TVLService>()('TVLService', {
                   Effect.catchTags({
                     InvalidResourceAddressError: () =>
                       Effect.succeed(new BigNumber(0)),
-                    MissingPriceError: () => Effect.succeed(new BigNumber(0)),
+                    PriceServiceApiError: () =>
+                      Effect.succeed(new BigNumber(0)),
                   }),
                 );
                 return {
