@@ -40,7 +40,7 @@ export class AggregateFluxPositionsService extends Effect.Service<AggregateFluxP
         let lsulpReservoirFusd = new BigNumber(0);
 
         // Aggregate CDP positions - only track fUSD debt
-        if (!accountBalance.fluxCdpPositions.cdpPositions) {
+        if (!accountBalance.fluxCdpPositions?.cdpPositions) {
           return [];
         }
 
@@ -52,7 +52,7 @@ export class AggregateFluxPositionsService extends Effect.Service<AggregateFluxP
         }
 
         // Aggregate Reservoir positions
-        if (!accountBalance.fluxReservoirPositions.reservoirPositions) {
+        if (!accountBalance.fluxReservoirPositions?.reservoirPositions) {
           return [];
         }
 

@@ -156,6 +156,7 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
             const nftId = allNftIds[i];
             const nftData = nftDataResults[i];
 
+            if (!nftId) continue;
             if (!nftData || nftData.length === 0) continue;
             if (!nftData[0]?.data?.programmatic_json) continue;
 

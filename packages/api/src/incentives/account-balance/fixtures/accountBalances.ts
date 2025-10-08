@@ -3953,6 +3953,26 @@ export const accountBalanceFixture = {
         usdValue: '0',
       },
       {
+        activityId: 'fl_ho_xrd',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
+        activityId: 'fl_ho_lsulp',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
+        activityId: 'fl_ho_xrdfusd',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
+        activityId: 'fl_ho_lsulpfusd',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
         activityId: 'we_le_sta_xusdc',
         usdValue: '1.162861251161032404527758903896287004',
         metadata: undefined,

@@ -501,7 +501,7 @@ const runnable = Effect.gen(function* () {
       action: Action.OTHER,
       assets: [],
     },
-    // Flux activities - manually defined due to unique structure
+    // TODO: Flux activities, manually defined here, don't know exactly which activities to go with.
     ...[
       {
         category: ActivityCategoryId.lendingStables,

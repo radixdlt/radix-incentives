@@ -306,7 +306,7 @@ const processFluxPositions = (
     let lsulpReservoirLsulp = new BigNumber(0);
 
     // Aggregate CDP collateral
-    if (accountBalance.fluxCdpPositions.cdpPositions) {
+    if (accountBalance.fluxCdpPositions?.cdpPositions) {
       for (const cdp of accountBalance.fluxCdpPositions.cdpPositions) {
         const collateralAmount = new BigNumber(cdp.collateralAmount);
         if (collateralAmount.isFinite() && !collateralAmount.isNaN()) {
@@ -331,7 +331,7 @@ const processFluxPositions = (
     }
 
     // Aggregate Reservoir positions (collateral part only)
-    if (accountBalance.fluxReservoirPositions.reservoirPositions) {
+    if (accountBalance.fluxReservoirPositions?.reservoirPositions) {
       for (const reservoir of accountBalance.fluxReservoirPositions
         .reservoirPositions) {
         const collateralValue = new BigNumber(
