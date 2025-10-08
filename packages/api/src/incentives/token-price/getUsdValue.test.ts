@@ -89,28 +89,38 @@ describe('GetUsdValueService', () => {
     expect(result.toString()).toBe('1');
   });
 
-  it('should fail with InvalidResourceAddressError for unknown token', async () => {
+  it('should handle unknown tokens gracefully (load testing mode)', async () => {
     const amount = new BigNumber('100');
     const timestamp = new Date('2025-01-01');
-    const invalidAddress = 'invalid_address';
+    const unknownAddress = 'resource_unknown123';
+
+    // Mock fetch to return a valid response with price
+    mockFetch.mockResolvedValueOnce({
+      ok: true,
+      json: () =>
+        Promise.resolve({
+          prices: {
+            [unknownAddress]: { usd_price: 1.5 },
+          },
+        }),
+    });
 
     const program = Effect.provide(
       Effect.gen(function* () {
         const getUsdValue = yield* GetUsdValueService;
         return yield* getUsdValue({
           amount,
-          resourceAddress: invalidAddress,
+          resourceAddress: unknownAddress,
           timestamp,
         });
       }),
       getUsdValueLive,
     ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
 
-    await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Invalid resource address: invalid_address',
-      ),
-    });
+    const result = await Effect.runPromise(program);
+
+    // Service now handles unknown tokens gracefully (returns placeholder + fetches price)
+    expect(result.toString()).toBe('150'); // 100 * 1.5
   });
 
   it('should fail with ApiError when API call fails', async () => {
