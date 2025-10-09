@@ -73,7 +73,7 @@ export const RadixRewardsIntro = ({ seasonId }: RadixRewardsIntroProps) => {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(175deg, #8b1569 0%, rgba(0, 0, 0, 0.5) 50%)',
+                'linear-gradient(175deg, rgba(255, 67, 202, 0.7) 0%, rgba(0, 0, 0, 0.5) 50%)',
             }}
           />
           <StarBackground variant="left" opacity={0.5} />
@@ -87,7 +87,7 @@ export const RadixRewardsIntro = ({ seasonId }: RadixRewardsIntroProps) => {
               </h1>
               <p
                 className="text-base leading-relaxed md:text-lg"
-                style={{ color: '#f7c2e8' }}
+                style={{ color: '#ffe6f7' }}
               >
                 Unleash the 1B XRD Radix Rewards Campaign—Earn Big, Grow
                 Together.
@@ -139,7 +139,8 @@ export const RadixRewardsIntro = ({ seasonId }: RadixRewardsIntroProps) => {
           <div
             className="absolute inset-0"
             style={{
-              background: 'linear-gradient(180deg, #5c1142 0%, #1a0414 100%)',
+              background:
+                'linear-gradient(180deg, #D636A1 0%, rgba(0, 0, 0, 0.8) 100%)',
             }}
           />
           <StarBackground variant="center" opacity={0.7} />
@@ -147,13 +148,13 @@ export const RadixRewardsIntro = ({ seasonId }: RadixRewardsIntroProps) => {
             <div className="text-center">
               <h2
                 className="mb-6 font-bold text-3xl"
-                style={{ color: '#f7c2e8' }}
+                style={{ color: 'white' }}
               >
                 Season 1
               </h2>
               <div className="my-auto">
                 <div
-                  className="font-black text-[#80ccff] text-[5.1rem]"
+                  className="font-black text-[#20E4FF] text-[5.1rem]"
                   style={{
                     WebkitTextStroke: '0.5px white',
                     textShadow: '0 8px 16px rgba(0, 0, 0, 0.6)',

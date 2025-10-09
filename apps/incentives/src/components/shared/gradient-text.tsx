@@ -12,7 +12,7 @@ export const GradientText = ({
   withDropShadow = false,
 }: GradientTextProps) => {
   const baseStyle = {
-    background: 'linear-gradient(90deg, #ffddf3 0%, #e134b0 100%)',
+    background: 'linear-gradient(90deg, #ffe6f7 0%, #FF43CA 100%)',
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
     backgroundClip: 'text',
