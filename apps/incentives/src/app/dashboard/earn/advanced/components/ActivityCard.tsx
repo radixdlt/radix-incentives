@@ -9,6 +9,7 @@ import {
   TrendingUp,
   Wallet,
 } from 'lucide-react';
+import Image from 'next/image';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import {
@@ -19,7 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from '~/components/ui/card';
-import { cn } from '~/lib/utils';
+import { cn, getTokenLogo } from '~/lib/utils';
 import type { RouterOutputs } from '~/trpc/react';
 
 export const ActivityCard = ({
@@ -33,6 +34,14 @@ export const ActivityCard = ({
 }) => {
   const dapp = dappMap[activity.dapp];
   const activityCategory = activityCategoryMap[activity.category];
+
+  // Type guard for assets array
+  const assets = Array.isArray(activity.metadata?.assets)
+    ? (activity.metadata.assets as Array<{
+        name: string;
+        resourceAddress: string;
+      }>)
+    : null;
   const getCategoryIcon = (category: string) => {
     switch (category) {
       case 'lendingStables':
@@ -97,10 +106,32 @@ export const ActivityCard = ({
             >
               {getCategoryIcon(activity.category)}
             </div>
-            <div>
+            <div className="flex flex-col gap-1.5">
               <CardTitle className="text-lg">
                 {activity.name || activity.id}
               </CardTitle>
+              {assets && assets.length > 0 && (
+                <div className="flex gap-1.5">
+                  {assets.slice(0, 2).map((token: any) => (
+                    <div
+                      key={token.resourceAddress}
+                      className="relative h-5 w-5 overflow-hidden rounded-full border bg-white"
+                      title={token.name.toUpperCase()}
+                    >
+                      <Image
+                        src={getTokenLogo(token.name)}
+                        alt={`${token.name} logo`}
+                        fill
+                        className="object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/token-logos/placeholder-logo.png';
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
           {dapp && (

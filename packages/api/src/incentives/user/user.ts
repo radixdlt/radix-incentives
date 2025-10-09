@@ -36,6 +36,8 @@ type AnonymousUserData = {
       name: string;
       website: string;
     } | null;
+    tokens: Array<{ name: string; resourceAddress: string }> | null;
+    metadataUrl: string | null;
   }[];
 }[];
 
@@ -252,12 +254,19 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       activeActivityIds: string[];
       activityNamesMap: Map<string, string | null | undefined>;
     }) {
-      // Get categories with activities, and all dapps for activities
-      const [categoriesWithActiveActivities, dappMap] = yield* Effect.all([
+      // Get categories with activities, all dapps for activities, token metadata, and metadata URLs
+      const [
+        categoriesWithActiveActivities,
+        dappMap,
+        tokensMap,
+        metadataUrlMap,
+      ] = yield* Effect.all([
         activityService.getCategoriesWithActiveActivities(
           input.activeActivityIds,
         ),
         activityService.getDappForActivities(input.activeActivityIds),
+        activityService.getTokensForActivities(input.activeActivityIds),
+        activityService.getMetadataUrlForActivities(input.activeActivityIds),
       ]);
 
       const result: AnonymousUserData = [];
@@ -270,6 +279,8 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
         for (const activityId of input.activeActivityIds) {
           if (activityToCategoryMap.get(activityId) === categoryId) {
             const dapp = dappMap.get(activityId);
+            const tokens = tokensMap.get(activityId);
+            const metadataUrl = metadataUrlMap.get(activityId);
 
             activities.push({
               activityId,
@@ -284,6 +295,8 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
                     website: dapp.website,
                   }
                 : null,
+              tokens: tokens || null,
+              metadataUrl: metadataUrl || null,
             });
           }
         }
@@ -384,10 +397,17 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       const hoursInWeek = 7 * 24;
       const result = [];
 
-      // Get all categories that have active activities and batch load dapps
-      const [categoriesWithActiveActivities, dappMap] = yield* Effect.all([
+      // Get all categories that have active activities, batch load dapps, token metadata, and metadata URLs
+      const [
+        categoriesWithActiveActivities,
+        dappMap,
+        tokensMap,
+        metadataUrlMap,
+      ] = yield* Effect.all([
         activityService.getCategoriesWithActiveActivities(activeActivityIds),
         activityService.getDappForActivities(activeActivityIds),
+        activityService.getTokensForActivities(activeActivityIds),
+        activityService.getMetadataUrlForActivities(activeActivityIds),
       ]);
 
       // Process each category that has active activities
@@ -416,6 +436,8 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
                 : activityCapital.dividedBy(hoursInWeek);
 
             const dapp = dappMap.get(activityId);
+            const tokens = tokensMap.get(activityId);
+            const metadataUrl = metadataUrlMap.get(activityId);
             activities.push({
               activityId,
               activityName: activityNamesMap.get(activityId),
@@ -429,6 +451,8 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
                     website: dapp.website,
                   }
                 : null,
+              tokens: tokens || null,
+              metadataUrl: metadataUrl || null,
             });
           }
         }

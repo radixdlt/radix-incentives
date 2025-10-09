@@ -141,6 +141,49 @@ export class ActivityService extends Effect.Service<ActivityService>()(
 
           return categoriesWithActiveActivities;
         }),
+        getTokensForActivities: Effect.fn(function* (activityIds: string[]) {
+          const result = new Map<
+            string,
+            Array<{ name: string; resourceAddress: string }> | null
+          >();
+
+          for (const activityId of activityIds) {
+            const activity = activityDataMap[activityId as ActivityId];
+
+            if (!activity || !activity.assets || activity.assets.length === 0) {
+              result.set(activityId, null);
+              continue;
+            }
+
+            // Map assets to simplified token info
+            const tokens = activity.assets.map((asset) => ({
+              name: asset.name,
+              resourceAddress: asset.resourceAddress,
+            }));
+
+            result.set(activityId, tokens);
+          }
+
+          return result;
+        }),
+        getMetadataUrlForActivities: Effect.fn(function* (
+          activityIds: string[],
+        ) {
+          const result = new Map<string, string | null>();
+
+          for (const activityId of activityIds) {
+            const activity = activityDataMap[activityId as ActivityId];
+
+            if (!activity || !activity.metadata) {
+              result.set(activityId, null);
+              continue;
+            }
+
+            result.set(activityId, activity.metadata.url || null);
+          }
+
+          return result;
+        }),
       };
     }),
   },
