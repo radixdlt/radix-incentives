@@ -16,12 +16,13 @@ interface GradientButtonProps {
 
 const variants = {
   primary: {
-    gradient: 'from-[#e134b0] to-[#4da6e6]',
+    gradient: 'from-[#FF43CA] to-[#21FFBE]',
     color: 'white',
   },
   secondary: {
-    gradient: 'from-[#5c0f46] to-[#8b1569]',
-    color: '#f7c2e8',
+    background: '#FF43CA',
+    border: '#FF43CA',
+    color: 'white',
   },
 };
 
@@ -35,12 +36,22 @@ export const GradientButton = ({
   icon: Icon,
   external = false,
 }: GradientButtonProps) => {
-  const baseClasses = `group cursor-pointer rounded-full bg-gradient-to-r ${variants[variant].gradient} px-3 py-1.5 font-medium text-sm transition-all duration-300 ease-out hover:scale-105 md:px-4 md:py-2 md:text-base inline-flex items-center gap-2`;
+  const isPrimary = variant === 'primary';
+  const baseClasses = isPrimary
+    ? `group cursor-pointer rounded-full bg-gradient-to-r ${variants[variant].gradient} px-3 py-1.5 font-medium text-sm transition-all duration-300 ease-out hover:scale-105 md:px-4 md:py-2 md:text-base inline-flex items-center gap-2`
+    : `group cursor-pointer rounded-full backdrop-blur-sm px-3 py-1.5 font-medium text-sm transition-all duration-300 ease-out hover:scale-105 md:px-4 md:py-2 md:text-base inline-flex items-center gap-2`;
 
-  const style = {
-    color: variants[variant].color,
-    textShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
-  };
+  const style = isPrimary
+    ? {
+        color: variants[variant].color,
+        textShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
+      }
+    : {
+        background: variants.secondary.background,
+        border: `1px solid ${variants.secondary.border}`,
+        color: variants.secondary.color,
+        textShadow: '0 2px 4px rgba(0, 0, 0, 0.4)',
+      };
 
   const content = (
     <>

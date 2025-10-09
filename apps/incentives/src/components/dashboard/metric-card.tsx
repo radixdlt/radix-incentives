@@ -47,7 +47,7 @@ export const MetricCard = ({
         </div>
 
         <div className="flex items-end gap-3">
-          <span className="gradient-text font-bold text-4xl text-white tracking-tight">
+          <span className="gradient-text font-bold text-4xl tracking-tight">
             {value}
           </span>
           {trend && (
