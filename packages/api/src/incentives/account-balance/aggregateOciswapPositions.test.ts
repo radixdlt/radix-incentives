@@ -386,6 +386,18 @@ describe('AggregateOciswapPositionsService', () => {
             usdValue: '0',
           },
           {
+            activityId: 'oc_lp_blu_hsol-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_lp_der_hsol-xrd',
+            usdValue: '0',
+          },
+          {
+            activityId: 'oc_ho_hsol-xrd',
+            usdValue: '0',
+          },
+          {
             activityId: 'oc_lp_nat_early-xrd',
             usdValue:
               '0.384684985790892910092365242640142360006280802559668100664',
