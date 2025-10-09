@@ -506,6 +506,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.lendingStables,
         id: 'sta_fusd',
+        tokenPair: 'fusd',
         component: FluxConstants.cdpManager.componentAddress,
         action: Action.LEND,
         asset: {
@@ -517,6 +518,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.maintainXrdBalance,
         id: 'xrd',
+        tokenPair: 'xrd',
         component: FluxConstants.cdpManager.componentAddress,
         action: Action.HOLD,
         asset: {
@@ -528,6 +530,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.maintainXrdBalance,
         id: 'lsulp',
+        tokenPair: 'lsulp',
         component: FluxConstants.cdpManager.componentAddress,
         action: Action.HOLD,
         asset: {
@@ -539,6 +542,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.maintainXrdBalance,
         id: 'xrdfusd',
+        tokenPair: 'xrdfusd',
         component: FluxConstants.reservoirs.xrd.componentAddress,
         action: Action.HOLD,
         asset: {
@@ -550,6 +554,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.maintainXrdBalance,
         id: 'lsulpfusd',
+        tokenPair: 'lsulpfusd',
         component: FluxConstants.reservoirs.lsulp.componentAddress,
         action: Action.HOLD,
         asset: {
@@ -561,6 +566,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.provideStablesLiquidityToDex,
         id: 'sta_xrdfusd',
+        tokenPair: 'xrdfusd',
         component: FluxConstants.reservoirs.xrd.componentAddress,
         action: Action.LP,
         asset: {
@@ -572,6 +578,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.provideStablesLiquidityToDex,
         id: 'sta_lsulpfusd',
+        tokenPair: 'lsulpfusd',
         component: FluxConstants.reservoirs.lsulp.componentAddress,
         action: Action.LP,
         asset: {
@@ -583,6 +590,7 @@ const runnable = Effect.gen(function* () {
       {
         category: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
         id: 'der_lsulpfusd',
+        tokenPair: 'lsulpfusd',
         component: FluxConstants.reservoirs.lsulp.componentAddress,
         action: Action.LP,
         asset: {
@@ -592,8 +600,9 @@ const runnable = Effect.gen(function* () {
         },
       },
       {
-        category: ActivityCategoryId.provideNativeLiquidityToDex,
+        category: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
         id: 'der_xrdfusd',
+        tokenPair: 'xrdfusd',
         component: FluxConstants.reservoirs.xrd.componentAddress,
         action: Action.LP,
         asset: {
@@ -607,7 +616,7 @@ const runnable = Effect.gen(function* () {
       activityId: `${DappId.flux}_${spec.action}_${spec.id}`,
       componentAddress: spec.component,
       dAppId: DappId.flux,
-      tokenPair: spec.id,
+      tokenPair: spec.tokenPair,
       action: spec.action,
       assets: [
         {

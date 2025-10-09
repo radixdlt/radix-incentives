@@ -5685,7 +5685,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       categoryId: 'lendingStables',
       activityId: 'fl_le_sta_fusd',
       dAppId: 'fl',
-      tokenPair: 'sta_fusd',
+      tokenPair: 'fusd',
       action: 'le',
       assets: [
         {
@@ -5775,7 +5775,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       categoryId: 'provideStablesLiquidityToDex',
       activityId: 'fl_lp_sta_xrdfusd',
       dAppId: 'fl',
-      tokenPair: 'sta_xrdfusd',
+      tokenPair: 'xrdfusd',
       action: 'lp',
       assets: [
         {
@@ -5793,7 +5793,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       categoryId: 'provideStablesLiquidityToDex',
       activityId: 'fl_lp_sta_lsulpfusd',
       dAppId: 'fl',
-      tokenPair: 'sta_lsulpfusd',
+      tokenPair: 'lsulpfusd',
       action: 'lp',
       assets: [
         {
@@ -5811,7 +5811,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       categoryId: 'provideXrdDerivativeLiquidityToDex',
       activityId: 'fl_lp_der_lsulpfusd',
       dAppId: 'fl',
-      tokenPair: 'der_lsulpfusd',
+      tokenPair: 'lsulpfusd',
       action: 'lp',
       assets: [
         {
@@ -5826,10 +5826,10 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
-      categoryId: 'provideNativeLiquidityToDex',
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
       activityId: 'fl_lp_der_xrdfusd',
       dAppId: 'fl',
-      tokenPair: 'der_xrdfusd',
+      tokenPair: 'xrdfusd',
       action: 'lp',
       assets: [
         {
@@ -10868,7 +10868,7 @@ export const activityData: ActivityData[] = [
     categoryId: 'lendingStables',
     activityId: 'fl_le_sta_fusd',
     dAppId: 'fl',
-    tokenPair: 'sta_fusd',
+    tokenPair: 'fusd',
     action: 'le',
     assets: [
       {
@@ -10958,7 +10958,7 @@ export const activityData: ActivityData[] = [
     categoryId: 'provideStablesLiquidityToDex',
     activityId: 'fl_lp_sta_xrdfusd',
     dAppId: 'fl',
-    tokenPair: 'sta_xrdfusd',
+    tokenPair: 'xrdfusd',
     action: 'lp',
     assets: [
       {
@@ -10976,7 +10976,7 @@ export const activityData: ActivityData[] = [
     categoryId: 'provideStablesLiquidityToDex',
     activityId: 'fl_lp_sta_lsulpfusd',
     dAppId: 'fl',
-    tokenPair: 'sta_lsulpfusd',
+    tokenPair: 'lsulpfusd',
     action: 'lp',
     assets: [
       {
@@ -10994,7 +10994,7 @@ export const activityData: ActivityData[] = [
     categoryId: 'provideXrdDerivativeLiquidityToDex',
     activityId: 'fl_lp_der_lsulpfusd',
     dAppId: 'fl',
-    tokenPair: 'der_lsulpfusd',
+    tokenPair: 'lsulpfusd',
     action: 'lp',
     assets: [
       {
@@ -11009,10 +11009,10 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
-    categoryId: 'provideNativeLiquidityToDex',
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
     activityId: 'fl_lp_der_xrdfusd',
     dAppId: 'fl',
-    tokenPair: 'der_xrdfusd',
+    tokenPair: 'xrdfusd',
     action: 'lp',
     assets: [
       {
@@ -16049,7 +16049,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     categoryId: 'lendingStables',
     activityId: 'fl_le_sta_fusd',
     dAppId: 'fl',
-    tokenPair: 'sta_fusd',
+    tokenPair: 'fusd',
     action: 'le',
     assets: [
       {
@@ -16139,7 +16139,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     categoryId: 'provideStablesLiquidityToDex',
     activityId: 'fl_lp_sta_xrdfusd',
     dAppId: 'fl',
-    tokenPair: 'sta_xrdfusd',
+    tokenPair: 'xrdfusd',
     action: 'lp',
     assets: [
       {
@@ -16157,7 +16157,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     categoryId: 'provideStablesLiquidityToDex',
     activityId: 'fl_lp_sta_lsulpfusd',
     dAppId: 'fl',
-    tokenPair: 'sta_lsulpfusd',
+    tokenPair: 'lsulpfusd',
     action: 'lp',
     assets: [
       {
@@ -16175,7 +16175,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     categoryId: 'provideXrdDerivativeLiquidityToDex',
     activityId: 'fl_lp_der_lsulpfusd',
     dAppId: 'fl',
-    tokenPair: 'der_lsulpfusd',
+    tokenPair: 'lsulpfusd',
     action: 'lp',
     assets: [
       {
@@ -16190,10 +16190,10 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     ],
   },
   fl_lp_der_xrdfusd: {
-    categoryId: 'provideNativeLiquidityToDex',
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
     activityId: 'fl_lp_der_xrdfusd',
     dAppId: 'fl',
-    tokenPair: 'der_xrdfusd',
+    tokenPair: 'xrdfusd',
     action: 'lp',
     assets: [
       {
@@ -24001,7 +24001,7 @@ export const componentAddressActivityDataMap: Record<
       categoryId: 'lendingStables',
       activityId: 'fl_le_sta_fusd',
       dAppId: 'fl',
-      tokenPair: 'sta_fusd',
+      tokenPair: 'fusd',
       action: 'le',
       assets: [
         {
@@ -24063,7 +24063,7 @@ export const componentAddressActivityDataMap: Record<
       categoryId: 'provideStablesLiquidityToDex',
       activityId: 'fl_lp_sta_xrdfusd',
       dAppId: 'fl',
-      tokenPair: 'sta_xrdfusd',
+      tokenPair: 'xrdfusd',
       action: 'lp',
       assets: [
         {
@@ -24075,10 +24075,10 @@ export const componentAddressActivityDataMap: Record<
       ],
     },
     {
-      categoryId: 'provideNativeLiquidityToDex',
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
       activityId: 'fl_lp_der_xrdfusd',
       dAppId: 'fl',
-      tokenPair: 'der_xrdfusd',
+      tokenPair: 'xrdfusd',
       action: 'lp',
       assets: [
         {
@@ -24110,7 +24110,7 @@ export const componentAddressActivityDataMap: Record<
       categoryId: 'provideStablesLiquidityToDex',
       activityId: 'fl_lp_sta_lsulpfusd',
       dAppId: 'fl',
-      tokenPair: 'sta_lsulpfusd',
+      tokenPair: 'lsulpfusd',
       action: 'lp',
       assets: [
         {
@@ -24125,7 +24125,7 @@ export const componentAddressActivityDataMap: Record<
       categoryId: 'provideXrdDerivativeLiquidityToDex',
       activityId: 'fl_lp_der_lsulpfusd',
       dAppId: 'fl',
-      tokenPair: 'der_lsulpfusd',
+      tokenPair: 'lsulpfusd',
       action: 'lp',
       assets: [
         {
