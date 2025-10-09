@@ -126,6 +126,17 @@ export const OciswapConstants = {
       divisibility_x: 18,
       divisibility_y: 18,
     },
+    hSOL_XRD: {
+      name: 'hSOL/XRD',
+      componentAddress:
+        'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      lpResourceAddress:
+        'resource_rdx1ntrddec3kz4njfsx7ty7jw9hhsrtm9td9kzrgv5kc0h2c54m4umkws',
+      token_x: Assets.Fungible.hSOL,
+      token_y: Assets.Fungible.XRD,
+      divisibility_x: 9,
+      divisibility_y: 18,
+    },
     EARLY_XRD: {
       name: 'EARLY/XRD',
       componentAddress:
