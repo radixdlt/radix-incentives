@@ -9,6 +9,7 @@ export const ActivityId = {
   'c9_ho_early-xrd': 'c9_ho_early-xrd',
   'c9_ho_floop-xrd': 'c9_ho_floop-xrd',
   'c9_ho_heth-xrd': 'c9_ho_heth-xrd',
+  'c9_ho_hsol-xrd': 'c9_ho_hsol-xrd',
   'c9_ho_husdc-xrd': 'c9_ho_husdc-xrd',
   'c9_ho_husdt-xrd': 'c9_ho_husdt-xrd',
   'c9_ho_hwbtc-xrd': 'c9_ho_hwbtc-xrd',
@@ -23,6 +24,9 @@ export const ActivityId = {
   'c9_lp_blu_heth-hwbtc': 'c9_lp_blu_heth-hwbtc',
   'c9_lp_blu_heth-xeth': 'c9_lp_blu_heth-xeth',
   'c9_lp_blu_heth-xrd': 'c9_lp_blu_heth-xrd',
+  'c9_lp_blu_hsol-husdc': 'c9_lp_blu_hsol-husdc',
+  'c9_lp_blu_hsol-hwbtc': 'c9_lp_blu_hsol-hwbtc',
+  'c9_lp_blu_hsol-xrd': 'c9_lp_blu_hsol-xrd',
   'c9_lp_blu_husdc-hwbtc': 'c9_lp_blu_husdc-hwbtc',
   'c9_lp_blu_husdt-hwbtc': 'c9_lp_blu_husdt-hwbtc',
   'c9_lp_blu_hwbtc-xrd': 'c9_lp_blu_hwbtc-xrd',
@@ -33,6 +37,7 @@ export const ActivityId = {
   'c9_lp_der_early-xrd': 'c9_lp_der_early-xrd',
   'c9_lp_der_floop-xrd': 'c9_lp_der_floop-xrd',
   'c9_lp_der_heth-xrd': 'c9_lp_der_heth-xrd',
+  'c9_lp_der_hsol-xrd': 'c9_lp_der_hsol-xrd',
   'c9_lp_der_husdc-xrd': 'c9_lp_der_husdc-xrd',
   'c9_lp_der_husdt-xrd': 'c9_lp_der_husdt-xrd',
   'c9_lp_der_hwbtc-xrd': 'c9_lp_der_hwbtc-xrd',
@@ -48,6 +53,7 @@ export const ActivityId = {
   'c9_lp_nat_lsulp-reddicks': 'c9_lp_nat_lsulp-reddicks',
   'c9_lp_sta_heth-husdc': 'c9_lp_sta_heth-husdc',
   'c9_lp_sta_heth-husdt': 'c9_lp_sta_heth-husdt',
+  'c9_lp_sta_hsol-husdc': 'c9_lp_sta_hsol-husdc',
   'c9_lp_sta_husdc-husdt': 'c9_lp_sta_husdc-husdt',
   'c9_lp_sta_husdc-hwbtc': 'c9_lp_sta_husdc-hwbtc',
   'c9_lp_sta_husdc-xrd': 'c9_lp_sta_husdc-xrd',
@@ -64,6 +70,9 @@ export const ActivityId = {
   'c9_tr_heth-hwbtc': 'c9_tr_heth-hwbtc',
   'c9_tr_heth-xeth': 'c9_tr_heth-xeth',
   'c9_tr_heth-xrd': 'c9_tr_heth-xrd',
+  'c9_tr_hsol-husdc': 'c9_tr_hsol-husdc',
+  'c9_tr_hsol-hwbtc': 'c9_tr_hsol-hwbtc',
+  'c9_tr_hsol-xrd': 'c9_tr_hsol-xrd',
   'c9_tr_husdc-husdt': 'c9_tr_husdc-husdt',
   'c9_tr_husdc-hwbtc': 'c9_tr_husdc-hwbtc',
   'c9_tr_husdc-xrd': 'c9_tr_husdc-xrd',
@@ -82,6 +91,7 @@ export const ActivityId = {
   componentCalls: 'componentCalls',
   'dp_ho_dfp2-xrd': 'dp_ho_dfp2-xrd',
   'dp_ho_heth-xrd': 'dp_ho_heth-xrd',
+  'dp_ho_hsol-xrd': 'dp_ho_hsol-xrd',
   'dp_ho_husdc-xrd': 'dp_ho_husdc-xrd',
   'dp_ho_husdt-xrd': 'dp_ho_husdt-xrd',
   'dp_ho_hwbtc-xrd': 'dp_ho_hwbtc-xrd',
@@ -90,11 +100,13 @@ export const ActivityId = {
   'dp_ho_xrd-xusdt': 'dp_ho_xrd-xusdt',
   'dp_ho_xrd-xwbtc': 'dp_ho_xrd-xwbtc',
   'dp_lp_blu_heth-xrd': 'dp_lp_blu_heth-xrd',
+  'dp_lp_blu_hsol-xrd': 'dp_lp_blu_hsol-xrd',
   'dp_lp_blu_hwbtc-xrd': 'dp_lp_blu_hwbtc-xrd',
   'dp_lp_blu_xeth-xrd': 'dp_lp_blu_xeth-xrd',
   'dp_lp_blu_xrd-xwbtc': 'dp_lp_blu_xrd-xwbtc',
   'dp_lp_der_dfp2-xrd': 'dp_lp_der_dfp2-xrd',
   'dp_lp_der_heth-xrd': 'dp_lp_der_heth-xrd',
+  'dp_lp_der_hsol-xrd': 'dp_lp_der_hsol-xrd',
   'dp_lp_der_husdc-xrd': 'dp_lp_der_husdc-xrd',
   'dp_lp_der_husdt-xrd': 'dp_lp_der_husdt-xrd',
   'dp_lp_der_hwbtc-xrd': 'dp_lp_der_hwbtc-xrd',
@@ -123,6 +135,7 @@ export const ActivityId = {
   'dp_tr_dfp2-weft': 'dp_tr_dfp2-weft',
   'dp_tr_dfp2-xrd': 'dp_tr_dfp2-xrd',
   'dp_tr_heth-xrd': 'dp_tr_heth-xrd',
+  'dp_tr_hsol-xrd': 'dp_tr_hsol-xrd',
   'dp_tr_husdc-xrd': 'dp_tr_husdc-xrd',
   'dp_tr_husdt-xrd': 'dp_tr_husdt-xrd',
   'dp_tr_hwbtc-xrd': 'dp_tr_hwbtc-xrd',
@@ -136,6 +149,7 @@ export const ActivityId = {
   ho_xrd: 'ho_xrd',
   'oc_ho_early-xrd': 'oc_ho_early-xrd',
   'oc_ho_heth-xrd': 'oc_ho_heth-xrd',
+  'oc_ho_hsol-xrd': 'oc_ho_hsol-xrd',
   'oc_ho_husdc-xrd': 'oc_ho_husdc-xrd',
   'oc_ho_husdt-xrd': 'oc_ho_husdt-xrd',
   'oc_ho_hwbtc-xrd': 'oc_ho_hwbtc-xrd',
@@ -148,11 +162,13 @@ export const ActivityId = {
   'oc_ho_xrd-xusdt': 'oc_ho_xrd-xusdt',
   'oc_ho_xrd-xwbtc': 'oc_ho_xrd-xwbtc',
   'oc_lp_blu_heth-xrd': 'oc_lp_blu_heth-xrd',
+  'oc_lp_blu_hsol-xrd': 'oc_lp_blu_hsol-xrd',
   'oc_lp_blu_hwbtc-xrd': 'oc_lp_blu_hwbtc-xrd',
   'oc_lp_blu_xeth-xrd': 'oc_lp_blu_xeth-xrd',
   'oc_lp_blu_xrd-xwbtc': 'oc_lp_blu_xrd-xwbtc',
   'oc_lp_der_early-xrd': 'oc_lp_der_early-xrd',
   'oc_lp_der_heth-xrd': 'oc_lp_der_heth-xrd',
+  'oc_lp_der_hsol-xrd': 'oc_lp_der_hsol-xrd',
   'oc_lp_der_husdc-xrd': 'oc_lp_der_husdc-xrd',
   'oc_lp_der_husdt-xrd': 'oc_lp_der_husdt-xrd',
   'oc_lp_der_hwbtc-xrd': 'oc_lp_der_hwbtc-xrd',
@@ -175,6 +191,7 @@ export const ActivityId = {
   'oc_lp_sta_xrd-xusdt': 'oc_lp_sta_xrd-xusdt',
   'oc_tr_early-xrd': 'oc_tr_early-xrd',
   'oc_tr_heth-xrd': 'oc_tr_heth-xrd',
+  'oc_tr_hsol-xrd': 'oc_tr_hsol-xrd',
   'oc_tr_husdc-xrd': 'oc_tr_husdc-xrd',
   'oc_tr_husdt-xrd': 'oc_tr_husdt-xrd',
   'oc_tr_hwbtc-xrd': 'oc_tr_hwbtc-xrd',
@@ -237,6 +254,7 @@ export const matchActivityId = (input: string) =>
 
 const componentAddresses = [
   'component_rdx1cp02473rjv7gxxwxa3xu9wn32um5h9t6wjm0azn6eqag639fc0ts9h',
+  'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
   'component_rdx1cp9w8443uyz2jtlaxnkcq84q5a5ndqpg05wgckzrnd3lgggpa080ed',
   'component_rdx1cpat0a7p2ufty0lrawwtxfr3xm2qf5ys2xe6mlux4s074utzkz0w0y',
   'component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c',
@@ -256,10 +274,12 @@ const componentAddresses = [
   'component_rdx1cq0m4e6gjyekk87lxugtgw6a5cnm7fa60vqn6rpe02hjhfh7tus2x6',
   'component_rdx1cq77k5vwv90fp6fllkp650zhs92vvy6pvcdvm3cwvnha2zz62rg7l9',
   'component_rdx1cq7wwa9p4fpnksd5sw7lav7ayu5xt9e8l0nges6lwnnxyhcrxsc4ff',
+  'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
   'component_rdx1cq8nefdv75yqkgwqe9rhj436yr3z09du7g797y90prmwf9ugv0m8u2',
   'component_rdx1cqaknlm9rfjxvzwhp7mzsjzustqpuqn6yhsmh8fn3zyr8sm5p3j7ny',
   'component_rdx1cqelumvmmgwths34k9pp0htd2ykwq7d70m0r389etwh39ul3j5tyj5',
   'component_rdx1cqly8sxtv7xfe8td9uxvyhw585szj2a5p220dn28ru5d2phcwdcgg5',
+  'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
   'component_rdx1cqr24rye05h28qnn5crjwlq0djvfcmaegg8sgdkwywfx6s97nk9fcy',
   'component_rdx1cqs338cyje65rk44zgmjvvy42qcszrhk9ewznedtkqd8l3crtgnmh5',
   'component_rdx1cqs6t5t70fcgrva6ws6gs84u29w3kecn6j0zkjg0u0x9szx0xnusxj',
@@ -268,17 +288,20 @@ const componentAddresses = [
   'component_rdx1cqvxkaazmpnvg3f9ufc5n2msv6x7ztjdusdm06lhtf5n7wr8guggg5',
   'component_rdx1cqy8gd5wk8cq7c4g4gpa2lgulk7tcqj673fgz90cu7fa6x2f9gshaz',
   'component_rdx1cr0nw5ppvryyqcv6thkslcltkw5cm3c2lvm2yr8jhh9rqe76stmars',
+  'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
   'component_rdx1cr4lw3pfgeel7fex4ur53k7k63s5wu3q28mtr5mpp3hddug55pfwy3',
   'component_rdx1cr4w4kezazrxwzy2yyndep2nc55j4plhpg8d4z57cd4u75rpqwfeg2',
   'component_rdx1cr6lxkr83gzhmyg4uxg49wkug5s4wwc3c7cgmhxuczxraa09a97wcu',
   'component_rdx1cr7xqqyn2anx5l85curcqy8z3rv9aprqf0axh9dkmsdfk9zfffer8m',
   'component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd',
   'component_rdx1crahf8qdh8fgm8mvzmq5w832h97q5099svufnqn26ue44fyezn7gnm',
+  'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
   'component_rdx1crd7xk0nu07kj60artzz6evws7r6w69lwarf0nqmkxuwwluy5xjud0',
   'component_rdx1crdhl7gel57erzgpdz3l3vr64scslq4z7vd0xgna6vh5fq5fnn9xas',
   'component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g',
   'component_rdx1crhrzxe6x35hwx3wmnnw0g8qs84p2hle6ud7n2q4ffzp0udluqm8hj',
   'component_rdx1crjdsyydayu8wuk6zayxlp26fxlsqghvn4cfr0vy5cqqv84qw9fzsx',
+  'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
   'component_rdx1crm530ath85gcwm4gvwq8m70ay07df085kmupp6gte3ew94vg5pdcp',
   'component_rdx1crm92dlh8clzlgvr3dy06ud3l0ye0p5lvmga7cfq0shjp4l05cjrzf',
   'component_rdx1crmvyl8nghu4g9ssxjq3yns793mqpn7nkc2cx5rmd2rzkaw0x755cu',
@@ -356,6 +379,12 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'c9_tr_hwbtc-xwbtc',
   component_rdx1crnu90a65rkdswza2sfk734yu29zh0x27ur0wqwntdfe8gm9s42yfr:
     'c9_tr_husdc-xusdc',
+  component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp:
+    'c9_tr_hsol-xrd',
+  component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96:
+    'c9_tr_hsol-husdc',
+  component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d:
+    'c9_tr_hsol-hwbtc',
   component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n:
     'c9_tr_lsulp-reddicks',
   component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c:
@@ -372,6 +401,8 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'c9_tr_heth-husdc',
   component_rdx1czs3nlt4vx8rq0qytvxtsxmjvppd29n72quelmvww4kx25ryz5jk0q:
     'c9_tr_husdc-hwbtc',
+  component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0:
+    'c9_tr_hsol-hwbtc',
   component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf:
     'c9_tr_lsulp-xrd',
   component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
@@ -398,6 +429,8 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'oc_tr_hwbtc-xrd',
   component_rdx1crumqsy0nu4pl3fwah3nkf8eg8qhltxenk83wh9tzlmr5jnsqs3x4c:
     'oc_tr_heth-xrd',
+  component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj:
+    'oc_tr_hsol-xrd',
   component_rdx1cqvn2u9wkgm9k6ksmz2qreau6gr3l0jdn6cwjqunnz2fluex0cgrrl:
     'oc_tr_early-xrd',
   component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p:
@@ -440,6 +473,8 @@ const componentAddressTradingActivityIdMap: Record<string, ActivityId> = {
     'dp_tr_hwbtc-xrd',
   component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh:
     'dp_tr_husdt-xrd',
+  component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu:
+    'dp_tr_hsol-xrd',
   component_rdx1cz5dduz6flgsmx7frc0854nk545s69nryvgq0y02r2mlm3tsryk6xx:
     'su_tr_hype-usd',
 };
@@ -494,6 +529,12 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'c9_lp_blu_hwbtc-xwbtc',
   component_rdx1crnu90a65rkdswza2sfk734yu29zh0x27ur0wqwntdfe8gm9s42yfr:
     'c9_lp_sta_husdc-xusdc',
+  component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp:
+    'c9_lp_der_hsol-xrd',
+  component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96:
+    'c9_lp_sta_hsol-husdc',
+  component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d:
+    'c9_lp_blu_hsol-hwbtc',
   component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n:
     'c9_lp_der_lsulp-reddicks',
   component_rdx1cpc6hjytxcvddl3e38u9amkn52ly3vzw6r0pxu54ge43l4ttw9ym7c:
@@ -510,6 +551,8 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'c9_lp_sta_heth-husdc',
   component_rdx1czs3nlt4vx8rq0qytvxtsxmjvppd29n72quelmvww4kx25ryz5jk0q:
     'c9_lp_sta_husdc-hwbtc',
+  component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0:
+    'c9_lp_blu_hsol-hwbtc',
   component_rdx1cpz0zcyyl2fvtc5wdvfjjl3w0mjcydm4fefymudladklf6rn5gdwtf:
     'c9_lp_der_lsulp-xrd',
   component_rdx1cr9tj8xd5cjs9mzkqdnamrzq0xgy4eylk75vhqqzka5uxsxatv4wxd:
@@ -536,6 +579,8 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'oc_lp_der_hwbtc-xrd',
   component_rdx1crumqsy0nu4pl3fwah3nkf8eg8qhltxenk83wh9tzlmr5jnsqs3x4c:
     'oc_lp_blu_heth-xrd',
+  component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj:
+    'oc_lp_der_hsol-xrd',
   component_rdx1cqvn2u9wkgm9k6ksmz2qreau6gr3l0jdn6cwjqunnz2fluex0cgrrl:
     'oc_lp_der_early-xrd',
   component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p:
@@ -578,6 +623,8 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'dp_lp_der_hwbtc-xrd',
   component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh:
     'dp_lp_der_husdt-xrd',
+  component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu:
+    'dp_lp_der_hsol-xrd',
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g:
     'su_lp_sta_susd',
 };
@@ -2167,6 +2214,221 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      },
+      componentAddresses: [
+        'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      },
+      componentAddresses: [
+        'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      },
+      componentAddresses: [
+        'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'c9_lp_sta_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      },
+      componentAddresses: [
+        'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      },
+      componentAddresses: [
+        'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+        'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      ],
+    },
+    {
       categoryId: 'provideNativeLiquidityToDex',
       activityId: 'c9_lp_nat_lsulp-reddicks',
       dAppId: 'c9',
@@ -3296,6 +3558,92 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       },
       componentAddresses: [
         'component_rdx1crumqsy0nu4pl3fwah3nkf8eg8qhltxenk83wh9tzlmr5jnsqs3x4c',
+      ],
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'oc_lp_blu_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'poolV2',
+        url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      },
+      componentAddresses: [
+        'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'poolV2',
+        url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      },
+      componentAddresses: [
+        'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
       ],
     },
     {
@@ -4501,6 +4849,90 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'ho',
       componentAddresses: [
         'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+      ],
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'dp_lp_blu_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+      ],
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+      componentAddresses: [
+        'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+      ],
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+      },
+      componentAddresses: [
+        'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+      componentAddresses: [
+        'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
       ],
     },
   ],
@@ -6815,6 +7247,221 @@ export const activityData: ActivityData[] = [
     ],
   },
   {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'c9_lp_blu_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+    },
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'c9_lp_der_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+    },
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'c9_ho_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'c9_lp_blu_hsol-husdc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-husdc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+    },
+    componentAddresses: [
+      'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_hsol-husdc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-husdc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'provideStablesLiquidityToDex',
+    activityId: 'c9_lp_sta_hsol-husdc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-husdc',
+    assets: [
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+    },
+    componentAddresses: [
+      'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'c9_lp_blu_hsol-hwbtc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-hwbtc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+    },
+    componentAddresses: [
+      'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_hsol-hwbtc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-hwbtc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  {
     categoryId: 'provideNativeLiquidityToDex',
     activityId: 'c9_lp_nat_lsulp-reddicks',
     dAppId: 'c9',
@@ -7942,6 +8589,92 @@ export const activityData: ActivityData[] = [
     },
     componentAddresses: [
       'component_rdx1crumqsy0nu4pl3fwah3nkf8eg8qhltxenk83wh9tzlmr5jnsqs3x4c',
+    ],
+  },
+  {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'oc_lp_blu_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'poolV2',
+      url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    },
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'oc_tr_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'oc_lp_der_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'poolV2',
+      url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    },
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'oc_ho_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
     ],
   },
   {
@@ -9145,6 +9878,90 @@ export const activityData: ActivityData[] = [
     action: 'ho',
     componentAddresses: [
       'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+    ],
+  },
+  {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'dp_lp_blu_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+    ],
+  },
+  {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+    ],
+  },
+  {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
     ],
   },
   {
@@ -11448,6 +12265,221 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
       'component_rdx1crnu90a65rkdswza2sfk734yu29zh0x27ur0wqwntdfe8gm9s42yfr',
     ],
   },
+  'c9_lp_blu_hsol-xrd': {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'c9_lp_blu_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+    },
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_tr_hsol-xrd': {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_lp_der_hsol-xrd': {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'c9_lp_der_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+    },
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_ho_hsol-xrd': {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'c9_ho_hsol-xrd',
+    dAppId: 'c9',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_lp_blu_hsol-husdc': {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'c9_lp_blu_hsol-husdc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-husdc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+    },
+    componentAddresses: [
+      'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_tr_hsol-husdc': {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_hsol-husdc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-husdc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_lp_sta_hsol-husdc': {
+    categoryId: 'provideStablesLiquidityToDex',
+    activityId: 'c9_lp_sta_hsol-husdc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-husdc',
+    assets: [
+      {
+        name: 'husdc',
+        resourceAddress:
+          'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+        assetType: 'sta',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+    },
+    componentAddresses: [
+      'component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_lp_blu_hsol-hwbtc': {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'c9_lp_blu_hsol-hwbtc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-hwbtc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'shapeLiquidity',
+      url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+    },
+    componentAddresses: [
+      'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
+  'c9_tr_hsol-hwbtc': {
+    categoryId: 'tradingVolume',
+    activityId: 'c9_tr_hsol-hwbtc',
+    dAppId: 'c9',
+    tokenPair: 'hsol-hwbtc',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'hwbtc',
+        resourceAddress:
+          'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+        assetType: 'blu',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      'component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+    ],
+  },
   'c9_lp_nat_lsulp-reddicks': {
     categoryId: 'provideNativeLiquidityToDex',
     activityId: 'c9_lp_nat_lsulp-reddicks',
@@ -12576,6 +13608,92 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     },
     componentAddresses: [
       'component_rdx1crumqsy0nu4pl3fwah3nkf8eg8qhltxenk83wh9tzlmr5jnsqs3x4c',
+    ],
+  },
+  'oc_lp_blu_hsol-xrd': {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'oc_lp_blu_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'poolV2',
+      url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    },
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    ],
+  },
+  'oc_tr_hsol-xrd': {
+    categoryId: 'tradingVolume',
+    activityId: 'oc_tr_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    ],
+  },
+  'oc_lp_der_hsol-xrd': {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'oc_lp_der_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      type: 'poolV2',
+      url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    },
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+    ],
+  },
+  'oc_ho_hsol-xrd': {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'oc_ho_hsol-xrd',
+    dAppId: 'oc',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
     ],
   },
   'oc_lp_nat_early-xrd': {
@@ -13779,6 +14897,90 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     action: 'ho',
     componentAddresses: [
       'component_rdx1crz9nv7mvp3lamx3kl4xq8lgwyalvn7rgmlzse2rfs4r9u5sdq0vzh',
+    ],
+  },
+  'dp_lp_blu_hsol-xrd': {
+    categoryId: 'provideBlueChipLiquidityToDex',
+    activityId: 'dp_lp_blu_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+    ],
+  },
+  'dp_tr_hsol-xrd': {
+    categoryId: 'tradingVolume',
+    activityId: 'dp_tr_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+        assetType: 'blu',
+      },
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'tr',
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+    ],
+  },
+  'dp_lp_der_hsol-xrd': {
+    categoryId: 'provideXrdDerivativeLiquidityToDex',
+    activityId: 'dp_lp_der_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'lp',
+    metadata: {
+      url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+    },
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
+    ],
+  },
+  'dp_ho_hsol-xrd': {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'dp_ho_hsol-xrd',
+    dAppId: 'dp',
+    tokenPair: 'hsol-xrd',
+    assets: [
+      {
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        assetType: 'der',
+      },
+    ],
+    action: 'ho',
+    componentAddresses: [
+      'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
     ],
   },
   su_lp_sta_susd: {
@@ -16620,6 +17822,279 @@ export const componentAddressActivityDataMap: Record<
       action: 'tr',
     },
   ],
+  component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cr3agr45z2z8eayp7zc5776ezskwxfr2p4hrrzxzfu20dug83w52cp',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'c9_lp_sta_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1cqnh89z2qmm03v0dl4attksnqgmkydzrpjar0l6j4ydynurpuarz96',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'tr',
+    },
+  ],
+  component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'shapeLiquidity',
+        url: 'https://www.caviarnine.com/earn/shape-liquidity/pool/component_rdx1crcam34j4jnnkysrvv20460p4dzadsfn3q8ue8zmc3fr8mczpzvg5d',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'tr',
+    },
+  ],
   component_rdx1cz7s2xn8ddpmgm3uw0ma4jhaxhxdwce253v9j5agvffhftny6rgh8n: [
     {
       categoryId: 'provideNativeLiquidityToDex',
@@ -17358,6 +18833,275 @@ export const componentAddressActivityDataMap: Record<
           resourceAddress:
             'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
           assetType: 'sta',
+        },
+      ],
+      action: 'tr',
+    },
+  ],
+  component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'c9_lp_der_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'c9_ho_hsol-xrd',
+      dAppId: 'c9',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideStablesLiquidityToDex',
+      activityId: 'c9_lp_sta_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-husdc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-husdc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'husdc',
+          resourceAddress:
+            'resource_rdx1thxj9m87sn5cc9ehgp9qxp6vzeqxtce90xm5cp33373tclyp4et4gv',
+          assetType: 'sta',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'c9_lp_blu_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'simplePool',
+        url: 'https://www.caviarnine.com/earn/simple-pool/component_rdx1cq8hn09hxyy8svhgd9l5kd2u5jsu3njjtcs3qvv5wlp67flq2n9yq0',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'c9_tr_hsol-hwbtc',
+      dAppId: 'c9',
+      tokenPair: 'hsol-hwbtc',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'hwbtc',
+          resourceAddress:
+            'resource_rdx1t58kkcqdz0mavfz98m98qh9m4jexyl9tacsvlhns6yxs4r6hrm5re5',
+          assetType: 'blu',
         },
       ],
       action: 'tr',
@@ -18649,6 +20393,103 @@ export const componentAddressActivityDataMap: Record<
         },
       ],
       action: 'tr',
+    },
+  ],
+  component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'oc_lp_blu_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'poolV2',
+        url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'oc_lp_der_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        type: 'poolV2',
+        url: 'https://ociswap.com/pools/component_rdx1crltpml9fdn42tv6sjpjyq799ztq2yvzqfsp0ak7jpprt42eldrrwj',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'oc_tr_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'oc_ho_hsol-xrd',
+      dAppId: 'oc',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
     },
   ],
   component_rdx1cqvn2u9wkgm9k6ksmz2qreau6gr3l0jdn6cwjqunnz2fluex0cgrrl: [
@@ -20624,6 +22465,101 @@ export const componentAddressActivityDataMap: Record<
       activityId: 'dp_ho_husdt-xrd',
       dAppId: 'dp',
       tokenPair: 'husdt-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'ho',
+    },
+  ],
+  component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu: [
+    {
+      categoryId: 'provideBlueChipLiquidityToDex',
+      activityId: 'dp_lp_blu_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'provideXrdDerivativeLiquidityToDex',
+      activityId: 'dp_lp_der_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'lp',
+      metadata: {
+        url: 'https://radix.defiplaza.net/liquidity/add/resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx?direction=base',
+      },
+    },
+    {
+      categoryId: 'tradingVolume',
+      activityId: 'dp_tr_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+        {
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+          assetType: 'der',
+        },
+      ],
+      action: 'tr',
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'dp_ho_hsol-xrd',
+      dAppId: 'dp',
+      tokenPair: 'hsol-xrd',
       assets: [
         {
           name: 'xrd',
