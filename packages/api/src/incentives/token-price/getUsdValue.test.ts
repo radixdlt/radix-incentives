@@ -8,14 +8,16 @@ import { GetUsdValueService } from './getUsdValue';
 
 describe('GetUsdValueService', () => {
   const mockFetch = vi.fn();
-  global.fetch = mockFetch;
 
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
+  const mockFetchLayer = Layer.succeed(FetchService, mockFetch as any);
+
   const getUsdValueLive = GetUsdValueService.DefaultWithoutDependencies.pipe(
     Layer.provide(AddressValidationServiceLive),
+    Layer.provide(mockFetchLayer),
   );
 
   it('should return USD value for xUSDC', async () => {
@@ -33,17 +35,14 @@ describe('GetUsdValueService', () => {
         }),
     });
 
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const getUsdValue = yield* GetUsdValueService;
-        return yield* getUsdValue({
-          amount,
-          resourceAddress: Assets.Fungible.xUSDC,
-          timestamp,
-        });
-      }),
-      getUsdValueLive,
-    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
+    const program = Effect.gen(function* () {
+      const getUsdValue = yield* GetUsdValueService;
+      return yield* getUsdValue({
+        amount,
+        resourceAddress: Assets.Fungible.xUSDC,
+        timestamp,
+      });
+    }).pipe(Effect.provide(getUsdValueLive));
 
     const result = await Effect.runPromise(program);
 
@@ -72,45 +71,43 @@ describe('GetUsdValueService', () => {
         }),
     });
 
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const getUsdValue = yield* GetUsdValueService;
-        return yield* getUsdValue({
-          amount,
-          resourceAddress: Assets.Fungible.XRD,
-          timestamp,
-        });
-      }),
-      getUsdValueLive,
-    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
+    const program = Effect.gen(function* () {
+      const getUsdValue = yield* GetUsdValueService;
+      return yield* getUsdValue({
+        amount,
+        resourceAddress: Assets.Fungible.XRD,
+        timestamp,
+      });
+    }).pipe(Effect.provide(getUsdValueLive));
 
     const result = await Effect.runPromise(program);
 
     expect(result.toString()).toBe('1');
   });
 
-  it('should fail with InvalidResourceAddressError for unknown token', async () => {
+  it('should use fallback price for unknown token', async () => {
     const amount = new BigNumber('100');
     const timestamp = new Date('2025-01-01');
     const invalidAddress = 'invalid_address';
 
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const getUsdValue = yield* GetUsdValueService;
-        return yield* getUsdValue({
-          amount,
-          resourceAddress: invalidAddress,
-          timestamp,
-        });
-      }),
-      getUsdValueLive,
-    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
-
-    await expect(Effect.runPromise(program)).rejects.toMatchObject({
-      message: expect.stringContaining(
-        'Invalid resource address: invalid_address',
-      ),
+    mockFetch.mockResolvedValueOnce({
+      ok: false,
+      status: 404,
+      text: () => Promise.resolve('Price missing for tokens: invalid_address'),
     });
+
+    const program = Effect.gen(function* () {
+      const getUsdValue = yield* GetUsdValueService;
+      return yield* getUsdValue({
+        amount,
+        resourceAddress: invalidAddress,
+        timestamp,
+      });
+    }).pipe(Effect.provide(getUsdValueLive));
+
+    const result = await Effect.runPromise(program);
+
+    expect(result.toString()).toBe('100');
   });
 
   it('should fail with ApiError when API call fails', async () => {
@@ -119,17 +116,14 @@ describe('GetUsdValueService', () => {
 
     mockFetch.mockRejectedValueOnce(new Error('Network error'));
 
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const getUsdValue = yield* GetUsdValueService;
-        return yield* getUsdValue({
-          amount,
-          resourceAddress: Assets.Fungible.XRD,
-          timestamp,
-        });
-      }),
-      getUsdValueLive,
-    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
+    const program = Effect.gen(function* () {
+      const getUsdValue = yield* GetUsdValueService;
+      return yield* getUsdValue({
+        amount,
+        resourceAddress: Assets.Fungible.XRD,
+        timestamp,
+      });
+    }).pipe(Effect.provide(getUsdValueLive));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
       name: expect.stringContaining('PriceServiceApiError'),
@@ -148,17 +142,14 @@ describe('GetUsdValueService', () => {
         }),
     });
 
-    const program = Effect.provide(
-      Effect.gen(function* () {
-        const getUsdValue = yield* GetUsdValueService;
-        return yield* getUsdValue({
-          amount,
-          resourceAddress: Assets.Fungible.XRD,
-          timestamp,
-        });
-      }),
-      getUsdValueLive,
-    ).pipe(Effect.provideService(FetchService, new FetchService(mockFetch)));
+    const program = Effect.gen(function* () {
+      const getUsdValue = yield* GetUsdValueService;
+      return yield* getUsdValue({
+        amount,
+        resourceAddress: Assets.Fungible.XRD,
+        timestamp,
+      });
+    }).pipe(Effect.provide(getUsdValueLive));
 
     await expect(Effect.runPromise(program)).rejects.toMatchObject({
       name: expect.stringContaining('PriceServiceApiError'),
