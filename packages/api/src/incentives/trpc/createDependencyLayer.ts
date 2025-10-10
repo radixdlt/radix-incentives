@@ -95,6 +95,7 @@ import {
   type SetStateVersionInput,
   TransactionStreamApiService,
 } from '../transaction-stream/transactionStreamApi';
+import type { TvlSchema } from '../tvl/tvl';
 import { TVLService } from '../tvl/tvl';
 import {
   GetUsersPaginatedLive,
