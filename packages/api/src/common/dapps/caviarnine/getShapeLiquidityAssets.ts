@@ -118,13 +118,10 @@ export class GetShapeLiquidityAssetsService extends Effect.Service<GetShapeLiqui
             ? quantaSwapState.tick_index.current.value[0]
             : undefined;
 
-        if (!currentTick) {
-          return input.addresses.map((address) => ({
-            at_ledger_state: input.at_ledger_state,
-            address,
-            items: [],
-          }));
-        }
+        if (!currentTick)
+          return yield* Effect.fail(
+            new FailedToParseComponentStateError('Current tick is not defined'),
+          );
 
         const nonFungibleBalances = input.nonFungibleBalance
           ? input.nonFungibleBalance
