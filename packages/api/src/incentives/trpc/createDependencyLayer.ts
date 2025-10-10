@@ -1141,11 +1141,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     const program = Effect.gen(function* () {
       const service = yield* TVLService;
       return yield* service.dexComponentsTvl();
-    }).pipe(Effect.provide(TVLService.Default)) as Effect.Effect<
-      TvlSchema[],
-      unknown,
-      never
-    >;
+    }).pipe(Effect.provide(TVLService.Default));
 
     return Effect.runPromiseExit(program);
   };
