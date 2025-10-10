@@ -90,11 +90,13 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
           });
 
           if (responseText.includes('Price missing for tokens')) {
-            yield* Effect.log(
-              `WARNING: Price missing for token ${resourceAddress} at timestamp ${timestamp}, using fallback price of 1`,
+            return yield* Effect.fail(
+              new MissingPriceError({
+                message: 'Price missing for tokens',
+                resourceAddress,
+                timestamp,
+              }),
             );
-            // Return fallback price of 1 for load testing / unknown tokens
-            return 1;
           }
 
           return yield* Effect.fail(

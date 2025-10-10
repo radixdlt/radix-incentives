@@ -491,11 +491,7 @@ export const AddressValidationServiceLive = Layer.effect(
           return Effect.succeed(tokenName);
         }
 
-        // For load testing: return placeholder name for unknown tokens
-        console.warn(
-          `WARNING: Unknown token ${resourceAddress}, using placeholder name 'UNKNOWN'`,
-        );
-        return Effect.succeed('UNKNOWN');
+        return Effect.fail(new UnknownTokenError(resourceAddress));
       },
 
       getTokenNameAndNativeAssetStatus: (
@@ -511,14 +507,7 @@ export const AddressValidationServiceLive = Layer.effect(
           });
         }
 
-        // For load testing: return placeholder info for unknown tokens
-        console.warn(
-          `WARNING: Unknown token ${resourceAddress}, using placeholder name 'UNKNOWN'`,
-        );
-        return Effect.succeed({
-          name: 'UNKNOWN',
-          isNativeAsset: false,
-        });
+        return Effect.fail(new UnknownTokenError(resourceAddress));
       },
 
       // Pool efficiency methods
