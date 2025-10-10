@@ -130,7 +130,7 @@ export class EnhancedComponentFetcher extends Effect.Service<EnhancedComponentFe
                     : undefined,
               };
             }),
-            { concurrency: 5 },
+            { concurrency: 1 },
           );
 
           return processedComponents;

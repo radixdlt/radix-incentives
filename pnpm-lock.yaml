@@ -1297,6 +1297,9 @@ importers:
       effect:
         specifier: 'catalog:'
         version: 3.14.6
+      inquirer:
+        specifier: 'catalog:'
+        version: 8.2.6
     devDependencies:
       tsx:
         specifier: 'catalog:'

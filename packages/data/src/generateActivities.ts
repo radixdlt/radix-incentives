@@ -633,25 +633,25 @@ const runnable = Effect.gen(function* () {
       activitiesGroupedByDappId,
       null,
       2,
-    )}`,
+    )} as any;`,
 
     `export const activityData: ActivityData[] = ${JSON.stringify(
       deduplicatedActivities,
       null,
       2,
-    )}`,
+    )} as any;`,
 
     `export const activityDataMap: Record<ActivityId, ActivityData> = ${JSON.stringify(
       activityMap,
       null,
       2,
-    )}`,
+    )} as any;`,
 
     `export const componentAddressActivityDataMap: Record<string, Omit<ActivityData, "componentAddresses">[]> = ${JSON.stringify(
       componentAddressToActivityDataMap,
       null,
       2,
-    )}`,
+    )} as any;`,
   ].join('\n\n');
 
   fs.writeFileSync(outputPath, output);

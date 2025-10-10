@@ -249,8 +249,8 @@ export const SCurveVisualization = ({
 
         tooltip
           .html(`${formatXrd(xValue)}<br/>${formattedMultiplier}x multiplier`)
-          .style('left', event.pageX + 10 + 'px')
-          .style('top', event.pageY - 10 + 'px');
+          .style('left', `${event.pageX + 10}px`)
+          .style('top', `${event.pageY - 10}px`);
       })
       .on('mouseout', () => {
         tooltip.style('opacity', 0);

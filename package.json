@@ -27,7 +27,7 @@
     "verify:activities": "turbo run verify:activities",
     "data:generate": "turbo run generate",
     "prepare": "husky",
-    "component": "turbo run component --"
+    "component": "pnpm --filter component-helper run component"
   },
   "devDependencies": {
     "@biomejs/biome": "2.1.3",

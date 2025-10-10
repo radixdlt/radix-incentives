@@ -206,7 +206,7 @@ const SeasonPointsTable = ({
   );
 };
 
-const CategoryFilterSection = ({
+const _CategoryFilterSection = ({
   categories,
   selectedCategories,
   onCategoryToggle,
@@ -219,7 +219,7 @@ const CategoryFilterSection = ({
 }) => {
   const allSelected =
     selectedCategories.length === categories.length && categories.length > 0;
-  const noneSelected = selectedCategories.length === 0;
+  const _noneSelected = selectedCategories.length === 0;
 
   const handleSelectAll = () => {
     console.log('handleSelectAll clicked', {
