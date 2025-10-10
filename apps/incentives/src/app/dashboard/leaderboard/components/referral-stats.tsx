@@ -1,6 +1,5 @@
 'use client';
-import { Check, Copy } from 'lucide-react';
-import { useCopyToClipboard } from '~/lib/hooks/useCopyToClipboard';
+import { ShareButton } from '~/components/dashboard/share-button';
 
 export function ReferralStats({
   referralCode,
@@ -15,8 +14,6 @@ export function ReferralStats({
   percentage?: number;
   isLoading: boolean;
 }) {
-  const { isCopied, copyToClipboard } = useCopyToClipboard();
-
   const formatPoints = (points: string) => {
     const num = Number.parseFloat(points);
     if (Number.isNaN(num)) {
@@ -24,6 +21,10 @@ export function ReferralStats({
     }
     return num.toLocaleString(undefined, { maximumFractionDigits: 2 });
   };
+
+  const referralLink = referralCode
+    ? `${typeof window !== 'undefined' ? window.location.origin : ''}?ref=${referralCode}`
+    : '';
 
   if (isLoading) {
     return (
@@ -92,30 +93,13 @@ export function ReferralStats({
           <h4 className="mb-2 font-medium text-sm sm:text-base">
             Referral code
           </h4>
-          <div className="flex items-center gap-2">
-            <button
-              type="button"
-              onClick={() =>
-                copyToClipboard(`${window.location.origin}?ref=${referralCode}`)
-              }
-              className="flex items-center rounded-md p-1 py-1 font-medium text-xs transition-colors hover:bg-muted focus:outline-none"
-              title={
-                isCopied
-                  ? 'Copied to clipboard!'
-                  : 'Copy referral code to clipboard'
-              }
-            >
-              <span className="mr-1 font-semibold text-base sm:text-lg">
-                {referralCode}
-              </span>
-              {isCopied ? (
-                <Check className="h-3 w-3" />
-              ) : (
-                <Copy className="h-3 w-3" />
-              )}
-            </button>
+          <div className="flex items-center gap-4">
+            <div className="font-semibold text-base sm:text-lg">
+              {referralCode}
+            </div>
+            <ShareButton referralLink={referralLink} size="lg" />
           </div>
-          <div className="mt-1 text-muted-foreground text-xs sm:text-sm">
+          <div className="mt-2 text-muted-foreground text-xs sm:text-sm">
             Share your referral link to earn points. You earn{' '}
             {percentage ? percentage * 100 : 0}% of the referred user's season
             points.

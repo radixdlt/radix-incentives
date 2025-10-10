@@ -215,7 +215,7 @@ export function DashboardActivityBreakdown({
 
   if (categories.length === 0) {
     return (
-      <Card>
+      <Card noHover>
         <CardHeader>
           <CardTitle>Activity Breakdown</CardTitle>
         </CardHeader>
@@ -229,11 +229,12 @@ export function DashboardActivityBreakdown({
   }
 
   return (
-    <Card>
+    <Card noHover>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="min-w-0 flex-shrink">
-            Activity Categories
+            My Activity &nbsp;&nbsp;&nbsp;&nbsp;
+            <span className="text-white/50">/ Categories</span>
           </CardTitle>
 
           <SortButtons sortBy={sortBy} setSortBy={setSortBy} />

@@ -15,6 +15,7 @@ interface MetricCardProps {
   iconColor?: string;
   onClick?: () => void;
   clickHint?: string;
+  noHover?: boolean;
 }
 
 export const MetricCard = ({
@@ -26,11 +27,13 @@ export const MetricCard = ({
   iconColor = 'text-cyan-400',
   onClick,
   clickHint,
+  noHover = false,
 }: MetricCardProps) => {
   return (
     <Card
       className={`group overflow-hidden ${onClick ? 'cursor-pointer border-primary/20 transition-all duration-500 ease-in-out hover:border-primary/50 hover:bg-muted/50 hover:shadow-lg' : ''}`}
       onClick={onClick}
+      noHover={noHover}
     >
       <div className="flex flex-col space-y-4 p-6">
         <div className="flex items-center justify-between">
@@ -44,7 +47,7 @@ export const MetricCard = ({
         </div>
 
         <div className="flex items-end gap-3">
-          <span className="gradient-text font-bold text-4xl text-white tracking-tight">
+          <span className="gradient-text font-bold text-4xl tracking-tight">
             {value}
           </span>
           {trend && (

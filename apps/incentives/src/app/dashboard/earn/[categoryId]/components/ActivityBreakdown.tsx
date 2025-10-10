@@ -1,6 +1,6 @@
 'use client';
 
-import { ExternalLink } from 'lucide-react';
+import { ChevronDown, ChevronRight, ExternalLink } from 'lucide-react';
 import Image from 'next/image';
 import { useState } from 'react';
 import {
@@ -18,6 +18,7 @@ import {
   formatActivityName,
   formatActivityPoints,
   formatCurrency,
+  getTokenLogo,
   hasCapitalAtWork,
 } from '~/lib/utils';
 import { api } from '~/trpc/react';
@@ -33,6 +34,8 @@ type ActivityBreakdownData = {
     name: string;
     website: string;
   } | null;
+  tokens: Array<{ name: string; resourceAddress: string }> | null;
+  metadataUrl: string | null;
 };
 
 type CategoryCapitalData = {
@@ -64,7 +67,10 @@ export function ActivityBreakdown({
     new Set(),
   );
   const [selectedDapp, setSelectedDapp] = useState<string | null>(null);
+  const [selectedToken, setSelectedToken] = useState<string | null>(null);
   const [hoveredActivity, setHoveredActivity] = useState<string | null>(null);
+  const [showDappFilter, setShowDappFilter] = useState(false);
+  const [showTokenFilter, setShowTokenFilter] = useState(false);
 
   // Get anonymous user data when no wallet is connected
   const { data: anonymousCapitalData } =
@@ -93,10 +99,45 @@ export function ActivityBreakdown({
     return unique;
   }, []);
 
-  // Filter activities by selected dApp
-  const filteredActivities = selectedDapp
-    ? activities.filter((activity) => activity.dapp?.id === selectedDapp)
-    : activities;
+  // Get unique tokens for filtering
+  const availableTokens = activities.reduce<
+    { name: string; resourceAddress: string }[]
+  >((unique, activity) => {
+    if (activity.tokens && activity.tokens.length > 0) {
+      for (const token of activity.tokens) {
+        if (
+          !unique.find(
+            (existing) => existing.resourceAddress === token.resourceAddress,
+          )
+        ) {
+          unique.push(token);
+        }
+      }
+    }
+    return unique;
+  }, []);
+
+  // Sort tokens alphabetically by name
+  availableTokens.sort((a, b) => a.name.localeCompare(b.name));
+
+  // Get selected dApp and token names for display
+  const selectedDappName = selectedDapp
+    ? availableDapps.find((d) => d.id === selectedDapp)?.name
+    : null;
+  const selectedTokenName = selectedToken
+    ? availableTokens.find((t) => t.resourceAddress === selectedToken)?.name
+    : null;
+
+  // Filter activities by selected dApp and/or token
+  const filteredActivities = activities.filter((activity) => {
+    const dappMatch = selectedDapp ? activity.dapp?.id === selectedDapp : true;
+    const tokenMatch = selectedToken
+      ? activity.tokens?.some(
+          (token) => token.resourceAddress === selectedToken,
+        )
+      : true;
+    return dappMatch && tokenMatch;
+  });
 
   // Sort activities based on selected criteria
   const sortedActivities = [...filteredActivities].sort((a, b) => {
@@ -144,7 +185,7 @@ export function ActivityBreakdown({
 
   if (activities.length === 0) {
     return (
-      <Card>
+      <Card noHover>
         <CardHeader>
           <CardTitle>Activity Breakdown</CardTitle>
         </CardHeader>
@@ -158,7 +199,7 @@ export function ActivityBreakdown({
   }
 
   return (
-    <Card>
+    <Card noHover>
       <CardHeader>
         <div className="flex items-center justify-between gap-2">
           <CardTitle className="min-w-0 flex-shrink">Activities</CardTitle>
@@ -171,28 +212,159 @@ export function ActivityBreakdown({
           />
         </div>
 
-        {/* dApp filter buttons */}
-        {availableDapps.length > 1 && (
-          <div className="flex flex-wrap gap-2 pt-2">
-            <Button
-              variant={selectedDapp === null ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setSelectedDapp(null)}
-              className="!px-4"
-            >
-              All dApps
-            </Button>
-            {availableDapps.map((dapp) => (
-              <Button
-                key={dapp.id}
-                variant={selectedDapp === dapp.id ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setSelectedDapp(dapp.id)}
-                className="!px-4"
-              >
-                {dapp.name}
-              </Button>
-            ))}
+        {/* Filter buttons */}
+        {(availableDapps.length > 1 || availableTokens.length > 1) && (
+          <div className="space-y-2 pt-2">
+            {/* Filter toggle buttons */}
+            <div className="flex flex-wrap gap-2">
+              {availableDapps.length > 1 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowDappFilter(!showDappFilter);
+                    setShowTokenFilter(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {selectedDapp ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative h-4 w-4 flex-shrink-0 overflow-hidden rounded-full border bg-white">
+                        <Image
+                          src={`/dapp-logos/${selectedDapp}.png`}
+                          alt={`${selectedDappName} logo`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span>{selectedDappName}</span>
+                    </div>
+                  ) : (
+                    <span>All dApps</span>
+                  )}
+                  {showDappFilter ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+
+              {availableTokens.length > 1 && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowTokenFilter(!showTokenFilter);
+                    setShowDappFilter(false);
+                  }}
+                  className="flex items-center gap-2"
+                >
+                  {selectedTokenName ? (
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative h-4 w-4 flex-shrink-0 overflow-hidden rounded-full border bg-white">
+                        <Image
+                          src={getTokenLogo(selectedTokenName)}
+                          alt={`${selectedTokenName} logo`}
+                          fill
+                          className="object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/token-logos/placeholder-logo.png';
+                          }}
+                        />
+                      </div>
+                      <span className="uppercase">{selectedTokenName}</span>
+                    </div>
+                  ) : (
+                    <span>All Tokens</span>
+                  )}
+                  {showTokenFilter ? (
+                    <ChevronDown className="h-4 w-4" />
+                  ) : (
+                    <ChevronRight className="h-4 w-4" />
+                  )}
+                </Button>
+              )}
+            </div>
+
+            {/* dApp options */}
+            {showDappFilter && (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={selectedDapp === null ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedDapp(null)}
+                  className="!px-3"
+                >
+                  All dApps
+                </Button>
+                {availableDapps.map((dapp) => (
+                  <Button
+                    key={dapp.id}
+                    variant={selectedDapp === dapp.id ? 'default' : 'outline'}
+                    size="sm"
+                    onClick={() => setSelectedDapp(dapp.id)}
+                    className="!px-3"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative h-4 w-4 flex-shrink-0 overflow-hidden rounded-full border bg-white">
+                        <Image
+                          src={`/dapp-logos/${dapp.id}.png`}
+                          alt={`${dapp.name} logo`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <span>{dapp.name}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            )}
+
+            {/* Token options */}
+            {showTokenFilter && (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant={selectedToken === null ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setSelectedToken(null)}
+                  className="!px-3"
+                >
+                  All Tokens
+                </Button>
+                {availableTokens.map((token) => (
+                  <Button
+                    key={token.resourceAddress}
+                    variant={
+                      selectedToken === token.resourceAddress
+                        ? 'default'
+                        : 'outline'
+                    }
+                    size="sm"
+                    onClick={() => setSelectedToken(token.resourceAddress)}
+                    className="!px-3"
+                  >
+                    <div className="flex items-center gap-1.5">
+                      <div className="relative h-4 w-4 flex-shrink-0 overflow-hidden rounded-full border bg-white">
+                        <Image
+                          src={getTokenLogo(token.name)}
+                          alt={`${token.name} logo`}
+                          fill
+                          className="object-contain"
+                          onError={(e) => {
+                            const target = e.target as HTMLImageElement;
+                            target.src = '/token-logos/placeholder-logo.png';
+                          }}
+                        />
+                      </div>
+                      <span className="uppercase">{token.name}</span>
+                    </div>
+                  </Button>
+                ))}
+              </div>
+            )}
           </div>
         )}
       </CardHeader>
@@ -239,7 +411,33 @@ export function ActivityBreakdown({
               />
             );
           }}
-          renderTitle={getFormattedActivityName}
+          renderTitle={(activity) => (
+            <div className="flex items-center gap-2">
+              {activity.tokens && activity.tokens.length > 0 && (
+                <div className="flex gap-1">
+                  {activity.tokens.slice(0, 2).map((token) => (
+                    <div
+                      key={token.resourceAddress}
+                      className="relative h-5 w-5 flex-shrink-0 overflow-hidden rounded-full border bg-white"
+                      title={token.name.toUpperCase()}
+                    >
+                      <Image
+                        src={getTokenLogo(token.name)}
+                        alt={`${token.name} logo`}
+                        fill
+                        className="object-contain"
+                        onError={(e) => {
+                          const target = e.target as HTMLImageElement;
+                          target.src = '/token-logos/placeholder-logo.png';
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+              <span>{getFormattedActivityName(activity)}</span>
+            </div>
+          )}
           renderExpandedContent={(activity) => (
             <>
               <StatsGrid
@@ -263,7 +461,7 @@ export function ActivityBreakdown({
                       Visit to earn:
                     </span>
                     <a
-                      href={activity.dapp.website}
+                      href={activity.metadataUrl || activity.dapp.website}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="group relative"

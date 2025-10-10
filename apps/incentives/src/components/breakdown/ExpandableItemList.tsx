@@ -13,7 +13,7 @@ export type ExpandableItemListProps<T> = {
   getItemValue: (item: T) => number;
   getSortValue: (item: T) => string;
   renderIcon: (item: T, index: number) => React.ReactNode;
-  renderTitle: (item: T) => string;
+  renderTitle: (item: T) => React.ReactNode;
   renderExpandedContent: (item: T) => React.ReactNode;
 };
 
@@ -56,22 +56,22 @@ export function ExpandableItemList<T>({
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 {renderIcon(item, index)}
                 <div className="min-w-0 flex-1">
-                  <div className="truncate font-medium">
-                    <span className="block text-sm sm:inline sm:text-base">
-                      {renderTitle(item)}
-                    </span>
-                    {!isAnonymous && (
-                      <span className="block text-muted-foreground text-xs sm:ml-2 sm:inline">
-                        ({percentage.toFixed(1)}%)
-                      </span>
-                    )}
+                  <div className="truncate font-medium text-sm sm:text-base">
+                    {renderTitle(item)}
                   </div>
                 </div>
               </div>
-              <div className="flex flex-shrink-0 items-center gap-4">
-                <span className="font-semibold text-sm">
-                  {getSortValue(item)}
-                </span>
+              <div className="flex flex-shrink-0 items-center gap-3">
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-sm">
+                    {getSortValue(item)}
+                  </span>
+                  {!isAnonymous && (
+                    <span className="text-muted-foreground text-xs">
+                      ({percentage.toFixed(1)}%)
+                    </span>
+                  )}
+                </div>
                 {isExpanded ? (
                   <ChevronDown className="h-4 w-4" />
                 ) : (

@@ -5,4 +5,6 @@ export { MilestoneProgress } from './milestone-progress';
 export { MultiplierModal } from './multiplier-modal';
 export { RadixRewardsIntro } from './radix-rewards-intro';
 export { RecentActivity } from './recent-activity';
+export { ReferralCard } from './referral-card';
 export { SeasonRewardCard } from './season-reward-card';
+export { ShareButton } from './share-button';

@@ -192,7 +192,7 @@ export const SCurveVisualization = ({
     g.append('path')
       .datum(data)
       .attr('fill', 'none')
-      .attr('stroke', '#e134b0') // Brand pink
+      .attr('stroke', '#FF43CA') // Brand pink
       .attr('stroke-width', 3)
       .attr('d', line);
 
@@ -262,7 +262,7 @@ export const SCurveVisualization = ({
         .attr('cx', xScale(currentXrd))
         .attr('cy', yScale(currentMultiplier))
         .attr('r', 6)
-        .attr('fill', '#1ef9ba') // Brand cyan
+        .attr('fill', '#21FFBE') // Brand cyan
         .attr('stroke', 'white')
         .attr('stroke-width', 2);
     }
@@ -311,7 +311,7 @@ export const SCurveVisualization = ({
           <div className="flex items-center gap-2">
             <div
               className="h-2 w-6 rounded"
-              style={{ backgroundColor: '#e134b0' }}
+              style={{ backgroundColor: '#FF43CA' }}
             />
             <span className="text-muted-foreground">S-Curve</span>
           </div>
@@ -319,7 +319,7 @@ export const SCurveVisualization = ({
             <div className="flex items-center gap-2">
               <div
                 className="h-3 w-3 rounded-full"
-                style={{ backgroundColor: '#1ef9ba' }}
+                style={{ backgroundColor: '#21FFBE' }}
               />
               <span className="text-muted-foreground">Your Position</span>
             </div>

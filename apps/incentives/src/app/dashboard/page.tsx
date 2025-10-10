@@ -7,6 +7,7 @@ import {
   MultiplierModal,
   RadixRewardsIntro,
 } from '~/components/dashboard';
+import { ReferralCard } from '~/components/dashboard/referral-card';
 import { EmptyState } from '~/components/ui/empty-state';
 import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { usePersona } from '~/lib/hooks/usePersona';
@@ -98,6 +99,14 @@ export default function DashboardPage() {
     },
   );
 
+  // Get user's referral stats for the referral card
+  const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
+  const { data: referralStats, isLoading: referralStatsLoading } =
+    api.user.getUserReferralStats.useQuery(
+      { seasonId: selectedWeekData?.seasonId ?? '' },
+      { enabled: !!persona && !!selectedWeekData?.seasonId },
+    );
+
   if (accounts.isLoading || weeks.isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -138,7 +147,6 @@ export default function DashboardPage() {
     .reduce((total, category) => total + parseFloat(category.earnedAP), 0);
 
   // Check if the selected week is completed
-  const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
   const isWeekCompleted = selectedWeekData
     ? new Date(selectedWeekData.endDate) < new Date()
     : false;
@@ -149,7 +157,7 @@ export default function DashboardPage() {
 
       <NextUpdateNotification />
 
-      <div className="grid gap-4 md:grid-cols-1 lg:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
           title={
             isWeekCompleted
@@ -164,6 +172,7 @@ export default function DashboardPage() {
               : 'Activity Points earned so far this week'
           }
           iconColor="text-green-500"
+          noHover
         />
 
         <MetricCard
@@ -187,6 +196,7 @@ export default function DashboardPage() {
           icon={Wallet}
           description="Total USD value contributing to activities"
           iconColor="text-blue-500"
+          noHover
         />
 
         <MetricCard
@@ -201,6 +211,12 @@ export default function DashboardPage() {
           iconColor="text-amber-500"
           onClick={() => setMultiplierModalOpen(true)}
           clickHint="Click for details"
+        />
+
+        <ReferralCard
+          referralCode={referralStats?.referralCode}
+          numberOfReferrals={referralStats?.numberOfReferrals}
+          isLoading={referralStatsLoading}
         />
       </div>
 
