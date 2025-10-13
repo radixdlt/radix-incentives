@@ -231,13 +231,15 @@ export function DashboardActivityBreakdown({
   return (
     <Card noHover>
       <CardHeader>
-        <div className="flex items-center justify-between gap-2">
+        <div className="flex flex-col items-start gap-3 min-[540px]:flex-row min-[540px]:items-center min-[540px]:justify-between">
           <CardTitle className="min-w-0 flex-shrink">
             My Activity &nbsp;&nbsp;&nbsp;&nbsp;
             <span className="text-white/50">/ Categories</span>
           </CardTitle>
 
-          <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
+          <div className="self-end min-[540px]:self-auto">
+            <SortButtons sortBy={sortBy} setSortBy={setSortBy} />
+          </div>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">

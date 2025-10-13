@@ -300,23 +300,14 @@ export function getNextUpdateTime() {
   const utcHour = currentTime.getUTCHours();
   const minutes = currentTime.getUTCMinutes();
 
-  let nextUpdateMinutes = 60 - minutes;
-  let nextUpdateHour = utcHour % 2 === 0 ? 1 : 0;
-
-  // If minutes would be 60, increment the hour and set minutes to 0
-  if (nextUpdateMinutes === 60) {
-    nextUpdateMinutes = 0;
-    nextUpdateHour = nextUpdateHour === 0 ? 1 : 2;
-  }
+  const nextUpdateMinutes = 60 - minutes;
+  const nextUpdateHour = utcHour % 2 === 0 ? 1 : 0;
 
   currentTime.setUTCHours(nextUpdateHour, 0, 0, 0);
 
-  const formatted =
-    nextUpdateHour && nextUpdateMinutes
-      ? `${nextUpdateHour}h ${nextUpdateMinutes}m`
-      : nextUpdateHour
-        ? `${nextUpdateHour}h`
-        : `${nextUpdateMinutes}m`;
+  const formatted = nextUpdateHour
+    ? `${nextUpdateHour}h ${nextUpdateMinutes}m`
+    : `${nextUpdateMinutes}m`;
 
   return formatted;
 }

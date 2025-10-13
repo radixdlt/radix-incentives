@@ -42,11 +42,11 @@ export function ReferralCard({
       <div className="flex flex-col space-y-4 p-6">
         <div className="flex items-center justify-between">
           <span className="font-medium text-sm text-white/80">Referrals</span>
-          <Gift className="h-5 w-5 text-[#FF43CA]" />
+          <Gift className="h-5 w-5 text-purple-400" />
         </div>
 
         <div className="flex items-end gap-3">
-          <span className="gradient-text font-bold text-4xl tracking-tight">
+          <span className="gradient-text font-bold text-4xl text-white tracking-tight">
             {numberOfReferrals || 0}
           </span>
         </div>

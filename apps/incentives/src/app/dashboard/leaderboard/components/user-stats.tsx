@@ -106,14 +106,14 @@ export function UserStats({
           <div className="mb-2 font-medium text-sm text-white/80">
             Your {pointsLabel}
           </div>
-          <div className="gradient-text font-bold text-2xl tracking-tight sm:text-4xl">
+          <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             {formatPoints(stats.totalPoints)}
           </div>
         </div>
 
         <div className="glass-card rounded-lg p-3 text-center sm:p-4">
           <div className="mb-2 font-medium text-sm text-white/80">Ranking</div>
-          <div className="gradient-text font-bold text-2xl tracking-tight sm:text-4xl">
+          <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             #{stats.rank}
           </div>
         </div>
@@ -122,7 +122,7 @@ export function UserStats({
           <div className="mb-2 font-medium text-sm text-white/80">
             Percentile
           </div>
-          <div className="gradient-text font-bold text-2xl tracking-tight sm:text-4xl">
+          <div className="gradient-text font-bold text-2xl text-white tracking-tight sm:text-4xl">
             {stats.percentile}%
           </div>
         </div>
