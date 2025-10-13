@@ -2,7 +2,7 @@ import { BigNumber } from 'bignumber.js';
 import { accountBalances } from 'db/incentives';
 import { and, between, desc, inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
+import { DbClientService, DbError } from '../db/dbClient';
 
 export type AccountBalanceItem = {
   activityId: string;
@@ -24,7 +24,6 @@ export type CapitalAggregation = {
 export class AccountBalanceService extends Effect.Service<AccountBalanceService>()(
   'AccountBalanceService',
   {
-    dependencies: [dbClientLive],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
 
