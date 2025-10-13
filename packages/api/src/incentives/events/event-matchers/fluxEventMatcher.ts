@@ -2,20 +2,14 @@ import { Effect } from 'effect';
 import { isFluxComponent } from '../../../common/address-validation/addressValidation';
 import {
   EventCloseCdp,
-  type EventCloseCdp as EventCloseCdpType,
   EventLiquidateCdp,
-  type EventLiquidateCdp as EventLiquidateCdpType,
-  EventMarkCdp,
-  type EventMarkCdp as EventMarkCdpType,
+  type EventMarkCdp,
   EventNewCdp,
-  type EventNewCdp as EventNewCdpType,
   EventRedeemCdp,
-  type EventRedeemCdp as EventRedeemCdpType,
   EventUpdateCdp,
-  type EventUpdateCdp as EventUpdateCdpType,
-  type StabilityPoolBuyEvent as StabilityPoolBuyEventType,
-  type StabilityPoolContributionEvent as StabilityPoolContributionEventType,
-  type StabilityPoolWithdrawalEvent as StabilityPoolWithdrawalEventType,
+  type StabilityPoolBuyEvent,
+  type StabilityPoolContributionEvent,
+  type StabilityPoolWithdrawalEvent,
 } from '../../../common/dapps/flux/schemas';
 import type { TransformedEvent } from '../../transaction-stream/transformEvent';
 import {
@@ -25,20 +19,20 @@ import {
 } from './createEventMatcher';
 
 export type FluxEmittableEvents =
-  | { readonly type: 'EventUpdateCdp'; data: EventUpdateCdpType }
-  | { readonly type: 'EventNewCdp'; data: EventNewCdpType }
-  | { readonly type: 'EventRedeemCdp'; data: EventRedeemCdpType }
-  | { readonly type: 'EventCloseCdp'; data: EventCloseCdpType }
-  | { readonly type: 'EventLiquidateCdp'; data: EventLiquidateCdpType }
-  | { readonly type: 'EventMarkCdp'; data: EventMarkCdpType }
+  | { readonly type: 'EventUpdateCdp'; data: EventUpdateCdp }
+  | { readonly type: 'EventNewCdp'; data: EventNewCdp }
+  | { readonly type: 'EventRedeemCdp'; data: EventRedeemCdp }
+  | { readonly type: 'EventCloseCdp'; data: EventCloseCdp }
+  | { readonly type: 'EventLiquidateCdp'; data: EventLiquidateCdp }
+  | { readonly type: 'EventMarkCdp'; data: EventMarkCdp }
   | {
       readonly type: 'StabilityPoolContributionEvent';
-      data: StabilityPoolContributionEventType;
+      data: StabilityPoolContributionEvent;
     }
-  | { readonly type: 'StabilityPoolBuyEvent'; data: StabilityPoolBuyEventType }
+  | { readonly type: 'StabilityPoolBuyEvent'; data: StabilityPoolBuyEvent }
   | {
       readonly type: 'StabilityPoolWithdrawalEvent';
-      data: StabilityPoolWithdrawalEventType;
+      data: StabilityPoolWithdrawalEvent;
     };
 
 export type CapturedFluxEvent = CapturedEvent<FluxEmittableEvents>;
@@ -73,7 +67,7 @@ export const fluxEventMatcherFn = (input: TransformedEvent) =>
       case 'EventChangeCollateral':
       case 'EventAddPoolCollateral':
       case 'EventChargeInterest':
-        // These events don't trigger snapshots, so we return null
+        // These events don't trigger snapshots due to NFT updates, so we return null
         return yield* Effect.succeed(null);
     }
 
