@@ -62,12 +62,12 @@
 	--gradient-background:
 		radial-gradient(
 			circle at 5% 85%,
-			rgba(255, 67, 202, 0.25) 0%,
+			rgba(225, 52, 176, 0.25) 0%,
 			transparent 35%
 		),
 		radial-gradient(
 			circle at 95% 15%,
-			rgba(33, 255, 190, 0.22) 0%,
+			rgba(30, 249, 186, 0.22) 0%,
 			transparent 35%
 		), #0a0a0a;
 	--gradient-card: linear-gradient(
@@ -167,12 +167,22 @@
 	}
 
 	.gradient-text {
-		background: linear-gradient(45deg, #ff43ca 0%, #20e4ff 100%);
-		background-size: 100% 100%;
+		background: var(--gradient-brand);
 		-webkit-background-clip: text;
 		background-clip: text;
 		-webkit-text-fill-color: transparent;
-		display: inline-block;
+		background-size: 200% 200%;
+		animation: gradient-shift 3s ease infinite;
+	}
+
+	@keyframes gradient-shift {
+		0%,
+		100% {
+			background-position: 0% 50%;
+		}
+		50% {
+			background-position: 100% 50%;
+		}
 	}
 
 	/* Glass Effects */
