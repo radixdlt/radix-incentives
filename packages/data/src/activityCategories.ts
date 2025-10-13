@@ -12,7 +12,6 @@ export const ActivityCategoryId = {
   componentCalls: 'componentCalls',
   tradingVolume: 'tradingVolume',
   common: 'common',
-  resourceRewards: 'resourceRewards',
 } as const;
 
 export type ActivityCategoryId = keyof typeof ActivityCategoryId;
@@ -72,9 +71,5 @@ export const activityCategoriesData: {
   {
     id: ActivityCategoryId.common,
     name: 'Common activities',
-  },
-  {
-    id: ActivityCategoryId.resourceRewards,
-    name: 'Resource rewards',
   },
 ];
