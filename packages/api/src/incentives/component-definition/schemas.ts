@@ -33,6 +33,16 @@ export const MetadataSchema = {
       strict: false,
     }),
   ),
+  Url: Schema.Struct({
+    value: Schema.NonEmptyString,
+    type: Schema.Literal('Url'),
+  }).pipe(
+    Schema.transform(Schema.NonEmptyString, {
+      decode: (value) => value.value,
+      encode: (value) => ({ value }),
+      strict: false,
+    }),
+  ),
   ResourceAddress: Schema.Struct({
     value: Schema.NonEmptyString,
     type: Schema.Literal('GlobalAddress'),
