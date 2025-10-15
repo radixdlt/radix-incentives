@@ -14,6 +14,7 @@ import { UpdateWeekStatusService } from '../week/updateWeekStatus';
 import { WeekService } from '../week/week';
 import { AddSeasonPointsToUserService } from './addSeasonPointsToUser';
 import { CalculateReferralPoints } from './calculateReferralPoints';
+import { CalculateResourceRewardPointsService } from './calculateResourceRewardPoints';
 import { createUserBands } from './createUserBands';
 import { detectOutliers } from './detectOutliers';
 import { distributeSeasonPoints } from './distributePoints';
@@ -51,6 +52,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       GetSeasonPointMultiplierService.Default,
       ActivityCategoryWeekService.Default,
       CalculateReferralPoints.Default,
+      CalculateResourceRewardPointsService.Default,
     ],
     effect: Effect.gen(function* () {
       const db = yield* DbClientService;
@@ -62,6 +64,8 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
       const calculateReferralPoints = yield* CalculateReferralPoints;
+      const calculateResourceRewardPoints =
+        yield* CalculateResourceRewardPointsService;
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
 
@@ -420,14 +424,22 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           ].map((user) => ({
             ...user,
             referredBy: referredByMap.get(user.userId),
+            data: user.data ?? {},
           }));
 
           yield* Effect.log(
             `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`,
           );
 
+          const withResourceRewardPoints = yield* calculateResourceRewardPoints(
+            {
+              users: completeUserSeasonPoints,
+              weekId: input.weekId,
+            },
+          );
+
           const withReferralPoints = yield* calculateReferralPoints(
-            completeUserSeasonPoints,
+            withResourceRewardPoints,
           );
 
           if (!input.dryRun) {

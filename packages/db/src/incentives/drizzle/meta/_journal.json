@@ -232,6 +232,20 @@
       "when": 1758968989822,
       "tag": "0032_watery_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1759405645374,
+      "tag": "0033_rich_natasha_romanoff",
+      "breakpoints": true
+    },
+    {
+      "idx": 34,
+      "version": "7",
+      "when": 1760448022309,
+      "tag": "0034_dashing_human_fly",
+      "breakpoints": true
     }
   ]
 }

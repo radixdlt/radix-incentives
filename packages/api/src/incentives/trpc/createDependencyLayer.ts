@@ -74,6 +74,10 @@ import { MilestoneService } from '../milestones/milestoneService';
 import { getAccountsProgram } from '../programs/getAccounts';
 import { validateSessionTokenProgram } from '../programs/validateSessionToken';
 import {
+  type ResourceRewardDefinition,
+  ResourceRewardService,
+} from '../resource-reward/resourceReward';
+import {
   GetSeasonByIdLive,
   GetSeasonByIdService,
 } from '../season/getSeasonById';
@@ -1220,6 +1224,50 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const createResourceReward = (input: ResourceRewardDefinition) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.createResourceRewardDefinition(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
+  const listResourceRewards = () => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.listResourceRewardDefinitions();
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getUserResourceRewards = (input: {
+    userId: string;
+    weekId: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.getResourceRewardClaimsByUserId(
+        input,
+      );
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const claimResourceRewards = (input: {
+    resourceManager: string;
+    weekId: string;
+    seasonId: string;
+    userId: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.createResourceRewardClaim(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1290,5 +1338,9 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateMilestone,
     deleteMilestone,
     getUserActivityPointsByWeek,
+    createResourceReward,
+    listResourceRewards,
+    getUserResourceRewards,
+    claimResourceRewards,
   };
 };
