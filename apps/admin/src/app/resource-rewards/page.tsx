@@ -32,6 +32,7 @@ import { api } from '~/trpc/react';
 interface ResourceRewardFormData {
   address: string;
   points: string;
+  weeklyLimit?: number;
 }
 
 function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
@@ -39,6 +40,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
   const [formData, setFormData] = React.useState<ResourceRewardFormData>({
     address: '',
     points: '',
+    weeklyLimit: undefined,
   });
 
   const createMutation =
@@ -49,6 +51,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
         setFormData({
           address: '',
           points: '',
+          weeklyLimit: undefined,
         });
         onSuccess();
       },
@@ -106,6 +109,25 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
               placeholder="e.g., 100"
               min="0"
               required
+            />
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="weeklyLimit">Weekly Limit (optional)</Label>
+            <Input
+              id="weeklyLimit"
+              type="number"
+              value={formData.weeklyLimit ?? ''}
+              onChange={(e) =>
+                setFormData({
+                  ...formData,
+                  weeklyLimit: e.target.value
+                    ? Number(e.target.value)
+                    : undefined,
+                })
+              }
+              placeholder="e.g., 500"
+              min="0"
             />
           </div>
 
@@ -172,6 +194,7 @@ export default function ResourceRewardsPage() {
                 <TableRow>
                   <TableHead>Name</TableHead>
                   <TableHead>Resource Address</TableHead>
+                  <TableHead>Weekly limit</TableHead>
                   <TableHead>Points</TableHead>
                 </TableRow>
               </TableHeader>
@@ -188,6 +211,9 @@ export default function ResourceRewardsPage() {
                       >
                         {reward.address}
                       </Link>
+                    </TableCell>
+                    <TableCell className="font-mono">
+                      {reward.weeklyLimit ?? 'No limit'}
                     </TableCell>
 
                     <TableCell className="font-mono">{reward.points}</TableCell>

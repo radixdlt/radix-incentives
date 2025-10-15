@@ -1,5 +1,5 @@
 import { resourceRewardClaims, resourceRewardDefinitions } from 'db/incentives';
-import { and, eq, sql, sum } from 'drizzle-orm';
+import { and, count, eq, sql, sum } from 'drizzle-orm';
 import { Data, Effect, Schema } from 'effect';
 import {
   GetEntityDetailsService,
@@ -33,6 +33,7 @@ export class ResourceRewardDefinition extends Schema.Class<ResourceRewardDefinit
 )({
   address: RadixDataTypeSchema.ResourceAddress,
   points: Schema.Number,
+  weeklyLimit: Schema.NullishOr(Schema.Number),
 }) {}
 
 class ResourceRewardClaim extends Schema.Class<ResourceRewardClaim>(
@@ -88,6 +89,12 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
       const seasonService = yield* SeasonService;
       const weekService = yield* WeekService;
       const resourceRewardHelpers = yield* ResourceRewardHelpers;
+
+      const decodeMetadata = (input: unknown) =>
+        Schema.Struct({
+          name: MetadataSchema.String,
+          icon_url: MetadataSchema.Url,
+        }).pipe(Schema.decodeUnknown)(input);
 
       const getEntityDetails = Effect.fnUntraced(function* (address: string) {
         return yield* getEntityDetailsService(
@@ -175,6 +182,10 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
               }),
             );
           }
+
+          const metadata = transformMetadata(entityDetails?.metadata);
+
+          yield* decodeMetadata(metadata);
 
           return yield* addResourceRewardDefinitionToDb(newResourceReward);
         }),
@@ -328,10 +339,16 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
         getAggregatedResourceRewardClaimsByWeekId: Effect.fnUntraced(
           function* (input: { weekId: string }) {
             return yield* Effect.tryPromise({
-              try: () =>
-                db
+              try: () => {
+                // aggregate points by user id and resource address, apply weekly limit if set
+                const subquery = db
                   .select({
-                    points: sum(resourceRewardDefinitions.points),
+                    points: sql<string>`CASE 
+                      WHEN ${resourceRewardDefinitions.weeklyLimit} IS NOT NULL 
+                        AND ${count()} > ${resourceRewardDefinitions.weeklyLimit}
+                      THEN ${resourceRewardDefinitions.weeklyLimit} * ${resourceRewardDefinitions.points}
+                      ELSE ${count()} * ${resourceRewardDefinitions.points}
+                    END`.as('points'),
                     userId: resourceRewardClaims.userId,
                   })
                   .from(resourceRewardClaims)
@@ -343,12 +360,28 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
                     ),
                   )
                   .where(eq(resourceRewardClaims.weekId, input.weekId))
-                  .groupBy(resourceRewardClaims.userId),
+                  .groupBy(
+                    resourceRewardClaims.userId,
+                    resourceRewardDefinitions.address,
+                    resourceRewardDefinitions.points,
+                    resourceRewardDefinitions.weeklyLimit,
+                  )
+                  .as('subquery');
+
+                // aggregate points by user id
+                return db
+                  .select({
+                    userId: subquery.userId,
+                    points: sum(subquery.points),
+                  })
+                  .from(subquery)
+                  .groupBy(subquery.userId);
+              },
               catch: (error) => new DbError(error),
             });
           },
         ),
-        getResourceRewardClaimsByUserId: Effect.fn(function* ({
+        getResourceRewardClaimsByUserId: Effect.fnUntraced(function* ({
           userId,
           weekId,
         }: {

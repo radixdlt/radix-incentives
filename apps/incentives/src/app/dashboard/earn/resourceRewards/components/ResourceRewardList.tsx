@@ -18,6 +18,7 @@ type ResourceReward = {
   iconUrl: string;
   address: string;
   points: number;
+  weeklyLimit?: number;
 };
 
 export type ResourceRewardListProps = {
@@ -45,6 +46,7 @@ const ResourceRewardItem = ({
   name,
   address,
   points,
+  weeklyLimit,
   claims,
   nfHoldings,
   iconUrl,
@@ -70,7 +72,7 @@ const ResourceRewardItem = ({
   const buttonText = isLoggedIn
     ? isClaiming
       ? 'Claiming...'
-      : `${unclaimedPoints} points to claim`
+      : `${weeklyLimit ? Math.min(unclaimedPoints, weeklyLimit * points) : unclaimedPoints} points to claim`
     : 'Connect to claim points';
 
   return (
@@ -103,8 +105,16 @@ const ResourceRewardItem = ({
         <div className="text-sm">
           <CardDataListItem label="Points per item" value={points} />
           <CardDataListItem
+            label="Weekly cap"
+            value={weeklyLimit ?? 'No limit'}
+          />
+          <CardDataListItem
             label="Points claimed this week"
-            value={claimedPoints}
+            value={
+              weeklyLimit
+                ? Math.min(claimedPoints, weeklyLimit * points)
+                : claimedPoints
+            }
           />
         </div>
         <Button

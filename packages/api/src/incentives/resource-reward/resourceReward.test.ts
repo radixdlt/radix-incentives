@@ -41,11 +41,13 @@ const testResources = {
     address:
       'resource_rdx1ngm27j7zpwx2m3jkflxtlq9grfkf4f6xpgz9vxzuplx0fd7egh9sx7',
     points: 25,
+    weeklyLimit: undefined,
   }),
   xrdDomain: new ResourceRewardDefinition({
     address:
       'resource_rdx1n2dd0w53zpdlqdz65vpymygj8a60vqnggyuxfpfdldjmy2224x020q',
     points: 10,
+    weeklyLimit: 3,
   }),
 } as const;
 
@@ -172,13 +174,11 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
         ]),
       );
 
-      const [result] = yield* service.getAggregatedResourceRewardClaimsByWeekId(
-        {
-          weekId: testSetup.week.id,
-        },
-      );
+      const results = yield* service.getAggregatedResourceRewardClaimsByWeekId({
+        weekId: testSetup.week.id,
+      });
 
-      expect(result).toHaveProperty(
+      expect(results[0]).toHaveProperty(
         'points',
         `${testResources.taox.points * 2 + testResources.xrdDomain.points}`,
       );
@@ -232,6 +232,68 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
       expect(groupByPoints['25']).toHaveLength(50);
     }).pipe(Effect.provide(dbClientLive), Effect.provide(Logger.pretty));
   });
+
+  it.effect('should limit points by weekly limit', () => {
+    return Effect.gen(function* () {
+      const service = yield* ResourceRewardService;
+      const testSetup = yield* TestSetup;
+      const db = yield* DbClientService;
+
+      const { user } = yield* createUser;
+
+      yield* service.createResourceRewardDefinition(testResources.xrdDomain);
+
+      // user has claimed 5 XRD domains but weekly limit is 3
+      yield* Effect.promise(() =>
+        db.insert(resourceRewardClaims).values([
+          {
+            resourceManager: testResources.xrdDomain.address,
+            localId: '1',
+            userId: user.id,
+            weekId: testSetup.week.id,
+            seasonId: testSetup.season.id,
+          },
+          {
+            resourceManager: testResources.xrdDomain.address,
+            localId: '2',
+            userId: user.id,
+            weekId: testSetup.week.id,
+            seasonId: testSetup.season.id,
+          },
+          {
+            resourceManager: testResources.xrdDomain.address,
+            localId: '3',
+            userId: user.id,
+            weekId: testSetup.week.id,
+            seasonId: testSetup.season.id,
+          },
+          {
+            resourceManager: testResources.xrdDomain.address,
+            localId: '4',
+            userId: user.id,
+            weekId: testSetup.week.id,
+            seasonId: testSetup.season.id,
+          },
+          {
+            resourceManager: testResources.xrdDomain.address,
+            localId: '5',
+            userId: user.id,
+            weekId: testSetup.week.id,
+            seasonId: testSetup.season.id,
+          },
+        ]),
+      );
+
+      const results = yield* service.getAggregatedResourceRewardClaimsByWeekId({
+        weekId: testSetup.week.id,
+      });
+
+      expect(results[0]).toHaveProperty(
+        'points',
+        `${testResources.xrdDomain.points * 3}`,
+      );
+    }).pipe(Effect.provide(dbClientLive), Effect.provide(Logger.pretty));
+  });
 });
 
 describe('resourceReward', () => {
@@ -244,6 +306,8 @@ describe('resourceReward', () => {
       const service = yield* ResourceRewardService;
       const testSetup = yield* TestSetup;
 
+      yield* service.createResourceRewardDefinition(testResources.taox);
+
       // user A claims two resources
       mockGetNonFungibleBalanceResponse.mockReturnValue(
         Effect.succeed({
@@ -254,8 +318,6 @@ describe('resourceReward', () => {
           ],
         }),
       );
-
-      yield* service.createResourceRewardDefinition(testResources.taox);
 
       yield* service.createResourceRewardClaim({
         resourceManager: testResources.taox.address,

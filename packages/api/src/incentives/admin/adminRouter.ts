@@ -441,10 +441,14 @@ export const adminRouter = createTRPCRouter({
         z.object({
           address: z.string(),
           points: z.number(),
+          weeklyLimit: z.number().optional(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
-        const result = await ctx.dependencyLayer.createResourceReward(input);
+        const result = await ctx.dependencyLayer.createResourceReward({
+          ...input,
+          weeklyLimit: input.weeklyLimit ?? undefined,
+        });
         return Exit.match(result, {
           onSuccess: (value) => value,
           onFailure: (error) => {
@@ -452,6 +456,7 @@ export const adminRouter = createTRPCRouter({
             if (error._tag === 'Fail') {
               switch (error.error._tag) {
                 case 'InvalidResourceTypeError':
+                case 'ParseError':
                   throw new TRPCError({
                     code: 'BAD_REQUEST',
                     message: error.error.message,

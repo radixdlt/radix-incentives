@@ -68,6 +68,7 @@ export default function ResourceRewardsPage() {
       iconUrl: item.iconUrl!,
       address: item.address!,
       points: item.points,
+      weeklyLimit: item.weeklyLimit ? item.weeklyLimit : undefined,
       claims: persona
         ? (userResourceRewardsData?.claims
             .filter((claim) => claim.resourceManager === item.address)
@@ -85,7 +86,11 @@ export default function ResourceRewardsPage() {
 
     const totalPointsEarned = persona
       ? items.reduce(
-          (total, item) => total + item.claims.length * item.points,
+          (total, item) =>
+            total +
+            (item.weeklyLimit
+              ? Math.min(item.claims.length, item.weeklyLimit) * item.points
+              : item.claims.length * item.points),
           0,
         )
       : 0;
