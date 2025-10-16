@@ -392,6 +392,116 @@ export const CaviarNineConstants = {
       token_x: Assets.Fungible.hSOL,
       token_y: Assets.Fungible.hwBTC,
     },
+    HSOL_XRD_2: {
+      name: 'HSOL/XRD',
+      componentAddress:
+        'component_rdx1cq0kkun8x09jwwgkfp3gpcxds4uv9xedpz05c6f9whapkc9arefvky',
+      poolAddress:
+        'pool_rdx1c5dedvmk9nc6pzdk4x00l0r7aut4v2sw9r8lvwlau9rgnumqdvkzce',
+      lpResourceAddress:
+        'resource_rdx1tksrs4q8f0jv7uq5cnmv2n3snn3vvn62rmp67vthwg25qpaj9vhm88',
+      token_x: Assets.Fungible.hSOL,
+      token_y: Assets.Fungible.XRD,
+    },
+    HETH_XRD_2: {
+      name: 'HETH/XRD',
+      componentAddress:
+        'component_rdx1craxu46zcu8v4uu4hg6346hkkw0f8mmw6zmnckufupg8s03709uzce',
+      poolAddress:
+        'pool_rdx1ckw50qh8gry85hvq4ctdf95edns7gzeue4jx305td8cgttm8ljutd2',
+      lpResourceAddress:
+        'resource_rdx1tht9kj9vpdwhny77dn73lqx4ca2tut9yc5q752mhvgtcdhfzyzzn2s',
+      token_x: Assets.Fungible.hETH,
+      token_y: Assets.Fungible.XRD,
+    },
+    HUSDC_XRD_2: {
+      name: 'HUSDC/XRD',
+      componentAddress:
+        'component_rdx1cpq33pl7430r0fn0gdzlhkuyu20zlp65zfn6dy7fsh30ts9tg293te',
+      poolAddress:
+        'pool_rdx1ckgx9waann7djd7frcqevjxq7fh8tfdr5qvyz6ux7s0jkn03mgekkg',
+      lpResourceAddress:
+        'resource_rdx1t57hslzkmwlcz4fgy6p5xph7v83y6x6n8wjwkn0fphy8cvh6jyntyf',
+      token_x: Assets.Fungible.hUSDC,
+      token_y: Assets.Fungible.XRD,
+    },
+    HWBTC_XRD_2: {
+      name: 'HWBTC/XRD',
+      componentAddress:
+        'component_rdx1cp7hjekv5k4scwkehf03cvd8tkwxv790knjcapmku9778zjsnh4uwh',
+      poolAddress:
+        'pool_rdx1ckp8p90n89qjttl5qzyu6a4dugmxuxkxax4rfsye5fhp6j97jxxvj5',
+      lpResourceAddress:
+        'resource_rdx1t5x5jmvtwzz9wupx3gcatmq8e2d34kpk364jkhk9ydvwp5ag8t76xc',
+      token_x: Assets.Fungible.hwBTC,
+      token_y: Assets.Fungible.XRD,
+    },
+    HSOL_HUSDC_2: {
+      name: 'HSOL/HUSDC',
+      componentAddress:
+        'component_rdx1cqr049gw8fxzss56yga0z2wxr252l6nty4f47ccy0vsjc6h2fs7hrz',
+      poolAddress:
+        'pool_rdx1c468r885t98px6shufmez77fm6tpyc46y3ea7sy3ph3ttsuy84vlsr',
+      lpResourceAddress:
+        'resource_rdx1t4zctfnx9nu09ays5q47j4wg2ay7ku6wyttuy525r4ndjnyl8hk86h',
+      token_x: Assets.Fungible.hSOL,
+      token_y: Assets.Fungible.hUSDC,
+    },
+    HSOL_HETH: {
+      name: 'HSOL/HETH',
+      componentAddress:
+        'component_rdx1czjarh8cwcwdu2va9fa5yetmjrgequ8fxrl7ycvfmxpymyyqvwtqkh',
+      poolAddress:
+        'pool_rdx1c4k4dy5zwgunkl7kq0qhs0qxtgxvf75vsgt5eakcfnjaw9czyn0803',
+      lpResourceAddress:
+        'resource_rdx1tkzkquppfn977pjv8e7dhtkm62ccgra0krse5y2hyk4z7nv70s0lkj',
+      token_x: Assets.Fungible.hSOL,
+      token_y: Assets.Fungible.hETH,
+    },
+    HSOL_HWBTC_2: {
+      name: 'HSOL/HWBTC',
+      componentAddress:
+        'component_rdx1cp77jt5u3gl8mmz473jlcm6gyganw205rsm4n8k0tenayrmga55gzu',
+      poolAddress:
+        'pool_rdx1ckq9kkp4n5sgwdjpvul6t3fjtwjc5v5d3vf0q92l6ru2daaznag2ly',
+      lpResourceAddress:
+        'resource_rdx1tk3v94ajt08ytejanxrk4hfq56zmsup7a6v6305jqsp8v2svwgyaxk',
+      token_x: Assets.Fungible.hSOL,
+      token_y: Assets.Fungible.hwBTC,
+    },
+    HUSDC_HETH: {
+      name: 'HUSDC/HETH',
+      componentAddress:
+        'component_rdx1crjzxfu22myu7ephmavwjyu9wuz6juqjcum85wjhz2ant2g4nq8535',
+      poolAddress:
+        'pool_rdx1c4fgpnvvted0q3vns5lfgl3me2ywn8c9s4jjqavpeszj2cknaj6x75',
+      lpResourceAddress:
+        'resource_rdx1thn5xzgfqk7ht355lsktpagywn0p2tcsjw4vtxjc5e9uf6gvpja993',
+      token_x: Assets.Fungible.hUSDC,
+      token_y: Assets.Fungible.hETH,
+    },
+    HUSDC_HWBTC: {
+      name: 'HUSDC/HWBTC',
+      componentAddress:
+        'component_rdx1cpkc30ac3f3rscp3nxjcj3hkzcgl8k4w0f9c0662acum5x3a0z6kps',
+      poolAddress:
+        'pool_rdx1ch005nwygvjlr9fe0ag5vksld4scd3grvt56vv9yqntnvn8m0s0tsc',
+      lpResourceAddress:
+        'resource_rdx1tkpvtdrnyh8axh0leun867kryerj0hc6tdrhc05c82taauju95u9yv',
+      token_x: Assets.Fungible.hUSDC,
+      token_y: Assets.Fungible.hwBTC,
+    },
+    HETH_HWBTC_2: {
+      name: 'HETH/HWBTC',
+      componentAddress:
+        'component_rdx1cqta7u8felz3s0eckxsw2l0655q6pmt6rjudrvp9nlk40h80262jsk',
+      poolAddress:
+        'pool_rdx1c55yd5r0ck462nnxsuvpjxxtft4secrw6zrdf8ejv0hj40k8lmttce',
+      lpResourceAddress:
+        'resource_rdx1th6hu39vqhuk5k5y6y4saze8ze27l60rzt9pmnaukqtngpdh3ddvpn',
+      token_x: Assets.Fungible.hETH,
+      token_y: Assets.Fungible.hwBTC,
+    },
   },
 } as const;
 
