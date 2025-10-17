@@ -3685,6 +3685,11 @@ export const accountBalanceFixture = {
         metadata: undefined,
       },
       {
+        activityId: 'c9_lp_blu_heth-hsol',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
         activityId: 'oc_lp_nat_ilis-xrd',
         usdValue: '0.6863445252211383661764673091192682406162397514199950191',
         metadata: undefined,
