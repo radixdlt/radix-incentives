@@ -501,20 +501,8 @@ const runnable = Effect.gen(function* () {
       action: Action.OTHER,
       assets: [],
     },
-    // TODO: Flux activities, manually defined here, don't know exactly which activities to go with.
+    // Flux holding activities - CDPs and Reservoirs
     ...[
-      {
-        category: ActivityCategoryId.lendingStables,
-        id: 'sta_fusd',
-        tokenPair: 'fusd',
-        component: FluxConstants.cdpManager.componentAddress,
-        action: Action.LEND,
-        asset: {
-          type: AssetType.STABLE,
-          name: 'fusd',
-          address: Assets.Fungible.fUSD,
-        },
-      },
       {
         category: ActivityCategoryId.maintainXrdBalance,
         id: 'xrd',
@@ -522,7 +510,7 @@ const runnable = Effect.gen(function* () {
         component: FluxConstants.cdpManager.componentAddress,
         action: Action.HOLD,
         asset: {
-          type: AssetType.NATIVE,
+          type: AssetType.XRD_DERIVATIVE,
           name: 'xrd',
           address: Assets.Fungible.XRD,
         },
@@ -546,7 +534,7 @@ const runnable = Effect.gen(function* () {
         component: FluxConstants.reservoirs.xrd.componentAddress,
         action: Action.HOLD,
         asset: {
-          type: AssetType.NATIVE,
+          type: AssetType.XRD_DERIVATIVE,
           name: 'xrd',
           address: Assets.Fungible.XRD,
         },
@@ -561,54 +549,6 @@ const runnable = Effect.gen(function* () {
           type: AssetType.XRD_DERIVATIVE,
           name: 'lsulp',
           address: FluxConstants.collaterals.lsulp.collateralAddress,
-        },
-      },
-      {
-        category: ActivityCategoryId.provideStablesLiquidityToDex,
-        id: 'sta_xrdfusd',
-        tokenPair: 'xrdfusd',
-        component: FluxConstants.reservoirs.xrd.componentAddress,
-        action: Action.LP,
-        asset: {
-          type: AssetType.STABLE,
-          name: 'fusd',
-          address: Assets.Fungible.fUSD,
-        },
-      },
-      {
-        category: ActivityCategoryId.provideStablesLiquidityToDex,
-        id: 'sta_lsulpfusd',
-        tokenPair: 'lsulpfusd',
-        component: FluxConstants.reservoirs.lsulp.componentAddress,
-        action: Action.LP,
-        asset: {
-          type: AssetType.STABLE,
-          name: 'fusd',
-          address: Assets.Fungible.fUSD,
-        },
-      },
-      {
-        category: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
-        id: 'der_lsulpfusd',
-        tokenPair: 'lsulpfusd',
-        component: FluxConstants.reservoirs.lsulp.componentAddress,
-        action: Action.LP,
-        asset: {
-          type: AssetType.XRD_DERIVATIVE,
-          name: 'lsulp',
-          address: FluxConstants.collaterals.lsulp.collateralAddress,
-        },
-      },
-      {
-        category: ActivityCategoryId.provideXrdDerivativeLiquidityToDex,
-        id: 'der_xrdfusd',
-        tokenPair: 'xrdfusd',
-        component: FluxConstants.reservoirs.xrd.componentAddress,
-        action: Action.LP,
-        asset: {
-          type: AssetType.NATIVE,
-          name: 'xrd',
-          address: Assets.Fungible.XRD,
         },
       },
     ].map((spec) => ({

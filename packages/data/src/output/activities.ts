@@ -147,11 +147,6 @@ export const ActivityId = {
   fl_ho_lsulpfusd: 'fl_ho_lsulpfusd',
   fl_ho_xrd: 'fl_ho_xrd',
   fl_ho_xrdfusd: 'fl_ho_xrdfusd',
-  fl_le_sta_fusd: 'fl_le_sta_fusd',
-  fl_lp_der_lsulpfusd: 'fl_lp_der_lsulpfusd',
-  fl_lp_der_xrdfusd: 'fl_lp_der_xrdfusd',
-  fl_lp_sta_lsulpfusd: 'fl_lp_sta_lsulpfusd',
-  fl_lp_sta_xrdfusd: 'fl_lp_sta_xrdfusd',
   ho_lsulp: 'ho_lsulp',
   ho_stakedXrd: 'ho_stakedXrd',
   ho_unstakedXrd: 'ho_unstakedXrd',
@@ -639,10 +634,6 @@ const componentAddressLpActivityIdMap: Record<string, ActivityId> = {
     'dp_lp_der_hsol-xrd',
   component_rdx1crezrpxw9ypg6v2panqjqwevnwplg94yeej0rhqq9k7p4kgnltrc9g:
     'su_lp_sta_susd',
-  pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77:
-    'fl_lp_der_xrdfusd',
-  pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m:
-    'fl_lp_der_lsulpfusd',
 };
 
 export const getLpActivityIdByComponentAddress = (
@@ -5682,24 +5673,6 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
   ],
   fl: [
     {
-      categoryId: 'lendingStables',
-      activityId: 'fl_le_sta_fusd',
-      dAppId: 'fl',
-      tokenPair: 'fusd',
-      action: 'le',
-      assets: [
-        {
-          assetType: 'sta',
-          name: 'fusd',
-          resourceAddress:
-            'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-        },
-      ],
-      componentAddresses: [
-        'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
-      ],
-    },
-    {
       categoryId: 'maintainXrdBalance',
       activityId: 'fl_ho_xrd',
       dAppId: 'fl',
@@ -5707,7 +5680,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'ho',
       assets: [
         {
-          assetType: 'nat',
+          assetType: 'der',
           name: 'xrd',
           resourceAddress:
             'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -5743,7 +5716,7 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       action: 'ho',
       assets: [
         {
-          assetType: 'nat',
+          assetType: 'der',
           name: 'xrd',
           resourceAddress:
             'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -5771,81 +5744,9 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
         'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
       ],
     },
-    {
-      categoryId: 'provideStablesLiquidityToDex',
-      activityId: 'fl_lp_sta_xrdfusd',
-      dAppId: 'fl',
-      tokenPair: 'xrdfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'sta',
-          name: 'fusd',
-          resourceAddress:
-            'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-        },
-      ],
-      componentAddresses: [
-        'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
-      ],
-    },
-    {
-      categoryId: 'provideStablesLiquidityToDex',
-      activityId: 'fl_lp_sta_lsulpfusd',
-      dAppId: 'fl',
-      tokenPair: 'lsulpfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'sta',
-          name: 'fusd',
-          resourceAddress:
-            'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-        },
-      ],
-      componentAddresses: [
-        'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
-      ],
-    },
-    {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'fl_lp_der_lsulpfusd',
-      dAppId: 'fl',
-      tokenPair: 'lsulpfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'der',
-          name: 'lsulp',
-          resourceAddress:
-            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-        },
-      ],
-      componentAddresses: [
-        'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
-      ],
-    },
-    {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'fl_lp_der_xrdfusd',
-      dAppId: 'fl',
-      tokenPair: 'xrdfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'nat',
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        },
-      ],
-      componentAddresses: [
-        'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
-      ],
-    },
   ],
   as: [],
-};
+} as any;
 
 export const activityData: ActivityData[] = [
   {
@@ -10865,24 +10766,6 @@ export const activityData: ActivityData[] = [
     componentAddresses: [],
   },
   {
-    categoryId: 'lendingStables',
-    activityId: 'fl_le_sta_fusd',
-    dAppId: 'fl',
-    tokenPair: 'fusd',
-    action: 'le',
-    assets: [
-      {
-        assetType: 'sta',
-        name: 'fusd',
-        resourceAddress:
-          'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-      },
-    ],
-    componentAddresses: [
-      'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
-    ],
-  },
-  {
     categoryId: 'maintainXrdBalance',
     activityId: 'fl_ho_xrd',
     dAppId: 'fl',
@@ -10890,7 +10773,7 @@ export const activityData: ActivityData[] = [
     action: 'ho',
     assets: [
       {
-        assetType: 'nat',
+        assetType: 'der',
         name: 'xrd',
         resourceAddress:
           'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -10926,7 +10809,7 @@ export const activityData: ActivityData[] = [
     action: 'ho',
     assets: [
       {
-        assetType: 'nat',
+        assetType: 'der',
         name: 'xrd',
         resourceAddress:
           'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -10954,79 +10837,7 @@ export const activityData: ActivityData[] = [
       'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
     ],
   },
-  {
-    categoryId: 'provideStablesLiquidityToDex',
-    activityId: 'fl_lp_sta_xrdfusd',
-    dAppId: 'fl',
-    tokenPair: 'xrdfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'sta',
-        name: 'fusd',
-        resourceAddress:
-          'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
-    ],
-  },
-  {
-    categoryId: 'provideStablesLiquidityToDex',
-    activityId: 'fl_lp_sta_lsulpfusd',
-    dAppId: 'fl',
-    tokenPair: 'lsulpfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'sta',
-        name: 'fusd',
-        resourceAddress:
-          'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
-    ],
-  },
-  {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'fl_lp_der_lsulpfusd',
-    dAppId: 'fl',
-    tokenPair: 'lsulpfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'der',
-        name: 'lsulp',
-        resourceAddress:
-          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
-    ],
-  },
-  {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'fl_lp_der_xrdfusd',
-    dAppId: 'fl',
-    tokenPair: 'xrdfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'nat',
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
-    ],
-  },
-];
+] as any;
 
 export const activityDataMap: Record<ActivityId, ActivityData> = {
   'c9_lp_der_lsulp-xrd': {
@@ -16045,24 +15856,6 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     assets: [],
     componentAddresses: [],
   },
-  fl_le_sta_fusd: {
-    categoryId: 'lendingStables',
-    activityId: 'fl_le_sta_fusd',
-    dAppId: 'fl',
-    tokenPair: 'fusd',
-    action: 'le',
-    assets: [
-      {
-        assetType: 'sta',
-        name: 'fusd',
-        resourceAddress:
-          'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-      },
-    ],
-    componentAddresses: [
-      'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
-    ],
-  },
   fl_ho_xrd: {
     categoryId: 'maintainXrdBalance',
     activityId: 'fl_ho_xrd',
@@ -16071,7 +15864,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     action: 'ho',
     assets: [
       {
-        assetType: 'nat',
+        assetType: 'der',
         name: 'xrd',
         resourceAddress:
           'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -16107,7 +15900,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     action: 'ho',
     assets: [
       {
-        assetType: 'nat',
+        assetType: 'der',
         name: 'xrd',
         resourceAddress:
           'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -16135,79 +15928,7 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
       'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
     ],
   },
-  fl_lp_sta_xrdfusd: {
-    categoryId: 'provideStablesLiquidityToDex',
-    activityId: 'fl_lp_sta_xrdfusd',
-    dAppId: 'fl',
-    tokenPair: 'xrdfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'sta',
-        name: 'fusd',
-        resourceAddress:
-          'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
-    ],
-  },
-  fl_lp_sta_lsulpfusd: {
-    categoryId: 'provideStablesLiquidityToDex',
-    activityId: 'fl_lp_sta_lsulpfusd',
-    dAppId: 'fl',
-    tokenPair: 'lsulpfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'sta',
-        name: 'fusd',
-        resourceAddress:
-          'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
-    ],
-  },
-  fl_lp_der_lsulpfusd: {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'fl_lp_der_lsulpfusd',
-    dAppId: 'fl',
-    tokenPair: 'lsulpfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'der',
-        name: 'lsulp',
-        resourceAddress:
-          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
-    ],
-  },
-  fl_lp_der_xrdfusd: {
-    categoryId: 'provideXrdDerivativeLiquidityToDex',
-    activityId: 'fl_lp_der_xrdfusd',
-    dAppId: 'fl',
-    tokenPair: 'xrdfusd',
-    action: 'lp',
-    assets: [
-      {
-        assetType: 'nat',
-        name: 'xrd',
-        resourceAddress:
-          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-      },
-    ],
-    componentAddresses: [
-      'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
-    ],
-  },
-};
+} as any;
 
 export const componentAddressActivityDataMap: Record<
   string,
@@ -23998,21 +23719,6 @@ export const componentAddressActivityDataMap: Record<
   ],
   component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u: [
     {
-      categoryId: 'lendingStables',
-      activityId: 'fl_le_sta_fusd',
-      dAppId: 'fl',
-      tokenPair: 'fusd',
-      action: 'le',
-      assets: [
-        {
-          assetType: 'sta',
-          name: 'fusd',
-          resourceAddress:
-            'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-        },
-      ],
-    },
-    {
       categoryId: 'maintainXrdBalance',
       activityId: 'fl_ho_xrd',
       dAppId: 'fl',
@@ -24020,7 +23726,7 @@ export const componentAddressActivityDataMap: Record<
       action: 'ho',
       assets: [
         {
-          assetType: 'nat',
+          assetType: 'der',
           name: 'xrd',
           resourceAddress:
             'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -24052,37 +23758,7 @@ export const componentAddressActivityDataMap: Record<
       action: 'ho',
       assets: [
         {
-          assetType: 'nat',
-          name: 'xrd',
-          resourceAddress:
-            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
-        },
-      ],
-    },
-    {
-      categoryId: 'provideStablesLiquidityToDex',
-      activityId: 'fl_lp_sta_xrdfusd',
-      dAppId: 'fl',
-      tokenPair: 'xrdfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'sta',
-          name: 'fusd',
-          resourceAddress:
-            'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-        },
-      ],
-    },
-    {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'fl_lp_der_xrdfusd',
-      dAppId: 'fl',
-      tokenPair: 'xrdfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'nat',
+          assetType: 'der',
           name: 'xrd',
           resourceAddress:
             'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
@@ -24106,35 +23782,5 @@ export const componentAddressActivityDataMap: Record<
         },
       ],
     },
-    {
-      categoryId: 'provideStablesLiquidityToDex',
-      activityId: 'fl_lp_sta_lsulpfusd',
-      dAppId: 'fl',
-      tokenPair: 'lsulpfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'sta',
-          name: 'fusd',
-          resourceAddress:
-            'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
-        },
-      ],
-    },
-    {
-      categoryId: 'provideXrdDerivativeLiquidityToDex',
-      activityId: 'fl_lp_der_lsulpfusd',
-      dAppId: 'fl',
-      tokenPair: 'lsulpfusd',
-      action: 'lp',
-      assets: [
-        {
-          assetType: 'der',
-          name: 'lsulp',
-          resourceAddress:
-            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
-        },
-      ],
-    },
   ],
-};
+} as any;
