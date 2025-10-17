@@ -7,7 +7,7 @@ import { Config, Effect } from 'effect';
 import { chunker } from '../helpers/chunker';
 import { EntityNonFungiblesPageService } from './entityNonFungiblesPage';
 import { GatewayApiClientService } from './gatewayApiClient';
-import { GetLedgerStateService } from './getLedgerState';
+
 import { GetNonFungibleIdsService } from './getNonFungibleIds';
 import type { AtLedgerState } from './schemas';
 
@@ -25,14 +25,12 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
       GatewayApiClientService.Default,
       EntityNonFungiblesPageService.Default,
       GetNonFungibleIdsService.Default,
-      GetLedgerStateService.Default,
     ],
     effect: Effect.gen(function* () {
       const gatewayClient = yield* GatewayApiClientService;
       const entityNonFungiblesPageService =
         yield* EntityNonFungiblesPageService;
       const getNonFungibleIdsService = yield* GetNonFungibleIdsService;
-      const getLedgerStateService = yield* GetLedgerStateService;
 
       const getNftResourceManagersConcurrency = yield* Config.number(
         'GET_NFT_RESOURCE_MANAGERS_CONCURRENCY',
@@ -92,24 +90,13 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
         let next_cursor = resourceManager.vaults.next_cursor;
         const totalCount = resourceManager.vaults.total_count ?? 0;
 
-        // Convert timestamp to state_version for pagination
-        let at_ledger_state_for_pagination = at_ledger_state;
-        if (next_cursor && 'timestamp' in at_ledger_state) {
-          const ledgerState = yield* getLedgerStateService({
-            at_ledger_state,
-          });
-          at_ledger_state_for_pagination = {
-            state_version: ledgerState.state_version,
-          };
-        }
-
         while (next_cursor && totalCount > 0) {
           const vaultsPage = yield* getNonFungibleResourceVaultPage({
             address,
             cursor: next_cursor,
             resourceAddress: resourceManager.resource_address,
             optIns,
-            at_ledger_state: at_ledger_state_for_pagination,
+            at_ledger_state,
           }).pipe(Effect.withSpan('getNonFungibleResourceVaultPage'));
 
           vaults.push(...vaultsPage.items);
@@ -192,22 +179,11 @@ export class GetNftResourceManagersService extends Effect.Service<GetNftResource
             let next_cursor = item.non_fungible_resources?.next_cursor;
             const totalCount = item.non_fungible_resources?.total_count ?? 0;
 
-            // Convert timestamp to state_version for pagination
-            let at_ledger_state_for_pagination = input.at_ledger_state;
-            if (next_cursor && 'timestamp' in input.at_ledger_state) {
-              const ledgerState = yield* getLedgerStateService({
-                at_ledger_state: input.at_ledger_state,
-              });
-              at_ledger_state_for_pagination = {
-                state_version: ledgerState.state_version,
-              };
-            }
-
             while (next_cursor && totalCount > 0) {
               const entityNonFungiblesPageResult =
                 yield* entityNonFungiblesPageService({
                   address,
-                  at_ledger_state: at_ledger_state_for_pagination,
+                  at_ledger_state: input.at_ledger_state,
                   aggregation_level: aggregationLevel,
                   opt_ins: optIns,
                   cursor: next_cursor,

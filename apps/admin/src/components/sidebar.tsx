@@ -5,7 +5,6 @@ import {
   BarChart3,
   Bell,
   CalendarDays,
-  Coins,
   Database,
   ListOrdered,
   LogOut,
@@ -41,11 +40,6 @@ const navigationItems = [
     title: 'Milestones',
     href: '/milestones',
     icon: <Target className="h-5 w-5" />,
-  },
-  {
-    title: 'Resource Rewards',
-    href: '/resource-rewards',
-    icon: <Coins className="h-5 w-5" />,
   },
   {
     title: 'Notifications',
