@@ -16,12 +16,6 @@ const config = {
         port: '',
         pathname: '/**',
       },
-      {
-        protocol: 'https',
-        hostname: 'image-service.radixdlt.com',
-        port: '',
-        pathname: '/**',
-      },
     ],
   },
 };

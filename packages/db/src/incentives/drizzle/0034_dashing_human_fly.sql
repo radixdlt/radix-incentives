@@ -1,1 +1,0 @@
-ALTER TABLE "resource_reward_definition" ADD COLUMN "weekly_limit" integer;

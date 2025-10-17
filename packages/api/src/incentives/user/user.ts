@@ -17,13 +17,7 @@ import { ActivityWeekService } from '../activity-week/activityWeek';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 class UserNotFoundError extends Data.TaggedError('UserNotFoundError')<{
-  identityAddress?: string;
-}> {}
-
-class UserHasNoAccountsError extends Data.TaggedError(
-  'UserHasNoAccountsError',
-)<{
-  message: string;
+  identityAddress: string;
 }> {}
 
 type AnonymousUserData = {
@@ -256,26 +250,6 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       return result;
     });
 
-    const getUserIdByAccountAddress = Effect.fn(function* (input: {
-      accountAddress: string;
-    }) {
-      const result = yield* Effect.tryPromise({
-        try: () =>
-          db
-            .select({ userId: accounts.userId })
-            .from(accounts)
-            .where(eq(accounts.address, input.accountAddress))
-            .then((result) => result[0]?.userId),
-        catch: (error) => new DbError(error),
-      });
-
-      if (!result) {
-        return yield* Effect.fail(new UserNotFoundError({}));
-      }
-
-      return result;
-    });
-
     const buildAnonymousUserData = Effect.fn(function* (input: {
       activeActivityIds: string[];
       activityNamesMap: Map<string, string | null | undefined>;
@@ -495,34 +469,6 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       return result;
     });
 
-    const getAccountAddressesByUserId = Effect.fn(function* (input: {
-      userId: string;
-    }) {
-      const result = yield* Effect.tryPromise({
-        try: () =>
-          db
-            .select({ address: accounts.address })
-            .from(accounts)
-            .where(eq(accounts.userId, input.userId)),
-        catch: (error) => new DbError(error),
-      });
-      return result.map((r) => r.address);
-    });
-
-    const userHasRegisteredAccounts = Effect.fn(function* (input: {
-      userId: string;
-    }) {
-      const result = yield* getAccountAddressesByUserId(input);
-      if (result.length === 0) {
-        return yield* Effect.fail(
-          new UserHasNoAccountsError({
-            message: `User ${input.userId} has no registered account addresses`,
-          }),
-        );
-      }
-      return result;
-    });
-
     return {
       getUserStats: Effect.fn(function* (input: {
         userId: string;
@@ -547,9 +493,6 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       getAccountsByUserId,
       getMultiplierByUserId,
       getUserByIdentityAddress,
-      getUserIdByAccountAddress,
-      getAccountAddressesByUserId,
-      userHasRegisteredAccounts,
     };
   }),
 }) {}
