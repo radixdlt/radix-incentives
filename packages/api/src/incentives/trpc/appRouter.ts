@@ -17,6 +17,7 @@ import {
   adminMilestoneRouter,
   milestoneRouter,
 } from '../milestones/milestoneRouter';
+import { resourceRewardRouter } from '../resource-reward/resourceRewardRouter';
 import { adminSeasonRouter } from '../season/seasonRouter';
 import { adminSeedRouter } from '../seed/seedRouter';
 import { adminMarginAccountSeedingRouter } from '../surge/marginAccountSeedingRouter';
@@ -40,6 +41,7 @@ export const appRouter = createTRPCRouter({
   week: weekRouter,
   dapps: dappRouter,
   milestones: milestoneRouter,
+  resourceReward: resourceRewardRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
