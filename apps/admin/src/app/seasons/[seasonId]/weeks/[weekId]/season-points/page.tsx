@@ -283,12 +283,22 @@ const _CategoryFilterSection = ({
   );
 };
 
+type CategoryStatistics = {
+  categoryId: string;
+  usersWithActivityPoints: number;
+  finalUsersReceivingPoints: number;
+  lowestApReceivingPoints: string | null;
+};
+
 export default function SeasonPointsPage() {
   const params = useParams<{ seasonId: string; weekId: string }>();
   const [calculationResult, setCalculationResult] =
     useState<typeof seasonPoints>();
   const [fullCalculationResult, setFullCalculationResult] =
     useState<typeof seasonPoints>();
+  const [categoryStatistics, setCategoryStatistics] = useState<
+    CategoryStatistics[]
+  >([]);
   const [isCalculating, setIsCalculating] = useState(false);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
 
@@ -378,10 +388,12 @@ export default function SeasonPointsPage() {
       },
       onSuccess: (data) => {
         // Store the full calculation result
-        setFullCalculationResult(data);
+        setFullCalculationResult(data.users);
+        // Store category statistics
+        setCategoryStatistics(data.categoryStatistics);
         // Apply current category filter
         const filteredResults = filterAndRecalculateResults(
-          data,
+          data.users,
           selectedCategories,
         );
         setCalculationResult(filteredResults);
@@ -700,6 +712,87 @@ export default function SeasonPointsPage() {
                         </div>
                       ))}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Category Statistics Section */}
+              {categoryStatistics.length > 0 && (
+                <div className="rounded-lg border bg-muted/30 p-4">
+                  <div className="mb-4">
+                    <h4 className="mb-2 font-medium text-sm">
+                      Category Statistics
+                    </h4>
+                    <p className="text-muted-foreground text-xs">
+                      User participation and filtering impact per category
+                    </p>
+                  </div>
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Category</TableHead>
+                          <TableHead className="text-right">
+                            Users with AP
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Users after Filtering
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Filtered Out
+                          </TableHead>
+                          <TableHead className="text-right">
+                            Lowest AP
+                          </TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {categoryStatistics.map((stat) => {
+                          const category = availableCategories?.find(
+                            (c) => c.id === stat.categoryId,
+                          );
+                          const filteredOut =
+                            stat.usersWithActivityPoints -
+                            stat.finalUsersReceivingPoints;
+                          const filteredPercentage =
+                            stat.usersWithActivityPoints > 0
+                              ? (
+                                  (filteredOut / stat.usersWithActivityPoints) *
+                                  100
+                                ).toFixed(1)
+                              : '0.0';
+                          return (
+                            <TableRow key={stat.categoryId}>
+                              <TableCell className="font-medium">
+                                {category?.name || stat.categoryId}
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {stat.usersWithActivityPoints.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {stat.finalUsersReceivingPoints.toLocaleString()}
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {filteredOut.toLocaleString()}{' '}
+                                <span className="text-muted-foreground">
+                                  ({filteredPercentage}%)
+                                </span>
+                              </TableCell>
+                              <TableCell className="text-right font-mono">
+                                {stat.lowestApReceivingPoints
+                                  ? Number(
+                                      stat.lowestApReceivingPoints,
+                                    ).toLocaleString(undefined, {
+                                      maximumFractionDigits: 2,
+                                      minimumFractionDigits: 2,
+                                    })
+                                  : '-'}
+                              </TableCell>
+                            </TableRow>
+                          );
+                        })}
+                      </TableBody>
+                    </Table>
                   </div>
                 </div>
               )}
