@@ -771,6 +771,7 @@ export const resourceRewardDefinitions = createTable(
     address: varchar('address', { length: 255 }).primaryKey(),
     points: integer('points').notNull(),
     weeklyLimit: integer('weekly_limit'),
+    url: varchar('url', { length: 500 }),
   },
 );
 

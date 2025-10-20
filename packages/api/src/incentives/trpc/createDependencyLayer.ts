@@ -1268,6 +1268,22 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const updateResourceReward = (input: ResourceRewardDefinition) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.updateResourceRewardDefinition(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
+  const deleteResourceReward = (input: { address: string }) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.deleteResourceRewardDefinition(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1339,6 +1355,8 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     deleteMilestone,
     getUserActivityPointsByWeek,
     createResourceReward,
+    updateResourceReward,
+    deleteResourceReward,
     listResourceRewards,
     getUserResourceRewards,
     claimResourceRewards,

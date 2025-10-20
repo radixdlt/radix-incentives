@@ -1,6 +1,7 @@
 'use client';
 
 import {
+  Award,
   ChevronLeft,
   ChevronRight,
   HelpCircle,
@@ -50,6 +51,14 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       href: '/dashboard/earn',
       icon: (
         <Target className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
+      ),
+      hide: isLimitAccessEnabled,
+    },
+    {
+      label: 'Quests',
+      href: '/dashboard/earn/resourceRewards',
+      icon: (
+        <Award className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
       hide: isLimitAccessEnabled,
     },

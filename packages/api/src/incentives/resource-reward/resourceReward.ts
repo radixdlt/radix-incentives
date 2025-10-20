@@ -34,6 +34,7 @@ export class ResourceRewardDefinition extends Schema.Class<ResourceRewardDefinit
   address: RadixDataTypeSchema.ResourceAddress,
   points: Schema.Number,
   weeklyLimit: Schema.NullishOr(Schema.Number),
+  url: Schema.NullishOr(Schema.String),
 }) {}
 
 class ResourceRewardClaim extends Schema.Class<ResourceRewardClaim>(
@@ -426,6 +427,63 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
             })),
             nfHoldings,
           };
+        }),
+        updateResourceRewardDefinition: Effect.fnUntraced(function* (
+          input: ResourceRewardDefinition,
+        ) {
+          const resourceReward = yield* Schema.decodeUnknown(
+            ResourceRewardDefinition,
+          )(input);
+
+          const existing = yield* getResourceRewardDefinitionsFromDb({
+            address: resourceReward.address,
+          }).pipe(Effect.map((res) => res[0]));
+
+          if (!existing) {
+            return yield* Effect.fail(
+              new ResourceNotFoundError({
+                message: `Resource with address ${resourceReward.address} not found`,
+              }),
+            );
+          }
+
+          const encodedResourceReward = yield* Schema.encodeUnknown(
+            ResourceRewardDefinition,
+          )(resourceReward);
+
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .update(resourceRewardDefinitions)
+                .set(encodedResourceReward)
+                .where(
+                  eq(resourceRewardDefinitions.address, resourceReward.address),
+                ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        deleteResourceRewardDefinition: Effect.fnUntraced(function* (input: {
+          address: string;
+        }) {
+          const existing = yield* getResourceRewardDefinitionsFromDb({
+            address: input.address,
+          }).pipe(Effect.map((res) => res[0]));
+
+          if (!existing) {
+            return yield* Effect.fail(
+              new ResourceNotFoundError({
+                message: `Resource with address ${input.address} not found`,
+              }),
+            );
+          }
+
+          return yield* Effect.tryPromise({
+            try: () =>
+              db
+                .delete(resourceRewardDefinitions)
+                .where(eq(resourceRewardDefinitions.address, input.address)),
+            catch: (error) => new DbError(error),
+          });
         }),
       };
     }),

@@ -442,12 +442,14 @@ export const adminRouter = createTRPCRouter({
           address: z.string(),
           points: z.number(),
           weeklyLimit: z.number().optional(),
+          url: z.string().optional(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
         const result = await ctx.dependencyLayer.createResourceReward({
           ...input,
           weeklyLimit: input.weeklyLimit ?? undefined,
+          url: input.url ?? undefined,
         });
         return Exit.match(result, {
           onSuccess: (value) => value,
@@ -481,5 +483,68 @@ export const adminRouter = createTRPCRouter({
         },
       });
     }),
+    updateResourceReward: publicProcedure
+      .input(
+        z.object({
+          address: z.string(),
+          points: z.number(),
+          weeklyLimit: z.number().optional(),
+          url: z.string().optional(),
+        }),
+      )
+      .mutation(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.updateResourceReward({
+          ...input,
+          weeklyLimit: input.weeklyLimit ?? undefined,
+          url: input.url ?? undefined,
+        });
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            if (error._tag === 'Fail') {
+              switch (error.error._tag) {
+                case 'ResourceNotFoundError':
+                  throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: error.error.message,
+                  });
+              }
+            }
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+      }),
+    deleteResourceReward: publicProcedure
+      .input(
+        z.object({
+          address: z.string(),
+        }),
+      )
+      .mutation(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.deleteResourceReward({
+          address: input.address,
+        });
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            if (error._tag === 'Fail') {
+              switch (error.error._tag) {
+                case 'ResourceNotFoundError':
+                  throw new TRPCError({
+                    code: 'NOT_FOUND',
+                    message: error.error.message,
+                  });
+              }
+            }
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+      }),
   },
 });

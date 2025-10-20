@@ -19,6 +19,7 @@ type ResourceReward = {
   address: string;
   points: number;
   weeklyLimit?: number;
+  url?: string | null;
 };
 
 export type ResourceRewardListProps = {
@@ -50,6 +51,7 @@ const ResourceRewardItem = ({
   claims,
   nfHoldings,
   iconUrl,
+  url,
   isLoggedIn,
   onClaim,
 }: ResourceReward & { onClaim: () => Promise<void>; isLoggedIn: boolean }) => {
@@ -88,19 +90,33 @@ const ResourceRewardItem = ({
               className="aspect-square rounded-lg"
             />
             <div className="self-center">
-              <Link
-                href={`https://dashboard.radixdlt.com/resource/${address}`}
-                target="_blank"
-                className="flex items-center gap-1 hover:underline"
-              >
-                {name}
-                <ExternalLink className="h-3 w-3 self-center" />
-              </Link>
+              {url ? (
+                <Link
+                  href={url}
+                  target="_blank"
+                  className="flex items-center gap-1 hover:underline"
+                >
+                  {name}
+                  <ExternalLink className="h-3 w-3 self-center" />
+                </Link>
+              ) : (
+                <span>{name}</span>
+              )}
             </div>
           </div>
-          <Badge variant="outline" className="self-center">
-            Owned: {nfHoldings.length}
-          </Badge>
+          <Link
+            href={`https://dashboard.radixdlt.com/resource/${address}`}
+            target="_blank"
+            className="self-center transition-transform hover:scale-105"
+          >
+            <Badge
+              variant="outline"
+              className="flex cursor-pointer items-center gap-1 hover:bg-accent"
+            >
+              Owned: {nfHoldings.length}
+              <ExternalLink className="h-3 w-3" />
+            </Badge>
+          </Link>
         </CardTitle>
         <div className="text-sm">
           <CardDataListItem label="Points per item" value={points} />

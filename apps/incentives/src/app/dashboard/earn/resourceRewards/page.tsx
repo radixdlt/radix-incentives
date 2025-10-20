@@ -69,6 +69,7 @@ export default function ResourceRewardsPage() {
       address: item.address!,
       points: item.points,
       weeklyLimit: item.weeklyLimit ? item.weeklyLimit : undefined,
+      url: item.url,
       claims: persona
         ? (userResourceRewardsData?.claims
             .filter((claim) => claim.resourceManager === item.address)

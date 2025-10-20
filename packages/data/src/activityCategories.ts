@@ -75,6 +75,6 @@ export const activityCategoriesData: {
   },
   {
     id: ActivityCategoryId.resourceRewards,
-    name: 'Resource rewards',
+    name: 'Quests',
   },
 ];
