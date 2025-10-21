@@ -42,12 +42,19 @@ export const usePersona = () => {
         void utils.user.getUserCapitalAtWork.invalidate();
         void utils.user.getMultiplierByUserId.invalidate();
         void utils.user.getUserCategoryBreakdown.invalidate();
+        void utils.auth.accountRecovery.listProofs.invalidate();
+        void utils.auth.accountRecovery.pending.invalidate();
+        void utils.account.getAccounts.invalidate();
+        void utils.auth.isSignedIn.refetch();
       }
       // 2. New persona connects (different from last known)
       else if (currentAddress && globalLastKnownAddress !== currentAddress) {
         void utils.user.getUserCapitalAtWork.invalidate();
         void utils.user.getMultiplierByUserId.invalidate();
         void utils.user.getUserCategoryBreakdown.invalidate();
+        void utils.auth.accountRecovery.listProofs.invalidate();
+        void utils.auth.accountRecovery.pending.invalidate();
+        void utils.account.getAccounts.invalidate();
         globalLastKnownAddress = currentAddress;
       }
 
