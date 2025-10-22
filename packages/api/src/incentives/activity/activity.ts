@@ -51,6 +51,30 @@ export class ActivityService extends Effect.Service<ActivityService>()(
 
       const dappDataMap = new Map(dappsData.map((dapp) => [dapp.id, dapp]));
 
+      // Pre-compute tokens map for all activities (initialized once)
+      const tokensMap = new Map<
+        string,
+        Array<{ name: string; resourceAddress: string }> | null
+      >(
+        Object.entries(activityDataMap).map(([activityId, activity]) => [
+          activityId,
+          activity.assets && activity.assets.length > 0
+            ? activity.assets.map((asset) => ({
+                name: asset.name,
+                resourceAddress: asset.resourceAddress,
+              }))
+            : null,
+        ]),
+      );
+
+      // Pre-compute metadata URLs for all activities (initialized once)
+      const metadataUrlMap = new Map<string, string | null>(
+        Object.entries(activityDataMap).map(([activityId, activity]) => [
+          activityId,
+          activity.metadata?.url || null,
+        ]),
+      );
+
       return {
         list: Effect.fn(function* () {
           return yield* Effect.tryPromise({
@@ -148,19 +172,7 @@ export class ActivityService extends Effect.Service<ActivityService>()(
           >();
 
           for (const activityId of activityIds) {
-            const activity = activityDataMap[activityId as ActivityId];
-
-            if (!activity || !activity.assets || activity.assets.length === 0) {
-              result.set(activityId, null);
-              continue;
-            }
-
-            // Map assets to simplified token info
-            const tokens = activity.assets.map((asset) => ({
-              name: asset.name,
-              resourceAddress: asset.resourceAddress,
-            }));
-
+            const tokens = tokensMap.get(activityId) ?? null;
             result.set(activityId, tokens);
           }
 
@@ -172,14 +184,8 @@ export class ActivityService extends Effect.Service<ActivityService>()(
           const result = new Map<string, string | null>();
 
           for (const activityId of activityIds) {
-            const activity = activityDataMap[activityId as ActivityId];
-
-            if (!activity || !activity.metadata) {
-              result.set(activityId, null);
-              continue;
-            }
-
-            result.set(activityId, activity.metadata.url || null);
+            const metadataUrl = metadataUrlMap.get(activityId) ?? null;
+            result.set(activityId, metadataUrl);
           }
 
           return result;
