@@ -471,6 +471,30 @@ describe('GetDefiPlazaPositionsService', () => {
                   },
                 ],
               },
+              {
+                lpResourceAddress:
+                  'resource_rdx1t4d5n87gsq5vg0xlszyvmd8pgxv5a9nyrj7u9frgxcsy2gtgqk2d3h',
+                position: [
+                  {
+                    resourceAddress:
+                      'resource_rdx1t4et4jddp2fdupr00k83ct9jpnkgewply42l5098ztjkfvjfedvjva',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                  {
+                    resourceAddress:
+                      'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+                    amount: {
+                      s: 1,
+                      e: 0,
+                      c: [0],
+                    },
+                  },
+                ],
+              },
             ],
           },
         ].map((item) => ({

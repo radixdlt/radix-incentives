@@ -49,6 +49,7 @@ export const Assets = {
     hUSDT:
       'resource_rdx1th4v03gezwgzkuma6p38lnum8ww8t4ds9nvcrkr2p9ft6kxx3kxvhe',
     hSOL: 'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+    hBNB: 'resource_rdx1t4et4jddp2fdupr00k83ct9jpnkgewply42l5098ztjkfvjfedvjva',
   },
 } as const;
 
@@ -77,6 +78,7 @@ export const tokenNameMap = {
     [Assets.Fungible.hwBTC]: 'hwbtc',
     [Assets.Fungible.hETH]: 'heth',
     [Assets.Fungible.hSOL]: 'hsol',
+    [Assets.Fungible.hBNB]: 'hbnb',
   },
   stableAssets: {
     [Assets.Fungible.xUSDC]: 'xusdc',

@@ -269,6 +269,15 @@ export const CaviarNineConstants = {
       liquidity_receipt:
         'resource_rdx1nft6rc5rgl7kswrfu8x329vdul0dejvq79jtddnu3q470um72y7emy',
     },
+    hBNB_XRD: {
+      name: 'hbnb/xrd',
+      componentAddress:
+        'component_rdx1crqvzwc3wntan0u0793m2kqwpdsv8g44k5h9fnnm3zcy5v5chugd2u',
+      token_x: Assets.Fungible.hBNB,
+      token_y: Assets.Fungible.XRD,
+      liquidity_receipt:
+        'resource_rdx1n25g4ge2hp5qp9ut0usekdng8lm9rv9dyqlq9ng9kqwngutvamcxd5',
+    },
   },
   simplePools: {
     REDDICKS_LSULP: {
@@ -501,6 +510,17 @@ export const CaviarNineConstants = {
         'resource_rdx1th6hu39vqhuk5k5y6y4saze8ze27l60rzt9pmnaukqtngpdh3ddvpn',
       token_x: Assets.Fungible.hETH,
       token_y: Assets.Fungible.hwBTC,
+    },
+    HBNB_XRD: {
+      name: 'HBNB/XRD',
+      componentAddress:
+        'component_rdx1cq32tje5823utlnc8gpuqp6xt3g46g0usfvk0d5ar9zl8k8z40s45p',
+      poolAddress:
+        'pool_rdx1c5v5l4ltfy2sgwel8a5x3dte82xgfchky5n8ppkxlm29ngm5hq6qaz',
+      lpResourceAddress:
+        'resource_rdx1thjv6ex5k66vylwaj59pjvrceg4k0ncf44hsu9aa8rqwgn37vkz7qm',
+      token_x: Assets.Fungible.hBNB,
+      token_y: Assets.Fungible.XRD,
     },
   },
 } as const;
