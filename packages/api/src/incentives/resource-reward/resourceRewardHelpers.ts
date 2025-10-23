@@ -1,15 +1,23 @@
 import { resourceRewardClaims } from 'db/incentives';
 import { and, eq, inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
-import { GetNonFungibleBalanceService } from '../../common/gateway';
+import {
+  GetLedgerStateService,
+  GetNonFungibleBalanceService,
+} from '../../common/gateway';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
 export class ResourceRewardHelpers extends Effect.Service<ResourceRewardHelpers>()(
   'ResourceRewardHelpers',
   {
-    dependencies: [GetNonFungibleBalanceService.Default, dbClientLive],
+    dependencies: [
+      GetNonFungibleBalanceService.Default,
+      GetLedgerStateService.Default,
+      dbClientLive,
+    ],
     effect: Effect.gen(function* () {
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
+      const getLedgerStateService = yield* GetLedgerStateService;
       const db = yield* DbClientService;
 
       const getResourceRewardClaims = (input: {
@@ -43,10 +51,17 @@ export class ResourceRewardHelpers extends Effect.Service<ResourceRewardHelpers>
         timestamp: Date;
       }) =>
         Effect.gen(function* () {
+          // Convert timestamp to state_version upfront for pagination support
+          const ledgerState = yield* getLedgerStateService({
+            at_ledger_state: {
+              timestamp: input.timestamp,
+            },
+          });
+
           const result = yield* getNonFungibleBalanceService({
             addresses: input.accountAddresses,
             at_ledger_state: {
-              timestamp: input.timestamp,
+              state_version: ledgerState.state_version,
             },
             resourceAddresses: input.resourceManagers,
           });

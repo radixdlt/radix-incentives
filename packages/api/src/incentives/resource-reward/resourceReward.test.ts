@@ -5,6 +5,7 @@ import { groupBy } from 'effect/Array';
 import { vi } from 'vitest';
 import {
   GetEntityDetailsService,
+  GetLedgerStateService,
   GetNonFungibleBalanceService,
 } from '../../common/gateway';
 import { createSeasonAndWeek } from '../../test-helpers/createSeasonAndWeek';
@@ -25,6 +26,13 @@ const mockGetNonFungibleBalanceResponse = vi.fn();
 const mockGetNonFungibleBalanceService = Effect.provideService(
   GetNonFungibleBalanceService,
   new GetNonFungibleBalanceService(mockGetNonFungibleBalanceResponse),
+);
+
+const mockGetLedgerStateResponse = vi.fn();
+
+const mockGetLedgerStateService = Effect.provideService(
+  GetLedgerStateService,
+  new GetLedgerStateService(mockGetLedgerStateResponse),
 );
 
 const ResourceRewardServiceLive =
@@ -308,6 +316,16 @@ describe('resourceReward', () => {
 
       yield* service.createResourceRewardDefinition(testResources.taox);
 
+      // Mock ledger state for pagination support
+      mockGetLedgerStateResponse.mockReturnValue(
+        Effect.succeed({
+          state_version: 12345,
+          proposer_round_timestamp: new Date().toISOString(),
+          epoch: 1,
+          round: 1,
+        }),
+      );
+
       // user A claims two resources
       mockGetNonFungibleBalanceResponse.mockReturnValue(
         Effect.succeed({
@@ -368,6 +386,7 @@ describe('resourceReward', () => {
         ),
       ),
       mockGetNonFungibleBalanceService,
+      mockGetLedgerStateService,
       Effect.provide(Logger.pretty),
     );
   });
