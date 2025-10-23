@@ -1,4 +1,4 @@
-import { sessions } from 'db/incentives';
+import { sessions } from 'db/consultation';
 import { eq } from 'drizzle-orm';
 import { Context, Effect, Layer } from 'effect';
 import { DbClientService, DbError } from '../db/dbClient';

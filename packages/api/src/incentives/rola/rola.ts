@@ -36,7 +36,7 @@ export class RolaService extends Effect.Service<RolaService>()('RolaService', {
     return Effect.fn(function* (signedChallenge: SignedChallenge) {
       const result = yield* Effect.tryPromise(() =>
         verifySignedChallenge(signedChallenge),
-      ).pipe(Effect.catchAll(() => Effect.dieMessage('unexpected error')));
+      );
 
       if (result.isErr()) {
         return yield* Effect.fail(

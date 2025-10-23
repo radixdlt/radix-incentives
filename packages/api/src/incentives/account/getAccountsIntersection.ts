@@ -1,4 +1,4 @@
-import { accounts } from 'db/incentives';
+import { accounts } from 'db/consultation';
 import { inArray } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';

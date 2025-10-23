@@ -1,5 +1,5 @@
 import { BigNumber } from 'bignumber.js';
-import { accounts } from 'db/incentives';
+import { accounts } from 'db/consultation';
 import { lte } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { z } from 'zod';

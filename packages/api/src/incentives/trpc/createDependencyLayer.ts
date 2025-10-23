@@ -43,13 +43,6 @@ import {
   GetActivityWeeksByWeekIdsService,
 } from '../activity-week/getActivityWeeksByWeekIds';
 import {
-  AccountRecoveryService,
-  type CompleteRecoveryInput,
-  type ListAccountRecoveryProofsInput,
-  type StartRecoveryInput,
-  type SubmitRecoveryProofInput,
-} from '../auth/accountRecovery';
-import {
   type SignInWithRolaProofInput,
   SignInWithRolaProofService,
 } from '../auth/signInWithRolaProof';
@@ -117,7 +110,6 @@ import {
   type SnapshotDateRangeJob,
   WorkerApiService,
 } from '../worker/workerApi';
-import { resolveEffect, TrpcError } from './helpers';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -182,10 +174,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     const runnable = Effect.gen(function* () {
       const signInWithRolaProof = yield* SignInWithRolaProofService;
       return yield* signInWithRolaProof(input);
-    }).pipe(
-      Effect.provide(SignInWithRolaProofService.Default),
-      Effect.provide(VerifyChallengeService.Default),
-    );
+    }).pipe(Effect.provide(SignInWithRolaProofService.Default));
 
     return Effect.runPromiseExit(runnable);
   };
@@ -1231,164 +1220,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const startAccountRecovery = (input: StartRecoveryInput) => {
-    const runnable = Effect.gen(function* () {
-      const accountRecoveryService = yield* AccountRecoveryService;
-      return yield* accountRecoveryService.startRecovery(input);
-    }).pipe(
-      Effect.provide(AccountRecoveryService.Default),
-      Effect.catchTags({
-        AccountRecoveryInProgress: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Account recovery already in progress',
-          }),
-        VerifyRolaProofError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Failed to validate proof.',
-          }),
-        InvalidRolaProofError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Invalid ROLA proof',
-          }),
-        RecoveryUserNotEmptyError: () =>
-          new TrpcError({
-            code: 'FORBIDDEN',
-            message: 'User has connected account(s)',
-          }),
-        AccountNotFoundError: () =>
-          new TrpcError({
-            code: 'NOT_FOUND',
-            message: 'Account not found',
-          }),
-        InvalidChallengeError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Provided challenge expired or invalid. Please try again.',
-          }),
-      }),
-    );
-
-    return resolveEffect(runnable);
-  };
-
-  const submitAccountRecoveryProof = (input: SubmitRecoveryProofInput) => {
-    const runnable = Effect.gen(function* () {
-      const accountRecoveryService = yield* AccountRecoveryService;
-      return yield* accountRecoveryService.submitRecoveryProof(input);
-    }).pipe(
-      Effect.provide(AccountRecoveryService.Default),
-      Effect.catchTags({
-        VerifyRolaProofError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Failed to validate proof.',
-          }),
-        InvalidRolaProofError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Invalid ROLA proof',
-          }),
-        RecoveryUserNotEmptyError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Recovery user has connected account(s)',
-          }),
-        AccountNotFoundError: () =>
-          new TrpcError({
-            code: 'NOT_FOUND',
-            message: 'Account not found',
-          }),
-        InvalidChallengeError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Provided challenge expired or invalid. Please try again.',
-          }),
-        UserNotAllowedToSubmitRecoveryProofError: () =>
-          new TrpcError({
-            code: 'FORBIDDEN',
-            message: 'User is not authorized to submit account recovery proof',
-          }),
-      }),
-    );
-
-    return resolveEffect(runnable);
-  };
-
-  const getPendingAccountRecovery = (userId: string) => {
-    const runnable = Effect.gen(function* () {
-      yield* Effect.log(userId);
-      const accountRecoveryService = yield* AccountRecoveryService;
-      const result = yield* accountRecoveryService.getPending(userId);
-      yield* Effect.log(result);
-      return result;
-    }).pipe(Effect.provide(AccountRecoveryService.Default));
-
-    return resolveEffect(runnable);
-  };
-
-  const listAccountRecoveryProofs = (input: ListAccountRecoveryProofsInput) => {
-    const runnable = Effect.gen(function* () {
-      const accountRecoveryService = yield* AccountRecoveryService;
-      return yield* accountRecoveryService.listAccountRecoveryProofs(input);
-    }).pipe(Effect.provide(AccountRecoveryService.Default));
-
-    return resolveEffect(runnable);
-  };
-
-  const completeAccountRecovery = (input: CompleteRecoveryInput) => {
-    const runnable = Effect.gen(function* () {
-      const accountRecoveryService = yield* AccountRecoveryService;
-      return yield* accountRecoveryService.completeRecovery(input);
-    }).pipe(
-      Effect.provide(AccountRecoveryService.Default),
-      Effect.catchTags({
-        VerifyRolaProofError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Failed to validate proof.',
-          }),
-        InvalidRolaProofError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Invalid ROLA proof',
-          }),
-        RecoveryUserNotEmptyError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Recovery user has connected account(s)',
-          }),
-        AccountNotFoundError: () =>
-          new TrpcError({
-            code: 'NOT_FOUND',
-            message: 'Account not found',
-          }),
-        InvalidChallengeError: () =>
-          new TrpcError({
-            code: 'BAD_REQUEST',
-            message: 'Provided challenge expired or invalid. Please try again.',
-          }),
-        UserNotAllowedToSubmitRecoveryProofError: () =>
-          new TrpcError({
-            code: 'FORBIDDEN',
-            message: 'User is not authorized to submit account recovery proof',
-          }),
-      }),
-    );
-
-    return resolveEffect(runnable);
-  };
-
   return {
-    accountRecovery: {
-      startAccountRecovery,
-      getPendingAccountRecovery,
-      listAccountRecoveryProofs,
-      completeAccountRecovery,
-      submitAccountRecoveryProof,
-    },
     createChallenge,
     signIn,
     validateSessionToken,
