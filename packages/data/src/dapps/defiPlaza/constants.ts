@@ -264,6 +264,21 @@ export const DefiPlazaConstants = {
     componentAddress:
       'component_rdx1cp8qxqeaqxud6fu6rvv7vm0ngm8rlswdps2tp8jqhvgw3f2734ccyu',
   },
+  hbnbxrdPool: {
+    type: 'component',
+    baseResourceAddress: Assets.Fungible.hBNB,
+    quoteResourceAddress: Assets.Fungible.XRD,
+    componentAddress:
+      'component_rdx1crpc6jekv3nhfhxvzrp5zm44a5xcsg2n524gcxrxetax2cp9sh30gt',
+    basePoolAddress:
+      'pool_rdx1ch0aecz95kl9vdvyz6q3zh4p6vcshefwakx3jfs3uk34y8sv8d8uvy',
+    baseLpResourceAddress:
+      'resource_rdx1t4d5n87gsq5vg0xlszyvmd8pgxv5a9nyrj7u9frgxcsy2gtgqk2d3h',
+    quotePoolAddress:
+      'pool_rdx1c42dp3amx7el85vv588vxkqjn53rd8np30qyrpf5pk95uaalu057d4',
+    quoteLpResourceAddress:
+      'resource_rdx1thhctpg6ctkr7pf4axk0p3ysuyu7574essvj8r8m2d7tf4709x9e6z',
+  },
 } as const;
 
 export const defiPlazaComponentSet = new Map<

@@ -148,6 +148,17 @@ export const OciswapConstants = {
       divisibility_x: 18,
       divisibility_y: 18,
     },
+    HBNB_XRD: {
+      name: 'hbnb/xrd',
+      componentAddress:
+        'component_rdx1cq3zslamrr949gsj7xggr5c02znvurc9uma2rlyrhuj3j70xdjhty5',
+      lpResourceAddress:
+        'resource_rdx1n2ugznygucx6th6hhjfhlp50kva6wpyp3za704dr63ad3xxwnz2c8h',
+      token_x: Assets.Fungible.hBNB,
+      token_y: Assets.Fungible.XRD,
+      divisibility_x: 18,
+      divisibility_y: 18,
+    },
   },
   basicPools: {
     EARLY_XRD: {
