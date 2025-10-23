@@ -201,7 +201,7 @@ export const adminRouter = createTRPCRouter({
           .where(
             inArray(
               user.id,
-              value.map((item) => item.userId),
+              value.userSeasonPoints.map((item) => item.userId),
             ),
           )
           .innerJoin(
@@ -213,15 +213,20 @@ export const adminRouter = createTRPCRouter({
           )
           .then((items) => groupBy(items, (item) => item.userId));
 
-        const output = value.map(({ seasonId, weekId, ...item }) => {
-          const user = users[item.userId]?.[0]!;
-          return {
-            ...item,
-            ...user,
-          };
-        });
+        const output = value.userSeasonPoints.map(
+          ({ seasonId, weekId, ...item }) => {
+            const user = users[item.userId]?.[0]!;
+            return {
+              ...item,
+              ...user,
+            };
+          },
+        );
 
-        return output;
+        return {
+          users: output,
+          categoryStatistics: value.categoryStatistics,
+        };
       }),
   },
   activity: {

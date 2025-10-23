@@ -251,6 +251,14 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               }),
             );
 
+          // Track category statistics
+          const categoryStatistics: Array<{
+            categoryId: string;
+            usersWithActivityPoints: number;
+            finalUsersReceivingPoints: number;
+            lowestApReceivingPoints: string | null;
+          }> = [];
+
           const userSeasonPoints = yield* Effect.forEach(
             userActivityPointsGroupedByActivityCategory,
             Effect.fn(function* (activityCategory) {
@@ -275,6 +283,9 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               yield* Effect.log(
                 `processing ${activityCategory.users.length} users`,
               );
+
+              // Track initial count
+              const usersWithActivityPoints = activityCategory.users.length;
 
               // conditionally detect outliers but keep them separate for later
               let withoutOutliers: typeof activityCategory.users;
@@ -313,6 +324,28 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
 
               // add outliers back after supply percentile trim
               const finalUsers = [...withoutLowerBounds, ...outliers];
+
+              const finalUsersReceivingPoints = finalUsers.length;
+
+              // Find the lowest AP value among users receiving points
+              const lowestApReceivingPoints =
+                finalUsers.length > 0
+                  ? finalUsers
+                      .reduce(
+                        (min, user) =>
+                          user.points.lt(min) ? user.points : min,
+                        finalUsers[0]!.points,
+                      )
+                      .toString()
+                  : null;
+
+              // Store statistics for this category
+              categoryStatistics.push({
+                categoryId: activityCategory.categoryId,
+                usersWithActivityPoints,
+                finalUsersReceivingPoints,
+                lowestApReceivingPoints,
+              });
 
               const bands = yield* createUserBands({
                 numberOfBands: 20,
@@ -440,7 +473,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           yield* Effect.log(
             `season points for week ${input.weekId} successfully applied to users`,
           );
-          return withReferralPoints;
+          return {
+            userSeasonPoints: withReferralPoints,
+            categoryStatistics,
+          };
         }),
       };
     }),
