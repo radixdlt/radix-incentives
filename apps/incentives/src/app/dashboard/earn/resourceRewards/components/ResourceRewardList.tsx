@@ -123,6 +123,7 @@ const ResourceRewardItem = ({
   let buttonVariant: 'default' | 'destructive' | 'outline' | 'secondary' =
     'outline';
   let buttonText = 'Connect to claim points';
+  let shouldLinkToUrl = false;
 
   if (isLoggedIn) {
     if (isClaiming) {
@@ -130,7 +131,7 @@ const ResourceRewardItem = ({
     } else if (hasUnclaimedItems) {
       // Normal state: User has unclaimed items
       buttonVariant = 'outline';
-      buttonText = `${pointsThatWillCount} points to claim`;
+      buttonText = `${pointsThatWillCount} Points To Claim`;
     } else if (hasReachedLimit) {
       // Green: Quest completed (reached limit)
       buttonVariant = 'default';
@@ -138,18 +139,20 @@ const ResourceRewardItem = ({
     } else if (hasAnyClaims) {
       // Orange: Has claims but not at limit, needs more resources
       buttonVariant = 'secondary';
-      buttonText = 'Get More Resources To Claim';
+      buttonText = 'Get More Resources';
+      shouldLinkToUrl = true;
     } else {
       // Red: No claims yet, needs to get resource
       buttonVariant = 'outline';
-      buttonText = 'Get Resource To Claim';
+      buttonText = 'Get Resources';
+      shouldLinkToUrl = true;
     }
   }
 
   return (
     <Card>
       <CardHeader>
-        <div className="mb-4 flex items-start justify-between">
+        <div className="mb-4">
           <CardTitle className="flex items-center gap-2 text-md">
             <Image
               src={`https://image-service.radixdlt.com/?imageSize=1024x1024&imageOrigin=${iconUrl}`}
@@ -171,14 +174,6 @@ const ResourceRewardItem = ({
               </Badge>
             </div>
           </CardTitle>
-          {url && (
-            <Link href={url} target="_blank">
-              <Button variant="outline" size="sm" type="button">
-                Get Resource
-                <ExternalLink className="ml-2 h-3 w-3" />
-              </Button>
-            </Link>
-          )}
         </div>
         <div className="text-sm">
           <CardDataListItem label="Points per item" value={points} />
@@ -193,16 +188,27 @@ const ResourceRewardItem = ({
         </div>
         <Button
           variant={buttonVariant}
-          onClick={handleClaim}
-          disabled={isClaiming || !hasUnclaimedItems}
+          onClick={() => {
+            if (shouldLinkToUrl) {
+              const urlToOpen =
+                url || `https://dashboard.radixdlt.com/resource/${address}`;
+              window.open(urlToOpen, '_blank');
+            } else {
+              handleClaim();
+            }
+          }}
+          disabled={shouldLinkToUrl ? false : isClaiming || !hasUnclaimedItems}
+          type="button"
           className={
-            !hasUnclaimedItems && buttonVariant === 'secondary'
-              ? '!border-orange-500 !border-2 !text-orange-500 shadow-[inset_0_0_12px_rgba(249,115,22,0.2)]'
-              : !hasUnclaimedItems &&
-                  !hasAnyClaims &&
-                  buttonVariant === 'outline'
-                ? '!border-red-500 !border-2 !text-red-500 shadow-[inset_0_0_12px_rgba(239,68,68,0.2)]'
-                : ''
+            hasUnclaimedItems
+              ? '!border-green-500 !border-2 shadow-[inset_0_0_12px_rgba(34,197,94,0.2)]'
+              : !hasUnclaimedItems && buttonVariant === 'secondary'
+                ? '!border-orange-500 !border-2 !text-white shadow-[inset_0_0_12px_rgba(249,115,22,0.2)]'
+                : !hasUnclaimedItems &&
+                    !hasAnyClaims &&
+                    buttonVariant === 'outline'
+                  ? '!border-red-500 !border-2 !text-white shadow-[inset_0_0_12px_rgba(239,68,68,0.2)]'
+                  : ''
           }
         >
           {buttonText}
