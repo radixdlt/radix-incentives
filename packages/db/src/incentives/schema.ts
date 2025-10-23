@@ -764,3 +764,69 @@ export const transactionCounts = createTable('transaction_count', {
 });
 
 export type TransactionCount = InferSelectModel<typeof transactionCounts>;
+
+export const resourceRewardDefinitions = createTable(
+  'resource_reward_definition',
+  {
+    address: varchar('address', { length: 255 }).primaryKey(),
+    points: integer('points').notNull(),
+    weeklyLimit: integer('weekly_limit'),
+    url: varchar('url', { length: 500 }),
+  },
+);
+
+export type ResourceRewardDefinition = InferSelectModel<
+  typeof resourceRewardDefinitions
+>;
+
+export const resourceRewardClaims = createTable(
+  'resource_reward_claim',
+  {
+    id: uuid('id').primaryKey().defaultRandom(),
+    resourceManager: varchar('resource_manager', { length: 255 })
+      .notNull()
+      .references(() => resourceRewardDefinitions.address, {
+        onDelete: 'cascade',
+      }),
+    localId: varchar('local_id', { length: 255 }),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    weekId: uuid('week_id')
+      .notNull()
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    seasonId: uuid('season_id')
+      .notNull()
+      .references(() => seasons.id, { onDelete: 'cascade' }),
+    claimedAt: timestamp('claimed_at', { mode: 'date', withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    weekIdIdx: index('idx_resource_claims_week_id').on(table.weekId),
+  }),
+);
+
+export type ResourceRewardClaim = InferSelectModel<typeof resourceRewardClaims>;
+
+export const resourceClaimsRelations = relations(
+  resourceRewardClaims,
+  ({ one }) => ({
+    resourceManager: one(resourceRewardDefinitions, {
+      fields: [resourceRewardClaims.resourceManager],
+      references: [resourceRewardDefinitions.address],
+    }),
+    user: one(users, {
+      fields: [resourceRewardClaims.userId],
+      references: [users.id],
+    }),
+    week: one(weeks, {
+      fields: [resourceRewardClaims.weekId],
+      references: [weeks.id],
+    }),
+    season: one(seasons, {
+      fields: [resourceRewardClaims.seasonId],
+      references: [seasons.id],
+    }),
+  }),
+);

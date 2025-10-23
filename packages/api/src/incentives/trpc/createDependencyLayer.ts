@@ -74,6 +74,10 @@ import { MilestoneService } from '../milestones/milestoneService';
 import { getAccountsProgram } from '../programs/getAccounts';
 import { validateSessionTokenProgram } from '../programs/validateSessionToken';
 import {
+  type ResourceRewardDefinition,
+  ResourceRewardService,
+} from '../resource-reward/resourceReward';
+import {
   GetSeasonByIdLive,
   GetSeasonByIdService,
 } from '../season/getSeasonById';
@@ -650,6 +654,17 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getActivityCategoryById = (id: string) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryService = yield* ActivityCategoryService;
+        return yield* activityCategoryService.getById(id);
+      }),
+      activityCategoryServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
   const getWeekDetailsLive = Layer.mergeAll(
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
     weekLive,
@@ -1220,6 +1235,66 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const createResourceReward = (input: ResourceRewardDefinition) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.createResourceRewardDefinition(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
+  const listResourceRewards = () => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.listResourceRewardDefinitions();
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const getUserResourceRewards = (input: {
+    userId: string;
+    weekId: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.getResourceRewardClaimsByUserId(
+        input,
+      );
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+
+    return Effect.runPromiseExit(program);
+  };
+
+  const claimResourceRewards = (input: {
+    resourceManager: string;
+    weekId: string;
+    seasonId: string;
+    userId: string;
+  }) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.createResourceRewardClaim(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateResourceReward = (input: ResourceRewardDefinition) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.updateResourceRewardDefinition(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
+  const deleteResourceReward = (input: { address: string }) => {
+    const program = Effect.gen(function* () {
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* resourceRewardService.deleteResourceRewardDefinition(input);
+    }).pipe(Effect.provide(ResourceRewardService.Default));
+    return Effect.runPromiseExit(program);
+  };
+
   return {
     createChallenge,
     signIn,
@@ -1248,6 +1323,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateActivity,
     getDapps,
     getActivityCategories,
+    getActivityCategoryById,
     updateActivityCategory,
     getActivityCategoriesForEarnPage,
     getEarnPageData,
@@ -1290,5 +1366,11 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateMilestone,
     deleteMilestone,
     getUserActivityPointsByWeek,
+    createResourceReward,
+    updateResourceReward,
+    deleteResourceReward,
+    listResourceRewards,
+    getUserResourceRewards,
+    claimResourceRewards,
   };
 };

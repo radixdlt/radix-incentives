@@ -1,0 +1,1 @@
+ALTER TABLE "resource_reward_definition" ADD COLUMN "url" varchar(500);
