@@ -6,7 +6,6 @@ import { useMostRecentWeek } from '~/lib/hooks/useMostRecentWeek';
 import { usePersona } from '~/lib/hooks/usePersona';
 import { api } from '~/trpc/react';
 import { EarnPageItemCategoryCard } from '../components/EarnPageItemCategoryCard';
-import { EarnPageItemHeader } from '../components/EarnPageItemHeader';
 import { ResourceRewardList } from './components/ResourceRewardList';
 
 const categoryId = 'resourceRewards';
@@ -17,11 +16,8 @@ export default function ResourceRewardsPage() {
   const week = useMostRecentWeek();
   const { persona } = usePersona();
 
-  const { data: earnPageData, isLoading } =
-    api.activityCategory.getEarnPageData.useQuery(
-      { weekId: week?.id ?? '' },
-      { enabled: !!week },
-    );
+  const { data: categoryData, isLoading } =
+    api.activityCategory.getById.useQuery({ id: categoryId });
 
   const { data: userResourceRewardsData } =
     api.resourceReward.getUserResourceRewards.useQuery(
@@ -40,12 +36,13 @@ export default function ResourceRewardsPage() {
       },
     });
 
-  const categoryData = earnPageData?.find(
-    (category) => category.id === categoryId,
-  );
-
-  const { data: resourceRewardsData } =
+  const { data: resourceRewardsData, isLoading: isLoadingResourceRewards } =
     api.resourceReward.getResourceRewards.useQuery();
+
+  const isLoadingUserData = api.resourceReward.getUserResourceRewards.useQuery(
+    { weekId: week?.id ?? '' },
+    { enabled: !!week && !!persona },
+  ).isLoading;
 
   const handleClaimResourceRewards = async (input: { address: string }) => {
     if (!week) {
@@ -90,7 +87,7 @@ export default function ResourceRewardsPage() {
           (total, item) =>
             total +
             (item.weeklyLimit
-              ? Math.min(item.claims.length, item.weeklyLimit) * item.points
+              ? Math.min(item.claims.length * item.points, item.weeklyLimit)
               : item.claims.length * item.points),
           0,
         )
@@ -104,11 +101,9 @@ export default function ResourceRewardsPage() {
 
   return (
     <div className="space-y-6">
-      <EarnPageItemHeader />
-
       <EarnPageItemCategoryCard
-        name={categoryData?.name}
-        description={categoryData?.description}
+        name={categoryData?.name ?? undefined}
+        description={categoryData?.description ?? undefined}
         loading={isLoading}
         totalPointsEarned={totalPointsEarned}
       />
@@ -117,6 +112,7 @@ export default function ResourceRewardsPage() {
         resourceRewards={resourceRewards ?? []}
         onClaim={handleClaimResourceRewards}
         isLoggedIn={!!persona}
+        isLoading={isLoadingResourceRewards || (!!persona && isLoadingUserData)}
       />
     </div>
   );

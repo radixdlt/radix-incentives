@@ -654,6 +654,17 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
+  const getActivityCategoryById = (id: string) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const activityCategoryService = yield* ActivityCategoryService;
+        return yield* activityCategoryService.getById(id);
+      }),
+      activityCategoryServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
   const getWeekDetailsLive = Layer.mergeAll(
     ActivityCategoryWeekService.Default.pipe(Layer.provide(dbClientLive)),
     weekLive,
@@ -1312,6 +1323,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     updateActivity,
     getDapps,
     getActivityCategories,
+    getActivityCategoryById,
     updateActivityCategory,
     getActivityCategoriesForEarnPage,
     getEarnPageData,

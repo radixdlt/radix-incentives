@@ -58,39 +58,41 @@ export default function EarnPage() {
     );
   return (
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-      {earnPageData?.map((category) => {
-        // Find user capital data for this category
-        const capitalData = userCapitalData?.find(
-          (data) => data.categoryId === category.id,
-        );
+      {earnPageData
+        ?.filter((category) => category.id !== 'resourceRewards')
+        .map((category) => {
+          // Find user capital data for this category
+          const capitalData = userCapitalData?.find(
+            (data) => data.categoryId === category.id,
+          );
 
-        return (
-          <ActivityCardEasy
-            key={category.id}
-            activity={{
-              id: category.id,
-              name: category.name,
-              description: category.description || '',
-              dapp: '',
-              component_addresses: '',
-              AP:
-                (typeof category.seasonPointsPerWeek === 'number'
-                  ? category.seasonPointsPerWeek
-                  : Number(category.seasonPointsPerWeek)) > 0,
-              multiplier: category.multiplier ?? false,
-              seasonPointsPerWeek:
-                typeof category.seasonPointsPerWeek === 'number'
-                  ? category.seasonPointsPerWeek
-                  : Number(category.seasonPointsPerWeek),
-              icon: category.icon || undefined,
-              color: category.color || undefined,
-              dappLogos: category.dappLogos,
-            }}
-            capitalData={persona ? capitalData : undefined}
-            multiplierData={persona ? userMultiplier : undefined}
-          />
-        );
-      })}
+          return (
+            <ActivityCardEasy
+              key={category.id}
+              activity={{
+                id: category.id,
+                name: category.name,
+                description: category.description || '',
+                dapp: '',
+                component_addresses: '',
+                AP:
+                  (typeof category.seasonPointsPerWeek === 'number'
+                    ? category.seasonPointsPerWeek
+                    : Number(category.seasonPointsPerWeek)) > 0,
+                multiplier: category.multiplier ?? false,
+                seasonPointsPerWeek:
+                  typeof category.seasonPointsPerWeek === 'number'
+                    ? category.seasonPointsPerWeek
+                    : Number(category.seasonPointsPerWeek),
+                icon: category.icon || undefined,
+                color: category.color || undefined,
+                dappLogos: category.dappLogos,
+              }}
+              capitalData={persona ? capitalData : undefined}
+              multiplierData={persona ? userMultiplier : undefined}
+            />
+          );
+        })}
     </div>
   );
 }
