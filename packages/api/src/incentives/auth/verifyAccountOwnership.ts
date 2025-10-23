@@ -37,7 +37,6 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
   'VerifyAccountOwnershipService',
   {
     dependencies: [
-      VerifyChallengeService.Default,
       VerifyRolaProofService.Default,
       UpsertAccountsService.Default,
       GetAccountsByAddressService.Default,

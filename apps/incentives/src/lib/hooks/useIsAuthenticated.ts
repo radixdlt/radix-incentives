@@ -5,13 +5,16 @@ import { usePersona } from './usePersona';
 import { useDappToolkit } from './useRdt';
 
 export const useIsAuthenticated = () => {
-  const { persona } = usePersona();
+  const { persona, isConnected } = usePersona();
   const rdt = useDappToolkit();
 
-  const isAuthenticated = api.auth.isSignedIn.useQuery(undefined, {
-    retry: false,
-    enabled: !!persona,
-  });
+  const isAuthenticated = api.auth.isSignedIn.useQuery(
+    { identityAddress: persona?.identityAddress },
+    {
+      retry: false,
+      enabled: isConnected,
+    },
+  );
 
   useEffect(() => {
     if (persona && isAuthenticated.error?.data?.httpStatus === 401) {
@@ -20,5 +23,5 @@ export const useIsAuthenticated = () => {
     }
   }, [persona, isAuthenticated.isError, rdt]);
 
-  return isAuthenticated.data;
+  return isConnected && isAuthenticated.data;
 };

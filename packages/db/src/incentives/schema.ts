@@ -764,3 +764,80 @@ export const transactionCounts = createTable('transaction_count', {
 });
 
 export type TransactionCount = InferSelectModel<typeof transactionCounts>;
+
+export const accountRecoveryRequestStatusEnum = pgEnum(
+  'account_recovery_request_status',
+  ['pending', 'completed', 'failed'],
+);
+
+export const accountRecoveryRequests = createTable('account_recovery_request', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  userId: uuid('user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  requesterUserId: uuid('requester_user_id')
+    .notNull()
+    .references(() => users.id, { onDelete: 'cascade' }),
+  status: accountRecoveryRequestStatusEnum('status')
+    .notNull()
+    .default('pending'),
+  createdAt: timestamp('created_at', { mode: 'date', withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
+export const accountRecoveryRequestsRelations = relations(
+  accountRecoveryRequests,
+  ({ one }) => ({
+    user: one(users, {
+      fields: [accountRecoveryRequests.userId],
+      references: [users.id],
+    }),
+    requesterUser: one(users, {
+      fields: [accountRecoveryRequests.requesterUserId],
+      references: [users.id],
+    }),
+  }),
+);
+
+export const accountRecoveryProofs = createTable(
+  'account_recovery_proof',
+  {
+    recoveryRequestId: uuid('recovery_request_id')
+      .notNull()
+      .references(() => accountRecoveryRequests.id, { onDelete: 'cascade' }),
+    accountAddress: varchar('account_address', { length: 255 })
+      .notNull()
+      .references(() => accounts.address, { onDelete: 'cascade' }),
+    verifiedAt: timestamp('verified_at', { mode: 'date', withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => ({
+    pk: primaryKey({
+      columns: [table.recoveryRequestId, table.accountAddress],
+    }),
+  }),
+);
+
+export type AccountRecoveryRequest = InferSelectModel<
+  typeof accountRecoveryRequests
+>;
+
+export type AccountRecoveryProof = InferSelectModel<
+  typeof accountRecoveryProofs
+>;
+
+export const accountRecoveryProofsRelations = relations(
+  accountRecoveryProofs,
+  ({ one }) => ({
+    recoveryRequest: one(accountRecoveryRequests, {
+      fields: [accountRecoveryProofs.recoveryRequestId],
+      references: [accountRecoveryRequests.id],
+    }),
+    account: one(accounts, {
+      fields: [accountRecoveryProofs.accountAddress],
+      references: [accounts.address],
+    }),
+  }),
+);

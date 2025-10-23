@@ -232,6 +232,13 @@
       "when": 1758968989822,
       "tag": "0032_watery_namor",
       "breakpoints": true
+    },
+    {
+      "idx": 33,
+      "version": "7",
+      "when": 1760702158831,
+      "tag": "0033_chunky_kitty_pryde",
+      "breakpoints": true
     }
   ]
 }
