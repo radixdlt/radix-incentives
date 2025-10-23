@@ -1,8 +1,11 @@
 import { BigNumber } from 'bignumber.js';
 import { DappConstants } from 'data';
-import { Effect } from 'effect';
+import { Data, Effect } from 'effect';
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
-import { GetNonFungibleBalanceService } from '../../gateway/getNonFungibleBalance';
+import {
+  type GetNonFungibleBalanceOutput,
+  GetNonFungibleBalanceService,
+} from '../../gateway/getNonFungibleBalance';
 import { KeyValueStoreDataService } from '../../gateway/keyValueStoreData';
 import { KeyValueStoreKeysService } from '../../gateway/keyValueStoreKeys';
 import type { AtLedgerState } from '../../gateway/schemas';
@@ -10,14 +13,13 @@ import { CdpNftData } from './schemas';
 
 const FluxConstants = DappConstants.Flux.constants;
 
-export class FluxParseSborError {
-  readonly _tag = 'FluxParseSborError';
-  constructor(readonly error: unknown) {}
-}
+export class FluxParseSborError extends Data.TaggedError('FluxParseSborError')<{
+  readonly error: unknown;
+}> {}
 
-export class InvalidFluxReceiptItemError extends Error {
-  readonly _tag = 'InvalidFluxReceiptItemError';
-}
+export class InvalidFluxReceiptItemError extends Data.TaggedError(
+  'InvalidFluxReceiptItemError',
+)<{}> {}
 
 export type FluxCdpPosition = {
   nft: {
@@ -35,11 +37,10 @@ export type FluxCdpPosition = {
   privilegedBorrower: string | null;
 };
 
-type AccountAddress = string;
 type ResourceAddress = string;
 
 export type GetFluxCdpsOutput = Effect.Effect.Success<
-  Awaited<ReturnType<(typeof GetFluxCdpsService)['Service']['run']>>
+  Awaited<ReturnType<(typeof GetFluxCdpsService)['Service']>>
 >;
 
 export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
@@ -57,65 +58,63 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
       const keyValueStoreKeysService = yield* KeyValueStoreKeysService;
       const keyValueStoreDataService = yield* KeyValueStoreDataService;
 
-      return {
-        run: Effect.fn(function* (input: {
-          accountAddresses: string[];
-          at_ledger_state: AtLedgerState;
-        }) {
-          const accountCdpMap = new Map<AccountAddress, FluxCdpPosition[]>();
-
-          // First get all CDP NFT IDs for each account
-          const result = yield* getNonFungibleBalanceService({
+      return Effect.fn(function* (input: {
+        accountAddresses: string[];
+        at_ledger_state: AtLedgerState;
+        nonFungibleBalance?: GetNonFungibleBalanceOutput;
+        resourceAddresses?: string[];
+      }) {
+        // First get all CDP NFT IDs for each account
+        const result =
+          input.nonFungibleBalance ??
+          (yield* getNonFungibleBalanceService({
             addresses: input.accountAddresses,
             at_ledger_state: input.at_ledger_state,
+            resourceAddresses: input.resourceAddresses,
             options: {
               non_fungible_include_nfids: true,
             },
-          }).pipe(Effect.withSpan('getNonFungibleBalanceService'));
+          }).pipe(Effect.withSpan('getNonFungibleBalanceService')));
 
-          // Collect all NFT IDs
-          const allNftIds: string[] = [];
-          const accountNftMap = new Map<string, string[]>();
+        // Collect all NFT IDs
+        const allNftIds: string[] = [];
+        const accountNftMap = new Map<string, string[]>();
 
-          for (const account of result.items) {
-            const nftIds: string[] = [];
+        for (const account of result.items) {
+          const nftIds: string[] = [];
 
-            const fluxReceipts = account.nonFungibleResources.filter(
-              (resource) =>
-                resource.resourceAddress ===
-                FluxConstants.receiptResourceAddress,
-            );
-
-            for (const fluxReceipt of fluxReceipts) {
-              for (const fluxReceiptItem of fluxReceipt.items) {
-                nftIds.push(fluxReceiptItem.id);
-                allNftIds.push(fluxReceiptItem.id);
-              }
-            }
-
-            accountNftMap.set(account.address, nftIds);
-          }
-
-          if (allNftIds.length === 0) {
-            return input.accountAddresses.map((address) => ({
-              accountAddress: address,
-              cdpPositions: [],
-            }));
-          }
-
-          // Get NFT data for all CDPs at specific state version
-          const nftDataResults = yield* Effect.all(
-            allNftIds.map((nftId) =>
-              entityNonFungibleDataService({
-                resource_address: FluxConstants.receiptResourceAddress,
-                non_fungible_ids: [nftId],
-                at_ledger_state: input.at_ledger_state,
-              }),
-            ),
+          const fluxReceipts = account.nonFungibleResources.filter(
+            (resource) =>
+              resource.resourceAddress === FluxConstants.receiptResourceAddress,
           );
 
-          // Get interest rate keys from both KVS
-          const [xrdKeys, lsulpKeys] = yield* Effect.all([
+          for (const fluxReceipt of fluxReceipts) {
+            for (const fluxReceiptItem of fluxReceipt.items) {
+              nftIds.push(fluxReceiptItem.id);
+              allNftIds.push(fluxReceiptItem.id);
+            }
+          }
+
+          accountNftMap.set(account.address, nftIds);
+        }
+
+        if (allNftIds.length === 0) {
+          return input.accountAddresses.map((address) => ({
+            accountAddress: address,
+            cdpPositions: [],
+          }));
+        }
+
+        // Get NFT data for all CDPs at specific state version
+        const nftDataResults = yield* entityNonFungibleDataService({
+          resource_address: FluxConstants.receiptResourceAddress,
+          non_fungible_ids: allNftIds,
+          at_ledger_state: input.at_ledger_state,
+        });
+
+        // Get interest rate keys from both KVS
+        const [xrdKeys, lsulpKeys] = yield* Effect.all(
+          [
             keyValueStoreKeysService({
               key_value_store_address: FluxConstants.xrdKvsAddress,
               at_ledger_state: input.at_ledger_state,
@@ -124,10 +123,13 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
               key_value_store_address: FluxConstants.lsulpKvsAddress,
               at_ledger_state: input.at_ledger_state,
             }),
-          ]);
+          ],
+          { concurrency: 2 },
+        );
 
-          // Get interest rate data from both KVS
-          const [xrdInterestDataRaw, lsulpInterestDataRaw] = yield* Effect.all([
+        // Get interest rate data from both KVS
+        const [xrdInterestDataRaw, lsulpInterestDataRaw] = yield* Effect.all(
+          [
             keyValueStoreDataService({
               key_value_store_address: FluxConstants.xrdKvsAddress,
               keys: xrdKeys.items.map((k) => ({
@@ -142,31 +144,30 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
               })),
               at_ledger_state: input.at_ledger_state,
             }),
-          ]);
+          ],
+          { concurrency: 2 },
+        );
 
-          const xrdInterestData = xrdInterestDataRaw.flatMap((r) => r.entries);
-          const lsulpInterestData = lsulpInterestDataRaw.flatMap(
-            (r) => r.entries,
-          );
+        const xrdInterestData = xrdInterestDataRaw.flatMap((r) => r.entries);
+        const lsulpInterestData = lsulpInterestDataRaw.flatMap(
+          (r) => r.entries,
+        );
 
-          // Process CDP data
-          const cdps: FluxCdpPosition[] = [];
+        // Create a map of NFT ID to NFT data for efficient lookup
+        const nftDataMap = new Map(
+          nftDataResults.map((nftData) => [nftData.non_fungible_id, nftData]),
+        );
 
-          for (let i = 0; i < allNftIds.length; i++) {
-            const nftId = allNftIds[i];
-            const nftData = nftDataResults[i];
+        // Process CDP data
+        const cdps = allNftIds
+          .map((nftId) => {
+            const nftData = nftDataMap.get(nftId);
 
-            if (!nftId) continue;
-            if (!nftData || nftData.length === 0) continue;
-            if (!nftData[0]?.data?.programmatic_json) continue;
+            if (!nftData?.data?.programmatic_json) return null;
 
-            const parsed = CdpNftData.safeParse(
-              nftData[0].data.programmatic_json,
-            );
+            const parsed = CdpNftData.safeParse(nftData.data.programmatic_json);
 
-            if (parsed.isErr()) {
-              continue; // Skip invalid data
-            }
+            if (parsed.isErr()) return null;
 
             const cdpNftData = parsed.value;
             const interestRate = new BigNumber(cdpNftData.interest);
@@ -214,7 +215,7 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
                 ? cdpNftData.privileged_borrower.value
                 : null;
 
-            cdps.push({
+            return {
               nft: {
                 resourceAddress: FluxConstants.receiptResourceAddress,
                 localId: nftId,
@@ -228,27 +229,20 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
               lastInterestChange: cdpNftData.last_interest_change.toString(),
               status: cdpNftData.status.variant,
               privilegedBorrower,
-            });
-          }
+            };
+          })
+          .filter((cdp): cdp is FluxCdpPosition => cdp !== null);
 
-          // Map CDPs back to accounts
-          for (const [accountAddress, nftIds] of accountNftMap.entries()) {
-            const accountCdps = cdps.filter((cdp) =>
+        // Map CDPs back to accounts
+        return Array.from(accountNftMap.entries()).map(
+          ([accountAddress, nftIds]) => ({
+            accountAddress,
+            cdpPositions: cdps.filter((cdp) =>
               nftIds.includes(cdp.nft.localId),
-            );
-            accountCdpMap.set(accountAddress, accountCdps);
-          }
-
-          const items = Array.from(accountCdpMap.entries()).map(
-            ([accountAddress, value]) => ({
-              accountAddress,
-              cdpPositions: value,
-            }),
-          );
-
-          return items;
-        }),
-      };
+            ),
+          }),
+        );
+      });
     }),
   },
 ) {}

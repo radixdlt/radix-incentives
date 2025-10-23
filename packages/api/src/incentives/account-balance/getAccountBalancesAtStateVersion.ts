@@ -336,18 +336,19 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 nonFungibleBalance: nonFungibleBalanceResults,
               })
               .pipe(Effect.withSpan('getRootFinancePositionsService')),
-            getFluxCdpsService
-              .run({
-                accountAddresses: input.addresses,
-                at_ledger_state: atLedgerState,
-              })
-              .pipe(Effect.withSpan('getFluxCdpsService')),
-            getFluxReservoirService
-              .run({
-                accountAddresses: input.addresses,
-                at_ledger_state: atLedgerState,
-              })
-              .pipe(Effect.withSpan('getFluxReservoirService')),
+            getFluxCdpsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              nonFungibleBalance: nonFungibleBalanceResults,
+              resourceAddresses: [
+                DappConstants.Flux.constants.receiptResourceAddress,
+              ],
+            }).pipe(Effect.withSpan('getFluxCdpsService')),
+            getFluxReservoirService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan('getFluxReservoirService')),
             Effect.all(
               allCaviarNinePools.map((pool) =>
                 getShapeLiquidityAssetsService({

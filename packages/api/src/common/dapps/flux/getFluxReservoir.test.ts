@@ -1,46 +1,23 @@
+import { it } from '@effect/vitest';
 import { Effect, Layer } from 'effect';
-import { describe, it } from 'vitest';
-import { EntityFungiblesPageService } from '../../gateway/entityFungiblesPage';
 import { GatewayApiClientLive } from '../../gateway/gatewayApiClient';
-import { GetEntityDetailsService } from '../../gateway/getEntityDetails';
-import { GetFungibleBalanceService } from '../../gateway/getFungibleBalance';
-import { GetLedgerStateService } from '../../gateway/getLedgerState';
+import { expectedFluxReservoir } from './fixtures/expectedFluxReservoir';
 import { GetFluxReservoirService } from './getFluxReservoir';
 
 const fullLayer = GetFluxReservoirService.Default.pipe(
-  Layer.provide(
-    GetFungibleBalanceService.Default.pipe(
-      Layer.provide(
-        GetEntityDetailsService.Default.pipe(
-          Layer.provide(GatewayApiClientLive),
-        ),
-      ),
-      Layer.provide(GatewayApiClientLive),
-      Layer.provide(
-        EntityFungiblesPageService.Default.pipe(
-          Layer.provide(GatewayApiClientLive),
-        ),
-      ),
-      Layer.provide(
-        GetLedgerStateService.Default.pipe(Layer.provide(GatewayApiClientLive)),
-      ),
-    ),
-  ),
   Layer.provide(GatewayApiClientLive),
-  Layer.provide(
-    GetEntityDetailsService.Default.pipe(Layer.provide(GatewayApiClientLive)),
-  ),
-  Layer.provide(
-    GetLedgerStateService.Default.pipe(Layer.provide(GatewayApiClientLive)),
-  ),
 );
 
 describe('GetFluxReservoirService', () => {
-  it('should get flux reservoir positions', async () => {
-    const program = Effect.gen(function* () {
-      const getFluxReservoir = yield* GetFluxReservoirService;
+  it.effect(
+    'should get flux reservoir positions',
+    Effect.fn(function* () {
+      const getFluxReservoir = yield* Effect.provide(
+        GetFluxReservoirService,
+        fullLayer,
+      );
 
-      return yield* getFluxReservoir.run({
+      const result = yield* getFluxReservoir({
         accountAddresses: [
           'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
           'account_rdx16y4gqnchvxeszcpswg2zldgsle6uqvnl0znerne70tw9535njhkgzk',
@@ -50,9 +27,10 @@ describe('GetFluxReservoirService', () => {
           state_version: 302444078,
         },
       });
-    }).pipe(Effect.provide(fullLayer));
 
-    const result = await Effect.runPromise(program);
-    console.log(JSON.stringify(result, null, 2));
-  });
+      // Serialize BigNumbers to strings for comparison
+      const serializedResult = JSON.parse(JSON.stringify(result));
+      expect(serializedResult).toEqual(expectedFluxReservoir);
+    }),
+  );
 });
