@@ -1,6 +1,6 @@
 import { sha256 } from '@oslojs/crypto/sha2';
 import { encodeHexLowerCase } from '@oslojs/encoding';
-import { type Session, sessions } from 'db/incentives';
+import { type Session, sessions } from 'db/consultation';
 import { Config, Effect } from 'effect';
 import { defaultAppConfig } from '../config/appConfig';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';

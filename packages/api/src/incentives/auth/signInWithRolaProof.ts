@@ -37,6 +37,7 @@ export class SignInWithRolaProofService extends Effect.Service<SignInWithRolaPro
   'SignInWithRolaProofService',
   {
     dependencies: [
+      VerifyChallengeService.Default,
       VerifyRolaProofService.Default,
       UpsertUserService.Default,
       GenerateSessionTokenService.Default,
