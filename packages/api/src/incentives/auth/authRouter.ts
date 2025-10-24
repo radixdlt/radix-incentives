@@ -1,6 +1,12 @@
 import { TRPCError } from '@trpc/server';
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
+import {
+  CompleteRecoveryInput,
+  ListAccountRecoveryProofsInput,
+  StartRecoveryInput,
+  SubmitRecoveryProofInput,
+} from './accountRecovery';
 
 export const authRouter = createTRPCRouter({
   generateChallenge: publicProcedure.mutation(async ({ ctx }) => {
@@ -72,7 +78,49 @@ export const authRouter = createTRPCRouter({
     };
   }),
 
-  isSignedIn: protectedProcedure.query(async () => {
-    return true;
-  }),
+  isSignedIn: protectedProcedure
+    .input(z.object({ identityAddress: z.string().optional() }))
+    .query(async () => {
+      return true;
+    }),
+
+  accountRecovery: {
+    startRecovery: protectedProcedure
+      .input(StartRecoveryInput.omit({ userId: true }))
+      .mutation(async ({ input, ctx }) =>
+        ctx.dependencyLayer.accountRecovery.startAccountRecovery({
+          ...input,
+          userId: ctx.session.user.id,
+        }),
+      ),
+    submitProof: protectedProcedure
+      .input(SubmitRecoveryProofInput.omit({ userId: true }))
+      .mutation(async ({ input, ctx }) =>
+        ctx.dependencyLayer.accountRecovery.submitAccountRecoveryProof({
+          ...input,
+          userId: ctx.session.user.id,
+        }),
+      ),
+    listProofs: protectedProcedure
+      .input(ListAccountRecoveryProofsInput.omit({ userId: true }))
+      .query(async ({ input, ctx }) =>
+        ctx.dependencyLayer.accountRecovery.listAccountRecoveryProofs({
+          ...input,
+          userId: ctx.session.user.id,
+        }),
+      ),
+    pending: protectedProcedure.query(async ({ ctx }) =>
+      ctx.dependencyLayer.accountRecovery.getPendingAccountRecovery(
+        ctx.session.user.id,
+      ),
+    ),
+    completeRecovery: protectedProcedure
+      .input(CompleteRecoveryInput.omit({ userId: true }))
+      .mutation(async ({ input, ctx }) =>
+        ctx.dependencyLayer.accountRecovery.completeAccountRecovery({
+          ...input,
+          userId: ctx.session.user.id,
+        }),
+      ),
+  },
 });

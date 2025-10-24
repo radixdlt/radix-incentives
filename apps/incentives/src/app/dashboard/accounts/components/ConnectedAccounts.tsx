@@ -1,4 +1,4 @@
-import type { Account } from 'db/consultation';
+import type { Account } from 'db/incentives';
 import { UserAvatar } from '~/components/ui/UserAvatar';
 
 const AccountCard = ({ account }: { account: Account }) => (
