@@ -163,9 +163,9 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
         // Round timestamp to nearest minute for better cache hit rates
         const roundedTimestamp = Math.floor(input.timestamp.getTime() / 1000);
 
-        const price = yield* priceCache.get(
-          `${input.resourceAddress}:${roundedTimestamp}`,
-        );
+        const price = yield* priceCache
+          .get(`${input.resourceAddress}:${roundedTimestamp}`)
+          .pipe(Effect.catchTag('MissingPriceError', () => Effect.succeed(0)));
 
         return yield* Effect.succeed(
           new BigNumber(price).multipliedBy(input.amount),
