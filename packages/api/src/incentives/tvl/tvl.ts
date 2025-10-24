@@ -133,11 +133,9 @@ export class TVLService extends Effect.Service<TVLService>()('TVLService', {
                   resourceAddress: item.resourceAddress.resourceAddress,
                   timestamp,
                 }).pipe(
-                  Effect.catchTags({
-                    InvalidResourceAddressError: () =>
-                      Effect.succeed(new BigNumber(0)),
-                    MissingPriceError: () => Effect.succeed(new BigNumber(0)),
-                  }),
+                  Effect.catchTag('InvalidResourceAddressError', () =>
+                    Effect.succeed(new BigNumber(0)),
+                  ),
                 );
                 return {
                   ...item,
