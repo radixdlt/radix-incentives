@@ -55,7 +55,7 @@ const testResources = {
     address:
       'resource_rdx1n2dd0w53zpdlqdz65vpymygj8a60vqnggyuxfpfdldjmy2224x020q',
     points: 10,
-    weeklyLimit: 3,
+    weeklyLimit: 25,
   }),
 } as const;
 
@@ -251,7 +251,7 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
 
       yield* service.createResourceRewardDefinition(testResources.xrdDomain);
 
-      // user has claimed 5 XRD domains but weekly limit is 3
+      // user has claimed 5 XRD domains (5 * 10 = 50 points) but weekly limit caps at 25 points
       yield* Effect.promise(() =>
         db.insert(resourceRewardClaims).values([
           {
@@ -298,7 +298,7 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
 
       expect(results[0]).toHaveProperty(
         'points',
-        `${testResources.xrdDomain.points * 3}`,
+        `${testResources.xrdDomain.weeklyLimit}`,
       );
     }).pipe(Effect.provide(dbClientLive), Effect.provide(Logger.pretty));
   });

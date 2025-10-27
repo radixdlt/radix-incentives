@@ -344,10 +344,9 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
                 // aggregate points by user id and resource address, apply weekly limit if set
                 const subquery = db
                   .select({
-                    points: sql<string>`CASE 
-                      WHEN ${resourceRewardDefinitions.weeklyLimit} IS NOT NULL 
-                        AND ${count()} > ${resourceRewardDefinitions.weeklyLimit}
-                      THEN ${resourceRewardDefinitions.weeklyLimit} * ${resourceRewardDefinitions.points}
+                    points: sql<string>`CASE
+                      WHEN ${resourceRewardDefinitions.weeklyLimit} IS NOT NULL
+                      THEN LEAST(${count()} * ${resourceRewardDefinitions.points}, ${resourceRewardDefinitions.weeklyLimit})
                       ELSE ${count()} * ${resourceRewardDefinitions.points}
                     END`.as('points'),
                     userId: resourceRewardClaims.userId,
