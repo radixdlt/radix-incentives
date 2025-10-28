@@ -20,8 +20,9 @@ export const Assets = {
     xUSDT:
       'resource_rdx1thrvr3xfs2tarm2dl9emvs26vjqxu6mqvfgvqjne940jv0lnrrg7rw',
 
-    // wrapped stable
+    // ecosystem stables
     sUSD: 'resource_rdx1th3uhn6905l2vh49z2d83xgr45a08dkxn8ajxmt824ctpdu69msp89',
+    fUSD: 'resource_rdx1t49wa75gve8ehvejr760g3pgvkawsgsgq0u3kh7vevzk0g0cnsmscq',
 
     //ecosystem
     OCI: 'resource_rdx1t52pvtk5wfhltchwh3rkzls2x0r98fw9cjhpyrf3vsykhkuwrf7jg8',
@@ -84,6 +85,7 @@ export const tokenNameMap = {
     [Assets.Fungible.xUSDC]: 'xusdc',
     [Assets.Fungible.xUSDT]: 'xusdt',
     [Assets.Fungible.sUSD]: 'susd',
+    [Assets.Fungible.fUSD]: 'fusd',
     [Assets.Fungible.hUSDC]: 'husdc',
     [Assets.Fungible.hUSDT]: 'husdt',
   },

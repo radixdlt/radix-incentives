@@ -369,7 +369,7 @@ export const ActivityCardEasy = ({
                       );
                     }}
                   >
-                    <div className="relative h-8 w-8 overflow-hidden rounded-full border bg-white transition-transform duration-200 group-hover:scale-105">
+                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white transition-transform duration-200 group-hover:scale-105">
                       <Image
                         src={dappLogo.logoPath}
                         alt={`${dappLogo.name} logo`}

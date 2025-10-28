@@ -6,6 +6,7 @@ import { ActivityCategoryId } from './activityCategories';
 import { Assets, AssetType } from './assets';
 import { CaviarNineConstants } from './dapps/caviarnine/constants';
 import { DefiPlazaConstants } from './dapps/defiPlaza/constants';
+import { FluxConstants } from './dapps/flux/constants';
 import { OciswapConstants } from './dapps/ociswap/constants';
 import { RootFinanceConstants } from './dapps/rootFinance/constants';
 import { SurgeConstants } from './dapps/surge/constants';
@@ -500,6 +501,71 @@ const runnable = Effect.gen(function* () {
       action: Action.OTHER,
       assets: [],
     },
+    // Flux holding activities - CDPs and Reservoirs
+    ...[
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'xrd',
+        tokenPair: 'xrd',
+        component: FluxConstants.cdpManager.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'xrd',
+          address: Assets.Fungible.XRD,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'lsulp',
+        tokenPair: 'lsulp',
+        component: FluxConstants.cdpManager.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'lsulp',
+          address: FluxConstants.collaterals.lsulp.collateralAddress,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'xrdfusd',
+        tokenPair: 'xrdfusd',
+        component: FluxConstants.reservoirs.xrd.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'xrd',
+          address: Assets.Fungible.XRD,
+        },
+      },
+      {
+        category: ActivityCategoryId.maintainXrdBalance,
+        id: 'lsulpfusd',
+        tokenPair: 'lsulpfusd',
+        component: FluxConstants.reservoirs.lsulp.componentAddress,
+        action: Action.HOLD,
+        asset: {
+          type: AssetType.XRD_DERIVATIVE,
+          name: 'lsulp',
+          address: FluxConstants.collaterals.lsulp.collateralAddress,
+        },
+      },
+    ].map((spec) => ({
+      categoryId: spec.category,
+      activityId: `${DappId.flux}_${spec.action}_${spec.id}`,
+      componentAddress: spec.component,
+      dAppId: DappId.flux,
+      tokenPair: spec.tokenPair,
+      action: spec.action,
+      assets: [
+        {
+          assetType: spec.asset.type,
+          name: spec.asset.name,
+          resourceAddress: spec.asset.address,
+        },
+      ],
+    })),
   );
 
   const groupedActivities = groupBy(activities, (item) => item.activityId);

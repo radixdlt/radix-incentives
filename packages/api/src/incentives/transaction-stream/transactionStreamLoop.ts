@@ -6,6 +6,7 @@ import { caviarnineEventMatcher } from '../events/event-matchers/caviarnineEvent
 import { commonEventMatcher } from '../events/event-matchers/commonEventMatcher';
 import type { CapturedEvent } from '../events/event-matchers/createEventMatcher';
 import { defiPlazaEventMatcher } from '../events/event-matchers/defiPlazaEventMatcher';
+import { fluxEventMatcher } from '../events/event-matchers/fluxEventMatcher';
 import { hlpEventMatcher } from '../events/event-matchers/hlpEventMatcher';
 import { ociswapEventMatcher } from '../events/event-matchers/ociswapEventMatcher';
 import { rootFinanceEventMatcher } from '../events/event-matchers/rootFinanceEventMatcher';
@@ -128,6 +129,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 ociswapEvents,
                 commonEvents,
                 surgeEvents,
+                fluxEvents,
               ] = yield* Effect.all([
                 weftFinanceEventMatcher(uniqueTransactions),
                 rootFinanceEventMatcher(uniqueTransactions),
@@ -137,6 +139,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 ociswapEventMatcher(uniqueTransactions),
                 commonEventMatcher(uniqueTransactions),
                 surgeEventMatcher(uniqueTransactions),
+                fluxEventMatcher(uniqueTransactions),
               ]);
 
               // concat all captured events
@@ -149,6 +152,7 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
                 ...rootFinanceEvents,
                 ...commonEvents,
                 ...surgeEvents,
+                ...fluxEvents,
               ] as CapturedEvent<EmittableEvent>[];
 
               // Process Surge events for margin account indexing

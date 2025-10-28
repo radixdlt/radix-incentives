@@ -153,6 +153,10 @@ export const ActivityId = {
   'dp_tr_xrd-xusdc': 'dp_tr_xrd-xusdc',
   'dp_tr_xrd-xusdt': 'dp_tr_xrd-xusdt',
   'dp_tr_xrd-xwbtc': 'dp_tr_xrd-xwbtc',
+  fl_ho_lsulp: 'fl_ho_lsulp',
+  fl_ho_lsulpfusd: 'fl_ho_lsulpfusd',
+  fl_ho_xrd: 'fl_ho_xrd',
+  fl_ho_xrdfusd: 'fl_ho_xrdfusd',
   ho_lsulp: 'ho_lsulp',
   ho_stakedXrd: 'ho_stakedXrd',
   ho_unstakedXrd: 'ho_unstakedXrd',
@@ -349,12 +353,15 @@ const componentAddresses = [
   'component_rdx1cz9akawaf6d2qefds33c5py9w3fjpgp2qnaddtlcxm06m060wl2j68',
   'component_rdx1czfuwcgnn7dxjjmz9zcacr347ahkuguz7vr9mcdkmywldg0f7qlylp',
   'component_rdx1czgaazn4wqf40kav57t8tu6kwv2a5sfmnlzlar9ee6kdqk0ll2chsz',
+  'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
   'component_rdx1czjarh8cwcwdu2va9fa5yetmjrgequ8fxrl7ycvfmxpymyyqvwtqkh',
   'component_rdx1czmc0yzur2tefmx9mjdxdudc49vv7h2zh5xcg3sy47ja3v3d7wppsh',
   'component_rdx1czmha58h7vw0e4qpxz8ga68cq6h5fjm27w2z43r0n6k9x65nvrjp4g',
   'component_rdx1czs3nlt4vx8rq0qytvxtsxmjvppd29n72quelmvww4kx25ryz5jk0q',
   'component_rdx1czy2naejcqx8gv46zdsex2syuxrs4jnqzug58e66zr8wglxzvu97qr',
   'component_rdx1czzqr5m40x3sklwntcmx8uw3ld5nj7marq66nm6erp3prw7rv8zu29',
+  'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
+  'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
 ];
 
 const componentAddressSet = new Set(componentAddresses);
@@ -6089,6 +6096,80 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       componentAddresses: [],
     },
   ],
+  fl: [
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_xrd',
+      dAppId: 'fl',
+      tokenPair: 'xrd',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        },
+      ],
+      componentAddresses: [
+        'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_lsulp',
+      dAppId: 'fl',
+      tokenPair: 'lsulp',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+        },
+      ],
+      componentAddresses: [
+        'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_xrdfusd',
+      dAppId: 'fl',
+      tokenPair: 'xrdfusd',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        },
+      ],
+      componentAddresses: [
+        'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_lsulpfusd',
+      dAppId: 'fl',
+      tokenPair: 'lsulpfusd',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+        },
+      ],
+      componentAddresses: [
+        'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
+      ],
+    },
+  ],
   as: [],
 } as any;
 
@@ -11450,6 +11531,78 @@ export const activityData: ActivityData[] = [
     assets: [],
     componentAddresses: [],
   },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_xrd',
+    dAppId: 'fl',
+    tokenPair: 'xrd',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      },
+    ],
+    componentAddresses: [
+      'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_lsulp',
+    dAppId: 'fl',
+    tokenPair: 'lsulp',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'lsulp',
+        resourceAddress:
+          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+      },
+    ],
+    componentAddresses: [
+      'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_xrdfusd',
+    dAppId: 'fl',
+    tokenPair: 'xrdfusd',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      },
+    ],
+    componentAddresses: [
+      'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
+    ],
+  },
+  {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_lsulpfusd',
+    dAppId: 'fl',
+    tokenPair: 'lsulpfusd',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'lsulp',
+        resourceAddress:
+          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+      },
+    ],
+    componentAddresses: [
+      'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
+    ],
+  },
 ] as any;
 
 export const activityDataMap: Record<ActivityId, ActivityData> = {
@@ -16809,6 +16962,78 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
     action: 'ot',
     assets: [],
     componentAddresses: [],
+  },
+  fl_ho_xrd: {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_xrd',
+    dAppId: 'fl',
+    tokenPair: 'xrd',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      },
+    ],
+    componentAddresses: [
+      'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
+    ],
+  },
+  fl_ho_lsulp: {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_lsulp',
+    dAppId: 'fl',
+    tokenPair: 'lsulp',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'lsulp',
+        resourceAddress:
+          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+      },
+    ],
+    componentAddresses: [
+      'component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u',
+    ],
+  },
+  fl_ho_xrdfusd: {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_xrdfusd',
+    dAppId: 'fl',
+    tokenPair: 'xrdfusd',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'xrd',
+        resourceAddress:
+          'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+      },
+    ],
+    componentAddresses: [
+      'pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77',
+    ],
+  },
+  fl_ho_lsulpfusd: {
+    categoryId: 'maintainXrdBalance',
+    activityId: 'fl_ho_lsulpfusd',
+    dAppId: 'fl',
+    tokenPair: 'lsulpfusd',
+    action: 'ho',
+    assets: [
+      {
+        assetType: 'der',
+        name: 'lsulp',
+        resourceAddress:
+          'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+      },
+    ],
+    componentAddresses: [
+      'pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m',
+    ],
   },
 } as any;
 
@@ -25899,6 +26124,72 @@ export const componentAddressActivityDataMap: Record<
         },
       ],
       action: 'ho',
+    },
+  ],
+  component_rdx1czgv2hx5lq4v5tjm32u69s5dw8ja0d4qeau2y5vktvaxlrmsfdy08u: [
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_xrd',
+      dAppId: 'fl',
+      tokenPair: 'xrd',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        },
+      ],
+    },
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_lsulp',
+      dAppId: 'fl',
+      tokenPair: 'lsulp',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+        },
+      ],
+    },
+  ],
+  pool_rdx1c5nzge2kpylwrtls7ydhnd03vs5f7w8w0jhzh99x82mw660war8y77: [
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_xrdfusd',
+      dAppId: 'fl',
+      tokenPair: 'xrdfusd',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'xrd',
+          resourceAddress:
+            'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
+        },
+      ],
+    },
+  ],
+  pool_rdx1c540e9ytpktwpqrq808xz3r0a8qxm2plrt4e5u5ecllzjcavrc9h8m: [
+    {
+      categoryId: 'maintainXrdBalance',
+      activityId: 'fl_ho_lsulpfusd',
+      dAppId: 'fl',
+      tokenPair: 'lsulpfusd',
+      action: 'ho',
+      assets: [
+        {
+          assetType: 'der',
+          name: 'lsulp',
+          resourceAddress:
+            'resource_rdx1thksg5ng70g9mmy9ne7wz0sc7auzrrwy7fmgcxzel2gvp8pj0xxfmf',
+        },
+      ],
     },
   ],
 } as any;

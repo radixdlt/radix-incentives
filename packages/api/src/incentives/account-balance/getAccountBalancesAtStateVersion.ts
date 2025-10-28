@@ -19,6 +19,14 @@ import {
   GetDefiPlazaPositionsService,
 } from '../../common/dapps/defiplaza/getDefiPlazaPositions';
 import {
+  type GetFluxCdpsOutput,
+  GetFluxCdpsService,
+} from '../../common/dapps/flux/getFluxCdps';
+import {
+  type GetFluxReservoirOutput,
+  GetFluxReservoirService,
+} from '../../common/dapps/flux/getFluxReservoir';
+import {
   GetOciswapLiquidityAssetsService,
   type OciswapLiquidityAsset,
 } from '../../common/dapps/ociswap/getOciswapLiquidityAssets';
@@ -57,6 +65,7 @@ import { MarginAccountDbService } from '../surge/marginAccountDbService';
 
 const RootFinanceConstants = DappConstants.RootFinance.constants;
 const WeftFinanceConstants = DappConstants.WeftFinance.constants;
+const FluxConstants = DappConstants.Flux.constants;
 const CaviarNineConstants = DappConstants.CaviarNine.constants;
 const OciswapConstants = DappConstants.Ociswap.constants;
 
@@ -97,6 +106,10 @@ type WeftFinancePosition = GetWeftFinancePositionsOutput;
 
 type RootFinancePosition = CollaterizedDebtPosition;
 
+type FluxCdpPosition = GetFluxCdpsOutput[number];
+
+type FluxReservoirPosition = GetFluxReservoirOutput[number];
+
 type CaviarNinePosition = {
   [key: string]: ShapeLiquidityAsset[] | CaviarnineSimplePoolLiquidityAsset[];
 };
@@ -122,6 +135,8 @@ export type AccountBalance = {
   nonFungibleTokenBalances: NonFungibleTokenBalance[];
   weftFinancePositions: WeftFinancePosition;
   rootFinancePositions: RootFinancePosition[];
+  fluxCdpPositions: FluxCdpPosition;
+  fluxReservoirPositions: FluxReservoirPosition;
   caviarninePositions: CaviarNinePosition;
   ociswapPositions: OciswapPosition;
   defiPlazaPositions: DefiPlazaPosition;
@@ -161,6 +176,8 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
       ConvertLsuToXrdService.Default,
       GetWeftFinancePositionsService.Default,
       GetRootFinancePositionsService.Default,
+      GetFluxCdpsService.Default,
+      GetFluxReservoirService.Default,
       MarginAccountDbService.Default,
       GetSurgeMarginAccountBalancesService.Default,
     ],
@@ -176,6 +193,8 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         yield* GetWeftFinancePositionsService;
       const getRootFinancePositionsService =
         yield* GetRootFinancePositionsService;
+      const getFluxCdpsService = yield* GetFluxCdpsService;
+      const getFluxReservoirService = yield* GetFluxReservoirService;
       const getLedgerStateService = yield* GetLedgerStateService;
       const getShapeLiquidityAssetsService =
         yield* GetShapeLiquidityAssetsService;
@@ -248,6 +267,7 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                   ),
                   RootFinanceConstants.receiptResourceAddress,
                   WeftFinanceConstants.v2.WeftyV2.resourceAddress,
+                  FluxConstants.receiptResourceAddress,
                   ...input.validators.map(
                     (validator) => validator.claimNftResourceAddress,
                   ),
@@ -269,13 +289,15 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
         const allOciswapPoolsV2 = Object.values(OciswapConstants.poolsV2);
 
         yield* Effect.logDebug(
-          'getting user staking positions, lsulp, weft finance positions, root finance positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, surge margin account balances, lsulp value',
+          'getting user staking positions, lsulp, weft finance positions, root finance positions, flux cdp positions, flux reservoir positions, all caviarnine shape liquidity assets, all ociswap liquidity assets, defi plaza positions, hyperstake positions, surge liquidity positions, ociswap resource pool positions, surge margin account balances, lsulp value',
         );
         const [
           userStakingPositions,
           lsulpResults,
           allWeftFinancePositions,
           allRootFinancePositions,
+          allFluxCdpPositions,
+          allFluxReservoirPositions,
           allCaviarNineShapeLiquidityAssets,
           allOciswapLiquidityAssets,
           allDefiPlazaPositions,
@@ -314,6 +336,19 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 nonFungibleBalance: nonFungibleBalanceResults,
               })
               .pipe(Effect.withSpan('getRootFinancePositionsService')),
+            getFluxCdpsService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              nonFungibleBalance: nonFungibleBalanceResults,
+              resourceAddresses: [
+                DappConstants.Flux.constants.receiptResourceAddress,
+              ],
+            }).pipe(Effect.withSpan('getFluxCdpsService')),
+            getFluxReservoirService({
+              accountAddresses: input.addresses,
+              at_ledger_state: atLedgerState,
+              fungibleBalance: fungibleBalanceResults,
+            }).pipe(Effect.withSpan('getFluxReservoirService')),
             Effect.all(
               allCaviarNinePools.map((pool) =>
                 getShapeLiquidityAssetsService({
@@ -504,6 +539,20 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
           ]),
         );
 
+        const fluxCdpMap = new Map(
+          allFluxCdpPositions.map((item) => [
+            item.accountAddress,
+            item.cdpPositions,
+          ]),
+        );
+
+        const fluxReservoirMap = new Map(
+          allFluxReservoirPositions.map((item) => [
+            item.accountAddress,
+            item.reservoirPositions,
+          ]),
+        );
+
         const defiPlazaMap = new Map(
           allDefiPlazaPositions.map((item) => [item.address, item]),
         );
@@ -620,6 +669,21 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
               const rootFinancePositions: RootFinancePosition[] =
                 rootFinanceMap.get(address) ?? [];
 
+              const fluxCdpPositions: FluxCdpPosition = fluxCdpMap.get(address)
+                ? {
+                    accountAddress: address,
+                    cdpPositions: fluxCdpMap.get(address)!,
+                  }
+                : { accountAddress: address, cdpPositions: [] };
+
+              const fluxReservoirPositions: FluxReservoirPosition =
+                fluxReservoirMap.get(address)
+                  ? {
+                      accountAddress: address,
+                      reservoirPositions: fluxReservoirMap.get(address)!,
+                    }
+                  : { accountAddress: address, reservoirPositions: [] };
+
               const accountDefiPlazaPositions: DefiPlazaPosition =
                 defiPlazaMap.get(address) ?? { address, items: [] };
 
@@ -691,6 +755,8 @@ export class GetAccountBalancesAtStateVersionService extends Effect.Service<GetA
                 nonFungibleTokenBalances,
                 weftFinancePositions,
                 rootFinancePositions,
+                fluxCdpPositions,
+                fluxReservoirPositions,
                 caviarninePositions,
                 ociswapPositions,
                 defiPlazaPositions: accountDefiPlazaPositions,

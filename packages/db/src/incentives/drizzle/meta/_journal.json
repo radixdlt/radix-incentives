@@ -260,6 +260,13 @@
       "when": 1761293745584,
       "tag": "0036_polite_lockheed",
       "breakpoints": true
+    },
+    {
+      "idx": 37,
+      "version": "7",
+      "when": 1759747200000,
+      "tag": "0037_add_flux_dapp",
+      "breakpoints": true
     }
   ]
 }

@@ -467,7 +467,7 @@ export function ActivityBreakdown({
                       className="group relative"
                       title={activity.dapp.name}
                     >
-                      <div className="relative h-8 w-8 overflow-hidden rounded-full border bg-white transition-transform duration-200 group-hover:scale-105">
+                      <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white transition-transform duration-200 group-hover:scale-105">
                         <Image
                           src={`/dapp-logos/${activity.dapp.id}.png`}
                           alt={`${activity.dapp.name} logo`}
