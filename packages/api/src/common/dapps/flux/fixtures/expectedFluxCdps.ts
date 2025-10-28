@@ -19,7 +19,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '267.198219078805805134',
         interest: '0.25',
         lastInterestChange:
-          'Sat May 31 2025 16:04:57 GMT+0200 (Central European Summer Time)',
+          'Sat May 31 2025 14:04:57 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -37,7 +37,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '332.785959651186893995',
         interest: '0.202',
         lastInterestChange:
-          'Sat May 31 2025 16:04:23 GMT+0200 (Central European Summer Time)',
+          'Sat May 31 2025 14:04:23 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -66,7 +66,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '222.856742367182839925',
         interest: '0.22',
         lastInterestChange:
-          'Wed Jun 04 2025 22:29:48 GMT+0200 (Central European Summer Time)',
+          'Wed Jun 04 2025 20:29:48 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -84,7 +84,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '266.665066088653374163',
         interest: '0.185',
         lastInterestChange:
-          'Wed Jun 04 2025 22:28:21 GMT+0200 (Central European Summer Time)',
+          'Wed Jun 04 2025 20:28:21 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -102,7 +102,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '266.666274830349076025',
         interest: '0.19',
         lastInterestChange:
-          'Wed Jun 04 2025 21:58:45 GMT+0200 (Central European Summer Time)',
+          'Wed Jun 04 2025 19:58:45 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -120,7 +120,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '235.695423477474420609',
         interest: '0.21',
         lastInterestChange:
-          'Wed Jun 04 2025 21:57:36 GMT+0200 (Central European Summer Time)',
+          'Wed Jun 04 2025 19:57:36 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -138,7 +138,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '234.224653515860240344',
         interest: '0.24',
         lastInterestChange:
-          'Wed Jun 04 2025 00:13:56 GMT+0200 (Central European Summer Time)',
+          'Tue Jun 03 2025 22:13:56 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -156,7 +156,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '255.761450502989303491',
         interest: '0.12',
         lastInterestChange:
-          'Tue Jun 03 2025 18:11:30 GMT+0200 (Central European Summer Time)',
+          'Tue Jun 03 2025 16:11:30 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -174,7 +174,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '276.50310192913142042',
         interest: '0.21',
         lastInterestChange:
-          'Tue Jun 03 2025 16:35:29 GMT+0200 (Central European Summer Time)',
+          'Tue Jun 03 2025 14:35:29 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },
@@ -192,7 +192,7 @@ export const expectedFluxCdps: GetFluxCdpsOutput = [
         collateralFusdRatio: '268.760989846005391967',
         interest: '0.18',
         lastInterestChange:
-          'Tue Jun 03 2025 16:34:48 GMT+0200 (Central European Summer Time)',
+          'Tue Jun 03 2025 14:34:48 GMT+0000 (Coordinated Universal Time)',
         status: 'Healthy',
         privilegedBorrower: null,
       },

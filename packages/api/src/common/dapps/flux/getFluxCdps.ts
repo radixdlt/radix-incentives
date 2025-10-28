@@ -160,7 +160,7 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
 
         // Process CDP data
         const cdps = allNftIds
-          .map((nftId) => {
+          .map((nftId): FluxCdpPosition | null => {
             const nftData = nftDataMap.get(nftId);
 
             if (!nftData?.data?.programmatic_json) return null;
@@ -217,7 +217,7 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
 
             return {
               nft: {
-                resourceAddress: FluxConstants.receiptResourceAddress,
+                resourceAddress: FluxConstants.receiptResourceAddress as string,
                 localId: nftId,
               },
               collateralAddress: cdpNftData.collateral_address,

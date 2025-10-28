@@ -147,9 +147,20 @@ export class GetFluxReservoirService extends Effect.Service<GetFluxReservoirServ
             }),
         );
 
+        // Create a Map of account addresses to user balances to avoid nested loops
+        const userBalancesMap = new Map(
+          userBalancesResult.map((account) => [account.address, account]),
+        );
+
         return input.accountAddresses.map((accountAddress) => {
-          const userAccount = userBalancesResult.find(
-            (account) => account.address === accountAddress,
+          const userAccount = userBalancesMap.get(accountAddress);
+
+          // Create a Map of resource addresses to amounts for this account
+          const userResourcesMap = new Map(
+            userAccount?.fungibleResources.map((resource) => [
+              resource.resourceAddress,
+              resource.amount,
+            ]) ?? [],
           );
 
           const reservoirPositions = poolData
@@ -159,11 +170,8 @@ export class GetFluxReservoirService extends Effect.Service<GetFluxReservoirServ
                 poolDataItem;
 
               const userPoolTokenBalance =
-                userAccount?.fungibleResources.find(
-                  (resource) =>
-                    resource.resourceAddress ===
-                    collateral.stabilityPoolTokenAddress,
-                )?.amount || new BigNumber(0);
+                userResourcesMap.get(collateral.stabilityPoolTokenAddress) ||
+                new BigNumber(0);
 
               const userPoolTokenValue = {
                 collateral: userPoolTokenBalance.multipliedBy(
