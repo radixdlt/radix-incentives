@@ -87,7 +87,7 @@ export default function ResourceRewardsPage() {
           (total, item) =>
             total +
             (item.weeklyLimit
-              ? Math.min(item.claims.length * item.points, item.weeklyLimit)
+              ? Math.min(item.claims.length, item.weeklyLimit) * item.points
               : item.claims.length * item.points),
           0,
         )

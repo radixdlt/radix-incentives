@@ -87,22 +87,24 @@ const ResourceRewardItem = ({
     (id) => !claims.some((claim) => claim.localId === id),
   );
 
-  // Calculate points already earned this week (capped at weekly limit)
-  const pointsAlreadyEarned = claims.length * points;
-  const claimedPoints = weeklyLimit
-    ? Math.min(pointsAlreadyEarned, weeklyLimit)
-    : pointsAlreadyEarned;
+  // Calculate items already claimed this week (capped at weekly limit)
+  const itemsAlreadyClaimed = claims.length;
+  const claimedItemsCount = weeklyLimit
+    ? Math.min(itemsAlreadyClaimed, weeklyLimit)
+    : itemsAlreadyClaimed;
+  const claimedPoints = claimedItemsCount * points;
 
-  // Calculate how many points are still available under the weekly limit
-  const remainingPointsCapacity = weeklyLimit
-    ? Math.max(0, weeklyLimit - pointsAlreadyEarned)
+  // Calculate how many items are still available under the weekly limit
+  const remainingItemsCapacity = weeklyLimit
+    ? Math.max(0, weeklyLimit - itemsAlreadyClaimed)
     : Number.POSITIVE_INFINITY;
 
-  // Calculate points that will actually count (capped by remaining capacity)
-  const pointsThatWillCount = Math.min(
-    unclaimedNfIds.length * points,
-    remainingPointsCapacity,
+  // Calculate items that will actually count (capped by remaining capacity)
+  const itemsThatWillCount = Math.min(
+    unclaimedNfIds.length,
+    remainingItemsCapacity,
   );
+  const pointsThatWillCount = itemsThatWillCount * points;
 
   const handleClaim = async () => {
     setIsClaiming(true);
@@ -114,7 +116,7 @@ const ResourceRewardItem = ({
   };
 
   // Determine quest state
-  const hasReachedLimit = weeklyLimit && pointsAlreadyEarned >= weeklyLimit;
+  const hasReachedLimit = weeklyLimit && itemsAlreadyClaimed >= weeklyLimit;
   const hasAnyClaims = claims.length > 0;
   const hasUnclaimedItems = unclaimedNfIds.length > 0;
 
@@ -177,7 +179,7 @@ const ResourceRewardItem = ({
         <div className="text-sm">
           <CardDataListItem label="Points per item" value={points} />
           <CardDataListItem
-            label="Weekly cap"
+            label="Max items"
             value={weeklyLimit ?? 'No limit'}
           />
           <CardDataListItem
