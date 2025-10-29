@@ -1,5 +1,5 @@
 # Base node image
-FROM node:22.3.0-bullseye-slim AS base
+FROM node:22.21.0-bullseye-slim AS base
 WORKDIR /app
 
 # Enable pnpm
