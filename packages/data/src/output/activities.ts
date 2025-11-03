@@ -254,6 +254,7 @@ export const ActivityId = {
   we_ho_unstakedXrd: 'we_ho_unstakedXrd',
   we_ho_xrd: 'we_ho_xrd',
   we_le_blu_heth: 'we_le_blu_heth',
+  we_le_blu_hsol: 'we_le_blu_hsol',
   we_le_blu_hwbtc: 'we_le_blu_hwbtc',
   we_le_blu_xeth: 'we_le_blu_xeth',
   we_le_blu_xwbtc: 'we_le_blu_xwbtc',
@@ -5777,6 +5778,24 @@ export const activityDataByDappId: Record<DappId, ActivityData[]> = {
       ],
     },
     {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_hsol',
+      dAppId: 'we',
+      tokenPair: 'hsol-hsol',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+      componentAddresses: [
+        'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+      ],
+    },
+    {
       categoryId: 'maintainXrdBalance',
       activityId: 'we_ho_stakedXrd',
       dAppId: 'we',
@@ -11076,6 +11095,24 @@ export const activityData: ActivityData[] = [
         name: 'heth',
         resourceAddress:
           'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+        assetType: 'blu',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  {
+    categoryId: 'lendingBlueChips',
+    activityId: 'we_le_blu_hsol',
+    dAppId: 'we',
+    tokenPair: 'hsol-hsol',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
         assetType: 'blu',
       },
     ],
@@ -16508,6 +16545,24 @@ export const activityDataMap: Record<ActivityId, ActivityData> = {
         name: 'heth',
         resourceAddress:
           'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+        assetType: 'blu',
+      },
+    ],
+    action: 'le',
+    componentAddresses: [
+      'component_rdx1cpy6putj5p7937clqgcgutza7k53zpha039n9u5hkk0ahh4stdmq4w',
+    ],
+  },
+  we_le_blu_hsol: {
+    categoryId: 'lendingBlueChips',
+    activityId: 'we_le_blu_hsol',
+    dAppId: 'we',
+    tokenPair: 'hsol-hsol',
+    assets: [
+      {
+        name: 'hsol',
+        resourceAddress:
+          'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
         assetType: 'blu',
       },
     ],
@@ -25727,6 +25782,36 @@ export const componentAddressActivityDataMap: Record<
           name: 'heth',
           resourceAddress:
             'resource_rdx1th09yvv7tgsrv708ffsgqjjf2mhy84mscmj5jwu4g670fh3e5zgef0',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_hsol',
+      dAppId: 'we',
+      tokenPair: 'hsol-hsol',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
+          assetType: 'blu',
+        },
+      ],
+      action: 'le',
+    },
+    {
+      categoryId: 'lendingBlueChips',
+      activityId: 'we_le_blu_hsol',
+      dAppId: 'we',
+      tokenPair: 'hsol-hsol',
+      assets: [
+        {
+          name: 'hsol',
+          resourceAddress:
+            'resource_rdx1t5ljlq97xfcewcdjxsqld89443fchqg96xv8a8k8gdftdycy9haxpx',
           assetType: 'blu',
         },
       ],

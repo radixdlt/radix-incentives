@@ -90,6 +90,11 @@ export const WeftFinanceConstants = {
       resourceAddress:
         'resource_rdx1t5tcgsd0m6ptqsd0g70xu08tzdhy23ml5ql9xlmmv9wpchg3lw7dtk',
     },
+    w2hSOL: {
+      type: 'fungible',
+      resourceAddress:
+        'resource_rdx1th9rpfyjcuu8w0hypaf4l3ywy26n6nt8hsavuksmjthcyc8unmlccc',
+    },
     WeftyV2: {
       type: 'nonFungible',
       resourceAddress:
@@ -123,6 +128,7 @@ export const weftFungibleRecourceAddresses = new Map<string, string>([
   [WeftFinanceConstants.v2.w2hUSDT.resourceAddress, Assets.Fungible.hUSDT],
   [WeftFinanceConstants.v2.w2hwBTC.resourceAddress, Assets.Fungible.hwBTC],
   [WeftFinanceConstants.v2.w2hETH.resourceAddress, Assets.Fungible.hETH],
+  [WeftFinanceConstants.v2.w2hSOL.resourceAddress, Assets.Fungible.hSOL],
 ]);
 
 export const weftFungibleComponentAddressSet = new Set<string>([
