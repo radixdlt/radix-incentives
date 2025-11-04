@@ -38,6 +38,7 @@ export class AggregateWeftFinancePositionsService extends Effect.Service<Aggrega
           [Assets.Fungible.xETH]: ActivityId.we_le_blu_xeth,
           [Assets.Fungible.hwBTC]: ActivityId.we_le_blu_hwbtc,
           [Assets.Fungible.hETH]: ActivityId.we_le_blu_heth,
+          [Assets.Fungible.hSOL]: ActivityId.we_le_blu_hsol,
           // XRD derivatives
           [Assets.Fungible.XRD]: ActivityId.we_le_der_xrd,
           [Assets.Fungible.LSULP]: ActivityId.we_le_der_lsulp,

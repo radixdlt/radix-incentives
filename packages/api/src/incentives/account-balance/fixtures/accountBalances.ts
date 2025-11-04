@@ -4013,6 +4013,11 @@ export const accountBalanceFixture = {
         metadata: undefined,
       },
       {
+        activityId: 'we_le_blu_hsol',
+        usdValue: '0',
+        metadata: undefined,
+      },
+      {
         activityId: 'we_le_der_xrd',
         usdValue: '0.1611271898275517883235147933',
         metadata: undefined,
