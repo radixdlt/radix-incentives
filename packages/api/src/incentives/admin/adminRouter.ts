@@ -34,6 +34,7 @@ export const adminRouter = createTRPCRouter({
           .select({
             userId: user.id,
             label: user.label,
+            email: user.email,
             totalSeasonPoints: sum(userSeasonPoints.points),
           })
           .from(user)
