@@ -9,7 +9,6 @@
     "api": "workspace:*",
     "effect": "catalog:",
     "db": "workspace:*",
-    "pino": "catalog:",
     "ioredis": "catalog:",
     "@opentelemetry/api": "catalog:",
     "@opentelemetry/exporter-metrics-otlp-proto": "catalog:",
@@ -22,7 +21,6 @@
     "@opentelemetry/sdk-trace-base": "catalog:",
     "@opentelemetry/sdk-trace-node": "catalog:",
     "@opentelemetry/semantic-conventions": "catalog:",
-    "make-fetch-happen": "catalog:",
     "hono": "catalog:",
     "undici": "catalog:",
     "@hono/node-server": "catalog:"
@@ -30,7 +28,6 @@
   "devDependencies": {
     "@types/node": "^22.13.10",
     "tsup": "catalog:",
-    "tsx": "catalog:",
-    "@types/make-fetch-happen": "catalog:"
+    "tsx": "catalog:"
   }
 }

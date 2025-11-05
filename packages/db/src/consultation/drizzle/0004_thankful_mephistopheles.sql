@@ -1,1 +1,0 @@
-ALTER TABLE "voting_power" ADD COLUMN "rola_proof" text;

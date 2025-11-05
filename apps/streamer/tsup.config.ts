@@ -5,13 +5,9 @@ export default defineConfig({
   format: ['esm'],
   external: [
     /^node:.*/,
-    'pino',
-    'pino-pretty',
-    'pino-abstract-transport',
     'ioredis',
     'url',
     'minipass-fetch',
-    'make-fetch-happen',
     'node-fetch',
     'undici',
   ],
