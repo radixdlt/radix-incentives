@@ -11,7 +11,6 @@ This is a Turborepo monorepo for the Radix Incentives Campaign - a blockchain in
 ### Applications
 - **`apps/admin`** - Next.js admin dashboard for managing seasons, weeks, activities, and viewing analytics
 - **`apps/incentives`** - Next.js user-facing dashboard where users connect wallets, view points, leaderboards, and activities  
-- **`apps/consultation`** - Next.js app for user consultations and voting
 - **`apps/workers`** - Background job processors using Bull queues for calculating points, snapshots, and processing events
 - **`apps/streamer`** - Transaction stream processor that monitors Radix blockchain for relevant events
 

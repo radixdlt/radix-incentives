@@ -29,15 +29,12 @@
     "effect": "catalog:",
     "hono": "catalog:",
     "ioredis": "catalog:",
-    "pino": "catalog:",
     "zod": "catalog:",
-    "undici": "catalog:",
-    "make-fetch-happen": "catalog:"
+    "undici": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^22.13.10",
     "tsup": "catalog:",
-    "tsx": "catalog:",
-    "@types/make-fetch-happen": "catalog:"
+    "tsx": "catalog:"
   }
 }

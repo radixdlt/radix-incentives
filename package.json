@@ -18,7 +18,6 @@
     "db:start": "docker compose -f docker-compose.yml up -d",
     "db:generate": "turbo run db:generate:incentives",
     "db:migrate": "turbo run db:migrate:incentives",
-    "db:migrate:consultation": "turbo run db:migrate:consultation",
     "db:studio": "turbo run db:studio:incentives",
     "db:push": "turbo run db:push:incentives",
     "db:create": "./postgres-init/init-db.sh",

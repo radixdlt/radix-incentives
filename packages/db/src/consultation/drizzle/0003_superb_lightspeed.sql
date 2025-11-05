@@ -1,1 +1,0 @@
-ALTER TABLE "voting_power" ADD COLUMN "selected_option" text NOT NULL;
