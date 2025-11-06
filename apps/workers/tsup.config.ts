@@ -16,6 +16,7 @@ export default defineConfig({
     // Bull MQ and Redis related
     'bullmq',
     'ioredis',
+    'pino',
   ],
   dts: false,
   splitting: false,

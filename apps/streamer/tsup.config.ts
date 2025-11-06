@@ -10,6 +10,7 @@ export default defineConfig({
     'minipass-fetch',
     'node-fetch',
     'undici',
+    'pino',
   ],
   dts: false,
   splitting: false,

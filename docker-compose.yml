@@ -38,8 +38,8 @@ services:
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
-      - '4318:4318'
-      - '16686:16686'
+      - "4318:4318"
+      - "16686:16686"
 
   # tracing-server:
   #   image: grafana/otel-lgtm:latest
@@ -57,36 +57,38 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
 
-  # workers:
-  #   hostname: workers
-  #   build:
-  #     context: .
-  #     dockerfile: dockerfiles/workers.Dockerfile
-  #   image: workers:latest
-  #   restart: always
-  #   ports:
-  #     - '3003:3003'
-  #   environment:
-  #     - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #     - REDIS_PASSWORD=password
-  #     - OTLP_BASE_URL=http://jaeger:4318
+  workers:
+    hostname: workers
+    build:
+      context: .
+      dockerfile: dockerfiles/workers.Dockerfile
+    image: workers:latest
+    restart: always
+    ports:
+      - "3003:3003"
+    environment:
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=password
+      - OTLP_BASE_URL=http://jaeger:4318
+      - TOKEN_PRICE_SERVICE_API_KEY=${TOKEN_PRICE_SERVICE_API_KEY}
 
-  # streamer:
-  #   hostname: streamer
-  #   build:
-  #     context: .
-  #     dockerfile: dockerfiles/streamer.Dockerfile
-  #   image: streamer:latest
-  #   restart: always
-  #   environment:
-  #     - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
-  #     - REDIS_HOST=redis
-  #     - REDIS_PORT=6379
-  #     - REDIS_PASSWORD=password
-  #     - OTLP_BASE_URL=http://jaeger:4318
-  #     - WORKERS_API_BASE_URL=http://workers:3003
+  streamer:
+    hostname: streamer
+    build:
+      context: .
+      dockerfile: dockerfiles/streamer.Dockerfile
+    image: streamer:latest
+    restart: always
+    environment:
+      - DATABASE_URL=postgres://postgres:password@postgres:5432/radix-incentives
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=password
+      - OTLP_BASE_URL=http://jaeger:4318
+      - WORKERS_API_BASE_URL=http://workers:3003
+      - TOKEN_PRICE_SERVICE_API_KEY=${TOKEN_PRICE_SERVICE_API_KEY}
 
   # incentives:
   #   hostname: workers
