@@ -1,5 +1,6 @@
 import { Award, Calendar, CheckCircle2, Gift } from 'lucide-react';
 import type { FC } from 'react';
+import { Badge } from '~/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
 type TimelineCardProps = {
@@ -14,12 +15,21 @@ export const TimelineCard: FC<TimelineCardProps> = ({
   isActive,
 }) => {
   return (
-    <Card>
-      <CardHeader>
+    <Card noHover>
+      <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5 text-purple-400" />
           Timeline
         </CardTitle>
+        {isActive ? (
+          <Badge className="bg-green-500/20 px-4 py-2 font-semibold text-green-400">
+            Active
+          </Badge>
+        ) : (
+          <Badge className="bg-gray-500/20 px-4 py-2 font-semibold text-gray-400">
+            Ended
+          </Badge>
+        )}
       </CardHeader>
       <CardContent className="space-y-4">
         <div className="space-y-3">

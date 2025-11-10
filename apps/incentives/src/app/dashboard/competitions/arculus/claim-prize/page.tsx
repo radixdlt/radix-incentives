@@ -8,7 +8,7 @@ import { Button } from '~/components/ui/button';
 import { Spinner } from '~/components/ui/spinner';
 import { api } from '~/trpc/react';
 
-export default function ClaimPricePage() {
+export default function ClaimPrizePage() {
   const router = useRouter();
 
   const { data: competition, isLoading: isCompetitionLoading } =
@@ -36,8 +36,8 @@ export default function ClaimPricePage() {
 
   const emailAddress = userData?.email;
 
-  const { mutate: claimCompetitionPrice, isPending: isClaimingPrize } =
-    api.competition.claimCompetitionPrice.useMutation({
+  const { mutate: claimCompetitionPrize, isPending: isClaimingPrize } =
+    api.competition.claimCompetitionPrize.useMutation({
       onSuccess: () => {
         toast.success(
           'Prize claimed successfully! Your Arculus card will be shipped soon.',
@@ -52,7 +52,7 @@ export default function ClaimPricePage() {
 
   const handleClaimPrize = () => {
     if (!competition?.id) return;
-    claimCompetitionPrice({ competitionId: competition.id });
+    claimCompetitionPrize({ competitionId: competition.id });
   };
 
   if (isLoading) {
@@ -63,8 +63,25 @@ export default function ClaimPricePage() {
     );
   }
 
-  // Check if user is a winner
   if (!participantData) {
+    return (
+      <div className="mx-auto max-w-2xl space-y-6 p-6">
+        <div className="glass-card rounded-2xl p-8 text-center">
+          <AlertCircle className="mx-auto mb-4 h-16 w-16 text-yellow-500" />
+          <h1 className="mb-2 font-bold text-2xl">No Participation Found</h1>
+          <p className="mb-6 text-muted-foreground">
+            You did not participate in this competition, so there isn\'t a prize
+            to claim.
+          </p>
+          <Button onClick={() => router.push('../')}>
+            Back to Competition
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!participantData.isWinner) {
     return (
       <div className="mx-auto max-w-2xl space-y-6 p-6">
         <div className="glass-card rounded-2xl p-8 text-center">
@@ -137,7 +154,7 @@ export default function ClaimPricePage() {
                   <div className="text-muted-foreground text-sm">
                     <p>{emailAddress}</p>
                     <Link
-                      href="/dashboard/settings/email?returnUrl=/dashboard/competitions/arculus/claim-price"
+                      href="/dashboard/settings/email?returnUrl=/dashboard/competitions/arculus/claim-prize"
                       className="mt-2 inline-block text-cyan-400 hover:text-cyan-300"
                     >
                       Update address
@@ -173,7 +190,7 @@ export default function ClaimPricePage() {
             {!hasEmailAddress ? (
               <>
                 <Button asChild className="flex-1" size="lg">
-                  <Link href="/dashboard/settings/email?returnUrl=/dashboard/competitions/arculus/claim-price">
+                  <Link href="/dashboard/settings/email?returnUrl=/dashboard/competitions/arculus/claim-prize">
                     Add Email Address
                   </Link>
                 </Button>

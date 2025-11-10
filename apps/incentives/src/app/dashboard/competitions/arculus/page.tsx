@@ -7,12 +7,10 @@ import { api } from '~/trpc/react';
 import {
   ClaimPrizeCard,
   CompetitionHero,
-  EligibilityCard,
   HowToWinCard,
   PrizeDetailsCard,
   TermsAndConditionsCard,
   TimelineCard,
-  WinnersCard,
 } from './components';
 
 export default function Page() {
@@ -45,6 +43,24 @@ export default function Page() {
       },
     );
 
+  // Get current week for user's XRD balance
+  const { data: weeks } = api.week.getWeeks.useQuery(undefined, {
+    enabled: isConnected,
+  });
+
+  const currentWeek = weeks?.[0]; // Most recent week
+
+  // Get user's category breakdown for maintainXrdBalance
+  const { data: categoryBreakdown, isLoading: isCategoryLoading } =
+    api.user.getUserCategoryBreakdown.useQuery(
+      {
+        weekId: currentWeek?.id ?? '',
+      },
+      {
+        enabled: !!currentWeek?.id && isConnected && isInitialized,
+      },
+    );
+
   if (isCompetitionLoading || !competition) return <Spinner />;
 
   // Competition details from API
@@ -53,8 +69,16 @@ export default function Page() {
   const isCompetitionActive = Date.now() < competitionEndDate.getTime();
   const prizeCount = competition.prizeCount;
   const isWinner = !!participantData?.isWinner;
-  const hasClaimedPrice = !!participantData?.claimedAt;
+  const hasClaimedPrize = !!participantData?.claimedAt;
   const isParticipant = !!participantData;
+
+  // Extract maintainXrdBalance value from category breakdown
+  const xrdBalanceData = categoryBreakdown?.find(
+    (cat) => cat.categoryId === 'maintainXrdBalance',
+  );
+  const xrdBalance = xrdBalanceData
+    ? `$${Number.parseFloat(xrdBalanceData.points.toString()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    : '$0.00';
 
   const handleJoinCompetition = () => {
     if (!competition?.id) return;
@@ -63,32 +87,41 @@ export default function Page() {
 
   return (
     <div className="space-y-6">
-      <CompetitionHero prizeCount={prizeCount} isActive={isCompetitionActive} />
+      <CompetitionHero
+        prizeCount={prizeCount}
+        isActive={isCompetitionActive}
+        xrdBalance={xrdBalance}
+        showXrdHoldings={isConnected && isInitialized}
+        onParticipate={
+          isInitialized && persona && isCompetitionActive && !isParticipant
+            ? handleJoinCompetition
+            : undefined
+        }
+        isParticipating={isJoiningCompetition}
+        isLoading={isParticipantLoading || isCategoryLoading}
+      />
 
-      {isInitialized && persona && !isParticipantLoading && (
-        <EligibilityCard
-          isParticipant={!!isParticipant}
-          onJoin={handleJoinCompetition}
-          isLoading={isJoiningCompetition}
-          isCompetitionActive={isCompetitionActive}
-        />
-      )}
+      {isInitialized &&
+        persona &&
+        !isParticipantLoading &&
+        !isCompetitionActive && (
+          <ClaimPrizeCard isWinner={isWinner} hasClaimed={hasClaimedPrize} />
+        )}
 
-      {isInitialized && persona && !isParticipantLoading && (
-        <ClaimPrizeCard isWinner={isWinner} hasClaimed={hasClaimedPrice} />
-      )}
-
+      {/* Timeline and How to Win side by side */}
       <div className="grid gap-6 lg:grid-cols-2">
-        <HowToWinCard />
-        <PrizeDetailsCard />
         <TimelineCard
           startDate={competitionStartDate}
           endDate={competitionEndDate}
           isActive={isCompetitionActive}
         />
-        <WinnersCard prizeCount={prizeCount} />
+        <HowToWinCard />
       </div>
 
+      {/* About the Prize - Full Width */}
+      <PrizeDetailsCard />
+
+      {/* Terms and Conditions - Full Width */}
       <TermsAndConditionsCard prizeCount={prizeCount} />
     </div>
   );

@@ -9,8 +9,8 @@ import { PrepareCompetitionEntries } from './prepareCompetitionEntries';
 
 class MissingEmailAddress extends Data.TaggedError('MissingEmailAddress') {}
 
-class PriceAlreadyClaimedError extends Data.TaggedError(
-  'PriceAlreadyClaimedError',
+class PrizeAlreadyClaimedError extends Data.TaggedError(
+  'PrizeAlreadyClaimedError',
 ) {}
 
 class ParticipantNotWinnerError extends Data.TaggedError(
@@ -53,13 +53,13 @@ export type AddCompetitionParticipantInput = z.infer<
   typeof AddCompetitionParticipantInputSchema
 >;
 
-export const ClaimCompetitionPriceInputSchema = z.object({
+export const ClaimCompetitionPrizeInputSchema = z.object({
   competitionId: z.string(),
   userId: z.string(),
 });
 
-export type ClaimCompetitionPriceInput = z.infer<
-  typeof ClaimCompetitionPriceInputSchema
+export type ClaimCompetitionPrizeInput = z.infer<
+  typeof ClaimCompetitionPrizeInputSchema
 >;
 
 export const DrawCompetitionWinnersInputSchema = z.object({
@@ -340,10 +340,10 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
               .where(eq(competitions.id, input.competitionId)),
           ),
         addCompetitionParticipant,
-        claimCompetitionPrice: ({
+        claimCompetitionPrize: ({
           competitionId,
           userId,
-        }: ClaimCompetitionPriceInput) =>
+        }: ClaimCompetitionPrizeInput) =>
           db
             .use((db) =>
               Promise.all([
@@ -378,7 +378,7 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
               ),
               Effect.filterOrFail(
                 ([, competitionWinner]) => !competitionWinner[0]?.claimedAt,
-                () => new PriceAlreadyClaimedError(),
+                () => new PrizeAlreadyClaimedError(),
               ),
               Effect.flatMap(() =>
                 db.use((db) =>

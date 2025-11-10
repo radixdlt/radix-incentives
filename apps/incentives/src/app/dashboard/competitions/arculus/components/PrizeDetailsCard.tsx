@@ -5,16 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
 export const PrizeDetailsCard: FC = () => {
   return (
-    <Card>
+    <Card noHover>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Gift className="h-5 w-5 text-cyan-400" />
           About the Prize
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
+      <CardContent className="space-y-6">
+        <div className="grid gap-6 md:grid-cols-2">
+          <div className="flex gap-3">
             <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-400" />
             <div>
               <div className="font-semibold text-white">
@@ -26,7 +26,7 @@ export const PrizeDetailsCard: FC = () => {
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
+          <div className="flex gap-3">
             <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-400" />
             <div>
               <div className="font-semibold text-white">Exclusive Branding</div>
@@ -36,7 +36,7 @@ export const PrizeDetailsCard: FC = () => {
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
+          <div className="flex gap-3">
             <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-400" />
             <div>
               <div className="font-semibold text-white">
@@ -48,7 +48,7 @@ export const PrizeDetailsCard: FC = () => {
             </div>
           </div>
 
-          <div className="flex items-start gap-3">
+          <div className="flex gap-3">
             <CheckCircle2 className="mt-0.5 h-5 w-5 flex-shrink-0 text-green-400" />
             <div>
               <div className="font-semibold text-white">

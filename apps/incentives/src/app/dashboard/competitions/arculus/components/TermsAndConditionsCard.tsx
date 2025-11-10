@@ -9,7 +9,7 @@ export const TermsAndConditionsCard: FC<TermsAndConditionsCardProps> = ({
   prizeCount,
 }) => {
   return (
-    <Card>
+    <Card noHover>
       <CardHeader>
         <CardTitle>Terms and Conditions</CardTitle>
       </CardHeader>

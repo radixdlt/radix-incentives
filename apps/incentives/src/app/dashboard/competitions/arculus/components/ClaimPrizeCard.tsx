@@ -50,7 +50,7 @@ export const ClaimPrizeCard: FC<ClaimPrizeCardProps> = ({
             asChild
             className="bg-yellow-600 hover:bg-yellow-700"
           >
-            <Link href="/dashboard/competitions/arculus/claim-price">
+            <Link href="/dashboard/competitions/arculus/claim-prize">
               Claim Your Prize
             </Link>
           </Button>

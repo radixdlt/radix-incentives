@@ -5,7 +5,7 @@ import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 import { ResponseError } from '../trpc/helpers';
 import {
   AddCompetitionParticipantInputSchema,
-  ClaimCompetitionPriceInputSchema,
+  ClaimCompetitionPrizeInputSchema,
   CompetitionService,
   CreateCompetitionInputSchema,
   DeleteCompetitionInputSchema,
@@ -72,14 +72,14 @@ export const competitionRouter = createTRPCRouter({
         }),
       ),
     ),
-  claimCompetitionPrice: protectedProcedure
-    .input(ClaimCompetitionPriceInputSchema.omit({ userId: true }))
+  claimCompetitionPrize: protectedProcedure
+    .input(ClaimCompetitionPrizeInputSchema.omit({ userId: true }))
     .mutation(async ({ input, ctx }) =>
       resolveEffect(
         Effect.gen(function* () {
           const competition = yield* CompetitionService;
           yield* competition
-            .claimCompetitionPrice({
+            .claimCompetitionPrize({
               competitionId: input.competitionId,
               userId: ctx.session.user.id,
             })
@@ -95,10 +95,10 @@ export const competitionRouter = createTRPCRouter({
                     code: 'FORBIDDEN',
                     message: 'User not winner',
                   }),
-                PriceAlreadyClaimedError: () =>
+                PrizeAlreadyClaimedError: () =>
                   new ResponseError({
                     code: 'FORBIDDEN',
-                    message: 'Price already claimed',
+                    message: 'Prize already claimed',
                   }),
               }),
             );

@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
 
 export const HowToWinCard: FC = () => {
   return (
-    <Card>
+    <Card noHover>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-yellow-400" />
@@ -19,10 +19,11 @@ export const HowToWinCard: FC = () => {
             </div>
             <div>
               <div className="font-semibold text-white">
-                Connect Your Wallet
+                Connect Your Wallet & Join
               </div>
               <div className="text-sm text-white/70">
-                Link your Radix wallet to start tracking your activities
+                Link your Radix wallet and press the Join Competition button to
+                participate
               </div>
             </div>
           </div>
@@ -33,10 +34,10 @@ export const HowToWinCard: FC = () => {
             </div>
             <div>
               <div className="font-semibold text-white">
-                Participate in Activities
+                Hold XRD to Increase Your Chances
               </div>
               <div className="text-sm text-white/70">
-                Provide liquidity, lend, borrow, and more to earn points
+                The more XRD you hold, the higher your odds in the random draw
               </div>
             </div>
           </div>
@@ -47,10 +48,11 @@ export const HowToWinCard: FC = () => {
             </div>
             <div>
               <div className="font-semibold text-white">
-                Hold XRD to Increase Your Chances
+                Check Back After Competition
               </div>
               <div className="text-sm text-white/70">
-                The more XRD you hold, the higher your odds in the random draw
+                After the competition ends, check if you won and provide your
+                email to claim your prize
               </div>
             </div>
           </div>

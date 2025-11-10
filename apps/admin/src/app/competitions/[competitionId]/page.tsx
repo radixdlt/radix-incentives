@@ -24,6 +24,7 @@ export default function CompetitionPage() {
     onSuccess: () => {
       toast.success('Winners drawn successfully!');
       utils.competition.getCompetitionById.invalidate({ id: competitionId });
+      utils.competition.listCompetitionWinners.invalidate({ competitionId });
     },
     onError: (error) => {
       toast.error(`Failed to draw winners: ${error.message}`);
