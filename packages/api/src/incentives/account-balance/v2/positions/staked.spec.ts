@@ -1,4 +1,5 @@
 import { layer } from '@effect/vitest';
+import { WeftFinanceConstants } from 'data';
 import { Effect, Logger, Ref } from 'effect';
 import { map } from 'effect/Array';
 import { getLedgerStateByDate } from '../../../../test-helpers/ledgerState';
@@ -8,7 +9,7 @@ import {
   NonFungibleTokenBalanceState,
   ValidatorsState,
 } from '../accountBalanceState';
-import { AccountAddress } from '../schemas';
+import { AccountAddress, NonFungibleResourceAddress } from '../schemas';
 import stakedFixture from './fixtures/staked.fixture';
 import { StakedPosition } from './staked';
 
@@ -28,7 +29,12 @@ layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
         Effect.map(map((validator) => validator.claimNftResourceAddress)),
       );
 
-      const accountAddresses = Object.keys(stakedFixture).map(AccountAddress);
+      const accountAddresses = [
+        ...Object.keys(stakedFixture).map(AccountAddress),
+        AccountAddress(
+          'account_rdx12yntvduadhcr49nutqkrlxa54n74f0aj264j2nv9xmk3rtdu80u8cc',
+        ),
+      ];
 
       const result = yield* stakedPosition
         .fromState({
@@ -37,6 +43,7 @@ layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
           timestamp,
         })
         .pipe(
+          Effect.provideService(ValidatorsState, validatorStateRef),
           Effect.provideService(
             FungibleTokenBalanceState,
             yield* accountBalanceState.makeFungibleTokenBalanceState({
@@ -44,13 +51,17 @@ layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
               stateVersion,
             }),
           ),
-          Effect.provideService(ValidatorsState, validatorStateRef),
           Effect.provideService(
             NonFungibleTokenBalanceState,
             yield* accountBalanceState.makeNonFungibleTokenBalanceState({
               addresses: accountAddresses,
               stateVersion,
-              resourceAddresses: claimNftResourceAddresses,
+              resourceAddresses: [
+                ...claimNftResourceAddresses,
+                NonFungibleResourceAddress(
+                  WeftFinanceConstants.v2.WeftyV2.resourceAddress,
+                ),
+              ],
             }),
           ),
         );

@@ -1,10 +1,12 @@
 import { Context, Effect, HashMap, Option, Ref, Schema } from 'effect';
 import { map, reduce } from 'effect/Array';
+import type { StructDefinition, StructSchema } from 'sbor-ez-mode';
 import {
   GetAllValidatorsService,
   GetFungibleBalanceService,
   GetNonFungibleBalanceService,
 } from '../../../common/gateway';
+import { parseNftCollection } from './helpers/parseSbor';
 import {
   AccountAddress,
   Amount,
@@ -15,9 +17,9 @@ import {
   ValidatorAddress,
 } from './schemas';
 
-const FungibleTokenBalanceStateSchema = Schema.Record({
+const FungibleTokenBalanceStateSchema = Schema.HashMap({
   key: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
-  value: Schema.Record({
+  value: Schema.HashMap({
     key: Schema.String.pipe(Schema.fromBrand(FungibleResourceAddress)),
     value: Schema.String.pipe(Schema.fromBrand(Amount)),
   }),
@@ -41,7 +43,7 @@ const NftCollectionSchema = Schema.HashMap({
   value: NftCollectionItemsSchema,
 });
 
-type NftCollectionSchema = typeof NftCollectionSchema.Type;
+export type NftCollection = typeof NftCollectionSchema.Type;
 
 const NonFungibleTokenBalanceStateSchema = Schema.HashMap({
   key: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
@@ -109,23 +111,30 @@ export class AccountBalanceState extends Effect.Service<AccountBalanceState>()(
             },
           }).pipe(
             Effect.map(
-              reduce({} as FungibleTokenBalanceStateSchema, (acc, item) => {
-                const resources = reduce(
-                  item.fungibleResources,
-                  {} as FungibleTokenBalanceStateSchema[AccountAddress],
-                  (acc, item) => ({
-                    ...acc,
-                    [FungibleResourceAddress(item.resourceAddress)]: Amount(
-                      item.amount.toString(),
-                    ),
-                  }),
-                );
+              reduce(
+                HashMap.empty<
+                  HashMap.HashMap.Key<FungibleTokenBalanceStateSchema>,
+                  HashMap.HashMap.Value<FungibleTokenBalanceStateSchema>
+                >(),
+                (acc, item) => {
+                  const resources = reduce(
+                    item.fungibleResources,
+                    HashMap.empty<FungibleResourceAddress, Amount>(),
+                    (acc, item) =>
+                      HashMap.set(
+                        acc,
+                        FungibleResourceAddress(item.resourceAddress),
+                        Amount(item.amount.toString()),
+                      ),
+                  );
 
-                return {
-                  ...acc,
-                  [AccountAddress(item.address)]: resources,
-                };
-              }),
+                  return HashMap.set(
+                    acc,
+                    AccountAddress(item.address),
+                    resources,
+                  );
+                },
+              ),
             ),
             Effect.flatMap(
               Ref.make<typeof FungibleTokenBalanceStateSchema.Type>,
@@ -146,7 +155,7 @@ export class AccountBalanceState extends Effect.Service<AccountBalanceState>()(
             Effect.map((result) => result.items),
             Effect.map(
               reduce(
-                HashMap.empty<AccountAddress, NftCollectionSchema>(),
+                HashMap.empty<AccountAddress, NftCollection>(),
                 (acc, item) => {
                   const accountAddress = AccountAddress(item.address);
 
@@ -207,9 +216,9 @@ export class AccountBalanceState extends Effect.Service<AccountBalanceState>()(
       address: AccountAddress,
       resourceAddress: FungibleResourceAddress,
     ) =>
-      Effect.succeed(
-        fungibleTokenState[AccountAddress(address)][resourceAddress] ??
-          Amount('0'),
+      HashMap.get(fungibleTokenState, address).pipe(
+        Option.map((balance) => HashMap.get(balance, resourceAddress)),
+        Option.flatten,
       );
   });
 
@@ -222,13 +231,32 @@ export class AccountBalanceState extends Effect.Service<AccountBalanceState>()(
     const nonFungibleTokenState =
       yield* AccountBalanceState.nonFungibleTokenState;
 
-    return (
+    function getNftCollection<T extends StructDefinition, R extends boolean>(
       address: AccountAddress,
       resourceAddress: NonFungibleResourceAddress,
-    ) =>
-      HashMap.get(nonFungibleTokenState, address).pipe(
+      schema: StructSchema<T, R>,
+    ): ReturnType<typeof parseNftCollection<T, R>>;
+
+    function getNftCollection(
+      address: AccountAddress,
+      resourceAddress: NonFungibleResourceAddress,
+    ): Option.Option<NftCollectionItemsSchema>;
+
+    function getNftCollection<T extends StructDefinition, R extends boolean>(
+      address: AccountAddress,
+      resourceAddress: NonFungibleResourceAddress,
+      schema?: StructSchema<T, R>,
+    ):
+      | Option.Option<NftCollectionItemsSchema>
+      | ReturnType<typeof parseNftCollection<T, R>> {
+      const nftCollection = HashMap.get(nonFungibleTokenState, address).pipe(
         Option.map((balance) => HashMap.get(balance, resourceAddress)),
         Option.flatten,
       );
+      if (!schema) return nftCollection;
+      return parseNftCollection(schema, nftCollection);
+    }
+
+    return getNftCollection;
   });
 }

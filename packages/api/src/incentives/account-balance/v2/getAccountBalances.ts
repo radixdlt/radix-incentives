@@ -1,4 +1,4 @@
-import { Effect, Schema } from 'effect';
+import { Array as A, Effect, Option, Record as R, Ref, Schema } from 'effect';
 import {
   GetFungibleBalanceService,
   GetLedgerStateService,
@@ -6,29 +6,16 @@ import {
 import {
   AccountBalanceState,
   FungibleTokenBalanceState,
+  NonFungibleTokenBalanceState,
 } from './accountBalanceState';
-import { LsuLpPosition } from './positions/lsuLp';
-import { AccountAddress } from './schemas';
-
-export type AccountBalance = {
-  address: string;
-  // staked: Lsu[];
-  // unstaked: Unstaked[];
-  // lsulp: Lsulp;
-  // fungibleTokenBalances: FungibleTokenBalance[];
-  // nonFungibleTokenBalances: NonFungibleTokenBalance[];
-  // weftFinancePositions: WeftFinancePosition;
-  // rootFinancePositions: RootFinancePosition[];
-  // fluxCdpPositions: FluxCdpPosition;
-  // fluxReservoirPositions: FluxReservoirPosition;
-  // caviarninePositions: CaviarNinePosition;
-  // ociswapPositions: OciswapPosition;
-  // defiPlazaPositions: DefiPlazaPosition;
-  // hyperstakePositions: HyperstakePosition;
-  // surgePositions: SurgePosition;
-  // surgeMarginAccountBalances: SurgeMarginAccountBalance[];
-  // convertLsuToXrdMap: Map<string, (amount: BigNumber) => BigNumber>;
-};
+import { HoldingPosition } from './positions/holding';
+import { StakedPosition } from './positions/staked';
+import { WeftFinancePosition } from './positions/weft';
+import {
+  AccountAddress,
+  type AmountUsd,
+  NonFungibleResourceAddress,
+} from './schemas';
 
 const GetAccountBalancesAtStateVersionV2InputSchema = Schema.Struct({
   addresses: Schema.mutable(Schema.Array(Schema.String)),
@@ -44,13 +31,17 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
     dependencies: [
       GetFungibleBalanceService.Default,
       AccountBalanceState.Default,
-      LsuLpPosition.Default,
       GetLedgerStateService.Default,
+      HoldingPosition.Default,
+      StakedPosition.Default,
+      WeftFinancePosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
-      const lsuLpPosition = yield* LsuLpPosition;
       const getLedgerStateService = yield* GetLedgerStateService;
+      const holdingPosition = yield* HoldingPosition;
+      const stakedPosition = yield* StakedPosition;
+      const weftPosition = yield* WeftFinancePosition;
 
       return Effect.fnUntraced(function* (
         input: GetAccountBalancesAtStateVersionV2Input,
@@ -60,6 +51,26 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             state_version: input.stateVersion,
           },
         });
+        const validatorStateRef =
+          yield* accountBalanceState.makeValidatorsState;
+
+        const claimNftResourceAddresses = yield* Ref.get(
+          validatorStateRef,
+        ).pipe(
+          Effect.map(A.map((validator) => validator.claimNftResourceAddress)),
+        );
+
+        const nftResourceAddresses = [
+          ...claimNftResourceAddresses,
+          WeftFinancePosition.nftResourceAddress,
+        ].map(NonFungibleResourceAddress);
+
+        const nonFungibleTokenBalanceState =
+          yield* accountBalanceState.makeNonFungibleTokenBalanceState({
+            addresses: input.addresses,
+            stateVersion: input.stateVersion,
+            resourceAddresses: nftResourceAddresses,
+          });
 
         const timestamp = new Date(ledgerState.proposer_round_timestamp);
 
@@ -72,22 +83,51 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
 
         const positions = yield* Effect.gen(function* () {
           const positions = yield* Effect.all([
-            lsuLpPosition.fromState({
+            holdingPosition.fromState({
+              addresses,
+              stateVersion,
+              timestamp,
+            }),
+            // returns LSU and unstaked
+            stakedPosition.fromState({
+              addresses,
+              stateVersion,
+              timestamp,
+            }),
+            weftPosition.fromState({
               addresses,
               stateVersion,
               timestamp,
             }),
           ]);
 
-          return positions;
+          return positions.reduce(
+            (acc, position) =>
+              R.union(acc, position, (a, b) => ({ ...a, ...b })),
+            R.empty<AccountAddress, Record<string, AmountUsd>>(),
+          );
         }).pipe(
           Effect.provideService(
             FungibleTokenBalanceState,
             yield* accountBalanceState.makeFungibleTokenBalanceState(input),
           ),
+          Effect.provideService(
+            NonFungibleTokenBalanceState,
+            nonFungibleTokenBalanceState,
+          ),
         );
 
-        yield* Effect.log(positions);
+        const accountBalances = input.addresses.reduce((acc, address) => {
+          const position = R.get(positions, AccountAddress(address)).pipe(
+            Option.match({
+              onNone: () => R.empty<string, AmountUsd>(),
+              onSome: (position) => position,
+            }),
+          );
+          return R.set(acc, AccountAddress(address), position);
+        }, R.empty<AccountAddress, Record<string, AmountUsd>>());
+
+        return accountBalances;
       });
     }),
   },
