@@ -4,6 +4,7 @@ import { Pencil, PlusCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { toast } from 'sonner';
+import { SeasonAndWeekSelector } from '~/components/SeasonAndWeekSelector';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -27,13 +28,6 @@ import {
 } from '~/components/ui/dialog';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '~/components/ui/select';
 import { Separator } from '~/components/ui/separator';
 import { Skeleton } from '~/components/ui/skeleton';
 import {
@@ -44,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import { useSeasonAndWeekSelector } from '~/lib/hooks/useSeasonAndWeekSelector';
 import { api } from '~/trpc/react';
 
 interface ResourceRewardFormData {
@@ -389,63 +384,16 @@ function DeleteResourceRewardDialog({
 }
 
 export default function ResourceRewardsPage() {
-  const [selectedSeasonId, setSelectedSeasonId] = React.useState<string>('');
-  const [selectedWeekId, setSelectedWeekId] = React.useState<string>('');
-
-  // Get available seasons
-  const { data: seasons, isLoading: isSeasonsLoading } =
-    api.season.getSeasons.useQuery();
-
-  // Auto-select the latest season when seasons data loads
-  React.useEffect(() => {
-    if (seasons && seasons.length > 0 && !selectedSeasonId) {
-      // Find the active season, or use the first season
-      const activeSeason = seasons.find((s) => s.status === 'active');
-      const selectedSeason = activeSeason || seasons[0];
-      if (selectedSeason) {
-        setSelectedSeasonId(selectedSeason.id);
-      }
-    }
-  }, [seasons, selectedSeasonId]);
-
-  // Get season details with all weeks (including future weeks)
-  const { data: seasonDetails, isLoading: isWeeksLoading } =
-    api.season.getSeasonById.useQuery(
-      { id: selectedSeasonId },
-      { enabled: !!selectedSeasonId },
-    );
-
-  // Get weeks from the season details, sorted by start date (newest first)
-  const filteredWeeks = React.useMemo(() => {
-    const weeks = seasonDetails?.weeks ?? [];
-    return [...weeks].sort(
-      (a, b) =>
-        new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
-    );
-  }, [seasonDetails]);
-
-  // Auto-select the current week
-  React.useEffect(() => {
-    if (filteredWeeks.length > 0) {
-      const now = new Date();
-      // Find the current week (where now is between start and end date)
-      const currentWeek = filteredWeeks.find(
-        (week) =>
-          new Date(week.startDate) <= now && new Date(week.endDate) >= now,
-      );
-      // If no current week, default to the most recent week
-      const selectedWeek =
-        currentWeek ||
-        filteredWeeks.reduce((latest, current) =>
-          new Date(current.endDate) > new Date(latest.endDate)
-            ? current
-            : latest,
-        );
-      setSelectedWeekId(selectedWeek.id);
-    } else {
-      setSelectedWeekId('');
-    }
-  }, [filteredWeeks]);
+  const {
+    seasons,
+    isSeasonsLoading,
+    selectedSeasonId,
+    setSelectedSeasonId,
+    filteredWeeks,
+    isWeeksLoading,
+    selectedWeekId,
+    setSelectedWeekId,
+  } = useSeasonAndWeekSelector();
 
   const {
     data: resourceRewards,
@@ -459,10 +407,6 @@ export default function ResourceRewardsPage() {
   const handleRefresh = () => {
     void refetch();
   };
-
-  // Get the selected season and week details for display
-  const selectedSeason = seasons?.find((s) => s.id === selectedSeasonId);
-  const selectedWeek = filteredWeeks.find((w) => w.id === selectedWeekId);
 
   return (
     <div className="container mx-auto py-6 pr-6 pl-6">
@@ -488,84 +432,18 @@ export default function ResourceRewardsPage() {
       <Separator className="my-6" />
 
       {/* Season and Week Selector */}
-      <Card className="mb-6">
-        <CardHeader>
-          <CardTitle>Select Season and Week</CardTitle>
-        </CardHeader>
-        <CardContent className="grid gap-4">
-          {/* Season Selector */}
-          <div className="flex items-center gap-4">
-            <Label htmlFor="season-select" className="min-w-fit">
-              Season:
-            </Label>
-            {isSeasonsLoading ? (
-              <Skeleton className="h-10 w-full" />
-            ) : (
-              <Select
-                value={selectedSeasonId}
-                onValueChange={setSelectedSeasonId}
-              >
-                <SelectTrigger id="season-select" className="w-full">
-                  <SelectValue placeholder="Select a season" />
-                </SelectTrigger>
-                <SelectContent>
-                  {seasons?.map((season) => (
-                    <SelectItem key={season.id} value={season.id}>
-                      {season.name} ({season.status})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-
-          {/* Week Selector */}
-          <div className="flex items-center gap-4">
-            <Label htmlFor="week-select" className="min-w-fit">
-              Week:
-            </Label>
-            {isWeeksLoading ? (
-              <Skeleton className="h-10 w-full" />
-            ) : (
-              <Select value={selectedWeekId} onValueChange={setSelectedWeekId}>
-                <SelectTrigger
-                  id="week-select"
-                  className="w-full"
-                  disabled={!selectedSeasonId || filteredWeeks.length === 0}
-                >
-                  <SelectValue placeholder="Select a week" />
-                </SelectTrigger>
-                <SelectContent>
-                  {filteredWeeks.map((week) => (
-                    <SelectItem key={week.id} value={week.id}>
-                      Week {new Date(week.startDate).toLocaleDateString()} -{' '}
-                      {new Date(week.endDate).toLocaleDateString()}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          </div>
-
-          {/* Display selected details */}
-          {selectedSeason && selectedWeek && (
-            <div className="rounded-md border bg-muted/50 p-3">
-              <p className="text-muted-foreground text-sm">
-                <span className="font-medium">
-                  Managing resource rewards for:
-                </span>
-                <br />
-                Season:{' '}
-                <span className="font-medium">{selectedSeason.name}</span> (
-                {selectedSeason.status})
-                <br />
-                Week: {new Date(selectedWeek.startDate).toLocaleDateString()} -{' '}
-                {new Date(selectedWeek.endDate).toLocaleDateString()}
-              </p>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <div className="mb-6">
+        <SeasonAndWeekSelector
+          seasons={seasons}
+          isSeasonsLoading={isSeasonsLoading}
+          selectedSeasonId={selectedSeasonId}
+          setSelectedSeasonId={setSelectedSeasonId}
+          filteredWeeks={filteredWeeks}
+          isWeeksLoading={isWeeksLoading}
+          selectedWeekId={selectedWeekId}
+          setSelectedWeekId={setSelectedWeekId}
+        />
+      </div>
 
       <Separator className="my-6" />
 
