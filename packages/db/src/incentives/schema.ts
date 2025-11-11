@@ -770,8 +770,6 @@ export const resourceRewardDefinitions = createTable(
   'resource_reward_definition',
   {
     address: varchar('address', { length: 255 }).primaryKey(),
-    points: integer('points').notNull(),
-    weeklyLimit: integer('weekly_limit'),
     url: varchar('url', { length: 500 }),
   },
 );
@@ -779,6 +777,28 @@ export const resourceRewardDefinitions = createTable(
 export type ResourceRewardDefinition = InferSelectModel<
   typeof resourceRewardDefinitions
 >;
+
+export const resourceRewardWeeks = createTable(
+  'resource_reward_week',
+  {
+    address: varchar('address', { length: 255 })
+      .notNull()
+      .references(() => resourceRewardDefinitions.address, {
+        onDelete: 'cascade',
+      }),
+    weekId: uuid('week_id')
+      .notNull()
+      .references(() => weeks.id, { onDelete: 'cascade' }),
+    points: integer('points').notNull(),
+    weeklyLimit: integer('weekly_limit'),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.address, table.weekId] }),
+    weekIdIdx: index('idx_resource_reward_week_week_id').on(table.weekId),
+  }),
+);
+
+export type ResourceRewardWeek = InferSelectModel<typeof resourceRewardWeeks>;
 
 export const resourceRewardClaims = createTable(
   'resource_reward_claim',
@@ -809,6 +829,27 @@ export const resourceRewardClaims = createTable(
 );
 
 export type ResourceRewardClaim = InferSelectModel<typeof resourceRewardClaims>;
+
+export const resourceRewardWeeksRelations = relations(
+  resourceRewardWeeks,
+  ({ one }) => ({
+    resourceRewardDefinition: one(resourceRewardDefinitions, {
+      fields: [resourceRewardWeeks.address],
+      references: [resourceRewardDefinitions.address],
+    }),
+    week: one(weeks, {
+      fields: [resourceRewardWeeks.weekId],
+      references: [weeks.id],
+    }),
+  }),
+);
+
+export const resourceRewardDefinitionsRelations = relations(
+  resourceRewardDefinitions,
+  ({ many }) => ({
+    resourceRewardWeeks: many(resourceRewardWeeks),
+  }),
+);
 
 export const resourceClaimsRelations = relations(
   resourceRewardClaims,

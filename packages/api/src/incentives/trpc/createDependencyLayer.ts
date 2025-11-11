@@ -80,10 +80,7 @@ import { LeaderboardService } from '../leaderboard/leaderboard';
 import { MilestoneService } from '../milestones/milestoneService';
 import { getAccountsProgram } from '../programs/getAccounts';
 import { validateSessionTokenProgram } from '../programs/validateSessionToken';
-import {
-  type ResourceRewardDefinition,
-  ResourceRewardService,
-} from '../resource-reward/resourceReward';
+import { ResourceRewardService } from '../resource-reward/resourceReward';
 import {
   GetSeasonByIdLive,
   GetSeasonByIdService,
@@ -349,6 +346,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   );
 
   const dappServiceLive = DappService.Default;
+
+  const resourceRewardServiceLive = ResourceRewardService.Default.pipe(
+    Layer.provide(dbClientLive),
+  );
 
   const weekLive = WeekService.Default.pipe(
     Layer.provide(dbClientLive),
@@ -819,10 +820,18 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
   const createWeek = (input: CreateWeekInput) => {
     const runnable = Effect.gen(function* () {
       const weekService = yield* WeekService;
-      return yield* weekService.create(input);
+      const resourceRewardService = yield* ResourceRewardService;
+      return yield* weekService.create({
+        ...input,
+        cloneResourceRewards: (cloneInput) =>
+          resourceRewardService.cloneResourceRewards(cloneInput),
+      });
     });
 
-    const program = Effect.provide(runnable, weekLive);
+    const program = Effect.provide(
+      runnable,
+      Layer.mergeAll(weekLive, resourceRewardServiceLive),
+    );
 
     return Effect.runPromiseExit(program);
   };
@@ -1246,7 +1255,13 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const createResourceReward = (input: ResourceRewardDefinition) => {
+  const createResourceReward = (input: {
+    address: string;
+    url?: string | null;
+    points: number;
+    weeklyLimit?: number | null;
+    weekId: string;
+  }) => {
     const program = Effect.gen(function* () {
       const resourceRewardService = yield* ResourceRewardService;
       return yield* resourceRewardService.createResourceRewardDefinition(input);
@@ -1254,10 +1269,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const listResourceRewards = () => {
+  const listResourceRewards = (input: { weekId: string }) => {
     const program = Effect.gen(function* () {
       const resourceRewardService = yield* ResourceRewardService;
-      return yield* resourceRewardService.listResourceRewardDefinitions();
+      return yield* resourceRewardService.listResourceRewardDefinitions(input);
     }).pipe(Effect.provide(ResourceRewardService.Default));
 
     return Effect.runPromiseExit(program);
@@ -1290,7 +1305,13 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const updateResourceReward = (input: ResourceRewardDefinition) => {
+  const updateResourceReward = (input: {
+    address: string;
+    url?: string | null;
+    points: number;
+    weeklyLimit?: number | null;
+    weekId: string;
+  }) => {
     const program = Effect.gen(function* () {
       const resourceRewardService = yield* ResourceRewardService;
       return yield* resourceRewardService.updateResourceRewardDefinition(input);
@@ -1298,7 +1319,7 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     return Effect.runPromiseExit(program);
   };
 
-  const deleteResourceReward = (input: { address: string }) => {
+  const deleteResourceReward = (input: { address: string; weekId: string }) => {
     const program = Effect.gen(function* () {
       const resourceRewardService = yield* ResourceRewardService;
       return yield* resourceRewardService.deleteResourceRewardDefinition(input);

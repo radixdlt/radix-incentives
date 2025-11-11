@@ -449,6 +449,7 @@ export const adminRouter = createTRPCRouter({
           points: z.number(),
           weeklyLimit: z.number().optional(),
           url: z.string().optional(),
+          weekId: z.string(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
@@ -456,6 +457,7 @@ export const adminRouter = createTRPCRouter({
           ...input,
           weeklyLimit: input.weeklyLimit ?? undefined,
           url: input.url ?? undefined,
+          weekId: input.weekId,
         });
         return Exit.match(result, {
           onSuccess: (value) => value,
@@ -477,18 +479,26 @@ export const adminRouter = createTRPCRouter({
           },
         });
       }),
-    listResourceRewards: publicProcedure.query(async ({ ctx }) => {
-      const result = await ctx.dependencyLayer.listResourceRewards();
-      return Exit.match(result, {
-        onSuccess: (value) => value,
-        onFailure: (error) => {
-          console.error(error);
-          throw new TRPCError({
-            code: 'INTERNAL_SERVER_ERROR',
-          });
-        },
-      });
-    }),
+    listResourceRewards: publicProcedure
+      .input(
+        z.object({
+          weekId: z.string(),
+        }),
+      )
+      .query(async ({ input, ctx }) => {
+        const result = await ctx.dependencyLayer.listResourceRewards({
+          weekId: input.weekId,
+        });
+        return Exit.match(result, {
+          onSuccess: (value) => value,
+          onFailure: (error) => {
+            console.error(error);
+            throw new TRPCError({
+              code: 'INTERNAL_SERVER_ERROR',
+            });
+          },
+        });
+      }),
     updateResourceReward: publicProcedure
       .input(
         z.object({
@@ -496,6 +506,7 @@ export const adminRouter = createTRPCRouter({
           points: z.number(),
           weeklyLimit: z.number().optional(),
           url: z.string().optional(),
+          weekId: z.string(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
@@ -503,6 +514,7 @@ export const adminRouter = createTRPCRouter({
           ...input,
           weeklyLimit: input.weeklyLimit ?? undefined,
           url: input.url ?? undefined,
+          weekId: input.weekId,
         });
         return Exit.match(result, {
           onSuccess: (value) => value,
@@ -527,11 +539,13 @@ export const adminRouter = createTRPCRouter({
       .input(
         z.object({
           address: z.string(),
+          weekId: z.string(),
         }),
       )
       .mutation(async ({ input, ctx }) => {
         const result = await ctx.dependencyLayer.deleteResourceReward({
           address: input.address,
+          weekId: input.weekId,
         });
         return Exit.match(result, {
           onSuccess: (value) => value,

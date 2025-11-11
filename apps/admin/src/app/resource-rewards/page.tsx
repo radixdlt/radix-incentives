@@ -27,6 +27,13 @@ import {
 } from '~/components/ui/dialog';
 import { Input } from '~/components/ui/input';
 import { Label } from '~/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '~/components/ui/select';
 import { Separator } from '~/components/ui/separator';
 import { Skeleton } from '~/components/ui/skeleton';
 import {
@@ -46,7 +53,13 @@ interface ResourceRewardFormData {
   url?: string;
 }
 
-function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
+function CreateResourceRewardDialog({
+  weekId,
+  onSuccess,
+}: {
+  weekId: string;
+  onSuccess: () => void;
+}) {
   const [open, setOpen] = React.useState(false);
   const [formData, setFormData] = React.useState<ResourceRewardFormData>({
     address: '',
@@ -58,7 +71,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
   const createMutation =
     api.admin.resourceReward.createResourceReward.useMutation({
       onSuccess: () => {
-        toast.success('Resource reward created successfully');
+        toast.success('Resource reward created successfully for this week');
         setOpen(false);
         setFormData({
           address: '',
@@ -78,6 +91,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
     createMutation.mutate({
       ...formData,
       points: Number(formData.points),
+      weekId,
     });
   };
 
@@ -90,10 +104,10 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Resource Reward</DialogTitle>
+          <DialogTitle>Add Resource Reward to Week</DialogTitle>
           <DialogDescription>
-            Create a new resource reward that users can claim by holding
-            specific resources.
+            Add a resource reward to the currently selected week. Users can
+            claim points by holding specific NFTs during this week.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -175,6 +189,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
 
 function EditResourceRewardDialog({
   reward,
+  weekId,
   onSuccess,
 }: {
   reward: {
@@ -184,6 +199,7 @@ function EditResourceRewardDialog({
     weeklyLimit?: number | null;
     url?: string | null;
   };
+  weekId: string;
   onSuccess: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -197,7 +213,7 @@ function EditResourceRewardDialog({
   const updateMutation =
     api.admin.resourceReward.updateResourceReward.useMutation({
       onSuccess: () => {
-        toast.success('Resource reward updated successfully');
+        toast.success('Resource reward updated successfully for this week');
         setOpen(false);
         onSuccess();
       },
@@ -213,6 +229,7 @@ function EditResourceRewardDialog({
       points: Number(formData.points),
       weeklyLimit: formData.weeklyLimit,
       url: formData.url || undefined,
+      weekId,
     });
   };
 
@@ -228,9 +245,10 @@ function EditResourceRewardDialog({
       </Button>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Resource Reward</DialogTitle>
+          <DialogTitle>Edit Resource Reward for Week</DialogTitle>
           <DialogDescription>
-            Update the points or weekly limit for this resource reward.
+            Update the points or weekly limit for this resource reward in the
+            currently selected week.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -310,10 +328,12 @@ function EditResourceRewardDialog({
 function DeleteResourceRewardDialog({
   address,
   name,
+  weekId,
   onSuccess,
 }: {
   address: string;
   name?: string | null;
+  weekId: string;
   onSuccess: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -321,7 +341,7 @@ function DeleteResourceRewardDialog({
   const deleteMutation =
     api.admin.resourceReward.deleteResourceReward.useMutation({
       onSuccess: () => {
-        toast.success('Resource reward deleted successfully');
+        toast.success('Resource reward removed from this week');
         setOpen(false);
         onSuccess();
       },
@@ -331,7 +351,7 @@ function DeleteResourceRewardDialog({
     });
 
   const handleDelete = () => {
-    deleteMutation.mutate({ address });
+    deleteMutation.mutate({ address, weekId });
   };
 
   return (
@@ -346,10 +366,11 @@ function DeleteResourceRewardDialog({
       </Button>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Resource Reward</AlertDialogTitle>
+          <AlertDialogTitle>Remove Resource Reward from Week</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the resource reward for{' '}
-            <strong>{name || address}</strong>? This action cannot be undone.
+            Are you sure you want to remove the resource reward for{' '}
+            <strong>{name || address}</strong> from this week? This will only
+            remove it from the currently selected week, not from other weeks.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -368,15 +389,80 @@ function DeleteResourceRewardDialog({
 }
 
 export default function ResourceRewardsPage() {
+  const [selectedSeasonId, setSelectedSeasonId] = React.useState<string>('');
+  const [selectedWeekId, setSelectedWeekId] = React.useState<string>('');
+
+  // Get available seasons
+  const { data: seasons, isLoading: isSeasonsLoading } =
+    api.season.getSeasons.useQuery();
+
+  // Auto-select the latest season when seasons data loads
+  React.useEffect(() => {
+    if (seasons && seasons.length > 0 && !selectedSeasonId) {
+      // Find the active season, or use the first season
+      const activeSeason = seasons.find((s) => s.status === 'active');
+      const selectedSeason = activeSeason || seasons[0];
+      if (selectedSeason) {
+        setSelectedSeasonId(selectedSeason.id);
+      }
+    }
+  }, [seasons, selectedSeasonId]);
+
+  // Get season details with all weeks (including future weeks)
+  const { data: seasonDetails, isLoading: isWeeksLoading } =
+    api.season.getSeasonById.useQuery(
+      { id: selectedSeasonId },
+      { enabled: !!selectedSeasonId },
+    );
+
+  // Get weeks from the season details, sorted by start date (newest first)
+  const filteredWeeks = React.useMemo(() => {
+    const weeks = seasonDetails?.weeks ?? [];
+    return [...weeks].sort(
+      (a, b) =>
+        new Date(b.startDate).getTime() - new Date(a.startDate).getTime(),
+    );
+  }, [seasonDetails]);
+
+  // Auto-select the current week
+  React.useEffect(() => {
+    if (filteredWeeks.length > 0) {
+      const now = new Date();
+      // Find the current week (where now is between start and end date)
+      const currentWeek = filteredWeeks.find(
+        (week) =>
+          new Date(week.startDate) <= now && new Date(week.endDate) >= now,
+      );
+      // If no current week, default to the most recent week
+      const selectedWeek =
+        currentWeek ||
+        filteredWeeks.reduce((latest, current) =>
+          new Date(current.endDate) > new Date(latest.endDate)
+            ? current
+            : latest,
+        );
+      setSelectedWeekId(selectedWeek.id);
+    } else {
+      setSelectedWeekId('');
+    }
+  }, [filteredWeeks]);
+
   const {
     data: resourceRewards,
     isLoading,
     refetch,
-  } = api.admin.resourceReward.listResourceRewards.useQuery();
+  } = api.admin.resourceReward.listResourceRewards.useQuery(
+    { weekId: selectedWeekId },
+    { enabled: !!selectedWeekId },
+  );
 
   const handleRefresh = () => {
     void refetch();
   };
+
+  // Get the selected season and week details for display
+  const selectedSeason = seasons?.find((s) => s.id === selectedSeasonId);
+  const selectedWeek = filteredWeeks.find((w) => w.id === selectedWeekId);
 
   return (
     <div className="container mx-auto py-6 pr-6 pl-6">
@@ -391,8 +477,95 @@ export default function ResourceRewardsPage() {
             tokens or NFTs.
           </p>
         </div>
-        <CreateResourceRewardDialog onSuccess={handleRefresh} />
+        {selectedWeekId && (
+          <CreateResourceRewardDialog
+            weekId={selectedWeekId}
+            onSuccess={handleRefresh}
+          />
+        )}
       </div>
+
+      <Separator className="my-6" />
+
+      {/* Season and Week Selector */}
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle>Select Season and Week</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-4">
+          {/* Season Selector */}
+          <div className="flex items-center gap-4">
+            <Label htmlFor="season-select" className="min-w-fit">
+              Season:
+            </Label>
+            {isSeasonsLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select
+                value={selectedSeasonId}
+                onValueChange={setSelectedSeasonId}
+              >
+                <SelectTrigger id="season-select" className="w-full">
+                  <SelectValue placeholder="Select a season" />
+                </SelectTrigger>
+                <SelectContent>
+                  {seasons?.map((season) => (
+                    <SelectItem key={season.id} value={season.id}>
+                      {season.name} ({season.status})
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* Week Selector */}
+          <div className="flex items-center gap-4">
+            <Label htmlFor="week-select" className="min-w-fit">
+              Week:
+            </Label>
+            {isWeeksLoading ? (
+              <Skeleton className="h-10 w-full" />
+            ) : (
+              <Select value={selectedWeekId} onValueChange={setSelectedWeekId}>
+                <SelectTrigger
+                  id="week-select"
+                  className="w-full"
+                  disabled={!selectedSeasonId || filteredWeeks.length === 0}
+                >
+                  <SelectValue placeholder="Select a week" />
+                </SelectTrigger>
+                <SelectContent>
+                  {filteredWeeks.map((week) => (
+                    <SelectItem key={week.id} value={week.id}>
+                      Week {new Date(week.startDate).toLocaleDateString()} -{' '}
+                      {new Date(week.endDate).toLocaleDateString()}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
+          </div>
+
+          {/* Display selected details */}
+          {selectedSeason && selectedWeek && (
+            <div className="rounded-md border bg-muted/50 p-3">
+              <p className="text-muted-foreground text-sm">
+                <span className="font-medium">
+                  Managing resource rewards for:
+                </span>
+                <br />
+                Season:{' '}
+                <span className="font-medium">{selectedSeason.name}</span> (
+                {selectedSeason.status})
+                <br />
+                Week: {new Date(selectedWeek.startDate).toLocaleDateString()} -{' '}
+                {new Date(selectedWeek.endDate).toLocaleDateString()}
+              </p>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       <Separator className="my-6" />
 
@@ -459,11 +632,13 @@ export default function ResourceRewardsPage() {
                       <div className="flex justify-end gap-1">
                         <EditResourceRewardDialog
                           reward={reward}
+                          weekId={selectedWeekId}
                           onSuccess={handleRefresh}
                         />
                         <DeleteResourceRewardDialog
                           address={reward.address}
                           name={reward.name}
+                          weekId={selectedWeekId}
                           onSuccess={handleRefresh}
                         />
                       </div>

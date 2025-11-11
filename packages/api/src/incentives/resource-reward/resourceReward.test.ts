@@ -15,10 +15,7 @@ import { DbClientService, dbClientLive } from '../db/dbClient';
 import { SeasonService } from '../season/season';
 import { UserService } from '../user/user';
 import { WeekService } from '../week/week';
-import {
-  ResourceRewardDefinition,
-  ResourceRewardService,
-} from './resourceReward';
+import { ResourceRewardService } from './resourceReward';
 import { ResourceRewardHelpers } from './resourceRewardHelpers';
 
 const mockGetNonFungibleBalanceResponse = vi.fn();
@@ -45,18 +42,18 @@ const ResourceRewardServiceLive =
   );
 
 const testResources = {
-  taox: new ResourceRewardDefinition({
+  taox: {
     address:
       'resource_rdx1ngm27j7zpwx2m3jkflxtlq9grfkf4f6xpgz9vxzuplx0fd7egh9sx7',
     points: 25,
     weeklyLimit: undefined,
-  }),
-  xrdDomain: new ResourceRewardDefinition({
+  },
+  xrdDomain: {
     address:
       'resource_rdx1n2dd0w53zpdlqdz65vpymygj8a60vqnggyuxfpfdldjmy2224x020q',
     points: 10,
     weeklyLimit: 3,
-  }),
+  },
 } as const;
 
 const TestSetup = Effect.gen(function* () {
@@ -83,10 +80,16 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
   it.effect('should create a resource reward definition', () =>
     Effect.gen(function* () {
       const service = yield* ResourceRewardService;
+      const testSetup = yield* TestSetup;
 
-      yield* service.createResourceRewardDefinition(testResources.taox);
+      yield* service.createResourceRewardDefinition({
+        ...testResources.taox,
+        weekId: testSetup.week.id,
+      });
 
-      const [result] = yield* service.listResourceRewardDefinitions();
+      const [result] = yield* service.listResourceRewardDefinitions({
+        weekId: testSetup.week.id,
+      });
 
       expect(result).toHaveProperty('address', testResources.taox.address);
       expect(result).toHaveProperty('points', testResources.taox.points);
@@ -126,7 +129,10 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
         const service = yield* ResourceRewardService;
         const testSetup = yield* TestSetup;
 
-        yield* service.createResourceRewardDefinition(testResources.taox);
+        yield* service.createResourceRewardDefinition({
+          ...testResources.taox,
+          weekId: testSetup.week.id,
+        });
 
         const result = yield* service
           .createResourceRewardClaim({
@@ -153,8 +159,14 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
 
       const { user } = yield* createUser;
 
-      yield* service.createResourceRewardDefinition(testResources.taox);
-      yield* service.createResourceRewardDefinition(testResources.xrdDomain);
+      yield* service.createResourceRewardDefinition({
+        ...testResources.taox,
+        weekId: testSetup.week.id,
+      });
+      yield* service.createResourceRewardDefinition({
+        ...testResources.xrdDomain,
+        weekId: testSetup.week.id,
+      });
 
       yield* Effect.promise(() =>
         db.insert(resourceRewardClaims).values([
@@ -204,7 +216,10 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
         { concurrency: 25 },
       );
 
-      yield* service.createResourceRewardDefinition(testResources.taox);
+      yield* service.createResourceRewardDefinition({
+        ...testResources.taox,
+        weekId: testSetup.week.id,
+      });
 
       yield* Effect.forEach(users, ({ user }, index) =>
         Effect.gen(function* () {
@@ -249,7 +264,10 @@ layer(ResourceRewardService.Default)('resourceReward', (it) => {
 
       const { user } = yield* createUser;
 
-      yield* service.createResourceRewardDefinition(testResources.xrdDomain);
+      yield* service.createResourceRewardDefinition({
+        ...testResources.xrdDomain,
+        weekId: testSetup.week.id,
+      });
 
       // user has claimed 5 XRD domains but weekly limit is 3
       yield* Effect.promise(() =>
@@ -314,7 +332,10 @@ describe('resourceReward', () => {
       const service = yield* ResourceRewardService;
       const testSetup = yield* TestSetup;
 
-      yield* service.createResourceRewardDefinition(testResources.taox);
+      yield* service.createResourceRewardDefinition({
+        ...testResources.taox,
+        weekId: testSetup.week.id,
+      });
 
       // Mock ledger state for pagination support
       mockGetLedgerStateResponse.mockReturnValue(

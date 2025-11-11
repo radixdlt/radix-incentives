@@ -4,17 +4,21 @@ import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 
 export const resourceRewardRouter = createTRPCRouter({
-  getResourceRewards: publicProcedure.query(async ({ ctx }) => {
-    const result = await ctx.dependencyLayer.listResourceRewards();
+  getResourceRewards: publicProcedure
+    .input(z.object({ weekId: z.string() }))
+    .query(async ({ ctx, input }) => {
+      const result = await ctx.dependencyLayer.listResourceRewards({
+        weekId: input.weekId,
+      });
 
-    return Exit.match(result, {
-      onSuccess: (value) => value,
-      onFailure: (error) => {
-        console.error(error);
-        throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
-      },
-    });
-  }),
+      return Exit.match(result, {
+        onSuccess: (value) => value,
+        onFailure: (error) => {
+          console.error(error);
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+        },
+      });
+    }),
   getUserResourceRewards: protectedProcedure
     .input(z.object({ weekId: z.string() }))
     .query(async ({ ctx, input }) => {
