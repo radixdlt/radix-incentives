@@ -1,5 +1,6 @@
 import {
   CheckCircle,
+  ChevronRight,
   Clock,
   ExternalLink,
   Info,
@@ -160,6 +161,21 @@ const getCardStyling = (status: ActivityStatus | null): string => {
   }
 };
 
+const getButtonHoverStyling = (status: ActivityStatus | null): string => {
+  if (!status) return 'group-hover:bg-primary/10';
+
+  switch (status) {
+    case 'earning':
+      return 'group-hover:bg-green-500/20 group-hover:border-green-500/50';
+    case 'partial':
+      return 'group-hover:bg-orange-500/20 group-hover:border-orange-500/50';
+    case 'idle':
+      return 'group-hover:bg-red-500/20 group-hover:border-red-500/50';
+    default:
+      return 'group-hover:bg-primary/10';
+  }
+};
+
 export const ActivityCardEasy = ({
   activity,
   capitalData,
@@ -183,10 +199,13 @@ export const ActivityCardEasy = ({
   const statusBadge = getStatusBadge(status);
 
   return (
-    <Link href={`/dashboard/earn/${activity.id}`} className="block h-full">
+    <Link
+      href={`/dashboard/earn/${activity.id}`}
+      className="group block h-full"
+    >
       <Card
         className={cn(
-          'relative h-full cursor-pointer overflow-hidden transition-all duration-200',
+          'relative flex h-full cursor-pointer flex-col overflow-hidden transition-all duration-200',
           getCardStyling(status),
         )}
       >
@@ -293,7 +312,7 @@ export const ActivityCardEasy = ({
           </div>
         </CardHeader>
 
-        <CardContent className="space-y-4">
+        <CardContent className="flex-1 space-y-4">
           <CardDescription className="text-sm">
             {activity.description}
           </CardDescription>
@@ -347,43 +366,56 @@ export const ActivityCardEasy = ({
           )}
         </CardContent>
 
-        {activity.dappLogos && activity.dappLogos.length > 0 && (
-          <CardFooter className="pt-3">
-            <div className="flex items-center gap-3">
-              <span className="text-muted-foreground text-xs">
-                Visit to earn:
-              </span>
-              <div className="flex gap-2">
-                {activity.dappLogos.map((dappLogo) => (
-                  <button
-                    key={dappLogo.name}
-                    type="button"
-                    className="group relative cursor-pointer"
-                    title={dappLogo.name}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      window.open(
-                        dappLogo.websiteUrl,
-                        '_blank',
-                        'noopener,noreferrer',
-                      );
-                    }}
-                  >
-                    <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white transition-transform duration-200 group-hover:scale-105">
-                      <Image
-                        src={dappLogo.logoPath}
-                        alt={`${dappLogo.name} logo`}
-                        fill
-                        className="object-contain"
-                      />
-                    </div>
-                    <ExternalLink className="-right-1 -top-1 absolute h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100" />
-                  </button>
-                ))}
+        <CardFooter className="mt-auto pt-3">
+          <div className="flex w-full items-end justify-between gap-3">
+            {activity.dappLogos && activity.dappLogos.length > 0 ? (
+              <div className="flex flex-1 flex-col gap-2">
+                <span className="text-muted-foreground text-xs">
+                  Visit to earn:
+                </span>
+                <div className="flex max-w-full flex-wrap gap-2 sm:max-w-[50%]">
+                  {activity.dappLogos.map((dappLogo) => (
+                    <button
+                      key={dappLogo.name}
+                      type="button"
+                      className="group/dapp relative cursor-pointer"
+                      title={dappLogo.name}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        window.open(
+                          dappLogo.websiteUrl,
+                          '_blank',
+                          'noopener,noreferrer',
+                        );
+                      }}
+                    >
+                      <div className="relative h-8 w-8 overflow-hidden rounded-full border border-white transition-transform duration-200 group-hover/dapp:scale-105">
+                        <Image
+                          src={dappLogo.logoPath}
+                          alt={`${dappLogo.name} logo`}
+                          fill
+                          className="object-contain"
+                        />
+                      </div>
+                      <ExternalLink className="-right-1 -top-1 absolute h-3 w-3 text-muted-foreground opacity-0 transition-opacity group-hover/dapp:opacity-100" />
+                    </button>
+                  ))}
+                </div>
               </div>
+            ) : (
+              <div />
+            )}
+            <div
+              className={cn(
+                'inline-flex h-9 shrink-0 items-center justify-center gap-1 whitespace-nowrap rounded-xl border border-white/20 px-4 py-2 font-semibold text-sm text-white transition-all duration-300',
+                getButtonHoverStyling(status),
+              )}
+            >
+              Details
+              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </div>
-          </CardFooter>
-        )}
+          </div>
+        </CardFooter>
       </Card>
     </Link>
   );

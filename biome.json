@@ -1,9 +1,9 @@
 {
   "$schema": "https://biomejs.dev/schemas/2.1.3/schema.json",
   "vcs": {
-    "enabled": false,
+    "enabled": true,
     "clientKind": "git",
-    "useIgnoreFile": false
+    "useIgnoreFile": true
   },
   "files": {
     "ignoreUnknown": false,
@@ -11,11 +11,7 @@
       "apps/**",
       "packages/**",
       "tools/**",
-      "!.next",
-      "!node_modules",
-      "!turbo",
-      "!dist",
-      "!packages/db/src/incentives/seed/data/**/*",
+      "!packages/db/src/incentives/seed/data",
       "!packages/sbor-ez-mode",
       "!packages/api/coverage",
       "!tools/calculate-points/output"
