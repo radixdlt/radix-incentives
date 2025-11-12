@@ -121,7 +121,7 @@ import {
   type SnapshotDateRangeJob,
   WorkerApiService,
 } from '../worker/workerApi';
-import { resolveEffect, TrpcError } from './helpers';
+import { ResponseError, resolveEffect } from './helpers';
 
 export type DependencyLayer = ReturnType<typeof createDependencyLayer>;
 
@@ -1314,32 +1314,32 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Effect.provide(AccountRecoveryService.Default),
       Effect.catchTags({
         AccountRecoveryInProgress: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Account recovery already in progress',
           }),
         VerifyRolaProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Failed to validate proof.',
           }),
         InvalidRolaProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Invalid ROLA proof',
           }),
         RecoveryUserNotEmptyError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'FORBIDDEN',
             message: 'User has connected account(s)',
           }),
         AccountNotFoundError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'NOT_FOUND',
             message: 'Account not found',
           }),
         InvalidChallengeError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Provided challenge expired or invalid. Please try again.',
           }),
@@ -1357,32 +1357,32 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Effect.provide(AccountRecoveryService.Default),
       Effect.catchTags({
         VerifyRolaProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Failed to validate proof.',
           }),
         InvalidRolaProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Invalid ROLA proof',
           }),
         RecoveryUserNotEmptyError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Recovery user has connected account(s)',
           }),
         AccountNotFoundError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'NOT_FOUND',
             message: 'Account not found',
           }),
         InvalidChallengeError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Provided challenge expired or invalid. Please try again.',
           }),
         UserNotAllowedToSubmitRecoveryProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'FORBIDDEN',
             message: 'User is not authorized to submit account recovery proof',
           }),
@@ -1421,32 +1421,32 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Effect.provide(AccountRecoveryService.Default),
       Effect.catchTags({
         VerifyRolaProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Failed to validate proof.',
           }),
         InvalidRolaProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Invalid ROLA proof',
           }),
         RecoveryUserNotEmptyError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Recovery user has connected account(s)',
           }),
         AccountNotFoundError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'NOT_FOUND',
             message: 'Account not found',
           }),
         InvalidChallengeError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'BAD_REQUEST',
             message: 'Provided challenge expired or invalid. Please try again.',
           }),
         UserNotAllowedToSubmitRecoveryProofError: () =>
-          new TrpcError({
+          new ResponseError({
             code: 'FORBIDDEN',
             message: 'User is not authorized to submit account recovery proof',
           }),
