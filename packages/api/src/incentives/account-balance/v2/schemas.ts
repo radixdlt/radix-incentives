@@ -53,3 +53,9 @@ export const ProgrammaticScryptoSborValueSchema = Schema.declare(
     identifier: 'ProgrammaticScryptoSborValue',
   },
 );
+
+export type ComponentAddress = string & Brand.Brand<'ComponentAddress'>;
+export const ComponentAddress = Brand.nominal<ComponentAddress>();
+
+export type StateVersion = number & Brand.Brand<'StateVersion'>;
+export const StateVersion = Brand.nominal<StateVersion>();
