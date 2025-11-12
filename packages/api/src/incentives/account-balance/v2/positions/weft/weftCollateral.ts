@@ -5,23 +5,23 @@ import s from 'sbor-ez-mode';
 import {
   CollateralInfo,
   NFTCollateralInfo,
-} from '../../../../common/dapps/weftFinance/schemas';
-import { AccountBalanceState } from '../accountBalanceState';
+} from '../../../../../common/dapps/weftFinance/schemas';
+import { AccountBalanceState } from '../../accountBalanceState';
 import {
   type AccountAddress,
   Amount,
   type FungibleResourceAddress,
   NonFungibleId,
   NonFungibleResourceAddress,
-} from '../schemas';
+} from '../../schemas';
 
 const CDPData = s.struct({
   collaterals: s.map({ key: s.address(), value: CollateralInfo }),
   nft_collaterals: s.map({ key: s.address(), value: NFTCollateralInfo }),
 });
 
-export class WeftFinanceHelper extends Effect.Service<WeftFinanceHelper>()(
-  'WeftFinanceHelper',
+export class WeftCollateral extends Effect.Service<WeftCollateral>()(
+  'WeftCollateral',
   {
     effect: Effect.gen(function* () {
       const getNftCollection =
@@ -31,7 +31,7 @@ export class WeftFinanceHelper extends Effect.Service<WeftFinanceHelper>()(
         Effect.gen(function* () {
           const weftNftCollection = yield* getNftCollection(
             accountAddress,
-            WeftFinanceHelper.WeftyV2ResourceAddress,
+            WeftCollateral.WeftyV2ResourceAddress,
             CDPData,
           );
 

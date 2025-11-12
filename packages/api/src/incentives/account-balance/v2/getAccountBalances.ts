@@ -10,7 +10,7 @@ import {
 } from './accountBalanceState';
 import { HoldingPosition } from './positions/holding';
 import { StakedPosition } from './positions/staked';
-import { WeftFinancePosition } from './positions/weft';
+import { WeftFinancePosition } from './positions/weft/weft';
 import {
   AccountAddress,
   type AmountUsd,

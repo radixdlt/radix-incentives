@@ -24,7 +24,7 @@ import {
   type NonFungibleId,
   type NonFungibleResourceAddress,
 } from '../schemas';
-import { WeftFinanceHelper } from './weftHelper';
+import { WeftCollateral } from './weft/weftCollateral';
 
 class InvalidResourceError extends Data.TaggedError('InvalidResourceError')<{
   message: string;
@@ -183,7 +183,7 @@ export class StakedPosition extends Effect.Service<StakedPosition>()(
           timestamp: Date;
         }) =>
           Effect.gen(function* () {
-            const weftFinanceHelper = yield* WeftFinanceHelper;
+            const weftCollateral = yield* WeftCollateral;
             const validatorsState = yield* AccountBalanceState.validatorsState;
             const claimNftResourceAddressSet = new Set(
               validatorsState.map(
@@ -251,10 +251,6 @@ export class StakedPosition extends Effect.Service<StakedPosition>()(
                 ),
               );
 
-            // Users can use unstaking claims as collateral in Weft V2
-            const getWeftV2Collaterals = (accountAddress: AccountAddress) =>
-              weftFinanceHelper.getWeftV2CollateralsFromState(accountAddress);
-
             const getUnstakingClaimsFromAccount = (
               address: AccountAddress,
               resourceAddress: NonFungibleResourceAddress,
@@ -299,8 +295,11 @@ export class StakedPosition extends Effect.Service<StakedPosition>()(
                   const unstaking =
                     yield* getUnstakingFromAccount(accountAddress);
 
+                  // Users can use unstaking claims as collateral in Weft V2
                   const weftV2Collaterals =
-                    yield* getWeftV2Collaterals(accountAddress);
+                    yield* weftCollateral.getWeftV2CollateralsFromState(
+                      accountAddress,
+                    );
 
                   const unstakingFromWeft =
                     yield* getUnstakingFromWeftV2NftCollaterals({
@@ -323,7 +322,7 @@ export class StakedPosition extends Effect.Service<StakedPosition>()(
                   });
                 }),
             );
-          }).pipe(Effect.provide(WeftFinanceHelper.Default)),
+          }).pipe(Effect.provide(WeftCollateral.Default)),
       };
     }),
   },

@@ -2,14 +2,14 @@ import { layer } from '@effect/vitest';
 import { WeftFinanceConstants } from 'data/src/dapps/weftFinance/constants';
 import { Effect, Logger } from 'effect';
 import { take } from 'effect/Array';
-import { getNonFungibleTokenHolders } from '../../../../test-helpers/getTokenHolders';
-import { getLedgerStateByDate } from '../../../../test-helpers/ledgerState';
+import { getNonFungibleTokenHolders } from '../../../../../test-helpers/getTokenHolders';
+import { getLedgerStateByDate } from '../../../../../test-helpers/ledgerState';
 import {
   AccountBalanceState,
   FungibleTokenBalanceState,
   NonFungibleTokenBalanceState,
-} from '../accountBalanceState';
-import { AccountAddress, NonFungibleResourceAddress } from '../schemas';
+} from '../../accountBalanceState';
+import { AccountAddress, NonFungibleResourceAddress } from '../../schemas';
 import { WeftFinancePosition } from './weft';
 
 layer(WeftFinancePosition.Default)('WeftFinancePosition', (it) => {

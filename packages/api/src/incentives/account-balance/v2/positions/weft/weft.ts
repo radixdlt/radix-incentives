@@ -11,20 +11,20 @@ import { reduce } from 'effect/Array';
 import {
   LendingPoolSchema,
   SingleResourcePool,
-} from '../../../../common/dapps/weftFinance/schemas';
+} from '../../../../../common/dapps/weftFinance/schemas';
 import {
   GetComponentStateService,
   GetKeyValueStoreService,
-} from '../../../../common/gateway';
-import { GetUsdValueService } from '../../../token-price/getUsdValue';
-import { AccountBalanceState } from '../accountBalanceState';
+} from '../../../../../common/gateway';
+import { GetUsdValueService } from '../../../../token-price/getUsdValue';
+import { AccountBalanceState } from '../../accountBalanceState';
 import {
   type AccountAddress,
   Amount,
   AmountUsd,
   FungibleResourceAddress,
-} from '../schemas';
-import { WeftFinanceHelper } from './weftHelper';
+} from '../../schemas';
+import { WeftCollateral } from './weftCollateral';
 
 class FailedToParseLendingPoolSchemaError extends Data.TaggedError(
   'FailedToParseLendingPoolSchemaError',
@@ -116,7 +116,7 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
         ]).pipe(Effect.map(([v1, v2]) => HashMap.union(v1, v2)));
 
       // Supported wrapped fungible resource addresses
-      const wrappedFungibleResourceAddresses = [
+      const wrappedAssets = [
         ...DappConstants.WeftFinance.weftFungibleRecourceAddresses
           .keys()
           .map(FungibleResourceAddress),
@@ -132,13 +132,13 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
             const getFungibleBalance =
               yield* AccountBalanceState.createGetFungibleTokenBalanceFn;
 
-            const weftFinanceHelper = yield* WeftFinanceHelper;
+            const weftCollateral = yield* WeftCollateral;
 
             const unitToAssetRatioMap = yield* createUnitToAssetRatioMap(
               input.stateVersion,
             );
 
-            const unwrapResource = (
+            const unwrapAsset = (
               wrappedResourceAddress: FungibleResourceAddress,
               amount: BigNumber,
             ) =>
@@ -191,6 +191,7 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
                 record,
                 FungibleResourceAddress(resourceAddress),
               ).pipe(Option.getOrElse(() => AmountUsd('0')));
+
               return getUsdValueService({
                 amount,
                 resourceAddress: FungibleResourceAddress(resourceAddress),
@@ -212,41 +213,41 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
               timestamp: Date;
             }) =>
               Effect.reduce(
-                wrappedFungibleResourceAddresses,
+                wrappedAssets,
                 R.empty<ActivityId, AmountUsd>(),
-                (acc, wrappedResourceAddress) =>
+                (acc, wrappedAssetAddress) =>
                   Effect.gen(function* () {
                     const wrappedResourceFromAccount =
                       getWrappedResourceFromAccount(
                         accountAddress,
-                        wrappedResourceAddress,
+                        wrappedAssetAddress,
                       );
                     const wrappedResourceFromCollateral = R.get(
                       fungibleCollaterals,
-                      wrappedResourceAddress,
+                      wrappedAssetAddress,
                     ).pipe(Option.getOrElse(() => Amount('0')));
 
                     const totalAmount = wrappedResourceFromAccount.plus(
                       wrappedResourceFromCollateral,
                     );
 
-                    const unwrappedResource = yield* unwrapResource(
-                      wrappedResourceAddress,
+                    const unwrappedAsset = yield* unwrapAsset(
+                      wrappedAssetAddress,
                       totalAmount,
                     );
 
-                    if (!unwrappedResource) return acc;
+                    if (!unwrappedAsset) return acc;
 
                     const activityId = R.get(
                       WeftFinancePosition.resourceAddressToActivityIdMap,
-                      unwrappedResource.resourceAddress,
+                      unwrappedAsset.resourceAddress,
                     );
 
                     if (Option.isNone(activityId)) return acc;
 
                     const usdValue = yield* getUsdValueService({
-                      amount: unwrappedResource.amount,
-                      resourceAddress: unwrappedResource.resourceAddress,
+                      amount: unwrappedAsset.amount,
+                      resourceAddress: unwrappedAsset.resourceAddress,
                       timestamp,
                     }).pipe(
                       Effect.map((usdValue) =>
@@ -258,13 +259,30 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
                   }),
               );
 
+            // Note that LSU and Unstaking are handled in staked positions
+            const getHoldingPositions = (
+              fungibleCollaterals: Record<FungibleResourceAddress, Amount>,
+            ) =>
+              Effect.gen(function* () {
+                return {
+                  [ActivityId.we_ho_lsulp]: yield* getValueFromRecord(
+                    fungibleCollaterals,
+                    Assets.Fungible.LSULP,
+                  ),
+                  [ActivityId.we_ho_xrd]: yield* getValueFromRecord(
+                    fungibleCollaterals,
+                    Assets.Fungible.XRD,
+                  ),
+                };
+              });
+
             return yield* Effect.reduce(
               input.addresses,
               R.empty<AccountAddress, Record<string, AmountUsd>>(),
               (acc, accountAddress) =>
                 Effect.gen(function* () {
                   const { fungibleCollaterals } =
-                    yield* weftFinanceHelper.getWeftV2CollateralsFromState(
+                    yield* weftCollateral.getWeftV2CollateralsFromState(
                       accountAddress,
                     );
 
@@ -274,21 +292,16 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
                     timestamp: input.timestamp,
                   });
 
+                  const holdingPositions =
+                    yield* getHoldingPositions(fungibleCollaterals);
+
                   return R.set(acc, accountAddress, {
-                    // Note that LSU and Unstaking are added in staked position
-                    [ActivityId.we_ho_lsulp]: yield* getValueFromRecord(
-                      fungibleCollaterals,
-                      Assets.Fungible.LSULP,
-                    ),
-                    [ActivityId.we_ho_xrd]: yield* getValueFromRecord(
-                      fungibleCollaterals,
-                      Assets.Fungible.XRD,
-                    ),
+                    ...holdingPositions,
                     ...lendingPositions,
                   });
                 }),
             );
-          }).pipe(Effect.provide(WeftFinanceHelper.Default)),
+          }).pipe(Effect.provide(WeftCollateral.Default)),
       };
     }),
   },
@@ -312,5 +325,5 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
     },
     (key) => FungibleResourceAddress(key),
   );
-  static nftResourceAddress = WeftFinanceHelper.WeftyV2ResourceAddress;
+  static nftResourceAddress = WeftCollateral.WeftyV2ResourceAddress;
 }
