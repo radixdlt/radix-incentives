@@ -19,6 +19,7 @@ import {
 import { CaviarNinePosition } from './positions/caviarnine/caviarnine';
 import { HoldingPosition } from './positions/holding';
 import { StakedPosition } from './positions/staked';
+import { SurgePosition } from './positions/surge/surge';
 import { WeftFinancePosition } from './positions/weft/weft';
 import { AccountAddress, type AmountUsd, StateVersion } from './schemas';
 
@@ -41,6 +42,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       StakedPosition.Default,
       WeftFinancePosition.Default,
       CaviarNinePosition.Default,
+      SurgePosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
@@ -49,6 +51,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       const stakedPosition = yield* StakedPosition;
       const weftPosition = yield* WeftFinancePosition;
       const caviarNinePosition = yield* CaviarNinePosition;
+      const surgePosition = yield* SurgePosition;
 
       const concurrency = yield* Config.number(
         'GET_ACCOUNT_BALANCES_CONCURRENCY',
@@ -97,6 +100,11 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             timestamp,
           }),
           caviarNinePosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
+          surgePosition.fromState({
             addresses,
             stateVersion,
             timestamp,
