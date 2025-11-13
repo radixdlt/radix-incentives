@@ -3,9 +3,9 @@ import { map, reduce } from 'effect/Array';
 import type { StructDefinition, StructSchema } from 'sbor-ez-mode';
 import {
   GetAllValidatorsService,
-  GetFungibleBalanceService,
   GetNonFungibleBalanceService,
 } from '../../../common/gateway';
+import { AccountBalanceHelper } from './helpers/accountBalanceHelper';
 import { parseNftCollection } from './helpers/parseSbor';
 import {
   AccountAddress,
@@ -14,6 +14,7 @@ import {
   NonFungibleId,
   NonFungibleResourceAddress,
   ProgrammaticScryptoSborValueSchema,
+  StateVersion,
   ValidatorAddress,
 } from './schemas';
 
@@ -93,54 +94,28 @@ export class AccountBalanceState extends Effect.Service<AccountBalanceState>()(
   'AccountBalanceState',
   {
     dependencies: [
-      GetFungibleBalanceService.Default,
       GetAllValidatorsService.Default,
       GetNonFungibleBalanceService.Default,
+      AccountBalanceHelper.Default,
     ],
     effect: Effect.gen(function* () {
-      const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getAllValidatorsService = yield* GetAllValidatorsService;
       const getNonFungibleBalanceService = yield* GetNonFungibleBalanceService;
+      const accountBalanceHelper = yield* AccountBalanceHelper;
 
       return {
         makeFungibleTokenBalanceState: (input: MakeStateInput) =>
-          getFungibleBalanceService({
-            addresses: input.addresses,
-            at_ledger_state: {
-              state_version: input.stateVersion,
-            },
-          }).pipe(
-            Effect.map(
-              reduce(
-                HashMap.empty<
-                  HashMap.HashMap.Key<FungibleTokenBalanceStateSchema>,
-                  HashMap.HashMap.Value<FungibleTokenBalanceStateSchema>
-                >(),
-                (acc, item) => {
-                  const resources = reduce(
-                    item.fungibleResources,
-                    HashMap.empty<FungibleResourceAddress, Amount>(),
-                    (acc, item) =>
-                      HashMap.set(
-                        acc,
-                        FungibleResourceAddress(item.resourceAddress),
-                        Amount(item.amount.toString()),
-                      ),
-                  );
-
-                  return HashMap.set(
-                    acc,
-                    AccountAddress(item.address),
-                    resources,
-                  );
-                },
+          accountBalanceHelper
+            .getFungibleTokens({
+              addresses: input.addresses.map(AccountAddress),
+              stateVersion: StateVersion(input.stateVersion),
+            })
+            .pipe(
+              Effect.flatMap(
+                Ref.make<typeof FungibleTokenBalanceStateSchema.Type>,
               ),
+              Effect.orDie,
             ),
-            Effect.flatMap(
-              Ref.make<typeof FungibleTokenBalanceStateSchema.Type>,
-            ),
-            Effect.orDie,
-          ),
         makeNonFungibleTokenBalanceState: (
           input: MakeStateInput & {
             resourceAddresses: NonFungibleResourceAddress[];

@@ -1,16 +1,26 @@
 import BigNumber from 'bignumber.js';
 import { ActivityId, Assets, SurgeConstants } from 'data';
-import { Array as A, Data, Effect, flow, Option, Record as R } from 'effect';
+import {
+  Array as A,
+  Data,
+  Effect,
+  flow,
+  HashMap,
+  Option,
+  Record as R,
+} from 'effect';
 import { MarginPool } from '../../../../../common/dapps/surge/schemas';
 import {
   GetComponentStateService,
   type GetFungibleBalanceOutput,
   GetFungibleBalanceService,
 } from '../../../../../common/gateway';
+import { MarginAccountDbService } from '../../../../surge/marginAccountDbService';
 import { GetUsdValueService } from '../../../../token-price/getUsdValue';
 import { AccountBalanceState } from '../../accountBalanceState';
+import { AccountBalanceHelper } from '../../helpers/accountBalanceHelper';
 import {
-  type AccountAddress,
+  AccountAddress,
   Amount,
   AmountUsd,
   ComponentAddress,
@@ -33,11 +43,15 @@ export class SurgePosition extends Effect.Service<SurgePosition>()(
       GetComponentStateService.Default,
       GetFungibleBalanceService.Default,
       GetUsdValueService.Default,
+      AccountBalanceHelper.Default,
+      MarginAccountDbService.Default,
     ],
     effect: Effect.gen(function* () {
       const getComponentStateService = yield* GetComponentStateService;
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
       const getUsdValueService = yield* GetUsdValueService;
+      const marginAccountDbService = yield* MarginAccountDbService;
+      const accountBalanceHelper = yield* AccountBalanceHelper;
 
       return {
         fromState: (input: {
@@ -46,6 +60,63 @@ export class SurgePosition extends Effect.Service<SurgePosition>()(
           timestamp: Date;
         }) =>
           Effect.gen(function* () {
+            const marginAccountMappings =
+              yield* marginAccountDbService.getMarginAccountsByCollateralAddresses(
+                input.addresses,
+                input.stateVersion,
+              );
+
+            const collateralAccountMap = R.fromIterableBy(
+              marginAccountMappings,
+              (item) => item.collateralAccountAddress,
+            );
+
+            const marginAccountAddresses = marginAccountMappings.map(
+              (mapping) => AccountAddress(mapping.marginAccountAddress),
+            );
+
+            const marginAccountBalances =
+              yield* accountBalanceHelper.getFungibleTokens({
+                addresses: marginAccountAddresses,
+                stateVersion: input.stateVersion,
+              });
+
+            const getMarginAccountBalanceMap = (
+              accountAddress: AccountAddress,
+            ) =>
+              R.get(collateralAccountMap, accountAddress).pipe(
+                Option.map((item) =>
+                  marginAccountBalances.pipe(
+                    HashMap.get(item.marginAccountAddress),
+                  ),
+                ),
+                Option.flatten,
+              );
+
+            const getUsdAmount = (
+              accountBalanceMap: HashMap.HashMap<
+                FungibleResourceAddress,
+                Amount
+              >,
+              resourceAddress: FungibleResourceAddress,
+            ) =>
+              accountBalanceMap.pipe(
+                HashMap.get(resourceAddress),
+                Option.match({
+                  onNone: () => Effect.succeed(AmountUsd('0')),
+                  onSome: (amount) =>
+                    getUsdValueService({
+                      amount,
+                      resourceAddress,
+                      timestamp: input.timestamp,
+                    }).pipe(
+                      Effect.map((usdValue) =>
+                        AmountUsd(usdValue.decimalPlaces(2).toString()),
+                      ),
+                    ),
+                }),
+              );
+
             const getFungibleBalance =
               yield* AccountBalanceState.createGetFungibleTokenBalanceFn;
 
@@ -184,30 +255,85 @@ export class SurgePosition extends Effect.Service<SurgePosition>()(
               ),
             );
 
+            const getSurgeLiquidityPositions = (
+              accountAddress: AccountAddress,
+            ) =>
+              Effect.gen(function* () {
+                const usdValue = yield* getFungibleBalance(
+                  accountAddress,
+                  FungibleResourceAddress(SurgeConstants.slp.resourceAddress),
+                ).pipe(
+                  Option.match({
+                    onNone: () => Effect.succeed(Amount('0')),
+                    onSome: (amount) =>
+                      Effect.succeed(slpToXusdcConverter(amount)),
+                  }),
+                  Effect.flatMap((amount) =>
+                    getUsdValueService({
+                      amount,
+                      resourceAddress: Assets.Fungible.xUSDC,
+                      timestamp: input.timestamp,
+                    }),
+                  ),
+                  Effect.map((usdValue) =>
+                    AmountUsd(usdValue.decimalPlaces(2).toString()),
+                  ),
+                );
+
+                return {
+                  [ActivityId.su_lp_sta_susd]: usdValue,
+                };
+              });
+
+            const getSurgeMarginAccountPositions = (
+              accountAddress: AccountAddress,
+            ) =>
+              Effect.gen(function* () {
+                const accountBalanceMap =
+                  getMarginAccountBalanceMap(accountAddress);
+
+                if (Option.isNone(accountBalanceMap))
+                  return A.reduce(
+                    R.values(
+                      SurgePosition.supportedMarginAccountResourceAddresses,
+                    ),
+                    R.empty<string, AmountUsd>(),
+                    (acc, activityId) => R.set(acc, activityId, AmountUsd('0')),
+                  );
+
+                return yield* Effect.reduce(
+                  R.toEntries(
+                    SurgePosition.supportedMarginAccountResourceAddresses,
+                  ),
+                  R.empty<string, AmountUsd>(),
+                  (acc, [resourceAddress, activityId]) =>
+                    Effect.gen(function* () {
+                      return R.set(
+                        acc,
+                        activityId,
+                        yield* getUsdAmount(
+                          accountBalanceMap.value,
+                          resourceAddress,
+                        ),
+                      );
+                    }),
+                );
+              });
+
             return yield* Effect.reduce(
               input.addresses,
               R.empty<AccountAddress, Record<string, AmountUsd>>(),
               (acc, accountAddress) =>
                 Effect.gen(function* () {
-                  const slpAmount = getFungibleBalance(
-                    accountAddress,
-                    FungibleResourceAddress(SurgeConstants.slp.resourceAddress),
-                  ).pipe(Option.getOrElse(() => Amount('0')));
+                  const liquidityPositions =
+                    yield* getSurgeLiquidityPositions(accountAddress);
 
-                  const xusdcAmount = slpToXusdcConverter(slpAmount);
-
-                  const usdValue = yield* getUsdValueService({
-                    amount: xusdcAmount,
-                    resourceAddress: Assets.Fungible.xUSDC,
-                    timestamp: input.timestamp,
-                  }).pipe(
-                    Effect.map((usdValue) =>
-                      AmountUsd(usdValue.decimalPlaces(2).toString()),
-                    ),
-                  );
+                  const marginAccountPositions =
+                    yield* getSurgeMarginAccountPositions(accountAddress);
 
                   return R.set(acc, accountAddress, {
-                    [ActivityId.su_lp_sta_susd]: usdValue,
+                    ...liquidityPositions,
+                    ...marginAccountPositions,
                   });
                 }),
             );
@@ -215,4 +341,9 @@ export class SurgePosition extends Effect.Service<SurgePosition>()(
       };
     }),
   },
-) {}
+) {
+  static supportedMarginAccountResourceAddresses = R.fromEntries([
+    [FungibleResourceAddress(Assets.Fungible.XRD), ActivityId.su_ho_xrd],
+    [FungibleResourceAddress(Assets.Fungible.LSULP), ActivityId.su_ho_lsulp],
+  ]);
+}
