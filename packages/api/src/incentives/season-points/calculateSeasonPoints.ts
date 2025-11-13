@@ -59,12 +59,12 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const seasonService = yield* SeasonService;
       const weekService = yield* WeekService;
       const userActivityPointsService = yield* UserActivityPointsService;
-      const addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
+      const _addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
       const updateWeekStatus = yield* UpdateWeekStatusService;
       const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
-      const calculateReferralPoints = yield* CalculateReferralPoints;
-      const calculateResourceRewardPoints =
+      const _calculateReferralPoints = yield* CalculateReferralPoints;
+      const _calculateResourceRewardPoints =
         yield* CalculateResourceRewardPointsService;
 
       const minimumBalance = Thresholds.XRD_BALANCE_THRESHOLD;
@@ -153,7 +153,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
         });
       });
 
-      const markAsProcessed = Effect.fn(function* (
+      const _markAsProcessed = Effect.fn(function* (
         input: CalculateSeasonPointsInput,
       ) {
         if (input.markAsProcessed) {
@@ -406,13 +406,13 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             // multiply season points by multiplier and include category data
             Effect.map(({ userTotals, userCategoryBreakdowns }) =>
               Object.entries(userTotals).map(([userId, seasonPoints]) => {
-                const multiplier =
+                const _multiplier =
                   seasonPointMultipliers[userId]?.[0]?.multiplier ?? '0';
 
                 return {
                   userId,
                   seasonId: season.id,
-                  points: seasonPoints.multipliedBy(multiplier),
+                  points: seasonPoints.multipliedBy(1), //Season 0 doesn't use multipliers
                   weekId: input.weekId,
                   data: userCategoryBreakdowns[userId],
                 };
@@ -464,21 +464,22 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             `Adding season points for ${userSeasonPoints.length} users with calculated points and ${zeroSeasonPoints.length} users with zero points`,
           );
 
-          const withResourceRewardPoints = yield* calculateResourceRewardPoints(
-            {
-              users: completeUserSeasonPoints,
-              weekId: input.weekId,
-            },
-          );
+          //Resource reward and referral points are not used for season 0
+          // const withResourceRewardPoints = yield* calculateResourceRewardPoints(
+          //   {
+          //     users: completeUserSeasonPoints,
+          //     weekId: input.weekId,
+          //   },
+          // );
 
-          const withReferralPoints = yield* calculateReferralPoints(
-            withResourceRewardPoints,
-          );
+          // const withReferralPoints = yield* calculateReferralPoints(
+          //   withResourceRewardPoints,
+          // );
 
-          if (!input.dryRun) {
-            yield* addSeasonPointsToUser.run(withReferralPoints);
-            yield* markAsProcessed(input);
-          }
+          // if (!input.dryRun) {
+          //   yield* addSeasonPointsToUser.run(withReferralPoints);
+          //   yield* markAsProcessed(input);
+          // }
 
           yield* Effect.log('--------------------------------');
 
@@ -486,7 +487,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             `season points for week ${input.weekId} successfully applied to users`,
           );
           return {
-            userSeasonPoints: withReferralPoints,
+            userSeasonPoints: completeUserSeasonPoints,
             categoryStatistics,
           };
         }),
