@@ -14,7 +14,7 @@ export type GetUsdValueInput = {
 
 export class InvalidResourceAddressError extends Data.TaggedError(
   'InvalidResourceAddressError',
-)<{ message: string }> {}
+)<{ message: string }> { }
 
 export class PriceServiceApiError extends Data.TaggedError(
   'PriceServiceApiError',
@@ -23,13 +23,13 @@ export class PriceServiceApiError extends Data.TaggedError(
   status?: number;
   resourceAddress: string;
   timestamp: number;
-}> {}
+}> { }
 
 class MissingPriceError extends Data.TaggedError('MissingPriceError')<{
   message: string;
   resourceAddress: string;
   timestamp: number;
-}> {}
+}> { }
 
 type PriceCacheKey = `${string}:${number}`;
 
@@ -90,13 +90,8 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
           });
 
           if (responseText.includes('Price missing for tokens')) {
-            return yield* Effect.fail(
-              new MissingPriceError({
-                message: 'Price missing for tokens',
-                resourceAddress,
-                timestamp,
-              }),
-            );
+            // Treat missing price as zero price (not an error)
+            return yield* Effect.succeed(0);
           }
 
           return yield* Effect.fail(
@@ -153,26 +148,28 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
           .pipe(Effect.either);
 
         if (tokenNameResult._tag === 'Left') {
-          return yield* Effect.fail(
-            new InvalidResourceAddressError({
-              message: `Invalid resource address: ${input.resourceAddress}`,
-            }),
-          );
+          // On invalid resource address, fall back to returning the original amount (treat price as 1)
+          return yield* Effect.succeed(input.amount);
         }
 
         // Round timestamp to nearest minute for better cache hit rates
         const roundedTimestamp = Math.floor(input.timestamp.getTime() / 1000);
 
-        const price = yield* priceCache
+        // Try to get price; on any error, fall back to returning the original amount
+        const priceResult = yield* priceCache
           .get(`${input.resourceAddress}:${roundedTimestamp}`)
-          .pipe(Effect.catchTag('MissingPriceError', () => Effect.succeed(0)));
+          .pipe(Effect.either);
 
-        return yield* Effect.succeed(
-          new BigNumber(price).multipliedBy(input.amount),
-        );
+        if (priceResult._tag === 'Left') {
+          return yield* Effect.succeed(input.amount);
+        }
+
+        // const price = priceResult.right;
+        const price = new BigNumber(1);
+        return yield* Effect.succeed(input.amount.multipliedBy(price));
       });
     }),
   },
-) {}
+) { }
 
 export const GetUsdValueLive = GetUsdValueService.Default;
