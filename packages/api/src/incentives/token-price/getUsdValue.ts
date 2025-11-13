@@ -14,7 +14,7 @@ export type GetUsdValueInput = {
 
 export class InvalidResourceAddressError extends Data.TaggedError(
   'InvalidResourceAddressError',
-)<{ message: string }> { }
+)<{ message: string }> {}
 
 export class PriceServiceApiError extends Data.TaggedError(
   'PriceServiceApiError',
@@ -23,13 +23,13 @@ export class PriceServiceApiError extends Data.TaggedError(
   status?: number;
   resourceAddress: string;
   timestamp: number;
-}> { }
+}> {}
 
 class MissingPriceError extends Data.TaggedError('MissingPriceError')<{
   message: string;
   resourceAddress: string;
   timestamp: number;
-}> { }
+}> {}
 
 type PriceCacheKey = `${string}:${number}`;
 
@@ -170,6 +170,6 @@ export class GetUsdValueService extends Effect.Service<GetUsdValueService>()(
       });
     }),
   },
-) { }
+) {}
 
 export const GetUsdValueLive = GetUsdValueService.Default;

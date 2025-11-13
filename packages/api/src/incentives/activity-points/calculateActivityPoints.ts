@@ -153,4 +153,4 @@ export class CalculateActivityPointsService extends Effect.Service<CalculateActi
       });
     }),
   },
-) { }
+) {}
