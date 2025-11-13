@@ -36,8 +36,8 @@ const liquidityReceiptSchema = s.struct({
   }),
 });
 
-export class CaviarNinePositions extends Effect.Service<CaviarNinePositions>()(
-  'CaviarNinePositions',
+export class CaviarNinePosition extends Effect.Service<CaviarNinePosition>()(
+  'CaviarNinePosition',
   {
     dependencies: [
       QuantaSwapState.Default,
@@ -184,6 +184,55 @@ export class CaviarNinePositions extends Effect.Service<CaviarNinePositions>()(
                 }),
               ).pipe(Effect.map(A.filter((item) => !!item)));
 
+            const getHyperstakePositions = (input: {
+              accountAddress: AccountAddress;
+            }) =>
+              Effect.gen(function* () {
+                const lpTokenAddress = FungibleResourceAddress(
+                  CaviarNineConstants.HLP.resourceAddress,
+                );
+                const poolUnits = getFungibleBalance(
+                  input.accountAddress,
+                  lpTokenAddress,
+                );
+                if (Option.isNone(poolUnits)) return;
+
+                const xTokenAddress = FungibleResourceAddress(
+                  CaviarNineConstants.HLP.token_x,
+                );
+                const yTokenAddress = FungibleResourceAddress(
+                  CaviarNineConstants.HLP.token_y,
+                );
+
+                const { xTokenAmount, yTokenAmount } =
+                  yield* poolUnitHelper.resolve({
+                    poolAddress: PoolAddress(
+                      CaviarNineConstants.HLP.poolAddress,
+                    ),
+                    stateVersion,
+                    xToken: xTokenAddress,
+                    yToken: yTokenAddress,
+                    lpToken: poolUnits.value,
+                  });
+
+                return {
+                  componentAddress: ComponentAddress(
+                    CaviarNineConstants.HLP.componentAddress,
+                  ),
+                  isActive: true,
+                  xToken: {
+                    withinPriceBounds: xTokenAmount,
+                    outsidePriceBounds: '0',
+                    resourceAddress: CaviarNineConstants.HLP.token_x,
+                  },
+                  yToken: {
+                    withinPriceBounds: yTokenAmount,
+                    outsidePriceBounds: '0',
+                    resourceAddress: CaviarNineConstants.HLP.token_y,
+                  },
+                };
+              }).pipe(Effect.map((item) => (item ? [item] : [])));
+
             return yield* Effect.reduce(
               input.addresses,
               R.empty<AccountAddress, Record<string, AmountUsd>>(),
@@ -196,10 +245,15 @@ export class CaviarNinePositions extends Effect.Service<CaviarNinePositions>()(
                     accountAddress,
                   });
 
+                  const hyperstakePositions = yield* getHyperstakePositions({
+                    accountAddress,
+                  });
+
                   const aggregatedPositions = yield* aggregatePositions({
                     positions: [
                       ...shapeLiquidityPositions,
                       ...simplePoolPositions,
+                      ...hyperstakePositions,
                     ],
                     timestamp,
                   });
@@ -212,6 +266,5 @@ export class CaviarNinePositions extends Effect.Service<CaviarNinePositions>()(
     }),
   },
 ) {
-  static readonly nonFungibleResourceAddresses =
-    shapeLiquidityPoolLiquidityReceipts;
+  static readonly nftResourceAddresses = shapeLiquidityPoolLiquidityReceipts;
 }

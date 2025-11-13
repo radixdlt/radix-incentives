@@ -7,9 +7,9 @@ import {
   NonFungibleTokenBalanceState,
 } from '../../accountBalanceState';
 import { AccountAddress } from '../../schemas';
-import { CaviarNinePositions } from './caviarnine';
+import { CaviarNinePosition } from './caviarnine';
 
-layer(CaviarNinePositions.Default)(
+layer(CaviarNinePosition.Default)(
   'GetAccountBalancesAtStateVersionV2',
   (it) => {
     it.effect(
@@ -17,7 +17,7 @@ layer(CaviarNinePositions.Default)(
       () =>
         Effect.gen(function* () {
           const accountBalanceState = yield* AccountBalanceState;
-          const caviarNinePositions = yield* CaviarNinePositions;
+          const caviarNinePosition = yield* CaviarNinePosition;
           const { stateVersion, timestamp } = yield* getLedgerStateByDate(
             new Date('2025-11-12T00:00:00Z'),
           );
@@ -26,7 +26,7 @@ layer(CaviarNinePositions.Default)(
             'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
           ].map(AccountAddress);
 
-          const accountBalances = yield* caviarNinePositions
+          const accountBalances = yield* caviarNinePosition
             .fromState({
               addresses,
               stateVersion,
@@ -45,8 +45,7 @@ layer(CaviarNinePositions.Default)(
                 yield* accountBalanceState.makeNonFungibleTokenBalanceState({
                   addresses,
                   stateVersion,
-                  resourceAddresses:
-                    CaviarNinePositions.nonFungibleResourceAddresses,
+                  resourceAddresses: CaviarNinePosition.nftResourceAddresses,
                 }),
               ),
             );

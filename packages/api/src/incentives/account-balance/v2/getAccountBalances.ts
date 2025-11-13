@@ -16,7 +16,7 @@ import {
   FungibleTokenBalanceState,
   NonFungibleTokenBalanceState,
 } from './accountBalanceState';
-import { CaviarNinePositions } from './positions/caviarnine/caviarnine';
+import { CaviarNinePosition } from './positions/caviarnine/caviarnine';
 import { HoldingPosition } from './positions/holding';
 import { StakedPosition } from './positions/staked';
 import { WeftFinancePosition } from './positions/weft/weft';
@@ -40,7 +40,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       HoldingPosition.Default,
       StakedPosition.Default,
       WeftFinancePosition.Default,
-      CaviarNinePositions.Default,
+      CaviarNinePosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
@@ -48,9 +48,9 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       const holdingPosition = yield* HoldingPosition;
       const stakedPosition = yield* StakedPosition;
       const weftPosition = yield* WeftFinancePosition;
-      const caviarNinePositions = yield* CaviarNinePositions;
+      const caviarNinePosition = yield* CaviarNinePosition;
 
-      const getAccountBalancesConcurrency = yield* Config.number(
+      const concurrency = yield* Config.number(
         'GET_ACCOUNT_BALANCES_CONCURRENCY',
       ).pipe(Config.withDefault(10));
 
@@ -79,32 +79,33 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
           `getting account balances at state version '${input.stateVersion}' (${timestamp.toISOString()}) for ${input.addresses.length} addresses`,
         );
 
-        return yield* Effect.all(
-          [
-            holdingPosition.fromState({
-              addresses,
-              stateVersion,
-              timestamp,
-            }),
-            // returns LSU and unstaked
-            stakedPosition.fromState({
-              addresses,
-              stateVersion,
-              timestamp,
-            }),
-            weftPosition.fromState({
-              addresses,
-              stateVersion,
-              timestamp,
-            }),
-            caviarNinePositions.fromState({
-              addresses,
-              stateVersion,
-              timestamp,
-            }),
-          ],
-          { concurrency: getAccountBalancesConcurrency },
-        ).pipe(
+        const allPositions = [
+          holdingPosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
+          // returns LSU and unstaked
+          stakedPosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
+          weftPosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
+          caviarNinePosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
+        ];
+
+        return yield* Effect.all(allPositions, {
+          concurrency,
+        }).pipe(
           Effect.map(
             flow(
               A.reduce(
@@ -125,7 +126,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
               stateVersion,
               resourceAddresses: [
                 ...claimNftResourceAddresses,
-                ...CaviarNinePositions.nonFungibleResourceAddresses,
+                ...CaviarNinePosition.nftResourceAddresses,
                 WeftFinancePosition.nftResourceAddress,
               ],
             }),
