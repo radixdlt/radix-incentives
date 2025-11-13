@@ -3,6 +3,7 @@ import { Effect, Logger } from 'effect';
 import { getLedgerStateByDate } from '../../../../../test-helpers/ledgerState';
 import {
   AccountBalanceState,
+  FungibleTokenBalanceState,
   NonFungibleTokenBalanceState,
 } from '../../accountBalanceState';
 import { AccountAddress } from '../../schemas';
@@ -32,6 +33,13 @@ layer(CaviarNinePositions.Default)(
               timestamp,
             })
             .pipe(
+              Effect.provideService(
+                FungibleTokenBalanceState,
+                yield* accountBalanceState.makeFungibleTokenBalanceState({
+                  addresses,
+                  stateVersion,
+                }),
+              ),
               Effect.provideService(
                 NonFungibleTokenBalanceState,
                 yield* accountBalanceState.makeNonFungibleTokenBalanceState({

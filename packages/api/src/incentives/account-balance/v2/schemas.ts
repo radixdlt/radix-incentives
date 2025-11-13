@@ -57,5 +57,8 @@ export const ProgrammaticScryptoSborValueSchema = Schema.declare(
 export type ComponentAddress = string & Brand.Brand<'ComponentAddress'>;
 export const ComponentAddress = Brand.nominal<ComponentAddress>();
 
+export type PoolAddress = string & Brand.Brand<'PoolAddress'>;
+export const PoolAddress = Brand.nominal<PoolAddress>();
+
 export type StateVersion = number & Brand.Brand<'StateVersion'>;
 export const StateVersion = Brand.nominal<StateVersion>();
