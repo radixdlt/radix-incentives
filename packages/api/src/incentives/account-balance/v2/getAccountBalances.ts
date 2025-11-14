@@ -17,6 +17,7 @@ import {
   NonFungibleTokenBalanceState,
 } from './accountBalanceState';
 import { CaviarNinePosition } from './positions/caviarnine/caviarnine';
+import { DefiPlazaPosition } from './positions/defiplaza/defiplaza';
 import { HoldingPosition } from './positions/holding';
 import { OciswapPosition } from './positions/ociswap/ociswap';
 import { StakedPosition } from './positions/staked';
@@ -45,6 +46,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       CaviarNinePosition.Default,
       SurgePosition.Default,
       OciswapPosition.Default,
+      DefiPlazaPosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
@@ -55,6 +57,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       const caviarNinePosition = yield* CaviarNinePosition;
       const surgePosition = yield* SurgePosition;
       const ociswapPosition = yield* OciswapPosition;
+      const defiPlazaPosition = yield* DefiPlazaPosition;
 
       const concurrency = yield* Config.number(
         'GET_ACCOUNT_BALANCES_CONCURRENCY',
@@ -113,6 +116,11 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             timestamp,
           }),
           ociswapPosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
+          defiPlazaPosition.fromState({
             addresses,
             stateVersion,
             timestamp,
