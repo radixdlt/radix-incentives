@@ -16,11 +16,6 @@ export class HoldingPosition extends Effect.Service<HoldingPosition>()(
     effect: Effect.gen(function* () {
       const getUsdValueService = yield* GetUsdValueService;
 
-      const supportedResources = R.fromEntries([
-        [FungibleResourceAddress(Assets.Fungible.XRD), ActivityId.ho_xrd],
-        [FungibleResourceAddress(Assets.Fungible.LSULP), ActivityId.ho_lsulp],
-      ]);
-
       return {
         fromState: (input: {
           addresses: AccountAddress[];
@@ -31,10 +26,10 @@ export class HoldingPosition extends Effect.Service<HoldingPosition>()(
             const getBalanceFromAccount =
               yield* AccountBalanceState.createGetFungibleTokenBalanceFn;
 
-            const getAmounts = (accountAddress: AccountAddress) =>
+            const getPositions = (accountAddress: AccountAddress) =>
               Effect.reduce(
-                R.toEntries(supportedResources),
-                R.empty<string, AmountUsd>(),
+                R.toEntries(HoldingPosition.supportedResources),
+                R.empty<ActivityId, AmountUsd>(),
                 (acc, [resourceAddress, activityId]) =>
                   Effect.gen(function* () {
                     const amount = yield* getBalanceFromAccount(
@@ -61,15 +56,20 @@ export class HoldingPosition extends Effect.Service<HoldingPosition>()(
 
             return yield* Effect.reduce(
               input.addresses,
-              R.empty<AccountAddress, Record<string, AmountUsd>>(),
+              R.empty<AccountAddress, Record<ActivityId, AmountUsd>>(),
               (acc, accountAddress) =>
                 Effect.gen(function* () {
-                  const amounts = yield* getAmounts(accountAddress);
-                  return R.set(acc, accountAddress, amounts);
+                  const holdingPositions = yield* getPositions(accountAddress);
+                  return R.set(acc, accountAddress, holdingPositions);
                 }),
             );
           }),
       };
     }),
   },
-) {}
+) {
+  static readonly supportedResources = R.fromEntries([
+    [FungibleResourceAddress(Assets.Fungible.XRD), ActivityId.ho_xrd],
+    [FungibleResourceAddress(Assets.Fungible.LSULP), ActivityId.ho_lsulp],
+  ]);
+}

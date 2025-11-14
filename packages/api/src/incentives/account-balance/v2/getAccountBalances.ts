@@ -18,6 +18,7 @@ import {
 } from './accountBalanceState';
 import { CaviarNinePosition } from './positions/caviarnine/caviarnine';
 import { DefiPlazaPosition } from './positions/defiplaza/defiplaza';
+import { FluxPosition } from './positions/flux/flux';
 import { HoldingPosition } from './positions/holding';
 import { OciswapPosition } from './positions/ociswap/ociswap';
 import { StakedPosition } from './positions/staked';
@@ -47,6 +48,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       SurgePosition.Default,
       OciswapPosition.Default,
       DefiPlazaPosition.Default,
+      FluxPosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
@@ -58,6 +60,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       const surgePosition = yield* SurgePosition;
       const ociswapPosition = yield* OciswapPosition;
       const defiPlazaPosition = yield* DefiPlazaPosition;
+      const fluxPosition = yield* FluxPosition;
 
       const concurrency = yield* Config.number(
         'GET_ACCOUNT_BALANCES_CONCURRENCY',
@@ -125,6 +128,11 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             stateVersion,
             timestamp,
           }),
+          fluxPosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
         ];
 
         return yield* Effect.all(allPositions, {
@@ -153,6 +161,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
                 ...CaviarNinePosition.nftResourceAddresses,
                 ...OciswapPosition.nftResourceAddresses,
                 WeftFinancePosition.nftResourceAddress,
+                FluxPosition.nftResourceAddress,
               ],
             }),
           ),

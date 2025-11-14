@@ -126,6 +126,7 @@ export class AccountBalanceState extends Effect.Service<AccountBalanceState>()(
             at_ledger_state: {
               state_version: input.stateVersion,
             },
+            resourceAddresses: input.resourceAddresses,
           }).pipe(
             Effect.map((result) => result.items),
             Effect.map(
