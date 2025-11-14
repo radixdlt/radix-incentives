@@ -18,6 +18,7 @@ import {
 } from './accountBalanceState';
 import { CaviarNinePosition } from './positions/caviarnine/caviarnine';
 import { HoldingPosition } from './positions/holding';
+import { OciswapPosition } from './positions/ociswap/ociswap';
 import { StakedPosition } from './positions/staked';
 import { SurgePosition } from './positions/surge/surge';
 import { WeftFinancePosition } from './positions/weft/weft';
@@ -43,6 +44,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       WeftFinancePosition.Default,
       CaviarNinePosition.Default,
       SurgePosition.Default,
+      OciswapPosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
@@ -52,6 +54,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       const weftPosition = yield* WeftFinancePosition;
       const caviarNinePosition = yield* CaviarNinePosition;
       const surgePosition = yield* SurgePosition;
+      const ociswapPosition = yield* OciswapPosition;
 
       const concurrency = yield* Config.number(
         'GET_ACCOUNT_BALANCES_CONCURRENCY',
@@ -68,7 +71,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
         const validatorStateRef =
           yield* accountBalanceState.makeValidatorsState;
 
-        const claimNftResourceAddresses = yield* Ref.get(
+        const validatorClaimNftResourceAddresses = yield* Ref.get(
           validatorStateRef,
         ).pipe(
           Effect.map(A.map((validator) => validator.claimNftResourceAddress)),
@@ -109,6 +112,11 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             stateVersion,
             timestamp,
           }),
+          ociswapPosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
         ];
 
         return yield* Effect.all(allPositions, {
@@ -133,8 +141,9 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
               addresses,
               stateVersion,
               resourceAddresses: [
-                ...claimNftResourceAddresses,
+                ...validatorClaimNftResourceAddresses,
                 ...CaviarNinePosition.nftResourceAddresses,
+                ...OciswapPosition.nftResourceAddresses,
                 WeftFinancePosition.nftResourceAddress,
               ],
             }),
