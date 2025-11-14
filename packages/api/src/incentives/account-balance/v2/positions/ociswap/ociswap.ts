@@ -1,18 +1,20 @@
 import BigNumber from 'bignumber.js';
 import { DappId, OciswapConstants } from 'data';
-import { Array as A, Effect, flow, Record as R } from 'effect';
+import { Array as A, Effect, flow, Option, Record as R } from 'effect';
 import { LiquidityPosition } from '../../../../../common/dapps/ociswap/schemas';
 import {
   AggregatePoolPositionsService,
   type LpPosition,
 } from '../../../aggregatePoolPositions';
 import { AccountBalanceState } from '../../accountBalanceState';
+import { PoolUnitHelper } from '../../helpers/poolUnit';
 import {
   type AccountAddress,
   AmountUsd,
   ComponentAddress,
   FungibleResourceAddress,
   NonFungibleResourceAddress,
+  PoolAddress,
   StateVersion,
 } from '../../schemas';
 import { PrecisionPoolState } from './precisionPoolState';
@@ -24,17 +26,23 @@ const precisionPoolNftResourceAddresses = precisionPools.map((pool) =>
   NonFungibleResourceAddress(pool.lpResourceAddress),
 );
 
+const flexPools = Object.values(OciswapConstants.flexPools);
+const basicPools = Object.values(OciswapConstants.basicPools);
+const resourcePools = [...flexPools, ...basicPools];
+
 export class OciswapPosition extends Effect.Service<OciswapPosition>()(
   'OciswapPosition',
   {
     dependencies: [
       PrecisionPoolState.Default,
       AggregatePoolPositionsService.Default,
+      PoolUnitHelper.Default,
     ],
     effect: Effect.gen(function* () {
       const precisionPoolState = yield* PrecisionPoolState;
       const aggregatePoolPositionsService =
         yield* AggregatePoolPositionsService;
+      const poolUnitHelper = yield* PoolUnitHelper;
 
       const aggregatePositions = (input: {
         positions: LpPosition[];
@@ -76,7 +84,7 @@ export class OciswapPosition extends Effect.Service<OciswapPosition>()(
             const timestamp = input.timestamp;
             const getNftCollection =
               yield* AccountBalanceState.createGetNftCollectionFn;
-            const _getFungibleBalance =
+            const getFungibleBalance =
               yield* AccountBalanceState.createGetFungibleTokenBalanceFn;
 
             const getPrecisionPoolPositions = (input: {
@@ -117,6 +125,54 @@ export class OciswapPosition extends Effect.Service<OciswapPosition>()(
                 ),
               );
 
+            const getResourcePoolPositions = (input: {
+              accountAddress: AccountAddress;
+            }) =>
+              Effect.forEach(resourcePools, (pool) =>
+                Effect.gen(function* () {
+                  const xTokenAddress = FungibleResourceAddress(pool.token_x);
+                  const yTokenAddress = FungibleResourceAddress(pool.token_y);
+                  const poolAddress = PoolAddress(pool.poolAddress);
+                  const componentAddress = ComponentAddress(
+                    pool.componentAddress,
+                  );
+                  const lpTokenAddress = FungibleResourceAddress(
+                    pool.lpResourceAddress,
+                  );
+
+                  const poolUnits = getFungibleBalance(
+                    input.accountAddress,
+                    lpTokenAddress,
+                  );
+
+                  if (Option.isNone(poolUnits)) return;
+
+                  const { xTokenAmount, yTokenAmount } =
+                    yield* poolUnitHelper.resolve({
+                      poolAddress,
+                      stateVersion,
+                      xToken: xTokenAddress,
+                      yToken: yTokenAddress,
+                      lpToken: poolUnits.value,
+                    });
+
+                  return {
+                    componentAddress,
+                    isActive: true,
+                    xToken: {
+                      withinPriceBounds: xTokenAmount, // For simple pools, all liquidity is "within bounds"
+                      outsidePriceBounds: '0', // Simple pools don't have concentrated liquidity
+                      resourceAddress: xTokenAddress,
+                    },
+                    yToken: {
+                      withinPriceBounds: yTokenAmount, // For simple pools, all liquidity is "within bounds"
+                      outsidePriceBounds: '0', // Simple pools don't have concentrated liquidity
+                      resourceAddress: yTokenAddress,
+                    },
+                  };
+                }),
+              ).pipe(Effect.map(A.filter((item) => !!item)));
+
             return yield* Effect.reduce(
               input.addresses,
               R.empty<AccountAddress, Record<string, AmountUsd>>(),
@@ -127,8 +183,17 @@ export class OciswapPosition extends Effect.Service<OciswapPosition>()(
                       accountAddress,
                     });
 
+                  const resourcePoolPositions = yield* getResourcePoolPositions(
+                    {
+                      accountAddress,
+                    },
+                  );
+
                   const aggregatedPositions = yield* aggregatePositions({
-                    positions: [...precisionPoolPositions],
+                    positions: [
+                      ...precisionPoolPositions,
+                      ...resourcePoolPositions,
+                    ],
                     timestamp,
                   });
 
