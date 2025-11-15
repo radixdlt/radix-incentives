@@ -72,7 +72,7 @@ import {
   NotificationService,
   type NotificationSettings,
 } from '../config/notificationService';
-import { DappService } from '../dapp/dapp';
+import { type CreateDapp, DappService, type UpdateDapp } from '../dapp/dapp';
 import { createDbClientLive } from '../db/dbClient';
 import { ActivityDisplayService } from '../leaderboard/activityDisplay';
 import { ActivityPointsAdjustmentService } from '../leaderboard/activityPointsAdjustment';
@@ -572,6 +572,50 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
       Effect.gen(function* () {
         const dappService = yield* DappService;
         return yield* dappService.list();
+      }),
+      dappServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const getDappsWithCategories = () => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const dappService = yield* DappService;
+        return yield* dappService.listWithCategories();
+      }),
+      dappServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const createDapp = (data: CreateDapp) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const dappService = yield* DappService;
+        return yield* dappService.create(data);
+      }),
+      dappServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const updateDapp = (id: string, data: UpdateDapp) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const dappService = yield* DappService;
+        return yield* dappService.update(id, data);
+      }),
+      dappServiceLive,
+    );
+    return Effect.runPromiseExit(program);
+  };
+
+  const deleteDapp = (id: string) => {
+    const program = Effect.provide(
+      Effect.gen(function* () {
+        const dappService = yield* DappService;
+        return yield* dappService.delete(id);
       }),
       dappServiceLive,
     );
@@ -1511,6 +1555,10 @@ export const createDependencyLayer = (input: CreateDependencyLayerInput) => {
     getActivityData,
     updateActivity,
     getDapps,
+    getDappsWithCategories,
+    createDapp,
+    updateDapp,
+    deleteDapp,
     getActivityCategories,
     getActivityCategoryById,
     updateActivityCategory,

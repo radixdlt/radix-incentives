@@ -1,6 +1,6 @@
 {
-  "id": "0f7e409d-82a0-430b-bd91-e2c20b93bf5a",
-  "prevId": "1cd59740-0a9d-4635-8234-d9058a9984ff",
+  "id": "1cd59740-0a9d-4635-8234-d9058a9984ff",
+  "prevId": "df5b1548-87f7-4bee-a1d8-82b3cefd0218",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -69,7 +69,10 @@
           "columns": ["account_address", "week_id", "activity_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.account_balances": {
       "name": "account_balances",
@@ -143,7 +146,10 @@
           "columns": ["account_address", "timestamp"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.account_recovery_proof": {
       "name": "account_recovery_proof",
@@ -196,7 +202,10 @@
           "columns": ["recovery_request_id", "account_address"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.account_recovery_request": {
       "name": "account_recovery_request",
@@ -259,7 +268,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.account": {
       "name": "account",
@@ -289,6 +301,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "snapshot_enabled": {
+          "name": "snapshot_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         }
       },
       "indexes": {},
@@ -304,7 +323,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.activity": {
       "name": "activity",
@@ -375,7 +397,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.activity_categories": {
       "name": "activity_categories",
@@ -437,7 +462,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.activity_category_weeks": {
       "name": "activity_category_weeks",
@@ -510,7 +538,10 @@
           "columns": ["week_id", "activity_category_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.activity_week": {
       "name": "activity_week",
@@ -563,7 +594,10 @@
           "columns": ["activity_id", "week_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.category_leaderboard_cache": {
       "name": "category_leaderboard_cache",
@@ -683,7 +717,10 @@
           "columns": ["week_id", "category_id", "user_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.challenge": {
       "name": "challenge",
@@ -706,7 +743,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.competition_participant": {
       "name": "competition_participant",
@@ -726,6 +766,13 @@
         },
         "is_winner": {
           "name": "is_winner",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
+        "expired": {
+          "name": "expired",
           "type": "boolean",
           "primaryKey": false,
           "notNull": true,
@@ -772,7 +819,10 @@
           "columns": ["competition_id", "user_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.competition": {
       "name": "competition",
@@ -831,7 +881,10 @@
           "nullsNotDistinct": false,
           "columns": ["slug"]
         }
-      }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.component_calls": {
       "name": "component_calls",
@@ -874,7 +927,10 @@
           "columns": ["user_id", "timestamp"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.component_whitelist": {
       "name": "component_whitelist",
@@ -906,7 +962,10 @@
       },
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.config": {
       "name": "config",
@@ -928,7 +987,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.dapp": {
       "name": "dapp",
@@ -968,13 +1030,15 @@
           "name": "tags",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'[]'::jsonb"
         },
         "resources": {
           "name": "resources",
           "type": "jsonb",
           "primaryKey": false,
-          "notNull": false
+          "notNull": false,
+          "default": "'[]'::jsonb"
         },
         "show_on_earn_page": {
           "name": "show_on_earn_page",
@@ -987,7 +1051,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.event": {
       "name": "event",
@@ -1062,7 +1129,10 @@
           "columns": ["transaction_id", "event_index"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.leaderboard_stats_cache": {
       "name": "leaderboard_stats_cache",
@@ -1103,7 +1173,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.margin_accounts": {
       "name": "margin_accounts",
@@ -1209,7 +1282,10 @@
           "columns": ["margin_account_address", "state_version"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.milestone": {
       "name": "milestone",
@@ -1311,7 +1387,10 @@
           "columns": ["season_id", "type", "goal"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.resource_reward_claim": {
       "name": "resource_reward_claim",
@@ -1418,7 +1497,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.resource_reward_definition": {
       "name": "resource_reward_definition",
@@ -1428,6 +1510,37 @@
           "name": "address",
           "type": "varchar(255)",
           "primaryKey": true,
+          "notNull": true
+        },
+        "url": {
+          "name": "url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.resource_reward_week": {
+      "name": "resource_reward_week",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "week_id": {
+          "name": "week_id",
+          "type": "uuid",
+          "primaryKey": false,
           "notNull": true
         },
         "points": {
@@ -1441,18 +1554,55 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
-        },
-        "url": {
-          "name": "url",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": false
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "indexes": {
+        "idx_resource_reward_week_week_id": {
+          "name": "idx_resource_reward_week_week_id",
+          "columns": [
+            {
+              "expression": "week_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "resource_reward_week_address_resource_reward_definition_address_fk": {
+          "name": "resource_reward_week_address_resource_reward_definition_address_fk",
+          "tableFrom": "resource_reward_week",
+          "tableTo": "resource_reward_definition",
+          "columnsFrom": ["address"],
+          "columnsTo": ["address"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resource_reward_week_week_id_week_id_fk": {
+          "name": "resource_reward_week_week_id_week_id_fk",
+          "tableFrom": "resource_reward_week",
+          "tableTo": "week",
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "resource_reward_week_address_week_id_pk": {
+          "name": "resource_reward_week_address_week_id_pk",
+          "columns": ["address", "week_id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.season_leaderboard_cache": {
       "name": "season_leaderboard_cache",
@@ -1578,7 +1728,10 @@
           "columns": ["season_id", "week_id", "user_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.season_points_multiplier": {
       "name": "season_points_multiplier",
@@ -1642,7 +1795,10 @@
           "columns": ["user_id", "week_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.season": {
       "name": "season",
@@ -1673,7 +1829,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.session": {
       "name": "session",
@@ -1711,7 +1870,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.snapshot": {
       "name": "snapshot",
@@ -1749,7 +1911,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.trading_volume": {
       "name": "trading_volume",
@@ -1792,7 +1957,10 @@
           "columns": ["timestamp", "account_address"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.transaction_count": {
       "name": "transaction_count",
@@ -1814,7 +1982,10 @@
       "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.transaction_fees": {
       "name": "transaction_fees",
@@ -1863,7 +2034,10 @@
           "columns": ["timestamp", "account_address", "transaction_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.user": {
       "name": "user",
@@ -1944,7 +2118,10 @@
           "nullsNotDistinct": false,
           "columns": ["referral_code"]
         }
-      }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.user_season_points": {
       "name": "user_season_points",
@@ -2023,7 +2200,189 @@
           "columns": ["user_id", "season_id", "week_id"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_season_reward": {
+      "name": "user_season_reward",
+      "schema": "",
+      "columns": {
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season_id": {
+          "name": "season_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(18, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_address": {
+          "name": "account_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "user_season_reward_user_id_user_id_fk": {
+          "name": "user_season_reward_user_id_user_id_fk",
+          "tableFrom": "user_season_reward",
+          "tableTo": "user",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_season_reward_season_id_season_id_fk": {
+          "name": "user_season_reward_season_id_season_id_fk",
+          "tableFrom": "user_season_reward",
+          "tableTo": "season",
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "user_season_reward_season_id_user_id_pk": {
+          "name": "user_season_reward_season_id_user_id_pk",
+          "columns": ["season_id", "user_id"]
+        }
+      },
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.user_season_reward_claim": {
+      "name": "user_season_reward_claim",
+      "schema": "",
+      "columns": {
+        "transaction_id": {
+          "name": "transaction_id",
+          "type": "varchar(255)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "season_id": {
+          "name": "season_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric(18, 6)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "user_season_reward_claim_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'pending'"
+        },
+        "data": {
+          "name": "data",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "account_address": {
+          "name": "account_address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "idx_user_season_reward_claims_user_id_season_id_status": {
+          "name": "idx_user_season_reward_claims_user_id_season_id_status",
+          "columns": [
+            {
+              "expression": "season_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "user_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "status",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "user_season_reward_claim_user_id_user_id_fk": {
+          "name": "user_season_reward_claim_user_id_user_id_fk",
+          "tableFrom": "user_season_reward_claim",
+          "tableTo": "user",
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "user_season_reward_claim_season_id_season_id_fk": {
+          "name": "user_season_reward_claim_season_id_season_id_fk",
+          "tableFrom": "user_season_reward_claim",
+          "tableTo": "season",
+          "columnsFrom": ["season_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.verification_token": {
       "name": "verification_token",
@@ -2056,7 +2415,10 @@
           "columns": ["identifier", "token"]
         }
       },
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     },
     "public.week": {
       "name": "week",
@@ -2108,7 +2470,10 @@
         }
       },
       "compositePrimaryKeys": {},
-      "uniqueConstraints": {}
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -2136,9 +2501,18 @@
       "name": "snapshot_status",
       "schema": "public",
       "values": ["not_started", "processing", "completed", "failed"]
+    },
+    "public.user_season_reward_claim_status": {
+      "name": "user_season_reward_claim_status",
+      "schema": "public",
+      "values": ["pending", "success", "failed"]
     }
   },
   "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
   "_meta": {
     "columns": {},
     "schemas": {},

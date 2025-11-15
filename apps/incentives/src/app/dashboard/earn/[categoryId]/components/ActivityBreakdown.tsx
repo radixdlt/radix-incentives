@@ -51,6 +51,7 @@ interface ActivityBreakdownProps {
   categoryData: CategoryCapitalData | undefined;
   weekId: string;
   isAnonymous?: boolean;
+  initialDappFilter?: string | null;
 }
 
 export function ActivityBreakdown({
@@ -58,6 +59,7 @@ export function ActivityBreakdown({
   categoryData,
   weekId,
   isAnonymous = false,
+  initialDappFilter,
 }: ActivityBreakdownProps) {
   // For maintainXrdBalance, default to capital sorting since AP is not relevant
   const [sortBy, setSortBy] = useState<SortBy>(
@@ -66,10 +68,12 @@ export function ActivityBreakdown({
   const [expandedActivities, setExpandedActivities] = useState<Set<string>>(
     new Set(),
   );
-  const [selectedDapp, setSelectedDapp] = useState<string | null>(null);
+  const [selectedDapp, setSelectedDapp] = useState<string | null>(
+    initialDappFilter || null,
+  );
   const [selectedToken, setSelectedToken] = useState<string | null>(null);
   const [hoveredActivity, setHoveredActivity] = useState<string | null>(null);
-  const [showDappFilter, setShowDappFilter] = useState(false);
+  const [showDappFilter, setShowDappFilter] = useState(!!initialDappFilter);
   const [showTokenFilter, setShowTokenFilter] = useState(false);
 
   // Get anonymous user data when no wallet is connected

@@ -184,6 +184,11 @@ export const dapps = createTable('dapp', {
   id: text('id').primaryKey(),
   name: text('name').notNull(),
   website: text('website').notNull(),
+  description: text('description'),
+  longDescription: text('long_description'),
+  tags: jsonb('tags').$defaultFn(() => []),
+  resources: jsonb('resources').$defaultFn(() => []),
+  showOnEarnPage: boolean('show_on_earn_page').notNull().default(true),
 });
 
 export const dappsRelations = relations(dapps, ({ many }) => ({
@@ -610,6 +615,7 @@ export type Session = InferSelectModel<typeof sessions>;
 export type Account = InferSelectModel<typeof accounts>;
 export type Season = InferSelectModel<typeof seasons>;
 export type Week = InferSelectModel<typeof weeks>;
+export type Dapp = InferSelectModel<typeof dapps>;
 export type ActivityCategory = Omit<
   InferSelectModel<typeof activityCategories>,
   'id'

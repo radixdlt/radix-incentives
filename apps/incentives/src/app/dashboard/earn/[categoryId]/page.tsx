@@ -2,7 +2,7 @@
 
 import { ArrowLeft, TrendingUp, Wallet, Zap } from 'lucide-react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { MetricCard, MultiplierModal } from '~/components/dashboard';
 import { Badge } from '~/components/ui/badge';
@@ -14,7 +14,9 @@ import { ActivityBreakdown } from './components/ActivityBreakdown';
 
 export default function CategoryDetailPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const categoryId = params.categoryId as string;
+  const dappFilter = searchParams.get('dapp');
   const { persona, isInitialized } = usePersona();
   const [selectedWeekId, setSelectedWeekId] = useState<string>('');
   const [multiplierModalOpen, setMultiplierModalOpen] = useState(false);
@@ -215,6 +217,7 @@ export default function CategoryDetailPage() {
         categoryData={categoryCapitalData}
         weekId={selectedWeekId}
         isAnonymous={!persona}
+        initialDappFilter={dappFilter}
       />
 
       <MultiplierModal

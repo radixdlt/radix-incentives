@@ -1,5 +1,5 @@
 {
-  "id": "99f1fdd0-67db-4ea8-b94c-cfe0553aa096",
+  "id": "1cd59740-0a9d-4635-8234-d9058a9984ff",
   "prevId": "2dbea27f-3efd-49a1-98f6-63692776353c",
   "version": "7",
   "dialect": "postgresql",
@@ -731,13 +731,6 @@
           "notNull": true,
           "default": false
         },
-        "expired": {
-          "name": "expired",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": false
-        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -958,6 +951,24 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
+        },
+        "description": {
+          "name": "description",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "tags": {
+          "name": "tags",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "resources": {
+          "name": "resources",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         }
       },
       "indexes": {},
