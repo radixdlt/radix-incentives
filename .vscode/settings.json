@@ -5,5 +5,18 @@
     }
   ],
   "cSpell.words": ["defi", "Ociswap", "Rola"],
-  "typescript.tsdk": "node_modules/typescript/lib"
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "typescript.tsserver.watchOptions": {
+    "excludeDirectories": [
+      "node_modules",
+      "**/node_modules",
+      "apps/consultation",
+      "apps/vote-collector",
+      "experiments",
+      "tools",
+      "packages/data",
+      "packages/sbor-ez-mode",
+    ],
+    "excludeFiles": []
+  }
 }

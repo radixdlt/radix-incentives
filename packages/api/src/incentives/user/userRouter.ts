@@ -1,7 +1,9 @@
 import { TRPCError } from '@trpc/server';
-import { Exit } from 'effect';
+import { Effect, Exit } from 'effect';
 import { z } from 'zod';
+import { resolveEffect } from '../runtime';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
+import { UserEmailInputSchema, UserService } from './user';
 
 export const userRouter = createTRPCRouter({
   getUserStats: protectedProcedure
@@ -123,6 +125,27 @@ export const userRouter = createTRPCRouter({
         },
       });
     }),
+  setEmail: protectedProcedure
+    .input(UserEmailInputSchema.omit({ userId: true }))
+    .mutation(async ({ ctx, input }) => {
+      return resolveEffect(
+        Effect.gen(function* () {
+          const userService = yield* UserService;
+          yield* userService.setEmail({
+            email: input.email,
+            userId: ctx.session.user.id,
+          });
+        }),
+      );
+    }),
+  getUser: protectedProcedure.query(async ({ ctx }) => {
+    return resolveEffect(
+      Effect.gen(function* () {
+        const userService = yield* UserService;
+        return yield* userService.getUser({ userId: ctx.session.user.id });
+      }),
+    );
+  }),
 });
 
 export const adminUserRouter = createTRPCRouter({

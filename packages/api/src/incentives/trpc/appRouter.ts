@@ -9,6 +9,10 @@ import {
 } from '../activity-category/activityCategoryRouter';
 import { adminRouter } from '../admin/adminRouter';
 import { authRouter } from '../auth/authRouter';
+import {
+  adminCompetitionRouter,
+  competitionRouter,
+} from '../competition/competitionRouter';
 import { adminComponentWhitelistRouter } from '../component/componentWhitelistRouter';
 import { adminConfigRouter, configRouter } from '../config/configRouter';
 import { adminDappRouter, dappRouter } from '../dapp/dappRouter';
@@ -42,6 +46,7 @@ export const appRouter = createTRPCRouter({
   dapps: dappRouter,
   milestones: milestoneRouter,
   resourceReward: resourceRewardRouter,
+  competition: competitionRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({
@@ -60,6 +65,7 @@ export const adminAppRouter = createTRPCRouter({
   seed: adminSeedRouter,
   admin: adminRouter,
   milestones: adminMilestoneRouter,
+  competition: adminCompetitionRouter,
 });
 
 // export type definition of API

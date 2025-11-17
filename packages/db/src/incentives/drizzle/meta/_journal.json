@@ -267,6 +267,13 @@
       "when": 1759747200000,
       "tag": "0037_add_flux_dapp",
       "breakpoints": true
+    },
+    {
+      "idx": 38,
+      "version": "7",
+      "when": 1762334835050,
+      "tag": "0038_motionless_lockjaw",
+      "breakpoints": true
     }
   ]
 }
