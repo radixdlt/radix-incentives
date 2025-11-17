@@ -6,6 +6,7 @@ import type {
   StructDefinition,
   StructSchema,
 } from 'sbor-ez-mode';
+import { AddressSchema } from 'sbor-ez-mode/src/schemas/address';
 import { EntityNonFungibleDataService } from '../../../../common/gateway';
 import type { NonFungibleId, NonFungibleResourceAddress } from '../schemas';
 
@@ -99,3 +100,17 @@ export class NftHelper extends Effect.Service<NftHelper>()('NftHelper', {
     };
   }),
 }) {}
+
+export const parseAddress = Effect.fn(function* (
+  sbor: ProgrammaticScryptoSborValue,
+) {
+  const result = new AddressSchema().safeParse(sbor);
+
+  if (result.isErr()) {
+    return yield* Effect.fail(
+      new FailedToParseSborError({ error: result.error }),
+    );
+  }
+
+  return result.value;
+});

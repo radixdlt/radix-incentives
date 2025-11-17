@@ -21,6 +21,7 @@ import { DefiPlazaPosition } from './positions/defiplaza/defiplaza';
 import { FluxPosition } from './positions/flux/flux';
 import { HoldingPosition } from './positions/holding';
 import { OciswapPosition } from './positions/ociswap/ociswap';
+import { RootFinancePosition } from './positions/root/root';
 import { StakedPosition } from './positions/staked';
 import { SurgePosition } from './positions/surge/surge';
 import { WeftFinancePosition } from './positions/weft/weft';
@@ -49,18 +50,20 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
       OciswapPosition.Default,
       DefiPlazaPosition.Default,
       FluxPosition.Default,
+      RootFinancePosition.Default,
     ],
     effect: Effect.gen(function* () {
       const accountBalanceState = yield* AccountBalanceState;
       const getLedgerStateService = yield* GetLedgerStateService;
       const holdingPosition = yield* HoldingPosition;
       const stakedPosition = yield* StakedPosition;
-      const weftPosition = yield* WeftFinancePosition;
       const caviarNinePosition = yield* CaviarNinePosition;
       const surgePosition = yield* SurgePosition;
       const ociswapPosition = yield* OciswapPosition;
       const defiPlazaPosition = yield* DefiPlazaPosition;
       const fluxPosition = yield* FluxPosition;
+      const weftPosition = yield* WeftFinancePosition;
+      const rootFinancePosition = yield* RootFinancePosition;
 
       const concurrency = yield* Config.number(
         'GET_ACCOUNT_BALANCES_CONCURRENCY',
@@ -133,6 +136,11 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             stateVersion,
             timestamp,
           }),
+          rootFinancePosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
         ];
 
         return yield* Effect.all(allPositions, {
@@ -161,6 +169,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
                 ...CaviarNinePosition.nftResourceAddresses,
                 ...OciswapPosition.nftResourceAddresses,
                 WeftFinancePosition.nftResourceAddress,
+                RootFinancePosition.nftResourceAddress,
                 FluxPosition.nftResourceAddress,
               ],
             }),
