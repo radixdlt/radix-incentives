@@ -1,5 +1,6 @@
 export { AccountBalances } from './account-balances';
 export { ActivityBreakdown } from './activity-breakdown';
+export { ArculusCompetitionCard } from './arculus-competition-card';
 export { MetricCard } from './metric-card';
 export { MilestoneProgress } from './milestone-progress';
 export { MultiplierModal } from './multiplier-modal';

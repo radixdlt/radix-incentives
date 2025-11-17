@@ -11,6 +11,7 @@ import {
 } from 'db/incentives';
 import { and, count, eq, sql, sum } from 'drizzle-orm';
 import { Data, Effect } from 'effect';
+import { z } from 'zod';
 import { AccountBalanceService } from '../account/accountBalance';
 import { ActivityService } from '../activity/activity';
 import { ActivityWeekService } from '../activity-week/activityWeek';
@@ -46,6 +47,13 @@ type AnonymousUserData = {
     metadataUrl: string | null;
   }[];
 }[];
+
+export const UserEmailInputSchema = z.object({
+  userId: z.string(),
+  email: z.string().min(1, 'Email is required').email('Invalid email address'),
+});
+
+export type UserEmailInput = z.infer<typeof UserEmailInputSchema>;
 
 export class UserService extends Effect.Service<UserService>()('UserService', {
   dependencies: [
@@ -550,6 +558,22 @@ export class UserService extends Effect.Service<UserService>()('UserService', {
       getUserIdByAccountAddress,
       getAccountAddressesByUserId,
       userHasRegisteredAccounts,
+      getUser: Effect.fnUntraced(function* (input: { userId: string }) {
+        return yield* Effect.tryPromise({
+          try: () => db.select().from(users).where(eq(users.id, input.userId)),
+          catch: (error) => new DbError(error),
+        }).pipe(Effect.map(([user]) => user));
+      }),
+      setEmail: Effect.fnUntraced(function* ({
+        userId,
+        email,
+      }: UserEmailInput) {
+        yield* Effect.tryPromise({
+          try: () =>
+            db.update(users).set({ email }).where(eq(users.id, userId)),
+          catch: (error) => new DbError(error),
+        });
+      }),
     };
   }),
 }) {}

@@ -1,4 +1,5 @@
-import { type Db, db, readOnlyDb } from 'db/incentives';
+import { type Db, db, readOnlyDb, type schema } from 'db/incentives';
+import type { PostgresJsDatabase } from 'drizzle-orm/postgres-js';
 import { Config, Context, Effect, Layer } from 'effect';
 
 export class DbError extends Error {
@@ -16,9 +17,9 @@ export class DbClientService extends Context.Tag('DbClientService')<
 export const dbClientLive = Layer.effect(
   DbClientService,
   Effect.gen(function* () {
-    const isTest = yield* Config.boolean('VITEST').pipe(
-      Config.withDefault(false),
-    );
+    const isTest = yield* Config.boolean('VITEST')
+      .pipe(Config.withDefault(false))
+      .pipe(Effect.catchTag('ConfigError', Effect.die));
 
     if (isTest) {
       return yield* Effect.promise(() =>
@@ -34,6 +35,7 @@ export const dbReadOnlyClientLive = Layer.effect(
   Effect.gen(function* () {
     const isTest = yield* Config.boolean('VITEST').pipe(
       Config.withDefault(false),
+      Effect.catchTag('ConfigError', Effect.die),
     );
 
     if (isTest) {
@@ -47,3 +49,23 @@ export const dbReadOnlyClientLive = Layer.effect(
 
 export const createDbClientLive = (db: Db) =>
   Layer.effect(DbClientService, Effect.succeed(db));
+
+type DatabaseServiceImp = {
+  use: <A>(
+    f: (db: PostgresJsDatabase<typeof schema>) => Promise<A>,
+  ) => Effect.Effect<A, DbError>;
+};
+
+export class DbService extends Effect.Service<DbService>()('DbService', {
+  dependencies: [dbClientLive],
+  effect: Effect.gen(function* () {
+    const db = yield* DbClientService;
+    return {
+      use: (f) =>
+        Effect.tryPromise({
+          try: () => f(db),
+          catch: (error) => new DbError(error),
+        }),
+    } satisfies DatabaseServiceImp;
+  }),
+}) {}

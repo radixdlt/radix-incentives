@@ -3,6 +3,7 @@
 import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import {
+  ArculusCompetitionCard,
   MetricCard,
   MultiplierModal,
   RadixRewardsIntro,
@@ -107,6 +108,10 @@ export default function DashboardPage() {
       { enabled: !!persona && !!selectedWeekData?.seasonId },
     );
 
+  // Get Arculus competition data
+  const { data: arculusCompetition } =
+    api.competition.getCompetitionBySlug.useQuery({ slug: 'arculus' });
+
   if (accounts.isLoading || weeks.isLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
@@ -154,6 +159,13 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <RadixRewardsIntro seasonId={selectedWeekData?.seasonId} />
+
+      {arculusCompetition && (
+        <ArculusCompetitionCard
+          isActive={new Date(arculusCompetition.endDate) > new Date()}
+          prizeCount={arculusCompetition.prizeCount}
+        />
+      )}
 
       <NextUpdateNotification />
 

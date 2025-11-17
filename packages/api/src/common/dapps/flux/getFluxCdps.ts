@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js';
 import { DappConstants } from 'data';
-import { Data, Effect } from 'effect';
+import { Data, DateTime, Effect } from 'effect';
 import { EntityNonFungibleDataService } from '../../gateway/entityNonFungiblesData';
 import {
   type GetNonFungibleBalanceOutput,
@@ -226,7 +226,9 @@ export class GetFluxCdpsService extends Effect.Service<GetFluxCdpsService>()(
               realDebt: realDebt.toString(),
               collateralFusdRatio: cdpNftData.collateral_fusd_ratio,
               interest: cdpNftData.interest,
-              lastInterestChange: cdpNftData.last_interest_change.toString(),
+              lastInterestChange: DateTime.unsafeFromDate(
+                cdpNftData.last_interest_change,
+              ).pipe(DateTime.formatIso),
               status: cdpNftData.status.variant,
               privilegedBorrower,
             };

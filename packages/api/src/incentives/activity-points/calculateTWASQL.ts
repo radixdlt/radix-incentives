@@ -33,7 +33,10 @@ export class CalculateTWASQLService extends Effect.Service<CalculateTWASQLServic
       const db = yield* DbClientService;
       const MAX_ADDRESSES_PER_BATCH = yield* Config.number(
         'MAX_ADDRESSES_PER_BATCH',
-      ).pipe(Config.withDefault(1500));
+      ).pipe(
+        Config.withDefault(1500),
+        Effect.catchTag('ConfigError', Effect.die),
+      );
 
       return Effect.fn(function* (input: CalculateTWASQLInput) {
         const executeQuery = (addressBatch: string[]) => {
