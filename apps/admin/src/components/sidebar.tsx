@@ -9,7 +9,6 @@ import {
   Database,
   ListOrdered,
   LogOut,
-  Medal,
   Play,
   Shield,
   Tag,
@@ -47,11 +46,6 @@ const navigationItems = [
     title: 'Resource Rewards',
     href: '/resource-rewards',
     icon: <Coins className="h-5 w-5" />,
-  },
-  {
-    title: 'Competitions',
-    href: '/competitions',
-    icon: <Medal className="h-5 w-5" />,
   },
   {
     title: 'Notifications',

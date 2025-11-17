@@ -57,7 +57,6 @@ export const users = createTable(
     })
       .defaultNow()
       .notNull(),
-    email: varchar('email', { length: 255 }),
   },
   (table) => ({
     referredByIdx: index('referred_by_idx').on(table.referredBy),
@@ -908,45 +907,3 @@ export const accountRecoveryProofsRelations = relations(
     }),
   }),
 );
-
-export const competitions = createTable('competition', {
-  id: uuid('id').primaryKey().defaultRandom(),
-  slug: varchar('slug', { length: 255 }).notNull().unique(),
-  name: varchar('name', { length: 255 }).notNull(),
-  description: varchar('description', { length: 255 }).notNull(),
-  startDate: timestamp('start_date', {
-    mode: 'date',
-    withTimezone: true,
-  }).notNull(),
-  endDate: timestamp('end_date', {
-    mode: 'date',
-    withTimezone: true,
-  }).notNull(),
-  prizeCount: integer('prize_count').notNull(),
-});
-
-export type Competition = InferSelectModel<typeof competitions>;
-
-export const competitionParticipants = createTable(
-  'competition_participant',
-  {
-    competitionId: uuid('competition_id')
-      .notNull()
-      .references(() => competitions.id, { onDelete: 'cascade' }),
-    userId: uuid('user_id')
-      .notNull()
-      .references(() => users.id, { onDelete: 'cascade' }),
-    isWinner: boolean('is_winner').notNull().default(false),
-    createdAt: timestamp('created_at', { mode: 'date', withTimezone: true })
-      .notNull()
-      .defaultNow(),
-    claimedAt: timestamp('claimed_at', { mode: 'date', withTimezone: true }),
-  },
-  (table) => ({
-    pk: primaryKey({ columns: [table.competitionId, table.userId] }),
-  }),
-);
-
-export type CompetitionParticipant = InferSelectModel<
-  typeof competitionParticipants
->;

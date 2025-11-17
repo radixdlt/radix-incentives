@@ -34,13 +34,12 @@ export const adminRouter = createTRPCRouter({
           .select({
             userId: user.id,
             label: user.label,
-            email: user.email,
             totalSeasonPoints: sum(userSeasonPoints.points),
           })
           .from(user)
           .where(eq(user.id, input.id))
           .leftJoin(userSeasonPoints, eq(user.id, userSeasonPoints.userId))
-          .groupBy(user.id, user.label, user.email);
+          .groupBy(user.id, user.label);
 
         if (userResult.length === 0) {
           return [];

@@ -125,16 +125,6 @@ export default function UserPage() {
               </div>
             </div>
             <div>
-              <div className="text-muted-foreground text-sm">Email address</div>
-              <div className="text-sm">
-                {user.email || (
-                  <span className="text-muted-foreground italic">
-                    No email address
-                  </span>
-                )}
-              </div>
-            </div>
-            <div>
               <div className="text-muted-foreground text-sm">
                 Total Season Points
               </div>
