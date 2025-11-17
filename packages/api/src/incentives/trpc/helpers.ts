@@ -1,7 +1,7 @@
 import { TRPCError } from '@trpc/server';
 import { Data, Effect, Exit } from 'effect';
 
-export class ResponseError extends Data.TaggedError('ResponseError')<{
+export class TrpcError extends Data.TaggedError('TrpcError')<{
   code: TRPCError['code'];
   message?: string;
 }> {}
@@ -22,7 +22,7 @@ export const resolveExit = <A, E>(exit: Exit.Exit<A, E>) =>
             : undefined;
 
         if (
-          cause.error._tag === 'ResponseError' &&
+          cause.error._tag === 'TrpcError' &&
           'code' in cause.error &&
           typeof cause.error.code === 'string'
         ) {
