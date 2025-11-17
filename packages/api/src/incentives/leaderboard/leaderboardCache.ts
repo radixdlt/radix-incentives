@@ -5,7 +5,8 @@ import {
   userSeasonPoints,
 } from 'db/incentives';
 import { desc, eq, sql } from 'drizzle-orm';
-import { Effect } from 'effect';
+import { Config, Effect } from 'effect';
+import { chunker } from '../../common';
 import { ActivityCategoryWeekService } from '../activity-category-week/activityCategoryWeek';
 import { ActivityWeekService } from '../activity-week/activityWeek';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
@@ -27,6 +28,9 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
       ActivityWeekService.Default,
     ],
     effect: Effect.gen(function* () {
+      const BATCH_SIZE = yield* Config.number('INSERT_BATCH_SIZE').pipe(
+        Config.withDefault(5000),
+      );
       const db = yield* DbClientService;
       const seasonService = yield* SeasonService;
       const weekService = yield* WeekService;
@@ -186,11 +190,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         }));
 
         if (seasonCacheEntries.length > 0) {
-          yield* Effect.tryPromise({
-            try: () =>
-              db.insert(seasonLeaderboardCache).values(seasonCacheEntries),
-            catch: (error) => new DbError(error),
-          });
+          yield* Effect.forEach(
+            chunker(seasonCacheEntries, BATCH_SIZE),
+            Effect.fn(function* (batch) {
+              yield* Effect.tryPromise({
+                try: () => db.insert(seasonLeaderboardCache).values(batch),
+                catch: (error) => new DbError(error),
+              });
+            }),
+            { concurrency: 1 },
+          );
         }
 
         yield* Effect.log(
@@ -232,11 +241,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         }));
 
         if (weeklyCacheEntries.length > 0) {
-          yield* Effect.tryPromise({
-            try: () =>
-              db.insert(seasonLeaderboardCache).values(weeklyCacheEntries),
-            catch: (error) => new DbError(error),
-          });
+          yield* Effect.forEach(
+            chunker(weeklyCacheEntries, BATCH_SIZE),
+            Effect.fn(function* (batch) {
+              yield* Effect.tryPromise({
+                try: () => db.insert(seasonLeaderboardCache).values(batch),
+                catch: (error) => new DbError(error),
+              });
+            }),
+            { concurrency: 1 },
+          );
         }
 
         yield* Effect.log(
@@ -356,11 +370,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
           }));
 
           if (cacheEntries.length > 0) {
-            yield* Effect.tryPromise({
-              try: () =>
-                db.insert(categoryLeaderboardCache).values(cacheEntries),
-              catch: (error) => new DbError(error),
-            });
+            yield* Effect.forEach(
+              chunker(cacheEntries, BATCH_SIZE),
+              Effect.fn(function* (batch) {
+                yield* Effect.tryPromise({
+                  try: () => db.insert(categoryLeaderboardCache).values(batch),
+                  catch: (error) => new DbError(error),
+                });
+              }),
+              { concurrency: 1 },
+            );
           }
 
           yield* Effect.log(
@@ -459,10 +478,16 @@ export class LeaderboardCacheService extends Effect.Service<LeaderboardCacheServ
         ];
 
         if (allStatsEntries.length > 0) {
-          yield* Effect.tryPromise({
-            try: () => db.insert(leaderboardStatsCache).values(allStatsEntries),
-            catch: (error) => new DbError(error),
-          });
+          yield* Effect.forEach(
+            chunker(allStatsEntries, BATCH_SIZE),
+            Effect.fn(function* (batch) {
+              yield* Effect.tryPromise({
+                try: () => db.insert(leaderboardStatsCache).values(batch),
+                catch: (error) => new DbError(error),
+              });
+            }),
+            { concurrency: 1 },
+          );
         }
 
         yield* Effect.log(
