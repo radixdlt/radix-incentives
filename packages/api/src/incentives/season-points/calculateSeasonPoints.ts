@@ -335,12 +335,12 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               const lowestApReceivingPoints =
                 finalUsers.length > 0
                   ? finalUsers
-                    .reduce(
-                      (min, user) =>
-                        user.points.lt(min) ? user.points : min,
-                      finalUsers[0]!.points,
-                    )
-                    .toString()
+                      .reduce(
+                        (min, user) =>
+                          user.points.lt(min) ? user.points : min,
+                        finalUsers[0]!.points,
+                      )
+                      .toString()
                   : null;
 
               // Store statistics for this category
@@ -495,4 +495,4 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       };
     }),
   },
-) { }
+) {}
