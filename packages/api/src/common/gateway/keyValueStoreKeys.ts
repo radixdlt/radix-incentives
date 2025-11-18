@@ -1,6 +1,6 @@
 import type { StateKeyValueStoreKeysRequest } from '@radixdlt/babylon-gateway-api-sdk';
 import { Config, Data, Effect } from 'effect';
-import { GatewayApiClientService } from './gatewayApiClient';
+import { GatewayApiClientService, GatewayError } from './gatewayApiClient';
 import type { AtLedgerState } from './schemas';
 
 class EntityNotFoundError extends Data.TaggedError('EntityNotFoundError')<{
@@ -31,22 +31,22 @@ export class KeyValueStoreKeysService extends Effect.Service<KeyValueStoreKeysSe
             },
           })
           .pipe(
-            Effect.catchAll(({ error }) => {
-              if (error instanceof Error && error.message.includes('404')) {
-                const ledgerState =
-                  'state_version' in input.at_ledger_state
-                    ? input.at_ledger_state.state_version
-                    : input.at_ledger_state.timestamp.toISOString();
+            Effect.catchTag('GatewayError', ({ error }) =>
+              Effect.gen(function* () {
+                if (error instanceof Error && error.message.includes('404')) {
+                  const ledgerState =
+                    'state_version' in input.at_ledger_state
+                      ? input.at_ledger_state.state_version
+                      : input.at_ledger_state.timestamp.toISOString();
 
-                return Effect.fail(
-                  new EntityNotFoundError({
+                  return yield* new EntityNotFoundError({
                     message: `Key value store '${input.key_value_store_address}' not found at ledger state ${ledgerState}`,
-                  }),
-                );
-              }
+                  });
+                }
 
-              return Effect.fail(error);
-            }),
+                return yield* new GatewayError({ error });
+              }),
+            ),
           );
       });
     }),

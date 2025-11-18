@@ -117,10 +117,8 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
 
       // Supported wrapped fungible resource addresses
       const wrappedAssets = [
-        ...DappConstants.WeftFinance.weftFungibleRecourceAddresses
-          .keys()
-          .map(FungibleResourceAddress),
-      ];
+        ...DappConstants.WeftFinance.weftFungibleRecourceAddresses.keys(),
+      ].map(FungibleResourceAddress);
 
       return {
         fromState: (input: {

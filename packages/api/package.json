@@ -3,9 +3,9 @@
   "type": "module",
   "private": true,
   "exports": {
-    "./consultation": "./src/consultation/index.ts",
     "./incentives": "./src/incentives/index.ts",
-    "./common": "./src/common/index.ts"
+    "./common": "./src/common/index.ts",
+    "./*": "./src/*.ts"
   },
   "scripts": {
     "test": "vitest ",

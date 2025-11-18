@@ -111,6 +111,11 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             stateVersion,
             timestamp,
           }),
+          rootFinancePosition.fromState({
+            addresses,
+            stateVersion,
+            timestamp,
+          }),
           caviarNinePosition.fromState({
             addresses,
             stateVersion,
@@ -132,11 +137,6 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
             timestamp,
           }),
           fluxPosition.fromState({
-            addresses,
-            stateVersion,
-            timestamp,
-          }),
-          rootFinancePosition.fromState({
             addresses,
             stateVersion,
             timestamp,
