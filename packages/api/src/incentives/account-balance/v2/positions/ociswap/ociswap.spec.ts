@@ -17,7 +17,7 @@ layer(OciswapPosition.Default)('GetAccountBalancesAtStateVersionV2', (it) => {
         const accountBalanceState = yield* AccountBalanceState;
         const ociswapPosition = yield* OciswapPosition;
         const { stateVersion, timestamp } = yield* getLedgerStateByDate(
-          new Date('2025-11-12T00:00:00Z'),
+          new Date('2025-11-18T13:00:00Z'),
         );
 
         const addresses = [

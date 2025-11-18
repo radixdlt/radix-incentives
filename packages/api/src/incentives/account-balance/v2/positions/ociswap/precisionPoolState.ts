@@ -174,6 +174,26 @@ export class PrecisionPoolState extends Effect.Service<PrecisionPoolState>()(
                     // Position is completely outside price bounds
                     xBoundedAmount = new Decimal(0);
                     yBoundedAmount = new Decimal(0);
+
+                    const outsidePriceBounds = {
+                      x: xTotalAmount.minus(xBoundedAmount).toString(),
+                      y: yTotalAmount.minus(yBoundedAmount).toString(),
+                    };
+
+                    return {
+                      componentAddress: input.componentAddress,
+                      isActive,
+                      xToken: {
+                        outsidePriceBounds: outsidePriceBounds.x,
+                        withinPriceBounds: xBoundedAmount.toString(),
+                        resourceAddress: input.tokenXAddress,
+                      },
+                      yToken: {
+                        outsidePriceBounds: outsidePriceBounds.y,
+                        withinPriceBounds: yBoundedAmount.toString(),
+                        resourceAddress: input.tokenYAddress,
+                      },
+                    };
                   } else {
                     // Calculate effective bounds (intersection of position bounds and price bounds)
                     const effectiveLeftPriceSqrt = Decimal.max(

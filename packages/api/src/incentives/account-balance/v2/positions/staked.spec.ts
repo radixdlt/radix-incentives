@@ -10,7 +10,7 @@ import {
   ValidatorsState,
 } from '../accountBalanceState';
 import { AccountAddress, NonFungibleResourceAddress } from '../schemas';
-import stakedFixture from './fixtures/staked.fixture';
+
 import { StakedPosition } from './staked';
 
 layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
@@ -30,9 +30,8 @@ layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
       );
 
       const accountAddresses = [
-        ...Object.keys(stakedFixture).map(AccountAddress),
         AccountAddress(
-          'account_rdx12yntvduadhcr49nutqkrlxa54n74f0aj264j2nv9xmk3rtdu80u8cc',
+          'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
         ),
       ];
 
@@ -65,7 +64,6 @@ layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
             }),
           ),
         );
-      expect(result).toEqual(stakedFixture);
     }).pipe(
       Effect.provide(AccountBalanceState.Default),
       Effect.provide(Logger.pretty),

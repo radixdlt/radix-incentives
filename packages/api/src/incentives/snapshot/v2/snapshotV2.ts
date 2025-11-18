@@ -1,10 +1,8 @@
 import { Array as A, Config, Data, Effect, pipe, Schedule } from 'effect';
 import { z } from 'zod';
 import { chunker } from '../../../common';
-import { GetAllValidatorsService } from '../../../common/gateway/getAllValidators';
 import { GetLedgerStateService } from '../../../common/gateway/getLedgerState';
 import { GetAccountAddressesService } from '../../account/getAccounts';
-import { AggregateAccountBalanceService } from '../../account-balance/aggregateAccountBalance';
 import { GetAccountBalancesAtStateVersionService } from '../../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../../account-balance/upsertAccountBalance';
 import {
@@ -42,8 +40,6 @@ export class SnapshotV2 extends Effect.Service<SnapshotV2>()('SnapshotV2', {
     GetAccountBalancesAtStateVersionService.Default,
     GetAccountAddressesService.Default,
     UpsertAccountBalancesService.Default,
-    AggregateAccountBalanceService.Default,
-    GetAllValidatorsService.Default,
     ConfigService.Default,
     AccountBalanceState.Default,
     GetAccountBalancesAtStateVersionV2.Default,

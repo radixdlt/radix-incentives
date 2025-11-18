@@ -163,7 +163,8 @@ export class RootFinancePosition extends Effect.Service<RootFinancePosition>()(
                         resourceAddress,
                       );
 
-                      if (Option.isNone(position)) return acc;
+                      if (Option.isNone(position))
+                        return R.set(acc, activityId, AmountUsd('0'));
 
                       const usdValue = yield* getUsdValueService({
                         amount: position.value,
@@ -216,7 +217,7 @@ export class RootFinancePosition extends Effect.Service<RootFinancePosition>()(
   static supportedLendingPositions = R.mapKeys(
     {
       // Stables
-      [Assets.Fungible.xUSDC]: ActivityId.ro_le_sta_xusdt,
+      [Assets.Fungible.xUSDC]: ActivityId.ro_le_sta_xusdc,
       [Assets.Fungible.xUSDT]: ActivityId.ro_le_sta_xusdt,
       [Assets.Fungible.hUSDC]: ActivityId.ro_le_sta_husdc,
       [Assets.Fungible.hUSDT]: ActivityId.ro_le_sta_husdt,
