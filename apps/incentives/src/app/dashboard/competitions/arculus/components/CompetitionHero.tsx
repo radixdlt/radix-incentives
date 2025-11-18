@@ -10,6 +10,7 @@ type CompetitionHeroProps = {
   showXrdHoldings?: boolean;
   onParticipate?: () => void;
   isParticipating?: boolean;
+  isParticipant?: boolean;
   isLoading?: boolean;
 };
 
@@ -20,6 +21,7 @@ export const CompetitionHero: FC<CompetitionHeroProps> = ({
   showXrdHoldings = true,
   onParticipate,
   isParticipating = false,
+  isParticipant = false,
   isLoading = false,
 }) => {
   return (
@@ -77,10 +79,14 @@ export const CompetitionHero: FC<CompetitionHeroProps> = ({
             {isActive && onParticipate && (
               <Button
                 onClick={onParticipate}
-                disabled={isParticipating || isLoading}
-                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 sm:w-auto lg:w-full"
+                disabled={isParticipating || isLoading || isParticipant}
+                className="w-full bg-gradient-to-r from-cyan-500 to-blue-500 hover:from-cyan-600 hover:to-blue-600 disabled:from-gray-500 disabled:to-gray-600 disabled:opacity-50 sm:w-auto lg:w-full"
               >
-                {isParticipating ? 'Joining...' : 'Join Competition'}
+                {isParticipant
+                  ? 'Joined'
+                  : isParticipating
+                    ? 'Joining...'
+                    : 'Join Competition'}
               </Button>
             )}
           </div>

@@ -50,9 +50,9 @@ export default function Page() {
 
   const currentWeek = weeks?.[0]; // Most recent week
 
-  // Get user's category breakdown for maintainXrdBalance
-  const { data: categoryBreakdown, isLoading: isCategoryLoading } =
-    api.user.getUserCategoryBreakdown.useQuery(
+  // Get user's capital at work for maintainXrdBalance
+  const { data: capitalAtWork, isLoading: isCapitalLoading } =
+    api.user.getUserCapitalAtWork.useQuery(
       {
         weekId: currentWeek?.id ?? '',
       },
@@ -72,12 +72,12 @@ export default function Page() {
   const hasClaimedPrize = !!participantData?.claimedAt;
   const isParticipant = !!participantData;
 
-  // Extract maintainXrdBalance value from category breakdown
-  const xrdBalanceData = categoryBreakdown?.find(
+  // Extract maintainXrdBalance value from capital at work
+  const xrdBalanceData = capitalAtWork?.find(
     (cat) => cat.categoryId === 'maintainXrdBalance',
   );
   const xrdBalance = xrdBalanceData
-    ? `$${Number.parseFloat(xrdBalanceData.points.toString()).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+    ? `$${Number.parseFloat(xrdBalanceData.capitalAtWork).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : '$0.00';
 
   const handleJoinCompetition = () => {
@@ -93,12 +93,13 @@ export default function Page() {
         xrdBalance={xrdBalance}
         showXrdHoldings={isConnected && isInitialized}
         onParticipate={
-          isInitialized && persona && isCompetitionActive && !isParticipant
+          isInitialized && persona && isCompetitionActive
             ? handleJoinCompetition
             : undefined
         }
         isParticipating={isJoiningCompetition}
-        isLoading={isParticipantLoading || isCategoryLoading}
+        isParticipant={isParticipant}
+        isLoading={isParticipantLoading || isCapitalLoading}
       />
 
       {isInitialized &&
