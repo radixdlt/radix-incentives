@@ -59,7 +59,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       const seasonService = yield* SeasonService;
       const weekService = yield* WeekService;
       const userActivityPointsService = yield* UserActivityPointsService;
-      const _addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
+      const addSeasonPointsToUser = yield* AddSeasonPointsToUserService;
       const updateWeekStatus = yield* UpdateWeekStatusService;
       const getSeasonPointMultiplier = yield* GetSeasonPointMultiplierService;
       const activityCategoryWeekService = yield* ActivityCategoryWeekService;
@@ -335,12 +335,12 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
               const lowestApReceivingPoints =
                 finalUsers.length > 0
                   ? finalUsers
-                      .reduce(
-                        (min, user) =>
-                          user.points.lt(min) ? user.points : min,
-                        finalUsers[0]!.points,
-                      )
-                      .toString()
+                    .reduce(
+                      (min, user) =>
+                        user.points.lt(min) ? user.points : min,
+                      finalUsers[0]!.points,
+                    )
+                    .toString()
                   : null;
 
               // Store statistics for this category
@@ -458,6 +458,7 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
             ...user,
             referredBy: referredByMap.get(user.userId),
             data: user.data ?? {},
+            referralPoints: new BigNumber(0),
           }));
 
           yield* Effect.log(
@@ -476,10 +477,10 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
           //   withResourceRewardPoints,
           // );
 
-          // if (!input.dryRun) {
-          //   yield* addSeasonPointsToUser.run(withReferralPoints);
-          //   yield* markAsProcessed(input);
-          // }
+          if (!input.dryRun) {
+            yield* addSeasonPointsToUser.run(completeUserSeasonPoints);
+            yield* _markAsProcessed(input);
+          }
 
           yield* Effect.log('--------------------------------');
 
@@ -494,4 +495,4 @@ export class CalculateSeasonPointsService extends Effect.Service<CalculateSeason
       };
     }),
   },
-) {}
+) { }
