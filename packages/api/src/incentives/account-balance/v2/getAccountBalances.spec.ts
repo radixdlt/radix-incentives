@@ -2,22 +2,17 @@ import { layer } from '@effect/vitest';
 import { Effect, Logger } from 'effect';
 import { GetLedgerStateService } from '../../../common/gateway';
 import { AccountBalanceState, ValidatorsState } from './accountBalanceState';
+import accountBalancesFixture from './accountBalancesFixture.json' with {
+  type: 'json',
+};
 import { GetAccountBalancesAtStateVersionV2 } from './getAccountBalances';
 
 const testSetup = Effect.gen(function* () {
-  const getLedgerState = yield* GetLedgerStateService;
-
-  const ledgerState = yield* getLedgerState({
-    at_ledger_state: {
-      timestamp: new Date('2025-11-12T14:00:00.000Z'),
-    },
-  });
-
   return {
     addresses: [
       'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew',
     ],
-    stateVersion: ledgerState.state_version,
+    stateVersion: accountBalancesFixture.stateVersion,
   };
 }).pipe(Effect.provide(GetLedgerStateService.Default));
 
@@ -41,7 +36,9 @@ layer(GetAccountBalancesAtStateVersionV2.Default)(
             stateVersion: stateVersion,
           }).pipe(Effect.provideService(ValidatorsState, validatorStateRef));
 
-          yield* Effect.log(accountBalances);
+          expect(accountBalances).toEqual(
+            accountBalancesFixture.accountBalances,
+          );
         }).pipe(
           Effect.provide(Logger.pretty),
           Effect.provide(AccountBalanceState.Default),

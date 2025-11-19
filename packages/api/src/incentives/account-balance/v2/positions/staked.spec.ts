@@ -35,7 +35,7 @@ layer(StakedPosition.Default)('StakedXrdPosition', (it) => {
         ),
       ];
 
-      const result = yield* stakedPosition
+      const _result = yield* stakedPosition
         .fromState({
           addresses: accountAddresses,
           stateVersion,
