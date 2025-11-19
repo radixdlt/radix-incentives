@@ -31,6 +31,7 @@ export type OciswapResourcePoolLiquidityAsset = {
     amountInBounds: string;
     resourceAddress: string;
   };
+  poolAddress: string;
 };
 
 export type GetOciswapResourcePoolPositionsOutput = {
@@ -167,6 +168,7 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
                         amountInBounds: token2Amount.toString(), // Pool units are always "in bounds"
                         resourceAddress: token2.resourceAddress,
                       },
+                      poolAddress: poolResult.address,
                     };
 
                     // Add to user's positions
@@ -188,13 +190,9 @@ export class GetOciswapResourcePoolPositionsService extends Effect.Service<GetOc
                   (address) => {
                     const accountPositions =
                       accountBalancesMap.get(address) ?? [];
-                    // Filter positions for this specific pool
+                    // Filter positions for this specific pool by matching pool address
                     const poolSpecificPositions = accountPositions.filter(
-                      (item) =>
-                        (item.xToken.resourceAddress === pool.token_x &&
-                          item.yToken.resourceAddress === pool.token_y) ||
-                        (item.xToken.resourceAddress === pool.token_y &&
-                          item.yToken.resourceAddress === pool.token_x),
+                      (item) => item.poolAddress === pool.poolAddress,
                     );
                     return {
                       address,

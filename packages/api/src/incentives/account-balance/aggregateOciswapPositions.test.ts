@@ -180,6 +180,8 @@ describe('AggregateOciswapPositionsService', () => {
                     resourceAddress:
                       'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
                   },
+                  poolAddress:
+                    'pool_rdx1c5cyh7lhxly2mxzsmrs4c99vhxt9jzap3gaf7s8h0h68fqlpfht0un',
                 },
               ],
             component_rdx1cz8p5lc8vmj96hdguy02hkfq4z5xyxf9k759dj8ym8exj8x8zgmw9p:
@@ -198,6 +200,8 @@ describe('AggregateOciswapPositionsService', () => {
                     resourceAddress:
                       'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
                   },
+                  poolAddress:
+                    'pool_rdx1c5hm2rt67scp22pq6tpkfg6cd22g0wwz88065wsy9gdfnd86sv3t4t',
                 },
               ],
             component_rdx1cz89w3ecvh9jvdd892vycs44rr042lteg75zgdydq9csn5d87snvdw:
@@ -215,6 +219,8 @@ describe('AggregateOciswapPositionsService', () => {
                     resourceAddress:
                       'resource_rdx1tknxxxxxxxxxradxrdxxxxxxxxx009923554798xxxxxxxxxradxrd',
                   },
+                  poolAddress:
+                    'pool_rdx1ckyg8aujf09uh8qlz6asst75g5w6pl6vu8nl6qrhskawcndyk6585y',
                 },
               ],
           },
