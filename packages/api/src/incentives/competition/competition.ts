@@ -1,6 +1,7 @@
 import { competitionParticipants, competitions, users } from 'db/incentives';
-import { and, count, eq, inArray } from 'drizzle-orm';
-import { Data, DateTime, Effect } from 'effect';
+import { and, count, eq, inArray, isNotNull, isNull } from 'drizzle-orm';
+import { Data, DateTime, Effect, flow, Option } from 'effect';
+import { head } from 'effect/Array';
 import { z } from 'zod';
 import { DbService } from '../db/dbClient';
 import { WeekService } from '../week/week';
@@ -70,14 +71,12 @@ export type DrawCompetitionWinnersInput = z.infer<
   typeof DrawCompetitionWinnersInputSchema
 >;
 
-export const IsCompetitionWinnerInputSchema = z.object({
+export const GetParticipantInputSchema = z.object({
   competitionId: z.string(),
   userId: z.string(),
 });
 
-export type IsCompetitionWinnerInput = z.infer<
-  typeof IsCompetitionWinnerInputSchema
->;
+export type GetParticipantInput = z.infer<typeof GetParticipantInputSchema>;
 
 export const GetCompetitionParticipantInputSchema = z.object({
   competitionId: z.string(),
@@ -132,6 +131,13 @@ export type IsCompetitionParticipantInput = z.infer<
   typeof IsCompetitionParticipantInputSchema
 >;
 
+export const ExpireCompetitionParticipantsInputSchema = z.object({
+  competitionId: z.string(),
+});
+export type ExpireCompetitionParticipantsInput = z.infer<
+  typeof ExpireCompetitionParticipantsInputSchema
+>;
+
 export class CompetitionService extends Effect.Service<CompetitionService>()(
   'CompetitionService',
   {
@@ -179,31 +185,42 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
             ),
         );
 
+      const getClaimedPrizeCount = (competitionId: string) =>
+        db
+          .use((db) =>
+            db
+              .select({
+                count: count(),
+              })
+              .from(competitionParticipants)
+              .where(
+                and(
+                  eq(competitionParticipants.competitionId, competitionId),
+                  isNotNull(competitionParticipants.claimedAt),
+                ),
+              ),
+          )
+          .pipe(
+            Effect.map(
+              flow(
+                head,
+                Option.map((result) => result.count),
+                Option.getOrElse(() => 0),
+              ),
+            ),
+          );
+
       const drawWinners = (input: DrawCompetitionWinnersInput) =>
         Effect.gen(function* () {
           const competition = yield* getCompetition(input.competitionId);
 
-          // check if the competition winners have already been drawn
-          yield* db
-            .use((db) =>
-              db
-                .select({
-                  count: count(),
-                })
-                .from(competitionParticipants)
-                .where(
-                  and(
-                    eq(competitionParticipants.competitionId, competition.id),
-                    eq(competitionParticipants.isWinner, true),
-                  ),
-                ),
-            )
-            .pipe(
-              Effect.filterOrFail(
-                ([result]) => result?.count === 0,
-                () => new CompetitionWinnersAlreadyDrawnError(),
-              ),
-            );
+          const claimedPrizeCount = yield* getClaimedPrizeCount(competition.id);
+
+          if (claimedPrizeCount === competition.prizeCount)
+            return yield* new CompetitionWinnersAlreadyDrawnError();
+
+          const remainingPrizeCount =
+            competition.prizeCount - claimedPrizeCount;
 
           // get the next week after the competition end date
           const nextWeek = yield* DateTime.unsafeFromDate(
@@ -230,7 +247,7 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
             Effect.flatMap((entries) =>
               drawCompetitionWinners({
                 entries,
-                prizeCount: competition.prizeCount,
+                prizeCount: remainingPrizeCount,
               }),
             ),
             Effect.flatMap((userIds) =>
@@ -363,6 +380,7 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
                       eq(competitionParticipants.competitionId, competitionId),
                       eq(competitionParticipants.userId, userId),
                       eq(competitionParticipants.isWinner, true),
+                      eq(competitionParticipants.expired, false),
                     ),
                   ),
               ]),
@@ -398,23 +416,6 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
               ),
             ),
         drawCompetitionWinners: drawWinners,
-        isCompetitionWinner: (input: IsCompetitionWinnerInput) =>
-          db
-            .use((db) =>
-              db
-                .select()
-                .from(competitionParticipants)
-                .where(
-                  and(
-                    eq(
-                      competitionParticipants.competitionId,
-                      input.competitionId,
-                    ),
-                    eq(competitionParticipants.userId, input.userId),
-                  ),
-                ),
-            )
-            .pipe(Effect.map((result) => result[0])),
         listParticipants: (input: ListParticipantsInput) =>
           db.use((db) =>
             db
@@ -436,6 +437,7 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
                     input.competitionId,
                   ),
                   eq(competitionParticipants.isWinner, true),
+                  eq(competitionParticipants.expired, false),
                 ),
               ),
           ),
@@ -456,6 +458,24 @@ export class CompetitionService extends Effect.Service<CompetitionService>()(
                 ),
             )
             .pipe(Effect.map((result) => result[0])),
+        expireCompetitionParticipants: (
+          input: ExpireCompetitionParticipantsInput,
+        ) =>
+          db.use((db) =>
+            db
+              .update(competitionParticipants)
+              .set({ expired: true })
+              .where(
+                and(
+                  eq(
+                    competitionParticipants.competitionId,
+                    input.competitionId,
+                  ),
+                  isNull(competitionParticipants.claimedAt),
+                  eq(competitionParticipants.isWinner, true),
+                ),
+              ),
+          ),
       };
     }),
   },

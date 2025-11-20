@@ -42,6 +42,18 @@ export default function CompetitionPage() {
     },
   });
 
+  const expireParticipants =
+    api.competition.expireCompetitionParticipants.useMutation({
+      onSuccess: () => {
+        toast.success('Participants expired successfully!');
+        utils.competition.listParticipants.invalidate({ competitionId });
+        utils.competition.listCompetitionWinners.invalidate({ competitionId });
+      },
+      onError: (error) => {
+        toast.error(`Failed to expire participants: ${error.message}`);
+      },
+    });
+
   const { data: participants } = api.competition.listParticipants.useQuery({
     competitionId,
   });
@@ -62,6 +74,9 @@ export default function CompetitionPage() {
           onEdit={() => router.push(`/competitions/${competitionId}/edit`)}
           onDrawWinners={() => drawWinners.mutate({ competitionId })}
           onDelete={() => deleteCompetition.mutate({ competitionId })}
+          onExpireParticipants={() =>
+            expireParticipants.mutate({ competitionId })
+          }
         />
       </PageHeader>
       {competition && <CompetitionDetails competition={competition} />}

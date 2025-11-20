@@ -937,6 +937,7 @@ export const competitionParticipants = createTable(
       .notNull()
       .references(() => users.id, { onDelete: 'cascade' }),
     isWinner: boolean('is_winner').notNull().default(false),
+    expired: boolean('expired').notNull().default(false),
     createdAt: timestamp('created_at', { mode: 'date', withTimezone: true })
       .notNull()
       .defaultNow(),

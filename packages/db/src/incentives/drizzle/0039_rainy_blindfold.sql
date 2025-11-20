@@ -1,0 +1,1 @@
+ALTER TABLE "competition_participant" ADD COLUMN "expired" boolean DEFAULT false NOT NULL;

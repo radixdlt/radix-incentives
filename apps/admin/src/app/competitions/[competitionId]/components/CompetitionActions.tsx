@@ -1,6 +1,12 @@
 'use client';
 
-import { Crown, Edit, MoreHorizontalIcon, Trash } from 'lucide-react';
+import {
+  Crown,
+  Edit,
+  MoreHorizontalIcon,
+  TimerResetIcon,
+  Trash,
+} from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -50,10 +56,12 @@ export const CompetitionActions = ({
   onEdit,
   onDrawWinners,
   onDelete,
+  onExpireParticipants,
 }: {
   onEdit: () => void;
   onDrawWinners: () => void;
   onDelete: () => void;
+  onExpireParticipants: () => void;
 }) => {
   return (
     <ButtonGroup>
@@ -82,6 +90,14 @@ export const CompetitionActions = ({
                 description="Are you sure you want to draw winners for this competition?"
                 actionText="Draw winners"
               />
+            </AlertDialog>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <DropdownMenuItem onSelect={(e) => e.preventDefault()}>
+                  <TimerResetIcon />
+                  Expire participants
+                </DropdownMenuItem>
+              </AlertDialogTrigger>
             </AlertDialog>
             <DropdownMenuSeparator />
             <AlertDialog>
