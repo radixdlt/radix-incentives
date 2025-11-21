@@ -233,26 +233,11 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
                       wrappedAssetAddress,
                     ).pipe(Option.getOrElse(() => Amount('0')));
 
-                    const unwrappedResourceAddress =
-                      weftFungibleRecourceAddresses.get(wrappedAssetAddress);
-
-                    let totalAmount = wrappedResourceFromAccount.plus(
-                      wrappedResourceFromCollateral,
-                    );
-
-                    if (unwrappedResourceAddress === Assets.Fungible.XRD) {
-                      const wrappedResourceFromCollateral = R.get(
-                        fungibleCollaterals,
-                        FungibleResourceAddress(unwrappedResourceAddress),
-                      ).pipe(Option.getOrElse(() => Amount('0')));
-                      totalAmount = totalAmount.plus(
-                        wrappedResourceFromCollateral,
-                      );
-                    }
-
                     const unwrappedAsset = yield* unwrapAsset(
                       wrappedAssetAddress,
-                      totalAmount,
+                      wrappedResourceFromAccount.plus(
+                        wrappedResourceFromCollateral,
+                      ),
                     );
 
                     if (!unwrappedAsset) return acc;
@@ -274,7 +259,11 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
                       ),
                     );
 
-                    return R.set(acc, activityId.value, usdValue);
+                    return R.union(
+                      acc,
+                      { [activityId.value]: usdValue },
+                      (a, b) => AmountUsd(new BigNumber(a).plus(b).toString()),
+                    );
                   }),
               );
 
@@ -376,8 +365,8 @@ export class WeftFinancePosition extends Effect.Service<WeftFinancePosition>()(
   );
   static holdingPositions = R.mapKeys(
     {
-      [Assets.Fungible.XRD]: ActivityId.we_le_der_xrd,
-      [Assets.Fungible.LSULP]: ActivityId.we_le_der_lsulp,
+      [Assets.Fungible.XRD]: ActivityId.we_ho_xrd,
+      [Assets.Fungible.LSULP]: ActivityId.we_ho_lsulp,
     },
     (key) => FungibleResourceAddress(key),
   );

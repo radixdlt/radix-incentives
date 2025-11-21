@@ -107,10 +107,15 @@ export class DefiPlazaPosition extends Effect.Service<DefiPlazaPosition>()(
                   );
 
                   if (
-                    Option.isNone(basePoolUnits) ||
+                    Option.isNone(basePoolUnits) &&
                     Option.isNone(quotePoolUnits)
                   )
                     return;
+
+                  const basePoolUnitsAmount = Option.getOrElse(
+                    basePoolUnits,
+                    () => Amount('0'),
+                  );
 
                   const {
                     xTokenAmount: basePoolXTokenAmount,
@@ -120,8 +125,13 @@ export class DefiPlazaPosition extends Effect.Service<DefiPlazaPosition>()(
                     stateVersion,
                     xToken: xTokenAddress,
                     yToken: yTokenAddress,
-                    lpToken: basePoolUnits.value,
+                    lpToken: basePoolUnitsAmount,
                   });
+
+                  const quotePoolUnitsAmount = Option.getOrElse(
+                    quotePoolUnits,
+                    () => Amount('0'),
+                  );
 
                   const {
                     xTokenAmount: quotePoolXTokenAmount,
@@ -131,7 +141,7 @@ export class DefiPlazaPosition extends Effect.Service<DefiPlazaPosition>()(
                     stateVersion,
                     xToken: xTokenAddress,
                     yToken: yTokenAddress,
-                    lpToken: quotePoolUnits.value,
+                    lpToken: quotePoolUnitsAmount,
                   });
 
                   const xTokenAmount = Amount(

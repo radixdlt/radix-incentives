@@ -6,7 +6,7 @@ import {
   ValidatorsState,
 } from 'api/incentives/account-balance/v2/accountBalanceState';
 import { GetAccountBalancesAtStateVersionV2 } from 'api/incentives/account-balance/v2/getAccountBalances';
-import { Effect, Logger } from 'effect';
+import { DateTime, Effect, Logger } from 'effect';
 
 const runnable = Effect.gen(function* () {
   yield* Effect.log('Generating fixtures...');
@@ -19,7 +19,11 @@ const runnable = Effect.gen(function* () {
   const getLedgerStateService = yield* GetLedgerStateService;
   const ledgerState = yield* getLedgerStateService({
     at_ledger_state: {
-      timestamp: new Date(),
+      timestamp: DateTime.unsafeNow().pipe(
+        DateTime.startOf('minute'),
+        DateTime.subtractDuration('1 minute'),
+        DateTime.toDate,
+      ),
     },
   });
 

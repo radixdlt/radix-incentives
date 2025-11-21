@@ -10,7 +10,7 @@ import { AccountBalanceState } from '../../accountBalanceState';
 import {
   type AccountAddress,
   Amount,
-  type FungibleResourceAddress,
+  FungibleResourceAddress,
   NonFungibleId,
   NonFungibleResourceAddress,
 } from '../../schemas';
@@ -57,7 +57,7 @@ export class WeftCollateral extends Effect.Service<WeftCollateral>()(
               pipe(
                 R.fromEntries(curr.collaterals),
                 R.mapEntries((i, k) => [
-                  NonFungibleResourceAddress(k),
+                  FungibleResourceAddress(k),
                   Amount(i.amount),
                 ]),
                 R.union(acc, (a, b) =>
