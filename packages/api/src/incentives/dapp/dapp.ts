@@ -2,7 +2,7 @@ import { dapps } from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { Effect } from 'effect';
 import { z } from 'zod';
-import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
+import { DbService } from '../db/dbClient';
 
 export const DappSchema = z.object({
   id: z.string(),
@@ -62,66 +62,55 @@ export type CreateDapp = z.infer<typeof CreateDappSchema>;
 export type UpdateDapp = z.infer<typeof UpdateDappSchema>;
 
 export class DappService extends Effect.Service<DappService>()('DappService', {
-  dependencies: [dbClientLive],
+  dependencies: [DbService.Default],
   effect: Effect.gen(function* () {
-    const db = yield* DbClientService;
+    const db = yield* DbService;
     return {
       list: Effect.fn(function* () {
-        const dapps = yield* Effect.tryPromise({
-          try: () => db.query.dapps.findMany(),
-          catch: (error) => new DbError(error),
-        });
+        const dapps = yield* db.use((db) => db.query.dapps.findMany());
         return dapps.map((dapp) => DappSchema.parse(dapp));
       }),
       listWithCategories: Effect.fn(function* () {
-        const dapps = yield* Effect.tryPromise({
-          try: () =>
-            db.query.dapps.findMany({
-              with: {
-                activities: {
-                  columns: {
-                    category: true,
-                  },
-                  with: {
-                    activityCategories: {
-                      columns: {
-                        id: true,
-                        name: true,
-                        icon: true,
-                        color: true,
-                      },
+        const dapps = yield* db.use((db) =>
+          db.query.dapps.findMany({
+            with: {
+              activities: {
+                columns: {
+                  category: true,
+                },
+                with: {
+                  activityCategories: {
+                    columns: {
+                      id: true,
+                      name: true,
+                      icon: true,
+                      color: true,
                     },
                   },
                 },
               },
-            }),
-          catch: (error) => new DbError(error),
-        });
+            },
+          }),
+        );
         return dapps.map((dapp) => ({
           ...DappSchema.parse(dapp),
           activities: dapp.activities,
         }));
       }),
       create: Effect.fn(function* (data: CreateDapp) {
-        const result = yield* Effect.tryPromise({
-          try: () => db.insert(dapps).values(data).returning(),
-          catch: (error) => new DbError(error),
-        });
+        const result = yield* db.use((db) =>
+          db.insert(dapps).values(data).returning(),
+        );
         return result[0];
       }),
       update: Effect.fn(function* (id: string, data: UpdateDapp) {
-        const result = yield* Effect.tryPromise({
-          try: () =>
-            db.update(dapps).set(data).where(eq(dapps.id, id)).returning(),
-          catch: (error) => new DbError(error),
-        });
+        const result = yield* db.use((db) =>
+          db.update(dapps).set(data).where(eq(dapps.id, id)).returning(),
+        );
         return result[0];
       }),
       delete: Effect.fn(function* (id: string) {
-        yield* Effect.tryPromise({
-          try: () => db.delete(dapps).where(eq(dapps.id, id)),
-          catch: (error) => new DbError(error),
-        });
+        yield* db.use((db) => db.delete(dapps).where(eq(dapps.id, id)));
       }),
     };
   }),
