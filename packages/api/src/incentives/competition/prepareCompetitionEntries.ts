@@ -1,8 +1,12 @@
 import { accounts, competitionParticipants } from 'db/incentives';
-import { eq } from 'drizzle-orm';
-import { Effect } from 'effect';
+import { and, eq, isNull } from 'drizzle-orm';
+import { Data, Effect } from 'effect';
 import { DbService } from '../db/dbClient';
 import { GetUserTWAXrdBalanceService } from '../season-point-multiplier/getUserTWAXrdBalance';
+
+export class NoCompetitionParticipantsError extends Data.TaggedError(
+  'NoCompetitionParticipantsError',
+) {}
 
 export class PrepareCompetitionEntries extends Effect.Service<PrepareCompetitionEntries>()(
   'PrepareCompetitionEntries',
@@ -24,12 +28,22 @@ export class PrepareCompetitionEntries extends Effect.Service<PrepareCompetition
                 accounts,
                 eq(competitionParticipants.userId, accounts.userId),
               )
-              .where(eq(competitionParticipants.competitionId, competitionId)),
+              .where(
+                and(
+                  eq(competitionParticipants.competitionId, competitionId),
+                  eq(competitionParticipants.expired, false),
+                  isNull(competitionParticipants.claimedAt),
+                ),
+              ),
           )
           .pipe(Effect.map((items) => items.map((item) => item.address)));
 
       const getTickets = (input: { weekId: string; addresses: string[] }) =>
         getUserTWAXrdBalance(input).pipe(
+          Effect.filterOrFail(
+            (items) => items.length > 0,
+            () => new NoCompetitionParticipantsError(),
+          ),
           Effect.map((items) =>
             items.map((item) => ({
               userId: item.userId,

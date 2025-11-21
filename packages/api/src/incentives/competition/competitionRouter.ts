@@ -11,9 +11,9 @@ import {
   DeleteCompetitionInputSchema,
   DrawCompetitionWinnersInputSchema,
   EditCompetitionInputSchema,
+  ExpireCompetitionParticipantsInputSchema,
   GetCompetitionByIdInputSchema,
   GetCompetitionParticipantInputSchema,
-  IsCompetitionWinnerInputSchema,
   ListCompetitionWinnersInputSchema,
   ListParticipantsInputSchema,
 } from './competition';
@@ -56,19 +56,6 @@ export const competitionRouter = createTRPCRouter({
         Effect.gen(function* () {
           const competition = yield* CompetitionService;
           return yield* competition.getCompetitionBySlug(input.slug);
-        }),
-      ),
-    ),
-  isCompetitionWinner: protectedProcedure
-    .input(IsCompetitionWinnerInputSchema.omit({ userId: true }))
-    .query(async ({ input, ctx }) =>
-      resolveEffect(
-        Effect.gen(function* () {
-          const competition = yield* CompetitionService;
-          return yield* competition.isCompetitionWinner({
-            competitionId: input.competitionId,
-            userId: ctx.session.user.id,
-          });
         }),
       ),
     ),
@@ -214,6 +201,16 @@ export const adminCompetitionRouter = createTRPCRouter({
         Effect.gen(function* () {
           const competition = yield* CompetitionService;
           return yield* competition.listCompetitionWinners(input);
+        }),
+      ),
+    ),
+  expireCompetitionParticipants: publicProcedure
+    .input(ExpireCompetitionParticipantsInputSchema)
+    .mutation(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const competition = yield* CompetitionService;
+          yield* competition.expireCompetitionParticipants(input);
         }),
       ),
     ),

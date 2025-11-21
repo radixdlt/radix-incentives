@@ -68,7 +68,7 @@ export default function Page() {
   const competitionEndDate = competition.endDate;
   const isCompetitionActive = Date.now() < competitionEndDate.getTime();
   const prizeCount = competition.prizeCount;
-  const isWinner = !!participantData?.isWinner;
+  const isWinner = !!participantData?.isWinner && !participantData?.expired;
   const hasClaimedPrize = !!participantData?.claimedAt;
   const isParticipant = !!participantData;
 
