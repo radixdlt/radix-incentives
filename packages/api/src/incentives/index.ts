@@ -4,7 +4,6 @@ export { ActivityCategoryWeekService } from './activity-category-week/activityCa
 export * from './config';
 export type { Dapp } from './dapp/dapp';
 export { createDbClientLive } from './db/dbClient';
-export * from './dependencyLayer';
 export { LeaderboardCacheService } from './leaderboard/leaderboardCache';
 export { SeasonService } from './season/season';
 export { GetSeasonPointMultiplierService } from './season-point-multiplier/getSeasonPointMultiplier';
@@ -13,7 +12,6 @@ export { AddSeasonPointsToUserService } from './season-points/addSeasonPointsToU
 export { CalculateSeasonPointsService } from './season-points/calculateSeasonPoints';
 export { SnapshotLive, SnapshotService } from './snapshot/snapshot';
 export * from './transaction-stream';
-export * from './trpc';
 export * from './trpc';
 export * from './trpc/appRouter';
 export * from './trpc/createDependencyLayer';

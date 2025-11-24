@@ -11,9 +11,10 @@ export const handleExit = (exit: Exit.Exit<any, any>) => {
         throw enhancedError;
       }
 
-      const enhancedError = new Error('unhandled error');
+      const enhancedError = new Error(cause._tag ?? 'unhandled error');
       enhancedError.cause = cause._tag;
       enhancedError.stack = Cause.pretty(cause);
+      console.error(cause);
       throw enhancedError;
     },
   });
