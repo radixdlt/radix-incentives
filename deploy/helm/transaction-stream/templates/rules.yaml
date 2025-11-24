@@ -12,8 +12,8 @@ spec:
   - name: IncentivesTransactionStream
     rules:
     - alert: CriticalFailedJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 100
-      for: 5m
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 4
+      for: 1m
       labels:
         severity: critical
         tier: application
@@ -29,8 +29,8 @@ spec:
         runbook_url: "https://runbooks.extratools.works"
 
     - alert: HighFailedJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 50
-      for: 5m
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 2
+      for: 1m
       labels:
         severity: warning
         tier: application
