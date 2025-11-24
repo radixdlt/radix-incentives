@@ -1,38 +1,26 @@
 import {
-  dependencyLayer,
   type SeasonPointsMultiplierJob,
+  SeasonPointsMultiplierWorkerService,
 } from 'api/incentives';
+import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import type { Job } from 'bullmq';
-import { Exit } from 'effect';
+import { Effect } from 'effect';
+import { handleExit } from '../../helpers/handleExit';
 
 export const seasonPointsMultiplierWorker = async (
   input: Job<SeasonPointsMultiplierJob>,
 ) => {
-  const result = await dependencyLayer.calculateSPMultiplier({
-    weekId: input.data.weekId,
-    userIds: input.data.userIds,
-  });
+  const exit = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const calculateSPMultiplierWorkerService =
+        yield* SeasonPointsMultiplierWorkerService;
 
-  if (Exit.isFailure(result)) {
-    if (result.cause._tag === 'Fail') {
-      const enhancedError = new Error(result.cause.error._tag);
-      console.error(result.cause.error);
-      if ('stack' in result.cause.error)
-        enhancedError.stack = `${result.cause.error.stack}`;
+      return yield* calculateSPMultiplierWorkerService({
+        weekId: input.data.weekId,
+        userIds: input.data.userIds,
+      }).pipe(Effect.annotateLogs('jobId', input.id));
+    }),
+  );
 
-      enhancedError.cause = result.cause.error._tag;
-      throw enhancedError;
-    }
-
-    if (result.cause._tag === 'Die') {
-      // @ts-ignore
-      const enhancedError = new Error(result.cause.defect.message);
-      // @ts-ignore
-      enhancedError.stack = result.cause.defect.stack as string;
-      enhancedError.cause = 'unhandled error';
-      throw enhancedError;
-    }
-
-    throw new Error(JSON.stringify(result.cause, null, 2));
-  }
+  return handleExit(exit);
 };

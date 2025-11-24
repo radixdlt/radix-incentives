@@ -1,25 +1,27 @@
-import { dependencyLayer } from 'api/incentives';
+import { EventWorkerService } from 'api/incentives/events/eventWorker';
+import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import type { Job } from 'bullmq';
-import { Exit } from 'effect';
+import { Effect } from 'effect';
+import { handleExit } from '../../helpers/handleExit';
 import { SnapshotPriority } from '../snapshot/constants';
 import { snapshotQueue } from '../snapshot/queue';
 import type { EventQueueJob } from './schemas';
 
-export const eventQueueWorker = async (job: Job<EventQueueJob>) => {
-  const result = await dependencyLayer.eventWorkerHandler({
-    items: job.data,
-    addToSnapshotQueue: async (input) => {
-      await snapshotQueue.queue.add('eventSnapshot', input, {
-        priority: SnapshotPriority.Event,
-      });
-    },
-  });
+export const eventQueueWorker = async (input: Job<EventQueueJob>) => {
+  const exit = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const eventWorkerService = yield* EventWorkerService;
 
-  if (Exit.isFailure(result)) {
-    console.error(
-      'error in eventQueueWorker',
-      JSON.stringify(result.cause, null, 2),
-    );
-    throw result.cause;
-  }
+      return yield* eventWorkerService({
+        items: input.data,
+        addToSnapshotQueue: async (input) => {
+          await snapshotQueue.queue.add('eventSnapshot', input, {
+            priority: SnapshotPriority.Event,
+          });
+        },
+      });
+    }).pipe(Effect.annotateLogs('jobId', input.id)),
+  );
+
+  return handleExit(exit);
 };
