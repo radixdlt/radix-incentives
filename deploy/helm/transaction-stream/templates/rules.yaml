@@ -1,6 +1,6 @@
 {{- $ns := .Release.Namespace -}}
 {{- $metrics := .Values.metrics -}}
-{{- $queues := list "scheduledSnapshot" "calculateActivityPoints" "populateLeaderboardCache" -}}
+{{- $queues := list "scheduledSnapshot" "calculateActivityPoints" "populateLeaderboardCache" "snapshot" -}}
 
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
