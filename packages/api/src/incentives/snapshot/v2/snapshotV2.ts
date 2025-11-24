@@ -68,7 +68,7 @@ export class SnapshotV2 extends Effect.Service<SnapshotV2>()('SnapshotV2', {
       if (SKIP_STATE_VERSION_CHECK) return;
 
       const latestProcessedStateVersion =
-        yield* configService.getStateVersion();
+        yield* configService.getStateVersion(false);
 
       if (!latestProcessedStateVersion) {
         return yield* new SnapshotError({
