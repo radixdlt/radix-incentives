@@ -10,7 +10,8 @@
     "snapshot": "tsx --watch src/snapshot.ts",
     "snapshot:inspect": "tsx --inspect-brk src/snapshot.ts",
     "nft-balance": "tsx --watch src/getNonFungibleBalance.ts",
-    "nft-balance:inspect": "tsx --inspect-brk src/getNonFungibleBalance.ts"
+    "nft-balance:inspect": "tsx --inspect-brk src/getNonFungibleBalance.ts",
+    "generate:fixtures": "tsx src/generateFixtures.ts"
   },
   "devDependencies": {
     "@types/inquirer": "catalog:",

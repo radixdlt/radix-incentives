@@ -7,7 +7,7 @@ import {
 import { FetchService } from '../../common/helpers';
 
 export type GetUsdValueInput = {
-  amount: BigNumber;
+  amount: BigNumber | string;
   resourceAddress: string;
   timestamp: Date;
 };

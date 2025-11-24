@@ -63,17 +63,19 @@ const DataSchema = Schema.transformOrFail(
   },
 );
 
+export const QuantaSwapMetadataSchema = Schema.Struct({
+  token_x: MetadataSchema.ResourceAddress,
+  token_y: MetadataSchema.ResourceAddress,
+  liquidity_receipt: MetadataSchema.ResourceAddress,
+});
+
 const fromComponentEntityDetails = (
   input: ComponentEntityDetailsOutput[number],
 ) =>
   Effect.gen(function* () {
-    const metadata = yield* Schema.decodeUnknown(
-      Schema.Struct({
-        token_x: MetadataSchema.ResourceAddress,
-        token_y: MetadataSchema.ResourceAddress,
-        liquidity_receipt: MetadataSchema.ResourceAddress,
-      }),
-    )(input.metadata);
+    const metadata = yield* Schema.decodeUnknown(QuantaSwapMetadataSchema)(
+      input.metadata,
+    );
 
     const data = yield* Schema.decode(DataSchema)(metadata);
 

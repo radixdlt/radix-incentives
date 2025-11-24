@@ -53,6 +53,9 @@
     },
     "component": {
       "cache": false
+    },
+    "generate:fixtures": {
+      "cache": false
     }
   }
 }
