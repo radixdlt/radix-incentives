@@ -1,5 +1,6 @@
 {{- $ns := .Release.Namespace -}}
 {{- $metrics := .Values.metrics -}}
+{{- $queues := list "scheduledSnapshot" "calculateActivityPoints" "populateLeaderboardCache" -}}
 
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
@@ -11,8 +12,9 @@ spec:
   groups:
   - name: IncentivesTransactionStream
     rules:
-    - alert: CriticalFailedJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 4
+{{- range $queues }}
+    - alert: CriticalFailedJobs_{{ . }}
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed", queue="{{ . }}"}[5m])) > 4
       for: 1m
       labels:
         severity: critical
@@ -24,12 +26,12 @@ spec:
         env: {{ $metrics.alert_labels.env }}
       annotations:
         summary: "Critical number of failed jobs"
-        description: "There are  more than 100 failed jobs in the last 5 minutes."
+        description: "There are  more than 4 failed jobs in the last 5 minutes."
         dashboard: {{ $metrics.dashboard_url }}
         runbook_url: "https://runbooks.extratools.works"
 
-    - alert: HighFailedJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed"}[5m])) > 2
+    - alert: HighFailedJobs_{{ . }}
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="failed", queue="{{ . }}"}[5m])) > 2
       for: 1m
       labels:
         severity: warning
@@ -41,13 +43,13 @@ spec:
         env: {{ $metrics.alert_labels.env }}
       annotations:
         summary: "High number of failed jobs"
-        description: "There are more than 50 failed jobs in the last 5 minutes."
+        description: "There are more than 2 failed jobs in the last 5 minutes."
         dashboard: {{ $metrics.dashboard_url }}
         runbook_url: "https://runbooks.extratools.works"
 
-    - alert: HighWaitingJobs
-      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="waiting"}[5m])) > 20
-      for: 5m
+    - alert: HighWaitingJobs_{{ . }}
+      expr: sum(increase(bullmq_job_count{namespace="{{ $ns }}", state="waiting", queue="{{ . }}"}[5m])) > 20
+      for: 1m
       labels:
         tier: application
         application: incentives
@@ -61,6 +63,7 @@ spec:
         description: "There are more than 20 waiting jobs in the last 5 minutes."
         dashboard: {{ $metrics.dashboard_url }}
         runbook_url: "https://runbooks.extratools.works"
+{{- end }}
 
   - name: IncentivesDependentServices
     rules:
