@@ -77,8 +77,10 @@ export class ConfigService extends Effect.Service<ConfigService>()(
 
       return {
         setStartStateVersion,
-        getStateVersion: Effect.fn(function* () {
-          return yield* getConfig<number>('stateVersion');
+        getStateVersion: Effect.fn(function* (useCache = true) {
+          if (useCache) return yield* getConfig<number>('stateVersion');
+
+          return yield* getConfigFromDb<number>('stateVersion');
         }),
         setStateVersion: Effect.fn(function* (stateVersion: number) {
           yield* setConfig('stateVersion', stateVersion);
