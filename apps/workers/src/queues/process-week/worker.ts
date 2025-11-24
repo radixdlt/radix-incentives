@@ -1,8 +1,9 @@
-import { dependencyLayer } from 'api/incentives';
+import { SeasonService } from 'api/incentives';
+import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import type { Job } from 'bullmq';
 import { FlowProducer } from 'bullmq';
-import { Exit } from 'effect';
-import { handleExitError } from '../../helpers/handleExitError';
+import { Effect, Exit } from 'effect';
+import { handleExit } from '../../helpers/handleExit';
 import { redisClient } from '../../redis';
 import { QueueName } from '../types';
 import type { ProcessWeekJob } from './schemas';
@@ -13,13 +14,18 @@ export const processWeekWorker = async (job: Job<ProcessWeekJob>) => {
   const weekId = job.data.weekId;
   const force = job.data.force ?? false;
 
-  const seasonResult = await dependencyLayer.getSeasonByWeekId(weekId);
+  const exit = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      return yield* seasonService.getByWeekId(weekId);
+    }),
+  );
 
-  if (Exit.isFailure(seasonResult)) {
-    return handleExitError(seasonResult);
+  if (Exit.isFailure(exit)) {
+    return handleExit(exit);
   }
 
-  const seasonId = seasonResult.value.id;
+  const seasonId = exit.value.id;
 
   job.log(`starting scheduled calculations for weekId: ${weekId}`);
 

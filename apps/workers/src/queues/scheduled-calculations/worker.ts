@@ -1,8 +1,9 @@
-import { dependencyLayer } from 'api/incentives';
+import { SeasonService, WeekService } from 'api/incentives';
+import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import type { FlowJob, Job } from 'bullmq';
 import { FlowProducer } from 'bullmq';
-import { Exit } from 'effect';
-import { handleExitError } from '../../helpers/handleExitError';
+import { Effect, Exit, Option } from 'effect';
+import { handleExit } from '../../helpers/handleExit';
 import { redisClient } from '../../redis';
 import { processWeekQueue } from '../process-week/queue';
 import { QueueName } from '../types';
@@ -13,24 +14,36 @@ const flowProducer = new FlowProducer({ connection: redisClient });
 export const scheduledCalculationsWorker = async (
   job: Job<ScheduledCalculationsJob>,
 ) => {
-  let weekId = job.data.weekId;
+  const weekIdResult = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const weekService = yield* WeekService;
+      return yield* Option.fromNullable(job.data.weekId).pipe(
+        Option.match({
+          onSome: (weekId) => Effect.succeed(weekId),
+          onNone: () =>
+            weekService
+              .getByDate(new Date(job.timestamp))
+              .pipe(Effect.map((week) => week.id)),
+        }),
+      );
+    }),
+  );
 
-  if (!weekId) {
-    const timestamp = new Date(job.timestamp);
-    job.log(`no weekId provided, getting week by date ${timestamp}`);
-    // If no weekId is provided, get the current week by date
-    const weekResult = await dependencyLayer.getWeekByDate(timestamp);
-
-    if (Exit.isFailure(weekResult)) {
-      return handleExitError(weekResult);
-    }
-    weekId = weekResult.value.id;
+  if (Exit.isFailure(weekIdResult)) {
+    return handleExit(weekIdResult);
   }
 
-  const unprocessedWeeksResult = await dependencyLayer.getUnprocessedWeeks();
+  const weekId = weekIdResult.value;
+
+  const unprocessedWeeksResult = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const weekService = yield* WeekService;
+      return yield* weekService.getUnprocessedWeeks();
+    }),
+  );
 
   if (Exit.isFailure(unprocessedWeeksResult)) {
-    return handleExitError(unprocessedWeeksResult);
+    return handleExit(unprocessedWeeksResult);
   }
 
   // Get all weeks that are not processed and have snapshots ran successfully for all accounts
@@ -47,10 +60,15 @@ export const scheduledCalculationsWorker = async (
     }
   }
 
-  const seasonResult = await dependencyLayer.getSeasonByWeekId(weekId);
+  const seasonResult = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const seasonService = yield* SeasonService;
+      return yield* seasonService.getByWeekId(weekId);
+    }),
+  );
 
   if (Exit.isFailure(seasonResult)) {
-    return handleExitError(seasonResult);
+    return handleExit(seasonResult);
   }
 
   const seasonId = seasonResult.value.id;

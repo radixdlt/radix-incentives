@@ -1,6 +1,8 @@
-import { dependencyLayer } from 'api/incentives';
+import { LeaderboardCacheService } from 'api/incentives';
+import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import type { Job } from 'bullmq';
-import { Exit } from 'effect';
+import { Effect } from 'effect';
+import { handleExit } from '../../helpers/handleExit';
 import {
   type PopulateLeaderboardCacheInput,
   populateLeaderboardCacheSchema,
@@ -11,58 +13,13 @@ export const populateLeaderboardCacheWorker = async (
 ) => {
   const parsedInput = populateLeaderboardCacheSchema.parse(input.data);
 
-  const result = await dependencyLayer.populateLeaderboardCache(parsedInput);
+  const exit = await workerRuntime.runPromiseExit(
+    Effect.gen(function* () {
+      const populateLeaderboardCacheService = yield* LeaderboardCacheService;
 
-  if (Exit.isFailure(result)) {
-    if (result.cause._tag === 'Fail') {
-      const error = result.cause.error;
-      const enhancedError = new Error(
-        typeof error === 'object' && error !== null && '_tag' in error
-          ? (error._tag as string)
-          : 'Unknown error',
-      );
-      console.error(error);
+      return yield* populateLeaderboardCacheService.populateAll(parsedInput);
+    }).pipe(Effect.annotateLogs('jobId', input.id)),
+  );
 
-      if (
-        typeof error === 'object' &&
-        error !== null &&
-        'stack' in error &&
-        typeof error.stack === 'string'
-      ) {
-        enhancedError.stack = error.stack;
-      }
-
-      enhancedError.cause =
-        typeof error === 'object' && error !== null && '_tag' in error
-          ? (error._tag as string)
-          : 'unknown';
-      throw enhancedError;
-    }
-
-    if (result.cause._tag === 'Die') {
-      const defect = result.cause.defect;
-      const enhancedError = new Error(
-        typeof defect === 'object' &&
-          defect !== null &&
-          'message' in defect &&
-          typeof defect.message === 'string'
-          ? defect.message
-          : 'Unhandled error',
-      );
-
-      if (
-        typeof defect === 'object' &&
-        defect !== null &&
-        'stack' in defect &&
-        typeof defect.stack === 'string'
-      ) {
-        enhancedError.stack = defect.stack;
-      }
-
-      enhancedError.cause = 'unhandled error';
-      throw enhancedError;
-    }
-
-    throw new Error(JSON.stringify(result.cause, null, 2));
-  }
+  return handleExit(exit);
 };
