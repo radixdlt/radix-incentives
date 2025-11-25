@@ -5,6 +5,7 @@ import { LeaderboardCacheService } from '../../leaderboard/leaderboardCache';
 import { SeasonService } from '../../season/season';
 import { SeasonPointsMultiplierWorkerService } from '../../season-point-multiplier/seasonPointsMultiplierWorker';
 import { CalculateSeasonPointsService } from '../../season-points/calculateSeasonPoints';
+import { CleanupOrphanedUsersService } from '../../user/cleanupOrphanedUsers';
 import { WeekService } from '../../week/week';
 import { SnapshotV2Worker } from './snapshotV2Worker';
 
@@ -28,5 +29,6 @@ export const workerRuntime = ManagedRuntime.make(
     LeaderboardCacheService.Default,
     SeasonService.Default,
     WeekService.Default,
+    CleanupOrphanedUsersService.Default,
   ),
 );

@@ -14,6 +14,7 @@ import { calculateActivityPointsJobSchema } from '../queues/calculate-activity-p
 import { calculateSeasonPointsQueue } from '../queues/calculate-season-points/queue';
 import { calculateSeasonPointsJobSchema } from '../queues/calculate-season-points/schemas';
 import { seasonPointsMultiplierQueue } from '../queues/calculate-season-points-multiplier/queue';
+import { cleanupOrphanedUsersQueue } from '../queues/cleanup-orphaned-users/queue';
 
 import { eventQueue } from '../queues/event/queue';
 import { eventQueueJobSchema } from '../queues/event/schemas';
@@ -50,6 +51,8 @@ metricsApp.get('/metrics', async (c) => {
     await populateLeaderboardCacheQueue.queue.exportPrometheusMetrics();
   const processWeekQueueMetrics =
     await processWeekQueue.queue.exportPrometheusMetrics();
+  const cleanupOrphanedUsersQueueMetrics =
+    await cleanupOrphanedUsersQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -60,6 +63,7 @@ metricsApp.get('/metrics', async (c) => {
       scheduledCalculationsQueueMetrics,
       populateLeaderboardCacheQueueMetrics,
       processWeekQueueMetrics,
+      cleanupOrphanedUsersQueueMetrics,
     ].join('\n'),
   );
 });
@@ -163,6 +167,11 @@ app.post('/queues/populate-leaderboard-cache/add', async (c) => {
   return c.text('ok');
 });
 
+app.post('/queues/cleanup-orphaned-users/add', async (c) => {
+  await cleanupOrphanedUsersQueue.queue.add('cleanupOrphanedUsers', {});
+  return c.text('ok');
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
@@ -185,6 +194,7 @@ createBullBoard({
     new BullMQAdapter(scheduledCalculationsQueue.queue),
     new BullMQAdapter(populateLeaderboardCacheQueue.queue),
     new BullMQAdapter(processWeekQueue.queue),
+    new BullMQAdapter(cleanupOrphanedUsersQueue.queue),
   ],
   serverAdapter,
 });

@@ -9,6 +9,7 @@ export const QueueName = {
   scheduledCalculations: 'scheduledCalculations',
   populateLeaderboardCache: 'populateLeaderboardCache',
   processWeek: 'processWeek',
+  cleanupOrphanedUsers: 'cleanupOrphanedUsers',
 } as const;
 
 export type QueueName = (typeof QueueName)[keyof typeof QueueName];
