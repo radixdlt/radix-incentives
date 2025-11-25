@@ -1,6 +1,6 @@
 import { accounts, users } from 'db/incentives';
 import { and, eq, inArray, lt, notExists } from 'drizzle-orm';
-import { Effect } from 'effect';
+import { DateTime, Effect } from 'effect';
 import { DbService } from '../db/dbClient';
 
 /**
@@ -15,8 +15,11 @@ export class CleanupOrphanedUsersService extends Effect.Service<CleanupOrphanedU
 
       return Effect.fn(function* () {
         // Find users older than 7 days without any linked accounts
-        const oneWeekAgo = new Date();
-        oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
+        const oneWeekAgo = DateTime.unsafeNow().pipe(
+          DateTime.startOf('day'),
+          DateTime.subtractDuration('1 week'),
+          DateTime.toDate,
+        );
 
         const orphanedUsers = yield* db.use((db) =>
           db
@@ -36,7 +39,7 @@ export class CleanupOrphanedUsersService extends Effect.Service<CleanupOrphanedU
         );
 
         if (orphanedUsers.length === 0) {
-          console.log('No orphaned users found to clean up');
+          yield* Effect.log('No orphaned users found to clean up');
           return { deletedCount: 0, users: [] };
         }
 
@@ -47,7 +50,7 @@ export class CleanupOrphanedUsersService extends Effect.Service<CleanupOrphanedU
           db.delete(users).where(inArray(users.id, deletedUserIds)),
         );
 
-        console.log(
+        yield* Effect.log(
           `Cleaned up ${orphanedUsers.length} orphaned users older than 7 days without linked accounts`,
         );
 
