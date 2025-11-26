@@ -76,7 +76,7 @@ export class FilterTransactionsService extends Effect.Service<FilterTransactions
           );
           if (!transactionIdSet) continue;
 
-          const transaction = transactions.find((transaction) =>
+          const accountTransactions = transactions.filter((transaction) =>
             transactionIdSet.has(transaction.transactionId),
           );
 
@@ -92,16 +92,20 @@ export class FilterTransactionsService extends Effect.Service<FilterTransactions
             }))
             .filter((feePayer) => feePayer.fee.gt(0));
 
-          const highestFeePayer = registeredFeePayers[0]
-            ? registeredFeePayers?.reduce(
-                (max, current) => (current.fee.gt(max.fee) ? current : max),
-                registeredFeePayers[0],
-              )?.accountAddress
-            : undefined;
-
           allRegisteredFeePayers.push(...registeredFeePayers);
 
-          if (transaction) {
+          // Add all transactions for this account, each with their own highestFeePayer
+          for (const transaction of accountTransactions) {
+            const transactionFeePayers = registeredFeePayers.filter(
+              (fp) => fp.txId === transaction.transactionId,
+            );
+            const highestFeePayer = transactionFeePayers[0]
+              ? transactionFeePayers.reduce(
+                  (max, current) => (current.fee.gt(max.fee) ? current : max),
+                  transactionFeePayers[0],
+                )?.accountAddress
+              : undefined;
+
             filteredTransactions.push({ ...transaction, highestFeePayer });
           }
         }
