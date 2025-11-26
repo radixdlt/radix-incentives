@@ -21,7 +21,7 @@ if (process.env.DISABLE_SCHEDULED_SNAPSHOT === 'true') {
   }
 } else {
   scheduledSnapshotQueue.queue.upsertJobScheduler('every_hour', {
-    pattern: '0 * * * *',
+    pattern: process.env.SCHEDULED_SNAPSHOT_PATTERN || '30 * * * *',
   });
   console.log('Enabled scheduled snapshots');
 }
