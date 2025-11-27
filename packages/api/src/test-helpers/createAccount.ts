@@ -2,9 +2,16 @@ import { ed25519 } from '@noble/curves/ed25519';
 import { PrivateKey, RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 import { Effect } from 'effect';
 
-export const createAccount = (input?: Uint8Array) =>
+export const createAccount = (
+  input?: Partial<{
+    privateKey: Uint8Array;
+    networkId: number;
+  }>,
+) =>
   Effect.gen(function* () {
-    const privateKey = input ? input : ed25519.utils.randomPrivateKey();
+    const privateKey = input?.privateKey
+      ? input.privateKey
+      : ed25519.utils.randomPrivateKey();
 
     const publicKey = ed25519.getPublicKey(privateKey);
     const publicKeyHex = Buffer.from(publicKey).toString('hex');
@@ -14,7 +21,7 @@ export const createAccount = (input?: Uint8Array) =>
     const address = yield* Effect.tryPromise(() =>
       RadixEngineToolkit.Derive.virtualAccountAddressFromPublicKey(
         keypair.publicKey(),
-        1,
+        input?.networkId ?? 1,
       ),
     );
 
