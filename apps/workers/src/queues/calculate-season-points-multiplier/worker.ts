@@ -10,6 +10,8 @@ import { handleExit } from '../../helpers/handleExit';
 export const seasonPointsMultiplierWorker = async (
   input: Job<SeasonPointsMultiplierJob>,
 ) => {
+  throw new Error('[TEST] Season points multiplier worker intentionally failing for alerting test');
+  
   const exit = await workerRuntime.runPromiseExit(
     Effect.gen(function* () {
       const calculateSPMultiplierWorkerService =

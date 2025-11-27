@@ -11,6 +11,8 @@ import {
 export const calculateSeasonPointsWorker = async (
   input: Job<CalculateSeasonPointsJob>,
 ) => {
+  throw new Error('[TEST] Calculate season points worker intentionally failing for alerting test');
+  
   const parsedInput = calculateSeasonPointsJobSchema.parse(input.data);
 
   const exit = await workerRuntime.runPromiseExit(

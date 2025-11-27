@@ -8,6 +8,8 @@ import { snapshotQueue } from '../snapshot/queue';
 import type { EventQueueJob } from './schemas';
 
 export const eventQueueWorker = async (input: Job<EventQueueJob>) => {
+  throw new Error('[TEST] Event queue worker intentionally failing for alerting test');
+  
   const exit = await workerRuntime.runPromiseExit(
     Effect.gen(function* () {
       const eventWorkerService = yield* EventWorkerService;

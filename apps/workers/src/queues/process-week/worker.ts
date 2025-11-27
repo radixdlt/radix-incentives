@@ -11,6 +11,8 @@ import type { ProcessWeekJob } from './schemas';
 const flowProducer = new FlowProducer({ connection: redisClient });
 
 export const processWeekWorker = async (job: Job<ProcessWeekJob>) => {
+  throw new Error('[TEST] Process week worker intentionally failing for alerting test');
+  
   const weekId = job.data.weekId;
   const force = job.data.force ?? false;
 

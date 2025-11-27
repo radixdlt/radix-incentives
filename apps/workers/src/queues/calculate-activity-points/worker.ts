@@ -10,6 +10,8 @@ import { handleExit } from '../../helpers/handleExit';
 export const calculateActivityPointsWorker = async (
   input: Job<CalculateActivityPointsJob>,
 ) => {
+  throw new Error('[TEST] Calculate activity points worker intentionally failing for alerting test');
+  
   const exit = await workerRuntime.runPromiseExit(
     Effect.gen(function* () {
       const calculateActivityPointsWorkerService =

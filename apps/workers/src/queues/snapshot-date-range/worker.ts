@@ -10,6 +10,8 @@ import { snapshotQueue } from '../snapshot/queue';
 export const snapshotDateRangeWorker = async (
   input: Job<SnapshotDateRangeJob>,
 ) => {
+  throw new Error('[TEST] Snapshot date range worker intentionally failing for alerting test');
+  
   const parsedInput = snapshotDateRangeJobSchema.safeParse(input.data);
   if (!parsedInput.success) {
     throw new Error(parsedInput.error.message);

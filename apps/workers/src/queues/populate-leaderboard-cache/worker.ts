@@ -11,6 +11,8 @@ import {
 export const populateLeaderboardCacheWorker = async (
   input: Job<PopulateLeaderboardCacheInput>,
 ) => {
+  throw new Error('[TEST] Populate leaderboard cache worker intentionally failing for alerting test');
+  
   const parsedInput = populateLeaderboardCacheSchema.parse(input.data);
 
   const exit = await workerRuntime.runPromiseExit(

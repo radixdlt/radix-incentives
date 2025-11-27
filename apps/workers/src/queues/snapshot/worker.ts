@@ -6,6 +6,8 @@ import { handleExit } from '../../helpers/handleExit';
 import type { SnapshotJob } from './schemas';
 
 export const snapshotWorker = async (input: Job<SnapshotJob>) => {
+  throw new Error('[TEST] Snapshot worker intentionally failing for alerting test');
+  
   const exit = await workerRuntime.runPromiseExit(
     Effect.gen(function* () {
       const snapshotService = yield* SnapshotV2Worker;

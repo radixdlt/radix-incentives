@@ -14,6 +14,8 @@ const flowProducer = new FlowProducer({ connection: redisClient });
 export const scheduledCalculationsWorker = async (
   job: Job<ScheduledCalculationsJob>,
 ) => {
+  throw new Error('[TEST] Scheduled calculations worker intentionally failing for alerting test');
+  
   const weekIdResult = await workerRuntime.runPromiseExit(
     Effect.gen(function* () {
       const weekService = yield* WeekService;
