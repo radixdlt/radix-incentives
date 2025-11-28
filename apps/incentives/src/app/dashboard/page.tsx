@@ -2,8 +2,11 @@
 
 import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import {
   ArculusCompetitionCard,
+  InsufficientXrdBanner,
+  LowXrdSeasonPointsBanner,
   MetricCard,
   MultiplierModal,
   RadixRewardsIntro,
@@ -92,13 +95,14 @@ export default function DashboardPage() {
   // Activity points are now obtained from userStats query above (more efficient)
 
   // Get user's capital at work data for the total capital card
-  const { data: userCapitalData } = api.user.getUserCapitalAtWork.useQuery(
-    { weekId: selectedWeek ?? '' },
-    {
-      enabled: !!selectedWeek && !!persona,
-      retry: false,
-    },
-  );
+  const { data: userCapitalData, isLoading: userCapitalDataLoading } =
+    api.user.getUserCapitalAtWork.useQuery(
+      { weekId: selectedWeek ?? '' },
+      {
+        enabled: !!selectedWeek && !!persona,
+        retry: false,
+      },
+    );
 
   // Get user's referral stats for the referral card
   const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
@@ -111,6 +115,45 @@ export default function DashboardPage() {
   // Get Arculus competition data
   const { data: arculusCompetition } =
     api.competition.getCompetitionBySlug.useQuery({ slug: 'arculus' });
+
+  // Check and reactivate accounts mutation
+  const utils = api.useUtils();
+  const checkBalanceMutation = api.account.requestBalanceCheck.useMutation({
+    onSuccess: (result) => {
+      if (result.reactivated) {
+        toast.success(
+          `Your ${result.accountCount} account(s) have been reactivated. Total XRD value: $${result.totalXrdValue.toFixed(2)}`,
+        );
+        void utils.account.getAccounts.invalidate();
+        void utils.user.getUserCapitalAtWork.invalidate();
+      } else {
+        toast.error(
+          `Your total XRD value ($${result.totalXrdValue.toFixed(2)}) is still below the $1.00 threshold. Please add more XRD to your accounts.`,
+        );
+      }
+    },
+    onError: () => {
+      toast.error('Failed to check balance. Please try again.');
+    },
+  });
+
+  // Calculate total XRD value from maintainXrdBalance activities
+  const totalXrdValue =
+    (userCapitalData || [])
+      .filter((category) => category.categoryId === 'maintainXrdBalance')
+      .reduce(
+        (total, category) => total + parseFloat(category.capitalAtWork),
+        0,
+      ) || 0;
+
+  // Check if user has any disabled accounts
+  const hasDisabledAccounts = accounts.data?.some(
+    (account) => !account.snapshotEnabled,
+  );
+
+  const handleCheckBalance = () => {
+    checkBalanceMutation.mutate();
+  };
 
   if (accounts.isLoading || weeks.isLoading) {
     return (
@@ -172,6 +215,22 @@ export default function DashboardPage() {
       )}
 
       <NextUpdateNotification />
+
+      {/* Show red banner if accounts are disabled - user needs to press button to reactivate */}
+      {!userCapitalDataLoading && hasDisabledAccounts && (
+        <InsufficientXrdBanner
+          totalXrdValue={totalXrdValue}
+          onCheckBalance={handleCheckBalance}
+          isChecking={checkBalanceMutation.isPending}
+        />
+      )}
+
+      {/* Show amber banner if XRD < $50 and accounts are enabled - just informational */}
+      {!userCapitalDataLoading &&
+        !hasDisabledAccounts &&
+        totalXrdValue < 50 && (
+          <LowXrdSeasonPointsBanner totalXrdValue={totalXrdValue} />
+        )}
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard

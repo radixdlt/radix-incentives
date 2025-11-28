@@ -15,6 +15,7 @@ import {
   AccountBalanceState,
   FungibleTokenBalanceState,
   NonFungibleTokenBalanceState,
+  ValidatorsState,
 } from './accountBalanceState';
 import { CaviarNinePosition } from './positions/caviarnine/caviarnine';
 import { DefiPlazaPosition } from './positions/defiplaza/defiplaza';
@@ -174,6 +175,7 @@ export class GetAccountBalancesAtStateVersionV2 extends Effect.Service<GetAccoun
               ],
             }),
           ),
+          Effect.provideService(ValidatorsState, validatorStateRef),
         );
       });
     }),

@@ -1,4 +1,6 @@
 import { Config, Effect, Layer, Logger, ManagedRuntime } from 'effect';
+import { CheckAndReactivateAccountsService } from '../../account/checkAndReactivateAccounts';
+import { DeactivateInactiveAccountsService } from '../../account/deactivateInactiveAccounts';
 import { CalculateActivityPointsWorkerService } from '../../activity-points/calculateActivityPointsWorker';
 import { EventWorkerService } from '../../events/eventWorker';
 import { LeaderboardCacheService } from '../../leaderboard/leaderboardCache';
@@ -30,5 +32,7 @@ export const workerRuntime = ManagedRuntime.make(
     SeasonService.Default,
     WeekService.Default,
     CleanupOrphanedUsersService.Default,
+    DeactivateInactiveAccountsService.Default,
+    CheckAndReactivateAccountsService.Default,
   ),
 );

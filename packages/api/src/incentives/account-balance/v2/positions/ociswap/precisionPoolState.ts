@@ -90,7 +90,10 @@ export class PrecisionPoolState extends Effect.Service<PrecisionPoolState>()(
         timeToLive: cacheTimeToLive,
         lookup: (key: `${ComponentAddress}:${StateVersion}`) =>
           Effect.gen(function* () {
-            const [componentAddress, stateVersion] = key.split(':');
+            const [componentAddress, stateVersion] = key.split(':') as [
+              string,
+              string,
+            ];
             return yield* getComponentState({
               componentAddress: ComponentAddress(componentAddress),
               stateVersion: StateVersion(Number(stateVersion)),

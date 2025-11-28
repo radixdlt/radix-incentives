@@ -1,6 +1,7 @@
 import { Data, Effect } from 'effect';
 import { z } from 'zod';
 import { CheckAccountPersistenceService } from '../../common/gateway/checkAccountPersistence';
+import { CheckAndReactivateAccountsService } from '../account/checkAndReactivateAccounts';
 import { GetAccountsByAddressService } from '../account/getAccountsByAddress';
 import { UpsertAccountsService } from '../account/upsertAccounts';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
@@ -41,6 +42,7 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
       UpsertAccountsService.Default,
       GetAccountsByAddressService.Default,
       CheckAccountPersistenceService.Default,
+      CheckAndReactivateAccountsService.Default,
     ],
     effect: Effect.gen(function* () {
       const verifyChallenge = yield* VerifyChallengeService;
@@ -48,6 +50,8 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
       const upsertAccounts = yield* UpsertAccountsService;
       const getAccountsByAddress = yield* GetAccountsByAddressService;
       const checkAccountPersistence = yield* CheckAccountPersistenceService;
+      const checkAndReactivateAccounts =
+        yield* CheckAndReactivateAccountsService;
 
       return Effect.fnUntraced(function* (input: VerifyAccountOwnershipInput) {
         yield* verifyChallenge(input.challenge);
@@ -91,6 +95,9 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
           userId: input.userId,
           accounts: remainingAccounts,
         });
+
+        // Check if user's total XRD balance now meets threshold and reactivate if needed
+        yield* checkAndReactivateAccounts({ userId: input.userId });
 
         return accounts;
       });

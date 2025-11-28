@@ -1,0 +1,1 @@
+ALTER TABLE "account" ADD COLUMN "snapshot_enabled" boolean DEFAULT true NOT NULL;

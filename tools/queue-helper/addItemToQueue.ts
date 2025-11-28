@@ -20,7 +20,7 @@ type QueueType =
   | 'calculate-season-points-multiplier'
   | 'scheduled-calculations'
   | 'populate-leaderboard-cache'
-  | 'cleanup-orphaned-users';
+  | 'maintenance';
 
 type PromptAnswer = string | number | boolean;
 
@@ -596,10 +596,11 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       },
     ],
   },
-  'cleanup-orphaned-users': {
-    name: 'Cleanup Orphaned Users Queue',
-    endpoint: '/queues/cleanup-orphaned-users/add',
-    description: 'Delete users older than 7 days without any linked accounts.',
+  maintenance: {
+    name: 'Maintenance Queue',
+    endpoint: '/queues/maintenance/add',
+    description:
+      'Run maintenance tasks: cleanup orphaned users and deactivate inactive accounts.',
     promptFields: [],
   },
 };
@@ -751,7 +752,7 @@ const buildPayload = (
       return payload;
     }
 
-    case 'cleanup-orphaned-users':
+    case 'maintenance':
       return {}; // No payload needed - job has no parameters
 
     default:

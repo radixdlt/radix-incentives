@@ -103,6 +103,7 @@ export const accounts = createTable('account', {
   })
     .defaultNow()
     .notNull(),
+  snapshotEnabled: boolean('snapshot_enabled').default(true).notNull(),
 });
 
 export const accountsRelations = relations(accounts, ({ one }) => ({

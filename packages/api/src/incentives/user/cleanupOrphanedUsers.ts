@@ -1,6 +1,7 @@
 import { accounts, users } from 'db/incentives';
 import { and, eq, inArray, lt, notExists } from 'drizzle-orm';
-import { DateTime, Effect } from 'effect';
+import { Config, DateTime, Effect } from 'effect';
+import { chunker } from '../../common';
 import { DbService } from '../db/dbClient';
 
 /**
@@ -12,6 +13,10 @@ export class CleanupOrphanedUsersService extends Effect.Service<CleanupOrphanedU
     dependencies: [DbService.Default],
     effect: Effect.gen(function* () {
       const db = yield* DbService;
+
+      const BATCH_SIZE = yield* Config.number('CLEANUP_BATCH_SIZE').pipe(
+        Config.withDefault(1000),
+      );
 
       return Effect.fn(function* () {
         // Find users older than 7 days without any linked accounts
@@ -43,19 +48,34 @@ export class CleanupOrphanedUsersService extends Effect.Service<CleanupOrphanedU
           return { deletedCount: 0, users: [] };
         }
 
-        // Delete orphaned users
-        const deletedUserIds = orphanedUsers.map((u) => u.id);
-
-        yield* db.use((db) =>
-          db.delete(users).where(inArray(users.id, deletedUserIds)),
+        yield* Effect.log(
+          `Found ${orphanedUsers.length} orphaned users to clean up, processing in batches of ${BATCH_SIZE}`,
         );
 
+        // Delete orphaned users in batches
+        const deletedUserIds = orphanedUsers.map((u) => u.id);
+        const userBatches = chunker(deletedUserIds, BATCH_SIZE);
+
+        let totalDeleted = 0;
+
+        for (const [index, batch] of userBatches.entries()) {
+          yield* Effect.log(
+            `Deleting batch ${index + 1}/${userBatches.length} (${batch.length} users)`,
+          );
+
+          yield* db.use((db) =>
+            db.delete(users).where(inArray(users.id, batch)),
+          );
+
+          totalDeleted += batch.length;
+        }
+
         yield* Effect.log(
-          `Cleaned up ${orphanedUsers.length} orphaned users older than 7 days without linked accounts`,
+          `Cleaned up ${totalDeleted} orphaned users older than 7 days without linked accounts`,
         );
 
         return {
-          deletedCount: orphanedUsers.length,
+          deletedCount: totalDeleted,
           users: orphanedUsers.map((u) => ({
             id: u.id,
             identityAddress: u.identityAddress,

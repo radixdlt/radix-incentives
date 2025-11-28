@@ -1,8 +1,10 @@
+import { accounts } from 'db/incentives';
+import { inArray } from 'drizzle-orm';
 import { Array as A, Config, Data, Effect, pipe, Schedule } from 'effect';
 import { z } from 'zod';
 import { chunker } from '../../../common';
 import { GetLedgerStateService } from '../../../common/gateway/getLedgerState';
-import { GetAccountAddressesService } from '../../account/getAccounts';
+import { GetActiveAccountAddressesService } from '../../account/getActiveAccounts';
 import { GetAccountBalancesAtStateVersionService } from '../../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../../account-balance/upsertAccountBalance';
 import {
@@ -12,6 +14,7 @@ import {
 import { GetAccountBalancesAtStateVersionV2 } from '../../account-balance/v2/getAccountBalances';
 import { StateVersion } from '../../account-balance/v2/schemas';
 import { ConfigService } from '../../config/configService';
+import { DbError, DbService } from '../../db/dbClient';
 
 export class SnapshotError extends Data.TaggedError('SnapshotError')<{
   message: string;
@@ -38,20 +41,22 @@ export class SnapshotV2 extends Effect.Service<SnapshotV2>()('SnapshotV2', {
   dependencies: [
     GetLedgerStateService.Default,
     GetAccountBalancesAtStateVersionService.Default,
-    GetAccountAddressesService.Default,
+    GetActiveAccountAddressesService.Default,
     UpsertAccountBalancesService.Default,
     ConfigService.Default,
     AccountBalanceState.Default,
     GetAccountBalancesAtStateVersionV2.Default,
+    DbService.Default,
   ],
   effect: Effect.gen(function* () {
     const getLedgerState = yield* GetLedgerStateService;
-    const getAccountAddresses = yield* GetAccountAddressesService;
+    const getActiveAccountAddresses = yield* GetActiveAccountAddressesService;
     const upsertAccountBalances = yield* UpsertAccountBalancesService;
     const configService = yield* ConfigService;
     const getAccountBalancesAtStateVersionV2 =
       yield* GetAccountBalancesAtStateVersionV2;
     const accountBalanceState = yield* AccountBalanceState;
+    const db = yield* DbService;
 
     const SKIP_STATE_VERSION_CHECK = yield* Config.boolean(
       'SKIP_STATE_VERSION_CHECK',
@@ -116,11 +121,37 @@ export class SnapshotV2 extends Effect.Service<SnapshotV2>()('SnapshotV2', {
           Effect.timeout('60 seconds'),
         );
 
-        const accountAddresses =
-          input.addresses ??
-          (yield* getAccountAddresses({
+        let accountAddresses: string[];
+
+        if (input.addresses) {
+          // Filter provided addresses to only include accounts with snapshots enabled
+          const accountsStatus = yield* db.use((db) =>
+            db
+              .select({
+                address: accounts.address,
+                snapshotEnabled: accounts.snapshotEnabled,
+              })
+              .from(accounts)
+              .where(inArray(accounts.address, input.addresses)),
+          );
+
+          accountAddresses = accountsStatus
+            .filter((a) => a.snapshotEnabled)
+            .map((a) => a.address);
+
+          const disabledCount =
+            input.addresses.length - accountAddresses.length;
+          if (disabledCount > 0) {
+            yield* Effect.log(
+              `Filtered out ${disabledCount} disabled accounts from event-triggered snapshot`,
+            );
+          }
+        } else {
+          // Get only active accounts
+          accountAddresses = yield* getActiveAccountAddresses({
             createdAt: input.timestamp,
-          }));
+          });
+        }
 
         // Split accounts into batches
         const accountBatches = chunker(accountAddresses, batchSize);
