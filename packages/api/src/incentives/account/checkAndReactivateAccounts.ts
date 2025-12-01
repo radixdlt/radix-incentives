@@ -5,6 +5,10 @@ import { DateTime, Effect } from 'effect';
 import { Thresholds } from '../../common/config/constants';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { UpsertAccountBalancesService } from '../account-balance/upsertAccountBalance';
+import {
+  AccountBalanceState,
+  ValidatorsState,
+} from '../account-balance/v2/accountBalanceState';
 import { GetAccountBalancesAtStateVersionV2 } from '../account-balance/v2/getAccountBalances';
 import { DbService } from '../db/dbClient';
 
@@ -29,12 +33,14 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
       GetLedgerStateService.Default,
       GetAccountBalancesAtStateVersionV2.Default,
       UpsertAccountBalancesService.Default,
+      AccountBalanceState.Default,
     ],
     effect: Effect.gen(function* () {
       const db = yield* DbService;
       const getLedgerState = yield* GetLedgerStateService;
       const getAccountBalancesV2 = yield* GetAccountBalancesAtStateVersionV2;
       const upsertAccountBalances = yield* UpsertAccountBalancesService;
+      const accountBalanceState = yield* AccountBalanceState;
 
       // Get all XRD holding activity IDs (maintainXrdBalance category)
       const xrdHoldingActivityIds = new Set(
@@ -105,11 +111,14 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
           stateVersion = ledgerState.state_version;
         }
 
+        const validatorStateRef =
+          yield* accountBalanceState.makeValidatorsState;
+
         // Fetch balances from Gateway without persisting
         const balancesResult = yield* getAccountBalancesV2({
           addresses: accountAddresses,
           stateVersion,
-        });
+        }).pipe(Effect.provideService(ValidatorsState, validatorStateRef));
 
         // Check if we have any balance data
         const balanceEntries = Object.entries(balancesResult);
