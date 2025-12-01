@@ -173,6 +173,11 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
                 gatewayApiClient.transaction.innerClient,
               ),
             ),
+            transactionPreview: wrapMethod(
+              gatewayApiClient.transaction.innerClient.transactionPreview.bind(
+                gatewayApiClient.transaction.innerClient,
+              ),
+            ),
           },
         },
         // Status API methods
