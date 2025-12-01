@@ -6,9 +6,7 @@ import {
 import { Data, Effect, pipe, Schema } from 'effect';
 import { NotaryKeyPair } from './notaryKeyPair';
 import {
-  type Ed25519SignatureWithPublicKey,
   Ed25519SignatureWithPublicKeySchema,
-  type TransactionIntentEncoded,
   TransactionIntentSchema,
 } from './schemas';
 
@@ -56,12 +54,11 @@ export class CompileTransaction extends Effect.Service<CompileTransaction>()(
                 (builder) => builder.header(input.intent.header),
                 (builder) => builder.message(input.intent.message),
                 (builder) => builder.manifest(input.intent.manifest),
-                (builder) => {
-                  for (const signature of input.signatures) {
-                    builder.sign(signature);
-                  }
-                  return builder;
-                },
+                (builder) =>
+                  input.signatures.reduce(
+                    (builder, signature) => builder.sign(signature),
+                    builder,
+                  ),
                 (builder) => builder.notarize(notarySignToSignature),
               ),
             catch: (error) => new FailedToNotarizeTransactionError({ error }),
@@ -74,19 +71,10 @@ export class CompileTransaction extends Effect.Service<CompileTransaction>()(
           catch: (error) => new FailedToCompileTransactionError({ error }),
         });
 
-      return (input: {
-        intent: TransactionIntentEncoded;
-        signatures: Ed25519SignatureWithPublicKey[];
-      }) =>
-        Effect.gen(function* () {
-          const parsedInput = yield* Schema.decodeUnknown(
-            CompileTransactionInputSchema,
-          )(input);
-
-          return yield* notarizeTransaction(parsedInput).pipe(
-            Effect.flatMap(compileNotarizedTransaction),
-          );
-        });
+      return (input: CompileTransactionInput) =>
+        notarizeTransaction(input).pipe(
+          Effect.flatMap(compileNotarizedTransaction),
+        );
     }),
   },
 ) {}

@@ -37,7 +37,7 @@ export class SubmitTransaction extends Effect.Service<SubmitTransaction>()(
         Effect.gen(function* () {
           const notarizedTransactionHex = pipe(
             Convert.Uint8Array.toHexString(input.compiledTransaction),
-            HexString,
+            HexString.make,
           );
 
           return yield* submitTransaction({

@@ -1,13 +1,5 @@
 import { generateRandomNonce } from '@radixdlt/radix-engine-toolkit';
-import {
-  ConfigProvider,
-  Data,
-  Effect,
-  Layer,
-  Option,
-  pipe,
-  Schema,
-} from 'effect';
+import { ConfigProvider, Data, Effect, Layer, Option, pipe } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway';
 import { NotaryKeyPair } from './notaryKeyPair';
 import {
@@ -37,7 +29,7 @@ export class TransactionHeader extends Effect.Service<TransactionHeader>()(
     effect: Effect.gen(function* () {
       const notaryKeyPair = yield* NotaryKeyPair;
 
-      const generateNonce = () => pipe(generateRandomNonce(), Nonce);
+      const generateNonce = () => pipe(generateRandomNonce(), Nonce.make);
 
       return (input: CreateTransactionHeaderInput) =>
         Effect.gen(function* () {
@@ -54,7 +46,7 @@ export class TransactionHeader extends Effect.Service<TransactionHeader>()(
               at_ledger_state: {
                 timestamp: new Date(),
               },
-            }).pipe(Effect.map((ledgerState) => Epoch(ledgerState.epoch)));
+            }).pipe(Effect.map((ledgerState) => Epoch.make(ledgerState.epoch)));
 
           const currentEpoch = yield* getCurrentEpoch();
 
@@ -70,7 +62,7 @@ export class TransactionHeader extends Effect.Service<TransactionHeader>()(
 
           const endEpochExclusive = Option.match(input.endEpochExclusive, {
             onSome: (epoch) => epoch,
-            onNone: () => Epoch(currentEpoch + 10),
+            onNone: () => Epoch.make(currentEpoch + 10),
           });
 
           if (currentEpoch >= endEpochExclusive)
@@ -80,11 +72,11 @@ export class TransactionHeader extends Effect.Service<TransactionHeader>()(
 
           const notaryPublicKey = yield* notaryKeyPair.publicKey();
 
-          return yield* Schema.decodeUnknown(TransactionHeaderSchema)({
+          return TransactionHeaderSchema.make({
             networkId: input.networkId,
             startEpochInclusive,
             endEpochExclusive,
-            notaryPublicKey: notaryPublicKey.hexString(),
+            notaryPublicKey: notaryPublicKey,
             nonce,
             notaryIsSignatory,
             tipPercentage,

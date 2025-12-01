@@ -18,13 +18,13 @@ import { GatewayApiClientService } from '../../common/gateway';
 import {
   Epoch,
   HexString,
+  ManifestSchema,
   NetworkId,
-  StringManifestSchema,
   TransactionId,
   TransactionIntentSchema,
   TransactionManifestString,
-  TransactionMessage,
   TransactionMessageSchema,
+  TransactionMessageString,
 } from './schemas';
 import { StaticallyValidateManifest } from './staticallyValidateManifest';
 import { TransactionHeader } from './transactionHeader';
@@ -42,17 +42,11 @@ class TransactionPreviewError extends Data.TaggedError(
 }> {}
 
 const CreateTransactionIntentInputSchema = Schema.Struct({
-  networkId: Schema.Number.pipe(Schema.fromBrand(NetworkId)),
-  startEpochInclusive: Schema.optional(
-    Schema.Number.pipe(Schema.fromBrand(Epoch)),
-  ),
-  endEpochExclusive: Schema.optional(
-    Schema.Number.pipe(Schema.fromBrand(Epoch)),
-  ),
-  manifest: Schema.String.pipe(Schema.fromBrand(TransactionManifestString)),
-  message: Schema.optional(
-    Schema.String.pipe(Schema.fromBrand(TransactionMessage)),
-  ),
+  networkId: NetworkId,
+  startEpochInclusive: Schema.optional(Epoch),
+  endEpochExclusive: Schema.optional(Epoch),
+  manifest: TransactionManifestString,
+  message: Schema.optional(TransactionMessageString),
   tipPercentage: Schema.optional(Schema.Number),
 });
 
@@ -102,14 +96,14 @@ export class CreateTransactionIntent extends Effect.Service<CreateTransactionInt
       const createIntentHash = (input: Intent) =>
         Effect.tryPromise({
           try: () => RadixEngineToolkit.Intent.hash(input),
-          catch: (error) => {
-            console.error(error);
-            return new FailedToCreateIntentHashError({ error });
-          },
+          catch: (error) => new FailedToCreateIntentHashError({ error }),
         }).pipe(
           Effect.map((hash) => ({
-            id: TransactionId(hash.id),
-            hash: pipe(Convert.Uint8Array.toHexString(hash.hash), HexString),
+            id: TransactionId.make(hash.id),
+            hash: pipe(
+              Convert.Uint8Array.toHexString(hash.hash),
+              HexString.make,
+            ),
           })),
         );
 
@@ -135,7 +129,7 @@ export class CreateTransactionIntent extends Effect.Service<CreateTransactionInt
             parsedInput.message,
           );
 
-          const manifest = yield* Schema.decodeUnknown(StringManifestSchema)(
+          const manifest = yield* Schema.decodeUnknown(ManifestSchema)(
             parsedInput.manifest,
           );
 
@@ -171,9 +165,7 @@ export class CreateTransactionIntent extends Effect.Service<CreateTransactionInt
           return {
             id: intentHash.id,
             intentHash: intentHash.hash,
-            intent: yield* Schema.encodeUnknown(TransactionIntentSchema)(
-              transactionIntent,
-            ),
+            intent: TransactionIntentSchema.make(transactionIntent),
           };
         });
     }),

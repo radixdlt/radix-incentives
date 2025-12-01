@@ -47,7 +47,7 @@ export class TransactionStatus extends Effect.Service<TransactionStatus>()(
 
       const pollDelay = yield* Config.duration(
         'TRANSACTION_STATUS_POLL_DELAY',
-      ).pipe(Config.withDefault(Duration.seconds(1)), Effect.orDie);
+      ).pipe(Config.withDefault(Duration.millis(100)), Effect.orDie);
 
       const retryPolicy = Schedule.exponential(pollDelay).pipe(
         Schedule.compose(Schedule.recurs(maxPollAttempts)),

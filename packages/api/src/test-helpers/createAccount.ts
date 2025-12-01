@@ -1,6 +1,7 @@
 import { ed25519 } from '@noble/curves/ed25519';
 import { PrivateKey, RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 import { Effect } from 'effect';
+import { AccountAddress } from '../incentives/account-balance/v2/schemas';
 
 export const createAccount = (
   input?: Partial<{
@@ -26,7 +27,7 @@ export const createAccount = (
     );
 
     return {
-      address,
+      address: AccountAddress(address),
       sign: (hash: string) => {
         const signature = ed25519.sign(hash, privateKey);
         return Buffer.from(signature).toString('hex');
