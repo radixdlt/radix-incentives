@@ -18,7 +18,7 @@ describe('WeekService - getUnprocessedWeeks', () => {
 
   beforeEach(async () => {
     const dbUrl = inject('testDbUrl');
-    const client = postgres(dbUrl);
+    const client = postgres(dbUrl, { max: 1 });
     db = drizzle(client, { schema });
     dbLive = createDbClientLive(db);
 

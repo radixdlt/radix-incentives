@@ -325,7 +325,7 @@ export const checkHoldingForPool = async (
 ) => {
   const { schema } = await import('db/incentives');
 
-  const client = postgres(dbUrl);
+  const client = postgres(dbUrl, { max: 1 });
   const db = drizzle(client, { schema });
 
   await createTestUserAndAccounts(db, testAccounts);
@@ -369,7 +369,7 @@ export const checkHolding = async (
 ) => {
   const { schema } = await import('db/incentives');
 
-  const client = postgres(dbUrl);
+  const client = postgres(dbUrl, { max: 1 });
   const db = drizzle(client, { schema });
 
   await createTestUserAndAccounts(db, testAccounts);

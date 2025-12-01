@@ -31,7 +31,7 @@ export default async function setup({ provide }) {
   ).start();
 
   const dbUrl = postgresContainer.getConnectionUri();
-  const client = postgres(dbUrl);
+  const client = postgres(dbUrl, { max: 1 });
   const db = drizzle(client, { schema });
   const migrationFolderPath = path.join(
     import.meta.dirname,
