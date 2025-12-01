@@ -10,6 +10,11 @@ import { DbService } from '../db/dbClient';
 
 type CheckAndReactivateAccountsInput = {
   userId: string;
+  /**
+   * TEST ONLY: Override state version for integration tests.
+   * This parameter is ignored in production and will throw an error if used outside test environment.
+   */
+  __testStateVersion?: number;
 };
 
 /**
@@ -39,6 +44,17 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
       );
 
       return Effect.fn(function* (input: CheckAndReactivateAccountsInput) {
+        // Guard: Prevent __testStateVersion from being used in production
+        if (input.__testStateVersion !== undefined) {
+          const isTestEnv =
+            process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
+          if (!isTestEnv) {
+            return yield* Effect.die(
+              '__testStateVersion can only be used in test environment',
+            );
+          }
+        }
+
         yield* Effect.log(`Checking XRD balance for user: ${input.userId}`);
 
         // Get all accounts for this user
@@ -66,21 +82,33 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
         // Fetch current balances WITHOUT persisting to check threshold first
         const now = DateTime.unsafeNow().pipe(DateTime.toDate);
 
-        yield* Effect.log(
-          'Fetching current balances from blockchain (not persisting yet)',
-        );
+        let stateVersion: number;
 
-        // Get current ledger state
-        const ledgerState = yield* getLedgerState({
-          at_ledger_state: {
-            timestamp: now,
-          },
-        });
+        // Use test state version if provided (test mode only)
+        if (input.__testStateVersion !== undefined) {
+          yield* Effect.log(
+            `Using test state version: ${input.__testStateVersion}`,
+          );
+          stateVersion = input.__testStateVersion;
+        } else {
+          yield* Effect.log(
+            'Fetching current balances from blockchain (not persisting yet)',
+          );
+
+          // Get current ledger state
+          const ledgerState = yield* getLedgerState({
+            at_ledger_state: {
+              timestamp: now,
+            },
+          });
+
+          stateVersion = ledgerState.state_version;
+        }
 
         // Fetch balances from Gateway without persisting
         const balancesResult = yield* getAccountBalancesV2({
           addresses: accountAddresses,
-          stateVersion: ledgerState.state_version,
+          stateVersion,
         });
 
         // Check if we have any balance data

@@ -1,6 +1,6 @@
 import { ActivityCategoryId, ActivityId, activityData } from 'data';
 import { accountBalances, accounts } from 'db/incentives';
-import { desc, eq, inArray, sql } from 'drizzle-orm';
+import { inArray, sql } from 'drizzle-orm';
 import { Config, DateTime, Effect } from 'effect';
 import { chunker } from '../../common';
 import { Thresholds } from '../../common/config/constants';
@@ -35,12 +35,26 @@ export class DeactivateInactiveAccountsService extends Effect.Service<Deactivate
         // Build the list of XRD holding activity IDs for the SQL query
         const xrdActivityIdsArray = Array.from(xrdHoldingActivityIds);
 
+        // If no XRD holding activities are defined, skip deactivation
+        if (xrdActivityIdsArray.length === 0) {
+          yield* Effect.log(
+            'No XRD holding activities defined, skipping deactivation',
+          );
+          return { deactivatedCount: 0, accounts: [] };
+        }
+
         // Single query to efficiently deactivate all users:
         // 1. Get latest snapshot for each account using DISTINCT ON
         // 2. Extract XRD balances from the JSONB data array
-        // 3. Group by user to sum total XRD holdings
-        // 4. Filters users below threshold
-        // 5. Returns all enabled accounts for those users
+        // 3. Identify users where ALL enabled accounts have recent snapshots
+        // 4. Group by user to sum total XRD holdings
+        // 5. Filters users below threshold
+        // 6. Returns all enabled accounts for those users
+        //
+        // IMPORTANT: We only process users where ALL their enabled accounts have snapshots.
+        // If some accounts are missing snapshots (e.g., due to snapshotting issues), we skip
+        // that user entirely rather than partially deactivating their accounts. This ensures
+        // we only deactivate when we have complete data.
         const accountsToDeactivate = yield* db.use((db) =>
           db.execute<{ address: string }>(sql`
             WITH latest_snapshots AS (
@@ -64,18 +78,22 @@ export class DeactivateInactiveAccountsService extends Effect.Service<Deactivate
                 account_address,
                 COALESCE(SUM(usd_value), 0) as xrd_value
               FROM expanded_data
-              WHERE activity_id = ANY(${sql.raw(`ARRAY[${xrdActivityIdsArray.map((id) => `'${id}'`).join(',')}]`)})
+              WHERE activity_id = ANY(ARRAY[${sql.join(
+                xrdActivityIdsArray.map((id) => sql`${id}`),
+                sql`, `,
+              )}]::text[])
               GROUP BY account_address
             ),
             users_with_all_snapshots AS (
-              SELECT a.user_id
+              SELECT
+                a.user_id,
+                COUNT(*) as total_enabled_accounts,
+                COUNT(ls.account_address) as accounts_with_snapshots
               FROM ${accounts} a
+              LEFT JOIN latest_snapshots ls ON a.address = ls.account_address
               WHERE a.snapshot_enabled = true
               GROUP BY a.user_id
-              HAVING COUNT(*) = COUNT((
-                SELECT 1 FROM latest_snapshots ls
-                WHERE ls.account_address = a.address
-              ))
+              HAVING COUNT(*) = COUNT(ls.account_address)
             ),
             user_xrd_totals AS (
               SELECT
