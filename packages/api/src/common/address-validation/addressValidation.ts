@@ -301,8 +301,13 @@ const constantProductPools = new Set([
   ...extractPropertyValues(OciswapConstants.basicPools, 'componentAddress'),
   // Caviarnine SimplePools
   ...extractPropertyValues(CaviarNineConstants.simplePools, 'componentAddress'),
-  // DefiPlaza pools (all are constant product)
-  ...extractPropertyValues(DefiPlazaConstants, 'componentAddress'),
+  // DefiPlaza pools (only those that are constant product, defaults to true if not specified)
+  ...Object.values(DefiPlazaConstants)
+    .filter((pool) => {
+      const poolWithFlag = pool as { isConstantProduct?: boolean };
+      return poolWithFlag.isConstantProduct !== false;
+    })
+    .map((pool) => pool.componentAddress),
 ]);
 
 const baseAssets = new Set(Object.values(Assets.Fungible) as string[]);

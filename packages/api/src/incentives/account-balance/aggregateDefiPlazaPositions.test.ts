@@ -246,6 +246,14 @@ describe('AggregateDefiPlazaPositionsService', () => {
           activityId: 'dp_ho_hbnb-xrd',
           usdValue: '0',
         },
+        {
+          activityId: 'dp_lp_sta_husdc-husdt',
+          usdValue: '0',
+        },
+        {
+          activityId: 'dp_lp_sta_fusd-husdc',
+          usdValue: '0',
+        },
       ].reduce(
         (acc, item) => {
           acc[item.activityId] = item;

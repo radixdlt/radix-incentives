@@ -4254,6 +4254,14 @@ export const accountBalanceFixture = {
         usdValue: '0',
       },
       {
+        activityId: 'dp_lp_sta_husdc-husdt',
+        usdValue: '0',
+      },
+      {
+        activityId: 'dp_lp_sta_fusd-husdc',
+        usdValue: '0',
+      },
+      {
         activityId: 'su_lp_sta_susd',
         usdValue: '0.96697549384606792710603281587732532961376427969737456',
         metadata: undefined,
