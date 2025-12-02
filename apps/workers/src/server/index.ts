@@ -22,7 +22,6 @@ import { populateLeaderboardCacheSchema } from '../queues/populate-leaderboard-c
 import { processWeekQueue } from '../queues/process-week/queue';
 import { ProcessWeekJobSchema } from '../queues/process-week/schemas';
 import { scheduledCalculationsQueue } from '../queues/scheduled-calculations/queue';
-import { scheduledSnapshotQueue } from '../queues/scheduled-snapshot/queue';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
 import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
@@ -37,8 +36,6 @@ app.get('/health', (c) => {
 metricsApp.get('/metrics', async (c) => {
   const snapshotQueueMetrics =
     await snapshotQueue.queue.exportPrometheusMetrics();
-  const scheduledSnapshotQueueMetrics =
-    await scheduledSnapshotQueue.queue.exportPrometheusMetrics();
   const eventQueueMetrics = await eventQueue.queue.exportPrometheusMetrics();
   const snapshotDateRangeQueueMetrics =
     await snapshotDateRangeQueue.queue.exportPrometheusMetrics();
@@ -53,7 +50,6 @@ metricsApp.get('/metrics', async (c) => {
   return c.text(
     [
       snapshotQueueMetrics,
-      scheduledSnapshotQueueMetrics,
       eventQueueMetrics,
       snapshotDateRangeQueueMetrics,
       calculateActivityPointsQueueMetrics,
@@ -176,7 +172,6 @@ const serverAdapter = new HonoAdapter(serveStatic);
 createBullBoard({
   queues: [
     new BullMQAdapter(snapshotQueue.queue),
-    new BullMQAdapter(scheduledSnapshotQueue.queue),
     new BullMQAdapter(eventQueue.queue),
     new BullMQAdapter(snapshotDateRangeQueue.queue),
     new BullMQAdapter(calculateActivityPointsQueue.queue),

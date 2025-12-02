@@ -3,9 +3,12 @@ import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import type { FlowJob, Job } from 'bullmq';
 import { FlowProducer } from 'bullmq';
 import { Effect, Exit, Option } from 'effect';
+import { getHourStartInUTC } from '../../helpers/getHourStartInUTC';
 import { handleExit } from '../../helpers/handleExit';
 import { redisClient } from '../../redis';
 import { processWeekQueue } from '../process-week/queue';
+import { SnapshotPriority } from '../snapshot/constants';
+import { snapshotQueue } from '../snapshot/queue';
 import { QueueName } from '../types';
 import type { ScheduledCalculationsJob } from './schemas';
 
@@ -14,6 +17,29 @@ const flowProducer = new FlowProducer({ connection: redisClient });
 export const scheduledCalculationsWorker = async (
   job: Job<ScheduledCalculationsJob>,
 ) => {
+  if (process.env.DISABLE_SCHEDULED_SNAPSHOT !== 'true') {
+    job.log('Starting scheduled snapshot');
+    const snapshotJob = await snapshotQueue.queue.add(
+      'scheduledSnapshot',
+      {
+        timestamp: getHourStartInUTC().toISOString(),
+      },
+      {
+        priority: SnapshotPriority.Scheduled,
+      },
+    );
+
+    await snapshotJob.waitUntilFinished(snapshotQueue.queueEvents);
+    job.log('Snapshot completed, proceeding with calculations');
+  } else {
+    job.log('Scheduled snapshot disabled, skipping to calculations');
+  }
+
+  if (process.env.DISABLE_SCHEDULED_CALCULATIONS === 'true') {
+    job.log('Scheduled calculations disabled, exiting');
+    return;
+  }
+
   const weekIdResult = await workerRuntime.runPromiseExit(
     Effect.gen(function* () {
       const weekService = yield* WeekService;
