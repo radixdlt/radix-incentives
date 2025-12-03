@@ -122,8 +122,11 @@ export default function DashboardPage() {
 
   if ((persona && accounts.isError) || weeks.isError) {
     return (
-      <div className="flex h-96 items-center justify-center">
-        <div className="text-2xl text-red-500">Error loading data.</div>
+      <div className="space-y-6">
+        <RadixRewardsIntro seasonId={selectedWeekData?.seasonId} />
+        <div className="flex h-96 items-center justify-center">
+          <div className="text-2xl text-red-500">Error loading data.</div>
+        </div>
       </div>
     );
   }
@@ -131,6 +134,7 @@ export default function DashboardPage() {
   if (accounts.data?.length === 0 || !persona) {
     return (
       <div className="space-y-6">
+        <RadixRewardsIntro seasonId={selectedWeekData?.seasonId} />
         <EmptyState
           title={`<a class=" text-lg hover:underline" href="/dashboard/accounts">No connected accounts</a>`}
           description="Please register an account to see your stats."
