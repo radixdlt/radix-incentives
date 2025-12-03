@@ -1,5 +1,5 @@
 import { ActivityCategoryId, ActivityId, activityData } from 'data';
-import { accountBalances, accounts } from 'db/incentives';
+import { accountBalances, accounts, userSeasonPoints } from 'db/incentives';
 import { inArray, sql } from 'drizzle-orm';
 import { Config, DateTime, Effect } from 'effect';
 import { chunker } from '../../common';
@@ -7,7 +7,10 @@ import { Thresholds } from '../../common/config/constants';
 import { DbService } from '../db/dbClient';
 
 /**
- * Service for deactivating accounts with XRD balance below threshold
+ * Service for deactivating accounts with XRD balance below threshold.
+ * Only deactivates users who have NEVER earned any season points.
+ * This ensures replayability of snapshots. And as a bonus we
+ * don't just randomly deactivate user's accounts if they've participated previously.
  */
 export class DeactivateInactiveAccountsService extends Effect.Service<DeactivateInactiveAccountsService>()(
   'DeactivateInactiveAccountsService',
@@ -29,7 +32,7 @@ export class DeactivateInactiveAccountsService extends Effect.Service<Deactivate
 
       return Effect.fn(function* () {
         yield* Effect.log(
-          'Starting deactivation of inactive accounts (XRD balance < $1)',
+          'Starting deactivation of inactive accounts (XRD balance < $1, no season points history)',
         );
 
         // Build the list of XRD holding activity IDs for the SQL query
@@ -47,14 +50,18 @@ export class DeactivateInactiveAccountsService extends Effect.Service<Deactivate
         // 1. Get latest snapshot for each account using DISTINCT ON
         // 2. Extract XRD balances from the JSONB data array
         // 3. Identify users where ALL enabled accounts have recent snapshots
-        // 4. Group by user to sum total XRD holdings
-        // 5. Filters users below threshold
-        // 6. Returns all enabled accounts for those users
+        // 4. Exclude users who have ever earned season points > 0
+        // 5. Group by user to sum total XRD holdings
+        // 6. Filter users below threshold
+        // 7. Returns all enabled accounts for those users
         //
         // IMPORTANT: We only process users where ALL their enabled accounts have snapshots.
         // If some accounts are missing snapshots (e.g., due to snapshotting issues), we skip
         // that user entirely rather than partially deactivating their accounts. This ensures
         // we only deactivate when we have complete data.
+        //
+        // IMPORTANT: We only deactivate users who have NEVER earned any season points > 0.
+        // This ensures we ALWAYS have replayability of the snapshots (and subsequent AP/SP calculations).
         const accountsToDeactivate = yield* db.use((db) =>
           db.execute<{ address: string }>(sql`
             WITH latest_snapshots AS (
@@ -95,12 +102,19 @@ export class DeactivateInactiveAccountsService extends Effect.Service<Deactivate
               GROUP BY a.user_id
               HAVING COUNT(*) = COUNT(ls.account_address)
             ),
+            users_without_season_points AS (
+              SELECT uwas.user_id
+              FROM users_with_all_snapshots uwas
+              LEFT JOIN ${userSeasonPoints} usp ON uwas.user_id = usp.user_id
+              GROUP BY uwas.user_id
+              HAVING COALESCE(SUM(CAST(usp.points AS DECIMAL)), 0) = 0
+            ),
             user_xrd_totals AS (
               SELECT
                 a.user_id,
                 SUM(COALESCE(axv.xrd_value, 0)) as total_xrd_value
               FROM ${accounts} a
-              INNER JOIN users_with_all_snapshots uwas ON a.user_id = uwas.user_id
+              INNER JOIN users_without_season_points uwsp ON a.user_id = uwsp.user_id
               LEFT JOIN account_xrd_values axv ON a.address = axv.account_address
               GROUP BY a.user_id
               HAVING SUM(COALESCE(axv.xrd_value, 0)) < ${Thresholds.ACCOUNT_INACTIVITY_THRESHOLD}

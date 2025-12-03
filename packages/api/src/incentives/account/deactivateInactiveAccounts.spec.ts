@@ -1,6 +1,13 @@
 import { layer } from '@effect/vitest';
 import { ActivityId } from 'data';
-import { accountBalances, accounts, users } from 'db/incentives';
+import {
+  accountBalances,
+  accounts,
+  seasons,
+  userSeasonPoints,
+  users,
+  weeks,
+} from 'db/incentives';
 import { eq } from 'drizzle-orm';
 import { DateTime, Effect, Logger } from 'effect';
 import { truncateTables } from '../../test-helpers/truncateTables';
@@ -676,6 +683,207 @@ layer(DeactivateInactiveAccountsService.Default)(
         expect(result.deactivatedCount).toBe(0);
         expect(result.accounts).toHaveLength(0);
       }).pipe(Effect.provide(Logger.pretty), Effect.provide(DbService.Default)),
+    );
+
+    it.effect(
+      'should not deactivate users who have earned season points > 0',
+      () =>
+        Effect.gen(function* () {
+          const service = yield* DeactivateInactiveAccountsService;
+          const db = yield* DbService;
+
+          const now = new Date();
+          const twoHoursAgo = DateTime.unsafeFromDate(now).pipe(
+            DateTime.subtractDuration('2 hours'),
+            DateTime.toDate,
+          );
+
+          // Create season and week
+          const [season] = yield* db.use((db) =>
+            db
+              .insert(seasons)
+              .values({
+                name: 'Season 1',
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-12-31'),
+                status: 'active',
+              })
+              .returning(),
+          );
+
+          const [week] = yield* db.use((db) =>
+            db
+              .insert(weeks)
+              .values({
+                seasonId: season.id,
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
+              })
+              .returning(),
+          );
+
+          // Create user with insufficient XRD but has earned season points
+          const [user] = yield* db.use((db) =>
+            db
+              .insert(users)
+              .values({ identityAddress: 'user_with_points' })
+              .returning(),
+          );
+
+          const [account] = yield* db.use((db) =>
+            db
+              .insert(accounts)
+              .values({
+                userId: user.id,
+                address: 'account_with_points',
+                label: 'Account With Points',
+                snapshotEnabled: true,
+              })
+              .returning(),
+          );
+
+          // Insert low XRD snapshot (below threshold)
+          yield* db.use((db) =>
+            db.insert(accountBalances).values({
+              accountAddress: account.address,
+              timestamp: twoHoursAgo,
+              data: [
+                { activityId: ActivityId.ho_xrd, usdValue: '0.5' },
+                { activityId: ActivityId['c9_ho_early-xrd'], usdValue: '0' },
+              ],
+            }),
+          );
+
+          // User has earned season points > 0
+          yield* db.use((db) =>
+            db.insert(userSeasonPoints).values({
+              userId: user.id,
+              seasonId: season.id,
+              weekId: week.id,
+              points: '100.5',
+            }),
+          );
+
+          const result = yield* service();
+
+          // Should NOT deactivate user with season points history
+          expect(result.deactivatedCount).toBe(0);
+          expect(result.accounts).toHaveLength(0);
+
+          // Verify account is still enabled
+          const accountStatus = yield* db.use((db) =>
+            db
+              .select()
+              .from(accounts)
+              .where(eq(accounts.address, account.address))
+              .then((results) => results[0]),
+          );
+          expect(accountStatus?.snapshotEnabled).toBe(true);
+        }).pipe(
+          Effect.provide(Logger.pretty),
+          Effect.provide(DbService.Default),
+        ),
+    );
+
+    it.effect(
+      'should deactivate users with 0 season points (not genuine participants)',
+      () =>
+        Effect.gen(function* () {
+          const service = yield* DeactivateInactiveAccountsService;
+          const db = yield* DbService;
+
+          const now = new Date();
+          const twoHoursAgo = DateTime.unsafeFromDate(now).pipe(
+            DateTime.subtractDuration('2 hours'),
+            DateTime.toDate,
+          );
+
+          // Create season and week
+          const [season] = yield* db.use((db) =>
+            db
+              .insert(seasons)
+              .values({
+                name: 'Season 1',
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-12-31'),
+                status: 'active',
+              })
+              .returning(),
+          );
+
+          const [week] = yield* db.use((db) =>
+            db
+              .insert(weeks)
+              .values({
+                seasonId: season.id,
+                startDate: new Date('2024-01-01'),
+                endDate: new Date('2024-01-07'),
+              })
+              .returning(),
+          );
+
+          // Create user with insufficient XRD and 0 season points
+          const [user] = yield* db.use((db) =>
+            db
+              .insert(users)
+              .values({ identityAddress: 'user_zero_points' })
+              .returning(),
+          );
+
+          const [account] = yield* db.use((db) =>
+            db
+              .insert(accounts)
+              .values({
+                userId: user.id,
+                address: 'account_zero_points',
+                label: 'Account Zero Points',
+                snapshotEnabled: true,
+              })
+              .returning(),
+          );
+
+          // Insert low XRD snapshot (below threshold)
+          yield* db.use((db) =>
+            db.insert(accountBalances).values({
+              accountAddress: account.address,
+              timestamp: twoHoursAgo,
+              data: [
+                { activityId: ActivityId.ho_xrd, usdValue: '0.5' },
+                { activityId: ActivityId['c9_ho_early-xrd'], usdValue: '0' },
+              ],
+            }),
+          );
+
+          // User has 0 season points (not a genuine participant)
+          yield* db.use((db) =>
+            db.insert(userSeasonPoints).values({
+              userId: user.id,
+              seasonId: season.id,
+              weekId: week.id,
+              points: '0',
+            }),
+          );
+
+          const result = yield* service();
+
+          // Should deactivate user with 0 season points
+          expect(result.deactivatedCount).toBe(1);
+          expect(result.accounts).toHaveLength(1);
+          expect(result.accounts[0]).toBe(account.address);
+
+          // Verify account is disabled
+          const accountStatus = yield* db.use((db) =>
+            db
+              .select()
+              .from(accounts)
+              .where(eq(accounts.address, account.address))
+              .then((results) => results[0]),
+          );
+          expect(accountStatus?.snapshotEnabled).toBe(false);
+        }).pipe(
+          Effect.provide(Logger.pretty),
+          Effect.provide(DbService.Default),
+        ),
     );
   },
 );
