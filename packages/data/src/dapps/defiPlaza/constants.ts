@@ -279,6 +279,38 @@ export const DefiPlazaConstants = {
     quoteLpResourceAddress:
       'resource_rdx1thhctpg6ctkr7pf4axk0p3ysuyu7574essvj8r8m2d7tf4709x9e6z',
   },
+  husdthusdcPool: {
+    type: 'component',
+    baseResourceAddress: Assets.Fungible.hUSDT,
+    quoteResourceAddress: Assets.Fungible.hUSDC,
+    componentAddress:
+      'component_rdx1cp6727pe5kr0dgwycum579j2ttc449enustrqtta77qfrns5p8jfew',
+    basePoolAddress:
+      'pool_rdx1ck95j05huch5ezhrs38agkeathxy5zeh40jgd6w8t0a620pfudhj8q',
+    baseLpResourceAddress:
+      'resource_rdx1tkya5vjjsxqe2d7gc0ph2lshnjeakjxz6e3j8sjhfh927j6y8pvfdd',
+    quotePoolAddress:
+      'pool_rdx1chaf6sfw90s2yzlv5m8yt8ufupzqvhd3ehkvz4ew77zx3x29804sry',
+    quoteLpResourceAddress:
+      'resource_rdx1th02zq2r6k3r5ajf074hvvg7m6e0tvjtvy6mnflyuy5mpjgu2p4uru',
+    isConstantProduct: false,
+  },
+  fusdhusdcPool: {
+    type: 'component',
+    baseResourceAddress: Assets.Fungible.fUSD,
+    quoteResourceAddress: Assets.Fungible.hUSDC,
+    componentAddress:
+      'component_rdx1cp6dhmtlsu3ucsyspjt9luxrmdtqragvzu8jtajn0ye2haldey47n7',
+    basePoolAddress:
+      'pool_rdx1c5envpefles5fdhfv2gztzyzz84t7k34xr4jgmecp59l33ygc5xx2s',
+    baseLpResourceAddress:
+      'resource_rdx1t5lfnd64v56sk7r202ymah98njc0e2q6zzmx8hk2krmfcyrxerkxwn',
+    quotePoolAddress:
+      'pool_rdx1chg92pwl04078sc8fka4wq9w6heyr6rwxwdxl78ypyltmw4qc3yc0x',
+    quoteLpResourceAddress:
+      'resource_rdx1t5ujaew62adzltkzd4fwsmmvl8ykpwac0a6mkesr3ayt2vml9e7dpu',
+    isConstantProduct: false,
+  },
 } as const;
 
 export const defiPlazaComponentSet = new Map<
