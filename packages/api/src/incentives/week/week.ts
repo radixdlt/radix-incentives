@@ -63,7 +63,14 @@ export class WeekService extends Effect.Service<WeekService>()('WeekService', {
 
         return week;
       }),
-      create: Effect.fn(function* (input: CreateWeekInput) {
+      create: Effect.fn(function* (
+        input: CreateWeekInput & {
+          cloneResourceRewards?: (input: {
+            fromWeekId: string;
+            toWeekId: string;
+          }) => Effect.Effect<unknown, unknown>;
+        },
+      ) {
         const lastWeekId = yield* Effect.tryPromise({
           try: () =>
             db.query.weeks
@@ -79,7 +86,11 @@ export class WeekService extends Effect.Service<WeekService>()('WeekService', {
           try: () =>
             db
               .insert(weeks)
-              .values(input)
+              .values({
+                seasonId: input.seasonId,
+                startDate: input.startDate,
+                endDate: input.endDate,
+              })
               .returning()
               .then(([week]) => week),
           catch: (error) => new DbError(error),
@@ -92,7 +103,7 @@ export class WeekService extends Effect.Service<WeekService>()('WeekService', {
         }
 
         yield* Effect.log(
-          `Cloning activities from ${lastWeekId ?? 'none'} to ${newWeek.id}`,
+          `Cloning activities and resource rewards from ${lastWeekId ?? 'none'} to ${newWeek.id}`,
         );
 
         yield* Effect.all([
@@ -104,6 +115,12 @@ export class WeekService extends Effect.Service<WeekService>()('WeekService', {
             fromWeekId: lastWeekId,
             toWeekId: newWeek.id,
           }),
+          lastWeekId && input.cloneResourceRewards
+            ? input.cloneResourceRewards({
+                fromWeekId: lastWeekId,
+                toWeekId: newWeek.id,
+              })
+            : Effect.void,
         ]);
       }),
       list: Effect.fn(function* (input: { seasonId?: string }) {

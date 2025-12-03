@@ -37,7 +37,10 @@ export default function ResourceRewardsPage() {
     });
 
   const { data: resourceRewardsData, isLoading: isLoadingResourceRewards } =
-    api.resourceReward.getResourceRewards.useQuery();
+    api.resourceReward.getResourceRewards.useQuery(
+      { weekId: week?.id ?? '' },
+      { enabled: !!week },
+    );
 
   const isLoadingUserData = api.resourceReward.getUserResourceRewards.useQuery(
     { weekId: week?.id ?? '' },

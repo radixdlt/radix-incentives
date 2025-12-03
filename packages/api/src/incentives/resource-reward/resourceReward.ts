@@ -1,4 +1,8 @@
-import { resourceRewardClaims, resourceRewardDefinitions } from 'db/incentives';
+import {
+  resourceRewardClaims,
+  resourceRewardDefinitions,
+  resourceRewardWeeks,
+} from 'db/incentives';
 import { and, count, eq, sql, sum } from 'drizzle-orm';
 import { Data, Effect, Schema } from 'effect';
 import {
@@ -32,9 +36,16 @@ export class ResourceRewardDefinition extends Schema.Class<ResourceRewardDefinit
   'ResourceRewardDefinition',
 )({
   address: RadixDataTypeSchema.ResourceAddress,
+  url: Schema.NullishOr(Schema.String),
+}) {}
+
+export class ResourceRewardWeek extends Schema.Class<ResourceRewardWeek>(
+  'ResourceRewardWeek',
+)({
+  address: RadixDataTypeSchema.ResourceAddress,
+  weekId: Schema.UUID,
   points: Schema.Number,
   weeklyLimit: Schema.NullishOr(Schema.Number),
-  url: Schema.NullishOr(Schema.String),
 }) {}
 
 class ResourceRewardClaim extends Schema.Class<ResourceRewardClaim>(
@@ -164,22 +175,61 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
         },
       );
 
+      const getResourceRewardWeeksFromDb = Effect.fnUntraced(
+        function* (input?: { address?: string; weekId?: string }) {
+          const conditions = and(
+            input?.address
+              ? eq(resourceRewardWeeks.address, input.address)
+              : undefined,
+            input?.weekId
+              ? eq(resourceRewardWeeks.weekId, input.weekId)
+              : undefined,
+          );
+
+          return yield* Effect.tryPromise({
+            try: () => db.select().from(resourceRewardWeeks).where(conditions),
+            catch: (error) => new DbError(error),
+          });
+        },
+      );
+
+      const addResourceRewardWeek = Effect.fnUntraced(function* (
+        input: ResourceRewardWeek,
+      ) {
+        const encodedResourceRewardWeek =
+          yield* Schema.encodeUnknown(ResourceRewardWeek)(input);
+
+        return yield* Effect.tryPromise({
+          try: () =>
+            db.insert(resourceRewardWeeks).values(encodedResourceRewardWeek),
+          catch: (error) => new DbError(error),
+        });
+      });
+
       return {
-        createResourceRewardDefinition: Effect.fnUntraced(function* (
-          input: ResourceRewardDefinition,
-        ) {
-          const newResourceReward = yield* Schema.decodeUnknown(
+        createResourceRewardDefinition: Effect.fnUntraced(function* (input: {
+          address: string;
+          url?: string | null;
+          points: number;
+          weeklyLimit?: number | null;
+          weekId: string;
+        }) {
+          // Validate and create/update the base definition
+          const newResourceRewardDef = yield* Schema.decodeUnknown(
             ResourceRewardDefinition,
-          )(input);
+          )({
+            address: input.address,
+            url: input.url,
+          });
 
           const entityDetails = yield* getEntityDetails(
-            newResourceReward.address,
+            newResourceRewardDef.address,
           );
 
           if (entityDetails?.details?.type !== 'NonFungibleResource') {
             return yield* Effect.fail(
               new InvalidResourceTypeError({
-                message: `Resource with address ${newResourceReward.address} is not a non-fungible resource`,
+                message: `Resource with address ${newResourceRewardDef.address} is not a non-fungible resource`,
               }),
             );
           }
@@ -188,7 +238,27 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
 
           yield* decodeMetadata(metadata);
 
-          return yield* addResourceRewardDefinitionToDb(newResourceReward);
+          // Check if definition already exists
+          const existingDef = yield* getResourceRewardDefinitionsFromDb({
+            address: input.address,
+          }).pipe(Effect.map((res) => res[0]));
+
+          // Create definition if it doesn't exist
+          if (!existingDef) {
+            yield* addResourceRewardDefinitionToDb(newResourceRewardDef);
+          }
+
+          // Create the week-specific entry
+          const resourceRewardWeek = yield* Schema.decodeUnknown(
+            ResourceRewardWeek,
+          )({
+            address: input.address,
+            weekId: input.weekId,
+            points: input.points,
+            weeklyLimit: input.weeklyLimit,
+          });
+
+          return yield* addResourceRewardWeek(resourceRewardWeek);
         }),
         createResourceRewardClaim: Effect.fnUntraced(function* (
           input: CreateResourceClaimInput,
@@ -288,11 +358,32 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
             catch: (error) => new DbError(error),
           });
         }),
-        listResourceRewardDefinitions: Effect.fnUntraced(function* () {
-          const result = yield* getResourceRewardDefinitionsFromDb();
+        listResourceRewardDefinitions: Effect.fnUntraced(function* (input: {
+          weekId: string;
+        }) {
+          // Get all resource reward weeks for the specified week
+          const resourceRewardWeeksData = yield* getResourceRewardWeeksFromDb({
+            weekId: input.weekId,
+          });
+
+          if (resourceRewardWeeksData.length === 0) {
+            return [];
+          }
+
+          // Get the definitions for these resources
+          const definitions = yield* Effect.tryPromise({
+            try: () =>
+              db
+                .select()
+                .from(resourceRewardDefinitions)
+                .where(
+                  sql`${resourceRewardDefinitions.address} IN ${sql.raw(`(${resourceRewardWeeksData.map((r) => `'${r.address}'`).join(',')})`)}`,
+                ),
+            catch: (error) => new DbError(error),
+          });
 
           const entityDetailsMap = yield* Effect.all(
-            result.map((resource) => getEntityDetails(resource.address)),
+            definitions.map((resource) => getEntityDetails(resource.address)),
           ).pipe(
             Effect.flatMap((entityDetails) =>
               Effect.forEach(entityDetails, (entityDetail) => {
@@ -332,10 +423,22 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
             ),
           );
 
-          return result.map((resource) => ({
-            ...resource,
-            ...entityDetailsMap[resource.address],
-          }));
+          // Merge week data with definition and entity details
+          return resourceRewardWeeksData.map((weekData) => {
+            const definition = definitions.find(
+              (d) => d.address === weekData.address,
+            );
+            const entityDetails = entityDetailsMap[weekData.address];
+            return {
+              address: weekData.address,
+              points: weekData.points,
+              weeklyLimit: weekData.weeklyLimit ?? undefined,
+              weekId: weekData.weekId,
+              url: definition?.url ?? undefined,
+              name: entityDetails?.name,
+              iconUrl: entityDetails?.iconUrl,
+            };
+          });
         }),
         getAggregatedResourceRewardClaimsByWeekId: Effect.fnUntraced(
           function* (input: { weekId: string }) {
@@ -344,28 +447,34 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
                 // aggregate points by user id and resource address, apply weekly limit if set
                 const subquery = db
                   .select({
-                    points: sql<string>`CASE 
-                      WHEN ${resourceRewardDefinitions.weeklyLimit} IS NOT NULL 
-                        AND ${count()} > ${resourceRewardDefinitions.weeklyLimit}
-                      THEN ${resourceRewardDefinitions.weeklyLimit} * ${resourceRewardDefinitions.points}
-                      ELSE ${count()} * ${resourceRewardDefinitions.points}
+                    points: sql<string>`CASE
+                      WHEN ${resourceRewardWeeks.weeklyLimit} IS NOT NULL
+                        AND ${count()} > ${resourceRewardWeeks.weeklyLimit}
+                      THEN ${resourceRewardWeeks.weeklyLimit} * ${resourceRewardWeeks.points}
+                      ELSE ${count()} * ${resourceRewardWeeks.points}
                     END`.as('points'),
                     userId: resourceRewardClaims.userId,
                   })
                   .from(resourceRewardClaims)
                   .innerJoin(
-                    resourceRewardDefinitions,
-                    eq(
-                      resourceRewardClaims.resourceManager,
-                      resourceRewardDefinitions.address,
+                    resourceRewardWeeks,
+                    and(
+                      eq(
+                        resourceRewardClaims.resourceManager,
+                        resourceRewardWeeks.address,
+                      ),
+                      eq(
+                        resourceRewardClaims.weekId,
+                        resourceRewardWeeks.weekId,
+                      ),
                     ),
                   )
                   .where(eq(resourceRewardClaims.weekId, input.weekId))
                   .groupBy(
                     resourceRewardClaims.userId,
-                    resourceRewardDefinitions.address,
-                    resourceRewardDefinitions.points,
-                    resourceRewardDefinitions.weeklyLimit,
+                    resourceRewardWeeks.address,
+                    resourceRewardWeeks.points,
+                    resourceRewardWeeks.weeklyLimit,
                   )
                   .as('subquery');
 
@@ -428,60 +537,124 @@ export class ResourceRewardService extends Effect.Service<ResourceRewardService>
             nfHoldings,
           };
         }),
-        updateResourceRewardDefinition: Effect.fnUntraced(function* (
-          input: ResourceRewardDefinition,
-        ) {
-          const resourceReward = yield* Schema.decodeUnknown(
-            ResourceRewardDefinition,
-          )(input);
-
-          const existing = yield* getResourceRewardDefinitionsFromDb({
-            address: resourceReward.address,
+        updateResourceRewardDefinition: Effect.fnUntraced(function* (input: {
+          address: string;
+          url?: string | null;
+          points: number;
+          weeklyLimit?: number | null;
+          weekId: string;
+        }) {
+          // Check if week-specific entry exists
+          const existingWeekEntry = yield* getResourceRewardWeeksFromDb({
+            address: input.address,
+            weekId: input.weekId,
           }).pipe(Effect.map((res) => res[0]));
 
-          if (!existing) {
+          if (!existingWeekEntry) {
             return yield* Effect.fail(
               new ResourceNotFoundError({
-                message: `Resource with address ${resourceReward.address} not found`,
+                message: `Resource reward with address ${input.address} not found for week ${input.weekId}`,
               }),
             );
           }
 
-          const encodedResourceReward = yield* Schema.encodeUnknown(
-            ResourceRewardDefinition,
-          )(resourceReward);
+          // Update the base definition if URL changed
+          if (input.url !== undefined) {
+            const resourceRewardDef = yield* Schema.encodeUnknown(
+              ResourceRewardDefinition,
+            )({
+              address: input.address,
+              url: input.url,
+            });
+
+            yield* Effect.tryPromise({
+              try: () =>
+                db
+                  .update(resourceRewardDefinitions)
+                  .set(resourceRewardDef)
+                  .where(eq(resourceRewardDefinitions.address, input.address)),
+              catch: (error) => new DbError(error),
+            });
+          }
+
+          // Update the week-specific entry
+          const resourceRewardWeek = yield* Schema.encodeUnknown(
+            ResourceRewardWeek,
+          )({
+            address: input.address,
+            weekId: input.weekId,
+            points: input.points,
+            weeklyLimit: input.weeklyLimit,
+          });
 
           return yield* Effect.tryPromise({
             try: () =>
               db
-                .update(resourceRewardDefinitions)
-                .set(encodedResourceReward)
+                .update(resourceRewardWeeks)
+                .set(resourceRewardWeek)
                 .where(
-                  eq(resourceRewardDefinitions.address, resourceReward.address),
+                  and(
+                    eq(resourceRewardWeeks.address, input.address),
+                    eq(resourceRewardWeeks.weekId, input.weekId),
+                  ),
                 ),
             catch: (error) => new DbError(error),
           });
         }),
         deleteResourceRewardDefinition: Effect.fnUntraced(function* (input: {
           address: string;
+          weekId: string;
         }) {
-          const existing = yield* getResourceRewardDefinitionsFromDb({
+          const existingWeekEntry = yield* getResourceRewardWeeksFromDb({
             address: input.address,
+            weekId: input.weekId,
           }).pipe(Effect.map((res) => res[0]));
 
-          if (!existing) {
+          if (!existingWeekEntry) {
             return yield* Effect.fail(
               new ResourceNotFoundError({
-                message: `Resource with address ${input.address} not found`,
+                message: `Resource reward with address ${input.address} not found for week ${input.weekId}`,
               }),
             );
           }
 
+          // Delete the week-specific entry
           return yield* Effect.tryPromise({
             try: () =>
               db
-                .delete(resourceRewardDefinitions)
-                .where(eq(resourceRewardDefinitions.address, input.address)),
+                .delete(resourceRewardWeeks)
+                .where(
+                  and(
+                    eq(resourceRewardWeeks.address, input.address),
+                    eq(resourceRewardWeeks.weekId, input.weekId),
+                  ),
+                ),
+            catch: (error) => new DbError(error),
+          });
+        }),
+        cloneResourceRewards: Effect.fnUntraced(function* (input: {
+          fromWeekId: string;
+          toWeekId: string;
+        }) {
+          // Get all resource reward weeks from the source week
+          const sourceWeekRewards = yield* getResourceRewardWeeksFromDb({
+            weekId: input.fromWeekId,
+          });
+
+          if (sourceWeekRewards.length === 0) {
+            return;
+          }
+
+          // Clone to the new week
+          const clonedRewards = sourceWeekRewards.map((reward) => ({
+            address: reward.address,
+            weekId: input.toWeekId,
+            points: reward.points,
+            weeklyLimit: reward.weeklyLimit,
+          }));
+
+          return yield* Effect.tryPromise({
+            try: () => db.insert(resourceRewardWeeks).values(clonedRewards),
             catch: (error) => new DbError(error),
           });
         }),

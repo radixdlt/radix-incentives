@@ -4,6 +4,7 @@ import { Pencil, PlusCircle, Trash2 } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
 import { toast } from 'sonner';
+import { SeasonAndWeekSelector } from '~/components/SeasonAndWeekSelector';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,6 +38,7 @@ import {
   TableHeader,
   TableRow,
 } from '~/components/ui/table';
+import { useSeasonAndWeekSelector } from '~/lib/hooks/useSeasonAndWeekSelector';
 import { api } from '~/trpc/react';
 
 interface ResourceRewardFormData {
@@ -46,7 +48,13 @@ interface ResourceRewardFormData {
   url?: string;
 }
 
-function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
+function CreateResourceRewardDialog({
+  weekId,
+  onSuccess,
+}: {
+  weekId: string;
+  onSuccess: () => void;
+}) {
   const [open, setOpen] = React.useState(false);
   const [formData, setFormData] = React.useState<ResourceRewardFormData>({
     address: '',
@@ -58,7 +66,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
   const createMutation =
     api.admin.resourceReward.createResourceReward.useMutation({
       onSuccess: () => {
-        toast.success('Resource reward created successfully');
+        toast.success('Resource reward created successfully for this week');
         setOpen(false);
         setFormData({
           address: '',
@@ -78,6 +86,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
     createMutation.mutate({
       ...formData,
       points: Number(formData.points),
+      weekId,
     });
   };
 
@@ -90,10 +99,10 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Create New Resource Reward</DialogTitle>
+          <DialogTitle>Add Resource Reward to Week</DialogTitle>
           <DialogDescription>
-            Create a new resource reward that users can claim by holding
-            specific resources.
+            Add a resource reward to the currently selected week. Users can
+            claim points by holding specific NFTs during this week.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -175,6 +184,7 @@ function CreateResourceRewardDialog({ onSuccess }: { onSuccess: () => void }) {
 
 function EditResourceRewardDialog({
   reward,
+  weekId,
   onSuccess,
 }: {
   reward: {
@@ -184,6 +194,7 @@ function EditResourceRewardDialog({
     weeklyLimit?: number | null;
     url?: string | null;
   };
+  weekId: string;
   onSuccess: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -197,7 +208,7 @@ function EditResourceRewardDialog({
   const updateMutation =
     api.admin.resourceReward.updateResourceReward.useMutation({
       onSuccess: () => {
-        toast.success('Resource reward updated successfully');
+        toast.success('Resource reward updated successfully for this week');
         setOpen(false);
         onSuccess();
       },
@@ -213,6 +224,7 @@ function EditResourceRewardDialog({
       points: Number(formData.points),
       weeklyLimit: formData.weeklyLimit,
       url: formData.url || undefined,
+      weekId,
     });
   };
 
@@ -228,9 +240,10 @@ function EditResourceRewardDialog({
       </Button>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
-          <DialogTitle>Edit Resource Reward</DialogTitle>
+          <DialogTitle>Edit Resource Reward for Week</DialogTitle>
           <DialogDescription>
-            Update the points or weekly limit for this resource reward.
+            Update the points or weekly limit for this resource reward in the
+            currently selected week.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit} className="grid gap-4 py-4">
@@ -310,10 +323,12 @@ function EditResourceRewardDialog({
 function DeleteResourceRewardDialog({
   address,
   name,
+  weekId,
   onSuccess,
 }: {
   address: string;
   name?: string | null;
+  weekId: string;
   onSuccess: () => void;
 }) {
   const [open, setOpen] = React.useState(false);
@@ -321,7 +336,7 @@ function DeleteResourceRewardDialog({
   const deleteMutation =
     api.admin.resourceReward.deleteResourceReward.useMutation({
       onSuccess: () => {
-        toast.success('Resource reward deleted successfully');
+        toast.success('Resource reward removed from this week');
         setOpen(false);
         onSuccess();
       },
@@ -331,7 +346,7 @@ function DeleteResourceRewardDialog({
     });
 
   const handleDelete = () => {
-    deleteMutation.mutate({ address });
+    deleteMutation.mutate({ address, weekId });
   };
 
   return (
@@ -346,10 +361,11 @@ function DeleteResourceRewardDialog({
       </Button>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Delete Resource Reward</AlertDialogTitle>
+          <AlertDialogTitle>Remove Resource Reward from Week</AlertDialogTitle>
           <AlertDialogDescription>
-            Are you sure you want to delete the resource reward for{' '}
-            <strong>{name || address}</strong>? This action cannot be undone.
+            Are you sure you want to remove the resource reward for{' '}
+            <strong>{name || address}</strong> from this week? This will only
+            remove it from the currently selected week, not from other weeks.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -369,10 +385,24 @@ function DeleteResourceRewardDialog({
 
 export default function ResourceRewardsPage() {
   const {
+    seasons,
+    isSeasonsLoading,
+    selectedSeasonId,
+    setSelectedSeasonId,
+    filteredWeeks,
+    isWeeksLoading,
+    selectedWeekId,
+    setSelectedWeekId,
+  } = useSeasonAndWeekSelector();
+
+  const {
     data: resourceRewards,
     isLoading,
     refetch,
-  } = api.admin.resourceReward.listResourceRewards.useQuery();
+  } = api.admin.resourceReward.listResourceRewards.useQuery(
+    { weekId: selectedWeekId },
+    { enabled: !!selectedWeekId },
+  );
 
   const handleRefresh = () => {
     void refetch();
@@ -391,7 +421,28 @@ export default function ResourceRewardsPage() {
             tokens or NFTs.
           </p>
         </div>
-        <CreateResourceRewardDialog onSuccess={handleRefresh} />
+        {selectedWeekId && (
+          <CreateResourceRewardDialog
+            weekId={selectedWeekId}
+            onSuccess={handleRefresh}
+          />
+        )}
+      </div>
+
+      <Separator className="my-6" />
+
+      {/* Season and Week Selector */}
+      <div className="mb-6">
+        <SeasonAndWeekSelector
+          seasons={seasons}
+          isSeasonsLoading={isSeasonsLoading}
+          selectedSeasonId={selectedSeasonId}
+          setSelectedSeasonId={setSelectedSeasonId}
+          filteredWeeks={filteredWeeks}
+          isWeeksLoading={isWeeksLoading}
+          selectedWeekId={selectedWeekId}
+          setSelectedWeekId={setSelectedWeekId}
+        />
       </div>
 
       <Separator className="my-6" />
@@ -459,11 +510,13 @@ export default function ResourceRewardsPage() {
                       <div className="flex justify-end gap-1">
                         <EditResourceRewardDialog
                           reward={reward}
+                          weekId={selectedWeekId}
                           onSuccess={handleRefresh}
                         />
                         <DeleteResourceRewardDialog
                           address={reward.address}
                           name={reward.name}
+                          weekId={selectedWeekId}
                           onSuccess={handleRefresh}
                         />
                       </div>
