@@ -28,6 +28,9 @@ export const populateLeaderboardCacheQueue = createQueue<
   },
   workerOptions: {
     connection: redisClient,
+    stalledInterval: 180000,
+    maxStalledCount: 2,
+    lockDuration: 600000, // Lock jobs for 10 minutes
     concurrency: 1, // Process one job at a time to prevent overload and race conditions
   },
 });
