@@ -1,22 +1,13 @@
 'use client';
 
-import { zodResolver } from '@hookform/resolvers/zod';
+import { useForm } from '@tanstack/react-form';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect } from 'react';
-import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
 import { z } from 'zod';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent } from '~/components/ui/card';
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from '~/components/ui/form';
 import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import { api } from '~/trpc/react';
 
 const emailSchema = z.object({
@@ -43,25 +34,14 @@ export default function ShippingAddressPage() {
     },
   });
 
-  const form = useForm<EmailFormValues>({
-    resolver: zodResolver(emailSchema),
+  const form = useForm({
     defaultValues: {
-      email: '',
+      email: userData?.email ?? '',
+    },
+    onSubmit: async ({ value }) => {
+      setEmail.mutate({ email: value.email });
     },
   });
-
-  // Update form when shipping address is loaded
-  useEffect(() => {
-    if (userData) {
-      form.reset({
-        email: userData.email ?? '',
-      });
-    }
-  }, [userData, form]);
-
-  const onSubmit = async (values: EmailFormValues) => {
-    setEmail.mutate({ email: values.email });
-  };
 
   if (isLoading) {
     return (
@@ -73,52 +53,72 @@ export default function ShippingAddressPage() {
 
   return (
     <div className="mx-auto max-w-2xl space-y-6 p-6">
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-          <Card noHover>
-            <CardContent>
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem className="mt-4">
-                    <FormLabel>Email Address</FormLabel>
-                    <FormControl>
-                      <Input
-                        placeholder="Enter your email address"
-                        type="email"
-                        {...field}
-                        autoComplete="email"
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </CardContent>
-          </Card>
-
-          <div className="flex justify-end gap-3 pt-4">
-            {returnUrl && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => router.push(returnUrl)}
-                disabled={setEmail.isPending}
-              >
-                Cancel
-              </Button>
-            )}
-            <Button
-              type="submit"
-              disabled={setEmail.isPending}
-              className="min-w-32"
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          form.handleSubmit();
+        }}
+        className="space-y-4"
+      >
+        <Card noHover>
+          <CardContent>
+            <form.Field
+              name="email"
+              validators={{
+                onChange: ({ value }) => {
+                  const result = emailSchema.shape.email.safeParse(value);
+                  if (!result.success) {
+                    return result.error.issues[0]?.message;
+                  }
+                  return undefined;
+                },
+              }}
             >
-              {setEmail.isPending ? 'Saving...' : 'Submit'}
+              {(field) => (
+                <div className="mt-4 space-y-2">
+                  <Label htmlFor={field.name}>Email Address</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                    placeholder="Enter your email address"
+                    type="email"
+                    autoComplete="email"
+                  />
+                  {field.state.meta.errors.length > 0 && (
+                    <p className="font-medium text-destructive text-sm">
+                      {field.state.meta.errors[0]}
+                    </p>
+                  )}
+                </div>
+              )}
+            </form.Field>
+          </CardContent>
+        </Card>
+
+        <div className="flex justify-end gap-3 pt-4">
+          {returnUrl && (
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => router.push(returnUrl)}
+              disabled={setEmail.isPending}
+            >
+              Cancel
             </Button>
-          </div>
-        </form>
-      </Form>
+          )}
+          <Button
+            type="submit"
+            disabled={setEmail.isPending}
+            className="min-w-32"
+          >
+            {setEmail.isPending ? 'Saving...' : 'Submit'}
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

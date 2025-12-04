@@ -30,13 +30,13 @@
     "db:reset": "./scripts/reset.sh"
   },
   "dependencies": {
+    "data": "workspace:*",
     "drizzle-orm": "catalog:",
-    "zod": "catalog:",
-    "data": "workspace:*"
+    "zod": "catalog:"
   },
   "devDependencies": {
     "@types/node": "^20.14.10",
-    "drizzle-kit": "^0.22.0",
+    "drizzle-kit": "^0.31.7",
     "postgres": "catalog:",
     "tsx": "catalog:"
   },

@@ -2,14 +2,13 @@ import { TRPCError } from '@trpc/server';
 import { Exit } from 'effect';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
-import type { MilestoneType } from './milestoneService';
 
 const milestoneTypeSchema = z.enum([
   'tvl',
   'transactions',
   'dex_volume',
   'wallet_downloads',
-]) as z.ZodEnum<[MilestoneType, ...MilestoneType[]]>;
+]);
 
 export const adminMilestoneRouter = createTRPCRouter({
   /**
