@@ -7,12 +7,12 @@ ENV DATABASE_URL="postgres://postgres:password@localhost:5432/radix-incentives"
 # Enable pnpm
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable && corepack prepare pnpm@10.0.0 --activate 
+RUN corepack enable && corepack prepare pnpm@10.24.0 --activate 
 
 # Install Turbo globally
 FROM base AS builder
 
-RUN pnpm add -g turbo@2.3.3
+RUN pnpm add -g turbo@2.6.2
 
 # Copy all files
 COPY . .

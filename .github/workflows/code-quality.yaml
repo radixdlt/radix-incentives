@@ -24,7 +24,7 @@ jobs:
   lint-test-build:
     name: Lint, Test, and Build
     runs-on: ubuntu-latest
-    
+
     services:
       redis:
         image: redis:7-alpine
@@ -45,16 +45,16 @@ jobs:
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
         with:
-          version: 9.15.0
+          version: 10.24.0
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
-          cache: 'pnpm'
+          node-version: "22.21"
+          cache: "pnpm"
 
       - name: Install dependencies
-        run: pnpm install --frozen-lockfile
+        run: pnpm install
 
       - name: Run lint
         run: pnpm check-types
@@ -70,7 +70,7 @@ jobs:
 
       - name: Build applications
         run: pnpm build --filter=workers --filter=streamer --filter=incentives --filter=admin
-        env: 
+        env:
           DATABASE_URL: postgres://postgres:password@localhost:5432/radix-incentives
           WORKERS_API_BASE_URL: http://localhost:3003
 
@@ -116,26 +116,26 @@ jobs:
   #   needs: lint-test-build
   #   runs-on: ubuntu-latest
   #   if: github.event_name == 'pull_request' && github.repository == 'radixdlt/radix-incentives'
-    
-    # environment:
-    #   name: github-pages
-    #   url: ${{ steps.deployment.outputs.page_url }}
-    
-    # steps:
-    #   - name: Download coverage artifact
-    #     uses: actions/download-artifact@v4
-    #     with:
-    #       name: coverage
-    #       path: ./coverage
-      
-    #   - name: Setup Pages
-    #     uses: actions/configure-pages@v4
-        
-    #   - name: Upload to GitHub Pages
-    #     uses: actions/upload-pages-artifact@v3
-    #     with:
-    #       path: ./coverage
-          
-    #   - name: Deploy to GitHub Pages
-    #     id: deployment
-    #     uses: actions/deploy-pages@v4
+
+  # environment:
+  #   name: github-pages
+  #   url: ${{ steps.deployment.outputs.page_url }}
+
+  # steps:
+  #   - name: Download coverage artifact
+  #     uses: actions/download-artifact@v4
+  #     with:
+  #       name: coverage
+  #       path: ./coverage
+
+  #   - name: Setup Pages
+  #     uses: actions/configure-pages@v4
+
+  #   - name: Upload to GitHub Pages
+  #     uses: actions/upload-pages-artifact@v3
+  #     with:
+  #       path: ./coverage
+
+  #   - name: Deploy to GitHub Pages
+  #     id: deployment
+  #     uses: actions/deploy-pages@v4
