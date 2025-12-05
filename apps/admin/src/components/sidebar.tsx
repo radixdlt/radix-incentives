@@ -8,6 +8,7 @@ import {
   CalendarDays,
   Coins,
   Database,
+  Gift,
   ListOrdered,
   LogOut,
   Medal,
@@ -68,6 +69,11 @@ const navigationItems = [
     title: 'Component Whitelist',
     href: '/component-whitelist',
     icon: <Shield className="h-5 w-5" />,
+  },
+  {
+    title: 'Season Bonuses',
+    href: '/season-bonuses',
+    icon: <Gift className="h-5 w-5" />,
   },
   {
     title: 'DEX Pools',

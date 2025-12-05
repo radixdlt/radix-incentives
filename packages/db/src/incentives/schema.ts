@@ -528,6 +528,24 @@ export const componentWhitelist = createTable(
   }),
 );
 
+export const userSeasonBonuses = createTable(
+  'user_season_bonuses',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    seasonId: uuid('season_id')
+      .notNull()
+      .references(() => seasons.id, { onDelete: 'cascade' }),
+    seasonBonus: decimal('season_bonus', { precision: 10, scale: 6 }).notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.userId, table.seasonId] }),
+    userIdIdx: index('idx_user_season_bonuses_user_id').on(table.userId),
+    seasonIdIdx: index('idx_user_season_bonuses_season_id').on(table.seasonId),
+  }),
+);
+
 // Leaderboard pre-aggregation tables
 export const seasonLeaderboardCache = createTable(
   'season_leaderboard_cache',

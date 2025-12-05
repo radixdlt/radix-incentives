@@ -309,6 +309,13 @@
       "when": 1765455220000,
       "tag": "0043_marvelous_shadow_king",
       "breakpoints": true
+    },
+    {
+      "idx": 44,
+      "version": "7",
+      "when": 1765455221000,
+      "tag": "0044_stale_wendigo",
+      "breakpoints": true
     }
   ]
 }
