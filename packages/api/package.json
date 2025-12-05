@@ -17,6 +17,7 @@
     "@bull-board/api": "catalog:",
     "@date-fns/utc": "catalog:",
     "@effect/opentelemetry": "^0.47.1",
+    "@effect/platform": "catalog:",
     "@noble/hashes": "catalog:",
     "@opentelemetry/exporter-trace-otlp-http": "^0.200.0",
     "@opentelemetry/sdk-metrics": "^2.2.0",

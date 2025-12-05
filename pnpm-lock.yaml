@@ -24,6 +24,9 @@ catalogs:
     '@effect/opentelemetry':
       specifier: ^0.47.0
       version: 0.47.0
+    '@effect/platform':
+      specifier: ^0.93.6
+      version: 0.93.6
     '@hono/node-server':
       specifier: ^1.14.2
       version: 1.14.3
@@ -758,7 +761,10 @@ importers:
         version: 2.1.0
       '@effect/opentelemetry':
         specifier: ^0.47.1
-        version: 0.47.1(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)
+        version: 0.47.1(@effect/platform@0.93.6(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)
+      '@effect/platform':
+        specifier: 'catalog:'
+        version: 0.93.6(effect@3.14.6)
       '@noble/hashes':
         specifier: 'catalog:'
         version: 1.8.0
@@ -939,7 +945,7 @@ importers:
     dependencies:
       '@effect/opentelemetry':
         specifier: 'catalog:'
-        version: 0.47.0(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)
+        version: 0.47.0(@effect/platform@0.93.6(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)
       '@opentelemetry/exporter-trace-otlp-http':
         specifier: 'catalog:'
         version: 0.200.0(@opentelemetry/api@1.9.0)
@@ -1213,10 +1219,10 @@ packages:
       '@opentelemetry/sdk-trace-web':
         optional: true
 
-  '@effect/platform@0.81.0':
-    resolution: {integrity: sha512-RZ0pqpSUET0Ab3CBjOhJ12C2/vWLQsy+SLJbGNxjcOm9xZAwQowggWCs4S3ZXhdnNTR5WJHH02WlAWHJDaMKhA==}
+  '@effect/platform@0.93.6':
+    resolution: {integrity: sha512-I5lBGQWzWXP4zlIdPs7z7WHmEFVBQhn+74emr/h16GZX96EEJ6I1rjGaKyZF7mtukbMuo9wEckDPssM8vskZ/w==}
     peerDependencies:
-      effect: ^3.14.21
+      effect: ^3.19.8
 
   '@effect/vitest@0.20.17':
     resolution: {integrity: sha512-CFieUpcFCMkaeppdTztMaXEQTA6SikCQig5fAQDbS7HxSeEf2NBeoojht0//357tKiueEqM6GRG05x9axO+5iw==}
@@ -6169,9 +6175,9 @@ snapshots:
 
   '@effect/language-service@0.27.2': {}
 
-  '@effect/opentelemetry@0.47.0(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)':
+  '@effect/opentelemetry@0.47.0(@effect/platform@0.93.6(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.0.1(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)':
     dependencies:
-      '@effect/platform': 0.81.0(effect@3.14.6)
+      '@effect/platform': 0.93.6(effect@3.14.6)
       '@opentelemetry/semantic-conventions': 1.38.0
       effect: 3.14.6
     optionalDependencies:
@@ -6182,9 +6188,9 @@ snapshots:
       '@opentelemetry/sdk-trace-node': 2.2.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-web': 2.2.0(@opentelemetry/api@1.9.0)
 
-  '@effect/opentelemetry@0.47.1(@effect/platform@0.81.0(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)':
+  '@effect/opentelemetry@0.47.1(@effect/platform@0.93.6(effect@3.14.6))(@opentelemetry/api@1.9.0)(@opentelemetry/resources@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-metrics@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-base@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-node@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/sdk-trace-web@2.2.0(@opentelemetry/api@1.9.0))(@opentelemetry/semantic-conventions@1.38.0)(effect@3.14.6)':
     dependencies:
-      '@effect/platform': 0.81.0(effect@3.14.6)
+      '@effect/platform': 0.93.6(effect@3.14.6)
       '@opentelemetry/semantic-conventions': 1.38.0
       effect: 3.14.6
     optionalDependencies:
@@ -6195,7 +6201,7 @@ snapshots:
       '@opentelemetry/sdk-trace-node': 2.2.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-web': 2.2.0(@opentelemetry/api@1.9.0)
 
-  '@effect/platform@0.81.0(effect@3.14.6)':
+  '@effect/platform@0.93.6(effect@3.14.6)':
     dependencies:
       effect: 3.14.6
       find-my-way-ts: 0.1.6

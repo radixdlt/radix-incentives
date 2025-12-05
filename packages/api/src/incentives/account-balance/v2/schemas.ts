@@ -23,6 +23,13 @@ export const BigNumberSchema = Schema.asSchema(
 export type AccountAddress = string & Brand.Brand<'AccountAddress'>;
 export const AccountAddress = Brand.nominal<AccountAddress>();
 
+export type PackageAddress = string & Brand.Brand<'PackageAddress'>;
+export const PackageAddress = Brand.nominal<PackageAddress>();
+
+export type AccessControllerAddress = string &
+  Brand.Brand<'AccessControllerAddress'>;
+export const AccessControllerAddress = Brand.nominal<AccessControllerAddress>();
+
 export type FungibleResourceAddress = string &
   Brand.Brand<'FungibleResourceAddress'>;
 export const FungibleResourceAddress = Brand.nominal<FungibleResourceAddress>();

@@ -5,6 +5,11 @@ import {
   SignatureWithPublicKey,
 } from '@radixdlt/radix-engine-toolkit';
 import { Effect, Option, Schema } from 'effect';
+import {
+  AccessControllerAddress,
+  AccountAddress,
+  FungibleResourceAddress,
+} from '../account-balance/v2/schemas';
 
 export const Epoch = Schema.Number.pipe(Schema.brand('Epoch'));
 export type Epoch = typeof Epoch.Type;
@@ -17,6 +22,35 @@ export type Nonce = typeof Nonce.Type;
 
 export const HexString = Schema.String.pipe(Schema.brand('HexString'));
 export type HexString = typeof HexString.Type;
+
+export const Base64String = Schema.String.pipe(Schema.brand('Base64String'));
+export type Base64String = typeof Base64String.Type;
+
+export const Base64FromHexSchema = Schema.asSchema(
+  Schema.transformOrFail(HexString, Base64String, {
+    decode: (hex) =>
+      Effect.succeed(
+        Base64String.make(Buffer.from(hex, 'hex').toString('base64')),
+      ),
+    encode: (base64) =>
+      Effect.succeed(
+        HexString.make(Buffer.from(base64, 'base64').toString('hex')),
+      ),
+  }),
+);
+
+export const HexFromBase64Schema = Schema.asSchema(
+  Schema.transformOrFail(Base64String, HexString, {
+    decode: (base64) =>
+      Effect.succeed(
+        HexString.make(Buffer.from(base64, 'base64').toString('hex')),
+      ),
+    encode: (hex) =>
+      Effect.succeed(
+        Base64String.make(Buffer.from(hex, 'hex').toString('base64')),
+      ),
+  }),
+);
 
 export const TransactionId = Schema.String.pipe(Schema.brand('TransactionId'));
 export type TransactionId = typeof TransactionId.Type;
@@ -48,6 +82,8 @@ export const Ed25519PrivateKeySchema = Schema.asSchema(
       ),
   }),
 );
+
+export type Ed25519PrivateKey = typeof Ed25519PrivateKeySchema.Type;
 
 export const ManifestSchema = Schema.asSchema(
   Schema.transformOrFail(
@@ -178,3 +214,34 @@ export type Ed25519SignatureWithPublicKey =
 
 export type Ed25519SignatureWithPublicKeyEncoded =
   typeof Ed25519SignatureWithPublicKeySchema.Encoded;
+
+export const UnsecurifiedAccountSchema = Schema.Struct({
+  type: Schema.Literal('unsecurifiedAccount'),
+  address: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
+});
+
+export const SecurifiedAccountSchema = Schema.Struct({
+  type: Schema.Literal('securifiedAccount'),
+  address: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
+  accessControllerAddress: Schema.String.pipe(
+    Schema.fromBrand(AccessControllerAddress),
+  ),
+});
+
+export const AccountSchema = Schema.Union(
+  UnsecurifiedAccountSchema,
+  SecurifiedAccountSchema,
+);
+
+export type UnsecurifiedAccount = typeof UnsecurifiedAccountSchema.Type;
+export type SecurifiedAccount = typeof SecurifiedAccountSchema.Type;
+export type Account = typeof AccountSchema.Type;
+
+export const BadgeSchema = Schema.Struct({
+  type: Schema.Literal('fungibleResource'),
+  resourceAddress: Schema.String.pipe(
+    Schema.fromBrand(FungibleResourceAddress),
+  ),
+});
+
+export type Badge = typeof BadgeSchema.Type;
