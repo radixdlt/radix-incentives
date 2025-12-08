@@ -464,4 +464,50 @@
 	}
 
 	/* Removed distracting pulse animation */
+
+	/* Markdown prose styles */
+	.markdown-content p {
+		margin-bottom: 1rem;
+	}
+
+	.markdown-content p:last-child {
+		margin-bottom: 0;
+	}
+
+	.markdown-content strong {
+		font-weight: 700;
+		color: var(--foreground);
+	}
+
+	.markdown-content em {
+		font-style: italic;
+	}
+
+	.markdown-content ul,
+	.markdown-content ol {
+		margin-bottom: 1rem;
+		padding-left: 1.5rem;
+	}
+
+	.markdown-content ul {
+		list-style-type: disc;
+	}
+
+	.markdown-content ol {
+		list-style-type: decimal;
+	}
+
+	.markdown-content li {
+		margin-bottom: 0.25rem;
+	}
+
+	.markdown-content a {
+		color: var(--accent);
+		text-decoration: underline;
+		transition: color 0.2s;
+	}
+
+	.markdown-content a:hover {
+		color: var(--primary);
+	}
 }

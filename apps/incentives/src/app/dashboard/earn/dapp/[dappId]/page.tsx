@@ -5,6 +5,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { use } from 'react';
+import Markdown from 'react-markdown';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import {
@@ -142,11 +143,13 @@ export default function DappDetailPage({
             <CardTitle>About</CardTitle>
           </CardHeader>
           <CardContent>
-            <CardDescription className="text-base">
-              {dapp.longDescription ||
-                dapp.description ||
-                'No description available.'}
-            </CardDescription>
+            <div className="markdown-content text-base text-muted-foreground">
+              <Markdown>
+                {dapp.longDescription ||
+                  dapp.description ||
+                  'No description available.'}
+              </Markdown>
+            </div>
           </CardContent>
         </Card>
 

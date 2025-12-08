@@ -1,11 +1,11 @@
 import { ChevronRight } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import Markdown from 'react-markdown';
 import { Badge } from '~/components/ui/badge';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -71,9 +71,11 @@ export const DappCard = ({ dapp }: DappCardProps) => {
         </CardHeader>
 
         <CardContent className="flex-1">
-          <CardDescription className="text-sm">
-            {dapp.description || 'Participate in this DApp to earn points.'}
-          </CardDescription>
+          <div className="markdown-content text-muted-foreground text-sm">
+            <Markdown>
+              {dapp.description || 'Participate in this DApp to earn points.'}
+            </Markdown>
+          </div>
         </CardContent>
 
         <CardFooter className="mt-auto pt-3">
