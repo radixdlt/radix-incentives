@@ -15,10 +15,12 @@ import { DbService } from '../db/dbClient';
 type CheckAndReactivateAccountsInput = {
   userId: string;
   /**
-   * TEST ONLY: Override state version for integration tests.
-   * This parameter is ignored in production and will throw an error if used outside test environment.
+   * Optional state version to use for balance checks.
+   * If not provided, the current ledger state will be fetched.
+   *
+   * @internal This is only used by integration tests and is not exposed through the API.
    */
-  __testStateVersion?: number;
+  stateVersion?: number;
 };
 
 /**
@@ -50,17 +52,6 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
       );
 
       return Effect.fn(function* (input: CheckAndReactivateAccountsInput) {
-        // Guard: Prevent __testStateVersion from being used in production
-        if (input.__testStateVersion !== undefined) {
-          const isTestEnv =
-            process.env.NODE_ENV === 'test' || process.env.VITEST === 'true';
-          if (!isTestEnv) {
-            return yield* Effect.die(
-              '__testStateVersion can only be used in test environment',
-            );
-          }
-        }
-
         yield* Effect.log(`Checking XRD balance for user: ${input.userId}`);
 
         // Get all accounts for this user
@@ -90,15 +81,13 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
 
         let stateVersion: number;
 
-        // Use test state version if provided (test mode only)
-        if (input.__testStateVersion !== undefined) {
-          yield* Effect.log(
-            `Using test state version: ${input.__testStateVersion}`,
-          );
-          stateVersion = input.__testStateVersion;
+        // Use provided state version if available (for tests), otherwise fetch current
+        if (input.stateVersion !== undefined) {
+          yield* Effect.log(`Using state version: ${input.stateVersion}`);
+          stateVersion = input.stateVersion;
         } else {
           yield* Effect.log(
-            'Fetching current balances from blockchain (not persisting yet)',
+            'Fetching current balances from ledger (not persisting yet)',
           );
 
           // Get current ledger state

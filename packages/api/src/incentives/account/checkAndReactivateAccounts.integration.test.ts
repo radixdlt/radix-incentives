@@ -85,7 +85,7 @@ layer(CheckAndReactivateAccountsService.Default)(
           // Check and reactivate using fixed state version
           const result = yield* service({
             userId: user.id,
-            __testStateVersion: TEST_STATE_VERSION,
+            stateVersion: TEST_STATE_VERSION,
           });
 
           // Should reactivate (both activities together >= $1)
@@ -139,7 +139,7 @@ layer(CheckAndReactivateAccountsService.Default)(
           // Check and reactivate using fixed state version
           const result = yield* service({
             userId: user.id,
-            __testStateVersion: TEST_STATE_VERSION,
+            stateVersion: TEST_STATE_VERSION,
           });
 
           // Should reactivate (combined >= $1)
@@ -191,7 +191,7 @@ layer(CheckAndReactivateAccountsService.Default)(
           // Check balance using fixed state version
           const result = yield* service({
             userId: user.id,
-            __testStateVersion: TEST_STATE_VERSION,
+            stateVersion: TEST_STATE_VERSION,
           });
 
           // Should NOT reactivate (< $1)
