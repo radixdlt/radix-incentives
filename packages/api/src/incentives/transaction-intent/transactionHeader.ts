@@ -62,7 +62,7 @@ export class TransactionHeader extends Effect.Service<TransactionHeader>()(
 
           const endEpochExclusive = Option.match(input.endEpochExclusive, {
             onSome: (epoch) => epoch,
-            onNone: () => Epoch.make(currentEpoch + 10),
+            onNone: () => Epoch.make(currentEpoch + 2),
           });
 
           if (currentEpoch >= endEpochExclusive)

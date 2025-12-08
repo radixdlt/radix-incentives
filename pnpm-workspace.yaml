@@ -11,6 +11,7 @@ catalog:
   '@date-fns/utc': ^2.1.0
   '@effect/language-service': ^0.27.2
   '@effect/opentelemetry': ^0.47.0
+  '@effect/platform': ^0.93.6
   '@hono/node-server': ^1.14.2
   '@noble/curves': ^1.8.1
   '@noble/hashes': ^1.8.0
@@ -77,3 +78,4 @@ catalog:
   undici: ^7.13.0
   vitest: ^3.0.9
   zod: ^4.1.13
+  

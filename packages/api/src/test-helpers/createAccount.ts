@@ -33,5 +33,6 @@ export const createAccount = (
         return Buffer.from(signature).toString('hex');
       },
       publicKeyHex,
+      privateKeyHex: Buffer.from(privateKey).toString('hex'),
     };
   });
