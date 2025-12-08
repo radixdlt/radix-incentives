@@ -26,6 +26,16 @@ type CsvRow = {
   season_bonus: string;
 };
 
+const SeasonBonusEntrySchema = Schema.Struct({
+  userId: Schema.propertySignature(Schema.UUID).pipe(Schema.fromKey('user_id')),
+  seasonId: Schema.propertySignature(Schema.UUID).pipe(
+    Schema.fromKey('season_id'),
+  ),
+  seasonBonus: Schema.propertySignature(
+    Schema.NumberFromString.pipe(Schema.between(0, 0.2)),
+  ).pipe(Schema.fromKey('season_bonus')),
+});
+
 /**
  * Parses a CSV file containing user season bonuses.
  * Expected format: user_id,season_id,season_bonus
@@ -103,12 +113,19 @@ export const parseCsvSeasonBonus = (
       const row = rows[i];
       if (!row) continue;
 
-      const userId = row.user_id?.trim();
-      const seasonId = row.season_id?.trim();
-      const seasonBonusStr = row.season_bonus?.trim();
+      // Trim all fields
+      const trimmedRow = {
+        user_id: row.user_id?.trim(),
+        season_id: row.season_id?.trim(),
+        season_bonus: row.season_bonus?.trim(),
+      };
 
       // Validate required fields
-      if (!userId || !seasonId || !seasonBonusStr) {
+      if (
+        !trimmedRow.user_id ||
+        !trimmedRow.season_id ||
+        !trimmedRow.season_bonus
+      ) {
         return yield* Effect.fail(
           new CsvParsingError({
             message: `Missing required field(s) on row ${i + 1}: user_id, season_id, or season_bonus`,
@@ -116,49 +133,19 @@ export const parseCsvSeasonBonus = (
         );
       }
 
-      // Validate UUID format for user_id and season_id
-      yield* Schema.decodeUnknown(Schema.UUID)(userId).pipe(
+      // Parse and validate using schema
+      const entry = yield* Schema.decodeUnknown(SeasonBonusEntrySchema)(
+        trimmedRow,
+      ).pipe(
         Effect.mapError(
-          () =>
+          (error) =>
             new CsvParsingError({
-              message: `Invalid user_id format on row ${i + 1}: ${userId}`,
+              message: `Validation error on row ${i + 1}: ${error.message || String(error)}`,
             }),
         ),
       );
 
-      yield* Schema.decodeUnknown(Schema.UUID)(seasonId).pipe(
-        Effect.mapError(
-          () =>
-            new CsvParsingError({
-              message: `Invalid season_id format on row ${i + 1}: ${seasonId}`,
-            }),
-        ),
-      );
-
-      // Parse and validate season_bonus
-      const seasonBonus = Number.parseFloat(seasonBonusStr);
-      if (Number.isNaN(seasonBonus)) {
-        return yield* Effect.fail(
-          new CsvParsingError({
-            message: `Invalid season_bonus value on row ${i + 1}: ${seasonBonusStr}`,
-          }),
-        );
-      }
-
-      // Validate season_bonus range (0 to 0.2 = 0% to 20%)
-      if (seasonBonus < 0 || seasonBonus > 0.2) {
-        return yield* Effect.fail(
-          new CsvParsingError({
-            message: `Season bonus must be between 0 and 0.2 (20%) on row ${i + 1}: ${seasonBonus}`,
-          }),
-        );
-      }
-
-      entries.push({
-        userId,
-        seasonId,
-        seasonBonus,
-      });
+      entries.push(entry);
     }
 
     return {
