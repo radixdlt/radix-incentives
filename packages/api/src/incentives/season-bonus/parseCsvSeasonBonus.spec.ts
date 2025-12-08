@@ -33,17 +33,20 @@ ${validUserId},${validSeasonId},0.14532
     }
   });
 
-  it('should handle empty CSV and return empty array', async () => {
+  it('should fail on empty CSV', async () => {
     const csvData = '';
 
     const result = await Effect.runPromiseExit(
       parseCsvSeasonBonus({ csvData }),
     );
 
-    expect(Exit.isSuccess(result)).toBe(true);
-    if (Exit.isSuccess(result)) {
-      expect(result.value.entries).toEqual([]);
-      expect(result.value.count).toBe(0);
+    expect(Exit.isFailure(result)).toBe(true);
+    if (Exit.isFailure(result)) {
+      const failure = Cause.failureOption(result.cause);
+      expect(failure._tag).toBe('Some');
+      if (failure._tag === 'Some') {
+        expect(failure.value).toBeInstanceOf(CsvParsingError);
+      }
     }
   });
 

@@ -1,9 +1,9 @@
-import { Effect } from 'effect';
+import { Data, Effect, Schema } from 'effect';
+import Papa from 'papaparse';
 
-export class CsvParsingError {
-  readonly _tag = 'CsvParsingError';
-  constructor(readonly message: string) {}
-}
+export class CsvParsingError extends Data.TaggedError('CsvParsingError')<{
+  message: string;
+}> {}
 
 export type ParseCsvSeasonBonusInput = {
   csvData: string;
@@ -20,6 +20,12 @@ export type ParseCsvSeasonBonusOutput = {
   count: number;
 };
 
+type CsvRow = {
+  user_id: string;
+  season_id: string;
+  season_bonus: string;
+};
+
 /**
  * Parses a CSV file containing user season bonuses.
  * Expected format: user_id,season_id,season_bonus
@@ -29,100 +35,122 @@ export const parseCsvSeasonBonus = (
   input: ParseCsvSeasonBonusInput,
 ): Effect.Effect<ParseCsvSeasonBonusOutput, CsvParsingError> =>
   Effect.gen(function* () {
-    const lines = input.csvData.trim().split('\n');
-    const entries: SeasonBonusEntry[] = [];
+    // Validate CSV is not empty
+    if (!input.csvData || input.csvData.trim() === '') {
+      return yield* Effect.fail(
+        new CsvParsingError({
+          message: 'CSV data cannot be empty',
+        }),
+      );
+    }
+
+    // Parse CSV using papaparse
+    const parseResult = Papa.parse<CsvRow>(input.csvData, {
+      header: true,
+      skipEmptyLines: true,
+      transformHeader: (header) => header.trim(),
+    });
+
+    // Check for parsing errors (but ignore "UndetectableDelimiter" for header-only CSV)
+    const realErrors = parseResult.errors.filter(
+      (error) => error.code !== 'UndetectableDelimiter',
+    );
+    if (realErrors.length > 0) {
+      const firstError = realErrors[0];
+      return yield* Effect.fail(
+        new CsvParsingError({
+          message: `CSV parsing error on row ${firstError?.row ?? 'unknown'}: ${firstError?.message ?? 'unknown error'}`,
+        }),
+      );
+    }
+
+    const rows = parseResult.data;
 
     // Handle empty CSV
-    if (lines.length === 0 || (lines.length === 1 && !lines[0]?.trim())) {
+    if (rows.length === 0) {
       return {
         entries: [],
         count: 0,
       };
     }
 
-    const header = lines[0];
+    // Validate that required columns exist
+    const firstRow = rows[0];
+    if (!firstRow) {
+      return {
+        entries: [],
+        count: 0,
+      };
+    }
 
-    // Validate header
     if (
-      !header?.includes('user_id') ||
-      !header?.includes('season_id') ||
-      !header?.includes('season_bonus')
+      !('user_id' in firstRow) ||
+      !('season_id' in firstRow) ||
+      !('season_bonus' in firstRow)
     ) {
       return yield* Effect.fail(
-        new CsvParsingError(
-          "Invalid CSV format. Expected columns: 'user_id', 'season_id', 'season_bonus'",
-        ),
+        new CsvParsingError({
+          message:
+            "Invalid CSV format. Expected columns: 'user_id', 'season_id', 'season_bonus'",
+        }),
       );
     }
 
-    // Find column indices
-    const headers = header.split(',').map((h) => h.trim().replace(/"/g, ''));
-    const userIdIndex = headers.findIndex((h) => h === 'user_id');
-    const seasonIdIndex = headers.findIndex((h) => h === 'season_id');
-    const seasonBonusIndex = headers.findIndex((h) => h === 'season_bonus');
+    const entries: SeasonBonusEntry[] = [];
 
-    if (userIdIndex === -1 || seasonIdIndex === -1 || seasonBonusIndex === -1) {
-      return yield* Effect.fail(
-        new CsvParsingError('Required columns not found in CSV'),
-      );
-    }
+    // Process each row
+    for (let i = 0; i < rows.length; i++) {
+      const row = rows[i];
+      if (!row) continue;
 
-    // Parse entries from CSV
-    for (let i = 1; i < lines.length; i++) {
-      const line = lines[i]?.trim();
-      if (!line) continue;
-
-      const columns = line
-        .split(',')
-        .map((col) => col.trim().replace(/"/g, ''));
-
-      const userId = columns[userIdIndex];
-      const seasonId = columns[seasonIdIndex];
-      const seasonBonusStr = columns[seasonBonusIndex];
+      const userId = row.user_id?.trim();
+      const seasonId = row.season_id?.trim();
+      const seasonBonusStr = row.season_bonus?.trim();
 
       // Validate required fields
       if (!userId || !seasonId || !seasonBonusStr) {
         return yield* Effect.fail(
-          new CsvParsingError(
-            `Missing required field(s) on line ${i + 1}: user_id, season_id, or season_bonus`,
-          ),
+          new CsvParsingError({
+            message: `Missing required field(s) on row ${i + 1}: user_id, season_id, or season_bonus`,
+          }),
         );
       }
 
       // Validate UUID format for user_id and season_id
-      const uuidRegex =
-        /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-      if (!uuidRegex.test(userId)) {
-        return yield* Effect.fail(
-          new CsvParsingError(
-            `Invalid user_id format on line ${i + 1}: ${userId}`,
-          ),
-        );
-      }
-      if (!uuidRegex.test(seasonId)) {
-        return yield* Effect.fail(
-          new CsvParsingError(
-            `Invalid season_id format on line ${i + 1}: ${seasonId}`,
-          ),
-        );
-      }
+      yield* Schema.decodeUnknown(Schema.UUID)(userId).pipe(
+        Effect.mapError(
+          () =>
+            new CsvParsingError({
+              message: `Invalid user_id format on row ${i + 1}: ${userId}`,
+            }),
+        ),
+      );
+
+      yield* Schema.decodeUnknown(Schema.UUID)(seasonId).pipe(
+        Effect.mapError(
+          () =>
+            new CsvParsingError({
+              message: `Invalid season_id format on row ${i + 1}: ${seasonId}`,
+            }),
+        ),
+      );
 
       // Parse and validate season_bonus
       const seasonBonus = Number.parseFloat(seasonBonusStr);
       if (Number.isNaN(seasonBonus)) {
         return yield* Effect.fail(
-          new CsvParsingError(
-            `Invalid season_bonus value on line ${i + 1}: ${seasonBonusStr}`,
-          ),
+          new CsvParsingError({
+            message: `Invalid season_bonus value on row ${i + 1}: ${seasonBonusStr}`,
+          }),
         );
       }
 
       // Validate season_bonus range (0 to 0.2 = 0% to 20%)
       if (seasonBonus < 0 || seasonBonus > 0.2) {
         return yield* Effect.fail(
-          new CsvParsingError(
-            `Season bonus must be between 0 and 0.2 (20%) on line ${i + 1}: ${seasonBonus}`,
-          ),
+          new CsvParsingError({
+            message: `Season bonus must be between 0 and 0.2 (20%) on row ${i + 1}: ${seasonBonus}`,
+          }),
         );
       }
 

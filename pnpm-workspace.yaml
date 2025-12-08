@@ -43,6 +43,7 @@ catalog:
   '@trpc/server': ^11.7.2
   '@types/inquirer': ^9.0.7
   '@types/node': ^20.0.0
+  '@types/papaparse': ^5.5.1
   '@types/react': ^19.2.7
   '@types/react-dom': ^19.2.3
   bignumber.js: ^9.3.1
