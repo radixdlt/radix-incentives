@@ -22,7 +22,9 @@ export const IncentivesVesterConfigSchema = Schema.Struct({
     Schema.fromBrand(FungibleResourceAddress),
   ),
   networkId: NetworkId,
-  packageAddress: Schema.String.pipe(Schema.fromBrand(PackageAddress)),
+  packageAddress: Schema.Option(
+    Schema.String.pipe(Schema.fromBrand(PackageAddress)),
+  ),
   dappDefinitionAccount: AccountSchema,
   adminAccount: AccountSchema,
   superAdminAccount: Schema.Option(AccountSchema),
@@ -31,15 +33,11 @@ export const IncentivesVesterConfigSchema = Schema.Struct({
   ),
 });
 
-export class IncentivesVesterConfig extends Context.Tag(
-  'IncentivesVesterConfig',
-)<IncentivesVesterConfig, Ref.Ref<typeof IncentivesVesterConfigSchema.Type>>() {
-  static provide = (
-    config: Ref.Ref<typeof IncentivesVesterConfigSchema.Type>,
-  ) => Layer.effect(IncentivesVesterConfig, Effect.succeed(config));
-  static StokenetConfig = Effect.gen(function* () {
-    const networkId = NetworkId.make(2);
-
+const createConfig = (input: {
+  networkId: NetworkId;
+  packageAddress?: PackageAddress;
+}) =>
+  Effect.gen(function* () {
     const adminBadge = yield* Config.string(
       'INCENTIVES_VESTER_ADMIN_BADGE_RESOURCE_ADDRESS',
     ).pipe(
@@ -126,17 +124,15 @@ export class IncentivesVesterConfig extends Context.Tag(
     ).pipe(Config.option, Effect.map(Option.map(ComponentAddress)));
 
     const knownAddresses = yield* Effect.tryPromise(() =>
-      RadixEngineToolkit.Utils.knownAddresses(networkId),
+      RadixEngineToolkit.Utils.knownAddresses(input.networkId),
     );
 
     const config = {
       adminBadge: adminBadge,
       superAdminBadge: superAdminBadge,
       componentAddress,
-      networkId,
-      packageAddress: PackageAddress(
-        'package_tdx_2_1pk03fls3pdjf5dewt0kewhpx9syyj5vd4wq808sffcq5ghjk7svd4y',
-      ),
+      networkId: input.networkId,
+      packageAddress: Option.fromNullable(input.packageAddress),
       rewardsResourceAddress: FungibleResourceAddress(
         knownAddresses.resourceAddresses.xrd,
       ),
@@ -146,5 +142,24 @@ export class IncentivesVesterConfig extends Context.Tag(
     } satisfies typeof IncentivesVesterConfigSchema.Type;
 
     return yield* Ref.make(config);
+  });
+
+export class IncentivesVesterConfig extends Context.Tag(
+  'IncentivesVesterConfig',
+)<IncentivesVesterConfig, Ref.Ref<typeof IncentivesVesterConfigSchema.Type>>() {
+  static provide = (
+    config: Ref.Ref<typeof IncentivesVesterConfigSchema.Type>,
+  ) => Layer.effect(IncentivesVesterConfig, Effect.succeed(config));
+
+  static MainnetConfig = createConfig({
+    networkId: NetworkId.make(1),
+    packageAddress: PackageAddress(''),
+  });
+
+  static StokenetConfig = createConfig({
+    networkId: NetworkId.make(2),
+    packageAddress: PackageAddress(
+      'package_tdx_2_1pk03fls3pdjf5dewt0kewhpx9syyj5vd4wq808sffcq5ghjk7svd4y',
+    ),
   });
 }

@@ -6,7 +6,6 @@ import {
   ConfigProvider,
   Duration,
   Effect,
-  Fiber,
   flow,
   Layer,
   Logger,
@@ -14,10 +13,10 @@ import {
   Redacted,
   Ref,
   Schema,
-  TestClock,
 } from 'effect';
 import { GetFungibleBalanceService } from '../../../common/gateway';
 import { createAccount } from '../../../test-helpers/createAccount';
+import { DisableTestClock } from '../../../test-helpers/disableTestClock';
 import { AccountAddress, Amount } from '../../account-balance/v2/schemas';
 import {
   BadgeSchema,
@@ -25,7 +24,7 @@ import {
   HexString,
   UnsecurifiedAccountSchema,
 } from '../../transaction-intent/schemas';
-import { Signer } from '../../transaction-intent/singer/signer';
+import { Signer } from '../../transaction-intent/signer/signer';
 import {
   TransactionHelper,
   TransactionHelperConfig,
@@ -40,23 +39,6 @@ const random32BytesHex = () =>
   HexString.make(
     Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString('hex'),
   );
-
-const resolveFiber = <A, E>(fiber: Fiber.RuntimeFiber<A, E>) =>
-  Effect.gen(function* () {
-    while (Option.isNone(yield* Fiber.poll(fiber))) {
-      yield* Effect.promise(
-        async () => new Promise((resolve) => setTimeout(resolve, 1000)),
-      );
-      yield* TestClock.adjust(Duration.seconds(1));
-    }
-    return yield* Fiber.join(fiber);
-  });
-
-const DisableTestClock = <A, E, R>(effect: Effect.Effect<A, E, R>) =>
-  Effect.gen(function* () {
-    const fiber = yield* effect.pipe(Effect.fork);
-    return yield* resolveFiber(fiber);
-  });
 
 const testSetup = DisableTestClock(
   Effect.gen(function* () {
@@ -203,8 +185,6 @@ const testSetup = DisableTestClock(
       }));
     }
 
-    yield* Effect.log(yield* Ref.get(configRef));
-
     return {
       stokenetConfig: configRef,
       superAdminSignerLive,
@@ -219,8 +199,12 @@ describe.skip('Incentives Vester Component', () => {
     'should successfully setup and claim rewards',
     () => {
       return Effect.gen(function* () {
-        const { stokenetConfig, superAdminSignerLive, adminSignerLive } =
-          yield* testSetup;
+        const {
+          stokenetConfig,
+          superAdminSignerLive,
+          adminSignerLive,
+          superAdminPrivateKey,
+        } = yield* testSetup;
 
         const superAdminOperations = Effect.gen(function* () {
           const incentivesVester = yield* IncentivesVester;
@@ -245,6 +229,7 @@ describe.skip('Incentives Vester Component', () => {
           Effect.provide(IncentivesVester.Default),
           Effect.provide(IncentivesVesterConfig.provide(stokenetConfig)),
           Effect.provide(superAdminSignerLive),
+          Effect.tapError(Effect.logError),
         );
 
         const adminOperations = Effect.gen(function* () {
@@ -256,7 +241,7 @@ describe.skip('Incentives Vester Component', () => {
           });
 
           yield* incentivesVester.claim({
-            amount: Amount('200'),
+            amount: Amount('100'),
             accountAddress: account.address,
           });
         }).pipe(
@@ -265,11 +250,33 @@ describe.skip('Incentives Vester Component', () => {
           Effect.provide(adminSignerLive),
         );
 
+        const maybeComponentAddress = yield* Ref.get(stokenetConfig).pipe(
+          Effect.map((r) => r.componentAddress),
+        );
+
         // instantiate component transaction & create pool units & finish setup transaction
-        yield* DisableTestClock(superAdminOperations);
+        if (Option.isNone(maybeComponentAddress)) {
+          yield* DisableTestClock(superAdminOperations);
+        } else {
+          yield* Effect.log(
+            'Component already instantiated, skipping instantiation',
+          );
+        }
 
         // claim transaction
         yield* DisableTestClock(adminOperations);
+
+        const config = yield* Ref.get(stokenetConfig);
+
+        yield* Effect.log(`
+export INCENTIVES_VESTER_ADMIN_BADGE_RESOURCE_ADDRESS="${Option.getOrUndefined(config.adminBadge)?.resourceAddress}"
+export INCENTIVES_VESTER_SUPER_ADMIN_BADGE_RESOURCE_ADDRESS="${Option.getOrUndefined(config.superAdminBadge)?.resourceAddress}"
+
+export INCENTIVES_VESTER_COMPONENT_ADDRESS="${Option.getOrUndefined(config.componentAddress)}"
+
+export INCENTIVES_VESTER_SUPER_ADMIN_ACCOUNT_ADDRESS="${Option.getOrUndefined(config.superAdminAccount)?.address}"
+export INCENTIVES_VESTER_SUPER_ADMIN_ED25519_PRIVATE_KEY="${Redacted.value(superAdminPrivateKey)}"
+        `);
       }).pipe(Effect.provide(Logger.pretty));
     },
     { timeout: 300_000 },

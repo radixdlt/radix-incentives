@@ -22,9 +22,10 @@ import {
   type Account,
   NetworkId,
   type TransactionId,
+  type TransactionIntent,
   TransactionManifestString,
 } from './schemas';
-import { Signer } from './singer/signer';
+import { Signer } from './signer/signer';
 import { SubmitTransaction } from './submitTransaction';
 import { TransactionStatus } from './transactionStatus';
 
@@ -46,6 +47,18 @@ export class FaucetNotAvailableError extends Data.TaggedError(
 )<{
   message: string;
 }> {}
+
+export class TransactionLifeCycleHook extends Context.Tag(
+  'TransactionLifeCycleHook',
+)<
+  TransactionLifeCycleHook,
+  {
+    onSubmitTransaction?: (input: {
+      id: TransactionId;
+      intent: TransactionIntent;
+    }) => Effect.Effect<void, never, never>;
+  }
+>() {}
 
 export class TransactionHelper extends Effect.Service<TransactionHelper>()(
   'TransactionHelper',
@@ -77,6 +90,13 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
           ),
         ),
       );
+      const lifeCycleHook = yield* Effect.serviceOption(
+        TransactionLifeCycleHook,
+      );
+
+      const onSubmitTransactionLifeCycleHook = lifeCycleHook.pipe(
+        Option.flatMap((item) => Option.fromNullable(item.onSubmitTransaction)),
+      );
 
       const submitTransaction = (input: {
         manifest: TransactionManifestString;
@@ -105,6 +125,18 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
             const compiledTransaction = yield* compileTransaction({
               intent,
               signatures,
+            });
+
+            yield* Option.match(onSubmitTransactionLifeCycleHook, {
+              onNone: () => Effect.void,
+              onSome: (effect) =>
+                Effect.gen(function* () {
+                  yield* Effect.log(
+                    'Executing life cycle hook: onSubmitTransaction',
+                  );
+
+                  yield* effect({ id, intent });
+                }),
             });
 
             yield* Effect.log('Submitting transaction to network');

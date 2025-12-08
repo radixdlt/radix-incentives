@@ -1,13 +1,24 @@
-import { Array as A, Data, Duration, Effect, Option, pipe, Ref } from 'effect';
+import {
+  Array as A,
+  Data,
+  Duration,
+  Effect,
+  Layer,
+  Option,
+  pipe,
+  Ref,
+} from 'effect';
 import {
   type AccountAddress,
   Amount,
   ComponentAddress,
 } from '../../account-balance/v2/schemas';
 import { TransactionManifestString } from '../../transaction-intent/schemas';
+import { Signer } from '../../transaction-intent/signer/signer';
 import {
   TransactionHelper,
   TransactionHelperConfig,
+  TransactionLifeCycleHook,
 } from '../../transaction-intent/transactionHelper';
 import { IncentivesVesterConfig } from './config';
 
@@ -22,10 +33,30 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
       const configRef = yield* IncentivesVesterConfig;
       const { networkId } = yield* Ref.get(configRef);
 
-      const transactionHelper = yield* TransactionHelper.pipe(
-        Effect.provide(TransactionHelper.Default),
-        Effect.provide(TransactionHelperConfig.provide({ networkId })),
-      );
+      // Helper to get TransactionHelper with optional lifecycle hook from context
+      const getTransactionHelper = Effect.gen(function* () {
+        const lifeCycleHook = yield* Effect.serviceOption(
+          TransactionLifeCycleHook,
+        );
+
+        return yield* TransactionHelper.pipe(
+          Effect.provide(
+            TransactionHelper.Default.pipe(
+              Layer.provide(
+                Layer.mergeAll(
+                  TransactionHelperConfig.provide({ networkId }),
+                  Option.isSome(lifeCycleHook)
+                    ? Layer.effect(
+                        TransactionLifeCycleHook,
+                        Effect.succeed(lifeCycleHook.value),
+                      )
+                    : Layer.empty,
+                ),
+              ),
+            ),
+          ),
+        );
+      });
 
       return {
         instantiate: (input: {
@@ -35,14 +66,37 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
         }) =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
-            const adminBadge = Option.getOrThrow(config.adminBadge);
-            const superAdminBadge = Option.getOrThrow(config.superAdminBadge);
-            const superAdminAccount = Option.getOrThrow(
-              config.superAdminAccount,
+            const adminBadge = Option.getOrThrowWith(
+              config.adminBadge,
+              () =>
+                new MissingConfigError({ message: 'Admin badge not found' }),
             );
+            const superAdminBadge = Option.getOrThrowWith(
+              config.superAdminBadge,
+              () =>
+                new MissingConfigError({
+                  message: 'Super admin badge not found',
+                }),
+            );
+            const superAdminAccount = Option.getOrThrowWith(
+              config.superAdminAccount,
+              () =>
+                new MissingConfigError({
+                  message: 'Super admin account not found',
+                }),
+            );
+
+            const packageAddress = Option.getOrThrowWith(
+              config.packageAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Package address not found',
+                }),
+            );
+
             const manifest = TransactionManifestString.make(`
               CALL_FUNCTION
-                Address("${config.packageAddress}")
+                Address("${packageAddress}")
                 "IncentivesVester"
                 "instantiate"
                 Address("${adminBadge.resourceAddress}") # admin badge for backend, create yourself in advance
@@ -53,6 +107,8 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 Address("${config.rewardsResourceAddress}") # XRD
                 Address("${config.dappDefinitionAccount.address}") # No need to care about this when testing
               ;`);
+
+            const transactionHelper = yield* getTransactionHelper;
 
             return yield* transactionHelper
               .submitTransaction({
@@ -86,11 +142,27 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
         createPoolUnits: (input: { amount: Amount }) =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
-            const componentAddress = Option.getOrThrow(config.componentAddress);
-            const superAdminAccount = Option.getOrThrow(
-              config.superAdminAccount,
+            const componentAddress = Option.getOrThrowWith(
+              config.componentAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Component address not found',
+                }),
             );
-            const superAdminBadge = Option.getOrThrow(config.superAdminBadge);
+            const superAdminAccount = Option.getOrThrowWith(
+              config.superAdminAccount,
+              () =>
+                new MissingConfigError({
+                  message: 'Super admin account not found',
+                }),
+            );
+            const superAdminBadge = Option.getOrThrowWith(
+              config.superAdminBadge,
+              () =>
+                new MissingConfigError({
+                  message: 'Super admin badge not found',
+                }),
+            );
 
             const manifest = TransactionManifestString.make(`
               CALL_METHOD
@@ -119,6 +191,8 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
               ;
             `);
 
+            const transactionHelper = yield* getTransactionHelper;
+
             return yield* transactionHelper
               .submitTransaction({
                 manifest,
@@ -137,11 +211,27 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
         finishSetup: () =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
-            const componentAddress = Option.getOrThrow(config.componentAddress);
-            const superAdminAccount = Option.getOrThrow(
-              config.superAdminAccount,
+            const componentAddress = Option.getOrThrowWith(
+              config.componentAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Component address not found',
+                }),
             );
-            const superAdminBadge = Option.getOrThrow(config.superAdminBadge);
+            const superAdminAccount = Option.getOrThrowWith(
+              config.superAdminAccount,
+              () =>
+                new MissingConfigError({
+                  message: 'Super admin account not found',
+                }),
+            );
+            const superAdminBadge = Option.getOrThrowWith(
+              config.superAdminBadge,
+              () =>
+                new MissingConfigError({
+                  message: 'Super admin badge not found',
+                }),
+            );
 
             const manifest = TransactionManifestString.make(`
               CALL_METHOD
@@ -156,6 +246,8 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 "finish_setup"
               ;
             `);
+
+            const transactionHelper = yield* getTransactionHelper;
 
             return yield* transactionHelper
               .submitTransaction({
@@ -172,8 +264,20 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
         claim: (input: { amount: Amount; accountAddress: AccountAddress }) =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
-            const componentAddress = Option.getOrThrow(config.componentAddress);
-            const adminBadge = Option.getOrThrow(config.adminBadge);
+            const componentAddress = Option.getOrThrowWith(
+              config.componentAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Component address not found',
+                }),
+            );
+            const adminBadge = Option.getOrThrowWith(
+              config.adminBadge,
+              () =>
+                new MissingConfigError({
+                  message: 'Admin badge not found',
+                }),
+            );
             const adminAccount = config.adminAccount;
 
             const manifest = TransactionManifestString.make(`
@@ -191,6 +295,8 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 Address("${input.accountAddress}")
               ;`);
 
+            const transactionHelper = yield* getTransactionHelper;
+
             return yield* transactionHelper.submitTransaction({
               manifest,
               feePayer: {
@@ -198,8 +304,20 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 amount: Amount('100'),
               },
             });
-          }),
+          }).pipe(Effect.annotateLogs('manifest', 'IncentivesVester.claim')),
       };
     }),
   },
-) {}
+) {
+  static MainnetLive = IncentivesVester.Default.pipe(
+    Layer.provide(
+      Layer.mergeAll(
+        Signer.VaultLive,
+        Layer.effect(
+          IncentivesVesterConfig,
+          IncentivesVesterConfig.MainnetConfig,
+        ),
+      ),
+    ),
+  );
+}
