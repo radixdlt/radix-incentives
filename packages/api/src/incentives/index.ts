@@ -10,7 +10,6 @@ export { GetSeasonPointMultiplierService } from './season-point-multiplier/getSe
 export { SeasonPointsMultiplierWorkerService } from './season-point-multiplier/seasonPointsMultiplierWorker';
 export { AddSeasonPointsToUserService } from './season-points/addSeasonPointsToUser';
 export { CalculateSeasonPointsService } from './season-points/calculateSeasonPoints';
-export { SnapshotLive, SnapshotService } from './snapshot/snapshot';
 export * from './transaction-stream';
 export * from './trpc';
 export * from './trpc/appRouter';
