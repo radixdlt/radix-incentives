@@ -5,7 +5,6 @@ import { z } from 'zod';
 import { chunker } from '../../../common';
 import { GetLedgerStateService } from '../../../common/gateway/getLedgerState';
 import { GetActiveAccountAddressesService } from '../../account/getActiveAccounts';
-import { GetAccountBalancesAtStateVersionService } from '../../account-balance/getAccountBalancesAtStateVersion';
 import { UpsertAccountBalancesService } from '../../account-balance/upsertAccountBalance';
 import {
   AccountBalanceState,
@@ -40,7 +39,6 @@ export class InvalidInputError extends Data.TaggedError('InvalidInputError')<{
 export class SnapshotV2 extends Effect.Service<SnapshotV2>()('SnapshotV2', {
   dependencies: [
     GetLedgerStateService.Default,
-    GetAccountBalancesAtStateVersionService.Default,
     GetActiveAccountAddressesService.Default,
     UpsertAccountBalancesService.Default,
     ConfigService.Default,
