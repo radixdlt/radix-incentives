@@ -1,6 +1,6 @@
 {
   "id": "ae6d4d94-41f1-4fce-be1c-cec1c1b333be",
-  "prevId": "99f1fdd0-67db-4ea8-b94c-cfe0553aa096",
+  "prevId": "85cd92d6-ef94-4e9a-881a-766056284178",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -289,6 +289,13 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
+        },
+        "snapshot_enabled": {
+          "name": "snapshot_enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
         }
       },
       "indexes": {},
@@ -1405,6 +1412,18 @@
           "type": "varchar(255)",
           "primaryKey": true,
           "notNull": true
+        },
+        "points": {
+          "name": "points",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "weekly_limit": {
+          "name": "weekly_limit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
         },
         "url": {
           "name": "url",

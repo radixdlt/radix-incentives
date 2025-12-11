@@ -37,7 +37,10 @@ export class PoolUnitHelper extends Effect.Service<PoolUnitHelper>()(
         timeToLive: POOL_UNIT_CACHE_TIME_TO_LIVE,
         lookup: (key: `${PoolAddress}:${StateVersion}`) =>
           Effect.gen(function* () {
-            const [poolAddress, stateVersion] = key.split(':');
+            const [poolAddress, stateVersion] = key.split(':') as [
+              PoolAddress,
+              StateVersion,
+            ];
 
             const result = yield* getResourcePoolUnitsService({
               addresses: [poolAddress],

@@ -19,7 +19,7 @@ import { CalculateActivityPointsService } from './calculateActivityPoints';
 
 describe('calculateActivityPoints', () => {
   const dbUrl = inject('testDbUrl');
-  const db = drizzle(postgres(dbUrl), { schema });
+  const db = drizzle(postgres(dbUrl, { max: 1 }), { schema });
   const _dbClientLive = createDbClientLive(db);
 
   const calculateActivityPointsLive = CalculateActivityPointsService.Default;

@@ -17,7 +17,7 @@ describe(
   },
   () => {
     const dbUrl = inject('testDbUrl');
-    const db = drizzle(postgres(dbUrl), { schema });
+    const db = drizzle(postgres(dbUrl, { max: 1 }), { schema });
     const dbLive = createDbClientLive(db);
 
     const testLayer = GetUsersPaginatedLive.pipe(Layer.provide(dbLive));

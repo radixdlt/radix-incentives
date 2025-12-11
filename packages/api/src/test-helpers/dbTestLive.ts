@@ -6,5 +6,5 @@ import { createDbClientLive } from '../incentives';
 
 // @ts-ignore
 const dbUrl = inject('testDbUrl');
-export const dbTestClient = drizzle(postgres(dbUrl), { schema });
+export const dbTestClient = drizzle(postgres(dbUrl, { max: 1 }), { schema });
 export const dbTestLive = createDbClientLive(dbTestClient);

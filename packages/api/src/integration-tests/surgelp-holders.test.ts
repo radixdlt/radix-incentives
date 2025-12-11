@@ -32,7 +32,7 @@ describe.skipIf(process.env.SKIP_INTEGRATION_TESTS === 'true')(
     afterEach(async () => {
       const { schema } = await import('db/incentives');
 
-      const client = postgres(dbUrl);
+      const client = postgres(dbUrl, { max: 1 });
       const db: PostgresJsDatabase<typeof schema> = drizzle(client, {
         schema,
       });

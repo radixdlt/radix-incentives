@@ -52,7 +52,10 @@ export class QuantaSwapState extends Effect.Service<QuantaSwapState>()(
         timeToLive: QUANTA_SWAP_CACHE_TIME_TO_LIVE,
         lookup: (key: `${ComponentAddress}:${StateVersion}`) =>
           Effect.gen(function* () {
-            const [componentAddress, stateVersion] = key.split(':');
+            const [componentAddress, stateVersion] = key.split(':') as [
+              string,
+              string,
+            ];
             return yield* getComponentState({
               componentAddress: ComponentAddress(componentAddress),
               stateVersion: StateVersion(Number(stateVersion)),
@@ -68,10 +71,18 @@ export class QuantaSwapState extends Effect.Service<QuantaSwapState>()(
         stateVersion: StateVersion;
       }) =>
         Effect.gen(function* () {
-          const [item] = yield* getComponentEntityDetails({
+          const results = yield* getComponentEntityDetails({
             componentAddresses: [componentAddress],
             at_ledger_state: { state_version: Number(stateVersion) },
           });
+          const item = results[0];
+          if (!item) {
+            return yield* Effect.fail(
+              new CurrentTickNotDefinedError({
+                message: 'Component entity details not found',
+              }),
+            );
+          }
           const metadata = yield* Schema.decodeUnknown(
             QuantaSwapMetadataSchema,
           )(item.metadata);

@@ -14,9 +14,9 @@ import { calculateActivityPointsJobSchema } from '../queues/calculate-activity-p
 import { calculateSeasonPointsQueue } from '../queues/calculate-season-points/queue';
 import { calculateSeasonPointsJobSchema } from '../queues/calculate-season-points/schemas';
 import { seasonPointsMultiplierQueue } from '../queues/calculate-season-points-multiplier/queue';
-
 import { eventQueue } from '../queues/event/queue';
 import { eventQueueJobSchema } from '../queues/event/schemas';
+import { maintenanceQueue } from '../queues/maintenance/queue';
 import { populateLeaderboardCacheQueue } from '../queues/populate-leaderboard-cache/queue';
 import { populateLeaderboardCacheSchema } from '../queues/populate-leaderboard-cache/schemas';
 import { processWeekQueue } from '../queues/process-week/queue';
@@ -50,6 +50,8 @@ metricsApp.get('/metrics', async (c) => {
     await populateLeaderboardCacheQueue.queue.exportPrometheusMetrics();
   const processWeekQueueMetrics =
     await processWeekQueue.queue.exportPrometheusMetrics();
+  const maintenanceQueueMetrics =
+    await maintenanceQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -60,6 +62,7 @@ metricsApp.get('/metrics', async (c) => {
       scheduledCalculationsQueueMetrics,
       populateLeaderboardCacheQueueMetrics,
       processWeekQueueMetrics,
+      maintenanceQueueMetrics,
     ].join('\n'),
   );
 });
@@ -163,6 +166,11 @@ app.post('/queues/populate-leaderboard-cache/add', async (c) => {
   return c.text('ok');
 });
 
+app.post('/queues/maintenance/add', async (c) => {
+  await maintenanceQueue.queue.add('maintenance', {});
+  return c.text('ok');
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
@@ -185,6 +193,7 @@ createBullBoard({
     new BullMQAdapter(scheduledCalculationsQueue.queue),
     new BullMQAdapter(populateLeaderboardCacheQueue.queue),
     new BullMQAdapter(processWeekQueue.queue),
+    new BullMQAdapter(maintenanceQueue.queue),
   ],
   serverAdapter,
 });

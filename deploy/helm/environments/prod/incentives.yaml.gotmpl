@@ -27,6 +27,11 @@ secrets:
     aws_secret_name: "rtlj-prod/eks/incentives/mainnet/secrets"
     aws_secret_key: "api_key"
     secret_key: "api_key"
+  - external_secret_name: incentives-token-price-service-key
+    env_variable: "TOKEN_PRICE_SERVICE_API_KEY"
+    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/secrets"
+    aws_secret_key: "token_price_service_key"
+    secret_key: "token_price_service_key"
 
 ingress:
   enabled: true

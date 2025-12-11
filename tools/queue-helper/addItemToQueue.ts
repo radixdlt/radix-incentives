@@ -19,7 +19,8 @@ type QueueType =
   | 'calculate-season-points'
   | 'calculate-season-points-multiplier'
   | 'scheduled-calculations'
-  | 'populate-leaderboard-cache';
+  | 'populate-leaderboard-cache'
+  | 'maintenance';
 
 type PromptAnswer = string | number | boolean;
 
@@ -595,6 +596,13 @@ const queueConfigs: Record<QueueType, QueueConfig> = {
       },
     ],
   },
+  maintenance: {
+    name: 'Maintenance Queue',
+    endpoint: '/queues/maintenance/add',
+    description:
+      'Run maintenance tasks: cleanup orphaned users and deactivate inactive accounts.',
+    promptFields: [],
+  },
 };
 
 type QueuePayload = Record<string, unknown>;
@@ -743,6 +751,9 @@ const buildPayload = (
 
       return payload;
     }
+
+    case 'maintenance':
+      return {}; // No payload needed - job has no parameters
 
     default:
       throw new Error(`Unknown queue type: ${queueType}`);

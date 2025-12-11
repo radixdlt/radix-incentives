@@ -1,7 +1,10 @@
 import { TRPCError } from '@trpc/server';
 import type { Account } from 'db/incentives';
+import { Effect } from 'effect';
 import { verifyAccountOwnershipInputSchema } from '../auth/verifyAccountOwnership';
+import { resolveEffect } from '../runtime';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { CheckAndReactivateAccountsService } from './checkAndReactivateAccounts';
 
 export const accountRouter = createTRPCRouter({
   verifyAccountOwnership: protectedProcedure
@@ -89,4 +92,13 @@ export const accountRouter = createTRPCRouter({
 
     return balancesResult.value;
   }),
+
+  requestBalanceCheck: protectedProcedure.mutation(async ({ ctx }) =>
+    resolveEffect(
+      Effect.gen(function* () {
+        const checkAndReactivate = yield* CheckAndReactivateAccountsService;
+        return yield* checkAndReactivate({ userId: ctx.session.user.id });
+      }),
+    ),
+  ),
 });

@@ -37,7 +37,7 @@ describe(
   },
   () => {
     const dbUrl = inject('testDbUrl');
-    const client = postgres(dbUrl);
+    const client = postgres(dbUrl, { max: 1 });
     const db = drizzle(client, { schema });
 
     const dbLive = createDbClientLive(db);

@@ -27,5 +27,15 @@ export default defineConfig({
         'coverage/**',
       ],
     },
+    // Fix for Windows ESM path resolution issues
+    server: {
+      deps: {
+        inline: [
+          '@effect/opentelemetry',
+          '@opentelemetry/sdk-trace-node',
+          '@opentelemetry/sdk-trace-base',
+        ],
+      },
+    },
   },
 });
