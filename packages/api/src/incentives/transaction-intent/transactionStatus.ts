@@ -9,7 +9,7 @@ import {
   Schedule,
 } from 'effect';
 import { GatewayApiClientService } from '../../common/gateway';
-import type { NetworkId, TransactionId } from './schemas';
+import type { NetworkId, TransactionId } from '../schemas/brandedTypes';
 
 class TransactionNotResolvedError extends Data.TaggedError(
   'TransactionNotResolvedError',
@@ -106,7 +106,6 @@ export class TransactionStatus extends Effect.Service<TransactionStatus>()(
             }),
             Effect.timeout(pollTimeoutDuration),
             Effect.catchTags({
-              ConfigError: Effect.die,
               TimeoutException: () =>
                 new TimeoutError({ transactionId: input.id }),
             }),

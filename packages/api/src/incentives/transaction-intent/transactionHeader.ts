@@ -1,13 +1,10 @@
 import { generateRandomNonce } from '@radixdlt/radix-engine-toolkit';
-import { ConfigProvider, Data, Effect, Layer, Option, pipe } from 'effect';
+import { Data, Effect, Option, pipe } from 'effect';
 import { GetLedgerStateService } from '../../common/gateway';
+import { Epoch, type NetworkId, Nonce } from '../schemas/brandedTypes';
+import { EpochService } from './epoch';
 import { NotaryKeyPair } from './notaryKeyPair';
-import {
-  Epoch,
-  type NetworkId,
-  Nonce,
-  TransactionHeaderSchema,
-} from './schemas';
+import { TransactionHeaderSchema } from './schemas';
 
 export class InvalidEpochError extends Data.TaggedError('InvalidEpochError')<{
   message: string;
@@ -25,30 +22,28 @@ export type CreateTransactionHeaderInput = {
 export class TransactionHeader extends Effect.Service<TransactionHeader>()(
   'TransactionHeader',
   {
-    dependencies: [GetLedgerStateService.Default, NotaryKeyPair.Default],
+    dependencies: [
+      GetLedgerStateService.Default,
+      NotaryKeyPair.Default,
+      EpochService.Default,
+    ],
     effect: Effect.gen(function* () {
       const notaryKeyPair = yield* NotaryKeyPair;
+      const epochService = yield* EpochService;
 
       const generateNonce = () => pipe(generateRandomNonce(), Nonce.make);
 
       return (input: CreateTransactionHeaderInput) =>
         Effect.gen(function* () {
-          const getLedgerStateService = yield* GetLedgerStateService;
-
           const {
             tipPercentage = 0,
             nonce = generateNonce(),
             notaryIsSignatory = false,
           } = input;
 
-          const getCurrentEpoch = () =>
-            getLedgerStateService({
-              at_ledger_state: {
-                timestamp: new Date(),
-              },
-            }).pipe(Effect.map((ledgerState) => Epoch.make(ledgerState.epoch)));
-
-          const currentEpoch = yield* getCurrentEpoch();
+          const currentEpoch = yield* epochService.getCurrentEpoch(
+            input.networkId,
+          );
 
           const startEpochInclusive = Option.match(input.startEpochInclusive, {
             onSome: (epoch) => epoch,
@@ -81,14 +76,7 @@ export class TransactionHeader extends Effect.Service<TransactionHeader>()(
             notaryIsSignatory,
             tipPercentage,
           });
-        }).pipe(
-          Effect.provide(GetLedgerStateService.Default),
-          Effect.provide(
-            Layer.setConfigProvider(
-              ConfigProvider.fromJson({ NETWORK_ID: input.networkId }),
-            ),
-          ),
-        );
+        });
     }),
   },
 ) {}

@@ -10,21 +10,15 @@ import {
   AccountAddress,
   FungibleResourceAddress,
 } from '../account-balance/v2/schemas';
-
-export const Epoch = Schema.Number.pipe(Schema.brand('Epoch'));
-export type Epoch = typeof Epoch.Type;
-
-export const NetworkId = Schema.Number.pipe(Schema.brand('NetworkId'));
-export type NetworkId = typeof NetworkId.Type;
-
-export const Nonce = Schema.Number.pipe(Schema.brand('Nonce'));
-export type Nonce = typeof Nonce.Type;
-
-export const HexString = Schema.String.pipe(Schema.brand('HexString'));
-export type HexString = typeof HexString.Type;
-
-export const Base64String = Schema.String.pipe(Schema.brand('Base64String'));
-export type Base64String = typeof Base64String.Type;
+import {
+  Base64String,
+  Epoch,
+  HexString,
+  NetworkId,
+  Nonce,
+  TransactionManifestString,
+  TransactionMessageString,
+} from '../schemas/brandedTypes';
 
 export const Base64FromHexSchema = Schema.asSchema(
   Schema.transformOrFail(HexString, Base64String, {
@@ -51,19 +45,6 @@ export const HexFromBase64Schema = Schema.asSchema(
       ),
   }),
 );
-
-export const TransactionId = Schema.String.pipe(Schema.brand('TransactionId'));
-export type TransactionId = typeof TransactionId.Type;
-
-export const TransactionManifestString = Schema.String.pipe(
-  Schema.brand('TransactionManifestString'),
-);
-export type TransactionManifestString = typeof TransactionManifestString.Type;
-
-export const TransactionMessageString = Schema.String.pipe(
-  Schema.brand('TransactionMessageString'),
-);
-export type TransactionMessageString = typeof TransactionMessageString.Type;
 
 export const Ed25519PublicKeySchema = Schema.asSchema(
   Schema.transformOrFail(HexString, Schema.instanceOf(PublicKey.Ed25519), {

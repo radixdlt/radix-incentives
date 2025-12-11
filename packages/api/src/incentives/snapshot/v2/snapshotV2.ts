@@ -14,7 +14,7 @@ import {
 import { GetAccountBalancesAtStateVersionV2 } from '../../account-balance/v2/getAccountBalances';
 import { StateVersion } from '../../account-balance/v2/schemas';
 import { ConfigService } from '../../config/configService';
-import { DbError, DbService } from '../../db/dbClient';
+import { DbService } from '../../db/dbClient';
 
 export class SnapshotError extends Data.TaggedError('SnapshotError')<{
   message: string;

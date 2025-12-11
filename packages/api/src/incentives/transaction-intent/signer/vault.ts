@@ -10,12 +10,11 @@ import {
   String as S,
   Schema,
 } from 'effect';
+import { Base64String, HexString } from '../../schemas/brandedTypes';
 import {
   Base64FromHexSchema,
-  Base64String,
   Ed25519SignatureWithPublicKeySchema,
   HexFromBase64Schema,
-  HexString,
 } from '../schemas';
 
 const SignResponseSchema = Schema.asSchema(
@@ -144,8 +143,6 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
           signerPublicKey: publicKeyHex,
           curve: 'Ed25519' as const,
         };
-
-        yield* Effect.log(encoded);
 
         return yield* Schema.decode(Ed25519SignatureWithPublicKeySchema)(
           encoded,

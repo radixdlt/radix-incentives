@@ -13,20 +13,24 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
     effect: Effect.gen(function* () {
       const networkId = yield* Config.number('NETWORK_ID').pipe(
         Config.withDefault(1),
+        Effect.orDie,
       );
       const basePath = yield* Config.string('GATEWAY_URL').pipe(
         Config.withDefault(undefined),
+        Effect.orDie,
       );
       const applicationName = yield* Config.string('APPLICATION_NAME').pipe(
         Config.withDefault('radix-web3.js'),
+        Effect.orDie,
       );
       const gatewayApiKey = yield* Config.string('GATEWAY_BASIC_AUTH').pipe(
         Config.withDefault(undefined),
+        Effect.orDie,
       );
 
       const gatewayRetryAttempts = yield* Config.number(
         'GATEWAY_RETRY_ATTEMPTS',
-      ).pipe(Config.withDefault(5));
+      ).pipe(Config.withDefault(5), Effect.orDie);
 
       const noRetryStatusCodes = new Set([400, 404]);
 

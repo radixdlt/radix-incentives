@@ -1,39 +1,20 @@
 import type { TransactionReceipt } from '@radixdlt/babylon-core-api-sdk';
 import type { TransactionPreviewOperationRequest } from '@radixdlt/babylon-gateway-api-sdk';
-import {
-  Convert,
-  type Intent,
-  RadixEngineToolkit,
-} from '@radixdlt/radix-engine-toolkit';
-import {
-  ConfigProvider,
-  Data,
-  Effect,
-  Layer,
-  Option,
-  pipe,
-  Schema,
-} from 'effect';
+import { ConfigProvider, Data, Effect, Layer, Option, Schema } from 'effect';
 import { GatewayApiClientService } from '../../common/gateway';
 import {
   Epoch,
-  HexString,
-  ManifestSchema,
   NetworkId,
-  TransactionId,
-  TransactionIntentSchema,
   TransactionManifestString,
-  TransactionMessageSchema,
   TransactionMessageString,
+} from '../schemas/brandedTypes';
+import {
+  ManifestSchema,
+  TransactionIntentSchema,
+  TransactionMessageSchema,
 } from './schemas';
 import { StaticallyValidateManifest } from './staticallyValidateManifest';
 import { TransactionHeader } from './transactionHeader';
-
-class FailedToCreateIntentHashError extends Data.TaggedError(
-  'FailedToCreateIntentHashError',
-)<{
-  error: unknown;
-}> {}
 
 class TransactionPreviewError extends Data.TaggedError(
   'TransactionPreviewError',
@@ -93,20 +74,6 @@ export class CreateTransactionIntent extends Effect.Service<CreateTransactionInt
           ),
         );
 
-      const createIntentHash = (input: Intent) =>
-        Effect.tryPromise({
-          try: () => RadixEngineToolkit.Intent.hash(input),
-          catch: (error) => new FailedToCreateIntentHashError({ error }),
-        }).pipe(
-          Effect.map((hash) => ({
-            id: TransactionId.make(hash.id),
-            hash: pipe(
-              Convert.Uint8Array.toHexString(hash.hash),
-              HexString.make,
-            ),
-          })),
-        );
-
       return (input: CreateTransactionIntentInput) =>
         Effect.gen(function* () {
           const parsedInput = yield* Schema.decodeUnknown(
@@ -144,8 +111,6 @@ export class CreateTransactionIntent extends Effect.Service<CreateTransactionInt
             networkId,
           });
 
-          const intentHash = yield* createIntentHash(transactionIntent);
-
           yield* previewTransaction({
             payload: {
               manifest: manifest.instructions.value,
@@ -162,11 +127,7 @@ export class CreateTransactionIntent extends Effect.Service<CreateTransactionInt
             networkId,
           });
 
-          return {
-            id: intentHash.id,
-            intentHash: intentHash.hash,
-            intent: TransactionIntentSchema.make(transactionIntent),
-          };
+          return TransactionIntentSchema.make(transactionIntent);
         });
     }),
   },

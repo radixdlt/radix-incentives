@@ -18,10 +18,10 @@ import { GetFungibleBalanceService } from '../../../common/gateway';
 import { createAccount } from '../../../test-helpers/createAccount';
 import { DisableTestClock } from '../../../test-helpers/disableTestClock';
 import { AccountAddress, Amount } from '../../account-balance/v2/schemas';
+import { HexString } from '../../schemas/brandedTypes';
 import {
   BadgeSchema,
   Ed25519PrivateKeySchema,
-  HexString,
   UnsecurifiedAccountSchema,
 } from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';

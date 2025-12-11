@@ -993,3 +993,60 @@ export const competitionParticipants = createTable(
 export type CompetitionParticipant = InferSelectModel<
   typeof competitionParticipants
 >;
+
+export const userSeasonReward = createTable(
+  'user_season_reward',
+  {
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    seasonId: uuid('season_id')
+      .notNull()
+      .references(() => seasons.id, { onDelete: 'cascade' }),
+    // Total amount (including bonus rewards) of rewards claimable by user
+    amount: decimal('amount', { precision: 18, scale: 6 }).notNull(),
+    accountAddress: varchar('account_address', { length: 255 }).notNull(),
+  },
+  (table) => ({
+    pk: primaryKey({ columns: [table.seasonId, table.userId] }),
+  }),
+);
+
+export const userSeasonRewardClaimStatusEnum = pgEnum(
+  'user_season_reward_claim_status',
+  ['pending', 'success', 'failed'],
+);
+
+export const userSeasonRewardClaims = createTable(
+  'user_season_reward_claim',
+  {
+    transactionId: varchar('transaction_id', { length: 255 }).primaryKey(),
+    userId: uuid('user_id')
+      .notNull()
+      .references(() => users.id, { onDelete: 'cascade' }),
+    seasonId: uuid('season_id')
+      .notNull()
+      .references(() => seasons.id, { onDelete: 'cascade' }),
+    amount: decimal('amount', { precision: 18, scale: 6 }).notNull(),
+    status: userSeasonRewardClaimStatusEnum('status')
+      .notNull()
+      .default('pending'),
+    data: jsonb('data').notNull(),
+    createdAt: timestamp('created_at', { mode: 'date', withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { mode: 'date', withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    accountAddress: varchar('account_address', { length: 255 }).notNull(),
+  },
+  (table) => ({
+    userIdSeasonIdIdx: index(
+      'idx_user_season_reward_claims_user_id_season_id_status',
+    ).on(table.seasonId, table.userId, table.status),
+  }),
+);
+
+export type UserSeasonRewardClaimsTable = InferSelectModel<
+  typeof userSeasonRewardClaims
+>;
