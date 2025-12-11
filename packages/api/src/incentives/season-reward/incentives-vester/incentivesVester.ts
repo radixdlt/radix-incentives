@@ -13,7 +13,8 @@ import {
   Amount,
   ComponentAddress,
 } from '../../account-balance/v2/schemas';
-import { TransactionManifestString } from '../../transaction-intent/schemas';
+import { TransactionManifestString } from '../../schemas/brandedTypes';
+import type { TransactionIntent } from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';
 import {
   TransactionHelper,
@@ -261,7 +262,11 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 Effect.annotateLogs('manifest', 'IncentivesVester.finishSetup'),
               );
           }),
-        claim: (input: { amount: Amount; accountAddress: AccountAddress }) =>
+        claim: (input: {
+          amount: Amount;
+          accountAddress: AccountAddress;
+          transactionIntent?: TransactionIntent;
+        }) =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
             const componentAddress = Option.getOrThrowWith(
@@ -299,12 +304,21 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
 
             return yield* transactionHelper.submitTransaction({
               manifest,
+              transactionIntent: input.transactionIntent,
               feePayer: {
                 account: adminAccount,
                 amount: Amount('100'),
               },
             });
-          }).pipe(Effect.annotateLogs('manifest', 'IncentivesVester.claim')),
+          }).pipe(
+            Effect.catchTags({
+              FailedToSignTransactionError: Effect.die,
+              InvalidManifestError: Effect.die,
+              FailedToCreateIntentHashError: Effect.die,
+              FailedToStaticallyValidateManifestError: Effect.die,
+            }),
+            Effect.annotateLogs('manifest', 'IncentivesVester.claim'),
+          ),
       };
     }),
   },

@@ -2,10 +2,11 @@ import { layer } from '@effect/vitest';
 import { Duration, Effect, Fiber, Logger, Option, TestClock } from 'effect';
 import { createAccount } from '../../test-helpers/createAccount';
 import { AccountAddress } from '../account-balance/v2/schemas';
+import { NetworkId } from '../schemas/brandedTypes';
 import { CompileTransaction } from './compileTransaction';
 import { CreateTransactionIntent } from './createTransactionIntent';
+import { IntentHashService } from './intentHash';
 import { faucet } from './manifests/faucet';
-import { NetworkId } from './schemas';
 import { SubmitTransaction } from './submitTransaction';
 import { TransactionStatus } from './transactionStatus';
 
@@ -21,14 +22,17 @@ layer(CreateTransactionIntent.Default)('CreateTransactionIntent', (it) => {
         const compileTransaction = yield* CompileTransaction;
         const submitTransaction = yield* SubmitTransaction;
         const pollTransactionStatus = yield* TransactionStatus;
+        const intentHashService = yield* IntentHashService;
 
         const account = yield* createAccount({ networkId: 2 });
 
         yield* Effect.log('Creating transaction intent');
-        const { intent, id } = yield* createTransactionIntent({
+        const intent = yield* createTransactionIntent({
           networkId: NetworkId.make(2),
           manifest: yield* faucet(AccountAddress(account.address)),
         });
+
+        const { id } = yield* intentHashService.create(intent);
 
         yield* Effect.log('Compiling transaction');
         const compiledTransaction = yield* compileTransaction({
@@ -71,6 +75,10 @@ layer(CreateTransactionIntent.Default)('CreateTransactionIntent', (it) => {
         Effect.provide(CompileTransaction.Default),
         Effect.provide(SubmitTransaction.Default),
         Effect.provide(TransactionStatus.Default),
+        Effect.provide(IntentHashService.Default),
       ),
+    {
+      timeout: 300_000,
+    },
   );
 });

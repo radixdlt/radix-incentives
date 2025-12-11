@@ -162,6 +162,20 @@ When creating services using the Effect library:
 - Export service live implementation: `export const ServiceNameLive = ServiceName.Default;`
 - Output type should reference the service: `Effect.Effect.Success<Awaited<ReturnType<(typeof ServiceName)["Service"]>>>`
 - Import only necessary Effect modules: `import { Config, Effect } from "effect"`
+- **Error Handling**: Tagged errors (errors created with `Data.TaggedError`) do not need to be wrapped with `Effect.fail` - yield them directly:
+  ```typescript
+  // Bad case
+  return yield* Effect.fail(
+    new InvalidAmountError({
+      message: `Claim amount is greater than the total claimable amount`,
+    }),
+  );
+
+  // Good case
+  return yield* new InvalidAmountError({
+    message: `Claim amount is greater than the total claimable amount`,
+  });
+  ```
 
 ### React/Next.js Guidelines
 - Use Tailwind classes for styling (no inline CSS or `<style>` tags)
@@ -231,10 +245,100 @@ When working with React components:
 ## Testing
 - Backend API tests use Vitest with Effect framework
 - Database tests use Testcontainers for PostgreSQL
-- Individual test files are located next to source files with `.test.ts` extension
+- Individual test files are located next to source files with `.spec.ts` extension
 - All functions should be covered by unit tests
 - **Test Implementation Guideline**:
   - Don't use mock implementations of the db in tests
+
+### Testing Effect Services with @effect/vitest
+
+Use the `layer` function from `@effect/vitest` to test Effect services:
+
+```typescript
+import { layer } from '@effect/vitest';
+import { Effect, Layer, Logger } from 'effect';
+import { expect } from 'vitest';
+import { MyService } from './myService';
+import { DependencyService } from './dependencyService';
+```
+
+#### Services with dependencies (using `DefaultWithoutDependencies`)
+
+When a service declares `dependencies` in its definition, use `DefaultWithoutDependencies` to substitute test implementations:
+
+```typescript
+// Service definition with dependencies
+export class MyService extends Effect.Service<MyService>()('MyService', {
+  dependencies: [DependencyService.Default],
+  effect: Effect.gen(function* () {
+    const dep = yield* DependencyService;
+    // ... service implementation
+  }),
+}) {}
+
+// Test file
+const TestLayer = MyService.DefaultWithoutDependencies.pipe(
+  Layer.provide(DependencyService.Test), // Provide test implementation
+  Layer.provide(Logger.pretty),
+);
+
+layer(TestLayer)('MyService', (it) => {
+  it.effect('should do something', () =>
+    Effect.gen(function* () {
+      const service = yield* MyService;
+      const result = yield* service.doSomething();
+      expect(result).toBe(expected);
+    }),
+  );
+});
+```
+
+#### Services without dependencies (using `Default`)
+
+When a service has no dependencies, use `Default` directly:
+
+```typescript
+// Service definition without dependencies
+export class SimpleService extends Effect.Service<SimpleService>()('SimpleService', {
+  effect: Effect.gen(function* () {
+    // ... service implementation (no dependencies)
+  }),
+}) {}
+
+// Test file
+const TestLayer = SimpleService.Default.pipe(
+  Layer.provide(Logger.pretty),
+);
+
+layer(TestLayer)('SimpleService', (it) => {
+  it.effect('should work', () =>
+    Effect.gen(function* () {
+      const service = yield* SimpleService;
+      // ... test assertions
+    }),
+  );
+});
+```
+
+#### Handling real-time delays in tests
+
+When tests use `Effect.sleep` or other time-based operations with real delays, wrap them with `DisableTestClock` to avoid test clock warnings:
+
+```typescript
+import { DisableTestClock } from '../../test-helpers/disableTestClock';
+
+it.effect('should handle timeouts', () =>
+  DisableTestClock(
+    Effect.gen(function* () {
+      const service = yield* MyService;
+      yield* Effect.sleep('100 millis');
+      // ... assertions
+    }),
+  ),
+);
+```
+
+
 
 ## Package Management
 - Use `pnpm` only (not npm or yarn)

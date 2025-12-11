@@ -2,7 +2,7 @@ import { it } from '@effect/vitest';
 import { Cause, Effect, Exit, Logger, Redacted } from 'effect';
 import { createAccount } from '../../test-helpers/createAccount';
 import { DisableTestClock } from '../../test-helpers/disableTestClock';
-import { HexString, NetworkId } from './schemas';
+import { HexString, NetworkId } from '../schemas/brandedTypes';
 import { Signer } from './signer/signer';
 import {
   TransactionHelper,
@@ -44,7 +44,7 @@ describe.skip('TransactionHelper', () => {
         Effect.provide(signer),
         Effect.provide(Logger.pretty),
         Effect.provideService(TransactionLifeCycleHook, {
-          onSubmitTransaction: (input) => Effect.log(input),
+          onSubmit: (input) => Effect.log(input),
         }),
       ),
     ),
@@ -79,7 +79,7 @@ describe.skip('TransactionHelper', () => {
           Effect.provide(signer),
           Effect.provide(Logger.pretty),
           Effect.provideService(TransactionLifeCycleHook, {
-            onSubmitTransaction: Effect.die,
+            onSubmit: Effect.die,
           }),
         ),
       ),

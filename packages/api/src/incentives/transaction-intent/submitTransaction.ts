@@ -1,7 +1,7 @@
 import { Convert } from '@radixdlt/radix-engine-toolkit';
 import { ConfigProvider, Effect, Layer, pipe } from 'effect';
 import { GatewayApiClientService } from '../../common/gateway';
-import { HexString, type NetworkId } from './schemas';
+import { HexString, type NetworkId } from '../schemas/brandedTypes';
 
 export class SubmitTransaction extends Effect.Service<SubmitTransaction>()(
   'SubmitTransaction',

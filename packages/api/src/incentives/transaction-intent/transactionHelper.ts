@@ -1,5 +1,6 @@
 import {
   Array as A,
+  Cause,
   ConfigProvider,
   Context,
   Data,
@@ -13,18 +14,19 @@ import {
 } from 'effect';
 import { GatewayApiClientService } from '../../common/gateway';
 import { Amount, FungibleResourceAddress } from '../account-balance/v2/schemas';
+import {
+  NetworkId,
+  type TransactionId,
+  TransactionManifestString,
+} from '../schemas/brandedTypes';
 import { CompileTransaction } from './compileTransaction';
 import { CreateTransactionIntent } from './createTransactionIntent';
+import { EpochService } from './epoch';
+import { IntentHashService } from './intentHash';
 import { createBadge as createBadgeManifest } from './manifests/createBadge';
 import { faucet as faucetManifest } from './manifests/faucet';
 import { ManifestHelper } from './manifests/manifestHelper';
-import {
-  type Account,
-  NetworkId,
-  type TransactionId,
-  type TransactionIntent,
-  TransactionManifestString,
-} from './schemas';
+import type { Account, TransactionIntent } from './schemas';
 import { Signer } from './signer/signer';
 import { SubmitTransaction } from './submitTransaction';
 import { TransactionStatus } from './transactionStatus';
@@ -53,9 +55,21 @@ export class TransactionLifeCycleHook extends Context.Tag(
 )<
   TransactionLifeCycleHook,
   {
-    onSubmitTransaction?: (input: {
+    onSubmit?: (input: {
       id: TransactionId;
       intent: TransactionIntent;
+    }) => Effect.Effect<void, never, never>;
+    onSubmitSuccess?: (input: {
+      id: TransactionId;
+      intent: TransactionIntent;
+    }) => Effect.Effect<void, never, never>;
+    onStatusFailure?: (input: {
+      id: TransactionId;
+      permanent: boolean;
+      intent: TransactionIntent;
+    }) => Effect.Effect<void, never, never>;
+    onSuccess?: (input: {
+      id: TransactionId;
     }) => Effect.Effect<void, never, never>;
   }
 >() {}
@@ -69,6 +83,8 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
       SubmitTransaction.Default,
       TransactionStatus.Default,
       ManifestHelper.Default,
+      IntentHashService.Default,
+      EpochService.Default,
     ],
     effect: Effect.gen(function* () {
       const createTransactionIntent = yield* CreateTransactionIntent;
@@ -79,6 +95,8 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
       const manifestHelper = yield* ManifestHelper;
       const configRef = yield* TransactionHelperConfig;
       const { networkId } = yield* Ref.get(configRef);
+      const intentHashService = yield* IntentHashService;
+      const epochService = yield* EpochService;
       const gatewayApiClient = yield* GatewayApiClientService.pipe(
         Effect.provide(
           GatewayApiClientService.Default.pipe(
@@ -94,47 +112,90 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
         TransactionLifeCycleHook,
       );
 
-      const onSubmitTransactionLifeCycleHook = lifeCycleHook.pipe(
-        Option.flatMap((item) => Option.fromNullable(item.onSubmitTransaction)),
+      const onSubmitLifeCycleHook = lifeCycleHook.pipe(
+        Option.flatMap((item) => Option.fromNullable(item.onSubmit)),
+      );
+
+      const onSubmitSuccessLifeCycleHook = lifeCycleHook.pipe(
+        Option.flatMap((item) => Option.fromNullable(item.onSubmitSuccess)),
+      );
+
+      const onStatusFailureLifeCycleHook = lifeCycleHook.pipe(
+        Option.flatMap((item) => Option.fromNullable(item.onStatusFailure)),
+      );
+
+      const onSuccessLifeCycleHook = lifeCycleHook.pipe(
+        Option.flatMap((item) => Option.fromNullable(item.onSuccess)),
       );
 
       const submitTransaction = (input: {
         manifest: TransactionManifestString;
         feePayer?: { account: Account; amount: Amount };
+        transactionIntent?: TransactionIntent;
       }) =>
         Effect.gen(function* () {
-          const feePayerInstructions = input.feePayer
-            ? yield* manifestHelper.addFeePayer(input.feePayer)
-            : '';
+          const { intent, id, hash } = yield* Option.fromNullable(
+            input.transactionIntent,
+          ).pipe(
+            Option.match({
+              onNone: () =>
+                Effect.gen(function* () {
+                  yield* Effect.log('Creating transaction intent');
+                  const feePayerInstructions = input.feePayer
+                    ? yield* manifestHelper.addFeePayer(input.feePayer)
+                    : '';
 
-          yield* Effect.log('Creating transaction intent');
-          const manifestWithFeePayer = TransactionManifestString.make(`
-            ${feePayerInstructions}
-            ${input.manifest}
-          `);
+                  const manifestWithFeePayer = TransactionManifestString.make(`
+                    ${feePayerInstructions}
+                    ${input.manifest}
+                  `);
 
-          const { intent, id, intentHash } = yield* createTransactionIntent({
-            networkId,
-            manifest: manifestWithFeePayer,
-          });
+                  return yield* createTransactionIntent({
+                    networkId,
+                    manifest: manifestWithFeePayer,
+                  }).pipe(
+                    Effect.flatMap((intent) =>
+                      intentHashService
+                        .create(intent)
+                        .pipe(
+                          Effect.map(({ id, hash }) => ({ id, hash, intent })),
+                        ),
+                    ),
+
+                    Effect.catchTags({
+                      ParseError: Effect.die,
+                      InvalidEpochError: Effect.die,
+                    }),
+                  );
+                }),
+              onSome: (intent) =>
+                intentHashService.create(intent).pipe(
+                  Effect.flatMap(({ id, hash }) =>
+                    epochService
+                      .verifyEpochBounds({
+                        transactionId: id,
+                        transactionIntent: intent,
+                      })
+                      .pipe(Effect.as({ id, hash, intent })),
+                  ),
+                ),
+            }),
+          );
 
           return yield* Effect.gen(function* () {
             yield* Effect.log('Collecting signatures');
-            const signatures = yield* signer(intentHash);
+            const signatures = yield* signer(hash);
 
             const compiledTransaction = yield* compileTransaction({
               intent,
               signatures,
-            });
+            }).pipe(Effect.catchAll(Effect.die));
 
-            yield* Option.match(onSubmitTransactionLifeCycleHook, {
+            yield* Option.match(onSubmitLifeCycleHook, {
               onNone: () => Effect.void,
               onSome: (effect) =>
                 Effect.gen(function* () {
-                  yield* Effect.log(
-                    'Executing life cycle hook: onSubmitTransaction',
-                  );
-
+                  yield* Effect.log('Executing life cycle hook: onSubmit');
                   yield* effect({ id, intent });
                 }),
             });
@@ -145,12 +206,60 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
               compiledTransaction: compiledTransaction,
             });
 
-            return yield* transactionStatus
+            yield* Option.match(onSubmitSuccessLifeCycleHook, {
+              onNone: () => Effect.void,
+              onSome: (effect) =>
+                Effect.gen(function* () {
+                  yield* Effect.log(
+                    'Executing life cycle hook: onSubmitSuccess',
+                  );
+                  yield* effect({ id, intent });
+                }),
+            });
+
+            const result = yield* transactionStatus
               .poll({
                 id,
                 networkId,
               })
-              .pipe(Effect.map((status) => ({ statusResponse: status, id })));
+              .pipe(
+                Effect.map((status) => ({ statusResponse: status, id })),
+                Effect.catchAllCause((cause) =>
+                  Effect.gen(function* () {
+                    yield* Option.match(onStatusFailureLifeCycleHook, {
+                      onNone: () => Effect.void,
+                      onSome: (effect) =>
+                        Effect.gen(function* () {
+                          yield* Effect.log(
+                            'Executing life cycle hook: onFailure',
+                          );
+
+                          const permanent =
+                            Cause.isFailType(cause) &&
+                            cause.error._tag === 'TransactionFailedError';
+
+                          yield* effect({
+                            id,
+                            permanent,
+                            intent,
+                          });
+                        }),
+                    });
+                    return yield* Effect.failCause(cause);
+                  }),
+                ),
+              );
+
+            yield* Option.match(onSuccessLifeCycleHook, {
+              onNone: () => Effect.void,
+              onSome: (effect) =>
+                Effect.gen(function* () {
+                  yield* Effect.log('Executing life cycle hook: onSuccess');
+                  yield* effect({ id });
+                }),
+            });
+
+            return result;
           }).pipe(Effect.annotateLogs('transactionId', id));
         }).pipe(
           Effect.annotateLogs({
@@ -160,39 +269,33 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
         );
 
       const getCommittedDetails = (input: { id: TransactionId }) =>
-        Effect.gen(function* () {
-          return yield* gatewayApiClient.transaction.getCommittedDetails(
-            input.id,
-          );
-        });
+        gatewayApiClient.transaction.getCommittedDetails(input.id);
 
       const createBadge = (input: { account: Account; feePayer: Account }) =>
-        Effect.gen(function* () {
-          return yield* submitTransaction({
-            manifest: createBadgeManifest(input.account),
-            feePayer: {
-              account: input.feePayer,
-              amount: Amount('10'),
-            },
-          }).pipe(
-            Effect.flatMap(({ id }) =>
-              getCommittedDetails({
-                id,
-              }),
-            ),
-            Effect.map((result) =>
-              pipe(
-                Option.fromNullable(
-                  result.transaction.balance_changes?.fungible_balance_changes,
-                ),
-                Option.flatMap(A.head),
-                Option.flatMap(R.get('resource_address')),
-                Option.getOrThrow,
-                FungibleResourceAddress,
+        submitTransaction({
+          manifest: createBadgeManifest(input.account),
+          feePayer: {
+            account: input.feePayer,
+            amount: Amount('10'),
+          },
+        }).pipe(
+          Effect.flatMap(({ id }) =>
+            getCommittedDetails({
+              id,
+            }),
+          ),
+          Effect.map((result) =>
+            pipe(
+              Option.fromNullable(
+                result.transaction.balance_changes?.fungible_balance_changes,
               ),
+              Option.flatMap(A.head),
+              Option.flatMap(R.get('resource_address')),
+              Option.getOrThrow,
+              FungibleResourceAddress,
             ),
-          );
-        });
+          ),
+        );
 
       const faucet = (input: { account: Account }) =>
         Effect.gen(function* () {

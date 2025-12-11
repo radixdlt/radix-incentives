@@ -7,10 +7,10 @@ import {
   FungibleResourceAddress,
   PackageAddress,
 } from '../../account-balance/v2/schemas';
+import { NetworkId } from '../../schemas/brandedTypes';
 import {
   AccountSchema,
   BadgeSchema,
-  NetworkId,
   SecurifiedAccountSchema,
   UnsecurifiedAccountSchema,
 } from '../../transaction-intent/schemas';
@@ -153,7 +153,9 @@ export class IncentivesVesterConfig extends Context.Tag(
 
   static MainnetConfig = createConfig({
     networkId: NetworkId.make(1),
-    packageAddress: PackageAddress(''),
+    packageAddress: PackageAddress(
+      'package_rdx1phe8ngw6fjahenrg9l5z548ve7u7z60a0pq98vkh6p2wf253xd6uh0',
+    ),
   });
 
   static StokenetConfig = createConfig({
