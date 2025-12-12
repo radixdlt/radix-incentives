@@ -54,8 +54,9 @@ export class CheckAndReactivateAccountsService extends Effect.Service<CheckAndRe
       return Effect.fn(function* (input: CheckAndReactivateAccountsInput) {
         yield* Effect.log(`Checking XRD balance for user: ${input.userId}`);
 
-        // Get all accounts for this user
-        const userAccounts = yield* db.use((db) =>
+        // Get all accounts for this user from primary database
+        // Using usePrimary to ensure read-after-write consistency when accounts are newly added
+        const userAccounts = yield* db.usePrimary((db) =>
           db
             .select({ address: accounts.address })
             .from(accounts)

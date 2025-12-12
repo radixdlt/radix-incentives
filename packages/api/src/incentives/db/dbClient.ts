@@ -54,6 +54,13 @@ type DatabaseServiceImp = {
   use: <A>(
     f: (db: PostgresJsDatabase<typeof schema>) => Promise<A>,
   ) => Effect.Effect<A, DbError>;
+  /**
+   * Use the primary database connection, bypassing read replicas.
+   * This ensures read-after-write consistency by forcing reads from the primary database.
+   */
+  usePrimary: <A>(
+    f: (db: PostgresJsDatabase<typeof schema>) => Promise<A>,
+  ) => Effect.Effect<A, DbError>;
 };
 
 export class DbService extends Effect.Service<DbService>()('DbService', {
@@ -64,6 +71,14 @@ export class DbService extends Effect.Service<DbService>()('DbService', {
       use: (f) =>
         Effect.tryPromise({
           try: () => f(db),
+          catch: (error) => new DbError(error),
+        }),
+      usePrimary: (f) =>
+        Effect.tryPromise({
+          try: () => {
+            const primaryDb = '$primary' in db ? db.$primary : db;
+            return f(primaryDb as PostgresJsDatabase<typeof schema>);
+          },
           catch: (error) => new DbError(error),
         }),
     } satisfies DatabaseServiceImp;
