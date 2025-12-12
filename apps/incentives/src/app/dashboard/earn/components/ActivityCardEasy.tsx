@@ -9,11 +9,11 @@ import {
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import Markdown from 'react-markdown';
 import { Badge } from '~/components/ui/badge';
 import {
   Card,
   CardContent,
-  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
@@ -313,9 +313,9 @@ export const ActivityCardEasy = ({
         </CardHeader>
 
         <CardContent className="flex-1 space-y-4">
-          <CardDescription className="text-sm">
-            {activity.description}
-          </CardDescription>
+          <div className="markdown-content text-muted-foreground text-sm">
+            <Markdown>{activity.description}</Markdown>
+          </div>
           {((capitalData &&
             (parseFloat(capitalData.earnedAP) > 0 ||
               capitalData.apPerHour ||

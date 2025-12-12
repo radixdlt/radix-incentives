@@ -1,6 +1,7 @@
 import { type Effect, Layer, ManagedRuntime } from 'effect';
 import { CheckAndReactivateAccountsService } from './account/checkAndReactivateAccounts';
 import { CompetitionService } from './competition/competition';
+import { DappService } from './dapp/dapp';
 import { resolveExit } from './trpc/helpers';
 import { UserService } from './user/user';
 
@@ -8,6 +9,7 @@ const layer = Layer.mergeAll(
   CompetitionService.Default,
   UserService.Default,
   CheckAndReactivateAccountsService.Default,
+  DappService.Default,
 );
 
 export const incentivesRuntime = ManagedRuntime.make(layer);

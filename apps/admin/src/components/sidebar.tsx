@@ -2,6 +2,7 @@
 
 import {
   Activity,
+  AppWindow,
   BarChart3,
   Bell,
   CalendarDays,
@@ -37,6 +38,11 @@ const navigationItems = [
     title: 'Activity Categories',
     href: '/activity-categories',
     icon: <Tag className="h-5 w-5" />,
+  },
+  {
+    title: 'DApps',
+    href: '/dapps',
+    icon: <AppWindow className="h-5 w-5" />,
   },
   {
     title: 'Milestones',
