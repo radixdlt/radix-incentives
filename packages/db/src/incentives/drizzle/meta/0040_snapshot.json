@@ -1,6 +1,6 @@
 {
-  "id": "0f7e409d-82a0-430b-bd91-e2c20b93bf5a",
-  "prevId": "1cd59740-0a9d-4635-8234-d9058a9984ff",
+  "id": "ae6d4d94-41f1-4fce-be1c-cec1c1b333be",
+  "prevId": "99f1fdd0-67db-4ea8-b94c-cfe0553aa096",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -731,6 +731,13 @@
           "notNull": true,
           "default": false
         },
+        "expired": {
+          "name": "expired",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "timestamp with time zone",
@@ -951,37 +958,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": true
-        },
-        "description": {
-          "name": "description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "long_description": {
-          "name": "long_description",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "tags": {
-          "name": "tags",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "resources": {
-          "name": "resources",
-          "type": "jsonb",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "show_on_earn_page": {
-          "name": "show_on_earn_page",
-          "type": "boolean",
-          "primaryKey": false,
-          "notNull": true,
-          "default": true
         }
       },
       "indexes": {},
@@ -1430,6 +1406,34 @@
           "primaryKey": true,
           "notNull": true
         },
+        "url": {
+          "name": "url",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {}
+    },
+    "public.resource_reward_week": {
+      "name": "resource_reward_week",
+      "schema": "",
+      "columns": {
+        "address": {
+          "name": "address",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "week_id": {
+          "name": "week_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
         "points": {
           "name": "points",
           "type": "integer",
@@ -1441,17 +1445,51 @@
           "type": "integer",
           "primaryKey": false,
           "notNull": false
-        },
-        "url": {
-          "name": "url",
-          "type": "varchar(500)",
-          "primaryKey": false,
-          "notNull": false
         }
       },
-      "indexes": {},
-      "foreignKeys": {},
-      "compositePrimaryKeys": {},
+      "indexes": {
+        "idx_resource_reward_week_week_id": {
+          "name": "idx_resource_reward_week_week_id",
+          "columns": [
+            {
+              "expression": "week_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "resource_reward_week_address_resource_reward_definition_address_fk": {
+          "name": "resource_reward_week_address_resource_reward_definition_address_fk",
+          "tableFrom": "resource_reward_week",
+          "tableTo": "resource_reward_definition",
+          "columnsFrom": ["address"],
+          "columnsTo": ["address"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "resource_reward_week_week_id_week_id_fk": {
+          "name": "resource_reward_week_week_id_week_id_fk",
+          "tableFrom": "resource_reward_week",
+          "tableTo": "week",
+          "columnsFrom": ["week_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {
+        "resource_reward_week_address_week_id_pk": {
+          "name": "resource_reward_week_address_week_id_pk",
+          "columns": ["address", "week_id"]
+        }
+      },
       "uniqueConstraints": {}
     },
     "public.season_leaderboard_cache": {
