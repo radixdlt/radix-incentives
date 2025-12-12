@@ -18,5 +18,6 @@
       "packages/sbor-ez-mode",
     ],
     "excludeFiles": []
-  }
+  },
+  "typescript.tsserver.maxTsServerMemory": 8192
 }

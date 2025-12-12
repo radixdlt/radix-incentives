@@ -9,7 +9,7 @@ layer(VerifyRolaProofService.Default)('verifyRolaProofService', (it) => {
       const challenge =
         '31bc7bd41e464ad32246ff980e8170568a6981cd88d5b9ca1095aa26af52cdf6';
 
-      yield* verifyRolaProofService({
+      yield* verifyRolaProofService.verifyProofs({
         challenge,
         items: [
           {

@@ -30,7 +30,9 @@
     "hono": "^4.10.7",
     "ioredis": "catalog:",
     "pino": "catalog:",
+    "papaparse": "catalog:",
     "undici": "catalog:",
+    "ws": "catalog:",
     "zod": "catalog:"
   },
   "devDependencies": {

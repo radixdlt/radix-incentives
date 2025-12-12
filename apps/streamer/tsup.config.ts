@@ -11,6 +11,10 @@ export default defineConfig({
     'node-fetch',
     'undici',
     'pino',
+    // WebSocket package - uses dynamic require for Node.js built-ins
+    'ws',
+    // CSV parsing library
+    'papaparse',
   ],
   dts: false,
   splitting: false,

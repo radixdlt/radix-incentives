@@ -46,7 +46,7 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
     ],
     effect: Effect.gen(function* () {
       const verifyChallenge = yield* VerifyChallengeService;
-      const verifyProof = yield* VerifyRolaProofService;
+      const verifyProofService = yield* VerifyRolaProofService;
       const upsertAccounts = yield* UpsertAccountsService;
       const getAccountsByAddress = yield* GetAccountsByAddressService;
       const checkAccountPersistence = yield* CheckAccountPersistenceService;
@@ -56,7 +56,7 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
       return Effect.fnUntraced(function* (input: VerifyAccountOwnershipInput) {
         yield* verifyChallenge(input.challenge);
 
-        yield* verifyProof({
+        yield* verifyProofService.verifyProofs({
           challenge: input.challenge,
           items: input.items,
         });

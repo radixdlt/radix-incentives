@@ -1,7 +1,8 @@
 import { RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 
 import { Data, Effect } from 'effect';
-import type { Manifest, NetworkId } from './schemas';
+import type { NetworkId } from '../schemas/brandedTypes';
+import type { Manifest } from './schemas';
 
 class FailedToStaticallyValidateManifestError extends Data.TaggedError(
   'FailedToStaticallyValidateManifestError',

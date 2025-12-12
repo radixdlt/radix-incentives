@@ -25,8 +25,8 @@ export const IncentivesVesterConfigSchema = Schema.Struct({
   packageAddress: Schema.Option(
     Schema.String.pipe(Schema.fromBrand(PackageAddress)),
   ),
-  dappDefinitionAccount: AccountSchema,
-  adminAccount: AccountSchema,
+  dappDefinitionAccount: Schema.Option(AccountSchema),
+  adminAccount: Schema.Option(AccountSchema),
   superAdminAccount: Schema.Option(AccountSchema),
   componentAddress: Schema.Option(
     Schema.String.pipe(Schema.fromBrand(ComponentAddress)),
@@ -68,27 +68,31 @@ const createConfig = (input: {
 
     const adminAccountAdress = yield* Config.string(
       'INCENTIVES_VESTER_ADMIN_ACCOUNT_ADDRESS',
-    ).pipe(Effect.map(AccountAddress));
+    ).pipe(Config.option, Effect.map(Option.map(AccountAddress)));
 
     const accessControllerAddress = yield* Config.string(
       'INCENTIVES_VESTER_ACCESS_CONTROLLER_ADDRESS',
     ).pipe(Config.option, Effect.map(Option.map(AccessControllerAddress)));
 
-    const adminAccount = accessControllerAddress.pipe(
-      Option.match({
-        onNone: () =>
-          UnsecurifiedAccountSchema.make({
-            type: 'unsecurifiedAccount',
-            address: adminAccountAdress,
+    const adminAccount = adminAccountAdress.pipe(
+      Option.map((adminAccountAdress) =>
+        accessControllerAddress.pipe(
+          Option.match({
+            onNone: () =>
+              UnsecurifiedAccountSchema.make({
+                type: 'unsecurifiedAccount',
+                address: adminAccountAdress,
+              }),
+            onSome: (accessControllerAddress) => {
+              return SecurifiedAccountSchema.make({
+                type: 'securifiedAccount',
+                address: adminAccountAdress,
+                accessControllerAddress,
+              });
+            },
           }),
-        onSome: (accessControllerAddress) => {
-          return SecurifiedAccountSchema.make({
-            type: 'securifiedAccount',
-            address: adminAccountAdress,
-            accessControllerAddress,
-          });
-        },
-      }),
+        ),
+      ),
     );
 
     const superAdminAccountAdress = yield* Config.string(

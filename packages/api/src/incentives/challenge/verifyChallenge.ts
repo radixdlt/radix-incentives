@@ -33,9 +33,7 @@ export class VerifyChallengeService extends Effect.Service<VerifyChallengeServic
           catch: (error) => new DbError(error),
         });
 
-        if (!result) {
-          return yield* Effect.fail(new InvalidChallengeError());
-        }
+        if (!result) return yield* new InvalidChallengeError();
 
         return result;
       });

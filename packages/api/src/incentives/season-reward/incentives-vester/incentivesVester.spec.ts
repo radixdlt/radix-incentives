@@ -149,11 +149,14 @@ const testSetup = DisableTestClock(
       });
     }
 
-    if (Option.isNone(config.adminBadge)) {
+    if (
+      Option.isNone(config.adminBadge) &&
+      Option.isSome(config.adminAccount)
+    ) {
       yield* Effect.log('Admin badge not found, creating it');
       const adminBadge = yield* adminTransactionHelper.createBadge({
-        account: config.adminAccount,
-        feePayer: config.adminAccount,
+        account: config.adminAccount.value,
+        feePayer: config.adminAccount.value,
       });
 
       yield* Ref.update(configRef, (current) => ({

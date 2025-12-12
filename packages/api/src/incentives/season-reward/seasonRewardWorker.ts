@@ -13,6 +13,8 @@ export const SeasonRewardWorkerInputSchema = Schema.Struct({
   claimAmount: Schema.String.pipe(Schema.fromBrand(Amount)),
 });
 
+export type SeasonRewardWorkerInput = typeof SeasonRewardWorkerInputSchema.Type;
+
 export class UnresolvedTransactionError extends Data.TaggedError(
   'UnresolvedTransactionError',
 )<{

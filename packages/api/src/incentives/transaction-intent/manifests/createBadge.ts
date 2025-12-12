@@ -1,7 +1,5 @@
-import {
-  type Account,
-  TransactionManifestString,
-} from '../../transaction-intent/schemas';
+import { TransactionManifestString } from '../../schemas/brandedTypes';
+import type { Account } from '../../transaction-intent/schemas';
 
 export const createBadge = (account: Account) =>
   TransactionManifestString.make(`      

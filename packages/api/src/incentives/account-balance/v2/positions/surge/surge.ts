@@ -87,7 +87,7 @@ export class SurgePosition extends Effect.Service<SurgePosition>()(
               R.get(collateralAccountMap, accountAddress).pipe(
                 Option.map((item) =>
                   marginAccountBalances.pipe(
-                    HashMap.get(item.marginAccountAddress),
+                    HashMap.get(AccountAddress(item.marginAccountAddress)),
                   ),
                 ),
                 Option.flatten,
