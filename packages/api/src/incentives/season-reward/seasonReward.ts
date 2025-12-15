@@ -28,11 +28,19 @@ export const RewardAmount = Schema.String.pipe(Schema.brand('RewardAmount'));
 export type RewardAmount = typeof RewardAmount.Type;
 
 /**
+ * Branded type for reward budget values (decimal string representation)
+ */
+export const RewardBudget = Schema.String.pipe(Schema.brand('RewardBudget'));
+export type RewardBudget = typeof RewardBudget.Type;
+
+/**
  * Schema for calculating season rewards input
  */
 export const CalculateSeasonRewardInputSchema = Schema.Struct({
   /** The season ID to calculate rewards for */
   seasonId: SeasonId,
+  /** The total reward budget to distribute */
+  rewardBudget: RewardBudget,
 });
 
 export type CalculateSeasonRewardInput =
@@ -47,7 +55,7 @@ export const UserSeasonRewardResultSchema = Schema.Struct({
   totalPoints: Points,
   /** User's season bonus multiplier (if any) */
   seasonBonus: SeasonBonus,
-  /** Final calculated reward amount (1 point = 1 unit, then bonus applied) */
+  /** Final calculated reward amount (proportional share of budget, then bonus applied) */
   rewardAmount: RewardAmount,
 });
 
@@ -188,19 +196,28 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
        *
        * The calculation follows this formula:
        * 1. Get each user's total season points (sum across all weeks)
-       * 2. Calculate reward: 1 point = 1 unit
-       * 3. Apply season bonus multiplier to each user's reward (1 + seasonBonus)
+       * 2. Calculate total points across all users
+       * 3. Calculate each user's base reward as their proportional share of the budget:
+       *    baseReward = (userPoints / totalPoints) * rewardBudget
+       * 4. Apply season bonus multiplier to each user's base reward (1 + seasonBonus)
        *
-       * @param input - Season ID to calculate rewards for
+       * This ensures users without a season bonus are not disadvantaged by users who have one.
+       * The total rewards distributed may exceed the budget due to bonuses, which is intentional.
+       *
+       * @param input - Season ID and reward budget to calculate rewards for
        * @returns Array of user reward calculations with detailed breakdown
        */
       const calculateSeasonReward = (input: CalculateSeasonRewardInput) =>
         Effect.gen(function* () {
-          const { seasonId } = input;
+          const { seasonId, rewardBudget } = input;
 
           // Fetch all required data in parallel
-          const [userPoints, seasonBonuses] = yield* Effect.all(
-            [getUserSeasonPointTotals(seasonId), getSeasonBonuses(seasonId)],
+          const [userPoints, seasonBonuses, totalPoints] = yield* Effect.all(
+            [
+              getUserSeasonPointTotals(seasonId),
+              getSeasonBonuses(seasonId),
+              getTotalSeasonPoints(seasonId),
+            ],
             { concurrency: 'unbounded' },
           );
 
@@ -209,18 +226,24 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
             return [];
           }
 
+          const budget = new BigNumber(rewardBudget);
+
           // Calculate each user's reward:
-          // 1 point = 1 unit, then apply season bonus multiplier
+          // 1. Base reward is their proportional share of the budget (ignoring bonuses)
+          // 2. Then apply season bonus multiplier
           const rewards: UserSeasonRewardResult[] = userPoints.map((user) => {
             const seasonBonus = pipe(
               HashMap.get(seasonBonuses, user.userId),
               Option.getOrElse(() => SeasonBonus.make('0')),
             );
 
-            // Base reward is simply the points (1 point = 1 unit)
-            const baseReward = new BigNumber(user.totalPoints);
+            // Calculate user's proportional share of the budget
+            const userPointsNum = new BigNumber(user.totalPoints);
+            const baseReward = userPointsNum
+              .dividedBy(totalPoints)
+              .multipliedBy(budget);
 
-            // Apply season bonus multiplier to the reward
+            // Apply season bonus multiplier to the base reward
             const multiplier = new BigNumber('1').plus(seasonBonus);
             const rewardAmount = RewardAmount.make(
               baseReward.multipliedBy(multiplier).toString(),

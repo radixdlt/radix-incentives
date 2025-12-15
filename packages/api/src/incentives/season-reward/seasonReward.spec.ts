@@ -12,7 +12,11 @@ import { beforeEach, expect } from 'vitest';
 import { truncateTables } from '../../test-helpers/truncateTables';
 import { DbService } from '../db/dbClient';
 import { SeasonId, UserId } from '../schemas/brandedTypes';
-import { RewardAmount, SeasonRewardService } from './seasonReward';
+import {
+  RewardAmount,
+  RewardBudget,
+  SeasonRewardService,
+} from './seasonReward';
 
 const testSetup = Effect.gen(function* () {
   const db = yield* DbService;
@@ -257,6 +261,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
+          rewardBudget: RewardBudget.make('1000'),
         });
 
         expect(result).toEqual([]);
@@ -264,7 +269,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
   );
 
   it.effect(
-    'calculateSeasonReward - calculates rewards where 1 point = 1 unit',
+    'calculateSeasonReward - calculates rewards as proportional share of budget',
     () =>
       Effect.gen(function* () {
         const service = yield* SeasonRewardService;
@@ -289,9 +294,12 @@ layer(TestLayer)('SeasonRewardService', (it) => {
           ]),
         );
 
-        // 1 point = 1 unit, no bonus
+        // Budget: 1000, Total points: 800
+        // User1: (500/800) * 1000 = 625
+        // User2: (300/800) * 1000 = 375
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
+          rewardBudget: RewardBudget.make('1000'),
         });
 
         expect(result).toHaveLength(2);
@@ -299,15 +307,15 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         const user1Reward = result.find((r) => r.userId === user1.id);
         const user2Reward = result.find((r) => r.userId === user2.id);
 
-        // User1: 500 points = 500 reward
-        // User2: 300 points = 300 reward
-        expect(user1Reward?.rewardAmount.toString()).toBe('500');
-        expect(user2Reward?.rewardAmount.toString()).toBe('300');
+        // User1: (500/800) * 1000 = 625
+        // User2: (300/800) * 1000 = 375
+        expect(user1Reward?.rewardAmount.toString()).toBe('625');
+        expect(user2Reward?.rewardAmount.toString()).toBe('375');
       }).pipe(Effect.provide(DbService.Default)),
   );
 
   it.effect(
-    'calculateSeasonReward - applies season bonus multiplier correctly',
+    'calculateSeasonReward - applies season bonus multiplier after proportional share',
     () =>
       Effect.gen(function* () {
         const service = yield* SeasonRewardService;
@@ -341,11 +349,17 @@ layer(TestLayer)('SeasonRewardService', (it) => {
           }),
         );
 
-        // 1 point = 1 unit
-        // User1: 400 points * 1.25 = 500
-        // User2: 400 points * 1.0 = 400
+        // Budget: 1000, Total points: 800
+        // Step 1: Calculate base rewards (proportional share of budget, ignoring bonuses)
+        //   User1: (400/800) * 1000 = 500
+        //   User2: (400/800) * 1000 = 500
+        // Step 2: Apply season bonus multiplier
+        //   User1: 500 * 1.25 = 625
+        //   User2: 500 * 1.0 = 500
+        // Total distributed: 1125 (exceeds budget due to bonus, which is intentional)
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
+          rewardBudget: RewardBudget.make('1000'),
         });
 
         expect(result).toHaveLength(2);
@@ -355,13 +369,13 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
         expect(user1Reward?.totalPoints.toString()).toBe('400.000000');
         expect(user1Reward?.seasonBonus.toString()).toBe('0.250000');
-        // 400 * 1.25 = 500
-        expect(user1Reward?.rewardAmount.toString()).toBe('500');
+        // (400/800) * 1000 * 1.25 = 625
+        expect(user1Reward?.rewardAmount.toString()).toBe('625');
 
         expect(user2Reward?.totalPoints.toString()).toBe('400.000000');
         expect(user2Reward?.seasonBonus.toString()).toBe('0');
-        // 400 * 1.0 = 400
-        expect(user2Reward?.rewardAmount.toString()).toBe('400');
+        // (400/800) * 1000 * 1.0 = 500
+        expect(user2Reward?.rewardAmount.toString()).toBe('500');
       }).pipe(Effect.provide(DbService.Default)),
   );
 
