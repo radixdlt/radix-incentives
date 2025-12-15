@@ -1,6 +1,6 @@
 'use client';
 
-import { Clock, MoveUpRight, Wallet, Zap } from 'lucide-react';
+import { Clock, Gift, MoveUpRight, Wallet, Zap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import {
@@ -108,6 +108,13 @@ export default function DashboardPage() {
   const selectedWeekData = weeks.data?.find((week) => week.id === selectedWeek);
   const { data: referralStats, isLoading: referralStatsLoading } =
     api.user.getUserReferralStats.useQuery(
+      { seasonId: selectedWeekData?.seasonId ?? '' },
+      { enabled: !!persona && !!selectedWeekData?.seasonId },
+    );
+
+  // Get user's season bonus
+  const { data: seasonBonus, isLoading: seasonBonusLoading } =
+    api.user.getSeasonBonus.useQuery(
       { seasonId: selectedWeekData?.seasonId ?? '' },
       { enabled: !!persona && !!selectedWeekData?.seasonId },
     );
@@ -232,7 +239,7 @@ export default function DashboardPage() {
           <LowXrdSeasonPointsBanner totalXrdValue={totalXrdValue} />
         )}
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5">
         <MetricCard
           title={
             isWeekCompleted
@@ -269,7 +276,7 @@ export default function DashboardPage() {
               : '-'
           }
           icon={Wallet}
-          description="Total USD value contributing to activities"
+          description="USD value in active positions"
           iconColor="text-blue-500"
           noHover
         />
@@ -287,6 +294,17 @@ export default function DashboardPage() {
           onClick={() => setMultiplierModalOpen(true)}
           clickHint="Click for details"
         />
+
+        {seasonBonus && !seasonBonusLoading && (
+          <MetricCard
+            title="Season 0 Bonus"
+            value={`${(parseFloat(seasonBonus) * 100).toFixed(1)}%`}
+            icon={Gift}
+            description="Bonus rewards due to Season 0"
+            iconColor="text-yellow-400"
+            noHover
+          />
+        )}
 
         <ReferralCard
           referralCode={referralStats?.referralCode}

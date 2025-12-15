@@ -2,6 +2,7 @@ import { TRPCError } from '@trpc/server';
 import { Effect, Exit } from 'effect';
 import { z } from 'zod';
 import { resolveEffect } from '../runtime';
+import { SeasonBonusService } from '../season-bonus/seasonBonusService';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 import { UserEmailInputSchema, UserService } from './user';
 
@@ -146,6 +147,20 @@ export const userRouter = createTRPCRouter({
       }),
     );
   }),
+
+  getSeasonBonus: protectedProcedure
+    .input(z.object({ seasonId: z.string().uuid() }))
+    .query(async ({ ctx, input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const service = yield* SeasonBonusService;
+          return yield* service.getSeasonBonus(
+            ctx.session.user.id,
+            input.seasonId,
+          );
+        }),
+      ),
+    ),
 });
 
 export const adminUserRouter = createTRPCRouter({

@@ -23,6 +23,7 @@ import {
 } from '../milestones/milestoneRouter';
 import { resourceRewardRouter } from '../resource-reward/resourceRewardRouter';
 import { adminSeasonRouter } from '../season/seasonRouter';
+import { adminSeasonBonusRouter } from '../season-bonus/seasonBonusRouter';
 import { adminSeedRouter } from '../seed/seedRouter';
 import { adminMarginAccountSeedingRouter } from '../surge/marginAccountSeedingRouter';
 import { adminUserRouter, userRouter } from '../user/userRouter';
@@ -55,6 +56,7 @@ export const adminAppRouter = createTRPCRouter({
   activity: adminActivityRouter,
   activityCategory: adminActivityCategoryRouter,
   season: adminSeasonRouter,
+  seasonBonus: adminSeasonBonusRouter,
   user: adminUserRouter,
   leaderboard: leaderboardRouter,
   config: adminConfigRouter,

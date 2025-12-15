@@ -42,6 +42,7 @@
     "effect": "catalog:",
     "fetch-retry": "^6.0.0",
     "ioredis": "catalog:",
+    "papaparse": "catalog:",
     "postgres": "catalog:",
     "radix-connect": "catalog:",
     "radix-transaction-stream": "catalog:",
@@ -57,6 +58,7 @@
     "@noble/curves": "catalog:",
     "@testcontainers/postgresql": "catalog:",
     "@testcontainers/redis": "catalog:",
+    "@types/papaparse": "catalog:",
     "@vitest/coverage-v8": "^3.2.4",
     "tsup": "catalog:",
     "vitest": "catalog:"

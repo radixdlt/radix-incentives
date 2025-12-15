@@ -114,6 +114,9 @@ catalogs:
     '@types/node':
       specifier: ^20.0.0
       version: 20.17.30
+    '@types/papaparse':
+      specifier: ^5.5.1
+      version: 5.5.1
     '@types/react':
       specifier: ^19.2.7
       version: 19.2.7
@@ -843,6 +846,9 @@ importers:
       ioredis:
         specifier: 'catalog:'
         version: 5.6.0
+      papaparse:
+        specifier: 'catalog:'
+        version: 5.5.3
       postgres:
         specifier: 'catalog:'
         version: 3.4.7
@@ -883,6 +889,9 @@ importers:
       '@testcontainers/redis':
         specifier: 'catalog:'
         version: 11.10.0
+      '@types/papaparse':
+        specifier: 'catalog:'
+        version: 5.5.1
       '@vitest/coverage-v8':
         specifier: ^3.2.4
         version: 3.2.4(vitest@3.1.1(@types/debug@4.1.12)(@types/node@22.15.17)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.19.3)(yaml@2.8.0))
