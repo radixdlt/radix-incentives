@@ -85,8 +85,8 @@ pnpm biome lint --write
 # Type check all packages
 pnpm check-types
 
-# Run tests
-pnpm test
+# Run tests (DATABASE_URL must be set)
+DATABASE_URL="postgresql://postgres:password@localhost:5432/radix-incentives" pnpm test
 ```
 
 #### Lint & Build Process
@@ -176,6 +176,35 @@ When creating services using the Effect library:
     message: `Claim amount is greater than the total claimable amount`,
   });
   ```
+- **Declarative Code Style**: Use Effect's declarative APIs instead of imperative loops and nullish coalescing:
+  - Use `Option` instead of `??` for handling nullable values:
+    ```typescript
+    // Bad case
+    const value = row.totalPoints ?? '0';
+
+    // Good case
+    const value = pipe(
+      Option.fromNullable(row.totalPoints),
+      Option.map((v) => new BigNumber(v)),
+      Option.getOrElse(() => new BigNumber('0')),
+    );
+    ```
+  - Use `Effect.forEach` with `Array.chunksOf` instead of `for` loops for batch processing:
+    ```typescript
+    // Bad case
+    for (let i = 0; i < values.length; i += batchSize) {
+      const batch = values.slice(i, i + batchSize);
+      yield* processBatch(batch);
+    }
+
+    // Good case
+    const batches = pipe(values, A.chunksOf(batchSize));
+    yield* Effect.forEach(
+      batches,
+      (batch) => processBatch(batch),
+      { discard: true },
+    );
+    ```
 
 ### React/Next.js Guidelines
 - Use Tailwind classes for styling (no inline CSS or `<style>` tags)
