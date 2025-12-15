@@ -2,11 +2,11 @@ import { layer } from '@effect/vitest';
 import { Effect, Layer, Logger } from 'effect';
 import { expect } from 'vitest';
 import { DisableTestClock } from '../../test-helpers/disableTestClock';
-import { RedisClientService } from './redisClient';
+import { RedisClientServiceTest } from './redisClient.test-layer';
 import { LockAcquisitionError, RedisLock } from './redisLock';
 
 const TestLayer = RedisLock.DefaultWithoutDependencies.pipe(
-  Layer.provide(RedisClientService.Test),
+  Layer.provide(RedisClientServiceTest),
   Layer.provide(Logger.pretty),
 );
 

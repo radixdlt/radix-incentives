@@ -79,6 +79,13 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                   message: 'Super admin badge not found',
                 }),
             );
+            const dappDefinitionAccount = Option.getOrThrowWith(
+              config.dappDefinitionAccount,
+              () =>
+                new MissingConfigError({
+                  message: 'Dapp definition account not found',
+                }),
+            );
             const superAdminAccount = Option.getOrThrowWith(
               config.superAdminAccount,
               () =>
@@ -106,7 +113,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 Decimal("${input.initialVestedFraction}") # initial vested fraction (20%)
                 ${input.preClaimPeriod.pipe(Duration.toSeconds)}i64 # pre-claim period in seconds (1 day)
                 Address("${config.rewardsResourceAddress}") # XRD
-                Address("${config.dappDefinitionAccount.address}") # No need to care about this when testing
+                Address("${dappDefinitionAccount.address}") # No need to care about this when testing
               ;`);
 
             const transactionHelper = yield* getTransactionHelper;
@@ -283,7 +290,13 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                   message: 'Admin badge not found',
                 }),
             );
-            const adminAccount = config.adminAccount;
+            const adminAccount = Option.getOrThrowWith(
+              config.adminAccount,
+              () =>
+                new MissingConfigError({
+                  message: 'Admin account not found',
+                }),
+            );
 
             const manifest = TransactionManifestString.make(`
               CALL_METHOD

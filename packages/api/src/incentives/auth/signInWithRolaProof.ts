@@ -45,7 +45,7 @@ export class SignInWithRolaProofService extends Effect.Service<SignInWithRolaPro
 
     effect: Effect.gen(function* () {
       const verifyChallenge = yield* VerifyChallengeService;
-      const verifyProof = yield* VerifyRolaProofService;
+      const verifyProofService = yield* VerifyRolaProofService;
       const upsertUser = yield* UpsertUserService;
       const generateSessionToken = yield* GenerateSessionTokenService;
       const createSession = yield* CreateSessionService;
@@ -58,7 +58,7 @@ export class SignInWithRolaProofService extends Effect.Service<SignInWithRolaPro
         if (!isValidChallenge)
           return yield* Effect.fail(new InvalidChallengeError());
 
-        const isValidProof = yield* verifyProof({
+        const isValidProof = yield* verifyProofService.verifyProofs({
           challenge: input.rolaProof.challenge,
           items: [input.rolaProof],
         });

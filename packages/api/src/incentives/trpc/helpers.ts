@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { Data, Effect, Exit } from 'effect';
+import { Data, Effect, Exit, Schema } from 'effect';
 
 export class ResponseError extends Data.TaggedError('ResponseError')<{
   code: TRPCError['code'];
@@ -45,3 +45,7 @@ export const resolveExit = <A, E>(exit: Exit.Exit<A, E>) =>
 export const resolveEffect = <A, E, R extends never>(
   effect: Effect.Effect<A, E, R>,
 ) => Effect.runPromiseExit(effect).then(resolveExit);
+
+export const effectSchemaParser = <A, I>(schema: Schema.Schema<A, I>) => ({
+  parse: (input: unknown) => Schema.decodeUnknownSync(schema)(input),
+});

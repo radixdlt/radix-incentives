@@ -1,4 +1,3 @@
-import { RedisContainer } from '@testcontainers/redis';
 import { Config, Context, Effect, Layer } from 'effect';
 import { Redis } from 'ioredis';
 
@@ -24,25 +23,6 @@ export class RedisClientService extends Context.Tag('RedisClientService')<
           }),
         ),
         (client) => Effect.promise(() => client.quit()),
-      );
-    }),
-  );
-  static Test = Layer.scoped(
-    RedisClientService,
-    Effect.gen(function* () {
-      const redisContainer = yield* Effect.promise(() =>
-        new RedisContainer('redis:7.0').start(),
-      );
-
-      const acquire = Effect.succeed(
-        new Redis(redisContainer.getConnectionUrl()),
-      );
-
-      return yield* Effect.acquireRelease(acquire, (client) =>
-        Effect.promise(async () => {
-          await client.quit();
-          return redisContainer.stop();
-        }),
       );
     }),
   );

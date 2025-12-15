@@ -10,6 +10,7 @@ export const QueueName = {
   populateLeaderboardCache: 'populateLeaderboardCache',
   processWeek: 'processWeek',
   maintenance: 'maintenance',
+  seasonRewardClaim: 'seasonRewardClaim',
 } as const;
 
 export type QueueName = (typeof QueueName)[keyof typeof QueueName];

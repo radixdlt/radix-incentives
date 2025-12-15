@@ -1,9 +1,9 @@
 import { Convert } from '@radixdlt/radix-engine-toolkit';
 import { Context, Data, Effect, Layer, Redacted, Schema } from 'effect';
+import type { HexString } from '../../schemas/brandedTypes';
 import {
   Ed25519PrivateKeySchema,
   type Ed25519SignatureWithPublicKey,
-  type HexString,
 } from '../schemas';
 import { Vault } from './vault';
 

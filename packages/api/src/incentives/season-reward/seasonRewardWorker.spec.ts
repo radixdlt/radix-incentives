@@ -1,7 +1,7 @@
 import { layer } from '@effect/vitest';
 import { seasons, userSeasonReward, users } from 'db/incentives';
 import { Effect, Layer, Logger } from 'effect';
-import { RedisLock } from '../../common/redis/redisLock';
+import { RedisLockTest } from '../../common/redis/redisLock.test-layer';
 import { createAccount } from '../../test-helpers/createAccount';
 import { DisableTestClock } from '../../test-helpers/disableTestClock';
 import { truncateTables } from '../../test-helpers/truncateTables';
@@ -82,7 +82,7 @@ layer(
             ),
           ),
         ),
-        RedisLock.Test,
+        RedisLockTest,
       ),
     ),
   ),

@@ -1,5 +1,5 @@
 import crypto from 'node:crypto';
-import { Data, Effect, Layer, Schedule } from 'effect';
+import { Data, Effect, Schedule } from 'effect';
 import { RedisClientService } from './redisClient';
 
 export class LockAcquisitionError extends Data.TaggedError(
@@ -150,8 +150,4 @@ export class RedisLock extends Effect.Service<RedisLock>()('RedisLock', {
       withLock,
     };
   }),
-}) {
-  static Test = this.DefaultWithoutDependencies.pipe(
-    Layer.provide(RedisClientService.Test),
-  );
-}
+}) {}

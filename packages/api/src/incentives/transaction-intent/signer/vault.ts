@@ -91,8 +91,6 @@ const PublicKeyResponseSchema = Schema.asSchema(
 export class Vault extends Effect.Service<Vault>()('Vault', {
   dependencies: [FetchHttpClient.layer],
   effect: Effect.gen(function* () {
-    const token = yield* Config.string('VAULT_TOKEN').pipe(Effect.orDie);
-
     const keyName = yield* Config.string('VAULT_KEY_NAME').pipe(
       Config.withDefault('xrd-distribution'),
     );
@@ -103,24 +101,28 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
 
     const httpClient = yield* HttpClient.HttpClient;
 
+    const vaultToken = Config.string('VAULT_TOKEN').pipe(Effect.orDie);
+
     const getPublicKey = () =>
-      httpClient
-        .get(`${baseUrl}/transit/keys/${keyName}`, {
-          headers: {
-            'X-Vault-Token': token,
-          },
-        })
-        .pipe(
-          Effect.flatMap((response) => response.json),
-          Effect.flatMap(Schema.decodeUnknown(PublicKeyResponseSchema)),
-        );
+      Effect.gen(function* () {
+        return yield* httpClient
+          .get(`${baseUrl}/transit/keys/${keyName}`, {
+            headers: {
+              'X-Vault-Token': yield* vaultToken,
+            },
+          })
+          .pipe(
+            Effect.flatMap((response) => response.json),
+            Effect.flatMap(Schema.decodeUnknown(PublicKeyResponseSchema)),
+          );
+      });
 
     const toSignatureWithPublicKey = (hash: HexString) =>
       Effect.gen(function* () {
         const signature = yield* httpClient
           .post(`${baseUrl}/transit/sign/${keyName}`, {
             headers: {
-              'X-Vault-Token': token,
+              'X-Vault-Token': yield* vaultToken,
               'Content-Type': 'application/json',
             },
             body: yield* Schema.decode(Base64FromHexSchema)(hash).pipe(

@@ -9,9 +9,10 @@ catalog:
   '@bull-board/api': ^6.9.6
   '@bull-board/hono': ^6.9.6
   '@date-fns/utc': ^2.1.0
-  '@effect/language-service': ^0.27.2
+  '@effect/language-service': ^0.62.1
   '@effect/opentelemetry': ^0.47.0
-  '@effect/platform': ^0.93.6
+  '@effect/platform': 0.93.7
+  "@effect/platform-node": ^0.103.0
   '@hono/node-server': ^1.14.2
   '@noble/curves': ^1.8.1
   '@noble/hashes': ^1.8.0
@@ -37,7 +38,7 @@ catalog:
   '@t3-oss/env-nextjs': ^0.12.0
   '@tanstack/react-query': ^5.90.11
   '@testcontainers/postgresql': ^11.2.1
-  "@testcontainers/redis": "^11.10.0"
+  '@testcontainers/redis': ^11.10.0
   '@trpc/client': ^11.7.2
   '@trpc/react-query': ^11.7.2
   '@trpc/server': ^11.7.2
@@ -55,8 +56,8 @@ catalog:
   date-fns: ^4.1.0
   date-fns-tz: ^3.2.0
   drizzle-kit: ^0.31.7
-  drizzle-orm: ^0.44.7
-  effect: ^3.14.1
+  drizzle-orm: ^0.45.1
+  effect: ^3.19.11
   express: ^4.21.2
   hono: ^4.10.2
   inquirer: ^8.2.6
@@ -79,5 +80,5 @@ catalog:
   tsx: ^4.19.3
   undici: ^7.13.0
   vitest: ^3.0.9
+  ws: ^8.18.0
   zod: ^4.1.13
-  

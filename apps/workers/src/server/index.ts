@@ -7,6 +7,8 @@ import {
   seasonPointsMultiplierJobSchema,
   snapshotDateRangeJobSchema,
 } from 'api/incentives';
+import { SeasonRewardWorkerInputSchema } from 'api/incentives/season-reward/seasonRewardWorker';
+import { Schema } from 'effect';
 import { Hono } from 'hono';
 import { showRoutes } from 'hono/dev';
 import { calculateActivityPointsQueue } from '../queues/calculate-activity-points/queue';
@@ -22,6 +24,7 @@ import { populateLeaderboardCacheSchema } from '../queues/populate-leaderboard-c
 import { processWeekQueue } from '../queues/process-week/queue';
 import { ProcessWeekJobSchema } from '../queues/process-week/schemas';
 import { scheduledCalculationsQueue } from '../queues/scheduled-calculations/queue';
+import { seasonRewardClaimQueue } from '../queues/season-reward-claim/queue';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
 import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
@@ -49,6 +52,8 @@ metricsApp.get('/metrics', async (c) => {
     await processWeekQueue.queue.exportPrometheusMetrics();
   const maintenanceQueueMetrics =
     await maintenanceQueue.queue.exportPrometheusMetrics();
+  const seasonRewardClaimQueueMetrics =
+    await seasonRewardClaimQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -59,6 +64,7 @@ metricsApp.get('/metrics', async (c) => {
       populateLeaderboardCacheQueueMetrics,
       processWeekQueueMetrics,
       maintenanceQueueMetrics,
+      seasonRewardClaimQueueMetrics,
     ].join('\n'),
   );
 });
@@ -167,6 +173,15 @@ app.post('/queues/maintenance/add', async (c) => {
   return c.text('ok');
 });
 
+app.post('/queues/season-reward-claim/add', async (c) => {
+  const input = await c.req.json();
+  const parsedInput = Schema.decodeUnknownSync(SeasonRewardWorkerInputSchema)(
+    input,
+  );
+  await seasonRewardClaimQueue.queue.add('seasonRewardClaim', parsedInput);
+  return c.text('ok');
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
@@ -189,6 +204,7 @@ createBullBoard({
     new BullMQAdapter(populateLeaderboardCacheQueue.queue),
     new BullMQAdapter(processWeekQueue.queue),
     new BullMQAdapter(maintenanceQueue.queue),
+    new BullMQAdapter(seasonRewardClaimQueue.queue),
   ],
   serverAdapter,
 });
