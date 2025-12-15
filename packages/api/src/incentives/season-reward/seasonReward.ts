@@ -5,40 +5,27 @@ import {
   userSeasonReward,
 } from 'db/incentives';
 import { and, eq, sql, sum } from 'drizzle-orm';
-import {
-  Array as A,
-  Brand,
-  Data,
-  Effect,
-  HashMap,
-  Option,
-  pipe,
-  Schema,
-} from 'effect';
-import {
-  AccountAddress,
-  BigNumberSchema,
-  ComponentAddress,
-} from '../account-balance/v2/schemas';
+import { Array as A, Effect, HashMap, Option, pipe, Schema } from 'effect';
 import { DbService } from '../db/dbClient';
-import { NetworkId, SeasonId, UserId } from '../schemas/brandedTypes';
-import { IncentivesVesterStateService } from './incentives-vester/incentivesVester';
+import { SeasonId, UserId } from '../schemas/brandedTypes';
 
 /**
  * Branded type for season bonus values (decimal string representation)
  */
-export type SeasonBonus = string & Brand.Brand<'SeasonBonus'>;
-export const SeasonBonus = Brand.nominal<SeasonBonus>();
-export const SeasonBonusSchema = Schema.String.pipe(
-  Schema.fromBrand(SeasonBonus),
-);
+export const SeasonBonus = Schema.String.pipe(Schema.brand('SeasonBonus'));
+export type SeasonBonus = typeof SeasonBonus.Type;
 
 /**
  * Branded type for points values (decimal string representation)
  */
-export type Points = string & Brand.Brand<'Points'>;
-export const Points = Brand.nominal<Points>();
-export const PointsSchema = Schema.String.pipe(Schema.fromBrand(Points));
+export const Points = Schema.String.pipe(Schema.brand('Points'));
+export type Points = typeof Points.Type;
+
+/**
+ * Branded type for reward amount values (decimal string representation)
+ */
+export const RewardAmount = Schema.String.pipe(Schema.brand('RewardAmount'));
+export type RewardAmount = typeof RewardAmount.Type;
 
 /**
  * Schema for calculating season rewards input
@@ -46,10 +33,6 @@ export const PointsSchema = Schema.String.pipe(Schema.fromBrand(Points));
 export const CalculateSeasonRewardInputSchema = Schema.Struct({
   /** The season ID to calculate rewards for */
   seasonId: SeasonId,
-  /** The component address of the incentives vester */
-  componentAddress: Schema.String.pipe(Schema.fromBrand(ComponentAddress)),
-  /** The network ID of the incentives vester */
-  networkId: NetworkId,
 });
 
 export type CalculateSeasonRewardInput =
@@ -61,27 +44,31 @@ export type CalculateSeasonRewardInput =
 export const UserSeasonRewardResultSchema = Schema.Struct({
   userId: UserId,
   /** User's total season points */
-  totalPoints: PointsSchema,
+  totalPoints: Points,
   /** User's season bonus multiplier (if any) */
-  seasonBonus: SeasonBonusSchema,
-  /** User's share of total points pool (0-1) */
-  poolShare: BigNumberSchema,
-  /** Final calculated reward amount in XRD */
-  rewardAmount: BigNumberSchema,
+  seasonBonus: SeasonBonus,
+  /** Final calculated reward amount (1 point = 1 unit, then bonus applied) */
+  rewardAmount: RewardAmount,
 });
 
 export type UserSeasonRewardResult = typeof UserSeasonRewardResultSchema.Type;
+
+/**
+ * Schema for a single user reward to save
+ */
+export const UserRewardToSaveSchema = Schema.Struct({
+  userId: UserId,
+  rewardAmount: RewardAmount,
+});
+
+export type UserRewardToSave = typeof UserRewardToSaveSchema.Type;
 
 /**
  * Schema for the save season rewards input
  */
 export const SaveSeasonRewardsInputSchema = Schema.Struct({
   seasonId: SeasonId,
-  rewards: Schema.Array(UserSeasonRewardResultSchema),
-  accountAddresses: Schema.Map({
-    key: UserId,
-    value: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
-  }),
+  rewards: Schema.Array(UserRewardToSaveSchema),
 });
 
 export type SaveSeasonRewardsInput = typeof SaveSeasonRewardsInputSchema.Type;
@@ -101,25 +88,17 @@ export type GetUserSeasonRewardInput =
  * Schema for the user season reward output
  */
 export const UserSeasonRewardOutputSchema = Schema.Struct({
-  amount: BigNumberSchema,
-  accountAddress: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
+  amount: RewardAmount,
 });
 
 export type UserSeasonRewardOutput = typeof UserSeasonRewardOutputSchema.Type;
 
-class TotalTokensToVestError extends Data.TaggedError(
-  'TotalTokensToVestError',
-)<{
-  message: string;
-}> {}
-
 export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
   'SeasonRewardService',
   {
-    dependencies: [DbService.Default, IncentivesVesterStateService.Default],
+    dependencies: [DbService.Default],
     effect: Effect.gen(function* () {
       const db = yield* DbService;
-      const incentivesVesterStateService = yield* IncentivesVesterStateService;
 
       /**
        * Get all users' total season points for a given season
@@ -140,7 +119,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
             Effect.map((rows) =>
               rows.map((row) => ({
                 userId: UserId.make(row.userId),
-                totalPoints: Points(row.totalPoints ?? '0'),
+                totalPoints: Points.make(row.totalPoints ?? '0'),
               })),
             ),
             Effect.orDie,
@@ -169,7 +148,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                   (row) =>
                     [
                       UserId.make(row.userId),
-                      SeasonBonus(row.seasonBonus ?? '0'),
+                      SeasonBonus.make(row.seasonBonus ?? '0'),
                     ] as const,
                 ),
                 HashMap.fromIterable,
@@ -208,32 +187,16 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
        * Calculate season rewards for all users in a season.
        *
        * The calculation follows this formula:
-       * 1. Get total tokens to vest from the incentives vester (this is the reward budget)
-       * 2. Get each user's total season points (sum across all weeks)
-       * 3. Apply season bonus multiplier if applicable (1 + seasonBonus)
-       * 4. Calculate user's share of the total adjusted points pool
-       * 5. Distribute the reward budget proportionally based on shares
+       * 1. Get each user's total season points (sum across all weeks)
+       * 2. Calculate reward: 1 point = 1 unit
+       * 3. Apply season bonus multiplier to each user's reward (1 + seasonBonus)
        *
-       * @param input - Season ID and vester component details
+       * @param input - Season ID to calculate rewards for
        * @returns Array of user reward calculations with detailed breakdown
        */
       const calculateSeasonReward = (input: CalculateSeasonRewardInput) =>
         Effect.gen(function* () {
           const { seasonId } = input;
-
-          const rewardBudget = yield* incentivesVesterStateService({
-            componentAddress: input.componentAddress,
-            networkId: input.networkId,
-          }).pipe(
-            Effect.map((state) => new BigNumber(state.total_tokens_to_vest)),
-          );
-
-          // If reward budget is zero, return error
-          if (rewardBudget.isZero()) {
-            return yield* new TotalTokensToVestError({
-              message: 'Total tokens to vest is zero',
-            });
-          }
 
           // Fetch all required data in parallel
           const [userPoints, seasonBonuses] = yield* Effect.all(
@@ -246,50 +209,30 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
             return [];
           }
 
-          // Calculate adjusted points for each user (points * (1 + bonus))
-          const usersWithAdjustedPoints = userPoints.map((user) => {
+          // Calculate each user's reward:
+          // 1 point = 1 unit, then apply season bonus multiplier
+          const rewards: UserSeasonRewardResult[] = userPoints.map((user) => {
             const seasonBonus = pipe(
               HashMap.get(seasonBonuses, user.userId),
-              Option.getOrElse(() => SeasonBonus('0')),
+              Option.getOrElse(() => SeasonBonus.make('0')),
             );
+
+            // Base reward is simply the points (1 point = 1 unit)
+            const baseReward = new BigNumber(user.totalPoints);
+
+            // Apply season bonus multiplier to the reward
             const multiplier = new BigNumber('1').plus(seasonBonus);
-            const adjustedPoints = new BigNumber(user.totalPoints).multipliedBy(
-              multiplier,
+            const rewardAmount = RewardAmount.make(
+              baseReward.multipliedBy(multiplier).toString(),
             );
 
             return {
-              ...user,
+              userId: user.userId,
+              totalPoints: user.totalPoints,
               seasonBonus,
-              adjustedPoints,
+              rewardAmount,
             };
           });
-
-          // Calculate total adjusted points across all users
-          const totalAdjustedPoints = usersWithAdjustedPoints.reduce(
-            (acc, user) => acc.plus(user.adjustedPoints),
-            new BigNumber('0'),
-          );
-
-          // If total adjusted points is zero, everyone gets zero rewards
-          if (totalAdjustedPoints.isZero()) {
-            return [];
-          }
-
-          // Calculate each user's reward
-          const rewards: UserSeasonRewardResult[] = usersWithAdjustedPoints.map(
-            (user) => {
-              const poolShare = user.adjustedPoints.dividedBy(totalAdjustedPoints);
-              const rewardAmount = rewardBudget.multipliedBy(poolShare);
-
-              return {
-                userId: user.userId,
-                totalPoints: user.totalPoints,
-                seasonBonus: user.seasonBonus,
-                poolShare,
-                rewardAmount,
-              };
-            },
-          );
 
           return rewards;
         });
@@ -298,29 +241,22 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
        * Save calculated season rewards to the database.
        * This upserts rewards into the userSeasonReward table.
        *
-       * @param input - Season ID, rewards array, and account addresses map
+       * @param input - Season ID and rewards array with user IDs, amounts, and account addresses
        */
       const saveSeasonRewards = (input: SaveSeasonRewardsInput) =>
         Effect.gen(function* () {
-          const { seasonId, rewards, accountAddresses } = input;
+          const { seasonId, rewards } = input;
 
           if (rewards.length === 0) {
             return;
           }
 
           // Prepare values for upsert
-          const values = rewards
-            .filter((reward) => accountAddresses.has(reward.userId))
-            .map((reward) => ({
-              userId: reward.userId,
-              seasonId,
-              amount: reward.rewardAmount.toString(),
-              accountAddress: accountAddresses.get(reward.userId) as string,
-            }));
-
-          if (values.length === 0) {
-            return;
-          }
+          const values = rewards.map((reward) => ({
+            userId: reward.userId,
+            seasonId,
+            amount: reward.rewardAmount.toString(),
+          }));
 
           // Batch upsert in chunks
           const batchSize = 1000;
@@ -341,7 +277,6 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                       ],
                       set: {
                         amount: sql`excluded.amount`,
-                        accountAddress: sql`excluded.account_address`,
                       },
                     }),
                 )
@@ -359,7 +294,6 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
             db
               .select({
                 amount: userSeasonReward.amount,
-                accountAddress: userSeasonReward.accountAddress,
               })
               .from(userSeasonReward)
               .where(
@@ -378,8 +312,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                 Option.map(
                   (row) =>
                     ({
-                      amount: new BigNumber(row.amount),
-                      accountAddress: AccountAddress(row.accountAddress),
+                      amount: RewardAmount.make(row.amount),
                     }) satisfies UserSeasonRewardOutput,
                 ),
               ),

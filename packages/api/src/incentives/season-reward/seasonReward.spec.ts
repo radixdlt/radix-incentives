@@ -1,7 +1,5 @@
 import { layer } from '@effect/vitest';
-import BigNumber from 'bignumber.js';
 import {
-  accounts,
   seasons,
   userSeasonBonuses,
   userSeasonPoints,
@@ -12,36 +10,9 @@ import {
 import { Effect, HashMap, Layer, Logger, Option } from 'effect';
 import { beforeEach, expect } from 'vitest';
 import { truncateTables } from '../../test-helpers/truncateTables';
-import {
-  AccountAddress,
-  ComponentAddress,
-} from '../account-balance/v2/schemas';
 import { DbService } from '../db/dbClient';
-import { NetworkId, SeasonId, UserId } from '../schemas/brandedTypes';
-import { IncentivesVesterStateService } from './incentives-vester/incentivesVester';
-import { Points, SeasonBonus, SeasonRewardService } from './seasonReward';
-
-// Mock IncentivesVesterStateService to return configurable total_tokens_to_vest
-const createMockVesterStateService = (totalTokensToVest: string) =>
-  Layer.succeed(
-    IncentivesVesterStateService,
-    IncentivesVesterStateService.of(() =>
-      // @ts-expect-error
-      Effect.succeed({
-        locker: 'locker_address',
-        pool: 'pool_address',
-        lp_tokens_vault: 'lp_vault',
-        locked_tokens_vault: 'locked_vault',
-        total_tokens_to_vest: totalTokensToVest,
-        vested_tokens: '0',
-        vest_start: Option.none(),
-        vest_end: Option.none(),
-        vest_duration_days: 365,
-        pre_claim_duration_seconds: 86400,
-        initial_vested_fraction: '0.2',
-      }),
-    ),
-  );
+import { SeasonId, UserId } from '../schemas/brandedTypes';
+import { RewardAmount, SeasonRewardService } from './seasonReward';
 
 const testSetup = Effect.gen(function* () {
   const db = yield* DbService;
@@ -102,25 +73,6 @@ const testSetup = Effect.gen(function* () {
       })
       .returning();
 
-    // Create accounts for users
-    const [account1] = await db
-      .insert(accounts)
-      .values({
-        userId: user1.id,
-        address: 'account_tdx_1_user1_address',
-        label: 'User 1 Account',
-      })
-      .returning();
-
-    const [account2] = await db
-      .insert(accounts)
-      .values({
-        userId: user2.id,
-        address: 'account_tdx_1_user2_address',
-        label: 'User 2 Account',
-      })
-      .returning();
-
     return {
       user1,
       user2,
@@ -129,19 +81,15 @@ const testSetup = Effect.gen(function* () {
       season2,
       week1,
       week2,
-      account1,
-      account2,
     };
   });
 
   return data;
 }).pipe(Effect.provide(DbService.Default));
 
-// Test layer with mocked IncentivesVesterStateService
-const TestLayer = SeasonRewardService.DefaultWithoutDependencies.pipe(
-  Layer.provide(createMockVesterStateService('1000')),
+// Test layer - no external service dependencies needed
+const TestLayer = SeasonRewardService.Default.pipe(
   Layer.provide(Logger.pretty),
-  Layer.provide(DbService.Default),
 );
 
 layer(TestLayer)('SeasonRewardService', (it) => {
@@ -309,8 +257,6 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
-          componentAddress: ComponentAddress('component_test_address'),
-          networkId: NetworkId.make(2),
         });
 
         expect(result).toEqual([]);
@@ -318,14 +264,14 @@ layer(TestLayer)('SeasonRewardService', (it) => {
   );
 
   it.effect(
-    'calculateSeasonReward - calculates rewards proportionally based on adjusted points',
+    'calculateSeasonReward - calculates rewards where 1 point = 1 unit',
     () =>
       Effect.gen(function* () {
         const service = yield* SeasonRewardService;
         const db = yield* DbService;
         const { user1, user2, season1, week1 } = yield* testSetup;
 
-        // User1 has 500 points, User2 has 500 points
+        // User1 has 500 points, User2 has 300 points
         yield* db.use((db) =>
           db.insert(userSeasonPoints).values([
             {
@@ -338,17 +284,14 @@ layer(TestLayer)('SeasonRewardService', (it) => {
               userId: user2.id,
               seasonId: season1.id,
               weekId: week1.id,
-              points: '500',
+              points: '300',
             },
           ]),
         );
 
-        // Total tokens to vest is 1000 (from mock), which is the reward budget
-        // Each user has 500/1000 = 50% share of the 1000 reward budget
+        // 1 point = 1 unit, no bonus
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
-          componentAddress: ComponentAddress('component_test_address'),
-          networkId: NetworkId.make(2),
         });
 
         expect(result).toHaveLength(2);
@@ -356,11 +299,10 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         const user1Reward = result.find((r) => r.userId === user1.id);
         const user2Reward = result.find((r) => r.userId === user2.id);
 
-        // Both users should get 50% of 1000 = 500 each
+        // User1: 500 points = 500 reward
+        // User2: 300 points = 300 reward
         expect(user1Reward?.rewardAmount.toString()).toBe('500');
-        expect(user2Reward?.rewardAmount.toString()).toBe('500');
-        expect(user1Reward?.poolShare.toString()).toBe('0.5');
-        expect(user2Reward?.poolShare.toString()).toBe('0.5');
+        expect(user2Reward?.rewardAmount.toString()).toBe('300');
       }).pipe(Effect.provide(DbService.Default)),
   );
 
@@ -372,7 +314,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         const db = yield* DbService;
         const { user1, user2, season1, week1 } = yield* testSetup;
 
-        // Both users have 400 points each (800 total raw points)
+        // User1 has 400 points, User2 has 400 points
         yield* db.use((db) =>
           db.insert(userSeasonPoints).values([
             {
@@ -391,9 +333,6 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         );
 
         // User1 has 25% bonus (0.25), User2 has no bonus
-        // User1 adjusted: 400 * 1.25 = 500
-        // User2 adjusted: 400 * 1.0 = 400
-        // Total adjusted: 900
         yield* db.use((db) =>
           db.insert(userSeasonBonuses).values({
             userId: user1.id,
@@ -402,13 +341,11 @@ layer(TestLayer)('SeasonRewardService', (it) => {
           }),
         );
 
-        // Reward budget is 1000 (from mock total_tokens_to_vest)
-        // User1 share: 500/900 = 0.5555...
-        // User2 share: 400/900 = 0.4444...
+        // 1 point = 1 unit
+        // User1: 400 points * 1.25 = 500
+        // User2: 400 points * 1.0 = 400
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
-          componentAddress: ComponentAddress('component_test_address'),
-          networkId: NetworkId.make(2),
         });
 
         expect(result).toHaveLength(2);
@@ -418,17 +355,13 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
         expect(user1Reward?.totalPoints.toString()).toBe('400.000000');
         expect(user1Reward?.seasonBonus.toString()).toBe('0.250000');
-        // 500/900 = 0.555...
-        expect(user1Reward?.poolShare.toFixed(10)).toBe('0.5555555556');
-        // 1000 * 500/900 = 555.555...
-        expect(user1Reward?.rewardAmount.toFixed(10)).toBe('555.5555555556');
+        // 400 * 1.25 = 500
+        expect(user1Reward?.rewardAmount.toString()).toBe('500');
 
         expect(user2Reward?.totalPoints.toString()).toBe('400.000000');
         expect(user2Reward?.seasonBonus.toString()).toBe('0');
-        // 400/900 = 0.444...
-        expect(user2Reward?.poolShare.toFixed(10)).toBe('0.4444444444');
-        // 1000 * 400/900 = 444.444...
-        expect(user2Reward?.rewardAmount.toFixed(10)).toBe('444.4444444444');
+        // 400 * 1.0 = 400
+        expect(user2Reward?.rewardAmount.toString()).toBe('400');
       }).pipe(Effect.provide(DbService.Default)),
   );
 
@@ -438,14 +371,11 @@ layer(TestLayer)('SeasonRewardService', (it) => {
       Effect.gen(function* () {
         const service = yield* SeasonRewardService;
         const db = yield* DbService;
-        const { season1, user1, account1 } = yield* testSetup;
+        const { season1 } = yield* testSetup;
 
         yield* service.saveSeasonRewards({
           seasonId: SeasonId.make(season1.id),
           rewards: [],
-          accountAddresses: new Map([
-            [UserId.make(user1.id), AccountAddress(account1.address)],
-          ]),
         });
 
         const count = yield* db.use((db) => db.select().from(userSeasonReward));
@@ -454,96 +384,43 @@ layer(TestLayer)('SeasonRewardService', (it) => {
       }).pipe(Effect.provide(DbService.Default)),
   );
 
-  it.effect(
-    'saveSeasonRewards - saves rewards for users with account addresses',
-    () =>
-      Effect.gen(function* () {
-        const service = yield* SeasonRewardService;
-        const db = yield* DbService;
-        const { season1, user1, user2, account1, account2 } = yield* testSetup;
+  it.effect('saveSeasonRewards - saves rewards for users', () =>
+    Effect.gen(function* () {
+      const service = yield* SeasonRewardService;
+      const db = yield* DbService;
+      const { season1, user1, user2 } = yield* testSetup;
 
-        yield* service.saveSeasonRewards({
-          seasonId: SeasonId.make(season1.id),
-          rewards: [
-            {
-              userId: UserId.make(user1.id),
-              totalPoints: Points('500'),
-              seasonBonus: SeasonBonus('0.1'),
-              poolShare: new BigNumber('0.5'),
-              rewardAmount: new BigNumber('500'),
-            },
-            {
-              userId: UserId.make(user2.id),
-              totalPoints: Points('500'),
-              seasonBonus: SeasonBonus('0'),
-              poolShare: new BigNumber('0.5'),
-              rewardAmount: new BigNumber('500'),
-            },
-          ],
-          accountAddresses: new Map([
-            [UserId.make(user1.id), AccountAddress(account1.address)],
-            [UserId.make(user2.id), AccountAddress(account2.address)],
-          ]),
-        });
+      yield* service.saveSeasonRewards({
+        seasonId: SeasonId.make(season1.id),
+        rewards: [
+          {
+            userId: UserId.make(user1.id),
+            rewardAmount: RewardAmount.make('500'),
+          },
+          {
+            userId: UserId.make(user2.id),
+            rewardAmount: RewardAmount.make('300'),
+          },
+        ],
+      });
 
-        const saved = yield* db.use((db) => db.select().from(userSeasonReward));
+      const saved = yield* db.use((db) => db.select().from(userSeasonReward));
 
-        expect(saved).toHaveLength(2);
+      expect(saved).toHaveLength(2);
 
-        const user1Saved = saved.find((r) => r.userId === user1.id);
-        const user2Saved = saved.find((r) => r.userId === user2.id);
+      const user1Saved = saved.find((r) => r.userId === user1.id);
+      const user2Saved = saved.find((r) => r.userId === user2.id);
 
-        expect(user1Saved?.amount).toBe('500.000000');
-        expect(user1Saved?.accountAddress).toBe(account1.address);
-        expect(user2Saved?.amount).toBe('500.000000');
-        expect(user2Saved?.accountAddress).toBe(account2.address);
-      }).pipe(Effect.provide(DbService.Default)),
-  );
-
-  it.effect(
-    'saveSeasonRewards - filters out users without account addresses',
-    () =>
-      Effect.gen(function* () {
-        const service = yield* SeasonRewardService;
-        const db = yield* DbService;
-        const { season1, user1, user2, account1 } = yield* testSetup;
-
-        yield* service.saveSeasonRewards({
-          seasonId: SeasonId.make(season1.id),
-          rewards: [
-            {
-              userId: UserId.make(user1.id),
-              totalPoints: Points('500'),
-              seasonBonus: SeasonBonus('0.1'),
-              poolShare: new BigNumber('0.5'),
-              rewardAmount: new BigNumber('500'),
-            },
-            {
-              userId: UserId.make(user2.id),
-              totalPoints: Points('500'),
-              seasonBonus: SeasonBonus('0'),
-              poolShare: new BigNumber('0.5'),
-              rewardAmount: new BigNumber('500'),
-            },
-          ],
-          // Only user1 has an account address
-          accountAddresses: new Map([
-            [UserId.make(user1.id), AccountAddress(account1.address)],
-          ]),
-        });
-
-        const saved = yield* db.use((db) => db.select().from(userSeasonReward));
-
-        expect(saved).toHaveLength(1);
-        expect(saved[0].userId).toBe(user1.id);
-      }).pipe(Effect.provide(DbService.Default)),
+      expect(user1Saved?.amount).toBe('500.000000');
+      expect(user2Saved?.amount).toBe('300.000000');
+    }).pipe(Effect.provide(DbService.Default)),
   );
 
   it.effect('saveSeasonRewards - upserts on conflict', () =>
     Effect.gen(function* () {
       const service = yield* SeasonRewardService;
       const db = yield* DbService;
-      const { season1, user1, account1 } = yield* testSetup;
+      const { season1, user1 } = yield* testSetup;
 
       // First save
       yield* service.saveSeasonRewards({
@@ -551,15 +428,9 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         rewards: [
           {
             userId: UserId.make(user1.id),
-            totalPoints: Points('500'),
-            seasonBonus: SeasonBonus('0.1'),
-            poolShare: new BigNumber('0.5'),
-            rewardAmount: new BigNumber('500'),
+            rewardAmount: RewardAmount.make('500'),
           },
         ],
-        accountAddresses: new Map([
-          [UserId.make(user1.id), AccountAddress(account1.address)],
-        ]),
       });
 
       // Second save with different amount
@@ -568,15 +439,9 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         rewards: [
           {
             userId: UserId.make(user1.id),
-            totalPoints: Points('600'),
-            seasonBonus: SeasonBonus('0.15'),
-            poolShare: new BigNumber('0.6'),
-            rewardAmount: new BigNumber('750'),
+            rewardAmount: RewardAmount.make('750'),
           },
         ],
-        accountAddresses: new Map([
-          [UserId.make(user1.id), AccountAddress(account1.address)],
-        ]),
       });
 
       const saved = yield* db.use((db) => db.select().from(userSeasonReward));
@@ -604,14 +469,13 @@ layer(TestLayer)('SeasonRewardService', (it) => {
     Effect.gen(function* () {
       const service = yield* SeasonRewardService;
       const db = yield* DbService;
-      const { season1, user1, account1 } = yield* testSetup;
+      const { season1, user1 } = yield* testSetup;
 
       yield* db.use((db) =>
         db.insert(userSeasonReward).values({
           userId: user1.id,
           seasonId: season1.id,
           amount: '1234.567890',
-          accountAddress: account1.address,
         }),
       );
 
@@ -622,8 +486,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
       expect(Option.isSome(result)).toBe(true);
       if (Option.isSome(result)) {
-        expect(result.value.amount.toString()).toBe('1234.56789');
-        expect(result.value.accountAddress).toBe(account1.address);
+        expect(result.value.amount).toBe('1234.567890');
       }
     }).pipe(Effect.provide(DbService.Default)),
   );
@@ -634,7 +497,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
       Effect.gen(function* () {
         const service = yield* SeasonRewardService;
         const db = yield* DbService;
-        const { season1, season2, user1, account1 } = yield* testSetup;
+        const { season1, season2, user1 } = yield* testSetup;
 
         // Insert rewards for both seasons
         yield* db.use((db) =>
@@ -643,13 +506,11 @@ layer(TestLayer)('SeasonRewardService', (it) => {
               userId: user1.id,
               seasonId: season1.id,
               amount: '100',
-              accountAddress: account1.address,
             },
             {
               userId: user1.id,
               seasonId: season2.id,
               amount: '200',
-              accountAddress: account1.address,
             },
           ]),
         );
@@ -668,43 +529,9 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         expect(Option.isSome(result2)).toBe(true);
 
         if (Option.isSome(result1) && Option.isSome(result2)) {
-          expect(result1.value.amount.toString()).toBe('100');
-          expect(result2.value.amount.toString()).toBe('200');
+          expect(result1.value.amount).toBe('100.000000');
+          expect(result2.value.amount).toBe('200.000000');
         }
-      }).pipe(Effect.provide(DbService.Default)),
-  );
-});
-
-// Test with zero total tokens to vest (error case)
-const ZeroVesterLayer = SeasonRewardService.DefaultWithoutDependencies.pipe(
-  Layer.provide(createMockVesterStateService('0')),
-  Layer.provide(Logger.pretty),
-  Layer.provide(DbService.Default),
-);
-
-layer(ZeroVesterLayer)('SeasonRewardService - Zero Total Tokens', (it) => {
-  beforeEach(async () => {
-    await truncateTables();
-  });
-
-  it.effect(
-    'calculateSeasonReward - fails when total tokens to vest is zero',
-    () =>
-      Effect.gen(function* () {
-        const service = yield* SeasonRewardService;
-        const { season1 } = yield* testSetup;
-
-        const result = yield* service
-          .calculateSeasonReward({
-            seasonId: SeasonId.make(season1.id),
-            componentAddress: ComponentAddress('component_test_address'),
-            networkId: NetworkId.make(2),
-          })
-          .pipe(
-            Effect.catchTag('TotalTokensToVestError', (e) => Effect.succeed(e)),
-          );
-
-        expect(result).toHaveProperty('_tag', 'TotalTokensToVestError');
       }).pipe(Effect.provide(DbService.Default)),
   );
 });

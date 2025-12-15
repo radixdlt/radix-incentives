@@ -1029,7 +1029,6 @@ export const userSeasonReward = createTable(
       .references(() => seasons.id, { onDelete: 'cascade' }),
     // Total amount (including bonus rewards) of rewards claimable by user
     amount: decimal('amount', { precision: 18, scale: 6 }).notNull(),
-    accountAddress: varchar('account_address', { length: 255 }).notNull(),
   },
   (table) => ({
     pk: primaryKey({ columns: [table.seasonId, table.userId] }),
