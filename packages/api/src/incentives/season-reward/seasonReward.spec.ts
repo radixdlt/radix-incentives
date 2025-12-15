@@ -309,7 +309,6 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
-          rewardBudget: new BigNumber('1000000'),
           componentAddress: ComponentAddress('component_test_address'),
           networkId: NetworkId.make(2),
         });
@@ -344,11 +343,10 @@ layer(TestLayer)('SeasonRewardService', (it) => {
           ]),
         );
 
-        // Total tokens to vest is 1000 (from mock)
-        // Each user has 500/1000 = 50% share
+        // Total tokens to vest is 1000 (from mock), which is the reward budget
+        // Each user has 500/1000 = 50% share of the 1000 reward budget
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
-          rewardBudget: new BigNumber('1000'),
           componentAddress: ComponentAddress('component_test_address'),
           networkId: NetworkId.make(2),
         });
@@ -395,6 +393,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         // User1 has 25% bonus (0.25), User2 has no bonus
         // User1 adjusted: 400 * 1.25 = 500
         // User2 adjusted: 400 * 1.0 = 400
+        // Total adjusted: 900
         yield* db.use((db) =>
           db.insert(userSeasonBonuses).values({
             userId: user1.id,
@@ -403,12 +402,11 @@ layer(TestLayer)('SeasonRewardService', (it) => {
           }),
         );
 
-        // Total tokens to vest is 1000 (from mock)
-        // User1 share: 500/1000 = 0.5
-        // User2 share: 400/1000 = 0.4
+        // Reward budget is 1000 (from mock total_tokens_to_vest)
+        // User1 share: 500/900 = 0.5555...
+        // User2 share: 400/900 = 0.4444...
         const result = yield* service.calculateSeasonReward({
           seasonId: SeasonId.make(season1.id),
-          rewardBudget: new BigNumber('1000'),
           componentAddress: ComponentAddress('component_test_address'),
           networkId: NetworkId.make(2),
         });
@@ -420,13 +418,17 @@ layer(TestLayer)('SeasonRewardService', (it) => {
 
         expect(user1Reward?.totalPoints.toString()).toBe('400.000000');
         expect(user1Reward?.seasonBonus.toString()).toBe('0.250000');
-        expect(user1Reward?.poolShare.toString()).toBe('0.5');
-        expect(user1Reward?.rewardAmount.toString()).toBe('500');
+        // 500/900 = 0.555...
+        expect(user1Reward?.poolShare.toFixed(10)).toBe('0.5555555556');
+        // 1000 * 500/900 = 555.555...
+        expect(user1Reward?.rewardAmount.toFixed(10)).toBe('555.5555555556');
 
         expect(user2Reward?.totalPoints.toString()).toBe('400.000000');
         expect(user2Reward?.seasonBonus.toString()).toBe('0');
-        expect(user2Reward?.poolShare.toString()).toBe('0.4');
-        expect(user2Reward?.rewardAmount.toString()).toBe('400');
+        // 400/900 = 0.444...
+        expect(user2Reward?.poolShare.toFixed(10)).toBe('0.4444444444');
+        // 1000 * 400/900 = 444.444...
+        expect(user2Reward?.rewardAmount.toFixed(10)).toBe('444.4444444444');
       }).pipe(Effect.provide(DbService.Default)),
   );
 
@@ -690,22 +692,11 @@ layer(ZeroVesterLayer)('SeasonRewardService - Zero Total Tokens', (it) => {
     () =>
       Effect.gen(function* () {
         const service = yield* SeasonRewardService;
-        const db = yield* DbService;
-        const { user1, season1, week1 } = yield* testSetup;
-
-        yield* db.use((db) =>
-          db.insert(userSeasonPoints).values({
-            userId: user1.id,
-            seasonId: season1.id,
-            weekId: week1.id,
-            points: '500',
-          }),
-        );
+        const { season1 } = yield* testSetup;
 
         const result = yield* service
           .calculateSeasonReward({
             seasonId: SeasonId.make(season1.id),
-            rewardBudget: new BigNumber('1000'),
             componentAddress: ComponentAddress('component_test_address'),
             networkId: NetworkId.make(2),
           })

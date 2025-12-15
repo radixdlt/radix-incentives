@@ -46,8 +46,6 @@ export const PointsSchema = Schema.String.pipe(Schema.fromBrand(Points));
 export const CalculateSeasonRewardInputSchema = Schema.Struct({
   /** The season ID to calculate rewards for */
   seasonId: SeasonId,
-  /** Total XRD reward budget for the season */
-  rewardBudget: BigNumberSchema,
   /** The component address of the incentives vester */
   componentAddress: Schema.String.pipe(Schema.fromBrand(ComponentAddress)),
   /** The network ID of the incentives vester */
@@ -210,24 +208,32 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
        * Calculate season rewards for all users in a season.
        *
        * The calculation follows this formula:
-       * 1. Get each user's total season points (sum across all weeks)
-       * 2. Apply season bonus multiplier if applicable (1 + seasonBonus)
-       * 3. Calculate user's share of the total adjusted points pool
-       * 4. Distribute the reward budget proportionally based on shares
+       * 1. Get total tokens to vest from the incentives vester (this is the reward budget)
+       * 2. Get each user's total season points (sum across all weeks)
+       * 3. Apply season bonus multiplier if applicable (1 + seasonBonus)
+       * 4. Calculate user's share of the total adjusted points pool
+       * 5. Distribute the reward budget proportionally based on shares
        *
-       * @param input - Season ID and total reward budget
+       * @param input - Season ID and vester component details
        * @returns Array of user reward calculations with detailed breakdown
        */
       const calculateSeasonReward = (input: CalculateSeasonRewardInput) =>
         Effect.gen(function* () {
-          const { seasonId, rewardBudget } = input;
+          const { seasonId } = input;
 
-          const totalTokensToVest = yield* incentivesVesterStateService({
+          const rewardBudget = yield* incentivesVesterStateService({
             componentAddress: input.componentAddress,
             networkId: input.networkId,
           }).pipe(
             Effect.map((state) => new BigNumber(state.total_tokens_to_vest)),
           );
+
+          // If reward budget is zero, return error
+          if (rewardBudget.isZero()) {
+            return yield* new TotalTokensToVestError({
+              message: 'Total tokens to vest is zero',
+            });
+          }
 
           // Fetch all required data in parallel
           const [userPoints, seasonBonuses] = yield* Effect.all(
@@ -258,18 +264,21 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
             };
           });
 
-          // If total is zero, everyone gets zero rewards
-          if (totalTokensToVest.isZero()) {
-            return yield* new TotalTokensToVestError({
-              message: 'Total tokens to vest is zero',
-            });
+          // Calculate total adjusted points across all users
+          const totalAdjustedPoints = usersWithAdjustedPoints.reduce(
+            (acc, user) => acc.plus(user.adjustedPoints),
+            new BigNumber('0'),
+          );
+
+          // If total adjusted points is zero, everyone gets zero rewards
+          if (totalAdjustedPoints.isZero()) {
+            return [];
           }
 
           // Calculate each user's reward
           const rewards: UserSeasonRewardResult[] = usersWithAdjustedPoints.map(
             (user) => {
-              const poolShare =
-                user.adjustedPoints.dividedBy(totalTokensToVest);
+              const poolShare = user.adjustedPoints.dividedBy(totalAdjustedPoints);
               const rewardAmount = rewardBudget.multipliedBy(poolShare);
 
               return {
