@@ -160,18 +160,19 @@ export class WeekService extends Effect.Service<WeekService>()('WeekService', {
                 inner join week w on a.created_at < w.end_date
                 where w.processed = false
                   and w.end_date < NOW()
+                  and a.snapshot_enabled = true
                 group by w.id, w.start_date, w.end_date
             ),
             balance_count AS (
                 select w.id as week_id, w.start_date, w.end_date, COUNT(DISTINCT (DATE_TRUNC('hour', timestamp), account_address)) as cnt
                 from account_balances ab
-                inner join week w on ab.timestamp >= DATE_TRUNC('hour', w.end_date)
+                inner join week w on ab.timestamp >= DATE_TRUNC('hour', w.end_date) - INTERVAL '1 hour'
                   and ab.timestamp < DATE_TRUNC('hour', w.end_date) + INTERVAL '1 hour'
                 where w.processed = false
                   and w.end_date < NOW()
                 group by w.id, w.start_date, w.end_date
             )
-            select 
+            select
                 COALESCE(ac.week_id, bc.week_id) as week_id,
                 COALESCE(ac.start_date, bc.start_date) as start_date,
                 COALESCE(ac.end_date, bc.end_date) as end_date,

@@ -159,28 +159,27 @@ describe('WeekService - getUnprocessedWeeks', () => {
         ]),
       );
 
-      // Create account balances at the end hour of the week
-      const endHour = new Date('2024-01-07 23:00:00');
+      // Create account balances - window is now 22:00 to 00:00 for week ending at 23:59:59
       yield* Effect.promise(() =>
         db.insert(accountBalances).values([
           {
             accountAddress: 'address-1',
-            timestamp: endHour,
+            timestamp: new Date('2024-01-07 22:00:00'), // In window (22:00-00:00)
             data: { resource_1: { amount: '100' } },
           },
           {
             accountAddress: 'address-2',
-            timestamp: endHour,
+            timestamp: new Date('2024-01-07 22:00:00'), // In window (22:00-00:00)
             data: { resource_1: { amount: '200' } },
           },
           {
             accountAddress: 'address-1',
-            timestamp: new Date('2024-01-07 22:00:00'), // Before the end hour
+            timestamp: new Date('2024-01-07 21:00:00'), // Before the window
             data: { resource_1: { amount: '50' } },
           },
           {
             accountAddress: 'address-1',
-            timestamp: new Date('2024-01-08 00:00:00'), // After the end hour
+            timestamp: new Date('2024-01-08 00:00:00'), // After the window (exclusive)
             data: { resource_1: { amount: '150' } },
           },
         ]),
@@ -191,8 +190,8 @@ describe('WeekService - getUnprocessedWeeks', () => {
       expect(result).toHaveLength(1);
       expect(result[0]).toMatchObject({
         weekId: pastWeek.id,
-        accountCount: 2, // 2 accounts created before week end
-        balanceCount: 2, // 2 unique account/hour combinations in the end hour
+        accountCount: 2, // 2 accounts with snapshot_enabled=true created before week end
+        balanceCount: 2, // 2 unique account/hour combinations in the window (22:00-00:00)
         countsMatch: true, // 2 === 2
       });
     }).pipe(Effect.provide(weekService)));
@@ -253,18 +252,18 @@ describe('WeekService - getUnprocessedWeeks', () => {
         ]),
       );
 
-      // Create only 2 account balances (mismatch)
-      const endHour = new Date('2024-01-07 23:00:00');
+      // Create only 2 account balances (mismatch) - window is 22:00 to 00:00
+      const snapshotHour = new Date('2024-01-07 22:00:00');
       yield* Effect.promise(() =>
         db.insert(accountBalances).values([
           {
             accountAddress: 'address-4',
-            timestamp: endHour,
+            timestamp: snapshotHour,
             data: { resource_1: { amount: '100' } },
           },
           {
             accountAddress: 'address-5',
-            timestamp: endHour,
+            timestamp: snapshotHour,
             data: { resource_1: { amount: '200' } },
           },
         ]),
@@ -394,24 +393,24 @@ describe('WeekService - getUnprocessedWeeks', () => {
         }),
       );
 
-      // Create multiple balances for the same account in the end hour
-      const endHour = new Date('2024-01-07 23:00:00');
-      const endHour30 = new Date('2024-01-07 23:30:00');
+      // Create multiple balances for the same account in the snapshot window (22:00-00:00)
+      const snapshotHour = new Date('2024-01-07 22:00:00');
+      const snapshotHour30 = new Date('2024-01-07 22:30:00');
       yield* Effect.promise(() =>
         db.insert(accountBalances).values([
           {
             accountAddress: 'address-7',
-            timestamp: endHour,
+            timestamp: snapshotHour,
             data: { resource_1: { amount: '100' } },
           },
           {
             accountAddress: 'address-7',
-            timestamp: endHour30, // Same hour, different minute
+            timestamp: snapshotHour30, // Same hour, different minute
             data: { resource_2: { amount: '200' } },
           },
           {
             accountAddress: 'address-7',
-            timestamp: endHour,
+            timestamp: snapshotHour,
             data: { resource_3: { amount: '300' } },
           },
         ]),
@@ -425,6 +424,80 @@ describe('WeekService - getUnprocessedWeeks', () => {
         accountCount: 1,
         balanceCount: 1, // Only 1 distinct account/hour combination
         countsMatch: true,
+      });
+    }).pipe(Effect.provide(weekService)));
+
+  it('should exclude accounts with snapshot_enabled = false from account count', () =>
+    Effect.gen(function* () {
+      const service = yield* WeekService;
+
+      // Create a past week
+      const pastWeek = yield* Effect.promise(() =>
+        db
+          .insert(weeks)
+          .values({
+            id: 'snapshot-disabled-week-1',
+            seasonId,
+            startDate: new Date('2024-01-01'),
+            endDate: new Date('2024-01-07 23:59:59'),
+            processed: false,
+          })
+          .returning()
+          .then(([week]) => week!),
+      );
+
+      // Create user first
+      const userId = yield* Effect.promise(() =>
+        db
+          .insert(users)
+          .values({
+            id: 'user-4',
+            identityAddress: 'identity-4',
+            label: 'Test User 4',
+          })
+          .returning()
+          .then(([user]) => user!.id),
+      );
+
+      // Create accounts - one with snapshot enabled, one disabled
+      yield* Effect.promise(() =>
+        db.insert(accounts).values([
+          {
+            userId,
+            address: 'address-8',
+            label: 'Account 8 (enabled)',
+            createdAt: new Date('2024-01-05'),
+            snapshotEnabled: true,
+          },
+          {
+            userId,
+            address: 'address-9',
+            label: 'Account 9 (disabled)',
+            createdAt: new Date('2024-01-05'),
+            snapshotEnabled: false,
+          },
+        ]),
+      );
+
+      // Create balance only for the enabled account
+      yield* Effect.promise(() =>
+        db.insert(accountBalances).values([
+          {
+            accountAddress: 'address-8',
+            timestamp: new Date('2024-01-07 22:00:00'),
+            data: { resource_1: { amount: '100' } },
+          },
+        ]),
+      );
+
+      const result = yield* service.getUnprocessedWeeks();
+
+      expect(result).toHaveLength(1);
+      expect(result[0]).toMatchObject({
+        weekId: pastWeek.id,
+        accountCount: 1, // Only 1 account with snapshot_enabled=true
+        balanceCount: 1,
+        countsMatch: true, // 1 === 1
       });
     }).pipe(Effect.provide(weekService)));
 });
