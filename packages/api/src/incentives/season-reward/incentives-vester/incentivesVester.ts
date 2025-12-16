@@ -1,19 +1,25 @@
 import {
   Array as A,
+  ConfigProvider,
   Data,
   Duration,
   Effect,
+  flow,
   Layer,
   Option,
   pipe,
   Ref,
 } from 'effect';
+import { GetComponentStateService } from '../../../common/gateway';
 import {
   type AccountAddress,
   Amount,
   ComponentAddress,
 } from '../../account-balance/v2/schemas';
-import { TransactionManifestString } from '../../schemas/brandedTypes';
+import {
+  type NetworkId,
+  TransactionManifestString,
+} from '../../schemas/brandedTypes';
 import type { TransactionIntent } from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';
 import {
@@ -22,8 +28,13 @@ import {
   TransactionLifeCycleHook,
 } from '../../transaction-intent/transactionHelper';
 import { IncentivesVesterConfig } from './config';
+import { IncentivesVesterSchema } from './schemas';
 
 export class MissingConfigError extends Data.TaggedError('MissingConfigError')<{
+  message: string;
+}> {}
+
+export class NotFoundError extends Data.TaggedError('NotFoundError')<{
   message: string;
 }> {}
 
@@ -348,3 +359,49 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
     ),
   );
 }
+
+export class IncentivesVesterStateService extends Effect.Service<IncentivesVesterStateService>()(
+  'IncentivesVesterStateService',
+  {
+    effect: Effect.gen(function* () {
+      return (input: {
+        componentAddress: ComponentAddress;
+        networkId: NetworkId;
+      }) =>
+        Effect.gen(function* () {
+          const getComponentStateService = yield* GetComponentStateService.pipe(
+            Effect.provide(GetComponentStateService.Default),
+          );
+
+          return yield* getComponentStateService
+            .run({
+              addresses: [input.componentAddress],
+              at_ledger_state: {
+                timestamp: new Date(),
+              },
+              schema: IncentivesVesterSchema,
+            })
+            .pipe(
+              Effect.map(
+                flow(
+                  A.head,
+                  Option.getOrThrowWith(
+                    () =>
+                      new NotFoundError({
+                        message: 'Incentives vester not found',
+                      }),
+                  ),
+                  (result) => result.state,
+                ),
+              ),
+            );
+        }).pipe(
+          Effect.provide(
+            Layer.setConfigProvider(
+              ConfigProvider.fromJson({ NETWORK_ID: input.networkId }),
+            ),
+          ),
+        );
+    }),
+  },
+) {}

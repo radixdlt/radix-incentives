@@ -316,6 +316,13 @@
       "when": 1765455221000,
       "tag": "0044_stale_wendigo",
       "breakpoints": true
+    },
+    {
+      "idx": 45,
+      "version": "7",
+      "when": 1765809820301,
+      "tag": "0045_gray_squadron_supreme",
+      "breakpoints": true
     }
   ]
 }
