@@ -72,13 +72,16 @@ export const scheduledCalculationsWorker = async (
     return handleExit(unprocessedWeeksResult);
   }
 
-  // Get all weeks that are not processed and have snapshots ran successfully for all accounts
-  const unprocessedWeeks = unprocessedWeeksResult.value.filter(
-    (week) => week.countsMatch,
-  );
+  // Process all unprocessed weeks that have ended
+  const unprocessedWeeks = unprocessedWeeksResult.value;
 
   if (unprocessedWeeks.length > 0) {
     for (const week of unprocessedWeeks) {
+      if (!week.countsMatch) {
+        job.log(
+          `Warning: week ${week.weekId} has incomplete snapshots (${week.balanceCount}/${week.accountCount} accounts)`,
+        );
+      }
       job.log(`adding end-of-week-calculation job for weekId: ${week.weekId}`);
       await processWeekQueue.queue.add('process-week', {
         weekId: week.weekId,
