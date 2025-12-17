@@ -16,6 +16,7 @@ import {
   Shield,
   Tag,
   Target,
+  Trophy,
   Users,
   Wallet,
 } from 'lucide-react';
@@ -74,6 +75,11 @@ const navigationItems = [
     title: 'Season Bonuses',
     href: '/season-bonuses',
     icon: <Gift className="h-5 w-5" />,
+  },
+  {
+    title: 'User Season Rewards',
+    href: '/user-season-rewards',
+    icon: <Trophy className="h-5 w-5" />,
   },
   {
     title: 'DEX Pools',

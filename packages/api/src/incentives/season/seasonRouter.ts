@@ -1,7 +1,14 @@
 import { TRPCError } from '@trpc/server';
-import { Exit } from 'effect';
+import { Effect, Exit, Schema } from 'effect';
 import { z } from 'zod';
+import { resolveEffect } from '../runtime';
+import { SeasonId } from '../schemas/brandedTypes';
+import {
+  RewardBudget,
+  SeasonRewardService,
+} from '../season-reward/seasonReward';
 import { createTRPCRouter, publicProcedure } from '../trpc';
+import { effectSchemaParser } from '../trpc/helpers';
 import { CreateSeasonSchema, EditSeasonSchema } from './season';
 
 export const seasonRouter = createTRPCRouter({
@@ -194,4 +201,49 @@ export const adminSeasonRouter = createTRPCRouter({
         },
       });
     }),
+
+  calculateRewards: publicProcedure
+    .input(
+      effectSchemaParser(
+        Schema.Struct({
+          seasonId: SeasonId,
+          rewardBudget: Schema.NumberFromString.pipe(
+            Schema.greaterThan(0),
+            Schema.transform(RewardBudget, {
+              decode: (n) => n.toString(),
+              encode: (s) => Number(s),
+            }),
+          ),
+        }),
+      ),
+    )
+    .mutation(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const seasonRewardService = yield* SeasonRewardService;
+
+          // Calculate rewards
+          const calculatedRewards =
+            yield* seasonRewardService.calculateSeasonReward({
+              seasonId: input.seasonId,
+              rewardBudget: input.rewardBudget,
+            });
+
+          // Save rewards
+          yield* seasonRewardService.saveSeasonRewards({
+            seasonId: input.seasonId,
+            rewards: calculatedRewards.map((reward) => ({
+              userId: reward.userId,
+              rewardAmount: reward.rewardAmount,
+            })),
+          });
+
+          return {
+            success: true,
+            userCount: calculatedRewards.length,
+            totalRewardBudget: input.rewardBudget,
+          };
+        }),
+      ),
+    ),
 });

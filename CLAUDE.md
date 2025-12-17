@@ -205,6 +205,38 @@ When creating services using the Effect library:
       { discard: true },
     );
     ```
+  - Use `A.head` with `Option.match` for getting single records from database queries:
+    ```typescript
+    // Bad case - using array destructuring
+    const [result] = yield* db.use((database) =>
+      database.select().from(table).where(eq(table.id, id)).limit(1)
+    ).pipe(Effect.orDie);
+
+    if (!result) {
+      return null;
+    }
+
+    // Good case - using A.head with Option.match
+    const result = yield* db
+      .use((database) =>
+        database.select().from(table).where(eq(table.id, id)).limit(1)
+      )
+      .pipe(
+        Effect.map(A.head),
+        Effect.flatMap(
+          Option.match({
+            onNone: () =>
+              Effect.fail(
+                new NotFoundError({
+                  message: `Record not found for id ${id}`,
+                }),
+              ),
+            onSome: Effect.succeed,
+          }),
+        ),
+        Effect.orDie,
+      );
+    ```
 
 ### React/Next.js Guidelines
 - Use Tailwind classes for styling (no inline CSS or `<style>` tags)

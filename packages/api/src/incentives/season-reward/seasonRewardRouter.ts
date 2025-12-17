@@ -9,6 +9,7 @@ import { SeasonService } from '../season/season';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { effectSchemaParser, ResponseError } from '../trpc/helpers';
 import { WorkerApiClient } from '../worker/WorkerApiClient';
+import { SeasonRewardService } from './seasonReward';
 import { SeasonRewardClaim } from './seasonRewardClaim';
 
 export const seasonRewardRouter = createTRPCRouter({
@@ -98,4 +99,40 @@ export const seasonRewardRouter = createTRPCRouter({
         ),
       ),
     ),
+
+  getUserSeasonRewards: protectedProcedure.query(({ ctx }) =>
+    resolveEffect(
+      Effect.gen(function* () {
+        const service = yield* SeasonRewardService;
+        return yield* service.getUserSeasonRewardsByUser({
+          userId: ctx.session.user.id,
+        });
+      }),
+    ),
+  ),
+
+  getUserSeasonRewardClaims: protectedProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: Schema.String })))
+    .query(({ ctx, input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const service = yield* SeasonRewardService;
+          return yield* service.getUserSeasonRewardClaims({
+            userId: ctx.session.user.id,
+            seasonId: input.seasonId,
+          });
+        }),
+      ),
+    ),
+
+  getAllUserSeasonRewardClaims: protectedProcedure.query(({ ctx }) =>
+    resolveEffect(
+      Effect.gen(function* () {
+        const service = yield* SeasonRewardService;
+        return yield* service.getAllUserSeasonRewardClaims({
+          userId: ctx.session.user.id,
+        });
+      }),
+    ),
+  ),
 });
