@@ -60,3 +60,7 @@ metrics:
   alert_labels:
     cluster: rdx-works-main-dev
     env: perftest
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: 'arn:aws:iam::308190735829:role/incentives-perftest-role'

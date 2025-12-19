@@ -62,3 +62,7 @@ metrics:
   alert_labels:
     cluster: rtlj-prod
     env: prod
+
+serviceAccount:
+  annotations:
+    eks.amazonaws.com/role-arn: 'arn:aws:iam::821496737932:role/incentives-prod-role'
