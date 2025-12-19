@@ -102,17 +102,9 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 }),
             );
 
-            const packageAddress = Option.getOrThrowWith(
-              config.packageAddress,
-              () =>
-                new MissingConfigError({
-                  message: 'Package address not found',
-                }),
-            );
-
             const manifest = TransactionManifestString.make(`
               CALL_FUNCTION
-                Address("${packageAddress}")
+                Address("${config.packageAddress}")
                 "IncentivesVester"
                 "instantiate"
                 Address("${adminBadge.resourceAddress}") # admin badge for backend, create yourself in advance

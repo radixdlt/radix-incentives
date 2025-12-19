@@ -117,7 +117,10 @@ export const adminSeasonRouter = createTRPCRouter({
   createSeason: publicProcedure
     .input(CreateSeasonSchema)
     .mutation(async ({ ctx, input }) => {
-      const result = await ctx.dependencyLayer.createSeason(input);
+      const result = await ctx.dependencyLayer.createSeason({
+        ...input,
+        config: {},
+      });
 
       return Exit.match(result, {
         onSuccess: (value) => {

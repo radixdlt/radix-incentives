@@ -1,6 +1,15 @@
 import { type Season, seasons, weeks } from 'db/incentives';
 import { desc, eq, sql } from 'drizzle-orm';
-import { Data, Effect } from 'effect';
+import {
+  Array as A,
+  Data,
+  Effect,
+  flow,
+  Option,
+  Record as R,
+  Schema,
+} from 'effect';
+import { ComponentAddress, type SeasonId } from 'shared/brandedTypes';
 import { z } from 'zod';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
 
@@ -20,6 +29,11 @@ export const EditSeasonSchema = z.object({
 });
 
 export type EditSeasonInput = z.infer<typeof EditSeasonSchema>;
+
+export const SeasonConfigSchema = Schema.Struct({
+  seasonRewardComponentAddress: Schema.OptionFromUndefinedOr(ComponentAddress),
+});
+export type SeasonConfig = typeof SeasonConfigSchema.Type;
 
 export class SeasonService extends Effect.Service<SeasonService>()(
   'SeasonService',
@@ -120,6 +134,27 @@ export class SeasonService extends Effect.Service<SeasonService>()(
             catch: (error) => new DbError(error),
           });
         }),
+        getConfig: (seasonId: SeasonId) =>
+          Effect.gen(function* () {
+            const config = yield* Effect.tryPromise({
+              try: () =>
+                db
+                  .select({ config: seasons.config })
+                  .from(seasons)
+                  .where(eq(seasons.id, seasonId)),
+              catch: (error) => new DbError(error),
+            }).pipe(
+              Effect.map(
+                flow(
+                  A.head,
+                  Option.flatMap(R.get('config')),
+                  Option.getOrElse(() => ({})),
+                ),
+              ),
+            );
+
+            return yield* Schema.decodeUnknown(SeasonConfigSchema)(config);
+          }).pipe(Effect.orDie),
       };
     }),
   },

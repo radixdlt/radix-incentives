@@ -1,0 +1,1 @@
+ALTER TABLE "season" ADD COLUMN "config" jsonb DEFAULT '{}'::jsonb NOT NULL;

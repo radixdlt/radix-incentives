@@ -66,3 +66,23 @@ export const TransactionMessageString = Schema.String.pipe(
   Schema.brand('TransactionMessageString'),
 );
 export type TransactionMessageString = typeof TransactionMessageString.Type;
+
+export const PackageAddress = Schema.String.pipe(
+  Schema.brand('PackageAddress'),
+);
+export type PackageAddress = typeof PackageAddress.Type;
+
+export const AccessControllerAddress = Schema.String.pipe(
+  Schema.brand('AccessControllerAddress'),
+);
+export type AccessControllerAddress = typeof AccessControllerAddress.Type;
+
+export const FungibleResourceAddress = Schema.String.pipe(
+  Schema.brand('FungibleResourceAddress'),
+);
+export type FungibleResourceAddress = typeof FungibleResourceAddress.Type;
+
+export const NonFungibleResourceAddress = Schema.String.pipe(
+  Schema.brand('NonFungibleResourceAddress'),
+);
+export type NonFungibleResourceAddress = typeof NonFungibleResourceAddress.Type;

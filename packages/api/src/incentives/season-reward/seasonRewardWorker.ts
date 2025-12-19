@@ -1,16 +1,23 @@
-import { Data, Duration, Effect, Schema } from 'effect';
-import { SeasonId, type TransactionId, UserId } from 'shared/brandedTypes';
+import { Data, Duration, Effect, Layer, Option, Ref, Schema } from 'effect';
+import {
+  AccountAddress,
+  Amount,
+  SeasonId,
+  type TransactionId,
+  UserId,
+} from 'shared/brandedTypes';
 import { RedisLock } from '../../common/redis/redisLock';
-import { AccountAddress, Amount } from '../account-balance/v2/schemas';
+import { SeasonService } from '../season/season';
 import { TransactionLifeCycleHook } from '../transaction-intent/transactionHelper';
+import { IncentivesVesterConfig } from './incentives-vester/config';
 import { IncentivesVester } from './incentives-vester/incentivesVester';
 import { SeasonRewardClaim } from './seasonRewardClaim';
 
 export const SeasonRewardWorkerInputSchema = Schema.Struct({
   seasonId: SeasonId,
   userId: UserId,
-  accountAddress: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
-  claimAmount: Schema.String.pipe(Schema.fromBrand(Amount)),
+  accountAddress: AccountAddress,
+  claimAmount: Amount,
 });
 
 export type SeasonRewardWorkerInput = typeof SeasonRewardWorkerInputSchema.Type;
@@ -22,6 +29,12 @@ export class UnresolvedTransactionError extends Data.TaggedError(
   transactionId: TransactionId;
 }> {}
 
+export class MissingConfigError extends Data.TaggedError(
+  'SeasonRewardWorker.MissingConfigError',
+)<{
+  message: string;
+}> {}
+
 export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
   'SeasonRewardWorker',
   {
@@ -29,11 +42,18 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
       IncentivesVester.MainnetLive,
       SeasonRewardClaim.Default,
       RedisLock.Default,
+      SeasonService.Default,
+      Layer.effect(
+        IncentivesVesterConfig,
+        IncentivesVesterConfig.MainnetConfig,
+      ),
     ],
     effect: Effect.gen(function* () {
       const incentivesVester = yield* IncentivesVester;
       const seasonRewardClaim = yield* SeasonRewardClaim;
       const redisLock = yield* RedisLock;
+      const seasonService = yield* SeasonService;
+      const incentivesVesterConfig = yield* IncentivesVesterConfig;
 
       const handleUnresolvedTransaction = (input: {
         seasonId: SeasonId;
@@ -88,6 +108,25 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
       const claim = (input: typeof SeasonRewardWorkerInputSchema.Type) =>
         Effect.gen(function* () {
           const { seasonId, userId, claimAmount, accountAddress } = input;
+          const seasonConfig = yield* seasonService.getConfig(seasonId);
+
+          if (Option.isNone(seasonConfig.seasonRewardComponentAddress)) {
+            return yield* Effect.die(
+              new MissingConfigError({
+                message: 'Season reward component address not configured',
+              }),
+            );
+          }
+
+          if (Option.isSome(seasonConfig.seasonRewardComponentAddress)) {
+            const seasonRewardComponentAddress =
+              seasonConfig.seasonRewardComponentAddress.value;
+
+            yield* Ref.update(incentivesVesterConfig, (config) => ({
+              ...config,
+              componentAddress: Option.some(seasonRewardComponentAddress),
+            }));
+          }
 
           // prevents multiple claims of the same season reward
           const lock = yield* redisLock.acquire({
