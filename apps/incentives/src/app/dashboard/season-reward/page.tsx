@@ -1,5 +1,6 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
 import { api } from '~/trpc/react';
 import { EmptyState } from './components/empty-state';
 import PageHeader from './components/header';
@@ -13,6 +14,7 @@ export default function SeasonRewardPage() {
     api.seasonReward.getUserSeasonRewards.useQuery();
   const { data: allClaims, isLoading: claimsLoading } =
     api.seasonReward.getAllUserSeasonRewardClaims.useQuery();
+  const router = useRouter();
 
   const isLoading = seasonsLoading || rewardsLoading || claimsLoading;
 
@@ -39,15 +41,15 @@ export default function SeasonRewardPage() {
         {isLoading ? (
           <LoadingSkeleton />
         ) : hasRewards ? (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-2">
             {rewardsWithSeasonInfo.map((reward) => (
               <SeasonRewardCard
                 key={reward.seasonId}
                 seasonName={reward.seasonName}
                 amount={reward.amount}
                 claims={reward.claims}
-                onClaimClick={() => {
-                  console.log('claim');
+                onClaim={() => {
+                  router.push(`/dashboard/season-reward/${reward.seasonId}`);
                 }}
               />
             ))}

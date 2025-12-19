@@ -1,10 +1,10 @@
 import { Effect, Schema } from 'effect';
+import { HexString, SeasonId, UserId } from 'shared/brandedTypes';
+import { AccountProofSchema } from 'shared/schemas/accountProof';
 import { Amount } from '../account-balance/v2/schemas';
-import { AccountProofSchema } from '../auth/schemas';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
 import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 import { resolveEffect } from '../runtime';
-import { HexString, SeasonId, UserId } from '../schemas/brandedTypes';
 import { SeasonService } from '../season/season';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 import { effectSchemaParser, ResponseError } from '../trpc/helpers';
@@ -17,7 +17,7 @@ export const seasonRewardRouter = createTRPCRouter({
     .input(
       effectSchemaParser(
         Schema.Struct({
-          amount: Schema.Number.pipe(
+          amount: Schema.NumberFromString.pipe(
             Schema.greaterThan(0),
             Schema.transform(Schema.String, {
               decode: (n) => String(n),
@@ -25,8 +25,8 @@ export const seasonRewardRouter = createTRPCRouter({
             }),
             Schema.fromBrand(Amount),
           ),
-          proof: AccountProofSchema,
           seasonId: SeasonId,
+          proof: AccountProofSchema,
           challenge: HexString,
         }),
       ),
@@ -48,7 +48,7 @@ export const seasonRewardRouter = createTRPCRouter({
             });
           }
 
-          yield* challengeService(input.challenge);
+          yield* challengeService.exists(input.challenge);
 
           yield* verifyProofService.verifyAccountProof({
             challenge: input.challenge,
@@ -84,6 +84,7 @@ export const seasonRewardRouter = createTRPCRouter({
                 code: 'BAD_REQUEST',
                 message:
                   'Provided challenge expired or invalid. Please try again.',
+                errorCode: 'INVALID_CHALLENGE',
               }),
             VerifyRolaProofError: () =>
               new ResponseError({

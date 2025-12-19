@@ -1,6 +1,6 @@
 import { Effect } from 'effect';
+import { TransactionManifestString } from 'shared/brandedTypes';
 import type { Amount } from '../../account-balance/v2/schemas';
-import { TransactionManifestString } from '../../schemas/brandedTypes';
 import type { Account } from '../schemas';
 
 export class ManifestHelper extends Effect.Service<ManifestHelper>()(

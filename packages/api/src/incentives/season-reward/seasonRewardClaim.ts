@@ -12,9 +12,9 @@ import {
   Record as R,
   Schema,
 } from 'effect';
+import { SeasonId, TransactionId, UserId } from 'shared/brandedTypes';
 import { AccountAddress, Amount } from '../account-balance/v2/schemas';
 import { DbService } from '../db/dbClient';
-import { SeasonId, TransactionId, UserId } from '../schemas/brandedTypes';
 import {
   type TransactionIntent,
   TransactionIntentSchema,

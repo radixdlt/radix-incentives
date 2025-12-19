@@ -10,16 +10,13 @@ import {
   pipe,
   Ref,
 } from 'effect';
+import { type NetworkId, TransactionManifestString } from 'shared/brandedTypes';
 import { GetComponentStateService } from '../../../common/gateway';
 import {
   type AccountAddress,
   Amount,
   ComponentAddress,
 } from '../../account-balance/v2/schemas';
-import {
-  type NetworkId,
-  TransactionManifestString,
-} from '../../schemas/brandedTypes';
 import type { TransactionIntent } from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';
 import {

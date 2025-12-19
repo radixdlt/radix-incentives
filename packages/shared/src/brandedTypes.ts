@@ -6,6 +6,39 @@ export type UserId = typeof UserId.Type;
 export const SeasonId = Schema.String.pipe(Schema.brand('SeasonId'));
 export type SeasonId = typeof SeasonId.Type;
 
+export const AccountAddress = Schema.String.pipe(
+  Schema.brand('AccountAddress'),
+);
+export type AccountAddress = typeof AccountAddress.Type;
+
+export const NonFungibleId = Schema.String.pipe(Schema.brand('NonFungibleId'));
+export type NonFungibleId = typeof NonFungibleId.Type;
+
+export const Amount = Schema.String.pipe(Schema.brand('Amount'));
+export type Amount = typeof Amount.Type;
+
+export const AmountUsd = Schema.String.pipe(Schema.brand('AmountUsd'));
+export type AmountUsd = typeof AmountUsd.Type;
+
+export const PositionKey = Schema.String.pipe(Schema.brand('PositionKey'));
+export type PositionKey = typeof PositionKey.Type;
+
+export const ValidatorAddress = Schema.String.pipe(
+  Schema.brand('ValidatorAddress'),
+);
+export type ValidatorAddress = typeof ValidatorAddress.Type;
+
+export const ComponentAddress = Schema.String.pipe(
+  Schema.brand('ComponentAddress'),
+);
+export type ComponentAddress = typeof ComponentAddress.Type;
+
+export const PoolAddress = Schema.String.pipe(Schema.brand('PoolAddress'));
+export type PoolAddress = typeof PoolAddress.Type;
+
+export const StateVersion = Schema.Number.pipe(Schema.brand('StateVersion'));
+export type StateVersion = typeof StateVersion.Type;
+
 export const TransactionId = Schema.String.pipe(Schema.brand('TransactionId'));
 export type TransactionId = typeof TransactionId.Type;
 

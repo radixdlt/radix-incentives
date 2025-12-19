@@ -12,13 +12,13 @@ import {
   Ref,
   Schema,
 } from 'effect';
-import { GatewayApiClientService } from '../../common/gateway';
-import { Amount, FungibleResourceAddress } from '../account-balance/v2/schemas';
 import {
   NetworkId,
   type TransactionId,
   TransactionManifestString,
-} from '../schemas/brandedTypes';
+} from 'shared/brandedTypes';
+import { GatewayApiClientService } from '../../common/gateway';
+import { Amount, FungibleResourceAddress } from '../account-balance/v2/schemas';
 import { CompileTransaction } from './compileTransaction';
 import { CreateTransactionIntent } from './createTransactionIntent';
 import { EpochService } from './epoch';

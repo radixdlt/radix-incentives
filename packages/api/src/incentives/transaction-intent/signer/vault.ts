@@ -10,7 +10,7 @@ import {
   String as S,
   Schema,
 } from 'effect';
-import { Base64String, HexString } from '../../schemas/brandedTypes';
+import { Base64String, HexString } from 'shared/brandedTypes';
 import {
   Base64FromHexSchema,
   Ed25519SignatureWithPublicKeySchema,

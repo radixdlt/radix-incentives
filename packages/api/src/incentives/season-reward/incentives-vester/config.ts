@@ -1,5 +1,6 @@
 import { RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 import { Config, Context, Effect, Layer, Option, Ref, Schema } from 'effect';
+import { NetworkId } from 'shared/brandedTypes';
 import {
   AccessControllerAddress,
   AccountAddress,
@@ -7,7 +8,6 @@ import {
   FungibleResourceAddress,
   PackageAddress,
 } from '../../account-balance/v2/schemas';
-import { NetworkId } from '../../schemas/brandedTypes';
 import {
   AccountSchema,
   BadgeSchema,

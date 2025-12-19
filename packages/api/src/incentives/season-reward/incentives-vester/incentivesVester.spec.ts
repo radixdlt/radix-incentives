@@ -14,11 +14,11 @@ import {
   Ref,
   Schema,
 } from 'effect';
+import { HexString } from 'shared/brandedTypes';
 import { GetFungibleBalanceService } from '../../../common/gateway';
 import { createAccount } from '../../../test-helpers/createAccount';
 import { DisableTestClock } from '../../../test-helpers/disableTestClock';
 import { AccountAddress, Amount } from '../../account-balance/v2/schemas';
-import { HexString } from '../../schemas/brandedTypes';
 import {
   BadgeSchema,
   Ed25519PrivateKeySchema,

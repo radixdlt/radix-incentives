@@ -17,8 +17,8 @@ import {
   pipe,
   Schema,
 } from 'effect';
+import { SeasonId, UserId } from 'shared/brandedTypes';
 import { DbService } from '../db/dbClient';
-import { SeasonId, UserId } from '../schemas/brandedTypes';
 
 export class SeasonRewardNotFoundError extends Data.TaggedError(
   'SeasonRewardNotFoundError',

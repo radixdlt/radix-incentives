@@ -1,7 +1,7 @@
 import { Data, Duration, Effect, Schema } from 'effect';
+import { SeasonId, type TransactionId, UserId } from 'shared/brandedTypes';
 import { RedisLock } from '../../common/redis/redisLock';
 import { AccountAddress, Amount } from '../account-balance/v2/schemas';
-import { SeasonId, type TransactionId, UserId } from '../schemas/brandedTypes';
 import { TransactionLifeCycleHook } from '../transaction-intent/transactionHelper';
 import { IncentivesVester } from './incentives-vester/incentivesVester';
 import { SeasonRewardClaim } from './seasonRewardClaim';

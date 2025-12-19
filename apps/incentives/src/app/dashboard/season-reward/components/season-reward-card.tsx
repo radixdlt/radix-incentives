@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Award, CheckCircle, Clock, Coins } from 'lucide-react';
 import { Button } from '~/components/ui/button';
 import { Card } from '~/components/ui/card';
+import { formatAmount } from '../helpers/formatAmount';
 
 type Claim = {
   amount: string;
@@ -12,18 +13,7 @@ type SeasonRewardCardProps = {
   seasonName: string;
   amount: string;
   claims: Claim[];
-  onClaim: () => void;
-};
-
-const formatAmount = (value: string) => {
-  const bn = new BigNumber(value);
-  if (bn.gte(1_000_000)) {
-    return `${bn.dividedBy(1_000_000).toFixed(2)}M`;
-  }
-  if (bn.gte(1_000)) {
-    return `${bn.dividedBy(1_000).toFixed(2)}K`;
-  }
-  return bn.toFixed(2);
+  onClaim?: () => void;
 };
 
 type ClaimStatus = 'unclaimed' | 'partial' | 'claimed' | 'pending';
@@ -100,7 +90,7 @@ export const SeasonRewardCard = ({
   const remainingAmount = new BigNumber(amount).minus(claimedAmount);
 
   return (
-    <Card className="p-6">
+    <Card className="p-6" noHover>
       <div className="space-y-4">
         <div className="flex items-center justify-between">
           <span className="font-medium text-sm text-white/80">
@@ -131,7 +121,7 @@ export const SeasonRewardCard = ({
           </div>
         </div>
 
-        {status !== 'claimed' && status !== 'pending' && (
+        {onClaim && status !== 'claimed' && status !== 'pending' && (
           <Button type="button" className="w-full" onClick={onClaim}>
             Claim
           </Button>

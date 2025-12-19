@@ -8,8 +8,8 @@ import {
   Layer,
   Schedule,
 } from 'effect';
+import type { NetworkId, TransactionId } from 'shared/brandedTypes';
 import { GatewayApiClientService } from '../../common/gateway';
-import type { NetworkId, TransactionId } from '../schemas/brandedTypes';
 
 class TransactionNotResolvedError extends Data.TaggedError(
   'TransactionNotResolvedError',

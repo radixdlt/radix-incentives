@@ -8,10 +8,10 @@ import {
   weeks,
 } from 'db/incentives';
 import { Effect, HashMap, Layer, Logger, Option } from 'effect';
+import { SeasonId, UserId } from 'shared/brandedTypes';
 import { beforeEach, expect } from 'vitest';
 import { truncateTables } from '../../test-helpers/truncateTables';
 import { DbService } from '../db/dbClient';
-import { SeasonId, UserId } from '../schemas/brandedTypes';
 import {
   RewardAmount,
   RewardBudget,

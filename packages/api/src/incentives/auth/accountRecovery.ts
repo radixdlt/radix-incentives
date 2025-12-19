@@ -106,7 +106,7 @@ export class AccountRecoveryService extends Effect.Service<AccountRecoveryServic
             });
           }
 
-          yield* verifyChallenge(rolaProof.challenge);
+          yield* verifyChallenge.verify(rolaProof.challenge);
 
           yield* verifyRolaProof(rolaProof);
 

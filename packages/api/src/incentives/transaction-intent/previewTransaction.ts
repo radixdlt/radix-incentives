@@ -1,8 +1,8 @@
 import type { TransactionReceipt } from '@radixdlt/babylon-core-api-sdk';
 import type { TransactionPreviewOperationRequest } from '@radixdlt/babylon-gateway-api-sdk';
 import { ConfigProvider, Data, Effect, Layer } from 'effect';
+import type { NetworkId } from 'shared/brandedTypes';
 import { GatewayApiClientService } from '../../common/gateway';
-import type { NetworkId } from '../schemas/brandedTypes';
 
 class TransactionPreviewError extends Data.TaggedError(
   'TransactionPreviewError',

@@ -1,13 +1,13 @@
 import { layer } from '@effect/vitest';
 import { seasons, userSeasonReward, users } from 'db/incentives';
 import { Effect, Layer, Logger } from 'effect';
+import { SeasonId, UserId } from 'shared/brandedTypes';
 import { RedisLockTest } from '../../common/redis/redisLock.test-layer';
 import { createAccount } from '../../test-helpers/createAccount';
 import { DisableTestClock } from '../../test-helpers/disableTestClock';
 import { truncateTables } from '../../test-helpers/truncateTables';
 import { AccountAddress, Amount } from '../account-balance/v2/schemas';
 import { DbService } from '../db/dbClient';
-import { SeasonId, UserId } from '../schemas/brandedTypes';
 import { Signer } from '../transaction-intent/signer/signer';
 import { IncentivesVesterConfig } from './incentives-vester/config';
 import { IncentivesVester } from './incentives-vester/incentivesVester';

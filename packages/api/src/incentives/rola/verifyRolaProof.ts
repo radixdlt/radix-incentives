@@ -1,8 +1,7 @@
 import { Data, Effect, Schema } from 'effect';
-
+import { HexString } from 'shared/brandedTypes';
+import { AccountProofSchema } from 'shared/schemas/accountProof';
 import { z } from 'zod';
-import { AccountProofSchema } from '../auth/schemas';
-import { HexString } from '../schemas/brandedTypes';
 import { RolaService } from './rola';
 
 export const signedChallengeSchema = z.object({

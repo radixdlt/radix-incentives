@@ -1,8 +1,8 @@
 import { TRPCError } from '@trpc/server';
 import { Effect, Exit, Schema } from 'effect';
+import { SeasonId } from 'shared/brandedTypes';
 import { z } from 'zod';
 import { resolveEffect } from '../runtime';
-import { SeasonId } from '../schemas/brandedTypes';
 import {
   RewardBudget,
   SeasonRewardService,
