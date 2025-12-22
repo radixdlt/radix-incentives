@@ -1,14 +1,18 @@
 'use client';
 import { TRPCClientError } from '@trpc/client';
-import { AnimatePresence, motion } from 'framer-motion';
+import BigNumber from 'bignumber.js';
+import { Array as A, Option, pipe } from 'effect';
+import { AnimatePresence } from 'framer-motion';
 import { useParams, useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { type Amount, SeasonId } from 'shared/brandedTypes';
 import { toast } from 'sonner';
 import { Card, CardContent } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
 import { api } from '~/trpc/react';
 import { SeasonRewardCard } from '../components/season-reward-card';
+import { SlideIn } from '../helpers/slideIn';
+import { ClaimTransactionList } from './components/claim-transaction-list';
 import { PageHeader } from './components/page-header';
 import { RequestClaimForm } from './components/request-claim-form';
 import { SelectAccount } from './components/select-account';
@@ -16,9 +20,13 @@ import type { SelectAccountEvent } from './components/select-account-button';
 
 export default function SeasonRewardDetailPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
+  const utils = api.useUtils();
   const [selectedAccount, setSelectedAccount] = useState<
     SelectAccountEvent | undefined
   >(undefined);
+  const [isAwaitingClaim, setIsAwaitingClaim] = useState(false);
+  const lastClaimSubmittedAt = useRef<number | null>(null);
+  const POLLING_GRACE_PERIOD_MS = 10_000;
   const { data: seasons, isLoading: seasonsLoading } =
     api.season.getSeasons.useQuery();
   const router = useRouter();
@@ -29,10 +37,70 @@ export default function SeasonRewardDetailPage() {
   const { mutateAsync: claimSeasonReward } =
     api.seasonReward.requestSeasonRewardClaim.useMutation();
 
-  const seasonReward = seasonRewards?.find(
-    (reward) => reward.seasonId === seasonId,
+  const { data: allClaims, isLoading: claimsLoading } =
+    api.seasonReward.getAllUserSeasonRewardClaims.useQuery(undefined, {
+      refetchInterval: (query) => {
+        const hasPendingClaim = query.state.data?.some(
+          (claim) => claim.status === 'pending',
+        );
+        const isWithinGracePeriod =
+          lastClaimSubmittedAt.current !== null &&
+          Date.now() - lastClaimSubmittedAt.current < POLLING_GRACE_PERIOD_MS;
+        return hasPendingClaim || isWithinGracePeriod ? 5000 : false;
+      },
+    });
+
+  const seasonReward = pipe(
+    Option.fromNullable(seasonRewards),
+    Option.flatMap(A.findFirst((reward) => reward.seasonId === seasonId)),
+    Option.getOrUndefined,
   );
-  const season = seasons?.find((s) => s.id === seasonId);
+  const claims = pipe(
+    Option.fromNullable(allClaims),
+    Option.map(A.filter((c) => c.seasonId === seasonId)),
+    Option.getOrElse(() => [] as NonNullable<typeof allClaims>),
+  );
+  const season = pipe(
+    Option.fromNullable(seasons),
+    Option.flatMap(A.findFirst((s) => s.id === seasonId)),
+    Option.getOrUndefined,
+  );
+  const hasPendingClaim = claims.some((c) => c.status === 'pending');
+  const claimsCountRef = useRef(claims.length);
+
+  // Clear awaiting state when a new claim appears
+  useEffect(() => {
+    if (isAwaitingClaim && claims.length > claimsCountRef.current) {
+      setIsAwaitingClaim(false);
+    }
+    claimsCountRef.current = claims.length;
+  }, [claims.length, isAwaitingClaim]);
+
+  const claimedAmount = claims.reduce(
+    (acc, claim) => (claim.status === 'success' ? acc.plus(claim.amount) : acc),
+    new BigNumber(0),
+  );
+
+  const remainingAmount = pipe(
+    Option.fromNullable(seasonReward?.amount),
+    Option.map((amount) => new BigNumber(amount)),
+    Option.getOrElse(() => new BigNumber(0)),
+    (total) => total.minus(claimedAmount).toString(),
+  );
+  const isFullyClaimed = new BigNumber(remainingAmount).isLessThanOrEqualTo(0);
+
+  // Get the most recent claim timestamp for cooldown calculation
+  const lastClaimAt = pipe(
+    A.head(claims),
+    Option.map((firstClaim) =>
+      claims.reduce(
+        (latest, claim) =>
+          claim.createdAt > latest ? claim.createdAt : latest,
+        firstClaim.createdAt,
+      ),
+    ),
+    Option.getOrNull,
+  );
 
   if (!seasonRewardsLoading && !seasonReward) {
     // empty state
@@ -62,6 +130,12 @@ export default function SeasonRewardDetailPage() {
         proof: selectedAccount.proof,
         challenge: selectedAccount.proof.challenge,
       });
+      toast.success('Claim request submitted successfully');
+      lastClaimSubmittedAt.current = Date.now();
+      setIsAwaitingClaim(true);
+      setSelectedAccount(undefined);
+      utils.seasonReward.getAllUserSeasonRewardClaims.invalidate();
+      utils.seasonReward.getUserSeasonRewards.invalidate();
     } catch (error) {
       if (error instanceof TRPCClientError) {
         if (error.data?.errorCode === 'INVALID_CHALLENGE') {
@@ -77,25 +151,6 @@ export default function SeasonRewardDetailPage() {
     }
   };
 
-  const SlideIn = ({
-    children,
-    key,
-  }: {
-    children: React.ReactNode;
-    key: string;
-  }) => {
-    return (
-      <motion.div
-        key={key}
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -10 }}
-      >
-        {children}
-      </motion.div>
-    );
-  };
-
   return (
     <div>
       <PageHeader onBackClick={() => router.back()}>
@@ -107,14 +162,19 @@ export default function SeasonRewardDetailPage() {
             <AnimatePresence mode="wait">
               {!selectedAccount ? (
                 <SlideIn key="account-selection">
-                  <SelectAccount onSelectAccount={setSelectedAccount} />
+                  <SelectAccount
+                    onSelectAccount={setSelectedAccount}
+                    hasPendingClaim={hasPendingClaim || isAwaitingClaim}
+                    isFullyClaimed={isFullyClaimed}
+                    lastClaimAt={lastClaimAt}
+                  />
                 </SlideIn>
               ) : (
                 <SlideIn key="claim-form">
                   <RequestClaimForm
                     selectedAccount={selectedAccount}
                     onClearAccount={() => setSelectedAccount(undefined)}
-                    availableAmount={seasonReward?.amount ?? '0'}
+                    availableAmount={remainingAmount}
                     onRequestClaim={handleClaimSeasonReward}
                   />
                 </SlideIn>
@@ -123,11 +183,22 @@ export default function SeasonRewardDetailPage() {
           </CardContent>
         </Card>
 
-        <div className="sm:col-span-5">
+        <div className="flex flex-col gap-4 sm:col-span-5">
           <SeasonRewardCard
-            seasonName={season?.name ?? 'Unknown Season'}
-            amount={seasonReward?.amount ?? '0'}
-            claims={[]}
+            seasonName={pipe(
+              Option.fromNullable(season?.name),
+              Option.getOrElse(() => 'Unknown Season'),
+            )}
+            amount={pipe(
+              Option.fromNullable(seasonReward?.amount),
+              Option.getOrElse(() => '0'),
+            )}
+            claims={claims}
+          />
+          <ClaimTransactionList
+            claims={claims}
+            isLoading={claimsLoading}
+            isAwaitingClaim={isAwaitingClaim}
           />
         </div>
       </div>

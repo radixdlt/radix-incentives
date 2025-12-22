@@ -320,7 +320,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
               transactionIntent: input.transactionIntent,
               feePayer: {
                 account: adminAccount,
-                amount: Amount('100'),
+                amount: Amount('10'),
               },
             });
           }).pipe(

@@ -767,9 +767,12 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                 seasonId: userSeasonRewardClaims.seasonId,
                 amount: userSeasonRewardClaims.amount,
                 status: userSeasonRewardClaims.status,
+                transactionId: userSeasonRewardClaims.transactionId,
+                createdAt: userSeasonRewardClaims.createdAt,
               })
               .from(userSeasonRewardClaims)
-              .where(eq(userSeasonRewardClaims.userId, input.userId)),
+              .where(eq(userSeasonRewardClaims.userId, input.userId))
+              .orderBy(desc(userSeasonRewardClaims.createdAt)),
           )
           .pipe(Effect.orDie);
 

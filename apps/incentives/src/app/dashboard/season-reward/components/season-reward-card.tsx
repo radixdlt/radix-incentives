@@ -121,7 +121,7 @@ export const SeasonRewardCard = ({
           </div>
         </div>
 
-        {onClaim && status !== 'claimed' && status !== 'pending' && (
+        {onClaim && (
           <Button type="button" className="w-full" onClick={onClaim}>
             Claim
           </Button>

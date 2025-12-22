@@ -244,6 +244,29 @@ When creating services using the Effect library:
 - Implement accessibility features (`tabindex`, `aria-label`, keyboard events)
 - Use early returns
 - Use `~/` root alias, not `@/`
+- **Use Effect's Option in React components**: Use `Option` with `pipe` for handling nullable values from hooks and props:
+  ```typescript
+  // Bad case
+  const seasonReward = seasonRewards?.find((r) => r.id === id);
+  const claims = allClaims?.filter((c) => c.seasonId === id) ?? [];
+  const seasonName = season?.name ?? 'Unknown';
+
+  // Good case
+  const seasonReward = pipe(
+    Option.fromNullable(seasonRewards),
+    Option.flatMap(A.findFirst((r) => r.id === id)),
+    Option.getOrUndefined,
+  );
+  const claims = pipe(
+    Option.fromNullable(allClaims),
+    Option.map(A.filter((c) => c.seasonId === id)),
+    Option.getOrElse(() => [] as NonNullable<typeof allClaims>),
+  );
+  const seasonName = pipe(
+    Option.fromNullable(season?.name),
+    Option.getOrElse(() => 'Unknown'),
+  );
+  ```
 
 ### tRPC Guidelines
 - Use Zod for input validation

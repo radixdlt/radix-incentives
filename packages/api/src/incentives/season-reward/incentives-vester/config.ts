@@ -125,15 +125,27 @@ const createConfig = (input: {
       RadixEngineToolkit.Utils.knownAddresses(input.networkId),
     );
 
+    const rewardsResourceAddress = yield* Config.string(
+      'INCENTIVES_VESTER_REWARDS_RESOURCE_ADDRESS',
+    ).pipe(
+      Config.option,
+      Effect.flatMap(
+        Option.match({
+          onNone: () => Effect.succeed(knownAddresses.resourceAddresses.xrd),
+          onSome: (rewardsResourceAddress) =>
+            Effect.succeed(rewardsResourceAddress),
+        }),
+      ),
+      Effect.map(FungibleResourceAddress.make),
+    );
+
     const config = {
       adminBadge: adminBadge,
       superAdminBadge: superAdminBadge,
       componentAddress,
       networkId: input.networkId,
       packageAddress: input.packageAddress,
-      rewardsResourceAddress: FungibleResourceAddress.make(
-        knownAddresses.resourceAddresses.xrd,
-      ),
+      rewardsResourceAddress,
       adminAccount,
       superAdminAccount,
       dappDefinitionAccount: adminAccount,

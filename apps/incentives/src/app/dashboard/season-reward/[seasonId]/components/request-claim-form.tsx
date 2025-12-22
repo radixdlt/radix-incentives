@@ -68,9 +68,11 @@ export function RequestClaimForm({
               onChange: ({ value }) => {
                 if (!value) return 'Amount is required';
                 const valueBn = new BigNumber(value);
+                if (valueBn.isNaN()) return 'Invalid number format';
+                if (valueBn.isNegative()) return 'Amount must be positive';
+                if (valueBn.isLessThan(1)) return 'Minimum amount is 1';
                 if (valueBn.isGreaterThan(availableAmount))
                   return 'Amount is greater than available amount';
-                if (valueBn.isLessThan(1)) return 'Minimum amount is 1';
               },
             }}
           >
