@@ -11,18 +11,6 @@ params:
   WORKERS_API_BASE_URL: "http://worker:3003"
   APP_URL: https://incentives-perftest.rdx-works-main.extratools.works
   APPLICATION_NAME: "incentives-perftest"
-  VAULT_BASE_URL: "https://vault.vault.svc.cluster.local:8200"
-  VAULT_KEY_NAME: "incentives-xrd-distributer"
-
-podAnnotations:
-  vault.hashicorp.com/agent-inject: 'true'
-  vault.hashicorp.com/agent-inject-token: 'true'
-  vault.hashicorp.com/auth-type: 'aws'
-  vault.hashicorp.com/auth-path: 'auth/aws'
-  vault.hashicorp.com/auth-config-type: 'iam'
-  vault.hashicorp.com/role: 'role-incentives-perftest'
-  vault.hashicorp.com/service: 'https://vault.vault.svc.cluster.local:8200'
-  vault.hashicorp.com/tls-skip-verify: 'true'
 
 secrets:
   - external_secret_name: incentives-postgres-url
@@ -73,6 +61,3 @@ metrics:
     cluster: rdx-works-main-dev
     env: perftest
 
-serviceAccount:
-  annotations:
-    eks.amazonaws.com/role-arn: 'arn:aws:iam::308190735829:role/incentives-perftest-role'
