@@ -8,11 +8,24 @@ import {
   ChevronLeft,
   ChevronRight,
   Loader2,
+  Pencil,
 } from 'lucide-react';
 import Link from 'next/link';
 import * as React from 'react';
+import { ComponentAddress, SeasonId } from 'shared/brandedTypes';
 import { Button } from '~/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '~/components/ui/card';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '~/components/ui/dialog';
+import { Input } from '~/components/ui/input';
+import { Label } from '~/components/ui/label';
 import {
   Select,
   SelectContent,
@@ -120,6 +133,8 @@ export default function UserSeasonRewardsPage() {
   const [sortField, setSortField] = React.useState<SortField>('amount');
   const [sortDirection, setSortDirection] =
     React.useState<SortDirection>('desc');
+  const [isEditConfigOpen, setIsEditConfigOpen] = React.useState(false);
+  const [editComponentAddress, setEditComponentAddress] = React.useState('');
 
   // Get available seasons
   const { data: seasons, isLoading: isSeasonsLoading } =
@@ -143,6 +158,39 @@ export default function UserSeasonRewardsPage() {
       { seasonId: selectedSeasonId },
       { enabled: !!selectedSeasonId },
     );
+
+  // Get season config
+  const { data: seasonConfig, isLoading: isConfigLoading } =
+    api.season.getSeasonConfig.useQuery(
+      { seasonId: SeasonId.make(selectedSeasonId) },
+      { enabled: !!selectedSeasonId },
+    );
+
+  const utils = api.useUtils();
+
+  // Update season config mutation
+  const updateConfigMutation = api.season.updateSeasonConfig.useMutation({
+    onSuccess: () => {
+      utils.season.getSeasonConfig.invalidate({ seasonId: selectedSeasonId });
+      setIsEditConfigOpen(false);
+    },
+  });
+
+  // Initialize edit form when opening dialog
+  const handleOpenEditConfig = () => {
+    setEditComponentAddress(seasonConfig?.seasonRewardComponentAddress ?? '');
+    setIsEditConfigOpen(true);
+  };
+
+  // Handle save
+  const handleSaveConfig = () => {
+    updateConfigMutation.mutate({
+      seasonId: SeasonId.make(selectedSeasonId),
+      seasonRewardComponentAddress: editComponentAddress
+        ? ComponentAddress.make(editComponentAddress)
+        : null,
+    });
+  };
 
   // Get paginated rewards
   const {
@@ -285,6 +333,92 @@ export default function UserSeasonRewardsPage() {
             </CardContent>
           </Card>
         </div>
+      )}
+
+      {/* Season Config */}
+      {selectedSeasonId && (
+        <Card className="mb-6">
+          <CardHeader className="flex flex-row items-center justify-between pb-2">
+            <CardTitle className="font-medium text-sm">Season Config</CardTitle>
+            <Dialog open={isEditConfigOpen} onOpenChange={setIsEditConfigOpen}>
+              <DialogTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleOpenEditConfig}
+                >
+                  <Pencil className="mr-1 h-4 w-4" />
+                  Edit
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Edit Season Config</DialogTitle>
+                  <DialogDescription>
+                    Configure the reward component address for this season.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid gap-2">
+                    <Label htmlFor="componentAddress">
+                      Reward Component Address
+                    </Label>
+                    <Input
+                      id="componentAddress"
+                      placeholder="component_rdx..."
+                      value={editComponentAddress}
+                      onChange={(e) => setEditComponentAddress(e.target.value)}
+                    />
+                    <p className="text-muted-foreground text-xs">
+                      The on-ledger component address for claiming rewards.
+                    </p>
+                  </div>
+                </div>
+                <DialogFooter>
+                  <Button
+                    variant="outline"
+                    onClick={() => setIsEditConfigOpen(false)}
+                    type="button"
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={handleSaveConfig}
+                    disabled={updateConfigMutation.isPending}
+                    type="button"
+                  >
+                    {updateConfigMutation.isPending ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      'Save'
+                    )}
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </CardHeader>
+          <CardContent>
+            {isConfigLoading ? (
+              <Skeleton className="h-6 w-64" />
+            ) : seasonConfig?.seasonRewardComponentAddress ? (
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground text-sm">
+                  Reward Component:
+                </span>
+                <code className="rounded bg-muted px-2 py-1 font-mono text-sm">
+                  {seasonConfig.seasonRewardComponentAddress}
+                </code>
+              </div>
+            ) : (
+              <p className="text-muted-foreground text-sm">
+                No reward component configured for this season.
+              </p>
+            )}
+          </CardContent>
+        </Card>
       )}
 
       <Separator className="my-6" />

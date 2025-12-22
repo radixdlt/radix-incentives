@@ -98,6 +98,12 @@ export const CompetitionActions = ({
                   Expire participants
                 </DropdownMenuItem>
               </AlertDialogTrigger>
+              <Dialog
+                onConfirm={onExpireParticipants}
+                title="Expire Participants"
+                description="Are you sure you want to expire all participants for this competition?"
+                actionText="Expire participants"
+              />
             </AlertDialog>
             <DropdownMenuSeparator />
             <AlertDialog>

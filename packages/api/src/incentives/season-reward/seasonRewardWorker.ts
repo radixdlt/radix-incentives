@@ -110,7 +110,7 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
           const { seasonId, userId, claimAmount, accountAddress } = input;
           const seasonConfig = yield* seasonService.getConfig(seasonId);
 
-          if (Option.isNone(seasonConfig.seasonRewardComponentAddress)) {
+          if (seasonConfig.seasonRewardComponentAddress === null) {
             return yield* Effect.die(
               new MissingConfigError({
                 message: 'Season reward component address not configured',
@@ -118,15 +118,13 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
             );
           }
 
-          if (Option.isSome(seasonConfig.seasonRewardComponentAddress)) {
-            const seasonRewardComponentAddress =
-              seasonConfig.seasonRewardComponentAddress.value;
+          const seasonRewardComponentAddress =
+            seasonConfig.seasonRewardComponentAddress;
 
-            yield* Ref.update(incentivesVesterConfig, (config) => ({
-              ...config,
-              componentAddress: Option.some(seasonRewardComponentAddress),
-            }));
-          }
+          yield* Ref.update(incentivesVesterConfig, (config) => ({
+            ...config,
+            componentAddress: Option.some(seasonRewardComponentAddress),
+          }));
 
           // prevents multiple claims of the same season reward
           const lock = yield* redisLock.acquire({

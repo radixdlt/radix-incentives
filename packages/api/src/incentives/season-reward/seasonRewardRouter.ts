@@ -1,4 +1,4 @@
-import { Effect, Option, Schema } from 'effect';
+import { Effect, Schema } from 'effect';
 import { HexString, SeasonId, UserId } from 'shared/brandedTypes';
 import { AccountProofSchema } from 'shared/schemas/accountProof';
 import { Amount } from '../account-balance/v2/schemas';
@@ -49,7 +49,7 @@ export const seasonRewardRouter = createTRPCRouter({
             });
           }
 
-          if (Option.isNone(seasonConfig.seasonRewardComponentAddress)) {
+          if (seasonConfig.seasonRewardComponentAddress === null) {
             return yield* new ResponseError({
               code: 'NOT_IMPLEMENTED',
               message: 'Season reward component address not configured.',

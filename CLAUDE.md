@@ -254,6 +254,23 @@ When creating services using the Effect library:
 - Create proper context (`server/context.ts`)
 - Export only router types (`AppRouter`) to the client
 - Use distinct procedure types (public, protected, admin)
+- **Use `resolveEffect` pattern over dependency layer**: When adding new tRPC procedures that use Effect services, prefer the `resolveEffect` pattern directly in the router instead of adding methods to the dependency layer:
+  ```typescript
+  // Good case - use resolveEffect directly in router
+  getSeasonConfig: publicProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .query(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const seasonService = yield* SeasonService;
+          return yield* seasonService.getConfig(input.seasonId);
+        }),
+      ),
+    ),
+
+  // Bad case - avoid adding to dependency layer
+  // Don't add new methods to createDependencyLayer.ts
+  ```
 
 ### Database Guidelines
 - All database changes occur in `./packages/db`

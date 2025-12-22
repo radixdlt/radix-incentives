@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { Effect, Exit, Schema } from 'effect';
-import { SeasonId } from 'shared/brandedTypes';
+import { ComponentAddress, SeasonId } from 'shared/brandedTypes';
 import { z } from 'zod';
 import { resolveEffect } from '../runtime';
 import {
@@ -9,7 +9,7 @@ import {
 } from '../season-reward/seasonReward';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { effectSchemaParser } from '../trpc/helpers';
-import { CreateSeasonSchema, EditSeasonSchema } from './season';
+import { CreateSeasonSchema, EditSeasonSchema, SeasonService } from './season';
 
 export const seasonRouter = createTRPCRouter({
   getSeasons: publicProcedure.query(async ({ ctx }) => {
@@ -246,6 +246,38 @@ export const adminSeasonRouter = createTRPCRouter({
             userCount: calculatedRewards.length,
             totalRewardBudget: input.rewardBudget,
           };
+        }),
+      ),
+    ),
+
+  getSeasonConfig: publicProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .query(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const seasonService = yield* SeasonService;
+          return yield* seasonService.getConfig(input.seasonId);
+        }),
+      ),
+    ),
+
+  updateSeasonConfig: publicProcedure
+    .input(
+      effectSchemaParser(
+        Schema.Struct({
+          seasonId: SeasonId,
+          seasonRewardComponentAddress: Schema.NullOr(ComponentAddress),
+        }),
+      ),
+    )
+    .mutation(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const seasonService = yield* SeasonService;
+          yield* seasonService.updateConfig(input.seasonId, {
+            seasonRewardComponentAddress: input.seasonRewardComponentAddress,
+          });
+          return { success: true };
         }),
       ),
     ),
