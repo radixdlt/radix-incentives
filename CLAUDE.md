@@ -114,6 +114,13 @@ pnpm build
 pnpm build:clean
 ```
 
+### Troubleshooting
+```bash
+# Fix Turborepo workspace conflicts (e.g., "Failed to add workspace, it already exists")
+# This happens when Next.js standalone builds create duplicate package.json files
+pnpm clean
+```
+
 ## Core Development Principles
 
 ### Context and Rules

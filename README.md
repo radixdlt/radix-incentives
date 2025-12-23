@@ -210,8 +210,49 @@ export REDIS_PORT=6379
 export REDIS_PASSWORD=password
 ```
 
+### 8. Setting Up HashiCorp Vault (for Transaction Signing)
 
-### 8. Triggering Workers
+Vault is used for secure Ed25519 key management and transaction signing via the Transit secrets engine.
+
+#### Starting Vault Services
+
+```bash
+# Start Vault, vault-init, and vault-agent
+docker compose up vault vault-init vault-agent -d --wait
+```
+
+This starts:
+- **vault**: HashiCorp Vault server in dev mode (port 8200)
+- **vault-init**: Initializes Transit engine with Ed25519 key (`xrd-distribution`)
+- **vault-agent**: API proxy with token caching (port 8100)
+
+#### Vault Environment Variables
+
+| Variable | Description | Default |
+|----------|-------------|---------|
+| `VAULT_TOKEN` | Static Vault token (for dev/testing) | - |
+| `VAULT_TOKEN_FILE` | Path to file containing Vault token (preferred for production) | - |
+| `VAULT_BASE_URL` | Vault API base URL | `http://localhost:8200/v1` |
+| `VAULT_KEY_NAME` | Transit key name for signing | `xrd-distribution` |
+
+#### Usage Options
+
+**Option 1: Token file (recommended for production parity)**
+```bash
+export VAULT_TOKEN_FILE="$(pwd)/vault/secrets/token"
+```
+
+**Option 2: Direct token (simpler for dev)**
+```bash
+export VAULT_TOKEN=root-token
+```
+
+The application checks `VAULT_TOKEN_FILE` first; if not set, falls back to `VAULT_TOKEN`.
+
+
+
+
+### 9. Triggering Workers
 
 To trigger the snapshot worker manually, you can use the following command. This is useful for testing purposes or when you need to process a snapshot job immediately.
 

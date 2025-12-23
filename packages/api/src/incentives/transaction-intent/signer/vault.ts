@@ -1,4 +1,10 @@
-import { FetchHttpClient, HttpBody, HttpClient } from '@effect/platform';
+import {
+  FetchHttpClient,
+  FileSystem,
+  HttpBody,
+  HttpClient,
+} from '@effect/platform';
+import { NodeFileSystem } from '@effect/platform-node';
 import {
   Array as A,
   Config,
@@ -88,27 +94,48 @@ const PublicKeyResponseSchema = Schema.asSchema(
   ),
 );
 
+/**
+ * Reads the Vault token from a file or falls back to environment variable.
+ * In production, Vault Agent writes the token to a file and handles renewal.
+ * For local development, you can use either VAULT_TOKEN_FILE or VAULT_TOKEN.
+ */
+const getVaultToken = (fs: FileSystem.FileSystem) =>
+  Effect.gen(function* () {
+    const tokenFilePath = yield* Config.string('VAULT_TOKEN_FILE').pipe(
+      Config.option,
+      Effect.map(Option.getOrUndefined),
+    );
+
+    if (tokenFilePath) {
+      const content = yield* fs.readFileString(tokenFilePath);
+      return content.trim();
+    }
+
+    return yield* Config.string('VAULT_TOKEN');
+  });
+
 export class Vault extends Effect.Service<Vault>()('Vault', {
-  dependencies: [FetchHttpClient.layer],
+  dependencies: [FetchHttpClient.layer, NodeFileSystem.layer],
   effect: Effect.gen(function* () {
     const keyName = yield* Config.string('VAULT_KEY_NAME').pipe(
       Config.withDefault('xrd-distribution'),
     );
 
-    const baseUrl = yield* Config.string('VAULT_BASE_URL')
-      .pipe(Config.withDefault('http://localhost:8200/v1'))
-      .pipe(Effect.orDie);
+    const baseUrl = yield* Config.string('VAULT_BASE_URL').pipe(
+      Config.withDefault('http://localhost:8200/v1'),
+      Effect.orDie,
+    );
 
     const httpClient = yield* HttpClient.HttpClient;
-
-    const vaultToken = Config.string('VAULT_TOKEN').pipe(Effect.orDie);
+    const fs = yield* FileSystem.FileSystem;
 
     const getPublicKey = () =>
       Effect.gen(function* () {
+        const token = yield* getVaultToken(fs);
         return yield* httpClient
           .get(`${baseUrl}/transit/keys/${keyName}`, {
             headers: {
-              'X-Vault-Token': yield* vaultToken,
+              'X-Vault-Token': token,
             },
           })
           .pipe(
@@ -119,10 +146,12 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
 
     const toSignatureWithPublicKey = (hash: HexString) =>
       Effect.gen(function* () {
+        const token = yield* getVaultToken(fs);
+
         const signature = yield* httpClient
           .post(`${baseUrl}/transit/sign/${keyName}`, {
             headers: {
-              'X-Vault-Token': yield* vaultToken,
+              'X-Vault-Token': token,
               'Content-Type': 'application/json',
             },
             body: yield* Schema.decode(Base64FromHexSchema)(hash).pipe(

@@ -45,4 +45,7 @@ apps/vote-collector/time_weighted_averages.csv
 # Claude code artifacts
 requirements
 
+# Vault secrets (local dev)
+vault/secrets/
+
 packages/db/src/incentives/seed/data/accounts500KData.ts

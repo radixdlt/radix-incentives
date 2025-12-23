@@ -76,6 +76,8 @@ services:
     depends_on:
       vault:
         condition: service_healthy
+    volumes:
+      - ./vault/secrets:/vault/secrets
     environment:
       VAULT_ADDR: "http://vault:8200"
       VAULT_TOKEN: ${VAULT_TOKEN}
@@ -83,9 +85,32 @@ services:
       sh -c "
         vault secrets enable transit 2>/dev/null || true &&
         vault write -f transit/keys/xrd-distribution type=ed25519 2>/dev/null || true &&
-        echo 'Vault initialized with ED25519 keys'
+        echo $${VAULT_TOKEN} > /vault/secrets/token &&
+        chmod 644 /vault/secrets/token &&
+        echo 'Vault initialized with ED25519 keys and token file'
       "
     restart: "no"
+
+  vault-agent:
+    image: hashicorp/vault:latest
+    container_name: vault-agent
+    depends_on:
+      vault-init:
+        condition: service_completed_successfully
+    volumes:
+      - ./vault/agent-config-dev.hcl:/vault/config/agent-config.hcl:ro
+      - ./vault/secrets:/vault/secrets
+    environment:
+      VAULT_ADDR: "http://vault:8200"
+    command: vault agent -config=/vault/config/agent-config.hcl
+    ports:
+      - "8100:8100"
+    healthcheck:
+      test:
+        ["CMD", "wget", "-q", "--spider", "http://localhost:8100/v1/sys/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
 
   # workers:
   #   hostname: workers
