@@ -471,6 +471,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                       amount: RewardAmount.make(row.amount),
                     }) satisfies UserSeasonRewardOutput,
                 ),
+                Option.getOrNull,
               ),
             ),
             Effect.orDie,
@@ -743,6 +744,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                 amount: userSeasonRewardClaims.amount,
                 status: userSeasonRewardClaims.status,
                 transactionId: userSeasonRewardClaims.transactionId,
+                createdAt: userSeasonRewardClaims.createdAt,
               })
               .from(userSeasonRewardClaims)
               .where(
@@ -750,7 +752,8 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                   eq(userSeasonRewardClaims.userId, input.userId),
                   eq(userSeasonRewardClaims.seasonId, input.seasonId),
                 ),
-              ),
+              )
+              .orderBy(desc(userSeasonRewardClaims.createdAt)),
           )
           .pipe(Effect.orDie);
 

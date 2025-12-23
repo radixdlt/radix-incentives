@@ -9,7 +9,7 @@ import { type Amount, SeasonId } from 'shared/brandedTypes';
 import { toast } from 'sonner';
 import { Card, CardContent } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
-import { api } from '~/trpc/react';
+import { api, type RouterOutputs } from '~/trpc/react';
 import { SeasonRewardCard } from '../components/season-reward-card';
 import { SlideIn } from '../helpers/slideIn';
 import { ClaimTransactionList } from './components/claim-transaction-list';
@@ -17,6 +17,8 @@ import { PageHeader } from './components/page-header';
 import { RequestClaimForm } from './components/request-claim-form';
 import { SelectAccount } from './components/select-account';
 import type { SelectAccountEvent } from './components/select-account-button';
+
+type Claim = RouterOutputs['seasonReward']['getUserSeasonRewardClaims'][number];
 
 export default function SeasonRewardDetailPage() {
   const { seasonId } = useParams<{ seasonId: string }>();
@@ -31,74 +33,65 @@ export default function SeasonRewardDetailPage() {
     api.season.getSeasons.useQuery();
   const router = useRouter();
 
-  const { data: seasonRewards, isLoading: seasonRewardsLoading } =
-    api.seasonReward.getUserSeasonRewards.useQuery();
+  const { data: seasonReward, isLoading: seasonRewardsLoading } =
+    api.seasonReward.getUserSeasonReward.useQuery({ seasonId });
 
   const { mutateAsync: claimSeasonReward } =
     api.seasonReward.requestSeasonRewardClaim.useMutation();
 
-  const { data: allClaims, isLoading: claimsLoading } =
-    api.seasonReward.getAllUserSeasonRewardClaims.useQuery(undefined, {
-      refetchInterval: (query) => {
-        const hasPendingClaim = query.state.data?.some(
-          (claim) => claim.status === 'pending',
-        );
-        const isWithinGracePeriod =
-          lastClaimSubmittedAt.current !== null &&
-          Date.now() - lastClaimSubmittedAt.current < POLLING_GRACE_PERIOD_MS;
-        return hasPendingClaim || isWithinGracePeriod ? 5000 : false;
+  const { data: claims, isLoading: claimsLoading } =
+    api.seasonReward.getUserSeasonRewardClaims.useQuery(
+      { seasonId },
+      {
+        refetchInterval: (query) => {
+          const hasPendingClaim = query.state.data?.some(
+            (claim) => claim.status === 'pending',
+          );
+          const isWithinGracePeriod =
+            lastClaimSubmittedAt.current !== null &&
+            Date.now() - lastClaimSubmittedAt.current < POLLING_GRACE_PERIOD_MS;
+          return hasPendingClaim || isWithinGracePeriod ? 5000 : false;
+        },
       },
-    });
-
-  const seasonReward = pipe(
-    Option.fromNullable(seasonRewards),
-    Option.flatMap(A.findFirst((reward) => reward.seasonId === seasonId)),
-    Option.getOrUndefined,
-  );
-  const claims = pipe(
-    Option.fromNullable(allClaims),
-    Option.map(A.filter((c) => c.seasonId === seasonId)),
-    Option.getOrElse(() => [] as NonNullable<typeof allClaims>),
+    );
+  const claimsList = pipe(
+    Option.fromNullable(claims),
+    Option.getOrElse(() => A.empty<Claim>()),
   );
   const season = pipe(
     Option.fromNullable(seasons),
     Option.flatMap(A.findFirst((s) => s.id === seasonId)),
     Option.getOrUndefined,
   );
-  const hasPendingClaim = claims.some((c) => c.status === 'pending');
-  const claimsCountRef = useRef(claims.length);
+  const hasPendingClaim = claimsList.some((c) => c.status === 'pending');
+  const claimsCountRef = useRef(claimsList.length);
 
   // Clear awaiting state when a new claim appears
   useEffect(() => {
-    if (isAwaitingClaim && claims.length > claimsCountRef.current) {
+    if (isAwaitingClaim && claimsList.length > claimsCountRef.current) {
       setIsAwaitingClaim(false);
     }
-    claimsCountRef.current = claims.length;
-  }, [claims.length, isAwaitingClaim]);
+    claimsCountRef.current = claimsList.length;
+  }, [claimsList.length, isAwaitingClaim]);
 
-  const claimedAmount = claims.reduce(
+  const claimedAmount = claimsList.reduce(
     (acc, claim) => (claim.status === 'success' ? acc.plus(claim.amount) : acc),
     new BigNumber(0),
   );
 
-  const remainingAmount = pipe(
-    Option.fromNullable(seasonReward?.amount),
-    Option.map((amount) => new BigNumber(amount)),
+  const rewardAmount = pipe(
+    Option.fromNullable(seasonReward),
+    Option.map((reward) => new BigNumber(reward.amount)),
     Option.getOrElse(() => new BigNumber(0)),
-    (total) => total.minus(claimedAmount).toString(),
   );
+  const remainingAmount = rewardAmount.minus(claimedAmount).toString();
   const isFullyClaimed = new BigNumber(remainingAmount).isLessThanOrEqualTo(0);
 
   // Get the most recent claim timestamp for cooldown calculation
+  // Claims are ordered by createdAt descending, so the first item is the latest
   const lastClaimAt = pipe(
-    A.head(claims),
-    Option.map((firstClaim) =>
-      claims.reduce(
-        (latest, claim) =>
-          claim.createdAt > latest ? claim.createdAt : latest,
-        firstClaim.createdAt,
-      ),
-    ),
+    A.head(claimsList),
+    Option.map((claim) => claim.createdAt),
     Option.getOrNull,
   );
 
@@ -134,8 +127,8 @@ export default function SeasonRewardDetailPage() {
       lastClaimSubmittedAt.current = Date.now();
       setIsAwaitingClaim(true);
       setSelectedAccount(undefined);
-      utils.seasonReward.getAllUserSeasonRewardClaims.invalidate();
-      utils.seasonReward.getUserSeasonRewards.invalidate();
+      utils.seasonReward.getUserSeasonRewardClaims.invalidate();
+      utils.seasonReward.getUserSeasonReward.invalidate();
     } catch (error) {
       if (error instanceof TRPCClientError) {
         if (error.data?.errorCode === 'INVALID_CHALLENGE') {
@@ -186,17 +179,19 @@ export default function SeasonRewardDetailPage() {
         <div className="flex flex-col gap-4 sm:col-span-5">
           <SeasonRewardCard
             seasonName={pipe(
-              Option.fromNullable(season?.name),
+              Option.fromNullable(season),
+              Option.map((s) => s.name),
               Option.getOrElse(() => 'Unknown Season'),
             )}
             amount={pipe(
-              Option.fromNullable(seasonReward?.amount),
+              Option.fromNullable(seasonReward),
+              Option.map((reward) => reward.amount),
               Option.getOrElse(() => '0'),
             )}
-            claims={claims}
+            claims={claimsList}
           />
           <ClaimTransactionList
-            claims={claims}
+            claims={claimsList}
             isLoading={claimsLoading}
             isAwaitingClaim={isAwaitingClaim}
           />

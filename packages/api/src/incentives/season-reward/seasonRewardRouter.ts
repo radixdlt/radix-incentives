@@ -120,6 +120,20 @@ export const seasonRewardRouter = createTRPCRouter({
     ),
   ),
 
+  getUserSeasonReward: protectedProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: Schema.String })))
+    .query(({ ctx, input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const service = yield* SeasonRewardService;
+          return yield* service.getUserSeasonReward({
+            userId: UserId.make(ctx.session.user.id),
+            seasonId: SeasonId.make(input.seasonId),
+          });
+        }),
+      ),
+    ),
+
   getUserSeasonRewardClaims: protectedProcedure
     .input(effectSchemaParser(Schema.Struct({ seasonId: Schema.String })))
     .query(({ ctx, input }) =>

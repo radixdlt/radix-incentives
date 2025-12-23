@@ -15,8 +15,7 @@ import { Skeleton } from '~/components/ui/skeleton';
 import type { RouterOutputs } from '~/trpc/react';
 import { formatAmount } from '../../helpers/formatAmount';
 
-type Claim =
-  RouterOutputs['seasonReward']['getAllUserSeasonRewardClaims'][number];
+type Claim = RouterOutputs['seasonReward']['getUserSeasonRewardClaims'][number];
 
 const StatusBadge = ({ status }: { status: Claim['status'] }) => {
   const config = {
@@ -114,7 +113,7 @@ export const ClaimTransactionList = ({
   isLoading,
   isAwaitingClaim,
 }: {
-  claims: RouterOutputs['seasonReward']['getAllUserSeasonRewardClaims'];
+  claims: Claim[];
   isLoading?: boolean;
   isAwaitingClaim?: boolean;
 }) => {
