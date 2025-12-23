@@ -18,16 +18,19 @@ const formatTimeRemaining = (ms: number) => {
 };
 
 export function SelectAccount({
+  seasonName,
   onSelectAccount,
   hasPendingClaim,
   isFullyClaimed,
   lastClaimAt,
 }: {
+  seasonName?: string;
   onSelectAccount: (value: SelectAccountEvent) => void;
   hasPendingClaim?: boolean;
   isFullyClaimed?: boolean;
   lastClaimAt?: Date | null;
 }) {
+  const title = seasonName ? `Claim ${seasonName} Rewards` : 'Claim Rewards';
   const [cooldownRemaining, setCooldownRemaining] = useState(0);
 
   useEffect(() => {
@@ -60,62 +63,72 @@ export function SelectAccount({
 
   if (isFullyClaimed) {
     return (
-      <div className="flex flex-col gap-2">
-        <p className="font-bold">All Rewards Claimed</p>
-        <p className="mb-4 text-muted-foreground">
-          Congratulations! You have successfully claimed all your season
-          rewards.
-        </p>
-        <Button className="w-full" variant="outline" disabled>
-          <CheckCircle className="mr-2 h-4 w-4 text-green-400" />
-          Fully Claimed
-        </Button>
+      <div className="flex min-h-[240px] flex-col items-center justify-center gap-6 text-center">
+        <h2 className="font-bold text-xl">{title}</h2>
+        <div className="flex flex-col items-center gap-3">
+          <CheckCircle className="h-12 w-12 text-green-400" />
+          <div className="space-y-2">
+            <p className="font-bold text-lg">All Rewards Claimed</p>
+            <p className="text-muted-foreground text-sm">
+              Congratulations! You have successfully claimed all your season
+              rewards.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (hasPendingClaim) {
     return (
-      <div className="flex flex-col gap-2">
-        <p className="font-bold">Account Selection</p>
-        <p className="mb-4 text-muted-foreground">
-          You have a pending claim. Please wait for it to be processed before
-          making another claim.
-        </p>
-        <Button className="w-full" variant="outline" disabled>
-          <Clock className="mr-2 h-4 w-4 animate-pulse" />
-          Pending Claim in Progress
-        </Button>
+      <div className="flex min-h-[240px] flex-col items-center justify-center gap-6 text-center">
+        <h2 className="font-bold text-xl">{title}</h2>
+        <div className="flex flex-col items-center gap-3">
+          <Clock className="h-12 w-12 animate-pulse text-yellow-400" />
+          <div className="space-y-2">
+            <p className="font-bold text-lg">Pending Claim</p>
+            <p className="text-muted-foreground text-sm">
+              Please wait for your pending claim to be processed before making
+              another claim.
+            </p>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (isOnCooldown) {
     return (
-      <div className="flex flex-col gap-2">
-        <p className="font-bold">Account Selection</p>
-        <p className="mb-4 text-muted-foreground">
-          Please wait before making another claim. This is to spread out the
-          claims over time to prevent mapping your incentives user to your
-          wallet account.
-        </p>
-        <Button className="w-full" variant="outline" disabled>
-          <Timer className="mr-2 h-4 w-4" />
-          Wait {formatTimeRemaining(cooldownRemaining)}
-        </Button>
+      <div className="flex min-h-[240px] flex-col items-center justify-center gap-6 text-center">
+        <h2 className="font-bold text-xl">{title}</h2>
+        <div className="flex flex-col items-center gap-3">
+          <Timer className="h-12 w-12 text-orange-400" />
+          <div className="space-y-2">
+            <p className="font-bold text-lg">Cooldown Active</p>
+            <p className="text-muted-foreground text-sm">
+              Please wait before making another claim. This helps protect your
+              privacy by spreading claims over time.
+            </p>
+          </div>
+          <Button className="mt-2 w-full max-w-xs" variant="outline" disabled>
+            <Timer className="mr-2 h-4 w-4" />
+            Wait {formatTimeRemaining(cooldownRemaining)}
+          </Button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col gap-2">
-      <p className="font-bold">Account Selection</p>
-      <p className="mb-4 text-muted-foreground">
-        Start by selecting an account that will receive the season reward
-        tokens.
-      </p>
-      <div className="w-full self-center">
-        <SelectAccountButton onSelectAccount={onSelectAccount} />
+    <div className="flex min-h-[240px] flex-col items-center justify-center gap-6 text-center">
+      <h2 className="font-bold text-xl">{title}</h2>
+      <div className="flex flex-col items-center space-y-4">
+        <p className="text-muted-foreground text-sm">
+          Choose an account that will receive your season reward tokens.
+        </p>
+        <div className="w-full max-w-xs">
+          <SelectAccountButton onSelectAccount={onSelectAccount} />
+        </div>
       </div>
     </div>
   );

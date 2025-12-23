@@ -365,9 +365,6 @@ export class IncentivesVesterStateService extends Effect.Service<IncentivesVeste
           return yield* getComponentStateService
             .run({
               addresses: [input.componentAddress],
-              at_ledger_state: {
-                timestamp: new Date(),
-              },
               schema: IncentivesVesterSchema,
             })
             .pipe(

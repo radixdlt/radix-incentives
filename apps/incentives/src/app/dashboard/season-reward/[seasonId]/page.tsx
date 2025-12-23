@@ -7,7 +7,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { type Amount, SeasonId } from 'shared/brandedTypes';
 import { toast } from 'sonner';
-import { Card, CardContent } from '~/components/ui/card';
+import { Card } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
 import { api, type RouterOutputs } from '~/trpc/react';
 import { SeasonRewardCard } from '../components/season-reward-card';
@@ -146,16 +146,18 @@ export default function SeasonRewardDetailPage() {
 
   return (
     <div>
-      <PageHeader onBackClick={() => router.back()}>
-        Claim Season Reward
-      </PageHeader>
+      <PageHeader
+        onBackClick={() => router.push('/dashboard/season-reward')}
+        backLabel="Back to Seasons"
+      />
       <div className="grid gap-4 sm:grid-cols-10">
-        <Card noHover className="flex flex-col gap-2 pt-4 sm:col-span-5">
-          <CardContent className="flex flex-col gap-2">
+        <Card noHover className="flex flex-col gap-2 p-6 sm:col-span-5">
+          <div className="flex flex-col gap-2">
             <AnimatePresence mode="wait">
               {!selectedAccount ? (
                 <SlideIn key="account-selection">
                   <SelectAccount
+                    seasonName={season?.name}
                     onSelectAccount={setSelectedAccount}
                     hasPendingClaim={hasPendingClaim || isAwaitingClaim}
                     isFullyClaimed={isFullyClaimed}
@@ -165,6 +167,7 @@ export default function SeasonRewardDetailPage() {
               ) : (
                 <SlideIn key="claim-form">
                   <RequestClaimForm
+                    seasonName={season?.name}
                     selectedAccount={selectedAccount}
                     onClearAccount={() => setSelectedAccount(undefined)}
                     availableAmount={remainingAmount}
@@ -173,11 +176,12 @@ export default function SeasonRewardDetailPage() {
                 </SlideIn>
               )}
             </AnimatePresence>
-          </CardContent>
+          </div>
         </Card>
 
         <div className="flex flex-col gap-4 sm:col-span-5">
           <SeasonRewardCard
+            seasonId={seasonId}
             seasonName={pipe(
               Option.fromNullable(season),
               Option.map((s) => s.name),
