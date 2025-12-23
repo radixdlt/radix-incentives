@@ -22,7 +22,7 @@ import {
   milestoneRouter,
 } from '../milestones/milestoneRouter';
 import { resourceRewardRouter } from '../resource-reward/resourceRewardRouter';
-import { adminSeasonRouter } from '../season/seasonRouter';
+import { adminSeasonRouter, seasonRouter } from '../season/seasonRouter';
 import { adminSeasonBonusRouter } from '../season-bonus/seasonBonusRouter';
 import { seasonRewardRouter } from '../season-reward/seasonRewardRouter';
 import { adminSeedRouter } from '../seed/seedRouter';
@@ -50,6 +50,7 @@ export const appRouter = createTRPCRouter({
   resourceReward: resourceRewardRouter,
   competition: competitionRouter,
   seasonReward: seasonRewardRouter,
+  season: seasonRouter,
 });
 
 export const adminAppRouter = createTRPCRouter({

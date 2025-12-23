@@ -10,16 +10,13 @@ import {
   pipe,
   Ref,
 } from 'effect';
+import { type NetworkId, TransactionManifestString } from 'shared/brandedTypes';
 import { GetComponentStateService } from '../../../common/gateway';
 import {
   type AccountAddress,
   Amount,
   ComponentAddress,
 } from '../../account-balance/v2/schemas';
-import {
-  type NetworkId,
-  TransactionManifestString,
-} from '../../schemas/brandedTypes';
 import type { TransactionIntent } from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';
 import {
@@ -105,17 +102,9 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 }),
             );
 
-            const packageAddress = Option.getOrThrowWith(
-              config.packageAddress,
-              () =>
-                new MissingConfigError({
-                  message: 'Package address not found',
-                }),
-            );
-
             const manifest = TransactionManifestString.make(`
               CALL_FUNCTION
-                Address("${packageAddress}")
+                Address("${config.packageAddress}")
                 "IncentivesVester"
                 "instantiate"
                 Address("${adminBadge.resourceAddress}") # admin badge for backend, create yourself in advance
@@ -331,7 +320,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
               transactionIntent: input.transactionIntent,
               feePayer: {
                 account: adminAccount,
-                amount: Amount('100'),
+                amount: Amount('10'),
               },
             });
           }).pipe(

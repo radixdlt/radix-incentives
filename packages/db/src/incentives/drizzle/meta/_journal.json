@@ -323,6 +323,13 @@
       "when": 1765809820301,
       "tag": "0045_gray_squadron_supreme",
       "breakpoints": true
+    },
+    {
+      "idx": 46,
+      "version": "7",
+      "when": 1766150036122,
+      "tag": "0046_glamorous_dragon_man",
+      "breakpoints": true
     }
   ]
 }

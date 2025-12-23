@@ -1,10 +1,6 @@
 import { ConfigProvider, Data, Effect, Layer } from 'effect';
+import { Epoch, type NetworkId, type TransactionId } from 'shared/brandedTypes';
 import { GetLedgerStateService } from '../../common/gateway';
-import {
-  Epoch,
-  type NetworkId,
-  type TransactionId,
-} from '../schemas/brandedTypes';
 import type { TransactionIntent } from './schemas';
 
 export class InvalidEndEpochError extends Data.TaggedError(

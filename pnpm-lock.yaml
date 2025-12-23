@@ -374,6 +374,9 @@ importers:
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      shared:
+        specifier: workspace:*
+        version: link:../../packages/shared
       sonner:
         specifier: 'catalog:'
         version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -552,6 +555,9 @@ importers:
       server-only:
         specifier: 'catalog:'
         version: 0.0.1
+      shared:
+        specifier: workspace:*
+        version: link:../../packages/shared
       sonner:
         specifier: ^2.0.7
         version: 2.0.7(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -885,6 +891,9 @@ importers:
       sbor-ez-mode:
         specifier: workspace:*
         version: link:../sbor-ez-mode
+      shared:
+        specifier: workspace:*
+        version: link:../shared
       superjson:
         specifier: 'catalog:'
         version: 2.2.6
@@ -979,6 +988,15 @@ importers:
       vitest:
         specifier: 'catalog:'
         version: 3.1.1(@types/debug@4.1.12)(@types/node@22.15.17)(jiti@2.6.1)(lightningcss@1.30.2)(tsx@4.19.3)(yaml@2.8.0)
+
+  packages/shared:
+    dependencies:
+      bignumber.js:
+        specifier: 'catalog:'
+        version: 9.3.1
+      effect:
+        specifier: 'catalog:'
+        version: 3.19.11
 
   tools/calculate-points:
     dependencies:

@@ -1,3 +1,4 @@
+import { RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 import {
   Array as A,
   Cause,
@@ -5,6 +6,7 @@ import {
   Context,
   Data,
   Effect,
+  flow,
   Layer,
   Option,
   pipe,
@@ -12,18 +14,22 @@ import {
   Ref,
   Schema,
 } from 'effect';
-import { GatewayApiClientService } from '../../common/gateway';
-import { Amount, FungibleResourceAddress } from '../account-balance/v2/schemas';
 import {
   NetworkId,
   type TransactionId,
   TransactionManifestString,
-} from '../schemas/brandedTypes';
+} from 'shared/brandedTypes';
+import {
+  GatewayApiClientService,
+  GetFungibleBalanceService,
+} from '../../common/gateway';
+import { Amount, FungibleResourceAddress } from '../account-balance/v2/schemas';
 import { CompileTransaction } from './compileTransaction';
 import { CreateTransactionIntent } from './createTransactionIntent';
 import { EpochService } from './epoch';
 import { IntentHashService } from './intentHash';
 import { createBadge as createBadgeManifest } from './manifests/createBadge';
+import { createFungibleTokenManifest } from './manifests/createFungibleToken';
 import { faucet as faucetManifest } from './manifests/faucet';
 import { ManifestHelper } from './manifests/manifestHelper';
 import type { Account, TransactionIntent } from './schemas';
@@ -74,6 +80,12 @@ export class TransactionLifeCycleHook extends Context.Tag(
   }
 >() {}
 
+export class InsufficientXrdBalanceError extends Data.TaggedError(
+  'InsufficientXrdBalanceError',
+)<{
+  message: string;
+}> {}
+
 export class TransactionHelper extends Effect.Service<TransactionHelper>()(
   'TransactionHelper',
   {
@@ -108,6 +120,19 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
           ),
         ),
       );
+      const knownAddresses = yield* Effect.tryPromise(() =>
+        RadixEngineToolkit.Utils.knownAddresses(networkId),
+      );
+
+      const getFungibleBalance = yield* GetFungibleBalanceService.pipe(
+        Effect.provide(GetFungibleBalanceService.Default),
+        Effect.provide(
+          Layer.setConfigProvider(
+            ConfigProvider.fromJson({ NETWORK_ID: networkId }),
+          ),
+        ),
+      );
+
       const lifeCycleHook = yield* Effect.serviceOption(
         TransactionLifeCycleHook,
       );
@@ -128,12 +153,54 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
         Option.flatMap((item) => Option.fromNullable(item.onSuccess)),
       );
 
+      const xrdBalance = (account: Account) =>
+        getFungibleBalance({
+          addresses: [account.address],
+          at_ledger_state: {
+            timestamp: new Date(),
+          },
+        }).pipe(
+          Effect.map(
+            flow(
+              A.head,
+              Option.map((value) => value.fungibleResources),
+              Option.flatMap(
+                A.findFirst(
+                  (item) =>
+                    item.resourceAddress ===
+                    knownAddresses.resourceAddresses.xrd,
+                ),
+              ),
+            ),
+          ),
+        );
+
       const submitTransaction = (input: {
         manifest: TransactionManifestString;
         feePayer?: { account: Account; amount: Amount };
         transactionIntent?: TransactionIntent;
       }) =>
         Effect.gen(function* () {
+          yield* Option.fromNullable(input.feePayer).pipe(
+            Option.match({
+              onNone: () => Effect.void,
+              onSome: (feePayer) =>
+                xrdBalance(feePayer.account).pipe(
+                  Effect.filterOrFail(
+                    (amount) =>
+                      Option.match(amount, {
+                        onNone: () => false,
+                        onSome: (amount) => amount.amount.gte(feePayer.amount),
+                      }),
+                    () =>
+                      new InsufficientXrdBalanceError({
+                        message: `Insufficient XRD balance for account ${feePayer.account.address}`,
+                      }),
+                  ),
+                ),
+            }),
+          );
+
           const { intent, id, hash } = yield* Option.fromNullable(
             input.transactionIntent,
           ).pipe(
@@ -297,6 +364,38 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
           ),
         );
 
+      const createFungibleToken = (input: {
+        account: Account;
+        feePayer: Account;
+        name: string;
+        symbol: string;
+        initialSupply: Amount;
+      }) =>
+        submitTransaction({
+          manifest: createFungibleTokenManifest(input),
+          feePayer: {
+            account: input.feePayer,
+            amount: Amount('10'),
+          },
+        }).pipe(
+          Effect.flatMap(({ id }) =>
+            getCommittedDetails({
+              id,
+            }),
+          ),
+          Effect.map((result) =>
+            pipe(
+              Option.fromNullable(
+                result.transaction.balance_changes?.fungible_balance_changes,
+              ),
+              Option.flatMap(A.head),
+              Option.flatMap(R.get('resource_address')),
+              Option.getOrThrow,
+              FungibleResourceAddress,
+            ),
+          ),
+        );
+
       const faucet = (input: { account: Account }) =>
         Effect.gen(function* () {
           if (networkId !== 2) {
@@ -313,6 +412,7 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
         submitTransaction,
         getCommittedDetails,
         createBadge,
+        createFungibleToken,
         faucet,
       };
     }),

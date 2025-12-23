@@ -1,0 +1,12 @@
+{
+  "name": "shared",
+  "type": "module",
+  "private": true,
+  "exports": {
+    "./*": "./src/*.ts"
+  },
+  "dependencies": {
+    "effect": "catalog:",
+    "bignumber.js": "catalog:"
+  }
+}

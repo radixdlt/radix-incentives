@@ -8,10 +8,10 @@ import {
   weeks,
 } from 'db/incentives';
 import { Effect, HashMap, Layer, Logger, Option } from 'effect';
+import { SeasonId, UserId } from 'shared/brandedTypes';
 import { beforeEach, expect } from 'vitest';
 import { truncateTables } from '../../test-helpers/truncateTables';
 import { DbService } from '../db/dbClient';
-import { SeasonId, UserId } from '../schemas/brandedTypes';
 import {
   RewardAmount,
   RewardBudget,
@@ -465,7 +465,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
     }).pipe(Effect.provide(DbService.Default)),
   );
 
-  it.effect('getUserSeasonReward - returns None when no reward exists', () =>
+  it.effect('getUserSeasonReward - returns null when no reward exists', () =>
     Effect.gen(function* () {
       const service = yield* SeasonRewardService;
       const { season1, user1 } = yield* testSetup;
@@ -475,7 +475,7 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         seasonId: SeasonId.make(season1.id),
       });
 
-      expect(Option.isNone(result)).toBe(true);
+      expect(result).toBe(null);
     }).pipe(Effect.provide(DbService.Default)),
   );
 
@@ -498,10 +498,8 @@ layer(TestLayer)('SeasonRewardService', (it) => {
         seasonId: SeasonId.make(season1.id),
       });
 
-      expect(Option.isSome(result)).toBe(true);
-      if (Option.isSome(result)) {
-        expect(result.value.amount).toBe('1234.567890');
-      }
+      expect(result).not.toBe(null);
+      expect(result?.amount).toBe('1234.567890');
     }).pipe(Effect.provide(DbService.Default)),
   );
 
@@ -539,13 +537,11 @@ layer(TestLayer)('SeasonRewardService', (it) => {
           seasonId: SeasonId.make(season2.id),
         });
 
-        expect(Option.isSome(result1)).toBe(true);
-        expect(Option.isSome(result2)).toBe(true);
+        expect(result1).not.toBe(null);
+        expect(result2).not.toBe(null);
 
-        if (Option.isSome(result1) && Option.isSome(result2)) {
-          expect(result1.value.amount).toBe('100.000000');
-          expect(result2.value.amount).toBe('200.000000');
-        }
+        expect(result1?.amount).toBe('100.000000');
+        expect(result2?.amount).toBe('200.000000');
       }).pipe(Effect.provide(DbService.Default)),
   );
 });

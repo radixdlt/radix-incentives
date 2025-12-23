@@ -1,9 +1,11 @@
 import { TRPCError } from '@trpc/server';
 import { Data, Effect, Exit, Schema } from 'effect';
+import { incentivesRuntime } from '../runtime';
 
 export class ResponseError extends Data.TaggedError('ResponseError')<{
   code: TRPCError['code'];
   message?: string;
+  errorCode?: string;
 }> {}
 
 export const resolveExit = <A, E>(exit: Exit.Exit<A, E>) =>
@@ -21,6 +23,9 @@ export const resolveExit = <A, E>(exit: Exit.Exit<A, E>) =>
             ? cause.error.message
             : undefined;
 
+        const errorCode =
+          'errorCode' in cause.error ? cause.error.errorCode : undefined;
+
         if (
           cause.error._tag === 'ResponseError' &&
           'code' in cause.error &&
@@ -29,11 +34,12 @@ export const resolveExit = <A, E>(exit: Exit.Exit<A, E>) =>
           throw new TRPCError({
             code: cause.error.code as TRPCError['code'],
             message,
+            cause: { errorCode },
           });
         }
       }
 
-      console.error(cause);
+      incentivesRuntime.runSyncExit(Effect.logError(cause));
 
       throw new TRPCError({
         code: 'INTERNAL_SERVER_ERROR',

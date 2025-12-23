@@ -54,7 +54,7 @@ export class VerifyAccountOwnershipService extends Effect.Service<VerifyAccountO
         yield* CheckAndReactivateAccountsService;
 
       return Effect.fnUntraced(function* (input: VerifyAccountOwnershipInput) {
-        yield* verifyChallenge(input.challenge);
+        yield* verifyChallenge.verify(input.challenge);
 
         yield* verifyProofService.verifyProofs({
           challenge: input.challenge,

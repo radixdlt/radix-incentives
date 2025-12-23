@@ -1,6 +1,7 @@
 import type { LucideIcon } from 'lucide-react';
 import { ChevronRight } from 'lucide-react';
 import { Card } from '~/components/ui/card';
+import { cn } from '~/lib/utils';
 
 interface MetricCardProps {
   title: string;
@@ -16,6 +17,7 @@ interface MetricCardProps {
   onClick?: () => void;
   clickHint?: string;
   noHover?: boolean;
+  className?: string;
 }
 
 export const MetricCard = ({
@@ -28,10 +30,14 @@ export const MetricCard = ({
   onClick,
   clickHint,
   noHover = false,
+  className,
 }: MetricCardProps) => {
   return (
     <Card
-      className={`group overflow-hidden ${onClick ? 'cursor-pointer border-primary/20 transition-all duration-500 ease-in-out hover:border-primary/50 hover:bg-muted/50 hover:shadow-lg' : ''}`}
+      className={cn(
+        `group overflow-hidden ${onClick ? 'cursor-pointer border-primary/20 transition-all duration-500 ease-in-out hover:border-primary/50 hover:bg-muted/50 hover:shadow-lg' : ''}`,
+        className,
+      )}
       onClick={onClick}
       noHover={noHover}
     >

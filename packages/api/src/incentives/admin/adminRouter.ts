@@ -12,10 +12,17 @@ import {
   userSeasonPoints,
 } from 'db/incentives';
 import { and, count, desc, eq, inArray, lte, sql, sum } from 'drizzle-orm';
-import { Exit } from 'effect';
+import { Effect, Exit } from 'effect';
 import { groupBy } from 'effect/Array';
 import { z } from 'zod';
+import { resolveEffect } from '../runtime';
+import {
+  GetSeasonRewardStatsInputSchema,
+  ListUserSeasonRewardsInputSchema,
+  SeasonRewardService,
+} from '../season-reward/seasonReward';
 import { createTRPCRouter, publicProcedure } from '../trpc';
+import { effectSchemaParser } from '../trpc/helpers';
 import {
   seasonPointsMultiplierJobSchema,
   snapshotDateRangeJobSchema,
@@ -566,5 +573,28 @@ export const adminRouter = createTRPCRouter({
           },
         });
       }),
+  },
+  seasonReward: {
+    listUserSeasonRewards: publicProcedure
+      .input(effectSchemaParser(ListUserSeasonRewardsInputSchema))
+      .query(({ input }) =>
+        resolveEffect(
+          Effect.gen(function* () {
+            const service = yield* SeasonRewardService;
+            return yield* service.listUserSeasonRewards(input);
+          }),
+        ),
+      ),
+
+    getSeasonRewardStats: publicProcedure
+      .input(effectSchemaParser(GetSeasonRewardStatsInputSchema))
+      .query(({ input }) =>
+        resolveEffect(
+          Effect.gen(function* () {
+            const service = yield* SeasonRewardService;
+            return yield* service.getSeasonRewardStats(input);
+          }),
+        ),
+      ),
   },
 });

@@ -51,7 +51,7 @@ export class SignInWithRolaProofService extends Effect.Service<SignInWithRolaPro
       const createSession = yield* CreateSessionService;
 
       return Effect.fnUntraced(function* (input: SignInWithRolaProofInput) {
-        const isValidChallenge = yield* verifyChallenge(
+        const isValidChallenge = yield* verifyChallenge.verify(
           input.rolaProof.challenge,
         );
 

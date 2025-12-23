@@ -85,7 +85,11 @@ function SeasonDetailPage() {
 
   return (
     <div className="container mx-auto py-6 pr-6 pl-6">
-      <SeasonHeader seasonName={season.name} seasonId={seasonId} />
+      <SeasonHeader
+        seasonName={season.name}
+        seasonId={seasonId}
+        seasonStatus={season.status}
+      />
 
       <Separator className="my-6" />
 

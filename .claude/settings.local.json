@@ -31,7 +31,8 @@
       "Bash(git checkout:*)",
       "mcp__context7__resolve-library-id",
       "mcp__context7__get-library-docs",
-      "Bash(pnpm dlx shadcn@latest add:*)"
+      "Bash(pnpm dlx shadcn@latest add:*)",
+      "Bash(DATABASE_URL=\"postgresql://postgres:password@localhost:5432/radix-incentives\" WORKERS_API_BASE_URL=\"http://localhost:3003\" pnpm build:*)"
     ],
     "deny": []
   }

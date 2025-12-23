@@ -1,8 +1,8 @@
 import { layer } from '@effect/vitest';
 import { Duration, Effect, Fiber, Logger, Option, TestClock } from 'effect';
+import { NetworkId } from 'shared/brandedTypes';
 import { createAccount } from '../../test-helpers/createAccount';
 import { AccountAddress } from '../account-balance/v2/schemas';
-import { NetworkId } from '../schemas/brandedTypes';
 import { CompileTransaction } from './compileTransaction';
 import { CreateTransactionIntent } from './createTransactionIntent';
 import { IntentHashService } from './intentHash';

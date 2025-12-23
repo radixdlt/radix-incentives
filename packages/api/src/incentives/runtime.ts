@@ -3,9 +3,11 @@ import { CheckAndReactivateAccountsService } from './account/checkAndReactivateA
 import { VerifyChallengeService } from './challenge/verifyChallenge';
 import { CompetitionService } from './competition/competition';
 import { DappService } from './dapp/dapp';
+import { DbService } from './db/dbClient';
 import { VerifyRolaProofService } from './rola/verifyRolaProof';
 import { SeasonService } from './season/season';
 import { SeasonBonusService } from './season-bonus/seasonBonusService';
+import { SeasonRewardService } from './season-reward/seasonReward';
 import { SeasonRewardClaim } from './season-reward/seasonRewardClaim';
 import { resolveExit } from './trpc/helpers';
 import { UserService } from './user/user';
@@ -25,11 +27,13 @@ const layer = Layer.mergeAll(
   UserService.Default,
   CheckAndReactivateAccountsService.Default,
   DappService.Default,
+  DbService.Default,
   SeasonBonusService.Default,
   VerifyChallengeService.Default,
   VerifyRolaProofService.Default,
   WorkerApiClient.Default,
   SeasonRewardClaim.Default,
+  SeasonRewardService.Default,
   SeasonService.Default,
   loggerLayer,
 );

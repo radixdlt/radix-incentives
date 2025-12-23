@@ -5,9 +5,9 @@ import {
   AccountAddress,
   ComponentAddress,
   FungibleResourceAddress,
+  NetworkId,
   PackageAddress,
-} from '../../account-balance/v2/schemas';
-import { NetworkId } from '../../schemas/brandedTypes';
+} from 'shared/brandedTypes';
 import {
   AccountSchema,
   BadgeSchema,
@@ -18,24 +18,18 @@ import {
 export const IncentivesVesterConfigSchema = Schema.Struct({
   adminBadge: Schema.Option(BadgeSchema),
   superAdminBadge: Schema.Option(BadgeSchema),
-  rewardsResourceAddress: Schema.String.pipe(
-    Schema.fromBrand(FungibleResourceAddress),
-  ),
+  rewardsResourceAddress: FungibleResourceAddress,
   networkId: NetworkId,
-  packageAddress: Schema.Option(
-    Schema.String.pipe(Schema.fromBrand(PackageAddress)),
-  ),
+  packageAddress: PackageAddress,
   dappDefinitionAccount: Schema.Option(AccountSchema),
   adminAccount: Schema.Option(AccountSchema),
   superAdminAccount: Schema.Option(AccountSchema),
-  componentAddress: Schema.Option(
-    Schema.String.pipe(Schema.fromBrand(ComponentAddress)),
-  ),
+  componentAddress: Schema.Option(ComponentAddress),
 });
 
 const createConfig = (input: {
   networkId: NetworkId;
-  packageAddress?: PackageAddress;
+  packageAddress: PackageAddress;
 }) =>
   Effect.gen(function* () {
     const adminBadge = yield* Config.string(
@@ -46,7 +40,7 @@ const createConfig = (input: {
         Option.map((item) =>
           BadgeSchema.make({
             type: 'fungibleResource',
-            resourceAddress: FungibleResourceAddress(item),
+            resourceAddress: FungibleResourceAddress.make(item),
           }),
         ),
       ),
@@ -60,7 +54,7 @@ const createConfig = (input: {
         Option.map((item) =>
           BadgeSchema.make({
             type: 'fungibleResource',
-            resourceAddress: FungibleResourceAddress(item),
+            resourceAddress: FungibleResourceAddress.make(item),
           }),
         ),
       ),
@@ -68,11 +62,11 @@ const createConfig = (input: {
 
     const adminAccountAdress = yield* Config.string(
       'INCENTIVES_VESTER_ADMIN_ACCOUNT_ADDRESS',
-    ).pipe(Config.option, Effect.map(Option.map(AccountAddress)));
+    ).pipe(Config.option, Effect.map(Option.map(AccountAddress.make)));
 
     const accessControllerAddress = yield* Config.string(
       'INCENTIVES_VESTER_ACCESS_CONTROLLER_ADDRESS',
-    ).pipe(Config.option, Effect.map(Option.map(AccessControllerAddress)));
+    ).pipe(Config.option, Effect.map(Option.map(AccessControllerAddress.make)));
 
     const adminAccount = adminAccountAdress.pipe(
       Option.map((adminAccountAdress) =>
@@ -97,11 +91,11 @@ const createConfig = (input: {
 
     const superAdminAccountAdress = yield* Config.string(
       'INCENTIVES_VESTER_SUPER_ADMIN_ACCOUNT_ADDRESS',
-    ).pipe(Config.option, Effect.map(Option.map(AccountAddress)));
+    ).pipe(Config.option, Effect.map(Option.map(AccountAddress.make)));
 
     const superAdminAccessControllerAddress = yield* Config.string(
       'INCENTIVES_VESTER_SUPER_ADMIN_ACCESS_CONTROLLER_ADDRESS',
-    ).pipe(Config.option, Effect.map(Option.map(AccessControllerAddress)));
+    ).pipe(Config.option, Effect.map(Option.map(AccessControllerAddress.make)));
 
     const superAdminAccount = superAdminAccountAdress.pipe(
       Option.map((address) =>
@@ -125,10 +119,24 @@ const createConfig = (input: {
 
     const componentAddress = yield* Config.string(
       'INCENTIVES_VESTER_COMPONENT_ADDRESS',
-    ).pipe(Config.option, Effect.map(Option.map(ComponentAddress)));
+    ).pipe(Config.option, Effect.map(Option.map(ComponentAddress.make)));
 
     const knownAddresses = yield* Effect.tryPromise(() =>
       RadixEngineToolkit.Utils.knownAddresses(input.networkId),
+    );
+
+    const rewardsResourceAddress = yield* Config.string(
+      'INCENTIVES_VESTER_REWARDS_RESOURCE_ADDRESS',
+    ).pipe(
+      Config.option,
+      Effect.flatMap(
+        Option.match({
+          onNone: () => Effect.succeed(knownAddresses.resourceAddresses.xrd),
+          onSome: (rewardsResourceAddress) =>
+            Effect.succeed(rewardsResourceAddress),
+        }),
+      ),
+      Effect.map(FungibleResourceAddress.make),
     );
 
     const config = {
@@ -136,10 +144,8 @@ const createConfig = (input: {
       superAdminBadge: superAdminBadge,
       componentAddress,
       networkId: input.networkId,
-      packageAddress: Option.fromNullable(input.packageAddress),
-      rewardsResourceAddress: FungibleResourceAddress(
-        knownAddresses.resourceAddresses.xrd,
-      ),
+      packageAddress: input.packageAddress,
+      rewardsResourceAddress,
       adminAccount,
       superAdminAccount,
       dappDefinitionAccount: adminAccount,
@@ -157,14 +163,14 @@ export class IncentivesVesterConfig extends Context.Tag(
 
   static MainnetConfig = createConfig({
     networkId: NetworkId.make(1),
-    packageAddress: PackageAddress(
+    packageAddress: PackageAddress.make(
       'package_rdx1phe8ngw6fjahenrg9l5z548ve7u7z60a0pq98vkh6p2wf253xd6uh0',
     ),
   });
 
   static StokenetConfig = createConfig({
     networkId: NetworkId.make(2),
-    packageAddress: PackageAddress(
+    packageAddress: PackageAddress.make(
       'package_tdx_2_1pk03fls3pdjf5dewt0kewhpx9syyj5vd4wq808sffcq5ghjk7svd4y',
     ),
   });

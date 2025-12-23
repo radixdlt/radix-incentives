@@ -205,6 +205,38 @@ When creating services using the Effect library:
       { discard: true },
     );
     ```
+  - Use `A.head` with `Option.match` for getting single records from database queries:
+    ```typescript
+    // Bad case - using array destructuring
+    const [result] = yield* db.use((database) =>
+      database.select().from(table).where(eq(table.id, id)).limit(1)
+    ).pipe(Effect.orDie);
+
+    if (!result) {
+      return null;
+    }
+
+    // Good case - using A.head with Option.match
+    const result = yield* db
+      .use((database) =>
+        database.select().from(table).where(eq(table.id, id)).limit(1)
+      )
+      .pipe(
+        Effect.map(A.head),
+        Effect.flatMap(
+          Option.match({
+            onNone: () =>
+              Effect.fail(
+                new NotFoundError({
+                  message: `Record not found for id ${id}`,
+                }),
+              ),
+            onSome: Effect.succeed,
+          }),
+        ),
+        Effect.orDie,
+      );
+    ```
 
 ### React/Next.js Guidelines
 - Use Tailwind classes for styling (no inline CSS or `<style>` tags)
@@ -212,6 +244,29 @@ When creating services using the Effect library:
 - Implement accessibility features (`tabindex`, `aria-label`, keyboard events)
 - Use early returns
 - Use `~/` root alias, not `@/`
+- **Use Effect's Option in React components**: Use `Option` with `pipe` for handling nullable values from hooks and props:
+  ```typescript
+  // Bad case
+  const seasonReward = seasonRewards?.find((r) => r.id === id);
+  const claims = allClaims?.filter((c) => c.seasonId === id) ?? [];
+  const seasonName = season?.name ?? 'Unknown';
+
+  // Good case
+  const seasonReward = pipe(
+    Option.fromNullable(seasonRewards),
+    Option.flatMap(A.findFirst((r) => r.id === id)),
+    Option.getOrUndefined,
+  );
+  const claims = pipe(
+    Option.fromNullable(allClaims),
+    Option.map(A.filter((c) => c.seasonId === id)),
+    Option.getOrElse(() => [] as NonNullable<typeof allClaims>),
+  );
+  const seasonName = pipe(
+    Option.fromNullable(season?.name),
+    Option.getOrElse(() => 'Unknown'),
+  );
+  ```
 
 ### tRPC Guidelines
 - Use Zod for input validation
@@ -222,6 +277,23 @@ When creating services using the Effect library:
 - Create proper context (`server/context.ts`)
 - Export only router types (`AppRouter`) to the client
 - Use distinct procedure types (public, protected, admin)
+- **Use `resolveEffect` pattern over dependency layer**: When adding new tRPC procedures that use Effect services, prefer the `resolveEffect` pattern directly in the router instead of adding methods to the dependency layer:
+  ```typescript
+  // Good case - use resolveEffect directly in router
+  getSeasonConfig: publicProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .query(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const seasonService = yield* SeasonService;
+          return yield* seasonService.getConfig(input.seasonId);
+        }),
+      ),
+    ),
+
+  // Bad case - avoid adding to dependency layer
+  // Don't add new methods to createDependencyLayer.ts
+  ```
 
 ### Database Guidelines
 - All database changes occur in `./packages/db`

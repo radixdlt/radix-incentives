@@ -51,7 +51,8 @@
     "sbor-ez-mode": "workspace:*",
     "superjson": "catalog:",
     "undici": "catalog:",
-    "zod": "catalog:"
+    "zod": "catalog:",
+    "shared": "workspace:*"
   },
   "devDependencies": {
     "@effect/language-service": "catalog:",

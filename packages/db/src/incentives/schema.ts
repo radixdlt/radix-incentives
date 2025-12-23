@@ -141,6 +141,7 @@ export const seasons = createTable('season', {
   id: uuid('id').primaryKey().defaultRandom(),
   name: varchar('name', { length: 255 }).notNull(),
   status: seasonStatusEnum('status').notNull().default('upcoming'),
+  config: jsonb('config').notNull().default({}),
 });
 
 export const seasonsRelations = relations(seasons, ({ many }) => ({

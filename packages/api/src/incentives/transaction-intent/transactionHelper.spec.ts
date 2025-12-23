@@ -1,8 +1,8 @@
 import { it } from '@effect/vitest';
 import { Cause, Effect, Exit, Logger, Redacted } from 'effect';
+import { HexString, NetworkId } from 'shared/brandedTypes';
 import { createAccount } from '../../test-helpers/createAccount';
 import { DisableTestClock } from '../../test-helpers/disableTestClock';
-import { HexString, NetworkId } from '../schemas/brandedTypes';
 import { Signer } from './signer/signer';
 import {
   TransactionHelper,

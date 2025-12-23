@@ -1,9 +1,6 @@
 import { layer } from '@effect/vitest';
 import { seasons, userSeasonRewardClaims, users } from 'db/incentives';
 import { Array as A, Effect, flow, Logger, Option, Schema } from 'effect';
-import { truncateTables } from '../../test-helpers/truncateTables';
-import { AccountAddress, Amount } from '../account-balance/v2/schemas';
-import { DbService } from '../db/dbClient';
 import {
   Epoch,
   NetworkId,
@@ -12,7 +9,10 @@ import {
   TransactionId,
   TransactionManifestString,
   UserId,
-} from '../schemas/brandedTypes';
+} from 'shared/brandedTypes';
+import { truncateTables } from '../../test-helpers/truncateTables';
+import { AccountAddress, Amount } from '../account-balance/v2/schemas';
+import { DbService } from '../db/dbClient';
 import {
   Ed25519PublicKeySchema,
   TransactionHeaderSchema,

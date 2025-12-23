@@ -1,6 +1,6 @@
 import { Convert, RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 import { Data, Effect, pipe } from 'effect';
-import { HexString, TransactionId } from '../schemas/brandedTypes';
+import { HexString, TransactionId } from 'shared/brandedTypes';
 import type { TransactionIntent } from './schemas';
 
 class FailedToCreateIntentHashError extends Data.TaggedError(

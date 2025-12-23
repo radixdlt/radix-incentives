@@ -1,13 +1,30 @@
 import BigNumber from 'bignumber.js';
 import {
+  seasons,
+  user,
   userSeasonBonuses,
   userSeasonPoints,
   userSeasonReward,
+  userSeasonRewardClaims,
 } from 'db/incentives';
-import { and, eq, sql, sum } from 'drizzle-orm';
-import { Array as A, Effect, HashMap, Option, pipe, Schema } from 'effect';
+import { and, asc, count, desc, eq, inArray, sql, sum } from 'drizzle-orm';
+import {
+  Array as A,
+  Data,
+  Effect,
+  HashMap,
+  Option,
+  pipe,
+  Schema,
+} from 'effect';
+import { SeasonId, UserId } from 'shared/brandedTypes';
 import { DbService } from '../db/dbClient';
-import { SeasonId, UserId } from '../schemas/brandedTypes';
+
+export class SeasonRewardNotFoundError extends Data.TaggedError(
+  'SeasonRewardNotFoundError',
+)<{
+  message: string;
+}> {}
 
 /**
  * Branded type for season bonus values (decimal string representation)
@@ -100,6 +117,122 @@ export const UserSeasonRewardOutputSchema = Schema.Struct({
 });
 
 export type UserSeasonRewardOutput = typeof UserSeasonRewardOutputSchema.Type;
+
+/**
+ * Schema for listing user season rewards input (admin)
+ */
+export const ListUserSeasonRewardsInputSchema = Schema.Struct({
+  seasonId: Schema.String,
+  page: Schema.optionalWith(
+    Schema.Number.pipe(Schema.greaterThanOrEqualTo(1)),
+    {
+      default: () => 1,
+    },
+  ),
+  limit: Schema.optionalWith(
+    Schema.Number.pipe(
+      Schema.greaterThanOrEqualTo(1),
+      Schema.lessThanOrEqualTo(100),
+    ),
+    { default: () => 50 },
+  ),
+  sortField: Schema.optionalWith(
+    Schema.Literal('label', 'amount', 'claimedAmount', 'claimStatus'),
+    { default: () => 'amount' as const },
+  ),
+  sortDirection: Schema.optionalWith(Schema.Literal('asc', 'desc'), {
+    default: () => 'desc' as const,
+  }),
+});
+
+export type ListUserSeasonRewardsInput =
+  typeof ListUserSeasonRewardsInputSchema.Type;
+
+/**
+ * Schema for season reward stats input (admin)
+ */
+export const GetSeasonRewardStatsInputSchema = Schema.Struct({
+  seasonId: Schema.String,
+});
+
+export type GetSeasonRewardStatsInput =
+  typeof GetSeasonRewardStatsInputSchema.Type;
+
+/**
+ * Claim status for user season rewards
+ */
+export type ClaimStatus = 'unclaimed' | 'partial' | 'claimed' | 'pending';
+
+/**
+ * User season reward item in list response
+ */
+export type UserSeasonRewardListItem = {
+  userId: string;
+  userLabel: string | null;
+  amount: string;
+  claimedAmount: string;
+  claimStatus: ClaimStatus;
+};
+
+/**
+ * Response type for listing user season rewards
+ */
+export type ListUserSeasonRewardsOutput = {
+  rewards: UserSeasonRewardListItem[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+};
+
+/**
+ * Response type for season reward stats
+ */
+export type GetSeasonRewardStatsOutput = {
+  seasonName: string;
+  totalUsers: number;
+  totalRewardAmount: string;
+  totalClaimedAmount: string;
+};
+
+/**
+ * Schema for getting user season rewards by userId
+ */
+export const GetUserSeasonRewardsByUserInputSchema = Schema.Struct({
+  userId: Schema.String,
+});
+
+export type GetUserSeasonRewardsByUserInput =
+  typeof GetUserSeasonRewardsByUserInputSchema.Type;
+
+/**
+ * Schema for getting user season reward claims by userId and seasonId
+ */
+export const GetUserSeasonRewardClaimsInputSchema = Schema.Struct({
+  userId: Schema.String,
+  seasonId: Schema.String,
+});
+
+export type GetUserSeasonRewardClaimsInput =
+  typeof GetUserSeasonRewardClaimsInputSchema.Type;
+
+/**
+ * Response type for user season reward
+ */
+export type UserSeasonRewardItem = {
+  userId: string;
+  seasonId: string;
+  amount: string;
+};
+
+/**
+ * Response type for user season reward claim
+ */
+export type GetUserSeasonRewardClaimOutput = {
+  amount: string;
+  status: 'pending' | 'success' | 'failed';
+  transactionId: string;
+};
 
 export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
   'SeasonRewardService',
@@ -338,10 +471,313 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                       amount: RewardAmount.make(row.amount),
                     }) satisfies UserSeasonRewardOutput,
                 ),
+                Option.getOrNull,
               ),
             ),
             Effect.orDie,
           );
+
+      /**
+       * List user season rewards with pagination and sorting (admin)
+       */
+      const listUserSeasonRewards = (input: ListUserSeasonRewardsInput) =>
+        Effect.gen(function* () {
+          const { seasonId, page, limit, sortField, sortDirection } = input;
+          const offset = (page - 1) * limit;
+
+          // Filter condition: seasonId matches and amount > 0
+          const filterCondition = and(
+            eq(userSeasonReward.seasonId, seasonId),
+            sql`${userSeasonReward.amount} > 0`,
+          );
+
+          // Get total count (excluding zero amounts)
+          const [totalResult] = yield* db
+            .use((database) =>
+              database
+                .select({ count: count() })
+                .from(userSeasonReward)
+                .where(filterCondition),
+            )
+            .pipe(Effect.orDie);
+
+          const total = totalResult?.count ?? 0;
+
+          // Apply sorting and pagination
+          const orderByClause =
+            sortField === 'label'
+              ? sortDirection === 'asc'
+                ? asc(user.label)
+                : desc(user.label)
+              : sortDirection === 'asc'
+                ? asc(userSeasonReward.amount)
+                : desc(userSeasonReward.amount);
+
+          // Build query for rewards with user info (excluding zero amounts)
+          const rewards = yield* db
+            .use((database) =>
+              database
+                .select({
+                  odUserId: userSeasonReward.userId,
+                  seasonId: userSeasonReward.seasonId,
+                  amount: userSeasonReward.amount,
+                  userLabel: user.label,
+                })
+                .from(userSeasonReward)
+                .innerJoin(user, eq(userSeasonReward.userId, user.id))
+                .where(filterCondition)
+                .orderBy(orderByClause)
+                .limit(limit)
+                .offset(offset),
+            )
+            .pipe(Effect.orDie);
+
+          // Get claim data for these users
+          const userIds = rewards.map((r) => r.odUserId);
+
+          const claimsData =
+            userIds.length > 0
+              ? yield* db
+                  .use((database) =>
+                    database
+                      .select({
+                        odUserId: userSeasonRewardClaims.userId,
+                        totalClaimed: sum(userSeasonRewardClaims.amount),
+                        latestStatus: userSeasonRewardClaims.status,
+                      })
+                      .from(userSeasonRewardClaims)
+                      .where(
+                        and(
+                          eq(userSeasonRewardClaims.seasonId, seasonId),
+                          inArray(userSeasonRewardClaims.userId, userIds),
+                        ),
+                      )
+                      .groupBy(
+                        userSeasonRewardClaims.userId,
+                        userSeasonRewardClaims.status,
+                      ),
+                  )
+                  .pipe(Effect.orDie)
+              : [];
+
+          // Build claims map using Effect's groupBy and reduce
+          const claimsMap = pipe(
+            claimsData,
+            A.groupBy((claim) => claim.odUserId),
+            (grouped) =>
+              pipe(
+                Object.entries(grouped),
+                A.map(
+                  ([userId, claims]) =>
+                    [
+                      userId,
+                      pipe(
+                        claims,
+                        A.reduce(
+                          {
+                            totalClaimed: new BigNumber('0'),
+                            statuses: [] as string[],
+                          },
+                          (acc, claim) => ({
+                            totalClaimed: acc.totalClaimed.plus(
+                              claim.totalClaimed ?? '0',
+                            ),
+                            statuses: claim.latestStatus
+                              ? [...acc.statuses, claim.latestStatus]
+                              : acc.statuses,
+                          }),
+                        ),
+                        ({ totalClaimed, statuses }) => ({
+                          totalClaimed: totalClaimed.toString(),
+                          statuses,
+                        }),
+                      ),
+                    ] as const,
+                ),
+                HashMap.fromIterable,
+              ),
+          );
+
+          // Combine data
+          const result: UserSeasonRewardListItem[] = rewards.map((reward) => {
+            const claimData = pipe(
+              HashMap.get(claimsMap, reward.odUserId),
+              Option.getOrUndefined,
+            );
+            const amount = new BigNumber(reward.amount);
+            const claimedAmount = new BigNumber(claimData?.totalClaimed ?? '0');
+
+            let claimStatus: ClaimStatus = 'unclaimed';
+            if (claimData?.statuses.includes('pending')) {
+              claimStatus = 'pending';
+            } else if (claimedAmount.gte(amount)) {
+              claimStatus = 'claimed';
+            } else if (claimedAmount.gt(0)) {
+              claimStatus = 'partial';
+            }
+
+            return {
+              userId: reward.odUserId,
+              userLabel: reward.userLabel,
+              amount: amount.toString(),
+              claimedAmount: claimedAmount.toString(),
+              claimStatus,
+            };
+          });
+
+          // Sort by claimedAmount or claimStatus if needed (post-query sorting)
+          if (sortField === 'claimedAmount') {
+            result.sort((a, b) => {
+              const comparison =
+                new BigNumber(a.claimedAmount).comparedTo(
+                  new BigNumber(b.claimedAmount),
+                ) ?? 0;
+              return sortDirection === 'asc' ? comparison : -comparison;
+            });
+          } else if (sortField === 'claimStatus') {
+            const statusOrder = {
+              unclaimed: 0,
+              pending: 1,
+              partial: 2,
+              claimed: 3,
+            };
+            result.sort((a, b) => {
+              const comparison =
+                statusOrder[a.claimStatus] - statusOrder[b.claimStatus];
+              return sortDirection === 'asc' ? comparison : -comparison;
+            });
+          }
+
+          return {
+            rewards: result,
+            total,
+            page,
+            limit,
+            totalPages: Math.ceil(total / limit),
+          };
+        });
+
+      /**
+       * Get season reward statistics (admin)
+       */
+      const getSeasonRewardStats = (input: GetSeasonRewardStatsInput) =>
+        Effect.gen(function* () {
+          const { seasonId } = input;
+
+          // Get season info
+          const [season] = yield* db
+            .use((database) =>
+              database
+                .select({ name: seasons.name })
+                .from(seasons)
+                .where(eq(seasons.id, seasonId)),
+            )
+            .pipe(Effect.orDie);
+
+          // Get total rewards and user count
+          const [rewardStats] = yield* db
+            .use((database) =>
+              database
+                .select({
+                  totalUsers: count(),
+                  totalRewardAmount: sum(userSeasonReward.amount),
+                })
+                .from(userSeasonReward)
+                .where(eq(userSeasonReward.seasonId, seasonId)),
+            )
+            .pipe(Effect.orDie);
+
+          // Get claim statistics
+          const [claimStats] = yield* db
+            .use((database) =>
+              database
+                .select({
+                  totalClaimedAmount: sum(userSeasonRewardClaims.amount),
+                })
+                .from(userSeasonRewardClaims)
+                .where(
+                  and(
+                    eq(userSeasonRewardClaims.seasonId, seasonId),
+                    eq(userSeasonRewardClaims.status, 'success'),
+                  ),
+                ),
+            )
+            .pipe(Effect.orDie);
+
+          return {
+            seasonName: season?.name ?? 'Unknown',
+            totalUsers: rewardStats?.totalUsers ?? 0,
+            totalRewardAmount: rewardStats?.totalRewardAmount ?? '0',
+            totalClaimedAmount: claimStats?.totalClaimedAmount ?? '0',
+          };
+        });
+
+      /**
+       * Get all season rewards for a user
+       */
+      const getUserSeasonRewardsByUser = (
+        input: GetUserSeasonRewardsByUserInput,
+      ) =>
+        db
+          .use((database) =>
+            database
+              .select({
+                userId: userSeasonReward.userId,
+                seasonId: userSeasonReward.seasonId,
+                amount: userSeasonReward.amount,
+              })
+              .from(userSeasonReward)
+              .where(eq(userSeasonReward.userId, input.userId)),
+          )
+          .pipe(Effect.orDie);
+
+      /**
+       * Get claims for a user's season reward by userId and seasonId
+       */
+      const getUserSeasonRewardClaims = (
+        input: GetUserSeasonRewardClaimsInput,
+      ) =>
+        db
+          .use((database) =>
+            database
+              .select({
+                amount: userSeasonRewardClaims.amount,
+                status: userSeasonRewardClaims.status,
+                transactionId: userSeasonRewardClaims.transactionId,
+                createdAt: userSeasonRewardClaims.createdAt,
+              })
+              .from(userSeasonRewardClaims)
+              .where(
+                and(
+                  eq(userSeasonRewardClaims.userId, input.userId),
+                  eq(userSeasonRewardClaims.seasonId, input.seasonId),
+                ),
+              )
+              .orderBy(desc(userSeasonRewardClaims.createdAt)),
+          )
+          .pipe(Effect.orDie);
+
+      /**
+       * Get all claims for a user across all seasons
+       */
+      const getAllUserSeasonRewardClaims = (
+        input: GetUserSeasonRewardsByUserInput,
+      ) =>
+        db
+          .use((database) =>
+            database
+              .select({
+                seasonId: userSeasonRewardClaims.seasonId,
+                amount: userSeasonRewardClaims.amount,
+                status: userSeasonRewardClaims.status,
+                transactionId: userSeasonRewardClaims.transactionId,
+                createdAt: userSeasonRewardClaims.createdAt,
+              })
+              .from(userSeasonRewardClaims)
+              .where(eq(userSeasonRewardClaims.userId, input.userId))
+              .orderBy(desc(userSeasonRewardClaims.createdAt)),
+          )
+          .pipe(Effect.orDie);
 
       return {
         calculateSeasonReward,
@@ -350,6 +786,11 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
         getUserSeasonPointTotals,
         getSeasonBonuses,
         getTotalSeasonPoints,
+        listUserSeasonRewards,
+        getSeasonRewardStats,
+        getUserSeasonRewardsByUser,
+        getUserSeasonRewardClaims,
+        getAllUserSeasonRewardClaims,
       };
     }),
   },

@@ -41,6 +41,7 @@ function CreateSeasonForm({
       onSubmit({
         name,
         status: 'upcoming',
+        config: {},
       });
     }
   };

@@ -17,7 +17,7 @@ export class VerifyChallengeService extends Effect.Service<VerifyChallengeServic
         Config.withDefault(defaultAppConfig.challengeTTL),
       );
 
-      return Effect.fnUntraced(function* (input: string) {
+      const verifyChallenge = Effect.fnUntraced(function* (input: string) {
         const result = yield* Effect.tryPromise({
           try: () =>
             db
@@ -37,6 +37,28 @@ export class VerifyChallengeService extends Effect.Service<VerifyChallengeServic
 
         return result;
       });
+
+      const challengeExists = Effect.fnUntraced(function* (input: string) {
+        const result = yield* Effect.tryPromise({
+          try: () =>
+            db
+              .select()
+              .from(challenge)
+              .where(
+                and(
+                  eq(challenge.challenge, input),
+                  gt(challenge.createdAt, new Date(Date.now() - challengeTTL)),
+                ),
+              ),
+          catch: (error) => new DbError(error),
+        });
+        return !!result;
+      });
+
+      return {
+        verify: verifyChallenge,
+        exists: challengeExists,
+      };
     }),
   },
 ) {}

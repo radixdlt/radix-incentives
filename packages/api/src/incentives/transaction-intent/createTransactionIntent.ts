@@ -4,7 +4,7 @@ import {
   NetworkId,
   TransactionManifestString,
   TransactionMessageString,
-} from '../schemas/brandedTypes';
+} from 'shared/brandedTypes';
 import {
   ManifestSchema,
   TransactionIntentSchema,

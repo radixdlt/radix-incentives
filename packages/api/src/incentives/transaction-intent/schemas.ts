@@ -6,11 +6,6 @@ import {
 } from '@radixdlt/radix-engine-toolkit';
 import { Effect, Option, Schema } from 'effect';
 import {
-  AccessControllerAddress,
-  AccountAddress,
-  FungibleResourceAddress,
-} from '../account-balance/v2/schemas';
-import {
   Base64String,
   Epoch,
   HexString,
@@ -18,7 +13,12 @@ import {
   Nonce,
   TransactionManifestString,
   TransactionMessageString,
-} from '../schemas/brandedTypes';
+} from 'shared/brandedTypes';
+import {
+  AccessControllerAddress,
+  AccountAddress,
+  FungibleResourceAddress,
+} from '../account-balance/v2/schemas';
 
 export const Base64FromHexSchema = Schema.asSchema(
   Schema.transformOrFail(HexString, Base64String, {
