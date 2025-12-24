@@ -2,6 +2,7 @@ import BigNumber from 'bignumber.js';
 import { Array as A, Data, Effect, flow, Option, Order, pipe } from 'effect';
 import { NetworkId, type SeasonId } from 'shared/brandedTypes';
 import { GetFungibleBalanceService } from '../../../common/gateway/getFungibleBalance';
+import type { AtLedgerState } from '../../../common/gateway/schemas';
 import { GetResourcePoolUnitsService } from '../../../common/resource-pool/getResourcePoolUnits';
 import {
   AccountAddress,
@@ -64,8 +65,11 @@ export class SeasonVesterService extends Effect.Service<SeasonVesterService>()(
       const getResourcePoolUnitsService = yield* GetResourcePoolUnitsService;
       const getFungibleBalanceService = yield* GetFungibleBalanceService;
 
-      const getVesterInfo = Effect.fn(function* (seasonId: SeasonId) {
-        const seasonConfig = yield* seasonService.getConfig(seasonId);
+      const getVesterInfo = Effect.fn(function* (input: {
+        seasonId: SeasonId;
+        at_ledger_state?: AtLedgerState;
+      }) {
+        const seasonConfig = yield* seasonService.getConfig(input.seasonId);
 
         if (seasonConfig.seasonRewardComponentAddress === null) {
           return yield* Effect.fail(
@@ -83,6 +87,7 @@ export class SeasonVesterService extends Effect.Service<SeasonVesterService>()(
         const vesterState = yield* vesterStateService({
           componentAddress,
           networkId,
+          at_ledger_state: input.at_ledger_state,
         });
 
         const poolAddress = PoolAddress(vesterState.pool);
@@ -96,6 +101,7 @@ export class SeasonVesterService extends Effect.Service<SeasonVesterService>()(
         // Get pool unit info (LP token address and current value)
         const poolInfo = yield* getResourcePoolUnitsService({
           addresses: [poolAddress],
+          at_ledger_state: input.at_ledger_state,
         }).pipe(
           Effect.map(
             flow(
@@ -146,15 +152,20 @@ export class SeasonVesterService extends Effect.Service<SeasonVesterService>()(
       const getAccountBalances = Effect.fn(function* (input: {
         seasonId: SeasonId;
         accounts: readonly AccountWithLabel[];
+        at_ledger_state?: AtLedgerState;
       }) {
         if (input.accounts.length === 0) {
           return A.empty<RewardTokenBalance>();
         }
 
-        const vesterInfo = yield* getVesterInfo(input.seasonId);
+        const vesterInfo = yield* getVesterInfo({
+          seasonId: input.seasonId,
+          at_ledger_state: input.at_ledger_state,
+        });
 
         const balances = yield* getFungibleBalanceService({
           addresses: input.accounts.map((a) => a.address),
+          at_ledger_state: input.at_ledger_state,
         });
 
         // Return balances sorted by balance (descending) with labels

@@ -28,7 +28,7 @@ export class GetComponentStateService extends Effect.Service<GetComponentStateSe
           R extends boolean,
         >(input: {
           addresses: string[];
-          at_ledger_state: AtLedgerState;
+          at_ledger_state?: AtLedgerState;
           schema: StructSchema<T, R>;
           options?: GetEntityDetailsOptions;
         }) {

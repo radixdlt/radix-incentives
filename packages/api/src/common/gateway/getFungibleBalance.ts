@@ -104,7 +104,7 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
           StateEntityDetailsOperationRequest['stateEntityDetailsRequest'],
           'at_ledger_state'
         > & {
-          at_ledger_state: AtLedgerState;
+          at_ledger_state?: AtLedgerState;
           options?: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
         },
       ) {

@@ -166,7 +166,9 @@ export const seasonRewardRouter = createTRPCRouter({
       resolveEffect(
         pipe(
           SeasonVesterService,
-          Effect.flatMap((service) => service.getVesterInfo(input.seasonId)),
+          Effect.flatMap((service) =>
+            service.getVesterInfo({ seasonId: input.seasonId }),
+          ),
           Effect.catchTag('SeasonVesterNotConfiguredError', () =>
             Effect.fail(
               new ResponseError({
