@@ -1,1 +1,0 @@
-Run pnpm biome lint #$ARGUMENTS && pnpm test:ci #$ARGUMENTS in packages/api and fix issues if any
