@@ -1,4 +1,4 @@
-import { Convert } from '@radixdlt/radix-engine-toolkit';
+import { Convert, PublicKey } from '@radixdlt/radix-engine-toolkit';
 import { Context, Data, Effect, Layer, Redacted, Schema } from 'effect';
 import type { HexString } from 'shared/brandedTypes';
 import {
@@ -15,54 +15,73 @@ export class FailedToSignTransactionError extends Data.TaggedError(
 
 export class Signer extends Context.Tag('Signer')<
   Signer,
-  (
-    hash: HexString,
-  ) => Effect.Effect<
-    Ed25519SignatureWithPublicKey[],
-    FailedToSignTransactionError,
-    never
-  >
+  {
+    signToSignatureWithPublicKey: (
+      hash: HexString,
+    ) => Effect.Effect<
+      Ed25519SignatureWithPublicKey[],
+      FailedToSignTransactionError,
+      never
+    >;
+    publicKey: () => Effect.Effect<PublicKey, never, never>;
+  }
 >() {
   static VaultLive = Layer.effect(
     Signer,
     Effect.gen(function* () {
       const vault = yield* Vault;
 
-      return (hash: HexString) =>
-        vault.toSignatureWithPublicKey(hash).pipe(
-          Effect.map((signatureWithPublicKey) => [signatureWithPublicKey]),
-          Effect.catchAll(Effect.die),
-        );
+      return {
+        signToSignatureWithPublicKey: (hash: HexString) =>
+          vault.toSignatureWithPublicKey(hash).pipe(
+            Effect.map((signatureWithPublicKey) => [signatureWithPublicKey]),
+            Effect.catchAll(Effect.die),
+          ),
+        publicKey: () =>
+          vault
+            .getPublicKey()
+            .pipe(Effect.map((publicKey) => new PublicKey.Ed25519(publicKey))),
+      };
     }),
   ).pipe(Layer.provide(Vault.Default));
   static makePrivateKeySigner = (privateKey: Redacted.Redacted<HexString>) =>
     Layer.effect(
       Signer,
       Effect.gen(function* () {
-        return (hash: HexString) =>
-          Effect.gen(function* () {
-            const value = Redacted.value(privateKey);
-            const Ed25519PrivateKey = yield* Schema.decode(
-              Ed25519PrivateKeySchema,
-            )(value);
-            const signatureWithPublicKey =
-              Ed25519PrivateKey.signToSignatureWithPublicKey(
-                Convert.HexString.toUint8Array(hash),
-              );
+        return {
+          signToSignatureWithPublicKey: (hash: HexString) =>
+            Effect.gen(function* () {
+              const value = Redacted.value(privateKey);
+              const Ed25519PrivateKey = yield* Schema.decode(
+                Ed25519PrivateKeySchema,
+              )(value);
+              const signatureWithPublicKey =
+                Ed25519PrivateKey.signToSignatureWithPublicKey(
+                  Convert.HexString.toUint8Array(hash),
+                );
 
-            return [
-              {
-                curve: 'Ed25519' as const,
-                signature: signatureWithPublicKey.signature,
-                publicKey: Ed25519PrivateKey.publicKey().bytes,
-              },
-            ];
-          }).pipe(
-            Effect.orDie,
-            Effect.annotateLogs({
-              signer: 'PrivateKey',
-            }),
-          );
+              return [
+                {
+                  curve: 'Ed25519' as const,
+                  signature: signatureWithPublicKey.signature,
+                  publicKey: Ed25519PrivateKey.publicKey().bytes,
+                },
+              ];
+            }).pipe(
+              Effect.orDie,
+              Effect.annotateLogs({
+                signer: 'PrivateKey',
+              }),
+            ),
+          publicKey: () =>
+            Effect.gen(function* () {
+              const value = Redacted.value(privateKey);
+              const Ed25519PrivateKey = yield* Schema.decode(
+                Ed25519PrivateKeySchema,
+              )(value);
+              return Ed25519PrivateKey.publicKey();
+            }).pipe(Effect.orDie),
+        };
       }),
     );
 }

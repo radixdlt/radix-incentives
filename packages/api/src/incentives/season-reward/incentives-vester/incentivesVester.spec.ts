@@ -15,6 +15,7 @@ import {
   Schema,
 } from 'effect';
 import { HexString } from 'shared/brandedTypes';
+import { UnsecurifiedAccountSchema } from 'shared/schemas/account';
 import { GetFungibleBalanceService } from '../../../common/gateway';
 import { createAccount } from '../../../test-helpers/createAccount';
 import { DisableTestClock } from '../../../test-helpers/disableTestClock';
@@ -22,7 +23,6 @@ import { AccountAddress, Amount } from '../../account-balance/v2/schemas';
 import {
   BadgeSchema,
   Ed25519PrivateKeySchema,
-  UnsecurifiedAccountSchema,
 } from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';
 import {
@@ -31,9 +31,6 @@ import {
 } from '../../transaction-intent/transactionHelper';
 import { IncentivesVesterConfig } from './config';
 import { IncentivesVester } from './incentivesVester';
-
-process.env.NOTARIZER_PRIVATE_KEY =
-  'deadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeefdeadbeef';
 
 const random32BytesHex = () =>
   HexString.make(
@@ -62,6 +59,27 @@ const stokenetTestSetup = DisableTestClock(
         ),
       ),
     );
+
+    if (Option.isNone(config.adminAccount)) {
+      yield* Effect.log('Admin account not found, creating it');
+      const adminAccount = yield* createAccount({
+        networkId: config.networkId,
+      }).pipe(
+        Effect.flatMap((item) =>
+          Schema.decodeUnknown(UnsecurifiedAccountSchema)({
+            type: 'unsecurifiedAccount',
+            address: item.address,
+          }),
+        ),
+      );
+      yield* Ref.update(configRef, (current) => ({
+        ...current,
+        adminAccount: Option.some(adminAccount),
+      }));
+      yield* adminTransactionHelper.faucet({
+        account: adminAccount,
+      });
+    }
 
     const getFungibleBalance = yield* GetFungibleBalanceService.pipe(
       Effect.provide(GetFungibleBalanceService.Default),
@@ -98,8 +116,8 @@ const stokenetTestSetup = DisableTestClock(
         ),
       ),
       Effect.map(AccountAddress),
-      Effect.map((address) =>
-        UnsecurifiedAccountSchema.make({
+      Effect.flatMap((address) =>
+        Schema.decodeUnknown(UnsecurifiedAccountSchema)({
           type: 'unsecurifiedAccount',
           address,
         }),
@@ -149,24 +167,24 @@ const stokenetTestSetup = DisableTestClock(
       });
     }
 
-    if (
-      Option.isNone(config.adminBadge) &&
-      Option.isSome(config.adminAccount)
-    ) {
+    if (Option.isNone(config.adminBadge)) {
       yield* Effect.log('Admin badge not found, creating it');
+      const config = yield* Ref.get(configRef);
+      const adminAccount = Option.getOrThrow(config.adminAccount);
+
       const adminBadge = yield* adminTransactionHelper.createBadge({
-        account: config.adminAccount.value,
-        feePayer: config.adminAccount.value,
+        account: adminAccount,
+        feePayer: adminAccount,
+      });
+
+      const badge = yield* Schema.decodeUnknown(BadgeSchema)({
+        type: 'fungibleResource',
+        resourceAddress: adminBadge,
       });
 
       yield* Ref.update(configRef, (current) => ({
         ...current,
-        adminBadge: Option.some(
-          BadgeSchema.make({
-            type: 'fungibleResource',
-            resourceAddress: adminBadge,
-          }),
-        ),
+        adminBadge: Option.some(badge),
       }));
     }
 
@@ -177,14 +195,14 @@ const stokenetTestSetup = DisableTestClock(
         feePayer: superAdminAccount,
       });
 
+      const badge = yield* Schema.decodeUnknown(BadgeSchema)({
+        type: 'fungibleResource',
+        resourceAddress: superAdminBadge,
+      });
+
       yield* Ref.update(configRef, (current) => ({
         ...current,
-        superAdminBadge: Option.some(
-          BadgeSchema.make({
-            type: 'fungibleResource',
-            resourceAddress: superAdminBadge,
-          }),
-        ),
+        superAdminBadge: Option.some(badge),
       }));
     }
 
@@ -255,8 +273,8 @@ const mainnetTestSetup = DisableTestClock(
         ),
       ),
       Effect.map(AccountAddress),
-      Effect.map((address) =>
-        UnsecurifiedAccountSchema.make({
+      Effect.flatMap((address) =>
+        Schema.decodeUnknown(UnsecurifiedAccountSchema)({
           type: 'unsecurifiedAccount',
           address,
         }),
@@ -314,14 +332,14 @@ const mainnetTestSetup = DisableTestClock(
         feePayer: config.adminAccount.value,
       });
 
+      const badge = yield* Schema.decodeUnknown(BadgeSchema)({
+        type: 'fungibleResource',
+        resourceAddress: adminBadge,
+      });
+
       yield* Ref.update(configRef, (current) => ({
         ...current,
-        adminBadge: Option.some(
-          BadgeSchema.make({
-            type: 'fungibleResource',
-            resourceAddress: adminBadge,
-          }),
-        ),
+        adminBadge: Option.some(badge),
       }));
     }
 
@@ -331,15 +349,14 @@ const mainnetTestSetup = DisableTestClock(
         account: superAdminAccount,
         feePayer: superAdminAccount,
       });
+      const badge = yield* Schema.decodeUnknown(BadgeSchema)({
+        type: 'fungibleResource',
+        resourceAddress: superAdminBadge,
+      });
 
       yield* Ref.update(configRef, (current) => ({
         ...current,
-        superAdminBadge: Option.some(
-          BadgeSchema.make({
-            type: 'fungibleResource',
-            resourceAddress: superAdminBadge,
-          }),
-        ),
+        superAdminBadge: Option.some(badge),
       }));
     }
 

@@ -1,9 +1,11 @@
 import {
+  Convert,
   type NotarizedTransaction,
   RadixEngineToolkit,
   TransactionBuilder as RetTransactionBuilder,
 } from '@radixdlt/radix-engine-toolkit';
 import { Data, Effect, pipe, Schema } from 'effect';
+import { HexString } from 'shared/brandedTypes';
 import { NotaryKeyPair } from './notaryKeyPair';
 import {
   Ed25519SignatureWithPublicKeySchema,
@@ -41,7 +43,11 @@ export class CompileTransaction extends Effect.Service<CompileTransaction>()(
       ).pipe(Effect.catchAll(Effect.orDie));
 
       const notarySignToSignature = (hash: Uint8Array<ArrayBufferLike>) =>
-        notaryKeyPair.signToSignature(hash).pipe(Effect.runSync);
+        pipe(
+          Convert.Uint8Array.toHexString(hash),
+          HexString.make,
+          notaryKeyPair.signToSignature,
+        ).pipe(Effect.runPromise);
 
       const notarizeTransaction = (input: CompileTransactionInput) =>
         Effect.gen(function* () {
@@ -59,7 +65,7 @@ export class CompileTransaction extends Effect.Service<CompileTransaction>()(
                     (builder, signature) => builder.sign(signature),
                     builder,
                   ),
-                (builder) => builder.notarize(notarySignToSignature),
+                (builder) => builder.notarizeAsync(notarySignToSignature),
               ),
             catch: (error) => new FailedToNotarizeTransactionError({ error }),
           });

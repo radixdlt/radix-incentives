@@ -142,7 +142,7 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
             Effect.flatMap((response) => response.json),
             Effect.flatMap(Schema.decodeUnknown(PublicKeyResponseSchema)),
           );
-      });
+      }).pipe(Effect.orDie);
 
     const toSignatureWithPublicKey = (hash: HexString) =>
       Effect.gen(function* () {

@@ -15,15 +15,18 @@ import {
   Schema,
 } from 'effect';
 import {
+  Amount,
+  FungibleResourceAddress,
   NetworkId,
   type TransactionId,
   TransactionManifestString,
 } from 'shared/brandedTypes';
+import type { Account } from 'shared/schemas/account';
 import {
   GatewayApiClientService,
   GetFungibleBalanceService,
 } from '../../common/gateway';
-import { Amount, FungibleResourceAddress } from '../account-balance/v2/schemas';
+
 import { CompileTransaction } from './compileTransaction';
 import { CreateTransactionIntent } from './createTransactionIntent';
 import { EpochService } from './epoch';
@@ -32,7 +35,7 @@ import { createBadge as createBadgeManifest } from './manifests/createBadge';
 import { createFungibleTokenManifest } from './manifests/createFungibleToken';
 import { faucet as faucetManifest } from './manifests/faucet';
 import { ManifestHelper } from './manifests/manifestHelper';
-import type { Account, TransactionIntent } from './schemas';
+import type { TransactionIntent } from './schemas';
 import { Signer } from './signer/signer';
 import { SubmitTransaction } from './submitTransaction';
 import { TransactionStatus } from './transactionStatus';
@@ -251,7 +254,7 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
 
           return yield* Effect.gen(function* () {
             yield* Effect.log('Collecting signatures');
-            const signatures = yield* signer(hash);
+            const signatures = yield* signer.signToSignatureWithPublicKey(hash);
 
             const compiledTransaction = yield* compileTransaction({
               intent,
@@ -343,7 +346,7 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
           manifest: createBadgeManifest(input.account),
           feePayer: {
             account: input.feePayer,
-            amount: Amount('10'),
+            amount: Amount.make('10'),
           },
         }).pipe(
           Effect.flatMap(({ id }) =>
@@ -359,7 +362,7 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
               Option.flatMap(A.head),
               Option.flatMap(R.get('resource_address')),
               Option.getOrThrow,
-              FungibleResourceAddress,
+              FungibleResourceAddress.make,
             ),
           ),
         );
@@ -375,7 +378,7 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
           manifest: createFungibleTokenManifest(input),
           feePayer: {
             account: input.feePayer,
-            amount: Amount('10'),
+            amount: Amount.make('10'),
           },
         }).pipe(
           Effect.flatMap(({ id }) =>
@@ -391,7 +394,7 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
               Option.flatMap(A.head),
               Option.flatMap(R.get('resource_address')),
               Option.getOrThrow,
-              FungibleResourceAddress,
+              FungibleResourceAddress.make,
             ),
           ),
         );

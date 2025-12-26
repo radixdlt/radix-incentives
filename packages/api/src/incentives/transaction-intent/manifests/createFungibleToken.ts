@@ -1,5 +1,5 @@
 import { type Amount, TransactionManifestString } from 'shared/brandedTypes';
-import type { Account } from '../schemas';
+import type { Account } from 'shared/schemas/account';
 
 export const createFungibleTokenManifest = (input: {
   name: string;

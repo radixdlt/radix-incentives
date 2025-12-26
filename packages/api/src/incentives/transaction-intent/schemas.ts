@@ -8,17 +8,13 @@ import { Effect, Option, Schema } from 'effect';
 import {
   Base64String,
   Epoch,
+  FungibleResourceAddress,
   HexString,
   NetworkId,
   Nonce,
   TransactionManifestString,
   TransactionMessageString,
 } from 'shared/brandedTypes';
-import {
-  AccessControllerAddress,
-  AccountAddress,
-  FungibleResourceAddress,
-} from '../account-balance/v2/schemas';
 
 export const Base64FromHexSchema = Schema.asSchema(
   Schema.transformOrFail(HexString, Base64String, {
@@ -196,33 +192,31 @@ export type Ed25519SignatureWithPublicKey =
 export type Ed25519SignatureWithPublicKeyEncoded =
   typeof Ed25519SignatureWithPublicKeySchema.Encoded;
 
-export const UnsecurifiedAccountSchema = Schema.Struct({
-  type: Schema.Literal('unsecurifiedAccount'),
-  address: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
-});
-
-export const SecurifiedAccountSchema = Schema.Struct({
-  type: Schema.Literal('securifiedAccount'),
-  address: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
-  accessControllerAddress: Schema.String.pipe(
-    Schema.fromBrand(AccessControllerAddress),
-  ),
-});
-
-export const AccountSchema = Schema.Union(
-  UnsecurifiedAccountSchema,
-  SecurifiedAccountSchema,
-);
-
-export type UnsecurifiedAccount = typeof UnsecurifiedAccountSchema.Type;
-export type SecurifiedAccount = typeof SecurifiedAccountSchema.Type;
-export type Account = typeof AccountSchema.Type;
-
-export const BadgeSchema = Schema.Struct({
+export const BadgeDecodedSchema = Schema.Struct({
   type: Schema.Literal('fungibleResource'),
-  resourceAddress: Schema.String.pipe(
-    Schema.fromBrand(FungibleResourceAddress),
-  ),
+  resourceAddress: FungibleResourceAddress,
 });
+
+export const BadgeSchema = Schema.transformOrFail(
+  Schema.Struct({
+    type: Schema.String,
+    resourceAddress: Schema.String,
+  }),
+  BadgeDecodedSchema,
+  {
+    strict: true,
+    decode: (value) =>
+      Effect.succeed(
+        Schema.Struct({
+          type: Schema.Literal('fungibleResource'),
+          resourceAddress: FungibleResourceAddress,
+        }).make({
+          type: 'fungibleResource',
+          resourceAddress: FungibleResourceAddress.make(value.resourceAddress),
+        }),
+      ),
+    encode: (value) => Effect.succeed(value),
+  },
+);
 
 export type Badge = typeof BadgeSchema.Type;
