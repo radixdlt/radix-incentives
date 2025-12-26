@@ -1,19 +1,17 @@
-import {
-  FetchHttpClient,
-  FileSystem,
-  HttpBody,
-  HttpClient,
-} from '@effect/platform';
-import { NodeFileSystem } from '@effect/platform-node';
+import { FileSystem, HttpBody, HttpClient } from '@effect/platform';
+import { NodeFileSystem, NodeHttpClient } from '@effect/platform-node';
 import {
   Array as A,
   Config,
+  Duration,
   Effect,
+  Layer,
   Option,
   ParseResult,
   pipe,
   Record as R,
   String as S,
+  Schedule,
   Schema,
 } from 'effect';
 import { Base64String, HexString } from 'shared/brandedTypes';
@@ -114,31 +112,67 @@ const getVaultToken = (fs: FileSystem.FileSystem) =>
     return yield* Config.string('VAULT_TOKEN');
   });
 
+const NodeHttpClientLive = NodeHttpClient.layerWithoutAgent.pipe(
+  Layer.provide(
+    NodeHttpClient.makeAgentLayer({
+      rejectUnauthorized: false, // Allow self-signed certificates for internal cluster traffic
+    }),
+  ),
+);
+
 export class Vault extends Effect.Service<Vault>()('Vault', {
-  dependencies: [FetchHttpClient.layer, NodeFileSystem.layer],
+  dependencies: [NodeHttpClientLive, NodeFileSystem.layer],
   effect: Effect.gen(function* () {
     const keyName = yield* Config.string('VAULT_KEY_NAME').pipe(
       Config.withDefault('xrd-distribution'),
     );
 
     const baseUrl = yield* Config.string('VAULT_BASE_URL').pipe(
-      Config.withDefault('http://localhost:8200/v1'),
+      Config.withDefault('http://localhost:8200'),
       Effect.orDie,
     );
 
-    const httpClient = yield* HttpClient.HttpClient;
+    const httpClient = (yield* HttpClient.HttpClient).pipe(
+      HttpClient.retryTransient({
+        schedule: Schedule.exponential(Duration.millis(100)),
+        times: 3,
+      }),
+      HttpClient.tapError((error) =>
+        Effect.logError('Vault request error', { error }),
+      ),
+      HttpClient.tap((response) =>
+        response.json.pipe(
+          Effect.tap((body) =>
+            response.status >= 200 && response.status < 300
+              ? Effect.log({
+                  status: response.status,
+                  url: response.request.url,
+                  body,
+                })
+              : Effect.logError('Vault request failed', {
+                  status: response.status,
+                  url: response.request.url,
+                  body,
+                }),
+          ),
+          Effect.ignore, // Don't fail if body isn't JSON
+        ),
+      ),
+      HttpClient.filterStatusOk,
+    );
     const fs = yield* FileSystem.FileSystem;
 
     const getPublicKey = () =>
       Effect.gen(function* () {
         const token = yield* getVaultToken(fs);
         return yield* httpClient
-          .get(`${baseUrl}/transit/keys/${keyName}`, {
+          .get(`${baseUrl}/v1/transit/keys/${keyName}`, {
             headers: {
               'X-Vault-Token': token,
             },
           })
           .pipe(
+            Effect.tapError(Effect.logError),
             Effect.flatMap((response) => response.json),
             Effect.flatMap(Schema.decodeUnknown(PublicKeyResponseSchema)),
           );
@@ -149,7 +183,7 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
         const token = yield* getVaultToken(fs);
 
         const signature = yield* httpClient
-          .post(`${baseUrl}/transit/sign/${keyName}`, {
+          .post(`${baseUrl}/v1/transit/sign/${keyName}`, {
             headers: {
               'X-Vault-Token': token,
               'Content-Type': 'application/json',
@@ -164,6 +198,7 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
           })
           .pipe(
             Effect.flatMap((response) => response.json),
+            Effect.tap((response) => Effect.log(response)),
             Effect.flatMap(Schema.decodeUnknown(SignResponseSchema)),
           );
 

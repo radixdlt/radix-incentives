@@ -1,4 +1,5 @@
 import type { SeasonRewardWorkerInput } from 'api/incentives/season-reward/seasonRewardWorker';
+import { workerRuntime } from 'api/incentives/snapshot/v2/runtime';
 import { Effect } from 'effect';
 import { redisClient } from '../../redis';
 import { createQueue } from '../createQueue';
@@ -13,16 +14,14 @@ export const seasonRewardClaimQueue = createQueue<
   redisClient,
   worker: seasonRewardClaimWorker,
   onError: async (job, error) => {
-    Effect.runSync(
-      Effect.gen(function* () {
-        yield* Effect.logError({
-          jobId: job?.id,
-          jobName: job?.name,
-          input: job?.data,
-          error: error.message,
-          stack: error.stack,
-          failedReason: error.cause,
-        });
+    workerRuntime.runSync(
+      Effect.logError({
+        jobId: job?.id,
+        jobName: job?.name,
+        input: job?.data,
+        error: error.message,
+        stack: error.stack,
+        failedReason: error.cause,
       }),
     );
   },

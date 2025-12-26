@@ -1,4 +1,4 @@
-import { Data, Duration, Effect, Layer, Option, Ref, Schema } from 'effect';
+import { Data, Duration, Effect, Option, Ref, Schema } from 'effect';
 import {
   AccountAddress,
   Amount,
@@ -43,10 +43,6 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
       SeasonRewardClaim.Default,
       RedisLock.Default,
       SeasonService.Default,
-      Layer.effect(
-        IncentivesVesterConfig,
-        IncentivesVesterConfig.MainnetConfig,
-      ),
     ],
     effect: Effect.gen(function* () {
       const incentivesVester = yield* IncentivesVester;
