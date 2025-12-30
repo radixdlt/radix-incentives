@@ -42,6 +42,25 @@ jobs:
       - uses: RDXWorks-actions/checkout@main
         with:
           fetch-depth: 0
+      - name: Determine environment and extract DAPP_DEFINITION_ADDRESS
+        id: extract-dapp-address
+        run: |
+          # Determine environment based on event type
+          if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+            ENV_NAME="pr"
+          elif [[ "${{ github.event_name }}" == "release" ]]; then
+            ENV_NAME="prod"
+          elif [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            ENV_NAME="${{ github.event.inputs.environment }}"
+          else
+            ENV_NAME="dev"
+          fi
+          echo "environment=$ENV_NAME" >> $GITHUB_OUTPUT
+          
+          # Extract DAPP_DEFINITION_ADDRESS from the helm file
+          HELM_FILE="deploy/helm/environments/${ENV_NAME}/incentives.yaml.gotmpl"
+          DAPP_ADDRESS=$(grep 'DAPP_DEFINITION_ADDRESS:' "$HELM_FILE" | sed 's/.*DAPP_DEFINITION_ADDRESS:[[:space:]]*"\(.*\)"/\1/')
+          echo "dapp-definition-address=$DAPP_ADDRESS" >> $GITHUB_OUTPUT
       - name: Docker tags for incentives
         id: incentives-tags
         uses: RDXWorks-actions/metadata-action@master
@@ -98,7 +117,7 @@ jobs:
       worker-tags: ${{ steps.worker-tags.outputs.tags }}
       worker-labels: ${{ steps.worker-tags.outputs.labels }}
       worker-json: ${{ steps.worker-tags.outputs.json }}
-      dapp-definition-address: ${{ vars.DAPP_DEFINITION_ADDRESS }}
+      dapp-definition-address: ${{ steps.extract-dapp-address.outputs.dapp-definition-address }}
 
   push-incentives:
     name: Docker incentives

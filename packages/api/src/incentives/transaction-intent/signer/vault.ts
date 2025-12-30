@@ -141,22 +141,18 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
         Effect.logError('Vault request error', { error }),
       ),
       HttpClient.tap((response) =>
-        response.json.pipe(
-          Effect.tap((body) =>
-            response.status >= 200 && response.status < 300
-              ? Effect.log({
-                  status: response.status,
-                  url: response.request.url,
-                  body,
-                })
-              : Effect.logError('Vault request failed', {
+        response.status >= 200 && response.status < 300
+          ? Effect.void
+          : response.json.pipe(
+              Effect.tap((body) =>
+                Effect.logError('Vault request failed', {
                   status: response.status,
                   url: response.request.url,
                   body,
                 }),
-          ),
-          Effect.ignore, // Don't fail if body isn't JSON
-        ),
+              ),
+              Effect.ignore, // Don't fail if body isn't JSON
+            ),
       ),
       HttpClient.filterStatusOk,
     );
