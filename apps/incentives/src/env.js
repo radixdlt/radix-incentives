@@ -20,6 +20,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED: z.string().optional(),
+    NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS: z.string(),
   },
 
   /**
@@ -32,6 +33,8 @@ export const env = createEnv({
     DATABASE_URL: process.env.DATABASE_URL,
     NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED:
       process.env.NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED,
+    NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS:
+      process.env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS,
   },
   /**
    * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation. This is especially

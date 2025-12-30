@@ -23,6 +23,10 @@ RUN turbo prune incentives --docker
 # Development dependencies installation stage
 FROM base AS installer
 
+# Build-time argument for Next.js public env var
+ARG NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS
+ENV NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=${NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS}
+
 COPY --from=builder /app/out/json/ .
 RUN pnpm install
 
