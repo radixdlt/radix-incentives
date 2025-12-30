@@ -98,6 +98,7 @@ jobs:
       worker-tags: ${{ steps.worker-tags.outputs.tags }}
       worker-labels: ${{ steps.worker-tags.outputs.labels }}
       worker-json: ${{ steps.worker-tags.outputs.json }}
+      dapp-definition-address: ${{ vars.DAPP_DEFINITION_ADDRESS }}
 
   push-incentives:
     name: Docker incentives
@@ -118,6 +119,8 @@ jobs:
       scan_image: false
       provenance: false
       with_sbom: false
+      build-args: |
+        NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS=${{ needs.setup-tags.outputs.dapp-definition-address }}
 
   push-admin:
     name: Docker admin
