@@ -5,11 +5,11 @@ import {
   type Persona,
   RadixDappToolkit,
 } from '@radixdlt/radix-dapp-toolkit';
-
 import { createContext, useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { usePersonaConnectionWarning } from '~/components/ui/PersonaConnectionWarning';
 import { useReferrerInputModal } from '~/components/ui/ReferrerInputModal';
+import { env } from '~/env';
 import { useReferralCode } from '~/lib/hooks/useReferralCode';
 import { api } from '~/trpc/react';
 
@@ -41,8 +41,7 @@ export function RadixDappToolkitProvider(props: { children: React.ReactNode }) {
     const rdt =
       rdtSingleton ??
       RadixDappToolkit({
-        dAppDefinitionAddress:
-          'account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh',
+        dAppDefinitionAddress: env.NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS,
         networkId: 1,
         onDisconnect: async () => {
           // Only sign out if we actually had a persona connected

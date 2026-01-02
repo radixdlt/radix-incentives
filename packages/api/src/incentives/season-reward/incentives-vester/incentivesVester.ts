@@ -337,7 +337,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
   },
 ) {
   static MainnetLive = IncentivesVester.Default.pipe(
-    Layer.provide(
+    Layer.provideMerge(
       Layer.mergeAll(
         Signer.VaultLive,
         Layer.effect(

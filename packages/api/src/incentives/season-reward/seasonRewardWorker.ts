@@ -1,4 +1,4 @@
-import { Data, Duration, Effect, Layer, Option, Ref, Schema } from 'effect';
+import { Data, Duration, Effect, Option, Ref, Schema } from 'effect';
 import {
   AccountAddress,
   Amount,
@@ -43,10 +43,6 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
       SeasonRewardClaim.Default,
       RedisLock.Default,
       SeasonService.Default,
-      Layer.effect(
-        IncentivesVesterConfig,
-        IncentivesVesterConfig.MainnetConfig,
-      ),
     ],
     effect: Effect.gen(function* () {
       const incentivesVester = yield* IncentivesVester;
@@ -108,9 +104,14 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
       const claim = (input: typeof SeasonRewardWorkerInputSchema.Type) =>
         Effect.gen(function* () {
           const { seasonId, userId, claimAmount, accountAddress } = input;
-          const seasonConfig = yield* seasonService.getConfig(seasonId);
+          const {
+            adminAccount,
+            adminBadge,
+            rewardsResourceAddress,
+            seasonRewardComponentAddress,
+          } = yield* seasonService.getConfig(seasonId);
 
-          if (seasonConfig.seasonRewardComponentAddress === null) {
+          if (seasonRewardComponentAddress === null) {
             return yield* Effect.die(
               new MissingConfigError({
                 message: 'Season reward component address not configured',
@@ -118,12 +119,36 @@ export class SeasonRewardWorker extends Effect.Service<SeasonRewardWorker>()(
             );
           }
 
-          const seasonRewardComponentAddress =
-            seasonConfig.seasonRewardComponentAddress;
+          if (adminAccount === null) {
+            return yield* Effect.die(
+              new MissingConfigError({
+                message: 'Admin account not configured',
+              }),
+            );
+          }
+
+          if (adminBadge === null) {
+            return yield* Effect.die(
+              new MissingConfigError({
+                message: 'Admin badge not configured',
+              }),
+            );
+          }
+
+          if (rewardsResourceAddress === null) {
+            return yield* Effect.die(
+              new MissingConfigError({
+                message: 'Rewards resource address not configured',
+              }),
+            );
+          }
 
           yield* Ref.update(incentivesVesterConfig, (config) => ({
             ...config,
             componentAddress: Option.some(seasonRewardComponentAddress),
+            adminAccount: Option.some(adminAccount),
+            adminBadge: Option.some(adminBadge),
+            rewardsResourceAddress: rewardsResourceAddress,
           }));
 
           // prevents multiple claims of the same season reward

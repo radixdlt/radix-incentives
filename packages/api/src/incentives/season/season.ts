@@ -9,9 +9,15 @@ import {
   Record as R,
   Schema,
 } from 'effect';
-import { ComponentAddress, type SeasonId } from 'shared/brandedTypes';
+import {
+  ComponentAddress,
+  FungibleResourceAddress,
+  type SeasonId,
+} from 'shared/brandedTypes';
+import { AccountSchema } from 'shared/schemas/account';
 import { z } from 'zod';
 import { DbClientService, DbError, dbClientLive } from '../db/dbClient';
+import { BadgeSchema } from '../transaction-intent/schemas';
 
 class NotFound extends Data.TaggedError('NotFound')<{
   message: string;
@@ -32,7 +38,11 @@ export type EditSeasonInput = z.infer<typeof EditSeasonSchema>;
 
 export const SeasonConfigSchema = Schema.Struct({
   seasonRewardComponentAddress: Schema.NullOr(ComponentAddress),
+  adminAccount: Schema.NullOr(AccountSchema),
+  rewardsResourceAddress: Schema.NullOr(FungibleResourceAddress),
+  adminBadge: Schema.NullOr(BadgeSchema),
 });
+
 export type SeasonConfig = typeof SeasonConfigSchema.Type;
 
 export class SeasonService extends Effect.Service<SeasonService>()(
@@ -135,26 +145,55 @@ export class SeasonService extends Effect.Service<SeasonService>()(
           });
         }),
         getConfig: (seasonId: SeasonId) =>
-          Effect.gen(function* () {
-            const config = yield* Effect.tryPromise({
-              try: () =>
-                db
-                  .select({ config: seasons.config })
-                  .from(seasons)
-                  .where(eq(seasons.id, seasonId)),
-              catch: (error) => new DbError(error),
-            }).pipe(
-              Effect.map(
-                flow(
-                  A.head,
-                  Option.flatMap(R.get('config')),
-                  Option.getOrElse(() => ({})),
-                ),
+          Effect.tryPromise({
+            try: () =>
+              db
+                .select({ config: seasons.config })
+                .from(seasons)
+                .where(eq(seasons.id, seasonId)),
+            catch: (error) => new DbError(error),
+          }).pipe(
+            Effect.flatMap(
+              flow(
+                A.head,
+                Option.flatMap(R.get('config')),
+                Option.match({
+                  onNone: () =>
+                    Effect.succeed({
+                      seasonRewardComponentAddress: null,
+                      adminAccount: null,
+                      rewardsResourceAddress: null,
+                      adminBadge: null,
+                    }),
+                  onSome: (config) =>
+                    Schema.decodeUnknown(
+                      Schema.Struct({
+                        seasonRewardComponentAddress: Schema.optional(
+                          Schema.NullOr(ComponentAddress),
+                        ),
+                        adminAccount: Schema.optional(
+                          Schema.NullOr(AccountSchema),
+                        ),
+                        rewardsResourceAddress: Schema.optional(
+                          Schema.NullOr(FungibleResourceAddress),
+                        ),
+                        adminBadge: Schema.optional(Schema.NullOr(BadgeSchema)),
+                      }),
+                    )(config).pipe(
+                      Effect.map((partialConfig) => ({
+                        seasonRewardComponentAddress:
+                          partialConfig.seasonRewardComponentAddress ?? null,
+                        adminAccount: partialConfig.adminAccount ?? null,
+                        rewardsResourceAddress:
+                          partialConfig.rewardsResourceAddress ?? null,
+                        adminBadge: partialConfig.adminBadge ?? null,
+                      })),
+                    ),
+                }),
               ),
-            );
-
-            return yield* Schema.decodeUnknown(SeasonConfigSchema)(config);
-          }).pipe(Effect.orDie),
+            ),
+            Effect.orDie,
+          ),
         updateConfig: Effect.fn(function* (
           seasonId: SeasonId,
           config: SeasonConfig,

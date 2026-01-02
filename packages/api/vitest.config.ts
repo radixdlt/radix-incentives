@@ -4,6 +4,13 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    env: {
+      DAPP_DEFINITION_ADDRESS:
+        'account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh',
+      DATABASE_URL:
+        'postgres://postgres:password@localhost:5432/radix-incentives',
+      WORKERS_API_BASE_URL: 'http://localhost:3003',
+    },
     globalSetup: './src/test-config/global-setup.ts',
     setupFiles: ['./src/test-config/setup.ts'],
     testTimeout: 30_000, // 30 seconds global timeout

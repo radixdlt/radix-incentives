@@ -10,9 +10,12 @@ import {
 } from 'shared/brandedTypes';
 import {
   AccountSchema,
+  SecurifiedAccountDecodedSchema,
+  UnsecurifiedAccountDecodedSchema,
+} from 'shared/schemas/account';
+import {
+  BadgeDecodedSchema,
   BadgeSchema,
-  SecurifiedAccountSchema,
-  UnsecurifiedAccountSchema,
 } from '../../transaction-intent/schemas';
 
 export const IncentivesVesterConfigSchema = Schema.Struct({
@@ -38,7 +41,7 @@ const createConfig = (input: {
       Config.option,
       Effect.map(
         Option.map((item) =>
-          BadgeSchema.make({
+          BadgeDecodedSchema.make({
             type: 'fungibleResource',
             resourceAddress: FungibleResourceAddress.make(item),
           }),
@@ -52,7 +55,7 @@ const createConfig = (input: {
       Config.option,
       Effect.map(
         Option.map((item) =>
-          BadgeSchema.make({
+          BadgeDecodedSchema.make({
             type: 'fungibleResource',
             resourceAddress: FungibleResourceAddress.make(item),
           }),
@@ -73,12 +76,12 @@ const createConfig = (input: {
         accessControllerAddress.pipe(
           Option.match({
             onNone: () =>
-              UnsecurifiedAccountSchema.make({
+              UnsecurifiedAccountDecodedSchema.make({
                 type: 'unsecurifiedAccount',
                 address: adminAccountAdress,
               }),
             onSome: (accessControllerAddress) => {
-              return SecurifiedAccountSchema.make({
+              return SecurifiedAccountDecodedSchema.make({
                 type: 'securifiedAccount',
                 address: adminAccountAdress,
                 accessControllerAddress,
@@ -102,12 +105,12 @@ const createConfig = (input: {
         superAdminAccessControllerAddress.pipe(
           Option.match({
             onNone: () =>
-              UnsecurifiedAccountSchema.make({
+              UnsecurifiedAccountDecodedSchema.make({
                 type: 'unsecurifiedAccount',
                 address,
               }),
             onSome: (accessControllerAddress) =>
-              SecurifiedAccountSchema.make({
+              SecurifiedAccountDecodedSchema.make({
                 type: 'securifiedAccount',
                 address,
                 accessControllerAddress,

@@ -33,7 +33,7 @@
 		"@radix-ui/react-tooltip": "^1.2.8",
 		"@radixdlt/radix-dapp-toolkit": "^2.2.1",
 		"@t3-oss/env-nextjs": "catalog:",
-		"@tanstack/react-form": "^1.27.0",
+		"@tanstack/react-form": "catalog:",
 		"@tanstack/react-query": "catalog:",
 		"@tanstack/zod-form-adapter": "^0.42.1",
 		"@trpc/client": "catalog:",

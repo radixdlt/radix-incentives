@@ -1,6 +1,6 @@
 import { TRPCError } from '@trpc/server';
 import { Effect, Exit, Schema } from 'effect';
-import { ComponentAddress, SeasonId } from 'shared/brandedTypes';
+import { SeasonId } from 'shared/brandedTypes';
 import { z } from 'zod';
 import { resolveEffect } from '../runtime';
 import {
@@ -9,7 +9,12 @@ import {
 } from '../season-reward/seasonReward';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 import { effectSchemaParser } from '../trpc/helpers';
-import { CreateSeasonSchema, EditSeasonSchema, SeasonService } from './season';
+import {
+  CreateSeasonSchema,
+  EditSeasonSchema,
+  SeasonConfigSchema,
+  SeasonService,
+} from './season';
 
 export const seasonRouter = createTRPCRouter({
   getSeasons: publicProcedure.query(async ({ ctx }) => {
@@ -266,7 +271,7 @@ export const adminSeasonRouter = createTRPCRouter({
       effectSchemaParser(
         Schema.Struct({
           seasonId: SeasonId,
-          seasonRewardComponentAddress: Schema.NullOr(ComponentAddress),
+          config: SeasonConfigSchema,
         }),
       ),
     )
@@ -274,9 +279,7 @@ export const adminSeasonRouter = createTRPCRouter({
       resolveEffect(
         Effect.gen(function* () {
           const seasonService = yield* SeasonService;
-          yield* seasonService.updateConfig(input.seasonId, {
-            seasonRewardComponentAddress: input.seasonRewardComponentAddress,
-          });
+          yield* seasonService.updateConfig(input.seasonId, input.config);
           return { success: true };
         }),
       ),

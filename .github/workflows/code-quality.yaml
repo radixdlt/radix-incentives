@@ -73,6 +73,7 @@ jobs:
         env:
           DATABASE_URL: postgres://postgres:password@localhost:5432/radix-incentives
           WORKERS_API_BASE_URL: http://localhost:3003
+          NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS: account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73w8rd2fek4cryaemewh
 
       - name: Upload test coverage
         if: always()
