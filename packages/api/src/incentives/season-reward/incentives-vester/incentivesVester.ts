@@ -5,6 +5,7 @@ import {
   Duration,
   Effect,
   flow,
+  identity,
   Layer,
   Option,
   pipe,
@@ -25,13 +26,19 @@ import {
   TransactionLifeCycleHook,
 } from '../../transaction-intent/transactionHelper';
 import { IncentivesVesterConfig } from './config';
-import { IncentivesVesterSchema } from './schemas';
+import { IncentivesVester as IncentivesVesterSchema } from './schemas';
 
 export class MissingConfigError extends Data.TaggedError('MissingConfigError')<{
   message: string;
 }> {}
 
 export class NotFoundError extends Data.TaggedError('NotFoundError')<{
+  message: string;
+}> {}
+
+export class VesterComponentNotFoundError extends Data.TaggedError(
+  'VesterComponentNotFoundError',
+)<{
   message: string;
 }> {}
 
@@ -72,6 +79,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
           vestDuration: Duration.Duration;
           preClaimPeriod: Duration.Duration;
           initialVestedFraction: number;
+          existingLockerAddress: Option.Option<ComponentAddress>;
         }) =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
@@ -87,13 +95,6 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                   message: 'Super admin badge not found',
                 }),
             );
-            const dappDefinitionAccount = Option.getOrThrowWith(
-              config.dappDefinitionAccount,
-              () =>
-                new MissingConfigError({
-                  message: 'Dapp definition account not found',
-                }),
-            );
             const superAdminAccount = Option.getOrThrowWith(
               config.superAdminAccount,
               () =>
@@ -102,21 +103,33 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 }),
             );
 
+            const lockerEnum = pipe(
+              input.existingLockerAddress,
+              Option.match({
+                onNone: () => 'Enum<0u8>()',
+                onSome: (addr) => `Enum<1u8>(Address("${addr}"))`,
+              }),
+            );
+
             const manifest = TransactionManifestString.make(`
               CALL_FUNCTION
                 Address("${config.packageAddress}")
                 "IncentivesVester"
                 "instantiate"
-                Address("${adminBadge.resourceAddress}") # admin badge for backend, create yourself in advance
-                Address("${superAdminBadge.resourceAddress}") # super admin badge, create yourself in advance
-                ${input.vestDuration.pipe(Duration.toDays)}i64 # vest duration in days
-                Decimal("${input.initialVestedFraction}") # initial vested fraction (20%)
-                ${input.preClaimPeriod.pipe(Duration.toSeconds)}i64 # pre-claim period in seconds (1 day)
+                Address("${adminBadge.resourceAddress}") # admin badge for backend
+                Address("${superAdminBadge.resourceAddress}") # super admin badge
+                ${input.vestDuration.pipe(Duration.toSeconds)}i64 # vest duration in seconds
+                Decimal("${input.initialVestedFraction}") # initial vested fraction
+                ${input.preClaimPeriod.pipe(Duration.toSeconds)}i64 # pre-claim period in seconds
                 Address("${config.rewardsResourceAddress}") # XRD
-                Address("${dappDefinitionAccount.address}") # No need to care about this when testing
+                ${lockerEnum} # existing locker or create new
               ;`);
 
             const transactionHelper = yield* getTransactionHelper;
+
+            const getComponentState = yield* GetComponentStateService.pipe(
+              Effect.provide(GetComponentStateService.Default),
+            );
 
             return yield* transactionHelper
               .submitTransaction({
@@ -133,16 +146,49 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                     id,
                   }),
                 ),
-                Effect.map((result) =>
+                // Extract all component addresses and find the vester by validation
+                Effect.flatMap((result) =>
                   pipe(
                     Option.fromNullable(
                       result.transaction?.affected_global_entities,
                     ),
-                    Option.flatMap(
-                      A.findFirst((item) => item.startsWith('component_')),
+                    Option.map(
+                      A.filter((item) => item.startsWith('component_')),
                     ),
-                    Option.getOrThrow,
-                    ComponentAddress,
+                    Option.getOrElse(() => [] as string[]),
+                    // Try each component until we find the vester
+                    (componentAddresses) =>
+                      Effect.forEach(
+                        componentAddresses,
+                        (addr) =>
+                          pipe(
+                            getComponentState.run({
+                              addresses: [ComponentAddress(addr)],
+                              at_ledger_state: { timestamp: new Date() },
+                              schema: IncentivesVesterSchema,
+                            }),
+                            Effect.map(() =>
+                              Option.some(ComponentAddress(addr)),
+                            ),
+                            Effect.catchAll(() =>
+                              Effect.succeed(Option.none()),
+                            ),
+                          ),
+                        { concurrency: 'unbounded' },
+                      ),
+                    Effect.map(A.filterMap(identity)),
+                    Effect.flatMap((validVesters) =>
+                      A.head(validVesters).pipe(
+                        Option.match({
+                          onNone: () =>
+                            new VesterComponentNotFoundError({
+                              message:
+                                'No valid IncentivesVester component found in affected entities',
+                            }),
+                          onSome: Effect.succeed,
+                        }),
+                      ),
+                    ),
                   ),
                 ),
               );

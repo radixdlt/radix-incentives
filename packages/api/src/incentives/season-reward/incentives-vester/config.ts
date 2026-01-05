@@ -167,7 +167,7 @@ export class IncentivesVesterConfig extends Context.Tag(
   static MainnetConfig = createConfig({
     networkId: NetworkId.make(1),
     packageAddress: PackageAddress.make(
-      'package_rdx1phe8ngw6fjahenrg9l5z548ve7u7z60a0pq98vkh6p2wf253xd6uh0',
+      'package_rdx1p4cwxas2khrv7ah5tral57qgftwszkwps7uz6e7lkwtjp89tu05nr6',
     ),
   });
 

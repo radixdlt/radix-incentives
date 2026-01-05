@@ -401,6 +401,7 @@ describe.skip('Stokenet Incentives Vester Component', () => {
             vestDuration: Duration.days(365),
             preClaimPeriod: Duration.days(1),
             initialVestedFraction: 0.2,
+            existingLockerAddress: Option.none(),
           });
 
           yield* Ref.update(stokenetConfig, (current) => ({
@@ -486,6 +487,7 @@ describe.skip('Mainnet Incentives Vester Component', () => {
             vestDuration: Duration.days(365),
             preClaimPeriod: Duration.days(1),
             initialVestedFraction: 0.2,
+            existingLockerAddress: Option.none(),
           });
 
           yield* Ref.update(mainnetConfig, (current) => ({
