@@ -50,3 +50,5 @@ requirements
 vault/secrets/
 
 packages/db/src/incentives/seed/data/accounts500KData.ts
+
+docs/plans

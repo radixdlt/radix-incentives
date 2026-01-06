@@ -58,15 +58,14 @@ services:
       - "8200:8200"
     volumes:
       - vault-data:/vault/file
+      - ./vault/vault-config.hcl:/vault/config/vault-config.hcl:ro
     environment:
-      VAULT_DEV_ROOT_TOKEN_ID: ${VAULT_TOKEN}
-      VAULT_DEV_LISTEN_ADDRESS: "0.0.0.0:8200"
       VAULT_ADDR: "http://127.0.0.1:8200"
-      VAULT_TOKEN: ${VAULT_TOKEN}
     cap_add:
       - IPC_LOCK
+    command: vault server -config=/vault/config/vault-config.hcl
     healthcheck:
-      test: ["CMD", "vault", "status"]
+      test: ["CMD", "sh", "-c", "vault status || [ $? -eq 2 ]"]
       interval: 5s
       timeout: 3s
       retries: 5
@@ -78,17 +77,10 @@ services:
         condition: service_healthy
     volumes:
       - ./vault/secrets:/vault/secrets
+      - ./vault/init-vault.sh:/vault/init-vault.sh:ro
     environment:
       VAULT_ADDR: "http://vault:8200"
-      VAULT_TOKEN: ${VAULT_TOKEN}
-    command: >
-      sh -c "
-        vault secrets enable transit 2>/dev/null || true &&
-        vault write -f transit/keys/xrd-distribution type=ed25519 2>/dev/null || true &&
-        echo $${VAULT_TOKEN} > /vault/secrets/token &&
-        chmod 644 /vault/secrets/token &&
-        echo 'Vault initialized with ED25519 keys and token file'
-      "
+    command: sh /vault/init-vault.sh
     restart: "no"
 
   vault-agent:
