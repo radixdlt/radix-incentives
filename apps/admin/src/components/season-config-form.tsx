@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
+import { Switch } from '~/components/ui/switch';
 import { cn } from '~/lib/utils';
 import { api } from '~/trpc/react';
 
@@ -54,6 +55,7 @@ const SeasonConfigSchema = Schema.Struct({
       resourceAddress: Schema.String,
     }),
   ),
+  enableAutomaticRefill: Schema.Boolean,
 });
 
 type SeasonConfig = typeof SeasonConfigSchema.Type;
@@ -70,6 +72,7 @@ const FormValuesSchema = Schema.Struct({
   adminAccountAccessController: Schema.String,
   rewardsResourceAddress: Schema.String,
   adminBadgeResourceAddress: Schema.String,
+  enableAutomaticRefill: Schema.Boolean,
 });
 
 type FormValues = typeof FormValuesSchema.Type;
@@ -109,6 +112,7 @@ const ConfigToFormValuesSchema = Schema.transform(
         Option.fromNullable(config.adminBadge?.resourceAddress),
         Option.getOrElse(() => ''),
       ),
+      enableAutomaticRefill: config.enableAutomaticRefill,
     }),
     encode: (formValues) => ({
       seasonRewardComponentAddress:
@@ -134,6 +138,7 @@ const ConfigToFormValuesSchema = Schema.transform(
             resourceAddress: formValues.adminBadgeResourceAddress,
           }
         : null,
+      enableAutomaticRefill: formValues.enableAutomaticRefill,
     }),
   },
 );
@@ -233,6 +238,7 @@ const SeasonConfigFormContent = ({
             ? FungibleResourceAddress.make(value.rewardsResourceAddress)
             : null,
           adminBadge,
+          enableAutomaticRefill: value.enableAutomaticRefill,
         },
       });
     },
@@ -449,6 +455,30 @@ const SeasonConfigFormContent = ({
                       {field.state.meta.errors[0]}
                     </p>
                   )}
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <div className="space-y-4 rounded-lg border p-4">
+            <h4 className="font-medium text-sm">Automatic Refill</h4>
+
+            <form.Field name="enableAutomaticRefill">
+              {(field) => (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor={field.name}>Enable Automatic Refill</Label>
+                    <p className="text-muted-foreground text-sm">
+                      When enabled, the vester pool will be automatically
+                      refilled every 4 hours.
+                    </p>
+                  </div>
+                  <Switch
+                    id={field.name}
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked)}
+                    disabled={isSubmitting}
+                  />
                 </div>
               )}
             </form.Field>

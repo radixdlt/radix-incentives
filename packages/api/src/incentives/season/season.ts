@@ -41,6 +41,9 @@ export const SeasonConfigSchema = Schema.Struct({
   adminAccount: Schema.NullOr(AccountSchema),
   rewardsResourceAddress: Schema.NullOr(FungibleResourceAddress),
   adminBadge: Schema.NullOr(BadgeSchema),
+  enableAutomaticRefill: Schema.optionalWith(Schema.Boolean, {
+    default: () => false,
+  }),
 });
 
 export type SeasonConfig = typeof SeasonConfigSchema.Type;
@@ -164,6 +167,7 @@ export class SeasonService extends Effect.Service<SeasonService>()(
                       adminAccount: null,
                       rewardsResourceAddress: null,
                       adminBadge: null,
+                      enableAutomaticRefill: false,
                     }),
                   onSome: (config) =>
                     Schema.decodeUnknown(
@@ -178,6 +182,7 @@ export class SeasonService extends Effect.Service<SeasonService>()(
                           Schema.NullOr(FungibleResourceAddress),
                         ),
                         adminBadge: Schema.optional(Schema.NullOr(BadgeSchema)),
+                        enableAutomaticRefill: Schema.optional(Schema.Boolean),
                       }),
                     )(config).pipe(
                       Effect.map((partialConfig) => ({
@@ -187,6 +192,8 @@ export class SeasonService extends Effect.Service<SeasonService>()(
                         rewardsResourceAddress:
                           partialConfig.rewardsResourceAddress ?? null,
                         adminBadge: partialConfig.adminBadge ?? null,
+                        enableAutomaticRefill:
+                          partialConfig.enableAutomaticRefill ?? false,
                       })),
                     ),
                 }),

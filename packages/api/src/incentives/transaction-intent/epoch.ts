@@ -24,11 +24,9 @@ export class EpochService extends Effect.Service<EpochService>()(
       const getCurrentEpoch = (networkId: NetworkId) =>
         Effect.gen(function* () {
           const getLedgerStateService = yield* GetLedgerStateService;
-          return yield* getLedgerStateService({
-            at_ledger_state: {
-              timestamp: new Date(),
-            },
-          }).pipe(Effect.map((ledgerState) => Epoch.make(ledgerState.epoch)));
+          return yield* getLedgerStateService({}).pipe(
+            Effect.map((ledgerState) => Epoch.make(ledgerState.epoch)),
+          );
         }).pipe(
           Effect.provide(GetLedgerStateService.Default),
           Effect.provide(

@@ -11,6 +11,7 @@ export const QueueName = {
   processWeek: 'processWeek',
   maintenance: 'maintenance',
   seasonRewardClaim: 'seasonRewardClaim',
+  vesterRefill: 'vesterRefill',
 } as const;
 
 export type QueueName = (typeof QueueName)[keyof typeof QueueName];

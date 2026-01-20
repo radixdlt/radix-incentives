@@ -159,9 +159,6 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
       const xrdBalance = (account: Account) =>
         getFungibleBalance({
           addresses: [account.address],
-          at_ledger_state: {
-            timestamp: new Date(),
-          },
         }).pipe(
           Effect.map(
             flow(

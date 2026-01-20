@@ -12,6 +12,7 @@ import {
   Ref,
 } from 'effect';
 import { type NetworkId, TransactionManifestString } from 'shared/brandedTypes';
+import type { Account } from 'shared/schemas/account';
 import { GetComponentStateService } from '../../../common/gateway';
 import type { AtLedgerState } from '../../../common/gateway/schemas';
 import {
@@ -378,6 +379,58 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
               FailedToStaticallyValidateManifestError: Effect.die,
             }),
             Effect.annotateLogs('manifest', 'IncentivesVester.claim'),
+          ),
+        /**
+         * Refills the vester pool with eligible tokens.
+         * This is a public method that can be called by anyone.
+         * Accepts an explicit component address and admin account,
+         * or falls back to the shared config if not provided.
+         */
+        refill: (input?: {
+          componentAddress: ComponentAddress;
+          adminAccount: Account;
+        }) =>
+          Effect.gen(function* () {
+            const { componentAddress, adminAccount } = input ?? {
+              componentAddress: Option.getOrThrowWith(
+                (yield* Ref.get(configRef)).componentAddress,
+                () =>
+                  new MissingConfigError({
+                    message: 'Component address not found',
+                  }),
+              ),
+              adminAccount: Option.getOrThrowWith(
+                (yield* Ref.get(configRef)).adminAccount,
+                () =>
+                  new MissingConfigError({
+                    message: 'Admin account not found',
+                  }),
+              ),
+            };
+
+            const manifest = TransactionManifestString.make(`
+              CALL_METHOD
+                Address("${componentAddress}")
+                "refill"
+              ;`);
+
+            const transactionHelper = yield* getTransactionHelper;
+
+            return yield* transactionHelper.submitTransaction({
+              manifest,
+              feePayer: {
+                account: adminAccount,
+                amount: Amount('10'),
+              },
+            });
+          }).pipe(
+            Effect.catchTags({
+              FailedToSignTransactionError: Effect.die,
+              InvalidManifestError: Effect.die,
+              FailedToCreateIntentHashError: Effect.die,
+              FailedToStaticallyValidateManifestError: Effect.die,
+            }),
+            Effect.annotateLogs('manifest', 'IncentivesVester.refill'),
           ),
       };
     }),
