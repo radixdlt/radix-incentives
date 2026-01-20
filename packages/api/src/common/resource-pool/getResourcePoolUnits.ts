@@ -16,7 +16,7 @@ export class InvalidPoolResourceError extends Error {
 
 export type GetResourcePoolInput = {
   addresses: string[];
-  at_ledger_state: AtLedgerState;
+  at_ledger_state?: AtLedgerState;
 };
 
 export type GetResourcePoolOutput = Effect.Effect.Success<

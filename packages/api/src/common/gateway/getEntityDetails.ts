@@ -24,7 +24,7 @@ export class GetEntityDetailsService extends Effect.Service<GetEntityDetailsServ
       return Effect.fn(function* (
         input: GetEntityDetailsInput,
         options: GetEntityDetailsOptions,
-        at_ledger_state: AtLedgerState,
+        at_ledger_state?: AtLedgerState,
       ) {
         const chunks = chunker(input, pageSize);
         return yield* Effect.forEach(

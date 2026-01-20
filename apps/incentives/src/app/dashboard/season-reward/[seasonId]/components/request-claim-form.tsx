@@ -10,16 +10,19 @@ import type { SelectAccountEvent } from './select-account-button';
 import { SelectedAccount } from './selected-account';
 
 export function RequestClaimForm({
+  seasonName,
   selectedAccount,
   onClearAccount,
   availableAmount,
   onRequestClaim,
 }: {
+  seasonName?: string;
   availableAmount: string;
   selectedAccount: SelectAccountEvent;
   onClearAccount: () => void;
   onRequestClaim: (amount: Amount) => Promise<void>;
 }) {
+  const title = seasonName ? `Claim ${seasonName} Rewards` : 'Claim Rewards';
   const form = useForm({
     defaultValues: {
       amount: '',
@@ -33,6 +36,7 @@ export function RequestClaimForm({
 
   return (
     <>
+      <h2 className="mb-6 text-center font-bold text-xl">{title}</h2>
       <p className="mb-2 font-bold text-lg">Select Amount to Claim</p>
       <div className="mb-4 text-sm">
         <p className="text-muted-foreground">

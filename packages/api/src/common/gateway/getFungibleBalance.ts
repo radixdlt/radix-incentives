@@ -1,4 +1,5 @@
 import type {
+  LedgerState,
   StateEntityDetailsOperationRequest,
   StateEntityDetailsResponseItem,
 } from '@radixdlt/babylon-gateway-api-sdk';
@@ -42,7 +43,7 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
 
       const getAggregatedFungibleBalance = Effect.fn(function* (
         item: StateEntityDetailsResponseItem,
-        at_ledger_state: AtLedgerState,
+        ledgerState: LedgerState,
       ) {
         const address = item.address;
 
@@ -51,12 +52,17 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
         let nextCursor = item.fungible_resources?.next_cursor;
         const totalCount = item.fungible_resources?.total_count ?? 0;
 
+        // Use state_version for pagination (required by Gateway API when cursor is provided)
+        const paginationLedgerState: AtLedgerState = {
+          state_version: ledgerState.state_version,
+        };
+
         while (nextCursor && totalCount > 0) {
           const result = yield* entityFungiblesPageService({
             address,
             aggregation_level: aggregationLevel,
             cursor: nextCursor,
-            at_ledger_state,
+            at_ledger_state: paginationLedgerState,
             limit_per_page: maxPageSize,
           });
           nextCursor = result.next_cursor;
@@ -98,10 +104,11 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
           StateEntityDetailsOperationRequest['stateEntityDetailsRequest'],
           'at_ledger_state'
         > & {
-          at_ledger_state: AtLedgerState;
+          at_ledger_state?: AtLedgerState;
           options?: StateEntityDetailsOperationRequest['stateEntityDetailsRequest']['opt_ins'];
         },
       ) {
+        // Collect both items and ledger_state from each chunk
         const stateEntityDetailsResults = yield* Effect.forEach(
           chunker(input.addresses, stateEntityDetailsPageSize),
           Effect.fn(function* (addresses) {
@@ -115,18 +122,26 @@ export class GetFungibleBalanceService extends Effect.Service<GetFungibleBalance
                 },
               });
 
-            return stateEntityDetailsResult.items;
+            return {
+              items: stateEntityDetailsResult.items,
+              ledger_state: stateEntityDetailsResult.ledger_state,
+            };
           }),
           {
             concurrency,
           },
-        ).pipe(Effect.map((results) => results.flat()));
+        );
 
         const fungibleBalanceResults = yield* Effect.forEach(
           stateEntityDetailsResults,
-          (item) => getAggregatedFungibleBalance(item, input.at_ledger_state),
+          ({ items, ledger_state }) =>
+            Effect.forEach(
+              items,
+              (item) => getAggregatedFungibleBalance(item, ledger_state),
+              { concurrency },
+            ),
           { concurrency },
-        ).pipe(Effect.map((results) => results.flat()));
+        ).pipe(Effect.map((results) => results.flat().flat()));
 
         return fungibleBalanceResults;
       });

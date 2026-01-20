@@ -1,14 +1,15 @@
-import { Effect, Schema } from 'effect';
+import { Effect, pipe, Schema } from 'effect';
 import { HexString, SeasonId, UserId } from 'shared/brandedTypes';
 import { AccountProofSchema } from 'shared/schemas/accountProof';
-import { Amount } from '../account-balance/v2/schemas';
+import { AccountAddress, Amount } from '../account-balance/v2/schemas';
 import { VerifyChallengeService } from '../challenge/verifyChallenge';
 import { VerifyRolaProofService } from '../rola/verifyRolaProof';
 import { resolveEffect } from '../runtime';
 import { SeasonService } from '../season/season';
-import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 import { effectSchemaParser, ResponseError } from '../trpc/helpers';
 import { WorkerApiClient } from '../worker/WorkerApiClient';
+import { SeasonVesterService } from './incentives-vester/seasonVester';
 import { SeasonRewardService } from './seasonReward';
 import { SeasonRewardClaim } from './seasonRewardClaim';
 
@@ -158,4 +159,63 @@ export const seasonRewardRouter = createTRPCRouter({
       }),
     ),
   ),
+
+  getVesterInfo: publicProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .query(async ({ input }) =>
+      resolveEffect(
+        pipe(
+          SeasonVesterService,
+          Effect.flatMap((service) =>
+            service.getVesterInfo({ seasonId: input.seasonId }),
+          ),
+          Effect.catchTag('SeasonVesterNotConfiguredError', () =>
+            Effect.fail(
+              new ResponseError({
+                code: 'NOT_FOUND',
+                message: 'Season reward component address not configured.',
+              }),
+            ),
+          ),
+          Effect.provide(SeasonVesterService.Default),
+        ),
+      ),
+    ),
+
+  getRewardTokenBalances: publicProcedure
+    .input(
+      effectSchemaParser(
+        Schema.Struct({
+          seasonId: SeasonId,
+          accounts: Schema.Array(
+            Schema.Struct({
+              address: Schema.String.pipe(Schema.fromBrand(AccountAddress)),
+              label: Schema.NullOr(Schema.String),
+            }),
+          ),
+        }),
+      ),
+    )
+    .query(async ({ input }) =>
+      resolveEffect(
+        pipe(
+          SeasonVesterService,
+          Effect.flatMap((service) =>
+            service.getAccountBalances({
+              seasonId: input.seasonId,
+              accounts: input.accounts,
+            }),
+          ),
+          Effect.catchTag('SeasonVesterNotConfiguredError', () =>
+            Effect.fail(
+              new ResponseError({
+                code: 'NOT_FOUND',
+                message: 'Season reward component address not configured.',
+              }),
+            ),
+          ),
+          Effect.provide(SeasonVesterService.Default),
+        ),
+      ),
+    ),
 });

@@ -13,6 +13,7 @@ import {
 } from 'effect';
 import { type NetworkId, TransactionManifestString } from 'shared/brandedTypes';
 import { GetComponentStateService } from '../../../common/gateway';
+import type { AtLedgerState } from '../../../common/gateway/schemas';
 import {
   type AccountAddress,
   Amount,
@@ -402,6 +403,7 @@ export class IncentivesVesterStateService extends Effect.Service<IncentivesVeste
       return (input: {
         componentAddress: ComponentAddress;
         networkId: NetworkId;
+        at_ledger_state?: AtLedgerState;
       }) =>
         Effect.gen(function* () {
           const getComponentStateService = yield* GetComponentStateService.pipe(
@@ -411,10 +413,8 @@ export class IncentivesVesterStateService extends Effect.Service<IncentivesVeste
           return yield* getComponentStateService
             .run({
               addresses: [input.componentAddress],
-              at_ledger_state: {
-                timestamp: new Date(),
-              },
               schema: IncentivesVesterSchema,
+              at_ledger_state: input.at_ledger_state,
             })
             .pipe(
               Effect.map(
