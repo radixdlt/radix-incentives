@@ -1,13 +1,12 @@
 'use client';
 
 import {
-  Award,
   ChevronLeft,
   ChevronRight,
+  Gift,
   HelpCircle,
   Home,
   List,
-  Target,
   Users,
 } from 'lucide-react';
 import Link from 'next/link';
@@ -31,11 +30,15 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
   const pathname = usePathname();
   const [isCollapsed, setIsCollapsed] = useState(false);
   const { data: publicConfig } = api.config.getPublicConfig.useQuery();
+  const { data: seasons } = api.season.getSeasons.useQuery();
 
   const isLimitAccessEnabled =
     publicConfig?.NEXT_PUBLIC_LIMIT_ACCESS_ENABLED ?? false;
 
   const notification = publicConfig?.notification;
+
+  const hasActiveSeason = seasons?.some((s) => s.status === 'active') ?? true;
+  const isSeasonOver = seasons !== undefined && !hasActiveSeason;
 
   const navItems = [
     {
@@ -47,20 +50,12 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       hide: isLimitAccessEnabled,
     },
     {
-      label: 'Earn',
-      href: '/dashboard/earn',
+      label: 'Season Rewards',
+      href: '/dashboard/season-reward',
       icon: (
-        <Target className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
+        <Gift className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
       ),
-      hide: isLimitAccessEnabled,
-    },
-    {
-      label: 'Quests',
-      href: '/dashboard/earn/resourceRewards',
-      icon: (
-        <Award className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />
-      ),
-      hide: isLimitAccessEnabled,
+      hide: !isSeasonOver || isLimitAccessEnabled,
     },
     {
       label: 'Ranking',

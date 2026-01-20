@@ -22,6 +22,7 @@ import {
 } from '~/lib/utils';
 import { api } from '~/trpc/react';
 import { DashboardActivityBreakdown } from './components/DashboardActivityBreakdown';
+import { SeasonOverDashboard } from './components/season-over-dashboard';
 
 const NextUpdateNotification = () => {
   const [timeUntilUpdate, setTimeUntilUpdate] = useState('');
@@ -57,6 +58,14 @@ export default function DashboardPage() {
 
   const [selectedWeek, setSelectedWeek] = useState<string | null>(null);
   const [multiplierModalOpen, setMultiplierModalOpen] = useState(false);
+
+  // Fetch seasons to check if we're in "season over" mode
+  const { data: seasons, isLoading: seasonsLoading } =
+    api.season.getSeasons.useQuery();
+
+  // Check if there's an active season - if not, we're in "season over" mode
+  const hasActiveSeason = seasons?.some((s) => s.status === 'active') ?? true;
+  const isSeasonOver = seasons !== undefined && !hasActiveSeason;
 
   const accounts = api.account.getAccounts.useQuery(undefined, {
     refetchOnMount: true,
@@ -162,12 +171,17 @@ export default function DashboardPage() {
     checkBalanceMutation.mutate();
   };
 
-  if (accounts.isLoading || weeks.isLoading) {
+  if (accounts.isLoading || weeks.isLoading || seasonsLoading) {
     return (
       <div className="flex h-96 items-center justify-center">
         <div className="text-2xl">Loading...</div>
       </div>
     );
+  }
+
+  // Show season over dashboard if no active season
+  if (isSeasonOver && seasons) {
+    return <SeasonOverDashboard seasons={seasons} />;
   }
 
   if ((persona && accounts.isError) || weeks.isError) {
