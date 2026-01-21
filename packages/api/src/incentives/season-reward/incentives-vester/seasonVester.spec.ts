@@ -8,13 +8,13 @@ import { DbService } from '../../db/dbClient';
 import type { AccountWithLabel } from './seasonVester';
 import { SeasonVesterService } from './seasonVester';
 
-const STATE_VERSION = 430517688;
+const STATE_VERSION = 442444027;
 const COMPONENT_ADDRESS =
-  'component_rdx1cqvk5tjxc2atwzj3vd88pfjpxav2dsam5y0qzydtsntrq9ajhh5a5j';
+  'component_rdx1cpsdx6z53k5a3r5748pf2w0l5gyay8jxzlmgzpkd38pdpse6l8thge';
 const ACCOUNT_WITH_7_LP_TOKENS =
-  'account_rdx12xl2meqtelz47mwp3nzd72jkwyallg5yxr9hkc75ac4qztsxulfpew';
+  'account_rdx16y4gqnchvxeszcpswg2zldgsle6uqvnl0znerne70tw9535njhkgzk';
 const ACCOUNT_WITH_2_LP_TOKENS =
-  'account_rdx129zryfdcuyvwl00rxkscec24re8wts0526fqqfphuv37n9z0cyd307';
+  'account_rdx129ky0qmad6p7k0x5ck94dsyxgz4fjsg8w6cxx5dekz6yvg2mmcwgsx';
 const SEASON_ID = '036031e3-8bfb-4d2f-b653-f05c76f07704';
 
 const TestLayer = SeasonVesterService.Default.pipe(
@@ -59,14 +59,14 @@ layer(TestLayer)('SeasonVesterService', (it) => {
 
       expect(result).toBeDefined();
       expect(result.poolUnitResourceAddress).toBe(
-        'resource_rdx1th428swhg2e46v23pkk46j89q40gyjzlkxt6f9sc9msu6tz9uklfqr',
+        'resource_rdx1t5q63xdyuhdy32y8xp8hg48psyym9k7dhvya2lzvk4d555uk0krkq5',
       );
       expect(result.poolAddress).toBe(
-        'pool_rdx1cjs3zwnwyj0ekrak5xhq9ewf938s58a0v0u93qpajhwlc7c9vcxyks',
+        'pool_rdx1c33act32ruq0ynar35kgsn7ksug63apekwywapmj8s2rz4zpew0vdu',
       );
-      expect(result.currentValuePerUnit).toBe('0.20019495180111618406');
-      expect(result.maturityValuePerUnit).toBe('1.05560142046302400866');
-      expect(result.vestEndTimestamp).toBe('2026-12-23T13:11:56.000Z');
+      expect(result.currentValuePerUnit).toBe('0');
+      expect(result.maturityValuePerUnit).toBe('1');
+      expect(result.vestEndTimestamp).toBe('2027-01-22T10:07:38.000Z');
     }).pipe(Effect.provide(DbService.Default)),
   );
 
