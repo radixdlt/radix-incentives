@@ -33,6 +33,11 @@ export const ComponentAddress = Schema.String.pipe(
 );
 export type ComponentAddress = typeof ComponentAddress.Type;
 
+export const AccountLockerAddress = Schema.String.pipe(
+  Schema.brand('AccountLockerAddress'),
+);
+export type AccountLockerAddress = typeof AccountLockerAddress.Type;
+
 export const PoolAddress = Schema.String.pipe(Schema.brand('PoolAddress'));
 export type PoolAddress = typeof PoolAddress.Type;
 
