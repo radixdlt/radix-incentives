@@ -92,10 +92,10 @@ export class SeasonVesterService extends Effect.Service<SeasonVesterService>()(
 
         const poolAddress = PoolAddress(vesterState.pool);
 
-        // Handle Option type for vest_end
+        // Get vest_end from vesting configuration if initialized
         const vestEndTimestamp =
-          vesterState.vest_end.variant === 'Some'
-            ? vesterState.vest_end.value
+          vesterState.vesting_configuration.variant === 'Initialized'
+            ? vesterState.vesting_configuration.value.vest_end
             : null;
 
         // Get pool unit info (LP token address and current value)
