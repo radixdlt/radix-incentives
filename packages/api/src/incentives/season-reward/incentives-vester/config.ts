@@ -3,6 +3,7 @@ import { Config, Context, Effect, Layer, Option, Ref, Schema } from 'effect';
 import {
   AccessControllerAddress,
   AccountAddress,
+  AccountLockerAddress,
   ComponentAddress,
   FungibleResourceAddress,
   NetworkId,
@@ -28,6 +29,9 @@ export const IncentivesVesterConfigSchema = Schema.Struct({
   adminAccount: Schema.Option(AccountSchema),
   superAdminAccount: Schema.Option(AccountSchema),
   componentAddress: Schema.Option(ComponentAddress),
+  accountLockerPackageAddress: Schema.Option(PackageAddress),
+  accountLockerComponentAddress: Schema.Option(ComponentAddress),
+  accountLockerAddress: Schema.Option(AccountLockerAddress),
 });
 
 const createConfig = (input: {
@@ -152,6 +156,9 @@ const createConfig = (input: {
       adminAccount,
       superAdminAccount,
       dappDefinitionAccount: adminAccount,
+      accountLockerPackageAddress: Option.none(),
+      accountLockerComponentAddress: Option.none(),
+      accountLockerAddress: Option.none(),
     } satisfies typeof IncentivesVesterConfigSchema.Type;
 
     return yield* Ref.make(config);
@@ -167,7 +174,7 @@ export class IncentivesVesterConfig extends Context.Tag(
   static MainnetConfig = createConfig({
     networkId: NetworkId.make(1),
     packageAddress: PackageAddress.make(
-      'package_rdx1p4cwxas2khrv7ah5tral57qgftwszkwps7uz6e7lkwtjp89tu05nr6',
+      'package_rdx1p5vkjuvutjwl90zfkf3sr5p6tq0lyhr3v702frru0w03rht2am6z0q',
     ),
   });
 

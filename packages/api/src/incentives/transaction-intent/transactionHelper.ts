@@ -1,3 +1,4 @@
+import type { AccessRule } from '@radixdlt/babylon-core-api-sdk';
 import { RadixEngineToolkit } from '@radixdlt/radix-engine-toolkit';
 import {
   Array as A,
@@ -15,7 +16,9 @@ import {
   Schema,
 } from 'effect';
 import {
+  AccountLockerAddress,
   Amount,
+  ComponentAddress,
   FungibleResourceAddress,
   NetworkId,
   type TransactionId,
@@ -24,6 +27,7 @@ import {
 import type { Account } from 'shared/schemas/account';
 import {
   GatewayApiClientService,
+  GetEntityDetailsService,
   GetFungibleBalanceService,
 } from '../../common/gateway';
 
@@ -35,7 +39,7 @@ import { createBadge as createBadgeManifest } from './manifests/createBadge';
 import { createFungibleTokenManifest } from './manifests/createFungibleToken';
 import { faucet as faucetManifest } from './manifests/faucet';
 import { ManifestHelper } from './manifests/manifestHelper';
-import type { TransactionIntent } from './schemas';
+import type { Badge, TransactionIntent } from './schemas';
 import { Signer } from './signer/signer';
 import { SubmitTransaction } from './submitTransaction';
 import { TransactionStatus } from './transactionStatus';
@@ -129,6 +133,15 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
 
       const getFungibleBalance = yield* GetFungibleBalanceService.pipe(
         Effect.provide(GetFungibleBalanceService.Default),
+        Effect.provide(
+          Layer.setConfigProvider(
+            ConfigProvider.fromJson({ NETWORK_ID: networkId }),
+          ),
+        ),
+      );
+
+      const getEntityDetails = yield* GetEntityDetailsService.pipe(
+        Effect.provide(GetEntityDetailsService.Default),
         Effect.provide(
           Layer.setConfigProvider(
             ConfigProvider.fromJson({ NETWORK_ID: networkId }),
@@ -411,12 +424,96 @@ export class TransactionHelper extends Effect.Service<TransactionHelper>()(
           });
         });
 
+      const createAccountLocker = (input: {
+        feePayer: Account;
+        ownerBadge: Badge;
+      }) =>
+        submitTransaction({
+          manifest: TransactionManifestString.make(`
+            CALL_FUNCTION
+              Address("package_rdx1p462f34zx0x23etxj9pkrjsdy70aqcdejfgaxlv8f96w8fhcsvcfy7")
+              "AccountLockerWrapper"
+              "instantiate"
+              Enum<2u8>(
+                Enum<0u8>(
+                  Enum<0u8>(
+                    Enum<1u8>(
+                      Address("${input.ownerBadge.resourceAddress}") # owner badge address
+                    )
+                  )
+                )
+              )
+            ;
+          `),
+          feePayer: {
+            account: input.feePayer,
+            amount: Amount.make('100'),
+          },
+        }).pipe(
+          Effect.flatMap(({ id }) => getCommittedDetails({ id })),
+          Effect.map((result) => {
+            const lockerAddress = pipe(
+              result.transaction?.affected_global_entities,
+              Option.fromNullable,
+              Option.map(A.filter((item) => item.startsWith('locker_'))),
+              Option.flatMap(A.head),
+              Option.getOrThrowWith(() => new Error('No locker address found')),
+              AccountLockerAddress.make,
+            );
+
+            const componentAddress = pipe(
+              result.transaction?.affected_global_entities,
+              Option.fromNullable,
+              Option.map(A.filter((item) => item.startsWith('component_'))),
+              Option.flatMap(A.head),
+              Option.getOrThrowWith(
+                () => new Error('No component address found'),
+              ),
+              ComponentAddress.make,
+            );
+
+            return {
+              lockerAddress,
+              componentAddress,
+            };
+          }),
+        );
+
+      const getComponentOwnerAccessRule = (input: {
+        componentAddress: ComponentAddress;
+      }) =>
+        Effect.gen(function* () {
+          const entityDetails = yield* getEntityDetails(
+            [input.componentAddress],
+            {},
+          );
+
+          const accessRule: Option.Option<AccessRule> = pipe(
+            entityDetails,
+            A.head,
+            Option.flatMap((item) =>
+              Option.fromNullable(
+                item.details?.type === 'Component'
+                  ? item.details.role_assignments
+                  : null,
+              ),
+            ),
+            Option.flatMap(({ owner }) =>
+              Option.fromNullable((owner as { rule: AccessRule })?.rule),
+            ),
+          );
+
+          return accessRule;
+        });
+
       return {
         submitTransaction,
         getCommittedDetails,
         createBadge,
         createFungibleToken,
         faucet,
+        createAccountLocker,
+        getComponentOwnerAccessRule,
       };
     }),
   },

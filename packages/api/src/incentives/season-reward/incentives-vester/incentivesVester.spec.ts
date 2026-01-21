@@ -354,9 +354,19 @@ const mainnetTestSetup = DisableTestClock(
         resourceAddress: superAdminBadge,
       });
 
+      const { lockerAddress, componentAddress } =
+        yield* superAdminTransactionHelper
+          .createAccountLocker({
+            feePayer: superAdminAccount,
+            ownerBadge: badge,
+          })
+          .pipe(Effect.annotateLogs('manifest', 'createAccountLocker'));
+
       yield* Ref.update(configRef, (current) => ({
         ...current,
         superAdminBadge: Option.some(badge),
+        accountLockerAddress: Option.some(lockerAddress),
+        accountLockerComponentAddress: Option.some(componentAddress),
       }));
     }
 
@@ -401,7 +411,6 @@ describe.skip('Stokenet Incentives Vester Component', () => {
             vestDuration: Duration.days(365),
             preClaimPeriod: Duration.days(1),
             initialVestedFraction: 0.2,
-            existingLockerAddress: Option.none(),
           });
 
           yield* Ref.update(stokenetConfig, (current) => ({
@@ -487,7 +496,6 @@ describe.skip('Mainnet Incentives Vester Component', () => {
             vestDuration: Duration.days(365),
             preClaimPeriod: Duration.days(1),
             initialVestedFraction: 0.2,
-            existingLockerAddress: Option.none(),
           });
 
           yield* Ref.update(mainnetConfig, (current) => ({
@@ -532,6 +540,8 @@ export INCENTIVES_VESTER_SUPER_ADMIN_ACCOUNT_ADDRESS="${Option.getOrUndefined(co
 export INCENTIVES_VESTER_SUPER_ADMIN_ED25519_PRIVATE_KEY="${Redacted.value(superAdminPrivateKey)}"
 
 export INCENTIVES_VESTER_REWARDS_RESOURCE_ADDRESS="${config.rewardsResourceAddress}"
+
+export INCENTIVES_VESTER_ACCOUNT_LOCKER_ADDRESS="${Option.getOrUndefined(config.accountLockerAddress)}"
         `);
       }).pipe(Effect.provide(Logger.pretty));
     },

@@ -80,7 +80,6 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
           vestDuration: Duration.Duration;
           preClaimPeriod: Duration.Duration;
           initialVestedFraction: number;
-          existingLockerAddress: Option.Option<ComponentAddress>;
         }) =>
           Effect.gen(function* () {
             const config = yield* Ref.get(configRef);
@@ -104,12 +103,27 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 }),
             );
 
-            const lockerEnum = pipe(
-              input.existingLockerAddress,
-              Option.match({
-                onNone: () => 'Enum<0u8>()',
-                onSome: (addr) => `Enum<1u8>(Address("${addr}"))`,
-              }),
+            const existingLockerAddress = Option.getOrThrowWith(
+              config.accountLockerAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Existing locker address not found',
+                }),
+            );
+
+            const accountLockerComponentAddress = Option.getOrThrowWith(
+              config.accountLockerComponentAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Account locker component address not found',
+                }),
+            );
+
+            const vestDurationInSeconds = input.vestDuration.pipe(
+              Duration.toSeconds,
+            );
+            const preClaimPeriodInSeconds = input.preClaimPeriod.pipe(
+              Duration.toSeconds,
             );
 
             const manifest = TransactionManifestString.make(`
@@ -119,11 +133,11 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                 "instantiate"
                 Address("${adminBadge.resourceAddress}") # admin badge for backend
                 Address("${superAdminBadge.resourceAddress}") # super admin badge
-                ${input.vestDuration.pipe(Duration.toSeconds)}i64 # vest duration in seconds
+                ${vestDurationInSeconds}i64 # vest duration in seconds
                 Decimal("${input.initialVestedFraction}") # initial vested fraction
-                ${input.preClaimPeriod.pipe(Duration.toSeconds)}i64 # pre-claim period in seconds
+                ${preClaimPeriodInSeconds}i64 # pre-claim period in seconds
                 Address("${config.rewardsResourceAddress}") # XRD
-                ${lockerEnum} # existing locker or create new
+                Address("${existingLockerAddress}") # existing locker
               ;`);
 
             const transactionHelper = yield* getTransactionHelper;
@@ -132,7 +146,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
               Effect.provide(GetComponentStateService.Default),
             );
 
-            return yield* transactionHelper
+            const componentAddress = yield* transactionHelper
               .submitTransaction({
                 manifest,
                 feePayer: {
@@ -193,6 +207,76 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
                   ),
                 ),
               );
+
+            const accessRule =
+              yield* transactionHelper.getComponentOwnerAccessRule({
+                componentAddress,
+              });
+
+            const accountLockerNft = pipe(
+              accessRule,
+              Option.flatMap((item) =>
+                Option.fromNullable(
+                  item.type === 'Protected'
+                    ? item.access_rule.type === 'AnyOf'
+                      ? item.access_rule.access_rules
+                      : null
+                    : null,
+                ),
+              ),
+              Option.map((item) =>
+                item
+                  .map((item) =>
+                    item.type === 'ProofRule' &&
+                    item.proof_rule.type === 'Require' &&
+                    item.proof_rule.requirement.type === 'NonFungible'
+                      ? item.proof_rule.requirement.non_fungible
+                      : null,
+                  )
+                  .filter((item) => item !== null),
+              ),
+              Option.flatMap(A.head),
+              Option.getOrThrowWith(
+                () => new Error('Component NFT access rule not found'),
+              ),
+            );
+
+            yield* transactionHelper.submitTransaction({
+              manifest: TransactionManifestString.make(`
+                  CALL_METHOD
+                    Address("${superAdminAccount.address}")
+                    "create_proof_of_amount"
+                    Address("${superAdminBadge.resourceAddress}")
+                    Decimal("1")
+                  ;
+
+                    CALL_METHOD
+                      Address("${accountLockerComponentAddress}")
+                      "add_rule_to_role"
+                      "storer"
+                      Enum<2u8>(
+                        Enum<1u8>(
+                          Array<Enum>(
+                            Enum<0u8>(
+                              Enum<0u8>(
+                                Enum<0u8>(
+                                  NonFungibleGlobalId("${accountLockerNft.resource_address}:${accountLockerNft.local_id.simple_rep}")
+                                )
+                              )
+                            )
+                          )
+                        )
+                      )
+                    ;
+                  
+                  `),
+              feePayer: {
+                account: superAdminAccount,
+                amount: Amount('10'),
+              },
+            });
+
+            return componentAddress;
           }),
         createPoolUnits: (input: { amount: Amount }) =>
           Effect.gen(function* () {
