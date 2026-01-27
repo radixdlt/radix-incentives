@@ -484,6 +484,8 @@ const SeasonConfigFormContent = ({
             </form.Field>
           </div>
 
+          <KillSwitchSection seasonId={seasonId} />
+
           <div className="flex justify-end">
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
@@ -503,5 +505,37 @@ const SeasonConfigFormContent = ({
         </form>
       </CardContent>
     </Card>
+  );
+};
+
+const KillSwitchSection = ({ seasonId }: { seasonId: string }) => {
+  const brandedSeasonId = SeasonId.make(seasonId);
+
+  const toggleKillSwitch = api.season.toggleKillSwitch.useMutation({
+    onSuccess: () => {
+      toast.success('Kill switch toggled successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to toggle kill switch: ${error.message}`);
+    },
+  });
+
+  return (
+    <div className="space-y-4 rounded-lg border border-destructive p-4">
+      <h4 className="font-medium text-destructive text-sm">Kill Switch</h4>
+      <p className="text-muted-foreground text-sm">
+        Emergency only. Toggling the kill switch will halt or resume all
+        redemptions on the vester. Only use this if there is a critical issue
+        that requires immediately stopping all claims.
+      </p>
+      <Button
+        type="button"
+        variant="destructive"
+        disabled={toggleKillSwitch.isPending}
+        onClick={() => toggleKillSwitch.mutate({ seasonId: brandedSeasonId })}
+      >
+        {toggleKillSwitch.isPending ? 'Toggling...' : 'Toggle Kill Switch'}
+      </Button>
+    </div>
   );
 };

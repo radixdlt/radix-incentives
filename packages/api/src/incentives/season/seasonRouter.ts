@@ -3,6 +3,7 @@ import { Effect, Exit, Schema } from 'effect';
 import { SeasonId } from 'shared/brandedTypes';
 import { z } from 'zod';
 import { resolveEffect } from '../runtime';
+import { IncentivesVester } from '../season-reward/incentives-vester/incentivesVester';
 import {
   RewardBudget,
   SeasonRewardService,
@@ -280,6 +281,18 @@ export const adminSeasonRouter = createTRPCRouter({
         Effect.gen(function* () {
           const seasonService = yield* SeasonService;
           yield* seasonService.updateConfig(input.seasonId, input.config);
+          return { success: true };
+        }),
+      ),
+    ),
+
+  toggleKillSwitch: publicProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .mutation(async () =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const incentivesVester = yield* IncentivesVester;
+          yield* incentivesVester.toggleKillSwitch();
           return { success: true };
         }),
       ),

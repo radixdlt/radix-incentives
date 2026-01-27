@@ -432,6 +432,69 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
             }),
             Effect.annotateLogs('manifest', 'IncentivesVester.refill'),
           ),
+        /**
+         * Toggles the kill switch on the vester component.
+         * Requires admin badge proof. This will halt or resume all redemptions.
+         */
+        toggleKillSwitch: () =>
+          Effect.gen(function* () {
+            const config = yield* Ref.get(configRef);
+            const componentAddress = Option.getOrThrowWith(
+              config.componentAddress,
+              () =>
+                new MissingConfigError({
+                  message: 'Component address not found',
+                }),
+            );
+            const adminBadge = Option.getOrThrowWith(
+              config.adminBadge,
+              () =>
+                new MissingConfigError({
+                  message: 'Admin badge not found',
+                }),
+            );
+            const adminAccount = Option.getOrThrowWith(
+              config.adminAccount,
+              () =>
+                new MissingConfigError({
+                  message: 'Admin account not found',
+                }),
+            );
+
+            const manifest = TransactionManifestString.make(`
+              CALL_METHOD
+                Address("${adminAccount.address}")
+                "create_proof_of_amount"
+                Address("${adminBadge.resourceAddress}")
+                Decimal("1")
+              ;
+
+              CALL_METHOD
+                Address("${componentAddress}")
+                "toggle_kill_switch"
+              ;`);
+
+            const transactionHelper = yield* getTransactionHelper;
+
+            return yield* transactionHelper.submitTransaction({
+              manifest,
+              feePayer: {
+                account: adminAccount,
+                amount: Amount('10'),
+              },
+            });
+          }).pipe(
+            Effect.catchTags({
+              FailedToSignTransactionError: Effect.die,
+              InvalidManifestError: Effect.die,
+              FailedToCreateIntentHashError: Effect.die,
+              FailedToStaticallyValidateManifestError: Effect.die,
+            }),
+            Effect.annotateLogs(
+              'manifest',
+              'IncentivesVester.toggleKillSwitch',
+            ),
+          ),
       };
     }),
   },
