@@ -12,17 +12,18 @@ export const vesterRefillQueue = createQueue({
   },
 });
 
-// Schedule to run every 4 hours
+// Schedule to run every 30 minutes
 if (process.env.DISABLE_VESTER_REFILL === 'true') {
-  const scheduler =
-    await vesterRefillQueue.queue.getJobScheduler('every_four_hours');
+  const scheduler = await vesterRefillQueue.queue.getJobScheduler(
+    'every_thirty_minutes',
+  );
   if (scheduler) {
-    await vesterRefillQueue.queue.removeJobScheduler('every_four_hours');
+    await vesterRefillQueue.queue.removeJobScheduler('every_thirty_minutes');
     console.log('Disabled vester refill job');
   }
 } else {
-  vesterRefillQueue.queue.upsertJobScheduler('every_four_hours', {
-    pattern: '0 */4 * * *', // Run every 4 hours at the start of the hour
+  vesterRefillQueue.queue.upsertJobScheduler('every_thirty_minutes', {
+    pattern: '*/30 * * * *',
   });
-  console.log('Enabled vester refill job (every 4 hours)');
+  console.log('Enabled vester refill job (every 30 minutes)');
 }

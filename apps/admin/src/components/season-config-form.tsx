@@ -470,7 +470,7 @@ const SeasonConfigFormContent = ({
                     <Label htmlFor={field.name}>Enable Automatic Refill</Label>
                     <p className="text-muted-foreground text-sm">
                       When enabled, the vester pool will be automatically
-                      refilled every 4 hours.
+                      refilled every 30 minutes.
                     </p>
                   </div>
                   <Switch
