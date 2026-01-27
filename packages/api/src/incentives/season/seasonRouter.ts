@@ -1,5 +1,5 @@
 import { TRPCError } from '@trpc/server';
-import { Effect, Exit, Schema } from 'effect';
+import { Effect, Exit, Option, Schema } from 'effect';
 import { SeasonId } from 'shared/brandedTypes';
 import { z } from 'zod';
 import { resolveEffect } from '../runtime';
@@ -288,11 +288,29 @@ export const adminSeasonRouter = createTRPCRouter({
 
   toggleKillSwitch: publicProcedure
     .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
-    .mutation(async () =>
+    .mutation(async ({ input }) =>
       resolveEffect(
         Effect.gen(function* () {
+          const seasonService = yield* SeasonService;
+          const config = yield* seasonService.getConfig(input.seasonId);
+
+          const componentAddress = Option.getOrThrow(
+            Option.fromNullable(config.seasonRewardComponentAddress),
+          );
+          const adminAccount = Option.getOrThrow(
+            Option.fromNullable(config.adminAccount),
+          );
+          const adminBadge = Option.getOrThrow(
+            Option.fromNullable(config.adminBadge),
+          );
+
           const incentivesVester = yield* IncentivesVester;
-          yield* incentivesVester.toggleKillSwitch();
+          yield* incentivesVester.toggleKillSwitch({
+            componentAddress,
+            adminAccount,
+            adminBadge,
+          });
+
           return { success: true };
         }),
       ),

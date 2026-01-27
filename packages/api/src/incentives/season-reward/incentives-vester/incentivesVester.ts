@@ -20,7 +20,10 @@ import {
   Amount,
   ComponentAddress,
 } from '../../account-balance/v2/schemas';
-import type { TransactionIntent } from '../../transaction-intent/schemas';
+import type {
+  Badge,
+  TransactionIntent,
+} from '../../transaction-intent/schemas';
 import { Signer } from '../../transaction-intent/signer/signer';
 import {
   TransactionHelper,
@@ -436,41 +439,22 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
          * Toggles the kill switch on the vester component.
          * Requires admin badge proof. This will halt or resume all redemptions.
          */
-        toggleKillSwitch: () =>
+        toggleKillSwitch: (input: {
+          componentAddress: ComponentAddress;
+          adminAccount: Account;
+          adminBadge: Badge;
+        }) =>
           Effect.gen(function* () {
-            const config = yield* Ref.get(configRef);
-            const componentAddress = Option.getOrThrowWith(
-              config.componentAddress,
-              () =>
-                new MissingConfigError({
-                  message: 'Component address not found',
-                }),
-            );
-            const adminBadge = Option.getOrThrowWith(
-              config.adminBadge,
-              () =>
-                new MissingConfigError({
-                  message: 'Admin badge not found',
-                }),
-            );
-            const adminAccount = Option.getOrThrowWith(
-              config.adminAccount,
-              () =>
-                new MissingConfigError({
-                  message: 'Admin account not found',
-                }),
-            );
-
             const manifest = TransactionManifestString.make(`
               CALL_METHOD
-                Address("${adminAccount.address}")
+                Address("${input.adminAccount.address}")
                 "create_proof_of_amount"
-                Address("${adminBadge.resourceAddress}")
+                Address("${input.adminBadge.resourceAddress}")
                 Decimal("1")
               ;
 
               CALL_METHOD
-                Address("${componentAddress}")
+                Address("${input.componentAddress}")
                 "toggle_kill_switch"
               ;`);
 
@@ -479,7 +463,7 @@ export class IncentivesVester extends Effect.Service<IncentivesVester>()(
             return yield* transactionHelper.submitTransaction({
               manifest,
               feePayer: {
-                account: adminAccount,
+                account: input.adminAccount,
                 amount: Amount('10'),
               },
             });
