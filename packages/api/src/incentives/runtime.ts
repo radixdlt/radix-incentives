@@ -7,8 +7,10 @@ import { DbService } from './db/dbClient';
 import { VerifyRolaProofService } from './rola/verifyRolaProof';
 import { SeasonService } from './season/season';
 import { SeasonBonusService } from './season-bonus/seasonBonusService';
+import { IncentivesVester } from './season-reward/incentives-vester/incentivesVester';
 import { SeasonRewardService } from './season-reward/seasonReward';
 import { SeasonRewardClaim } from './season-reward/seasonRewardClaim';
+import { Signer } from './transaction-intent/signer/signer';
 import { resolveExit } from './trpc/helpers';
 import { UserService } from './user/user';
 import { WorkerApiClient } from './worker/WorkerApiClient';
@@ -35,6 +37,8 @@ const layer = Layer.mergeAll(
   SeasonRewardClaim.Default,
   SeasonRewardService.Default,
   SeasonService.Default,
+  IncentivesVester.MainnetLive,
+  Signer.VaultLive,
   loggerLayer,
 );
 

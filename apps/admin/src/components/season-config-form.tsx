@@ -28,6 +28,7 @@ import {
   SelectValue,
 } from '~/components/ui/select';
 import { Skeleton } from '~/components/ui/skeleton';
+import { Switch } from '~/components/ui/switch';
 import { cn } from '~/lib/utils';
 import { api } from '~/trpc/react';
 
@@ -54,6 +55,7 @@ const SeasonConfigSchema = Schema.Struct({
       resourceAddress: Schema.String,
     }),
   ),
+  enableAutomaticRefill: Schema.Boolean,
 });
 
 type SeasonConfig = typeof SeasonConfigSchema.Type;
@@ -70,6 +72,7 @@ const FormValuesSchema = Schema.Struct({
   adminAccountAccessController: Schema.String,
   rewardsResourceAddress: Schema.String,
   adminBadgeResourceAddress: Schema.String,
+  enableAutomaticRefill: Schema.Boolean,
 });
 
 type FormValues = typeof FormValuesSchema.Type;
@@ -109,6 +112,7 @@ const ConfigToFormValuesSchema = Schema.transform(
         Option.fromNullable(config.adminBadge?.resourceAddress),
         Option.getOrElse(() => ''),
       ),
+      enableAutomaticRefill: config.enableAutomaticRefill,
     }),
     encode: (formValues) => ({
       seasonRewardComponentAddress:
@@ -134,6 +138,7 @@ const ConfigToFormValuesSchema = Schema.transform(
             resourceAddress: formValues.adminBadgeResourceAddress,
           }
         : null,
+      enableAutomaticRefill: formValues.enableAutomaticRefill,
     }),
   },
 );
@@ -233,6 +238,7 @@ const SeasonConfigFormContent = ({
             ? FungibleResourceAddress.make(value.rewardsResourceAddress)
             : null,
           adminBadge,
+          enableAutomaticRefill: value.enableAutomaticRefill,
         },
       });
     },
@@ -454,6 +460,32 @@ const SeasonConfigFormContent = ({
             </form.Field>
           </div>
 
+          <div className="space-y-4 rounded-lg border p-4">
+            <h4 className="font-medium text-sm">Automatic Refill</h4>
+
+            <form.Field name="enableAutomaticRefill">
+              {(field) => (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor={field.name}>Enable Automatic Refill</Label>
+                    <p className="text-muted-foreground text-sm">
+                      When enabled, the vester pool will be automatically
+                      refilled every 30 minutes.
+                    </p>
+                  </div>
+                  <Switch
+                    id={field.name}
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <KillSwitchSection seasonId={seasonId} />
+
           <div className="flex justify-end">
             <form.Subscribe
               selector={(state) => [state.canSubmit, state.isSubmitting]}
@@ -473,5 +505,37 @@ const SeasonConfigFormContent = ({
         </form>
       </CardContent>
     </Card>
+  );
+};
+
+const KillSwitchSection = ({ seasonId }: { seasonId: string }) => {
+  const brandedSeasonId = SeasonId.make(seasonId);
+
+  const toggleKillSwitch = api.season.toggleKillSwitch.useMutation({
+    onSuccess: () => {
+      toast.success('Kill switch toggled successfully');
+    },
+    onError: (error) => {
+      toast.error(`Failed to toggle kill switch: ${error.message}`);
+    },
+  });
+
+  return (
+    <div className="space-y-4 rounded-lg border border-destructive p-4">
+      <h4 className="font-medium text-destructive text-sm">Kill Switch</h4>
+      <p className="text-muted-foreground text-sm">
+        Emergency only. Toggling the kill switch will halt or resume all
+        redemptions on the vester. Only use this if there is a critical issue
+        that requires immediately stopping all claims.
+      </p>
+      <Button
+        type="button"
+        variant="destructive"
+        disabled={toggleKillSwitch.isPending}
+        onClick={() => toggleKillSwitch.mutate({ seasonId: brandedSeasonId })}
+      >
+        {toggleKillSwitch.isPending ? 'Toggling...' : 'Toggle Kill Switch'}
+      </Button>
+    </div>
   );
 };

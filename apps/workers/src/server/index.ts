@@ -28,6 +28,7 @@ import { seasonRewardClaimQueue } from '../queues/season-reward-claim/queue';
 import { snapshotQueue } from '../queues/snapshot/queue';
 import { snapshotJobSchema } from '../queues/snapshot/schemas';
 import { snapshotDateRangeQueue } from '../queues/snapshot-date-range/queue';
+import { vesterRefillQueue } from '../queues/vester-refill/queue';
 
 const app = new Hono();
 const metricsApp = new Hono();
@@ -54,6 +55,8 @@ metricsApp.get('/metrics', async (c) => {
     await maintenanceQueue.queue.exportPrometheusMetrics();
   const seasonRewardClaimQueueMetrics =
     await seasonRewardClaimQueue.queue.exportPrometheusMetrics();
+  const vesterRefillQueueMetrics =
+    await vesterRefillQueue.queue.exportPrometheusMetrics();
   return c.text(
     [
       snapshotQueueMetrics,
@@ -65,6 +68,7 @@ metricsApp.get('/metrics', async (c) => {
       processWeekQueueMetrics,
       maintenanceQueueMetrics,
       seasonRewardClaimQueueMetrics,
+      vesterRefillQueueMetrics,
     ].join('\n'),
   );
 });
@@ -182,6 +186,11 @@ app.post('/queues/season-reward-claim/add', async (c) => {
   return c.text('ok');
 });
 
+app.post('/queues/vester-refill/add', async (c) => {
+  await vesterRefillQueue.queue.add('vesterRefill', {});
+  return c.text('ok');
+});
+
 const port = process.env.PORT ? Number.parseInt(process.env.PORT) : 3003;
 const metricsPort = process.env.METRICS_PORT
   ? Number.parseInt(process.env.METRICS_PORT)
@@ -205,6 +214,7 @@ createBullBoard({
     new BullMQAdapter(processWeekQueue.queue),
     new BullMQAdapter(maintenanceQueue.queue),
     new BullMQAdapter(seasonRewardClaimQueue.queue),
+    new BullMQAdapter(vesterRefillQueue.queue),
   ],
   serverAdapter,
 });

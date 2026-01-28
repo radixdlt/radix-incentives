@@ -1,4 +1,5 @@
 import { SeasonRewardWorker } from 'api/incentives/season-reward/seasonRewardWorker';
+import { VesterRefillWorker } from 'api/incentives/season-reward/vesterRefillWorker';
 import { Config, Effect, Layer, Logger, ManagedRuntime } from 'effect';
 import { CheckAndReactivateAccountsService } from '../../account/checkAndReactivateAccounts';
 import { DeactivateInactiveAccountsService } from '../../account/deactivateInactiveAccounts';
@@ -37,6 +38,7 @@ export const workerRuntime = ManagedRuntime.make(
     DeactivateInactiveAccountsService.Default,
     CheckAndReactivateAccountsService.Default,
     SeasonRewardWorker.Default,
+    VesterRefillWorker.Default,
     Signer.VaultLive,
   ),
 );
