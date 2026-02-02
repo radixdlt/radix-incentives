@@ -4,6 +4,7 @@ import { AccountAddress } from 'api/incentives/account-balance/v2/schemas';
 import type { RewardTokenBalance } from 'api/incentives/season-reward/incentives-vester/seasonVester';
 import BigNumber from 'bignumber.js';
 import { Array as A, Option, pipe } from 'effect';
+import { Clock } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { SeasonId } from 'shared/brandedTypes';
@@ -40,6 +41,7 @@ export default function SeasonRewardRedeemPage() {
       { seasonId: brandedSeasonId },
       {
         enabled: Boolean(seasonId),
+        retry: false,
       },
     );
 
@@ -158,8 +160,9 @@ export default function SeasonRewardRedeemPage() {
           backLabel="Back to Seasons"
         />
         <EmptyState
-          title="Redemption not available"
-          description="Season reward redemption is not configured for this season."
+          icon={Clock}
+          title="Redemption setup in progress"
+          description="The reward redemption system is being configured. Please check back later."
           action={{
             label: 'Back to Season Rewards',
             onClick: () => router.push('/dashboard/season-reward'),
