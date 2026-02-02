@@ -14,9 +14,9 @@ export function SelectedAccount({
         className="size-4 shrink-0 cursor-pointer text-red-500 hover:text-red-600"
         onClick={onClearAccount}
       />
-      <div className="overflow-hidden">
-        <p className="font-bold">{account.label}</p>
-        <p className="overflow-hidden overflow-ellipsis text-muted-foreground text-sm">
+      <div className="min-w-0 flex-1">
+        <p className="truncate font-bold">{account.label}</p>
+        <p className="truncate text-muted-foreground text-sm">
           {account.address}
         </p>
       </div>

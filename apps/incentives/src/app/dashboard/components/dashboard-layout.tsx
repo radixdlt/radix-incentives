@@ -50,7 +50,7 @@ export const DashboardLayout: React.FC<DashboardLayoutProps> = ({
       hide: isLimitAccessEnabled,
     },
     {
-      label: 'Season Rewards',
+      label: 'Rewards',
       href: '/dashboard/season-reward',
       icon: (
         <Gift className="h-5 w-5 flex-shrink-0 text-neutral-700 dark:text-neutral-200" />

@@ -3,6 +3,7 @@ import { TRPCClientError } from '@trpc/client';
 import BigNumber from 'bignumber.js';
 import { Array as A, Option, pipe } from 'effect';
 import { AnimatePresence } from 'framer-motion';
+import { Clock } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { type Amount, SeasonId } from 'shared/brandedTypes';
@@ -31,6 +32,20 @@ export default function SeasonRewardDetailPage() {
   const POLLING_GRACE_PERIOD_MS = 10_000;
   const { data: seasons, isLoading: seasonsLoading } =
     api.season.getSeasons.useQuery();
+  const brandedSeasonId = SeasonId.make(seasonId);
+
+  // Check if vester component is properly configured
+  const {
+    data: vesterInfo,
+    isLoading: vesterLoading,
+    isError: vesterError,
+  } = api.seasonReward.getVesterInfo.useQuery(
+    { seasonId: brandedSeasonId },
+    {
+      enabled: Boolean(seasonId),
+      retry: false,
+    },
+  );
   const router = useRouter();
 
   const { data: seasonReward, isLoading: seasonRewardsLoading } =
@@ -111,6 +126,27 @@ export default function SeasonRewardDetailPage() {
     );
   }
 
+  // Show setup pending state when vester is not configured or has an error
+  if (!vesterLoading && (vesterError || !vesterInfo)) {
+    return (
+      <div>
+        <PageHeader
+          onBackClick={() => router.push('/dashboard/season-reward')}
+          backLabel="Back to Seasons"
+        />
+        <EmptyState
+          icon={Clock}
+          title="Claim setup in progress"
+          description="The reward claim system is being configured. Please check back later."
+          action={{
+            label: 'Back to Season Rewards',
+            onClick: () => router.push('/dashboard/season-reward'),
+          }}
+        />
+      </div>
+    );
+  }
+
   const handleClaimSeasonReward = async (amount: Amount) => {
     if (!selectedAccount) {
       toast.error('Please select an account to claim the season reward');
@@ -150,8 +186,11 @@ export default function SeasonRewardDetailPage() {
         onBackClick={() => router.push('/dashboard/season-reward')}
         backLabel="Back to Seasons"
       />
-      <div className="grid gap-4 sm:grid-cols-10">
-        <Card noHover className="flex flex-col gap-2 p-6 sm:col-span-5">
+      <div className="grid min-w-0 gap-4 sm:grid-cols-10">
+        <Card
+          noHover
+          className="min-w-0 flex flex-col gap-2 overflow-hidden p-6 sm:col-span-5"
+        >
           <div className="flex flex-col gap-2">
             <AnimatePresence mode="wait">
               {!selectedAccount ? (
