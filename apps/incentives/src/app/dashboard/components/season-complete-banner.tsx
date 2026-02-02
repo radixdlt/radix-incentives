@@ -40,16 +40,13 @@ export const SeasonCompleteBanner = ({
             className="text-base leading-relaxed md:text-lg"
             style={{ color: '#c2f7d6' }}
           >
-            Thank you for participating in {seasonName}! Your rewards are ready
-            to claim.
+            Thank you for participating in {seasonName}!
           </p>
         </div>
 
         <div className="flex flex-wrap items-start gap-3">
           <Link href="/dashboard/season-reward">
-            <GradientButton variant="primary">
-              Claim Your Rewards
-            </GradientButton>
+            <GradientButton variant="primary">Your Rewards</GradientButton>
           </Link>
           <Link href="/dashboard/leaderboard">
             <GradientButton variant="secondary">View Rankings</GradientButton>
