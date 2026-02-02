@@ -1,5 +1,6 @@
 import { useForm, useStore } from '@tanstack/react-form';
 import BigNumber from 'bignumber.js';
+import { ShieldCheck } from 'lucide-react';
 import { Amount } from 'shared/brandedTypes';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -37,15 +38,25 @@ export function RequestClaimForm({
   return (
     <>
       <h2 className="mb-6 text-center font-bold text-xl">{title}</h2>
+
+      {/* No penalty message */}
+      <div className="mb-4 flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2">
+        <ShieldCheck className="h-4 w-4 shrink-0 text-green-400" />
+        <p className="text-left text-green-300 text-xs">
+          Claiming has no penalty. You can claim all your pool units at any
+          time.
+        </p>
+      </div>
+
       <p className="mb-2 font-bold text-lg">Select Amount to Claim</p>
       <div className="mb-4 text-sm">
         <p className="text-muted-foreground">
-          We recommended that you don't withdraw all your reward tokens to the
-          same account.
+          We recommended that you don't withdraw all your pool units to the same
+          account.
         </p>
         <p className="text-muted-foreground">
-          Instead, you should withdraw a portion of your tokens spread out over
-          multiple accounts.
+          Instead, you should withdraw a portion spread out over multiple
+          accounts.
         </p>
         <p className="text-muted-foreground">
           This will help to prevent tracing your incentives user to your wallet
@@ -141,7 +152,7 @@ export function RequestClaimForm({
           >
             {([canSubmit, isSubmitting]) => (
               <Button type="submit" disabled={!canSubmit}>
-                {isSubmitting ? 'Submitting...' : 'Claim reward'}
+                {isSubmitting ? 'Submitting...' : 'Claim pool units'}
               </Button>
             )}
           </form.Subscribe>
