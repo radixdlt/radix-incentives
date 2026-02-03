@@ -4,7 +4,7 @@ import { AccountAddress } from 'api/incentives/account-balance/v2/schemas';
 import type { RewardTokenBalance } from 'api/incentives/season-reward/incentives-vester/seasonVester';
 import BigNumber from 'bignumber.js';
 import { Array as A, Option, pipe } from 'effect';
-import { Clock } from 'lucide-react';
+import { Clock, Hourglass } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useMemo, useState } from 'react';
 import { SeasonId } from 'shared/brandedTypes';
@@ -130,6 +130,10 @@ export default function SeasonRewardRedeemPage() {
     Option.getOrElse(() => new BigNumber(0)),
   );
 
+  // Check if we're in pre-claim period (vesting not started yet)
+  const isPreClaimPeriod =
+    vesterInfo && new BigNumber(vesterInfo.currentValuePerUnit).isZero();
+
   // Show wallet selector when:
   // - Not loading
   // - No accounts with balance OR explicitly want to add another wallet account
@@ -189,6 +193,24 @@ export default function SeasonRewardRedeemPage() {
             {isLoading ? (
               <div className="flex min-h-[200px] items-center justify-center">
                 <div className="text-muted-foreground">Loading...</div>
+              </div>
+            ) : isPreClaimPeriod ? (
+              <div className="flex min-h-[200px] flex-col items-center justify-center gap-4 text-center">
+                <div className="flex h-16 w-16 items-center justify-center rounded-full bg-blue-500/10">
+                  <Hourglass className="h-8 w-8 text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="font-semibold text-lg text-white">
+                    Vesting Starting Soon
+                  </h3>
+                  <p className="mt-2 text-muted-foreground">
+                    There is a 24-hour pre-claim period before vesting begins.
+                  </p>
+                  <p className="mt-1 text-muted-foreground text-sm">
+                    Redemptions will be available once the vesting schedule
+                    starts.
+                  </p>
+                </div>
               </div>
             ) : showWalletSelector ? (
               <WalletAccountSelector
