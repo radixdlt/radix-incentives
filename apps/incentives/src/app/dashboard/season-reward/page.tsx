@@ -1,7 +1,9 @@
 'use client';
 
 import { Array as A, Option, pipe } from 'effect';
+import { ArrowRight, CheckCircle, Coins } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SeasonId } from 'shared/brandedTypes';
 import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { api } from '~/trpc/react';
 import PageHeader from './components/header';
@@ -26,17 +28,33 @@ export default function SeasonRewardPage() {
       enabled: Boolean(isAuthenticated),
     });
 
-  // Loading state - only wait for seasons if not authenticated
-  const isLoading = isAuthenticated
-    ? seasonsLoading || rewardsLoading || claimsLoading
-    : seasonsLoading;
-
   // Get completed seasons
   const completedSeasons = pipe(
     Option.fromNullable(seasons),
     Option.map(A.filter((s) => s.status === 'completed')),
     Option.getOrElse(() => [] as NonNullable<typeof seasons>),
   );
+
+  // Fetch vester info for first completed season (they share the same vester config)
+  const firstCompletedSeasonId = pipe(
+    A.head(completedSeasons),
+    Option.map((s) => SeasonId.make(s.id)),
+    Option.getOrUndefined,
+  );
+
+  const { data: vesterInfo, isLoading: vesterLoading } =
+    api.seasonReward.getVesterInfo.useQuery(
+      { seasonId: firstCompletedSeasonId! },
+      {
+        enabled: Boolean(firstCompletedSeasonId),
+        retry: false,
+      },
+    );
+
+  // Loading state - only wait for seasons if not authenticated
+  const isLoading = isAuthenticated
+    ? seasonsLoading || rewardsLoading || claimsLoading
+    : seasonsLoading;
 
   // Build season data with rewards if available
   const seasonsWithRewards = completedSeasons.map((season) => {
@@ -65,6 +83,40 @@ export default function SeasonRewardPage() {
     <div>
       <PageHeader>Season Rewards</PageHeader>
 
+      {/* 2-Step Process Explanation */}
+      <div className="mt-6 mb-6 rounded-lg border border-white/10 bg-white/5 p-4">
+        <p className="mb-3 font-medium text-sm text-white/80">
+          Getting your season rewards is a 2-step process:
+        </p>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="flex flex-1 items-start gap-2">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500/20 text-green-400 text-xs font-bold">
+              1
+            </div>
+            <div>
+              <p className="font-medium text-sm text-white">Claim</p>
+              <p className="text-white/60 text-xs">
+                Claim your reward pool units to your wallet. No penalty or
+                vesting applies.
+              </p>
+            </div>
+          </div>
+          <ArrowRight className="mx-2 hidden h-4 w-4 shrink-0 text-white/40 sm:block" />
+          <div className="flex flex-1 items-start gap-2">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">
+              2
+            </div>
+            <div>
+              <p className="font-medium text-sm text-white">Redeem</p>
+              <p className="text-white/60 text-xs">
+                Redeem pool units for XRD. Early redemption incurs a penalty
+                until vesting completes.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div className="mt-6">
         {isLoading ? (
           <LoadingSkeleton />
@@ -87,6 +139,7 @@ export default function SeasonRewardPage() {
                 amount={season.amount}
                 claims={season.claims}
                 hasReward={season.hasReward}
+                vesterInfo={vesterInfo}
                 onClaim={
                   season.hasReward
                     ? () => {

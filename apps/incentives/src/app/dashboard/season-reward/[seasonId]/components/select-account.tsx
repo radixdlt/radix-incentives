@@ -1,5 +1,5 @@
 import { Duration } from 'effect';
-import { CheckCircle, Clock, Timer } from 'lucide-react';
+import { CheckCircle, Clock, ShieldCheck, Timer } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { Button } from '~/components/ui/button';
 import {
@@ -124,8 +124,18 @@ export function SelectAccount({
       <h2 className="font-bold text-xl">{title}</h2>
       <div className="flex flex-col items-center space-y-4">
         <p className="text-muted-foreground text-sm">
-          Choose an account that will receive your season reward tokens.
+          Choose an account that will receive your season reward pool units.
         </p>
+
+        {/* No penalty message */}
+        <div className="flex items-center gap-2 rounded-lg border border-green-500/30 bg-green-500/10 px-4 py-2">
+          <ShieldCheck className="h-4 w-4 shrink-0 text-green-400" />
+          <p className="text-left text-green-300 text-xs">
+            Claiming has no penalty. You can claim all your pool units at any
+            time.
+          </p>
+        </div>
+
         <div className="w-full max-w-xs">
           <SelectAccountButton onSelectAccount={onSelectAccount} />
         </div>

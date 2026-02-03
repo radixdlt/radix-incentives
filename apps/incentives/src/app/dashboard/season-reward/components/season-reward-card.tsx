@@ -1,5 +1,5 @@
 import BigNumber from 'bignumber.js';
-import { CheckCircle, Clock, Coins, XCircle } from 'lucide-react';
+import { CheckCircle, Clock, Coins, TrendingUp, XCircle } from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -12,6 +12,11 @@ type Claim = {
   status: string;
 };
 
+type VesterInfo = {
+  currentValuePerUnit: string;
+  maturityValuePerUnit: string;
+};
+
 type SeasonRewardCardProps = {
   seasonId: string;
   seasonName: string;
@@ -20,6 +25,7 @@ type SeasonRewardCardProps = {
   onClaim?: () => void;
   showRedeem?: boolean;
   hasReward?: boolean;
+  vesterInfo?: VesterInfo;
 };
 
 type ClaimStatus = 'unclaimed' | 'partial' | 'claimed' | 'pending';
@@ -95,12 +101,23 @@ export const SeasonRewardCard = ({
   onClaim,
   showRedeem = false,
   hasReward = true,
+  vesterInfo,
 }: SeasonRewardCardProps) => {
   const { status, claimedAmount } = getClaimStatus(amount, claims);
   const remainingAmount = new BigNumber(amount).minus(claimedAmount);
 
   // Show "no reward" state when hasReward is false
   const displayStatus = hasReward ? status : 'unclaimed';
+
+  // Calculate XRD values if vesterInfo is available
+  const currentXrdValue =
+    hasReward && vesterInfo
+      ? new BigNumber(amount).multipliedBy(vesterInfo.currentValuePerUnit)
+      : null;
+  const maturityXrdValue =
+    hasReward && vesterInfo
+      ? new BigNumber(amount).multipliedBy(vesterInfo.maturityValuePerUnit)
+      : null;
 
   return (
     <Card className="p-6" noHover>
@@ -124,16 +141,35 @@ export const SeasonRewardCard = ({
         <div>
           <div
             className={cn(
-              'font-bold text-3xl',
+              'flex items-baseline gap-2 font-bold text-3xl',
               hasReward ? 'gradient-text' : 'text-white/40',
             )}
           >
             {hasReward ? formatAmount(amount) : '—'}
+            {hasReward && (
+              <span className="font-medium text-base text-white/60">
+                Reward Pool Units
+              </span>
+            )}
           </div>
-          <div className="text-sm text-white/60">Total Reward</div>
+          {/* XRD Values inline */}
+          {hasReward && vesterInfo && currentXrdValue && maturityXrdValue && (
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-xs">
+              <span className="text-white/50">Worth</span>
+              <span className="text-green-400">
+                {formatAmount(currentXrdValue.toString())} XRD
+              </span>
+              <span className="text-white/30">→</span>
+              <span className="flex items-center gap-1 text-blue-400">
+                <TrendingUp className="h-3 w-3" />
+                {formatAmount(maturityXrdValue.toString())} XRD
+              </span>
+              <span className="text-white/40">at maturity</span>
+            </div>
+          )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 border-white/10 border-t pt-4">
+        <div className="grid grid-cols-2 gap-4 rounded-lg bg-white/5 p-3">
           <div>
             <div className="text-white/60 text-xs">Claimed</div>
             <div

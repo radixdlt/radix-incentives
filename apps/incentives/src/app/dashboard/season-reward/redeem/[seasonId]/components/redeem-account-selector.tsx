@@ -1,6 +1,6 @@
 import { useForm, useStore } from '@tanstack/react-form';
 import BigNumber from 'bignumber.js';
-import { Wallet } from 'lucide-react';
+import { AlertTriangle, Wallet } from 'lucide-react';
 import { useState } from 'react';
 import { Button } from '~/components/ui/button';
 import { Input } from '~/components/ui/input';
@@ -126,6 +126,17 @@ export const RedeemAccountSelector = ({
 
   return (
     <div className="space-y-6">
+      {/* Early redemption warning */}
+      {!isMatured && (
+        <div className="flex items-start gap-2 rounded-lg border border-orange-500/30 bg-orange-500/10 px-4 py-3">
+          <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
+          <p className="text-left text-orange-300 text-xs">
+            Redeeming before vesting completes will forfeit a portion of your
+            rewards. Wait until maturity to receive the full XRD value.
+          </p>
+        </div>
+      )}
+
       <div>
         <Label className="mb-2 block font-bold">Select Account</Label>
         <Select
