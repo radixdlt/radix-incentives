@@ -16,6 +16,15 @@ params:
   SNAPSHOT_BATCH_SIZE: 1000
   VAULT_TOKEN_FILE: "/vault/secrets/token"
 
+podAnnotations:
+  vault.hashicorp.com/agent-inject: 'true'
+  vault.hashicorp.com/agent-inject-token: 'true'
+  vault.hashicorp.com/auth-type: 'aws'
+  vault.hashicorp.com/auth-path: 'auth/aws'
+  vault.hashicorp.com/auth-config-type: 'iam'
+  vault.hashicorp.com/role: 'role-incentives-prod'
+  vault.hashicorp.com/service: 'https://vault.vault.svc.cluster.local:8200'
+  vault.hashicorp.com/tls-skip-verify: 'true'
   
 secrets:
   - external_secret_name: workers-postgres-url
