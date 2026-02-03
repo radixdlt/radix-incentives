@@ -21,6 +21,12 @@ import {
   HexFromBase64Schema,
 } from '../schemas';
 
+/** Sanitizes an HTTP error by removing headers (contains X-Vault-Token) */
+const sanitizeHttpError = (error: { request?: object }) => ({
+  ...error,
+  request: error.request && { ...error.request, headers: undefined },
+});
+
 const SignResponseSchema = Schema.asSchema(
   Schema.transformOrFail(
     Schema.Struct({
@@ -138,7 +144,9 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
         times: 3,
       }),
       HttpClient.tapError((error) =>
-        Effect.logError('Vault request error', { error }),
+        Effect.logError('Vault request error', {
+          error: sanitizeHttpError(error),
+        }),
       ),
       HttpClient.tap((response) =>
         response.status >= 200 && response.status < 300
@@ -168,7 +176,6 @@ export class Vault extends Effect.Service<Vault>()('Vault', {
             },
           })
           .pipe(
-            Effect.tapError(Effect.logError),
             Effect.flatMap((response) => response.json),
             Effect.flatMap(Schema.decodeUnknown(PublicKeyResponseSchema)),
           );
