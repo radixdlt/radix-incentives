@@ -147,6 +147,11 @@ export class GatewayApiClientService extends Effect.Service<GatewayApiClientServ
                 gatewayApiClient.state.innerClient,
               ),
             ),
+            accountLockerVaultsPage: wrapMethod(
+              gatewayApiClient.state.innerClient.accountLockerVaultsPage.bind(
+                gatewayApiClient.state.innerClient,
+              ),
+            ),
           },
         },
         // Stream API methods

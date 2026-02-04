@@ -14,6 +14,7 @@ import { api, type RouterOutputs } from '~/trpc/react';
 import { SeasonRewardCard } from '../components/season-reward-card';
 import { SlideIn } from '../helpers/slideIn';
 import { ClaimTransactionList } from './components/claim-transaction-list';
+import { LockerClaimSection } from './components/locker-claim-section';
 import { PageHeader } from './components/page-header';
 import { RequestClaimForm } from './components/request-claim-form';
 import { SelectAccount } from './components/select-account';
@@ -69,6 +70,14 @@ export default function SeasonRewardDetailPage() {
         },
       },
     );
+
+  // Check for tokens in account locker
+  const { data: lockerBalances } = api.seasonReward.getLockerBalances.useQuery(
+    { seasonId: brandedSeasonId },
+    {
+      enabled: Boolean(vesterInfo),
+    },
+  );
   const claimsList = pipe(
     Option.fromNullable(claims),
     Option.getOrElse(() => A.empty<Claim>()),
@@ -79,7 +88,11 @@ export default function SeasonRewardDetailPage() {
     Option.getOrUndefined,
   );
   const hasPendingClaim = claimsList.some((c) => c.status === 'pending');
+  const successfulClaimsCount = claimsList.filter(
+    (c) => c.status === 'success',
+  ).length;
   const claimsCountRef = useRef(claimsList.length);
+  const successfulClaimsCountRef = useRef(successfulClaimsCount);
 
   // Clear awaiting state when a new claim appears
   useEffect(() => {
@@ -88,6 +101,14 @@ export default function SeasonRewardDetailPage() {
     }
     claimsCountRef.current = claimsList.length;
   }, [claimsList.length, isAwaitingClaim]);
+
+  // Refresh locker balances when a new successful claim appears
+  useEffect(() => {
+    if (successfulClaimsCount > successfulClaimsCountRef.current) {
+      utils.seasonReward.getLockerBalances.invalidate();
+    }
+    successfulClaimsCountRef.current = successfulClaimsCount;
+  }, [successfulClaimsCount, utils.seasonReward.getLockerBalances]);
 
   const claimedAmount = claimsList.reduce(
     (acc, claim) => (claim.status === 'success' ? acc.plus(claim.amount) : acc),
@@ -191,7 +212,7 @@ export default function SeasonRewardDetailPage() {
           noHover
           className="min-w-0 flex flex-col gap-2 overflow-hidden p-6 sm:col-span-5"
         >
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-col gap-4">
             <AnimatePresence mode="wait">
               {!selectedAccount ? (
                 <SlideIn key="account-selection">
@@ -215,6 +236,21 @@ export default function SeasonRewardDetailPage() {
                 </SlideIn>
               )}
             </AnimatePresence>
+
+            {/* Show locker claim section if there are tokens in locker */}
+            {lockerBalances &&
+              lockerBalances.length > 0 &&
+              vesterInfo?.lockerAddress &&
+              vesterInfo?.poolUnitResourceAddress && (
+                <LockerClaimSection
+                  lockerBalances={lockerBalances}
+                  lockerAddress={vesterInfo.lockerAddress}
+                  poolUnitResourceAddress={vesterInfo.poolUnitResourceAddress}
+                  onClaimSuccess={() => {
+                    utils.seasonReward.getLockerBalances.invalidate();
+                  }}
+                />
+              )}
           </div>
         </Card>
 
