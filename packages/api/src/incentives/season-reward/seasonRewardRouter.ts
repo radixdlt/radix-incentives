@@ -9,6 +9,7 @@ import { SeasonService } from '../season/season';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';
 import { effectSchemaParser, ResponseError } from '../trpc/helpers';
 import { WorkerApiClient } from '../worker/WorkerApiClient';
+import { AccountLockerService } from './accountLockerService';
 import { SeasonVesterService } from './incentives-vester/seasonVester';
 import { SeasonRewardService } from './seasonReward';
 import { SeasonRewardClaim } from './seasonRewardClaim';
@@ -215,6 +216,29 @@ export const seasonRewardRouter = createTRPCRouter({
             ),
           ),
           Effect.provide(SeasonVesterService.Default),
+        ),
+      ),
+    ),
+
+  /**
+   * Gets the locker balances for accounts that received tokens via locker deposits.
+   */
+  getLockerBalances: protectedProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .query(({ ctx, input }) =>
+      resolveEffect(
+        pipe(
+          AccountLockerService,
+          Effect.flatMap((service) =>
+            service.getLockerBalances({
+              seasonId: input.seasonId,
+              userId: UserId.make(ctx.session.user.id),
+            }),
+          ),
+          Effect.catchTag('SeasonVesterNotConfiguredError', () =>
+            Effect.succeed([]),
+          ),
+          Effect.provide(AccountLockerService.Default),
         ),
       ),
     ),

@@ -42,6 +42,7 @@ export type SeasonVesterInfo = {
   currentValuePerUnit: Amount;
   maturityValuePerUnit: Amount;
   vestEndTimestamp: string | null;
+  lockerAddress: string;
 };
 
 const networkId = NetworkId.make(defaultAppConfig.networkId);
@@ -146,6 +147,7 @@ export class SeasonVesterService extends Effect.Service<SeasonVesterService>()(
           currentValuePerUnit: Amount(currentValuePerUnit.toString()),
           maturityValuePerUnit: Amount(maturityValuePerUnit.toString()),
           vestEndTimestamp: vestEndTimestamp?.toISOString() ?? null,
+          lockerAddress: vesterState.locker,
         };
       });
 

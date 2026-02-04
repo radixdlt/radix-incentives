@@ -232,6 +232,7 @@ export type GetUserSeasonRewardClaimOutput = {
   amount: string;
   status: 'pending' | 'success' | 'failed';
   transactionId: string;
+  accountAddress: string;
 };
 
 export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
@@ -745,6 +746,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                 status: userSeasonRewardClaims.status,
                 transactionId: userSeasonRewardClaims.transactionId,
                 createdAt: userSeasonRewardClaims.createdAt,
+                accountAddress: userSeasonRewardClaims.accountAddress,
               })
               .from(userSeasonRewardClaims)
               .where(
@@ -772,6 +774,7 @@ export class SeasonRewardService extends Effect.Service<SeasonRewardService>()(
                 status: userSeasonRewardClaims.status,
                 transactionId: userSeasonRewardClaims.transactionId,
                 createdAt: userSeasonRewardClaims.createdAt,
+                accountAddress: userSeasonRewardClaims.accountAddress,
               })
               .from(userSeasonRewardClaims)
               .where(eq(userSeasonRewardClaims.userId, input.userId))

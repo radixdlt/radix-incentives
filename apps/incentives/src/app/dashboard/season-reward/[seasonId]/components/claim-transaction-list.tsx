@@ -108,15 +108,53 @@ const PendingClaimRow = () => {
   );
 };
 
+type ClaimTransactionListProps = {
+  claims: Claim[];
+  isLoading?: boolean;
+  isAwaitingClaim?: boolean;
+};
+
+const ClaimRow = ({ claim, index }: { claim: Claim; index: number }) => {
+  return (
+    <motion.div
+      key={claim.transactionId}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: index * 0.05 }}
+      className="flex items-center justify-between gap-4 px-4 py-3"
+    >
+      <div className="flex flex-col gap-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="font-medium text-sm text-white">
+            {formatAmount(claim.amount)}
+          </span>
+          <StatusBadge status={claim.status} />
+        </div>
+        <span className="text-white/50 text-xs">
+          {formatDate(claim.createdAt)}
+        </span>
+      </div>
+      <a
+        href={`https://dashboard.radixdlt.com/transaction/${claim.transactionId}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-1 text-white/60 text-xs transition-colors hover:text-white"
+        title={claim.transactionId}
+      >
+        <span className="hidden sm:inline">
+          {truncateTransactionId(claim.transactionId)}
+        </span>
+        <ExternalLink className="h-3.5 w-3.5" />
+      </a>
+    </motion.div>
+  );
+};
+
 export const ClaimTransactionList = ({
   claims,
   isLoading,
   isAwaitingClaim,
-}: {
-  claims: Claim[];
-  isLoading?: boolean;
-  isAwaitingClaim?: boolean;
-}) => {
+}: ClaimTransactionListProps) => {
   if (isLoading) {
     return <ClaimTransactionSkeleton />;
   }
@@ -142,37 +180,7 @@ export const ClaimTransactionList = ({
         </AnimatePresence>
         <AnimatePresence>
           {claims.map((claim, index) => (
-            <motion.div
-              key={claim.transactionId}
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.05 }}
-              className="flex items-center justify-between gap-4 px-4 py-3"
-            >
-              <div className="flex flex-col gap-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-medium text-sm text-white">
-                    {formatAmount(claim.amount)}
-                  </span>
-                  <StatusBadge status={claim.status} />
-                </div>
-                <span className="text-white/50 text-xs">
-                  {formatDate(claim.createdAt)}
-                </span>
-              </div>
-              <a
-                href={`https://dashboard.radixdlt.com/transaction/${claim.transactionId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1 text-white/60 text-xs transition-colors hover:text-white"
-                title={claim.transactionId}
-              >
-                <span className="hidden sm:inline">
-                  {truncateTransactionId(claim.transactionId)}
-                </span>
-                <ExternalLink className="h-3.5 w-3.5" />
-              </a>
-            </motion.div>
+            <ClaimRow key={claim.transactionId} claim={claim} index={index} />
           ))}
         </AnimatePresence>
       </div>

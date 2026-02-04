@@ -610,7 +610,10 @@ export class IncentivesVesterStateService extends Effect.Service<IncentivesVeste
                         message: 'Incentives vester not found',
                       }),
                   ),
-                  (result) => result.state.state[0],
+                  (result) => ({
+                    ...result.state.state[0],
+                    locker: result.state.locker,
+                  }),
                 ),
               ),
             );
