@@ -1,4 +1,4 @@
-import { Config, Effect, Ref } from 'effect';
+import { Config, Duration, Effect, Ref } from 'effect';
 import { AddComponentCallsService } from '../component/addComponentCalls';
 import { ConfigService } from '../config/configService';
 import { AddToEventQueueService } from '../events/addToEventQueue';
@@ -57,6 +57,10 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
         'TRANSACTION_STREAM_EVENT_PROCESSING_ENABLED',
       ).pipe(Config.withDefault(true));
 
+      const noTransactionsSleepDuration = yield* Config.duration(
+        'TRANSACTION_STREAM_SLEEP_DURATION',
+      ).pipe(Config.withDefault(Duration.minutes(1)));
+
       return {
         run: Effect.fn(function* () {
           const currentState = yield* Ref.get(
@@ -85,6 +89,16 @@ export class TransactionStreamLoopService extends Effect.Service<TransactionStre
               stateVersion: nextStateVersion,
               registeredFeePayers,
             } = yield* transactionStreamService(stateVersion).pipe(
+              Effect.tap((result) =>
+                Effect.gen(function* () {
+                  if (result.transactions.length === 0) {
+                    yield* Effect.log(
+                      `no transactions found, sleeping for ${noTransactionsSleepDuration.pipe(Duration.toSeconds)} seconds`,
+                    );
+                    yield* Effect.sleep(noTransactionsSleepDuration);
+                  }
+                }),
+              ),
               Effect.flatMap(filterTransactionsService),
             );
 
