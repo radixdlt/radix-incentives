@@ -1,4 +1,5 @@
 import { Config, Effect, Layer, Schedule } from 'effect';
+import { GatewayApiClientService } from '../../common/gateway';
 import { GetLedgerStateService } from '../../common/gateway/getLedgerState';
 import { ConfigService } from '../config/configService';
 import { MarginAccountDbService } from '../surge/marginAccountDbService';
@@ -107,6 +108,7 @@ export const transactionStreamLoopProgram = async () => {
       UpdateMarginAccountOwnerService.Default,
     ),
   ).pipe(
+    Effect.provide(GatewayApiClientService.Default),
     Effect.provideService(
       TransactionStreamLoopState,
       sharedTransactionStreamState,
