@@ -4,6 +4,7 @@ import {
   type TransactionStream,
 } from 'radix-transaction-stream';
 import { createRadixNetworkClient } from 'radix-web3.js';
+import { GatewayApiClientService } from '../../common/gateway';
 
 type TransformTransactionResultOutput = ReturnType<
   Awaited<ReturnType<TransactionStream['next']>>['_unsafeUnwrap']
@@ -38,6 +39,7 @@ export class TransactionStreamService extends Effect.Service<TransactionStreamSe
       const transactionStreamClient = createTransactionStream({
         gatewayApi: createRadixNetworkClient({
           networkId: 1,
+          gatewayApiClient: (yield* GatewayApiClientService).rawClient,
         }),
         optIns: {
           detailed_events: true,
