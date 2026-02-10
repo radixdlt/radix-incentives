@@ -1,6 +1,6 @@
 image: 
   tag: {{ .StateValues.ci.tag }}
-
+replicaCount: 0
 params:
   DATABASE_URL: "postgresql://postgres:secretString123@postgres-postgresql:5432/incentives"
   REDIS_HOST: "redis-master"
