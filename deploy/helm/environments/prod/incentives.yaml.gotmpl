@@ -19,11 +19,6 @@ secrets:
     aws_secret_name: "rtlj-prod/eks/incentives/mainnet/postgres"
     aws_secret_key: "database-url"
     secret_key: "database-url"
-  - external_secret_name: incentives-postgres-read-url
-    env_variable: "DATABASE_READ_URL"
-    aws_secret_name: "rtlj-prod/eks/incentives/mainnet/postgres"
-    aws_secret_key: "database-read-url"
-    secret_key: "database-read-url"
   - external_secret_name: incentives-radix-charts-key
     env_variable: "RADIX_CHARTS_AUTHORIZATION_TOKEN"
     aws_secret_name: "rtlj-prod/eks/incentives/mainnet/secrets"
