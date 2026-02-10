@@ -10,6 +10,7 @@ params:
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
   WORKERS_API_BASE_URL: "http://worker:3003"
+  APPLICATION_NAME: "incentives-dev"
 
 secrets:
   - external_secret_name: transaction-stream-postgres-url

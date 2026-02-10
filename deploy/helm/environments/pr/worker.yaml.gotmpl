@@ -18,6 +18,7 @@ params:
   VAULT_BASE_URL: "https://vault.vault.svc.cluster.local:8200"
   VAULT_KEY_NAME: "incentives-xrd-distributer"
   VAULT_TOKEN_FILE: "/vault/secrets/token"
+  APPLICATION_NAME: "incentives-pr-{{ .StateValues.ci.prNumber }}"
 
 podAnnotations:
   vault.hashicorp.com/agent-inject: 'true'

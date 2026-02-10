@@ -10,6 +10,7 @@ params:
   OTLP_BASE_URL: "http://opentelemetry-collector.monitoring:4318"
   OTEL_RESOURCE_ATTRIBUTES: "service.namespace={{ .Release.Namespace }},deployment.environment={{ .Release.Namespace }}"
   TOKEN_PRICE_SERVICE_URL: "https://token-price-service.radixdlt.com/price/historicalPrice"
+  APPLICATION_NAME: "incentives-perftest"
 
 secrets:
   - external_secret_name: transaction-stream-postgres-url
