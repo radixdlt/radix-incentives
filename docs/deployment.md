@@ -423,6 +423,86 @@ Based on production configuration:
 
 ---
 
+## Surge Margin Account Seeding
+
+Existing Surge margin accounts must be seeded once into the `margin_accounts` table after initial deployment. After that, the Streamer automatically picks up new margin accounts from the transaction stream.
+
+> **Critical:** The Streamer must be running **before** you take the margin account snapshot. Otherwise, margin accounts created between the snapshot and Streamer start will be missed.
+
+### 1. Export margin accounts from a Gateway node
+
+You will need to know all current margin accounts. This data is not easily available through the public Gateway API. Query the **underlying PostgreSQL database** of a Gateway node:
+
+```sql
+SELECT address, from_state_version FROM entities WHERE
+    blueprint_name = 'MarginAccount' AND
+    correlated_entity_ids[array_position(correlated_entity_relationships, 'component_to_instantiating_package')] = 3470077
+```
+
+### 2. Format as CSV
+
+```csv
+#,from_state_version,address
+1,12345678,component_rdx1czaulwngn258tkk5xpvhgsyrfx5e4f7eu4pafhxe0hpkvafndtmwnk
+2,12345679,component_rdx1cra2j3w7cv9zkrv4jehjz0qn3xffxdkstucxar4xy9kyu0tpxsvya6
+3,12345680,component_rdx1cr3psyfptwkktqusfg8ngtupr4wwfg32kz2xvh9tqh4c7pwkvlk2kn
+```
+
+Only the `address` column is required; `#` and `from_state_version` are ignored (but please provide a placeholder value for them if you omit them).
+
+### 3. Upload via Admin Dashboard
+
+Navigate to **Margin Accounts** (`/margin-accounts`) in the Admin Dashboard and upload the CSV. The system queries the blockchain for each account's ownership data and populates the database. This can take a while as it needs to query each margin account component individually.
+
+---
+
+## Component Call Whitelist
+
+The `component_calls` activity category only tracks calls to whitelisted components. To set up the whitelist, query all components and their call counts from a Gateway node database, then upload the ones you want to allow. This process needs to be repeated every time the whitelist needs updating — typically once a week.
+
+### 1. Query component call counts from a Gateway node
+
+Run this on the **underlying PostgreSQL database** of a Gateway node:
+
+```sql
+SELECT * FROM
+    (SELECT
+         matched_component,
+         count(*) as number_of_calls
+     FROM (
+              SELECT
+                  lt.state_version,
+                  manifest_instructions,
+                  unnest(array_agg(DISTINCT match[1])) AS matched_component
+              FROM ledger_transactions lt,
+                   LATERAL regexp_matches(lt.manifest_instructions, 'CALL_METHOD\s*Address\(""(component_[a-zA-Z0-9]+)""\)','g') AS match
+              WHERE
+                  regexp_like(lt.manifest_instructions, 'CALL_METHOD\s*Address\(""component_[a-zA-Z0-9]+""\)')
+                AND (lt.discriminator = 'user' OR lt.discriminator = 'user_v2')
+                -- AND lt.state_version > {previousMaxStateVersion}
+              GROUP BY lt.state_version
+          ) nested
+     GROUP BY matched_component) values
+        INNER JOIN LATERAL (SELECT MAX(state_version) as max_state_version_when_querying from ledger_transactions) lat on true
+order by values.number_of_calls desc
+```
+
+### 2. Format and upload as CSV
+
+Filter the results to components you want to whitelist (e.g. more than 100 calls — the threshold is arbitrary) and format as CSV:
+
+```csv
+#,matched_component,count
+1,component_rdx1czaulwngn258tkk5xpvhgsyrfx5e4f7eu4pafhxe0hpkvafndtmwnk,1946834
+2,component_rdx1cra2j3w7cv9zkrv4jehjz0qn3xffxdkstucxar4xy9kyu0tpxsvya6,644833
+3,component_rdx1cr3psyfptwkktqusfg8ngtupr4wwfg32kz2xvh9tqh4c7pwkvlk2kn,520451
+```
+
+Only the `matched_component` column (containing `component_`-prefixed addresses) is required. Upload the CSV in the Admin Dashboard on the component whitelist page.
+
+---
+
+
 ## Health Checks
 
 | Service | Endpoint | Port | Response |
