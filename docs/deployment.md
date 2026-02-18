@@ -456,6 +456,52 @@ Navigate to **Margin Accounts** (`/margin-accounts`) in the Admin Dashboard and 
 
 ---
 
+## Component Call Whitelist
+
+The `component_calls` activity category only tracks calls to whitelisted components. To set up the whitelist, query all components and their call counts from a Gateway node database, then upload the ones you want to allow. This process needs to be repeated every time the whitelist needs updating — typically once a week.
+
+### 1. Query component call counts from a Gateway node
+
+Run this on the **underlying PostgreSQL database** of a Gateway node:
+
+```sql
+SELECT * FROM
+    (SELECT
+         matched_component,
+         count(*) as number_of_calls
+     FROM (
+              SELECT
+                  lt.state_version,
+                  manifest_instructions,
+                  unnest(array_agg(DISTINCT match[1])) AS matched_component
+              FROM ledger_transactions lt,
+                   LATERAL regexp_matches(lt.manifest_instructions, 'CALL_METHOD\s*Address\(""(component_[a-zA-Z0-9]+)""\)','g') AS match
+              WHERE
+                  regexp_like(lt.manifest_instructions, 'CALL_METHOD\s*Address\(""component_[a-zA-Z0-9]+""\)')
+                AND (lt.discriminator = 'user' OR lt.discriminator = 'user_v2')
+                -- AND lt.state_version > {previousMaxStateVersion}
+              GROUP BY lt.state_version
+          ) nested
+     GROUP BY matched_component) values
+        INNER JOIN LATERAL (SELECT MAX(state_version) as max_state_version_when_querying from ledger_transactions) lat on true
+order by values.number_of_calls desc
+```
+
+### 2. Format and upload as CSV
+
+Filter the results to components you want to whitelist (e.g. more than 100 calls — the threshold is arbitrary) and format as CSV:
+
+```csv
+#,matched_component,count
+1,component_rdx1czaulwngn258tkk5xpvhgsyrfx5e4f7eu4pafhxe0hpkvafndtmwnk,1946834
+2,component_rdx1cra2j3w7cv9zkrv4jehjz0qn3xffxdkstucxar4xy9kyu0tpxsvya6,644833
+3,component_rdx1cr3psyfptwkktqusfg8ngtupr4wwfg32kz2xvh9tqh4c7pwkvlk2kn,520451
+```
+
+Only the `matched_component` column (containing `component_`-prefixed addresses) is required. Upload the CSV in the Admin Dashboard on the component whitelist page.
+
+---
+
 ## Health Checks
 
 | Service | Endpoint | Port | Response |
