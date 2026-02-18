@@ -423,6 +423,39 @@ Based on production configuration:
 
 ---
 
+## Surge Margin Account Seeding
+
+Existing Surge margin accounts must be seeded once into the `margin_accounts` table after initial deployment. After that, the Streamer automatically picks up new margin accounts from the transaction stream.
+
+> **Critical:** The Streamer must be running **before** you take the margin account snapshot. Otherwise, margin accounts created between the snapshot and Streamer start will be missed.
+
+### 1. Export margin accounts from a Gateway node
+
+You will need to know all current margin accounts. This data is not easily available through the public Gateway API. Query the **underlying PostgreSQL database** of a Gateway node:
+
+```sql
+SELECT address, from_state_version FROM entities WHERE
+    blueprint_name = 'MarginAccount' AND
+    correlated_entity_ids[array_position(correlated_entity_relationships, 'component_to_instantiating_package')] = 3470077
+```
+
+### 2. Format as CSV
+
+```csv
+#,from_state_version,address
+1,12345678,component_rdx1czaulwngn258tkk5xpvhgsyrfx5e4f7eu4pafhxe0hpkvafndtmwnk
+2,12345679,component_rdx1cra2j3w7cv9zkrv4jehjz0qn3xffxdkstucxar4xy9kyu0tpxsvya6
+3,12345680,component_rdx1cr3psyfptwkktqusfg8ngtupr4wwfg32kz2xvh9tqh4c7pwkvlk2kn
+```
+
+Only the `address` column is required; `#` and `from_state_version` are ignored (but please provide a placeholder value for them if you omit them).
+
+### 3. Upload via Admin Dashboard
+
+Navigate to **Margin Accounts** (`/margin-accounts`) in the Admin Dashboard and upload the CSV. The system queries the blockchain for each account's ownership data and populates the database. This can take a while as it needs to query each margin account component individually.
+
+---
+
 ## Health Checks
 
 | Service | Endpoint | Port | Response |
