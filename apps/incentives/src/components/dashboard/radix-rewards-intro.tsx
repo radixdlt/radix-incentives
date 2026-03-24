@@ -24,18 +24,15 @@ export const RadixRewardsIntro = ({ seasonId }: RadixRewardsIntroProps) => {
   const [showMilestones, setShowMilestones] = useState(false);
 
   // Fetch milestone progress data
-  const {
-    data: milestoneData,
-    isLoading,
-    isError,
-  } = api.milestones.getMilestoneProgress.useQuery(
-    {
-      seasonId: seasonId || '',
-    },
-    {
-      enabled: !!seasonId,
-    },
-  );
+  const { data: milestoneData, isLoading } =
+    api.milestones.getMilestoneProgress.useQuery(
+      {
+        seasonId: seasonId || '',
+      },
+      {
+        enabled: !!seasonId,
+      },
+    );
 
   const formatCurrency = (value: number) => {
     if (value >= 1000000) {

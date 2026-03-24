@@ -37,16 +37,39 @@ export const EditSeasonSchema = z.object({
 export type EditSeasonInput = z.infer<typeof EditSeasonSchema>;
 
 export const SeasonConfigSchema = Schema.Struct({
-  seasonRewardComponentAddress: Schema.NullOr(ComponentAddress),
-  adminAccount: Schema.NullOr(AccountSchema),
-  rewardsResourceAddress: Schema.NullOr(FungibleResourceAddress),
-  adminBadge: Schema.NullOr(BadgeSchema),
+  seasonRewardComponentAddress: Schema.optionalWith(
+    Schema.NullOr(ComponentAddress),
+    { default: () => null },
+  ),
+  adminAccount: Schema.optionalWith(Schema.NullOr(AccountSchema), {
+    default: () => null,
+  }),
+  rewardsResourceAddress: Schema.optionalWith(
+    Schema.NullOr(FungibleResourceAddress),
+    { default: () => null },
+  ),
+  adminBadge: Schema.optionalWith(Schema.NullOr(BadgeSchema), {
+    default: () => null,
+  }),
   enableAutomaticRefill: Schema.optionalWith(Schema.Boolean, {
     default: () => false,
+  }),
+  claimingEnabled: Schema.optionalWith(Schema.Boolean, {
+    default: () => true,
   }),
 });
 
 export type SeasonConfig = typeof SeasonConfigSchema.Type;
+
+/** Single source of truth for default season config values */
+const defaultSeasonConfig: SeasonConfig = {
+  seasonRewardComponentAddress: null,
+  adminAccount: null,
+  rewardsResourceAddress: null,
+  adminBadge: null,
+  enableAutomaticRefill: false,
+  claimingEnabled: true,
+};
 
 export class SeasonService extends Effect.Service<SeasonService>()(
   'SeasonService',
@@ -161,41 +184,9 @@ export class SeasonService extends Effect.Service<SeasonService>()(
                 A.head,
                 Option.flatMap(R.get('config')),
                 Option.match({
-                  onNone: () =>
-                    Effect.succeed({
-                      seasonRewardComponentAddress: null,
-                      adminAccount: null,
-                      rewardsResourceAddress: null,
-                      adminBadge: null,
-                      enableAutomaticRefill: false,
-                    }),
+                  onNone: () => Effect.succeed(defaultSeasonConfig),
                   onSome: (config) =>
-                    Schema.decodeUnknown(
-                      Schema.Struct({
-                        seasonRewardComponentAddress: Schema.optional(
-                          Schema.NullOr(ComponentAddress),
-                        ),
-                        adminAccount: Schema.optional(
-                          Schema.NullOr(AccountSchema),
-                        ),
-                        rewardsResourceAddress: Schema.optional(
-                          Schema.NullOr(FungibleResourceAddress),
-                        ),
-                        adminBadge: Schema.optional(Schema.NullOr(BadgeSchema)),
-                        enableAutomaticRefill: Schema.optional(Schema.Boolean),
-                      }),
-                    )(config).pipe(
-                      Effect.map((partialConfig) => ({
-                        seasonRewardComponentAddress:
-                          partialConfig.seasonRewardComponentAddress ?? null,
-                        adminAccount: partialConfig.adminAccount ?? null,
-                        rewardsResourceAddress:
-                          partialConfig.rewardsResourceAddress ?? null,
-                        adminBadge: partialConfig.adminBadge ?? null,
-                        enableAutomaticRefill:
-                          partialConfig.enableAutomaticRefill ?? false,
-                      })),
-                    ),
+                    Schema.decodeUnknown(SeasonConfigSchema)(config),
                 }),
               ),
             ),

@@ -56,6 +56,7 @@ const SeasonConfigSchema = Schema.Struct({
     }),
   ),
   enableAutomaticRefill: Schema.Boolean,
+  claimingEnabled: Schema.Boolean,
 });
 
 type SeasonConfig = typeof SeasonConfigSchema.Type;
@@ -73,6 +74,7 @@ const FormValuesSchema = Schema.Struct({
   rewardsResourceAddress: Schema.String,
   adminBadgeResourceAddress: Schema.String,
   enableAutomaticRefill: Schema.Boolean,
+  claimingEnabled: Schema.Boolean,
 });
 
 type FormValues = typeof FormValuesSchema.Type;
@@ -113,6 +115,7 @@ const ConfigToFormValuesSchema = Schema.transform(
         Option.getOrElse(() => ''),
       ),
       enableAutomaticRefill: config.enableAutomaticRefill,
+      claimingEnabled: config.claimingEnabled,
     }),
     encode: (formValues) => ({
       seasonRewardComponentAddress:
@@ -139,6 +142,7 @@ const ConfigToFormValuesSchema = Schema.transform(
           }
         : null,
       enableAutomaticRefill: formValues.enableAutomaticRefill,
+      claimingEnabled: formValues.claimingEnabled,
     }),
   },
 );
@@ -239,6 +243,7 @@ const SeasonConfigFormContent = ({
             : null,
           adminBadge,
           enableAutomaticRefill: value.enableAutomaticRefill,
+          claimingEnabled: value.claimingEnabled,
         },
       });
     },
@@ -471,6 +476,31 @@ const SeasonConfigFormContent = ({
                     <p className="text-muted-foreground text-sm">
                       When enabled, the vester pool will be automatically
                       refilled every 30 minutes.
+                    </p>
+                  </div>
+                  <Switch
+                    id={field.name}
+                    checked={field.state.value}
+                    onCheckedChange={(checked) => field.handleChange(checked)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
+            </form.Field>
+          </div>
+
+          <div className="space-y-4 rounded-lg border p-4">
+            <h4 className="font-medium text-sm">Claiming</h4>
+
+            <form.Field name="claimingEnabled">
+              {(field) => (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor={field.name}>Claiming Enabled</Label>
+                    <p className="text-muted-foreground text-sm">
+                      When disabled, users will no longer be able to claim
+                      rewards for this season. The frontend will show that the
+                      claiming period has ended.
                     </p>
                   </div>
                   <Switch

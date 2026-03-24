@@ -1,5 +1,12 @@
 import BigNumber from 'bignumber.js';
-import { CheckCircle, Clock, Coins, TrendingUp, XCircle } from 'lucide-react';
+import {
+  Ban,
+  CheckCircle,
+  Clock,
+  Coins,
+  TrendingUp,
+  XCircle,
+} from 'lucide-react';
 import Link from 'next/link';
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
@@ -17,7 +24,7 @@ type VesterInfo = {
   maturityValuePerUnit: string;
 };
 
-type SeasonRewardCardProps = {
+export type SeasonRewardCardProps = {
   seasonId: string;
   seasonName: string;
   amount: string;
@@ -25,10 +32,12 @@ type SeasonRewardCardProps = {
   onClaim?: () => void;
   showRedeem?: boolean;
   hasReward?: boolean;
+  claimingEnabled?: boolean;
   vesterInfo?: VesterInfo;
 };
 
 type ClaimStatus = 'unclaimed' | 'partial' | 'claimed' | 'pending';
+type DisplayStatus = ClaimStatus | 'claim-period-ended';
 
 const getClaimStatus = (
   amount: string,
@@ -56,8 +65,17 @@ const getClaimStatus = (
   return { status: 'unclaimed', claimedAmount };
 };
 
-const ClaimStatusBadge = ({ status }: { status: ClaimStatus }) => {
-  const config = {
+const ClaimStatusBadge = ({
+  status,
+  claimingEnabled = true,
+}: {
+  status: ClaimStatus;
+  claimingEnabled?: boolean;
+}) => {
+  const config: Record<
+    DisplayStatus,
+    { icon: typeof Ban; label: string; className: string }
+  > = {
     unclaimed: {
       icon: XCircle,
       label: 'Unclaimed',
@@ -78,9 +96,16 @@ const ClaimStatusBadge = ({ status }: { status: ClaimStatus }) => {
       label: 'Claimed',
       className: 'bg-green-500/20 text-green-200 border-green-500/30',
     },
+    'claim-period-ended': {
+      icon: Ban,
+      label: 'Closed',
+      className: 'bg-white/5 text-white/40 border-white/10',
+    },
   };
 
-  const { icon: Icon, label, className } = config[status];
+  const displayKey: DisplayStatus =
+    !claimingEnabled && status !== 'claimed' ? 'claim-period-ended' : status;
+  const { icon: Icon, label, className } = config[displayKey];
 
   return (
     <Badge
@@ -101,6 +126,7 @@ export const SeasonRewardCard = ({
   onClaim,
   showRedeem = false,
   hasReward = true,
+  claimingEnabled = true,
   vesterInfo,
 }: SeasonRewardCardProps) => {
   const { status, claimedAmount } = getClaimStatus(amount, claims);
@@ -127,7 +153,10 @@ export const SeasonRewardCard = ({
             {seasonName}
           </span>
           {hasReward ? (
-            <ClaimStatusBadge status={displayStatus} />
+            <ClaimStatusBadge
+              status={displayStatus}
+              claimingEnabled={claimingEnabled}
+            />
           ) : (
             <Badge
               variant="outline"
@@ -169,30 +198,37 @@ export const SeasonRewardCard = ({
           )}
         </div>
 
-        <div className="grid grid-cols-2 gap-4 rounded-lg bg-white/5 p-3">
-          <div>
-            <div className="text-white/60 text-xs">Claimed</div>
-            <div
-              className={cn(
-                'font-semibold',
-                hasReward ? 'text-green-400' : 'text-white/40',
-              )}
-            >
-              {hasReward ? formatAmount(claimedAmount.toString()) : '—'}
+        {!claimingEnabled && hasReward && status !== 'claimed' ? (
+          <div className="flex items-center gap-2 rounded-lg bg-white/5 p-3 text-white/60 text-sm">
+            <Ban className="h-4 w-4 shrink-0" />
+            <span>The claiming period for this season has ended.</span>
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4 rounded-lg bg-white/5 p-3">
+            <div>
+              <div className="text-white/60 text-xs">Claimed</div>
+              <div
+                className={cn(
+                  'font-semibold',
+                  hasReward ? 'text-green-400' : 'text-white/40',
+                )}
+              >
+                {hasReward ? formatAmount(claimedAmount.toString()) : '—'}
+              </div>
+            </div>
+            <div>
+              <div className="text-white/60 text-xs">Claimable</div>
+              <div
+                className={cn(
+                  'font-semibold',
+                  hasReward ? 'text-white' : 'text-white/40',
+                )}
+              >
+                {hasReward ? formatAmount(remainingAmount.toString()) : '—'}
+              </div>
             </div>
           </div>
-          <div>
-            <div className="text-white/60 text-xs">Claimable</div>
-            <div
-              className={cn(
-                'font-semibold',
-                hasReward ? 'text-white' : 'text-white/40',
-              )}
-            >
-              {hasReward ? formatAmount(remainingAmount.toString()) : '—'}
-            </div>
-          </div>
-        </div>
+        )}
 
         <div className="flex gap-2">
           {onClaim !== undefined && (

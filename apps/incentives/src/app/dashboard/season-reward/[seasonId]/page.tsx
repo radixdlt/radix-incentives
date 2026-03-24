@@ -3,13 +3,15 @@ import { TRPCClientError } from '@trpc/client';
 import BigNumber from 'bignumber.js';
 import { Array as A, Option, pipe } from 'effect';
 import { AnimatePresence } from 'framer-motion';
-import { Clock } from 'lucide-react';
+import { Ban, Clock } from 'lucide-react';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { type Amount, SeasonId } from 'shared/brandedTypes';
 import { toast } from 'sonner';
 import { Card } from '~/components/ui/card';
 import { EmptyState } from '~/components/ui/empty-state';
+import { Skeleton } from '~/components/ui/skeleton';
+import { useClaimingEnabled } from '~/lib/hooks/useClaimingEnabled';
 import { api, type RouterOutputs } from '~/trpc/react';
 import { SeasonRewardCard } from '../components/season-reward-card';
 import { SlideIn } from '../helpers/slideIn';
@@ -34,6 +36,9 @@ export default function SeasonRewardDetailPage() {
   const { data: seasons, isLoading: seasonsLoading } =
     api.season.getSeasons.useQuery();
   const brandedSeasonId = SeasonId.make(seasonId);
+
+  const { claimingEnabled, isLoading: claimingStatusLoading } =
+    useClaimingEnabled(seasonId);
 
   // Check if vester component is properly configured
   const {
@@ -213,31 +218,52 @@ export default function SeasonRewardDetailPage() {
           className="min-w-0 flex flex-col gap-2 overflow-hidden p-6 sm:col-span-5"
         >
           <div className="flex flex-col gap-4">
-            <AnimatePresence mode="wait">
-              {!selectedAccount ? (
-                <SlideIn key="account-selection">
-                  <SelectAccount
-                    seasonName={season?.name}
-                    onSelectAccount={setSelectedAccount}
-                    hasPendingClaim={hasPendingClaim || isAwaitingClaim}
-                    isFullyClaimed={isFullyClaimed}
-                    lastClaimAt={lastClaimAt}
-                  />
-                </SlideIn>
-              ) : (
-                <SlideIn key="claim-form">
-                  <RequestClaimForm
-                    seasonName={season?.name}
-                    selectedAccount={selectedAccount}
-                    onClearAccount={() => setSelectedAccount(undefined)}
-                    availableAmount={remainingAmount}
-                    onRequestClaim={handleClaimSeasonReward}
-                  />
-                </SlideIn>
-              )}
-            </AnimatePresence>
+            {claimingStatusLoading ? (
+              <div className="space-y-4 py-4">
+                <Skeleton className="h-6 w-48" />
+                <Skeleton className="h-10 w-full" />
+                <Skeleton className="h-10 w-full" />
+              </div>
+            ) : !claimingEnabled ? (
+              <div className="flex flex-col items-center gap-3 py-8 text-center">
+                <Ban className="h-10 w-10 text-white/40" />
+                <div>
+                  <p className="font-medium text-lg text-white">
+                    Claiming Period Ended
+                  </p>
+                  <p className="mt-1 text-sm text-white/60">
+                    The claiming period for this season has ended. Rewards can
+                    no longer be claimed.
+                  </p>
+                </div>
+              </div>
+            ) : (
+              <AnimatePresence mode="wait">
+                {!selectedAccount ? (
+                  <SlideIn key="account-selection">
+                    <SelectAccount
+                      seasonName={season?.name}
+                      onSelectAccount={setSelectedAccount}
+                      hasPendingClaim={hasPendingClaim || isAwaitingClaim}
+                      isFullyClaimed={isFullyClaimed}
+                      lastClaimAt={lastClaimAt}
+                    />
+                  </SlideIn>
+                ) : (
+                  <SlideIn key="claim-form">
+                    <RequestClaimForm
+                      seasonName={season?.name}
+                      selectedAccount={selectedAccount}
+                      onClearAccount={() => setSelectedAccount(undefined)}
+                      availableAmount={remainingAmount}
+                      onRequestClaim={handleClaimSeasonReward}
+                    />
+                  </SlideIn>
+                )}
+              </AnimatePresence>
+            )}
 
-            {/* Show locker claim section if there are tokens in locker */}
+            {/* Locker claim is independent of claiming status — users can always withdraw tokens already in their locker */}
             {lockerBalances &&
               lockerBalances.length > 0 &&
               vesterInfo?.lockerAddress &&
@@ -268,6 +294,7 @@ export default function SeasonRewardDetailPage() {
               Option.getOrElse(() => '0'),
             )}
             claims={claimsList}
+            claimingEnabled={claimingEnabled}
           />
           <ClaimTransactionList
             claims={claimsList}
