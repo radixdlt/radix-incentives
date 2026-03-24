@@ -1,14 +1,19 @@
 'use client';
 
 import { Array as A, Option, pipe } from 'effect';
-import { ArrowRight, CheckCircle, Coins } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { SeasonId } from 'shared/brandedTypes';
+import { Skeleton } from '~/components/ui/skeleton';
+import { useClaimingEnabled } from '~/lib/hooks/useClaimingEnabled';
 import { useIsAuthenticated } from '~/lib/hooks/useIsAuthenticated';
 import { api } from '~/trpc/react';
 import PageHeader from './components/header';
 import { LoadingSkeleton } from './components/loading-skeleton';
-import { SeasonRewardCard } from './components/season-reward-card';
+import {
+  SeasonRewardCard,
+  type SeasonRewardCardProps,
+} from './components/season-reward-card';
 
 export default function SeasonRewardPage() {
   const router = useRouter();
@@ -90,7 +95,7 @@ export default function SeasonRewardPage() {
         </p>
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
           <div className="flex flex-1 items-start gap-2">
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500/20 text-green-400 text-xs font-bold">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-500/20 font-bold text-green-400 text-xs">
               1
             </div>
             <div>
@@ -103,7 +108,7 @@ export default function SeasonRewardPage() {
           </div>
           <ArrowRight className="mx-2 hidden h-4 w-4 shrink-0 text-white/40 sm:block" />
           <div className="flex flex-1 items-start gap-2">
-            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 text-blue-400 text-xs font-bold">
+            <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-blue-500/20 font-bold text-blue-400 text-xs">
               2
             </div>
             <div>
@@ -132,7 +137,7 @@ export default function SeasonRewardPage() {
         ) : (
           <div className="grid gap-4 md:grid-cols-2">
             {seasonsWithRewards.map((season) => (
-              <SeasonRewardCard
+              <SeasonRewardCardWithClaimingStatus
                 key={season.seasonId}
                 seasonId={season.seasonId}
                 seasonName={season.seasonName}
@@ -140,14 +145,8 @@ export default function SeasonRewardPage() {
                 claims={season.claims}
                 hasReward={season.hasReward}
                 vesterInfo={vesterInfo}
-                onClaim={
-                  season.hasReward
-                    ? () => {
-                        router.push(
-                          `/dashboard/season-reward/${season.seasonId}`,
-                        );
-                      }
-                    : undefined
+                onNavigateToClaim={() =>
+                  router.push(`/dashboard/season-reward/${season.seasonId}`)
                 }
                 showRedeem
               />
@@ -158,3 +157,36 @@ export default function SeasonRewardPage() {
     </div>
   );
 }
+
+type SeasonRewardCardWithClaimingStatusProps = Omit<
+  SeasonRewardCardProps,
+  'onClaim' | 'claimingEnabled'
+> & {
+  onNavigateToClaim: () => void;
+};
+
+/**
+ * Wrapper that fetches claiming status per season card.
+ * Each card makes an individual query — this could be batched into a single
+ * endpoint in the future if the number of completed seasons grows large.
+ */
+const SeasonRewardCardWithClaimingStatus = ({
+  onNavigateToClaim,
+  ...props
+}: SeasonRewardCardWithClaimingStatusProps) => {
+  const { claimingEnabled, isLoading } = useClaimingEnabled(props.seasonId);
+
+  if (isLoading) {
+    return <Skeleton className="h-64 w-full rounded-lg" />;
+  }
+
+  return (
+    <SeasonRewardCard
+      {...props}
+      claimingEnabled={claimingEnabled}
+      onClaim={
+        props.hasReward && claimingEnabled ? onNavigateToClaim : undefined
+      }
+    />
+  );
+};

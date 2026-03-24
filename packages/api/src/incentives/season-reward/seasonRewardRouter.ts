@@ -58,6 +58,13 @@ export const seasonRewardRouter = createTRPCRouter({
             });
           }
 
+          if (!seasonConfig.claimingEnabled) {
+            return yield* new ResponseError({
+              code: 'BAD_REQUEST',
+              message: 'The claiming period for this season has ended.',
+            });
+          }
+
           yield* challengeService.exists(input.challenge);
 
           yield* verifyProofService.verifyAccountProof({
@@ -79,7 +86,7 @@ export const seasonRewardRouter = createTRPCRouter({
           });
         }).pipe(
           Effect.catchTags({
-            SeasonNotFoundError: () =>
+            NotFound: () =>
               new ResponseError({
                 code: 'BAD_REQUEST',
                 message: 'Season not found.',
@@ -160,6 +167,28 @@ export const seasonRewardRouter = createTRPCRouter({
       }),
     ),
   ),
+
+  isClaimingEnabled: publicProcedure
+    .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
+    .query(async ({ input }) =>
+      resolveEffect(
+        Effect.gen(function* () {
+          const seasonService = yield* SeasonService;
+          yield* seasonService.getById(input.seasonId);
+          const config = yield* seasonService.getConfig(input.seasonId);
+          return { claimingEnabled: config.claimingEnabled };
+        }).pipe(
+          Effect.catchTag('NotFound', () =>
+            Effect.fail(
+              new ResponseError({
+                code: 'NOT_FOUND',
+                message: 'Season not found.',
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
 
   getVesterInfo: publicProcedure
     .input(effectSchemaParser(Schema.Struct({ seasonId: SeasonId })))
