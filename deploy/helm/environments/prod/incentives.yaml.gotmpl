@@ -30,15 +30,15 @@ secrets:
     aws_secret_key: "token_price_service_key"
     secret_key: "token_price_service_key"
 
-ingress:
-  enabled: true
-  annotations:
-    kubernetes.io/ingress.class: nginx
-  hosts:
-    - host: incentives.radixdlt.com
-      paths:
-        - path: /
-          pathType: ImplementationSpecific
+#ingress:
+#  enabled: true
+#  annotations:
+#    kubernetes.io/ingress.class: nginx
+#  hosts:
+#    - host: incentives.radixdlt.com
+#      paths:
+#        - path: /
+#          pathType: ImplementationSpecific
 
 replicaCount: 1
 
