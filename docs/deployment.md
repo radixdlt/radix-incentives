@@ -60,6 +60,8 @@ Workers also exposes a metrics endpoint on port **9210** (Prometheus) and an emb
 | `NEXT_PUBLIC_PREVIEW_BLOCK_ENABLED` | No | &mdash; | ISO timestamp to block preview access (unset = disabled) |
 | `NEXT_PUBLIC_LIMIT_ACCESS_ENABLED` | No | `false` | Enable access limitation feature |
 | `RADIX_CHARTS_AUTHORIZATION_TOKEN` | Yes | &mdash; | API token for Radix Charts integration |
+| `TOKEN_PRICE_SERVICE_API_KEY` | Yes | &mdash; | API key for the Token Price Service (sent as `x-api-key` header) |
+| `TOKEN_PRICE_SERVICE_URL` | No | `https://token-price-service.radixdlt.com/price/historicalPrice` | Token Price Service endpoint URL (override to use a self-hosted instance) |
 | `MAX_USER_PER_IP` | No | `4` | Rate limit: max connected users per IP |
 | `SESSION_TTL` | No | `15 days` | User session time-to-live |
 
@@ -73,6 +75,8 @@ Workers also exposes a metrics endpoint on port **9210** (Prometheus) and an emb
 | `STREAMER_API_BASE_URL` | No | &mdash; | Streamer service URL (e.g. `http://localhost:3004`) |
 | `PUBLIC_INCENTIVES_API_URL` | No | &mdash; | Public Incentives app URL (for links) |
 | `PUBLIC_LOG_LEVEL` | No | &mdash; | Client-side log level (`debug`, `info`, etc.) |
+| `TOKEN_PRICE_SERVICE_API_KEY` | Yes | &mdash; | API key for the Token Price Service (sent as `x-api-key` header) |
+| `TOKEN_PRICE_SERVICE_URL` | No | `https://token-price-service.radixdlt.com/price/historicalPrice` | Token Price Service endpoint URL (override to use a self-hosted instance) |
 
 ### Workers
 
@@ -93,6 +97,8 @@ Workers also exposes a metrics endpoint on port **9210** (Prometheus) and an emb
 | `DISABLE_SCHEDULED_SNAPSHOT` | No | `false` | Disable automatic scheduled snapshot jobs |
 | `DISABLE_VESTER_REFILL` | No | `false` | Disable automatic vester refill scheduling |
 | `DISABLE_MAINTENANCE` | No | `false` | Disable automatic maintenance jobs |
+| `TOKEN_PRICE_SERVICE_API_KEY` | Yes | &mdash; | API key for the Token Price Service (sent as `x-api-key` header) |
+| `TOKEN_PRICE_SERVICE_URL` | No | `https://token-price-service.radixdlt.com/price/historicalPrice` | Token Price Service endpoint URL (override to use a self-hosted instance) |
 | `VAULT_BASE_URL` | No | `http://localhost:8200` | HashiCorp Vault URL (for reward signing) |
 | `VAULT_KEY_NAME` | No | `xrd-distribution` | Vault key name for transaction signing |
 | `VAULT_TOKEN` | Conditional | &mdash; | Vault authentication token (or use `VAULT_TOKEN_FILE`) |
@@ -120,6 +126,8 @@ Workers also exposes a metrics endpoint on port **9210** (Prometheus) and an emb
 | `TRANSACTION_STREAM_ENABLED` | No | `true` | Enable transaction stream processing |
 | `TRANSACTION_STREAM_SLEEP_DURATION` | No | `1 minute` | Sleep between poll cycles when idle |
 | `START_TIMESTAMP` | No | &mdash; | ISO timestamp to start streaming from (first run) |
+| `TOKEN_PRICE_SERVICE_API_KEY` | Yes | &mdash; | API key for the Token Price Service (sent as `x-api-key` header) |
+| `TOKEN_PRICE_SERVICE_URL` | No | `https://token-price-service.radixdlt.com/price/historicalPrice` | Token Price Service endpoint URL (override to use a self-hosted instance) |
 
 ---
 
@@ -174,6 +182,7 @@ export DAPP_DEFINITION_ADDRESS="account_rdx129zzrj4mwjwec8e6rmsvcz0hx4lp7uj3kf73
 export NEXT_PUBLIC_DAPP_DEFINITION_ADDRESS="$DAPP_DEFINITION_ADDRESS"
 export GATEWAY_URL="https://mainnet-gateway.radixdlt.com"
 export TOKEN_PRICE_SERVICE_API_KEY="your_token_here"
+# export TOKEN_PRICE_SERVICE_URL="https://your-self-hosted-instance/price/historicalPrice"  # uncomment to override default
 export VAULT_BASE_URL="http://localhost:8200/v1"
 export VAULT_TOKEN_FILE="$(pwd)/vault/secrets/token"
 ```
@@ -388,7 +397,7 @@ Secrets you need to provision per environment:
 | Secret | Used By | Description |
 |--------|---------|-------------|
 | Database URL | All services | PostgreSQL connection string |
-| Token Price Service API Key | Incentives, Workers, Streamer | API key for price data |
+| Token Price Service API Key | All services | API key for the Token Price Service (`TOKEN_PRICE_SERVICE_API_KEY`). See [Token Price Service](#token-price-service). |
 | Radix Charts API Key | Incentives | Authorization token for Radix Charts |
 | Admin JWT Secret | Admin | JWT signing key for admin authentication |
 
@@ -517,6 +526,31 @@ Kubernetes liveness and readiness probes are pre-configured in all Helm deployme
 ### Metrics
 
 Workers exposes Prometheus-compatible metrics at `GET /metrics` on port **9210**. This includes per-queue BullMQ metrics (active, completed, failed, waiting counts). Enable collection via the `metrics.enabled` Helm value and the included `ServiceMonitor` template.
+
+---
+
+## Token Price Service
+
+The platform requires a **Token Price Service** to look up historical USD prices of Radix tokens. This is used when calculating the USD value of user positions for points computation.
+
+By default, the codebase points to a hosted instance at `https://token-price-service.radixdlt.com/price/historicalPrice`. This endpoint requires an API key passed via the `x-api-key` header. If you do not have access to the hosted instance, you can deploy your own.
+
+### Self-Hosting
+
+The Token Price Service is available as an open-source repository that you can deploy independently:
+
+> **Repository:** [https://github.com/radixdlt/token-price-service](https://github.com/radixdlt/token-price-service)
+
+Follow the repository's README for deployment instructions. Once your instance is running, point the Radix Incentives stack at it by setting the `TOKEN_PRICE_SERVICE_URL` environment variable on **all four services** (Incentives, Admin, Workers, Streamer).
+
+### Configuration
+
+| Variable | Required | Default | Description |
+|----------|----------|---------|-------------|
+| `TOKEN_PRICE_SERVICE_API_KEY` | Yes | &mdash; | API key sent as the `x-api-key` request header. Required regardless of whether you use the hosted or self-hosted instance. |
+| `TOKEN_PRICE_SERVICE_URL` | No | `https://token-price-service.radixdlt.com/price/historicalPrice` | Full URL of the historical price endpoint. Set this to your self-hosted instance URL to override the default. |
+
+Both variables must be set on all services that share the `packages/api` library (Incentives, Admin, Workers, and Streamer).
 
 ---
 
