@@ -539,7 +539,7 @@ By default, the codebase points to a hosted instance at `https://token-price-ser
 
 The Token Price Service is available as an open-source repository that you can deploy independently:
 
-> **Repository:** [https://github.com/radixdlt/token-price-service](https://github.com/radixdlt/token-price-service)
+> **Repository:** [https://github.com/radixdlt/token-pricing-service](https://github.com/radixdlt/token-pricing-service)
 
 Follow the repository's README for deployment instructions. Once your instance is running, point the Radix Incentives stack at it by setting the `TOKEN_PRICE_SERVICE_URL` environment variable on **all four services** (Incentives, Admin, Workers, Streamer).
 
